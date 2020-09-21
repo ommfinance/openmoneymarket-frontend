@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
+  production: true,
+  iconRpcUrl: "https://bicon.net.solidwallet.io/api/v3"
 };

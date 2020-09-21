@@ -1,0 +1,6 @@
+<button (click)="onConnectWalletClick()">Connect wallet</button>
+<button (click)="this.persistenceService.iconexLogout()">Disconnect wallet</button>
+
+<h3 *ngIf="this.persistenceService.isIconexWalletConnected()">Connected wallet:</h3>
+<span *ngIf="this.persistenceService.isIconexWalletConnected()">Address: {{this.persistenceService.connectedIconWallet!.address}}</span><br>
+<span *ngIf="this.persistenceService.isIconexWalletConnected()">Balance: {{this.persistenceService.connectedIconWallet!.balance}}</span>
