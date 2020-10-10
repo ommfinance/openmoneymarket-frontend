@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {IconWallet} from "../models/IconWallet";
+import {IconWallet} from '../models/IconWallet';
 
 @Injectable({
   providedIn: 'root'
@@ -10,18 +10,18 @@ export class PersistenceService {
 
   constructor() { }
 
-  public iconexLogin(iconWallet: IconWallet) {
+  public iconexLogin(iconWallet: IconWallet): void {
     this.connectedIconWallet = iconWallet;
     localStorage.setItem('IconWallet', JSON.stringify(iconWallet));
   }
 
-  public iconexLogout() {
+  public iconexLogout(): void {
     this.connectedIconWallet = undefined;
-    localStorage.removeItem('IconWallet')
+    localStorage.removeItem('IconWallet');
   }
 
   public isIconexWalletConnected(): boolean {
-    return this.connectedIconWallet != undefined;
+    return this.connectedIconWallet !== undefined;
   }
 
 }
