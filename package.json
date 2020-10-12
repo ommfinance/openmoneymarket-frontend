@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "clean": "rimraf ./dist",
-    "start": "ng serve",
+    "start": "node server.js",
     "build": "ng build",
     "build:prod": "ng build --prod",
     "test": "ng test --watch=false --browsers=ChromeHeadlessCustom",
@@ -12,6 +12,10 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "build:ci": "npm run clean && npm run test && npm run build:prod"
+  },
+  "engines": {
+    "node": "12.18.3",
+    "npm": "6.14.8"
   },
   "private": true,
   "dependencies": {
