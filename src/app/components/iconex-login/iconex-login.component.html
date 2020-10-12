@@ -1,6 +1,176 @@
-<button (click)="onConnectWalletClick()">Connect wallet</button>
-<button (click)="this.persistenceService.iconexLogout()">Disconnect wallet</button>
+<!-- Header -->
+<header class="header">
+  <div class="grid grid-center">
+    <!-- Logo -->
+    <div class="grid-cell">
 
-<h3 *ngIf="this.persistenceService.isIconexWalletConnected()">Connected wallet:</h3>
-<span *ngIf="this.persistenceService.isIconexWalletConnected()">Address: {{this.persistenceService.connectedIconWallet!.address}}</span><br>
-<span *ngIf="this.persistenceService.isIconexWalletConnected()">Balance: {{this.persistenceService.connectedIconWallet!.balance}}</span>
+
+      <!-- tooltip -->
+      <span id="logo-back-container" class="tooltip hover">
+						<span class="tooltip-item"><a href="../" class="logo"><img src="assets//img/logos/omm-logo1.png" alt="Omm logo"></a></span>
+						<span id="logo-back" class="tooltip-content clearfix" style="margin-left: -105px;margin-bottom: -47px;">
+							<div class="grid">
+								<div class="grid-cell no-margin">
+									<p>Back to the OMM website</p>
+								</div>
+							</div>
+						</span>
+					</span>
+
+
+
+    </div>
+
+    <!-- Utilities -->
+    <div class="grid-cell">
+      <!-- tooltip -->
+      <span class="tooltip">
+						<span class="tooltip-item"><span id="profile" class="profile" (click)="onConnectWalletClick()"></span></span>
+						<span id="profile-tooltip" class="tooltip-content clearfix" style="margin: 0 0 -200px 59px;">
+
+							<div class="grid border-bottom">
+								<div class="grid-cell">
+									<h3 class="">Wallet</h3>
+									<p class="text-center"><a href="#" class="button text-center">Logout</a></p>
+								</div>
+							</div>
+						</span>
+					</span>
+      <div class="active-wallet">
+        <p style="color: #49546a;">Wallet</p>
+        <p class="label" *ngIf="this.persistenceService.isIconexWalletConnected()">{{this.persistenceService.connectedIconWallet!.address}}</p>
+        <p class="label" *ngIf="this.persistenceService.isIconexWalletConnected()">Balance: {{this.persistenceService.connectedIconWallet!.balance}} ICX</p>
+        <p class="label" *ngIf="!this.persistenceService.isIconexWalletConnected()">Login</p>
+      </div>
+    </div>
+  </div>
+</header>
+<!-- /Header -->
+
+<!-- Navigation -->
+<nav class="nav-height">
+  <ul>
+    <p>Navigation</p>
+    <li class="animation-underline1 active">
+      <a href="./" class="active"><img src="assets//img/icons/markets.png" width="23px"><span>Markets</span></a>
+    </li>
+    <li>
+      <a href="./"><img src="assets//img/icons/portfolio.png" style="opacity: 0.75;">Portfolio</a>
+    </li>
+    <li>
+      <a href="./"><img src="assets//img/icons/governance.png" style="opacity: 0.75;">Governance</a>
+    </li>
+    <li>
+      <a href="./"><img src="assets//img/icons/liquidation.png" style="opacity: 0.75;">Liquidation</a>
+    </li>
+  </ul>
+</nav>
+<!-- /Navigation -->
+
+<!-- Home content -->
+<main class="home">
+  <h1>Markets</h1>
+
+  <div class="grid">
+    <div class="grid-cell">
+      <!--<div class="separator"></div>-->
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque mattis vulputate erat, non suscipit nibh luctus vitae. Phasellus lobortis est in iaculis tristique. In eu ullamcorper turpis. Mauris hendrerit molestie ante.</p>
+    </div>
+    <div class="grid-cell">
+
+    </div>
+  </div>
+
+  <!-- Activity -->
+  <section class="activity" style="margin-top: 75px;">
+    <div class="grid">
+      <div class="grid-cell">
+        <table class="list">
+          <thead>
+          <tr>
+            <th>Asset</th>
+            <th>Total supplied</th>
+            <th>Supply APY</th>
+            <th>Total borrowed</th>
+            <th>Borrow APY</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr id="send-button-1" class="bridge">
+            <td><span>Bridge Dollars</span><br>USDb</td>
+            <td><span>$120.69K</span><br>120,690 USDb</td>
+            <td><span>6.47%</span><br>+$0.06 per USDb</td>
+            <td><span>$11.84K</span><br>11,840 USDb</td>
+            <td><span>7.25%</span><br>-$0.07 per USDb</td>
+          </tr>
+          <tr>
+            <td colspan="5" class="no-padding" style="background-color: transparent;">
+              <div id="wallet-expanded-1" class="grid wallet-expanded" style="display: none;">
+                <div class="grid-cell container">
+                  <h2>Supply</h2>
+                  <div class="grid">
+                    <div class="grid-cell">
+                      <p>Max: 2,000 USDb</p>
+                      <input type="text" name="deposit" placeholder="0 USDb">
+                    </div>
+                    <div class="grid-cell">
+                      <img src="assets//img/placeholders/chart.png">
+                    </div>
+                  </div>
+                  <div class="grid">
+                    <div class="grid-cell">
+                      <a href="#" class="button">Deposit</a>
+                    </div>
+                    <div class="grid-cell">
+                      <a href="#" class="button inactive">Withdraw</a>
+                    </div>
+                  </div>
+                </div>
+                <div class="grid-cell container borrow">
+                  <h2>Borrow</h2>
+                  <div class="grid">
+                    <div class="grid-cell">
+                      <p>Max: 2,000 USDb</p>
+                      <input type="text" name="deposit" placeholder="0 USDb">
+                    </div>
+                    <div class="grid-cell">
+                      <img src="assets/img/placeholders/chart2.png">
+                    </div>
+                  </div>
+                  <div class="grid">
+                    <div class="grid-cell">
+                      <a href="#" class="button">Borrow</a>
+                    </div>
+                    <div class="grid-cell">
+                      <a href="#" class="button inactive">Repay</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr id="send-button-2" class="icon">
+            <td><span>ICON</span><br>ICX</td>
+            <td><span>$120.69K</span><br>420,690 ICX</td>
+            <td><span>3.47%</span><br>+$0.03 per ICX</td>
+            <td><span>$7.12K</span><br>9,840 ICX</td>
+            <td><span>5.25%</span><br>-$0.04 per ICX</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+  <!-- /Activity -->
+</main>
+<!-- /Home content -->
+
+<!-- Modal overlay -->
+<div class="modal-overlay"></div>
+
+<!-- Scripts -->
+<script src="assets/js/vendor/modernizr-3.8.0.min.js"></script>
+<script src="assets/js/plugins.js"></script>
+<script src="assets/js/classie.js"></script>
+<script src="assets/js/main.js"></script>
+<script src="assets/js/home.js"></script>
