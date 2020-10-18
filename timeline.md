@@ -1,5 +1,4 @@
 ## 2020-10-12: Iconex, Icon connector and 1st prototype release
-
 - First release of prototype that includes Iconex login functionality and first feeling of UI.
 - Icon connector logic
 - Iconex logic (build, sign and send trasaction)
@@ -27,8 +26,9 @@
 - Increase in test coverage
 - 3rd prototype release
 
-## 2020-11-16: Integration of Ibriz SCORE USDb loan/repay flow
+## 2020-11-16: Integration of Ibriz SCORE USDb loan/repay flow, Bridge integration
 - Integration of SCORE USDb loan/repay flow (exp.dlv Nov 7)
+- Bridge integration
 - Documentation
 - Increase in test coverage
 
