@@ -7,7 +7,7 @@
 
       <!-- tooltip -->
       <span id="logo-back-container" class="tooltip hover">
-						<span class="tooltip-item"><a href="../" class="logo"><img src="assets//img/logos/omm-logo1.png" alt="Omm logo"></a></span>
+						<span class="tooltip-item"><a href="#" class="logo"><img src="assets//img/logos/omm-logo1.png" alt="Omm logo"></a></span>
 						<span id="logo-back" class="tooltip-content clearfix" style="margin-left: -105px;margin-bottom: -47px;">
 							<div class="grid">
 								<div class="grid-cell no-margin">
@@ -22,25 +22,29 @@
     </div>
 
     <!-- Utilities -->
-    <div class="grid-cell">
+    <div class="grid-cell" *ngIf="this.persistenceService.isIconexWalletConnected()">
       <!-- tooltip -->
       <span class="tooltip">
-						<span class="tooltip-item"><span id="profile" class="profile" (click)="onConnectWalletClick()"></span></span>
-						<span id="profile-tooltip" class="tooltip-content clearfix" style="margin: 0 0 -200px 59px;">
+        <span class="tooltip-item"><span id="profile" class="profile" (click)="onProfileClick()" ></span></span>
+        <span id="profile-tooltip" class="tooltip-content clearfix" style="margin: 0 0 -200px 59px;">
 
-							<div class="grid border-bottom">
-								<div class="grid-cell">
-									<h3 class="">Wallet</h3>
-									<p class="text-center"><a href="#" class="button text-center">Logout</a></p>
-								</div>
-							</div>
-						</span>
-					</span>
+          <div class="grid border-bottom">
+            <div class="grid-cell">
+              <h3 class="">Wallet</h3>
+              <p class="text-center"><a href="#" class="button text-center" (click)="this.persistenceService.iconexLogout()">Logout</a></p>
+            </div>
+          </div>
+        </span>
+      </span>
       <div class="active-wallet">
         <p style="color: #49546a;">Wallet</p>
         <p class="label" *ngIf="this.persistenceService.isIconexWalletConnected()">{{this.persistenceService.connectedIconWallet!.address}}</p>
         <p class="label" *ngIf="this.persistenceService.isIconexWalletConnected()">Balance: {{this.persistenceService.connectedIconWallet!.balance}} ICX</p>
-        <p class="label" *ngIf="!this.persistenceService.isIconexWalletConnected()">Login</p>
+      </div>
+    </div>
+    <div class="grid-cell" *ngIf="!this.persistenceService.isIconexWalletConnected()">
+      <div class="active-wallet">
+        <a href="#" class="button" (click)="onConnectWalletClick()">Sign in</a>
       </div>
     </div>
   </div>
@@ -68,7 +72,7 @@
 <!-- /Navigation -->
 
 <!-- Home content -->
-<main class="home">
+<main class="home" (click)="onMainClick()">
   <h1>Markets</h1>
 
   <div class="grid">
@@ -96,7 +100,7 @@
           </tr>
           </thead>
           <tbody>
-          <tr id="send-button-1" class="bridge">
+          <tr id="send-button-1" class="bridge" (click)="onSendButton1Click()">
             <td><span>Bridge Dollars</span><br>USDb</td>
             <td><span>$120.69K</span><br>120,690 USDb</td>
             <td><span>6.47%</span><br>+$0.06 per USDb</td>
@@ -167,10 +171,3 @@
 
 <!-- Modal overlay -->
 <div class="modal-overlay"></div>
-
-<!-- Scripts -->
-<script src="assets/js/vendor/modernizr-3.8.0.min.js"></script>
-<script src="assets/js/plugins.js"></script>
-<script src="assets/js/classie.js"></script>
-<script src="assets/js/main.js"></script>
-<script src="assets/js/home.js"></script>

@@ -30,6 +30,7 @@
     "@angular/router": "~10.1.1",
     "express": "^4.17.1",
     "icon-sdk-js": "0.0.18",
+    "jquery": "3.4.1",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.2"

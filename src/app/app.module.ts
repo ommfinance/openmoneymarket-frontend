@@ -3,12 +3,12 @@ import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { IconexLoginComponent } from './components/iconex-login/iconex-login.component';
+import { MarketsPageComponent } from './components/markets-page/markets-page.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    IconexLoginComponent
+    MarketsPageComponent
   ],
   imports: [
     BrowserModule,

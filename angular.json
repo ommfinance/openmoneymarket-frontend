@@ -31,7 +31,12 @@
               "src/styles.css"
             ],
             "scripts": [
-              "src/assets/js/vendor/jquery-3.4.1.min.js"
+              "node_modules/jquery/dist/jquery.min.js",
+              "src/assets/js/vendor/jquery-3.4.1.min.js",
+              "src/assets/js/vendor/modernizr-3.8.0.min.js",
+              "src/assets/js/plugins.js",
+              "src/assets/js/classie.js",
+              "src/assets/js/main.js"
             ]
           },
           "configurations": {
