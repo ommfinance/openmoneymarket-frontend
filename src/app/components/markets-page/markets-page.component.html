@@ -102,10 +102,12 @@
           <tbody>
           <tr id="send-button-1" class="bridge" (click)="onSendButton1Click()">
             <td><span>Bridge Dollars</span><br>USDb</td>
-            <td><span>$120.69K</span><br>120,690 USDb</td>
-            <td><span>6.47%</span><br>+$0.06 per USDb</td>
-            <td><span>$11.84K</span><br>11,840 USDb</td>
-            <td><span>7.25%</span><br>-$0.07 per USDb</td>
+            <td><span>${{this.formatNumberToNdigits(this.mockScoreService.totalSuppliedUSD)}}</span><br>
+              {{this.formatNumberToUSLocaleString(this.mockScoreService.totalSuppliedUSDb)}} USDb</td>
+            <td><span>{{this.mockScoreService.supplyApy}}%</span><br>+$0.06 per USDb</td>
+            <td><span>${{this.formatNumberToNdigits(this.mockScoreService.totalBorrowedUSD)}}</span><br>
+              {{this.formatNumberToUSLocaleString(this.mockScoreService.totalBorrowedUSDb)}} USDb</td>
+            <td><span>{{this.mockScoreService.borrowApy}}%</span><br>-$0.07 per USDb</td>
           </tr>
           <tr>
             <td colspan="5" class="no-padding" style="background-color: transparent;">
@@ -115,7 +117,7 @@
                   <div class="grid">
                     <div class="grid-cell">
                       <p>Max: 2,000 USDb</p>
-                      <input type="text" name="deposit" placeholder="0 USDb">
+                      <input type="text" name="deposit" placeholder="0 USDb" [(ngModel)]="USDbDepositAmount">
                     </div>
                     <div class="grid-cell">
                       <img src="assets//img/placeholders/chart.png">
@@ -123,7 +125,7 @@
                   </div>
                   <div class="grid">
                     <div class="grid-cell">
-                      <a href="#" class="button">Deposit</a>
+                      <a (click)="onDepositUSDbClick()" class="button">Deposit</a>
                     </div>
                     <div class="grid-cell">
                       <a href="#" class="button inactive">Withdraw</a>

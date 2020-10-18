@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import {environment} from "../../../environments/environment";
 import {IconWallet} from "../../models/IconWallet";
 import {IconApiService} from "../icon-api-service/icon-api.service";
-import {PersistenceService} from "../persistence.service";
+import {PersistenceService} from "../persistence-service/persistence.service";
 import {IconConverter } from "icon-sdk-js";
 
 @Injectable({
