@@ -36,7 +36,8 @@
               "src/assets/js/vendor/modernizr-3.8.0.min.js",
               "src/assets/js/plugins.js",
               "src/assets/js/classie.js",
-              "src/assets/js/main.js"
+              "src/assets/js/slider.js",
+              "src/assets/js/wNumb.min.js"
             ]
           },
           "configurations": {

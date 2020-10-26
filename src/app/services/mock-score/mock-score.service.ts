@@ -6,9 +6,12 @@ import { Injectable } from '@angular/core';
 export class MockScoreService {
 
   // USDb i.e. Bridge Dollars variables
-  public totalSuppliedUSD = 120690; // i.e. totalLiquidityUSD
+  public userSuppliedUSD = 120690; // i.e. userLiquidityUSD
+  public totalSuppliedUSD = 843792; // i.e. totalLiquidityUSD
   public totalSuppliedUSDb = 120690;
-  public totalBorrowedUSD = 11840; // i.e. totalBorrowUSD
+  public userBorrowedUSD = 11840; // i.e. userBorrowUSD
+  public totalBorrowedUSD = 379564; // i.e. totalBorrowUSD
+  // totalBorrowedUSD
   public totalBorrowedUSDb = 11840;
   public supplyApy = 6.47; // i.e. liquidityRate USDb?
   public borrowApy = 7.25; // i.e. borrowRate USDb?
@@ -19,9 +22,9 @@ export class MockScoreService {
   }
 
   public resetState(): void {
-    this.totalSuppliedUSD = 120690;
+    this.userSuppliedUSD = 120690;
     this.totalSuppliedUSDb = 120690;
-    this.totalBorrowedUSD = 11840;
+    this.userBorrowedUSD = 11840;
     this.totalBorrowedUSDb = 11840;
     this.supplyApy = 6.47;
     this.borrowApy = 7.25;

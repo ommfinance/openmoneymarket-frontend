@@ -1,10 +1,36 @@
+<!-- Bridge supply modal -->
+<div class="modal" id="modal-1">
+  <div class="modal-content">
+    <h3 class="text-center"><span class="adjust-label">Adjust</span> supply by <br><strong id="supply-increase">XXX USDb</strong>?</h3>
+    <div>
+      <p class="text-center">Before: <span id="supply-before"></span></p>
+      <p class="text-center">After: <span id="confirm-supply"></span></p>
+      <div class="modal-actions">
+        <a href="#" class="cancel modal-close">Cancel</a> <a href="#" id="confirm-supply-adjust" class="button">Confirm</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bridge borrow modal -->
+<div class="modal" id="modal-2">
+  <div class="modal-content">
+    <h3 class="text-center"><span class="adjust-label">Adjust</span> borrow by <br><strong id="borrow-increase">XXX USDb</strong>?</h3>
+    <div>
+      <p class="text-center">Before: <span id="borrow-before"></span></p>
+      <p class="text-center">After: <span id="confirm-borrow"></span></p>
+      <div class="modal-actions">
+        <a href="#" class="cancel modal-close">Cancel</a> <a href="#" id="confirm-borrow-adjust" class="button">Confirm</a>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Header -->
 <header class="header">
   <div class="grid grid-center">
     <!-- Logo -->
     <div class="grid-cell">
-
-
       <!-- tooltip -->
       <span id="logo-back-container" class="tooltip hover">
 						<span class="tooltip-item"><a href="#" class="logo"><img src="assets//img/logos/omm-logo1.png" alt="Omm logo"></a></span>
@@ -16,32 +42,30 @@
 							</div>
 						</span>
 					</span>
-
-
-
     </div>
 
     <!-- Utilities -->
-    <div class="grid-cell" *ngIf="this.persistenceService.isIconexWalletConnected()">
+    <div class="grid-cell"  *ngIf="this.persistenceService.isIconexWalletConnected()">
       <!-- tooltip -->
       <span class="tooltip">
-        <span class="tooltip-item"><span id="profile" class="profile" (click)="onProfileClick()" ></span></span>
-        <span id="profile-tooltip" class="tooltip-content clearfix" style="margin: 0 0 -200px 59px;">
+						<span class="tooltip-item"><span id="profile" class="profile" (click)="onProfileClick()"></span></span>
+						<span id="profile-tooltip" class="tooltip-content clearfix" style="margin: 0 0 -160px 59px;">
 
-          <div class="grid border-bottom">
-            <div class="grid-cell">
-              <h3 class="">Wallet</h3>
-              <p class="text-center"><a href="#" class="button text-center" (click)="this.persistenceService.iconexLogout()">Logout</a></p>
-            </div>
-          </div>
-        </span>
-      </span>
+							<div class="grid">
+								<div class="grid-cell">
+									<p class="text-center"><a href="#" class="button text-center"
+                                            (click)="this.persistenceService.iconexLogout()">Sign out</a></p>
+								</div>
+							</div>
+						</span>
+					</span>
       <div class="active-wallet">
         <p style="color: #49546a;">Wallet</p>
-        <p class="label" *ngIf="this.persistenceService.isIconexWalletConnected()">{{this.persistenceService.connectedIconWallet!.address}}</p>
-        <p class="label" *ngIf="this.persistenceService.isIconexWalletConnected()">Balance: {{this.persistenceService.connectedIconWallet!.balance}} ICX</p>
+        <p class="label" *ngIf="this.persistenceService.isIconexWalletConnected()">
+          {{this.persistenceService.connectedIconWallet!.address}}</p>
       </div>
     </div>
+
     <div class="grid-cell" *ngIf="!this.persistenceService.isIconexWalletConnected()">
       <div class="active-wallet">
         <a href="#" class="button" (click)="onConnectWalletClick()">Sign in</a>
@@ -55,38 +79,57 @@
 <nav class="nav-height">
   <ul>
     <p>Navigation</p>
-    <li class="animation-underline1 active">
-      <a href="./" class="active"><img src="assets//img/icons/markets.png" width="23px"><span>Markets</span></a>
+    <li>
+      <a href="#" class="active"><img src="assets/img/icons/markets.png" width="23px"><span>Markets</span></a>
     </li>
     <li>
-      <a href="./"><img src="assets//img/icons/portfolio.png" style="opacity: 0.75;">Portfolio</a>
+      <a href="#"><img src="assets/img/icons/portfolio.png" style="opacity: 0.75;">Portfolio</a>
     </li>
     <li>
-      <a href="./"><img src="assets//img/icons/governance.png" style="opacity: 0.75;">Governance</a>
+      <a href="#"><img src="assets/img/icons/governance.png" style="opacity: 0.75;">Governance</a>
     </li>
     <li>
-      <a href="./"><img src="assets//img/icons/liquidation.png" style="opacity: 0.75;">Liquidation</a>
+      <a href="#"><img src="assets/img/icons/liquidation.png" style="opacity: 0.75;">Liquidation</a>
     </li>
   </ul>
 </nav>
 <!-- /Navigation -->
 
-<!-- Home content -->
-<main class="home" (click)="onMainClick()">
-  <h1>Markets</h1>
+<!-- Markets content -->
+<main class="markets" (click)="onMainClick()">
 
-  <div class="grid">
+  <div class="grid grid-bottom">
     <div class="grid-cell">
-      <!--<div class="separator"></div>-->
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque mattis vulputate erat, non suscipit nibh luctus vitae. Phasellus lobortis est in iaculis tristique. In eu ullamcorper turpis. Mauris hendrerit molestie ante.</p>
+      <h1>Markets</h1>
+      <p>Earn interest when you supply an asset, lose interest when you borrow. Keep your risk below 100% to protect your position, and receive OMM tokens every day as a reward.</p>
     </div>
-    <div class="grid-cell">
 
+    <!-- Market overview -->
+    <div class="grid-cell market-overview">
+      <div class="grid">
+        <div class="grid-cell border-right">
+          <div class="grid legend">
+            <div class="grid-cell">
+              <p class="label">Total supplied</p>
+              <p class="text-size-25">${{this.formatNumberToUSLocaleString(this.mockScoreService.totalSuppliedUSD)}}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-cell">
+          <div class="grid legend">
+            <div class="grid-cell">
+              <p class="label">Total borrowed</p>
+              <p class="text-size-25">${{this.formatNumberToUSLocaleString(this.mockScoreService.totalBorrowedUSD)}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Activity -->
-  <section class="activity" style="margin-top: 75px;">
+  <!-- Asset list -->
+  <section style="margin-top: 75px;">
     <div class="grid">
       <div class="grid-cell">
         <table class="list">
@@ -94,72 +137,202 @@
           <tr>
             <th>Asset</th>
             <th>Total supplied</th>
-            <th>Supply APY</th>
             <th>Total borrowed</th>
+            <th>Supply APY</th>
             <th>Borrow APY</th>
           </tr>
           </thead>
           <tbody>
-          <tr id="send-button-1" class="bridge" (click)="onSendButton1Click()">
+          <tr id="asset-bridge" class="asset bridge" (click)="onAssetBridgeClick()">
             <td><span>Bridge Dollars</span><br>USDb</td>
-            <td><span>${{this.formatNumberToNdigits(this.mockScoreService.totalSuppliedUSD)}}</span><br>
-              {{this.formatNumberToUSLocaleString(this.mockScoreService.totalSuppliedUSDb)}} USDb</td>
+            <td><span>${{this.formatNumberToNdigits(this.mockScoreService.userSuppliedUSD)}}</span>
+              <br>{{this.formatNumberToUSLocaleString(this.mockScoreService.totalSuppliedUSDb)}} USDb</td>
+            <td><span>${{this.formatNumberToNdigits(this.mockScoreService.userBorrowedUSD)}}</span>
+              <br>{{this.formatNumberToUSLocaleString(this.mockScoreService.totalBorrowedUSDb)}} USDb</td>
             <td><span>{{this.mockScoreService.supplyApy}}%</span><br>+$0.06 per USDb</td>
-            <td><span>${{this.formatNumberToNdigits(this.mockScoreService.totalBorrowedUSD)}}</span><br>
-              {{this.formatNumberToUSLocaleString(this.mockScoreService.totalBorrowedUSDb)}} USDb</td>
             <td><span>{{this.mockScoreService.borrowApy}}%</span><br>-$0.07 per USDb</td>
           </tr>
           <tr>
-            <td colspan="5" class="no-padding" style="background-color: transparent;">
-              <div id="wallet-expanded-1" class="grid wallet-expanded" style="display: none;">
-                <div class="grid-cell container">
-                  <h2>Supply</h2>
-                  <div class="grid">
+            <td colspan="5" class="no-padding">
+              <div id="asset-bridge-expanded" class="grid asset-expanded" style="display: none;">
+                <!-- Supply -->
+                <div id="supply" class="grid-cell container supply">
+                  <!-- Title -->
+                  <div class="grid grid-center title">
                     <div class="grid-cell">
-                      <p>Max: 2,000 USDb</p>
-                      <input type="text" name="deposit" placeholder="0 USDb" [(ngModel)]="USDbDepositAmount">
+                      <h2>Supply</h2>
                     </div>
-                    <div class="grid-cell">
-                      <img src="assets//img/placeholders/chart.png">
+                    <div class="grid-cell text-right">
+                      <span class="text-green">6.47% APY</span>
                     </div>
                   </div>
+
+                  <!-- Chart -->
                   <div class="grid">
                     <div class="grid-cell">
-                      <a href="#" (click)="onDepositUSDbClick()" class="button">Deposit</a>
+                      <img src="assets/img/placeholders/chart3.png">
+                    </div>
+                  </div>
+
+                  <!-- Slider -->
+                  <div class="grid margin-top-35">
+                    <div class="grid-cell">
+                      <div id="bridge-supply-slider" disabled></div>
+                    </div>
+                  </div>
+
+                  <!-- Legend -->
+                  <div class="grid legend">
+                    <div class="grid-cell">
+                      <p class="label deposited">Supplied</p>
+                      <input title="Deposited supply" id="supply-deposited" disabled="" value="50 USDb">
                     </div>
                     <div class="grid-cell">
-                      <a href="#" class="button inactive">Withdraw</a>
+                      <p class="label available">Available</p>
+                      <input title="Available supply" id="supply-available" disabled="" value="50 USDb">
+                    </div>
+                  </div>
+
+                  <!-- Income -->
+                  <div class="grid legend income">
+                    <div class="grid-cell">
+                      <p class="label">Daily interest</p>
+                      <p id="supply-interest">+ 10 USDb</p>
+                    </div>
+                    <div class="grid-cell">
+                      <p class="label">Daily rewards</p>
+                      <p id="supply-rewards">+ 10 OMM</p>
+                    </div>
+                  </div>
+
+                  <!-- Button -->
+                  <div class="grid">
+                    <div class="grid-cell text-center">
+
+                      <div class="grid grid-center supply-actions">
+                        <div class="grid-cell text-center">
+                          <a class="button supply-adjust" id="supply-adjust-button" href="#" (click)="onSupplyAdjustClick()">Adjust</a>
+                        </div>
+                      </div>
+                      <div class="grid grid-center supply-actions hide">
+                        <div class="grid-cell text-right">
+                          <a id="cancel-supply-adjust" class="cancel supply-adjust" href="#" (click)="onSupplyAdjustClick()">Cancel</a>
+                        </div>
+                        <div class="grid-cell text-left">
+                          <a href="#" class="button modal-trigger" data-modal="modal-1" id="modal-trigger-1">Confirm</a>
+                        </div>
+                      </div>
+
                     </div>
                   </div>
                 </div>
-                <div class="grid-cell container borrow">
-                  <h2>Borrow</h2>
-                  <div class="grid">
+
+                <!-- Borrow -->
+                <div id="borrow" class="grid-cell container borrow">
+                  <!-- Title -->
+                  <div class="grid grid-center title">
                     <div class="grid-cell">
-                      <p>Max: 2,000 USDb</p>
-                      <input type="text" name="deposit" placeholder="0 USDb">
+                      <h2>Borrow</h2>
                     </div>
-                    <div class="grid-cell">
-                      <img src="assets/img/placeholders/chart2.png">
+                    <div class="grid-cell text-right">
+                      <span>7.25% APY</span>
                     </div>
                   </div>
+
+                  <!-- Chart -->
                   <div class="grid">
                     <div class="grid-cell">
-                      <a href="#" class="button">Borrow</a>
+                      <img src="assets/img/placeholders/chart4.png">
+                    </div>
+                  </div>
+
+                  <!-- Slider -->
+                  <div class="grid margin-top-35">
+                    <div class="grid-cell">
+                      <div id="bridge-borrow-slider" disabled></div>
+                    </div>
+                  </div>
+
+                  <!-- Legend -->
+                  <div class="grid legend">
+                    <div class="grid-cell">
+                      <p class="label deposited">Borrowed</p>
+                      <input title="Deposited borrow" id="borrow-borrowed" disabled="" value="50 USDb">
                     </div>
                     <div class="grid-cell">
-                      <a href="#" class="button inactive">Repay</a>
+                      <p class="label available">Available</p>
+                      <input title="Available borrow" id="borrow-available" disabled="" value="50 USDb">
+                    </div>
+                  </div>
+
+                  <!-- Income -->
+                  <div class="grid legend income">
+                    <div class="grid-cell">
+                      <p class="label">Daily interest</p>
+                      <p id="borrow-interest">- 10 USDb</p>
+                    </div>
+                    <div class="grid-cell">
+                      <p class="label">Daily rewards</p>
+                      <p id="borrow-rewards">+ 10 OMM</p>
+                    </div>
+                  </div>
+
+                  <!-- Button -->
+                  <div class="grid">
+                    <div class="grid-cell text-center">
+                      <div class="grid grid-center borrow-actions">
+                        <div class="grid-cell text-center">
+                          <a href="#" class="button borrow-adjust" id="borrow-adjust-button" (click)="onBorrowAdjustClick()">Adjust</a>
+                        </div>
+                      </div>
+                      <div class="grid grid-center borrow-actions hide">
+                        <div class="grid-cell text-right">
+                          <a href="#" class="cancel borrow-adjust">Cancel</a>
+                        </div>
+                        <div class="grid-cell text-left">
+                          <a href="#" class="button modal-trigger" data-modal="modal-2" id="modal-trigger-2" (click)="onBorrowAdjustClick()">Confirm</a>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+              <!-- Position overview -->
+              <div id="position-overview" class="grid position-overview" style="display: none;">
+                <div class="grid-cell position-details">
+                  <h2>Overview</h2>
+                  <!-- Income -->
+                  <div class="grid legend">
+                    <div class="grid-cell">
+                      <p class="label">Supplied</p>
+                      <p id="position-supply">$1,420</p>
+                    </div>
+                    <div class="grid-cell">
+                      <p class="label">Borrowed</p>
+                      <p><span id="position-borrow">$753</span><span class="label"> / <span id="position-borrow-limit" class="label">$3,000</span></span></p>
+                    </div>
+                  </div>
+                </div>
+                <div class="grid-cell risk">
+                  <div class="grid grid-center">
+                    <div class="grid-cell" style="max-width: 200px;">
+                      <h2>Risk <span id="risk-percentage-bridge" class="risk-percentage">35%</span></h2>
+                    </div>
+                    <div class="grid-cell">
+                      <p class="label text-right">Your entire supply will be liquidated at 100%.</p>
+                    </div>
+                  </div>
+                  <div id="risk-slider" disabled></div>
+                  <span class="label bridge">Bridge Dollars</span>
+                </div>
+              </div>
             </td>
           </tr>
-          <tr id="send-button-2" class="icon">
+          <tr id="asset-icon" class="icon asset">
             <td><span>ICON</span><br>ICX</td>
             <td><span>$120.69K</span><br>420,690 ICX</td>
-            <td><span>3.47%</span><br>+$0.03 per ICX</td>
             <td><span>$7.12K</span><br>9,840 ICX</td>
+            <td><span>3.47%</span><br>+$0.03 per ICX</td>
             <td><span>5.25%</span><br>-$0.04 per ICX</td>
           </tr>
           </tbody>
@@ -167,9 +340,9 @@
       </div>
     </div>
   </section>
-  <!-- /Activity -->
+  <!-- /Asset list -->
 </main>
-<!-- /Home content -->
+<!-- /Markets content -->
 
 <!-- Modal overlay -->
 <div class="modal-overlay"></div>
