@@ -4,8 +4,12 @@ import IconService from 'icon-sdk-js';
 export class Utils {
 
   // Returns icx value divided by the 10^18 to get normal value
-  public static ixcValueToNormalisedValue(value: number): number {
-    return value / 10 ** 18;
+  public static ixcValueToNormalisedValue(value: number | string): number {
+    if (typeof value === "string") {
+      return parseInt(value, 16) / 10 ** 18;
+    } else {
+      return value / 10 ** 18;
+    }
   }
 
   // Returns true if the address is valid EOA address, false otherwise

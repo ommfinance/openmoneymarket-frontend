@@ -1,9 +1,10 @@
 import { Injectable } from "@angular/core";
 import {Utils} from "../../common/utils";
-import IconService, { IconBuilder, IconAmount, IconConverter } from "icon-sdk-js";
-const { CallBuilder, CallTransactionBuilder, IcxTransactionBuilder, CallTransaction, IcxTransaction } = IconBuilder;
+import IconService, {IconBuilder, IconAmount, IconConverter, SignedTransaction } from 'icon-sdk-js';
+const { CallBuilder, CallTransactionBuilder, IcxTransactionBuilder,  } = IconBuilder;
 import {environment} from "../../../environments/environment";
 import {IconTransactionType} from "../../models/IconTransactionType";
+import {IconWallet} from '../../models/IconWallet';
 
 @Injectable({
   providedIn: "root"
@@ -24,29 +25,31 @@ export class IconApiService {
   }
 
   public isTxConfirmed(txHash: string): boolean {
-    return this.iconService.getTransactionResult(txHash).execute()
-      .then((res: any) => {
-        if (res.status === 1) {
-          console.log('Transaction confirmed.');
-          return true;
-        } else {
-          console.log('Transaction failed (not confirmed).');
-          return false;
-        }
-      })
-      .catch((err: any) => {
-        if (err.includes('Pending transaction')) {
-          setTimeout(this.isTxConfirmed.bind(null, txHash), 2000);
-        } else {
-          console.error(err);
-          throw String(err.message);
-        }
-      });
+    return txHash != null;
+    // TODO: uncomment
+    // return this.iconService.getTransactionResult(txHash).execute()
+    //   .then((res: any) => {
+    //     if (res.status === 1) {
+    //       console.log('Transaction confirmed.');
+    //       return true;
+    //     } else {
+    //       console.log('Transaction failed (not confirmed).');
+    //       return false;
+    //     }
+    //   })
+    //   .catch((err: any) => {
+    //     if (err.includes('Pending transaction')) {
+    //       setTimeout(this.isTxConfirmed.bind(null, txHash), 2000);
+    //     } else {
+    //       console.error(err);
+    //       throw String(err.message);
+    //     }
+    //   });
   }
 
 
   public buildTransaction(from: string, to: string, method: string, params: any, transactionType: IconTransactionType,
-                          value?: number): string {
+                          value?: number): any {
     let tx = null;
     const timestamp = (new Date()).getTime() * 1000;
     const nonce = IconConverter.toBigNumber(1);
@@ -96,5 +99,13 @@ export class IconApiService {
     }
 
     return tx;
+  }
+
+  public async sendTransaction(signedTransaction: any): Promise<any> {
+    // Send signed transaction
+    // const txHash = await this.iconService.sendTransaction(signedTransaction).execute();
+    // Print transaction hash
+    // console.log(txHash);
+    return "0x6b17886de346655d96373f2e0de494cb8d7f36ce9086cb15a57d3dcf24523c8f"; // MOCK tx hash TODO uncomment
   }
 }

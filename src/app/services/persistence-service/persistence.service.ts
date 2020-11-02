@@ -1,27 +1,41 @@
 import { Injectable } from '@angular/core';
 import {IconWallet} from '../../models/IconWallet';
+import {MockScoreService} from '../mock-score/mock-score.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PersistenceService {
 
-  public connectedIconWallet: IconWallet | undefined;
+  public iconexWallet: IconWallet | undefined;
 
-  constructor() { }
+  public USDbScoreAddress: string;
+  public lendingPoolScoreAddress: string;
+
+  constructor(private mockScoreService: MockScoreService) {
+    const allAddresses = this.mockScoreService.getAllAddresses();
+    this.USDbScoreAddress = allAddresses.collateral.USDb;
+    this.lendingPoolScoreAddress = allAddresses.systemContract.LendingPool;
+  }
 
   public iconexLogin(iconWallet: IconWallet): void {
-    this.connectedIconWallet = iconWallet;
+    this.iconexWallet = iconWallet;
     localStorage.setItem('IconWallet', JSON.stringify(iconWallet));
   }
 
   public iconexLogout(): void {
-    this.connectedIconWallet = undefined;
+    this.iconexWallet = undefined;
     localStorage.removeItem('IconWallet');
   }
 
   public isIconexWalletConnected(): boolean {
-    return this.connectedIconWallet !== undefined;
+    return this.iconexWallet != null;
+  }
+
+  public loadScoreAddresses(): void {
+    const allAddresses = this.mockScoreService.getAllAddresses();
+    this.USDbScoreAddress = allAddresses.collateral.USDb;
+    this.lendingPoolScoreAddress = allAddresses.systemContract.LendingPool;
   }
 
 }

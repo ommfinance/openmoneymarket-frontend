@@ -6,7 +6,7 @@
       <p class="text-center">Before: <span id="supply-before"></span></p>
       <p class="text-center">After: <span id="confirm-supply"></span></p>
       <div class="modal-actions">
-        <a href="#" class="cancel modal-close">Cancel</a> <a href="#" id="confirm-supply-adjust" class="button">Confirm</a>
+        <a href="javascript:void(0);" class="cancel modal-close">Cancel</a> <a href="javascript:void(0);" id="confirm-supply-adjust" class="button">Confirm</a>
       </div>
     </div>
   </div>
@@ -20,7 +20,7 @@
       <p class="text-center">Before: <span id="borrow-before"></span></p>
       <p class="text-center">After: <span id="confirm-borrow"></span></p>
       <div class="modal-actions">
-        <a href="#" class="cancel modal-close">Cancel</a> <a href="#" id="confirm-borrow-adjust" class="button">Confirm</a>
+        <a href="javascript:void(0);" class="cancel modal-close">Cancel</a> <a href="javascript:void(0);" id="confirm-borrow-adjust" class="button">Confirm</a>
       </div>
     </div>
   </div>
@@ -33,7 +33,7 @@
     <div class="grid-cell">
       <!-- tooltip -->
       <span id="logo-back-container" class="tooltip hover">
-						<span class="tooltip-item"><a href="#" class="logo"><img src="assets//img/logos/omm-logo1.png" alt="Omm logo"></a></span>
+						<span class="tooltip-item"><a href="javascript:void(0);" class="logo"><img src="assets//img/logos/omm-logo1.png" alt="Omm logo"></a></span>
 						<span id="logo-back" class="tooltip-content clearfix" style="margin-left: -105px;margin-bottom: -47px;">
 							<div class="grid">
 								<div class="grid-cell no-margin">
@@ -53,7 +53,7 @@
 
 							<div class="grid">
 								<div class="grid-cell">
-									<p class="text-center"><a href="#" class="button text-center"
+									<p class="text-center"><a href="javascript:void(0);" class="button text-center"
                                             (click)="this.persistenceService.iconexLogout()">Sign out</a></p>
 								</div>
 							</div>
@@ -62,13 +62,13 @@
       <div class="active-wallet">
         <p style="color: #49546a;">Wallet</p>
         <p class="label" *ngIf="this.persistenceService.isIconexWalletConnected()">
-          {{this.persistenceService.connectedIconWallet!.address}}</p>
+          {{this.persistenceService.iconexWallet!.address}}</p>
       </div>
     </div>
 
     <div class="grid-cell" *ngIf="!this.persistenceService.isIconexWalletConnected()">
       <div class="active-wallet">
-        <a href="#" class="button" (click)="onConnectWalletClick()">Sign in</a>
+        <a href="javascript:void(0);" class="button" (click)="onConnectWalletClick()">Sign in</a>
       </div>
     </div>
   </div>
@@ -80,16 +80,16 @@
   <ul>
     <p>Navigation</p>
     <li>
-      <a href="#" class="active"><img src="assets/img/icons/markets.png" width="23px"><span>Markets</span></a>
+      <a href="javascript:void(0);" class="active"><img src="assets/img/icons/markets.png" width="23px"><span>Markets</span></a>
     </li>
     <li>
-      <a href="#"><img src="assets/img/icons/portfolio.png" style="opacity: 0.75;">Portfolio</a>
+      <a href="javascript:void(0);"><img src="assets/img/icons/portfolio.png" style="opacity: 0.75;">Portfolio</a>
     </li>
     <li>
-      <a href="#"><img src="assets/img/icons/governance.png" style="opacity: 0.75;">Governance</a>
+      <a href="javascript:void(0);"><img src="assets/img/icons/governance.png" style="opacity: 0.75;">Governance</a>
     </li>
     <li>
-      <a href="#"><img src="assets/img/icons/liquidation.png" style="opacity: 0.75;">Liquidation</a>
+      <a href="javascript:void(0);"><img src="assets/img/icons/liquidation.png" style="opacity: 0.75;">Liquidation</a>
     </li>
   </ul>
 </nav>
@@ -146,7 +146,7 @@
           <tr id="asset-bridge" class="asset bridge" (click)="onAssetBridgeClick()">
             <td><span>Bridge Dollars</span><br>USDb</td>
             <td><span>${{this.formatNumberToNdigits(this.mockScoreService.userSuppliedUSD)}}</span>
-              <br>{{this.formatNumberToUSLocaleString(this.mockScoreService.totalSuppliedUSDb)}} USDb</td>
+              <br>{{this.formatNumberToUSLocaleString(this.mockScoreService.userSuppliedUSDb)}} USDb</td>
             <td><span>${{this.formatNumberToNdigits(this.mockScoreService.userBorrowedUSD)}}</span>
               <br>{{this.formatNumberToUSLocaleString(this.mockScoreService.totalBorrowedUSDb)}} USDb</td>
             <td><span>{{this.mockScoreService.supplyApy}}%</span><br>+$0.06 per USDb</td>
@@ -185,7 +185,7 @@
                   <div class="grid legend">
                     <div class="grid-cell">
                       <p class="label deposited">Supplied</p>
-                      <input title="Deposited supply" id="supply-deposited" disabled="" value="50 USDb">
+                      <input title="Deposited supply" id="supply-deposited" (keyup)="depositUSDbAmountChange()" disabled="" value="50 USDb">
                     </div>
                     <div class="grid-cell">
                       <p class="label available">Available</p>
@@ -211,15 +211,15 @@
 
                       <div class="grid grid-center supply-actions">
                         <div class="grid-cell text-center">
-                          <a class="button supply-adjust" id="supply-adjust-button" href="#" (click)="onSupplyAdjustClick()">Adjust</a>
+                          <a href="javascript:void(0);" class="button supply-adjust" id="supply-adjust-button"  (click)="onSupplyAdjustClick()">Adjust</a>
                         </div>
                       </div>
                       <div class="grid grid-center supply-actions hide">
                         <div class="grid-cell text-right">
-                          <a id="cancel-supply-adjust" class="cancel supply-adjust" href="#" (click)="onSupplyAdjustClick()">Cancel</a>
+                          <a id="cancel-supply-adjust" class="cancel supply-adjust" href="javascript:void(0);" (click)="onSupplyAdjustClick()">Cancel</a>
                         </div>
                         <div class="grid-cell text-left">
-                          <a href="#" class="button modal-trigger" data-modal="modal-1" id="modal-trigger-1">Confirm</a>
+                          <a href="javascript:void(0);" class="button modal-trigger" data-modal="modal-1" id="modal-trigger-1" (click)="onUSDbDepositConfirmClick()">Confirm</a>
                         </div>
                       </div>
 
@@ -282,15 +282,15 @@
                     <div class="grid-cell text-center">
                       <div class="grid grid-center borrow-actions">
                         <div class="grid-cell text-center">
-                          <a href="#" class="button borrow-adjust" id="borrow-adjust-button" (click)="onBorrowAdjustClick()">Adjust</a>
+                          <a href="javascript:void(0);" class="button borrow-adjust" id="borrow-adjust-button" (click)="onBorrowAdjustClick()">Adjust</a>
                         </div>
                       </div>
                       <div class="grid grid-center borrow-actions hide">
                         <div class="grid-cell text-right">
-                          <a href="#" class="cancel borrow-adjust">Cancel</a>
+                          <a href="javascript:void(0);" class="cancel borrow-adjust">Cancel</a>
                         </div>
                         <div class="grid-cell text-left">
-                          <a href="#" class="button modal-trigger" data-modal="modal-2" id="modal-trigger-2" (click)="onBorrowAdjustClick()">Confirm</a>
+                          <a href="javascript:void(0);" class="button modal-trigger" data-modal="modal-2" id="modal-trigger-2" (click)="onBorrowAdjustClick()">Confirm</a>
                         </div>
                       </div>
                     </div>

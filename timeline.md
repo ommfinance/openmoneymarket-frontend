@@ -21,7 +21,7 @@
 - Increase in test coverage
 
 ## 2020-11-9: Integration of Portfolio page and SCORE USDb deposit/withdraw, 3rd prototype release
-- SCORE USDb deposit/withdraw flow integration (exp.dlv. Oct 31)
+- SCORE USDb deposit/withdraw flow integration (exp.dlv. Oct 31) , withdraw not yet + few day delay
 - Integration of Parrot9 Portfolio page (exp.dlv. Nov 2)
 - Increase in test coverage
 - 3rd prototype release

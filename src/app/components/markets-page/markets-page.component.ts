@@ -3,6 +3,7 @@ import {IconexApiService} from '../../services/iconex-api/iconex-api.service';
 import {PersistenceService} from '../../services/persistence-service/persistence.service';
 import {MockScoreService} from '../../services/mock-score/mock-score.service';
 import {BaseClass} from '../base-class';
+import {DepositService} from '../../services/deposit/deposit.service';
 declare var $: any;
 declare var noUiSlider: any;
 declare var wNumb: any;
@@ -109,7 +110,8 @@ export class MarketsPageComponent extends BaseClass implements OnInit, OnDestroy
 
   constructor(private iconexApiService: IconexApiService,
               public persistenceService: PersistenceService,
-              public mockScoreService: MockScoreService) {
+              public mockScoreService: MockScoreService,
+              public depositService: DepositService) {
     super();
   }
 
@@ -135,6 +137,24 @@ export class MarketsPageComponent extends BaseClass implements OnInit, OnDestroy
       })
     });
 
+    // Bridge borrow slider
+
+    this.bridgeBorrowSlider = document.getElementById('bridge-borrow-slider');
+
+    noUiSlider.create(this.bridgeBorrowSlider, {
+      start: [1500],
+      padding: [0],
+      connect: 'lower',
+      tooltips: [wNumb({decimals: 0, thousand: ',', suffix: ' USDb'})],
+      range: {
+        min: [0],
+        max: [3300]
+      },
+      format: wNumb({
+        decimals: 0,
+      })
+    });
+
     this.riskRatio = document.getElementById('risk-slider');
     noUiSlider.create(this.riskRatio, {
       start: [37],
@@ -154,6 +174,7 @@ export class MarketsPageComponent extends BaseClass implements OnInit, OnDestroy
     this.borrowAvailableRange = document.getElementById('borrow-limit');
     this.supplyRewards = document.getElementById('supply-rewards');
 
+
     /*
     *
     * Bridge supply slider
@@ -162,6 +183,7 @@ export class MarketsPageComponent extends BaseClass implements OnInit, OnDestroy
     this.bridgeSupplySlider.noUiSlider.on('update', (values: { [x: string]: number; }, handle: string | number) => {
 
       // Supply deposited / available text boxes
+      this.USDbDepositAmount = +values[handle];
       this.supplyDeposited.value = usdbFormat.to(values[handle] * 1);
       this.supplyAvailable.value = usdbFormat.to(15000 - usdbFormat.from(this.supplyDeposited.value));
 
@@ -221,15 +243,20 @@ export class MarketsPageComponent extends BaseClass implements OnInit, OnDestroy
     });
   }
 
+  public onUSDbDepositConfirmClick(): void {
+    console.log("Deposit amount = ", this.USDbDepositAmount);
+    this.depositService.depositUSDb(this.USDbDepositAmount);
+  }
+
+  public depositUSDbAmountChange(): void {
+    this.USDbDepositAmount = +usdbFormat.from(this.supplyDeposited.value);
+  }
+
   ngOnDestroy(): void {
   }
 
   onConnectWalletClick(): void {
     this.iconexApiService.hasAccount();
-  }
-
-  onDepositUSDbClick(): void {
-    this.mockScoreService.depositUSDb(this.USDbDepositAmount);
   }
 
 /* ==========================================================================
