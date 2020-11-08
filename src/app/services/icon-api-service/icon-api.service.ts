@@ -10,10 +10,13 @@ import {IconTransactionType} from "../../models/IconTransactionType";
 })
 export class IconApiService {
 
-  public readonly httpProvider = new IconService.HttpProvider(environment.iconRpcUrl);
-  public readonly iconService = new IconService(this.httpProvider);
+  public httpProvider;
+  public iconService;
 
-  constructor() { }
+  constructor() {
+    this.httpProvider = new IconService.HttpProvider(environment.iconRpcUrl);
+    this.iconService = new IconService(this.httpProvider);
+  }
 
   async getIcxBalance(address: string): Promise<number> {
     if (!address) {
@@ -23,31 +26,8 @@ export class IconApiService {
     return Utils.ixcValueToNormalisedValue(+icxBalance.c.join(""));
   }
 
-  public isTxConfirmed(txHash: string): {confirmed: boolean, result: any} {
-    return this.iconService.getTransactionResult(txHash).execute()
-      .then((res: any) => {
-        if (res.status === 1) {
-          console.log('Transaction confirmed.');
-          return {
-            confirmed: true,
-            result: res,
-          };
-        } else {
-          console.log('Transaction failed (not confirmed).');
-          return {
-            confirmed: false,
-            result: res,
-          };
-        }
-      })
-      .catch((err: any) => {
-        if (err.includes('Pending transaction')) {
-          setTimeout(this.isTxConfirmed.bind(null, txHash), 2000);
-        } else {
-          console.error(err);
-          throw String(err.message);
-        }
-      });
+  public async getTxResult(txHash: string): Promise<any> {
+      return await this.iconService.getTransactionResult(txHash).execute();
   }
 
 

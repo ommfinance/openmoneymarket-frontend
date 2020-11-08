@@ -18,19 +18,40 @@ export class TransactionResultService {
   public processIconexTransactionResult(payload: IconJsonRpcResponse): void {
     console.log("processTransactionResult->payload: ", payload);
     if (payload.result) {
-      const {confirmed, result} = this.iconApiService.isTxConfirmed(payload.result);
-      if (confirmed) {
-        switch (payload.id) {
-          case IconexRequestsMap.DEPOSIT_USDb:
-            // TODO: handle what happens after deposited USDb
-            // Get reserve data for a specific reserve -> LendingPoolDataProvider SCORE (that will give USDb reserve information)
-            // After deposit->LendingPoolDataProvider->get user reserve data for specific user and get user all reserve data
-            const amount: number = Utils.ixcValueToNormalisedValue(result.eventLogs.indexed[3]);
-            console.log("processTransactionResult -> Amount deposited:", amount);
+      this.iconApiService.getTxResult(payload.result).
+      then((res: any) => {
+        if (res.status === 1) {
+          this.scoreService.getUserBalanceOfUSDb().then(res => {
+            console.log("USDb balance after: ", res);
+          });
+          console.log("payload.id: ",payload.id);
+          console.log("res:", res);
+          switch (payload.id) {
+            case IconexRequestsMap.DEPOSIT_USDb:
+              // TODO: handle what happens after deposited USDb
+              // Get reserve data for a specific reserve -> LendingPoolDataProvider SCORE (that will give USDb reserve information)
+              // After deposit->LendingPoolDataProvider->get user reserve data for specific user and get user all reserve data
+              const amount: number = Utils.ixcValueToNormalisedValue(res.eventLogs[0].indexed[3]);
+              console.log("processTransactionResult -> Amount deposited:", amount);
 
-            this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses?.collateral.USDb);
+              this.scoreService.getReserveDataForAllReserves().then(res => console.log("getReserveDataForAllReserves", res));
+
+              this.scoreService.getUserReserveDataForAllReserves().then(res => console.log("getUserReserveDataForAllReserves", res));
+
+              this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses?.collateral.USDb)
+                .then(res => console.log("getUserReserveDataForSpecificReserve", res));
+
+          }
         }
-      }
+      }).catch(e => {
+        console.log("catch->e:", e);
+        if (e.includes('Pending')) {
+          setTimeout(this.processIconexTransactionResult.bind(this, payload), 2000);
+        } else {
+          console.log("Error in isTxConfirmed:", e);
+          throw new Error(e.message);
+        }
+      });
     } else  {
       alert("ICON RPC ERROR: " + payload.error?.message);
     }

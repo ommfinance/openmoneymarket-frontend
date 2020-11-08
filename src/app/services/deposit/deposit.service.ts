@@ -9,6 +9,7 @@ import {Constants} from '../../common/constants';
 import {IconWallet} from '../../models/IconWallet';
 import {IconexApiService} from '../iconex-api/iconex-api.service';
 import {IconexRequestsMap} from '../../common/iconex-requests-map';
+import {ScoreService} from "../score-service/score.service";
 
 
 @Injectable({
@@ -19,7 +20,8 @@ export class DepositService {
   constructor(private iconApiService: IconApiService,
               private persistenceService: PersistenceService,
               private mockScoreService: MockScoreService,
-              private iconexApiService: IconexApiService) {
+              private iconexApiService: IconexApiService,
+              private scoreService: ScoreService) {
   }
 
   /* Deposit USDb flow:
@@ -47,13 +49,19 @@ export class DepositService {
     // TODO: refactor for Bridge
     const params = {
       _to: this.persistenceService.allAddresses.systemContract.LendingPool,
-      _value: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop())
-    };
+      _value: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
+      _data:  IconConverter.fromUtf8('{ "method": "deposit", "params": { "_amount": '+
+      IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()))
+    }
 
     const tx = this.iconApiService.buildTransaction(wallet.address,  this.persistenceService.allAddresses.collateral.USDb,
       ScoreMethodNames.TRANSFER, params, IconTransactionType.WRITE);
 
     console.log("TX: ", tx);
+    this.scoreService.getUserBalanceOfUSDb().then(res => {
+      console.log("USDb balance before: ", res);
+    });
+
     this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.DEPOSIT_USDb);
     this.mockScoreService.depositUSDbStateChange(amount);
   }
