@@ -1,5 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {IconexApiService} from './services/iconex-api/iconex-api.service';
+import {DataLoaderService} from './services/data-loader-service/data-loader.service';
 
 @Component({
   selector: 'app-root',
@@ -12,9 +13,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private attachedListener: boolean;
 
-  constructor(private iconexApiService: IconexApiService) {
+  constructor(private iconexApiService: IconexApiService,
+              private dataLoaderService: DataLoaderService) {
     window.addEventListener("ICONEX_RELAY_RESPONSE", (e: any) => this.iconexApiService.iconexEventHandler(e));
     this.attachedListener = true;
+    dataLoaderService.loadScoreAddresses();
   }
 
   ngOnInit(): void {

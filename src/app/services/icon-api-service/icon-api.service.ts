@@ -1,10 +1,9 @@
 import { Injectable } from "@angular/core";
 import {Utils} from "../../common/utils";
-import IconService, {IconBuilder, IconAmount, IconConverter, SignedTransaction } from 'icon-sdk-js';
+import IconService, {IconBuilder, IconAmount, IconConverter} from 'icon-sdk-js';
 const { CallBuilder, CallTransactionBuilder, IcxTransactionBuilder,  } = IconBuilder;
 import {environment} from "../../../environments/environment";
 import {IconTransactionType} from "../../models/IconTransactionType";
-import {IconWallet} from '../../models/IconWallet';
 
 @Injectable({
   providedIn: "root"
@@ -24,27 +23,31 @@ export class IconApiService {
     return Utils.ixcValueToNormalisedValue(+icxBalance.c.join(""));
   }
 
-  public isTxConfirmed(txHash: string): boolean {
-    return txHash != null;
-    // TODO: uncomment
-    // return this.iconService.getTransactionResult(txHash).execute()
-    //   .then((res: any) => {
-    //     if (res.status === 1) {
-    //       console.log('Transaction confirmed.');
-    //       return true;
-    //     } else {
-    //       console.log('Transaction failed (not confirmed).');
-    //       return false;
-    //     }
-    //   })
-    //   .catch((err: any) => {
-    //     if (err.includes('Pending transaction')) {
-    //       setTimeout(this.isTxConfirmed.bind(null, txHash), 2000);
-    //     } else {
-    //       console.error(err);
-    //       throw String(err.message);
-    //     }
-    //   });
+  public isTxConfirmed(txHash: string): {confirmed: boolean, result: any} {
+    return this.iconService.getTransactionResult(txHash).execute()
+      .then((res: any) => {
+        if (res.status === 1) {
+          console.log('Transaction confirmed.');
+          return {
+            confirmed: true,
+            result: res,
+          };
+        } else {
+          console.log('Transaction failed (not confirmed).');
+          return {
+            confirmed: false,
+            result: res,
+          };
+        }
+      })
+      .catch((err: any) => {
+        if (err.includes('Pending transaction')) {
+          setTimeout(this.isTxConfirmed.bind(null, txHash), 2000);
+        } else {
+          console.error(err);
+          throw String(err.message);
+        }
+      });
   }
 
 

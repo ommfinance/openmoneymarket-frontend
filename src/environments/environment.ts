@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  iconRpcUrl: "https://bicon.net.solidwallet.io/api/v3"
+  iconRpcUrl: "https://bicon.net.solidwallet.io/api/v3",
+  ADDRESS_PROVIDER_SCORE: "cxed440f1da2cf3087ac5ef12217a13f6321de0375",
 };
 
 /*

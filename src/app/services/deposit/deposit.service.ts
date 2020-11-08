@@ -40,14 +40,18 @@ export class DepositService {
   }
 
   private transferUSDbTokenToLendingPool(amount: number, wallet: IconWallet): void {
+    if (!this.persistenceService.allAddresses) {
+      alert("SCORE all addresses not loaded!");
+      return;
+    }
     // TODO: refactor for Bridge
     const params = {
-      _to: this.persistenceService.lendingPoolScoreAddress,
-      _value: IconConverter.toHex(amount)
+      _to: this.persistenceService.allAddresses.systemContract.LendingPool,
+      _value: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop())
     };
 
-    const tx = this.iconApiService.buildTransaction(wallet.address,  this.persistenceService.USDbScoreAddress,
-      ScoreMethodNames.TRANSFER, params, IconTransactionType.READ);
+    const tx = this.iconApiService.buildTransaction(wallet.address,  this.persistenceService.allAddresses.collateral.USDb,
+      ScoreMethodNames.TRANSFER, params, IconTransactionType.WRITE);
 
     console.log("TX: ", tx);
     this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.DEPOSIT_USDb);

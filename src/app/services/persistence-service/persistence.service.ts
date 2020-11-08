@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {IconWallet} from '../../models/IconWallet';
-import {MockScoreService} from '../mock-score/mock-score.service';
+import {AllAddresses} from '../../interfaces/all-addresses';
 
 @Injectable({
   providedIn: 'root'
@@ -8,14 +8,9 @@ import {MockScoreService} from '../mock-score/mock-score.service';
 export class PersistenceService {
 
   public iconexWallet: IconWallet | undefined;
+  public allAddresses: AllAddresses | undefined;
 
-  public USDbScoreAddress: string;
-  public lendingPoolScoreAddress: string;
-
-  constructor(private mockScoreService: MockScoreService) {
-    const allAddresses = this.mockScoreService.getAllAddresses();
-    this.USDbScoreAddress = allAddresses.collateral.USDb;
-    this.lendingPoolScoreAddress = allAddresses.systemContract.LendingPool;
+  constructor() {
   }
 
   public iconexLogin(iconWallet: IconWallet): void {
@@ -30,12 +25,6 @@ export class PersistenceService {
 
   public isIconexWalletConnected(): boolean {
     return this.iconexWallet != null;
-  }
-
-  public loadScoreAddresses(): void {
-    const allAddresses = this.mockScoreService.getAllAddresses();
-    this.USDbScoreAddress = allAddresses.collateral.USDb;
-    this.lendingPoolScoreAddress = allAddresses.systemContract.LendingPool;
   }
 
 }

@@ -1,99 +1,29 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
 import {IconexApiService} from '../../services/iconex-api/iconex-api.service';
 import {PersistenceService} from '../../services/persistence-service/persistence.service';
 import {MockScoreService} from '../../services/mock-score/mock-score.service';
 import {BaseClass} from '../base-class';
 import {DepositService} from '../../services/deposit/deposit.service';
+import {
+  ommPrefixPlusFormat,
+  percentageFormat,
+  usdbFormat,
+  usdbPrefixMinusFormat,
+  usdbPrefixPlusFormat,
+  usdFormat
+} from '../../common/formatting';
+
 declare var $: any;
 declare var noUiSlider: any;
 declare var wNumb: any;
 
-/*
-*
-* Formats
-*
-*/
-
-// %
-
-const percentageFormat = wNumb({
-  decimals: 0,
-  suffix: '%'
-});
-
-// ICX
-
-const icxFormat = wNumb({
-  decimals: 0,
-  thousand: ',',
-  suffix: ' ICX'
-});
-
-// USDb
-
-const usdbFormat = wNumb({
-  decimals: 0,
-  thousand: ',',
-  suffix: ' USDb'
-});
-
-// + USDb .00
-
-const usdbPrefixPlusFormat = wNumb({
-  decimals: 2,
-  thousand: ',',
-  prefix: ' + ',
-  suffix: ' USDb'
-});
-
-// - USDb .00
-
-const usdbPrefixMinusFormat = wNumb({
-  decimals: 2,
-  thousand: ',',
-  prefix: ' - ',
-  suffix: ' USDb'
-});
-
-// + OMM .00
-
-const ommPrefixPlusFormat = wNumb({
-  decimals: 2,
-  thousand: ',',
-  prefix: ' + ',
-  suffix: ' OMM'
-});
-
-// ICD
-
-const icdFormat = wNumb({
-  decimals: 0,
-  thousand: ',',
-  suffix: ' ICD'
-});
-
-// $
-
-const usdFormat = wNumb({
-  decimals: 0,
-  thousand: ',',
-  prefix: '$'
-});
-
-// $ .00
-
-const usdTwoDecimalFormat = wNumb({
-  decimals: 2,
-  thousand: ',',
-  prefix: '$'
-});
 
 @Component({
   selector: 'app-markets-page',
   templateUrl: './markets-page.component.html',
   styleUrls: ['./markets-page.component.css']
 })
-export class MarketsPageComponent extends BaseClass implements OnInit, OnDestroy {
+export class MarketsPageComponent extends BaseClass implements OnInit, OnDestroy, AfterViewInit {
 
   public USDbDepositAmount = 0;
   public bridgeSupplySlider: any;
@@ -115,12 +45,15 @@ export class MarketsPageComponent extends BaseClass implements OnInit, OnDestroy
     super();
   }
 
-  ngOnInit(): void {/* ==========================================================================
+  ngOnInit(): void {
+  }
+
+  ngAfterViewInit(): void {
+    /* ==========================================================================
     Position manager sliders
-========================================================================== */
+    ========================================================================== */
 
-// Bridge supply slider
-
+    // Bridge supply slider
     this.bridgeSupplySlider = document.getElementById('bridge-supply-slider');
 
     noUiSlider.create(this.bridgeSupplySlider, {
@@ -174,14 +107,12 @@ export class MarketsPageComponent extends BaseClass implements OnInit, OnDestroy
     this.borrowAvailableRange = document.getElementById('borrow-limit');
     this.supplyRewards = document.getElementById('supply-rewards');
 
-
     /*
     *
     * Bridge supply slider
     *
     */
     this.bridgeSupplySlider.noUiSlider.on('update', (values: { [x: string]: number; }, handle: string | number) => {
-
       // Supply deposited / available text boxes
       this.USDbDepositAmount = +values[handle];
       this.supplyDeposited.value = usdbFormat.to(values[handle] * 1);
@@ -215,6 +146,7 @@ export class MarketsPageComponent extends BaseClass implements OnInit, OnDestroy
 
       // Bridge borrow slider updates the borrow borrowed editbox
 
+      // tslint:disable-next-line:no-shadowed-variable
       this.bridgeBorrowSlider.noUiSlider.on('update', (values: any, handle: any) => {
 
         // Bridge borrow text boxes
@@ -295,7 +227,6 @@ export class MarketsPageComponent extends BaseClass implements OnInit, OnDestroy
     this.bridgeSupplySlider.noUiSlider.set(10000);
 
     if ($("#borrow").hasClass("adjust")) {
-
       $('#borrow').toggleClass("adjust");
       $('.borrow-actions').toggleClass("hide");
       $('#borrow-borrowed').prop('disabled', (i: any, v: any) => !v);
@@ -316,14 +247,12 @@ export class MarketsPageComponent extends BaseClass implements OnInit, OnDestroy
     this.bridgeBorrowSlider.noUiSlider.set(1500);
 
     if ($("#supply").hasClass("adjust")) {
-
       $('#supply').toggleClass("adjust");
       $('.supply-actions').toggleClass("hide");
       $('#supply-deposited').prop('disabled', (i: any, v: any) => !v);
       $('#supply-available').prop('disabled', (i: any, v: any) => !v);
       this.bridgeSupplySlider.toggleAttribute('disabled');
       this.bridgeSupplySlider.noUiSlider.set(10000);
-
     }
   }
 
