@@ -4,6 +4,7 @@ import {ScoreMethodNames} from '../../common/score-method-names';
 import {IconTransactionType} from '../../models/IconTransactionType';
 import {PersistenceService} from '../persistence-service/persistence.service';
 import {environment} from '../../../environments/environment';
+import {Utils} from "../../common/utils";
 
 
 @Injectable({
@@ -54,9 +55,9 @@ export class ScoreService {
   }
 
   public async getReserveDataForAllReserves() {
-    if (!this.persistenceService.allAddresses || !this.persistenceService.iconexWallet) {
-      alert("getReserveDataForAllReserves->allAddresses or iconexWalletundefined");
-      throw new Error("getReserveDataForAllReserves->allAddresses or iconexWallet undefined");
+    if (!this.persistenceService.allAddresses) {
+      alert("getReserveDataForAllReserves->allAddresses");
+      throw new Error("getReserveDataForAllReserves->allAddresses undefined");
     }
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses?.systemContract.LendingPoolDataProvider,
       ScoreMethodNames.GET_ALL_RESERVE_DATA, {}, IconTransactionType.READ);
@@ -73,7 +74,7 @@ export class ScoreService {
         _owner: this.persistenceService.iconexWallet?.address
       }, IconTransactionType.READ);
     const res = await this.iconApiService.iconService.call(tx).execute();
-    return parseInt(res, 16);
+    return Utils.ixcValueToNormalisedValue(res);
   }
 
 }

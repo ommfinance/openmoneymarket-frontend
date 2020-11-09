@@ -5,6 +5,8 @@ import {IconApiService} from '../icon-api-service/icon-api.service';
 import {IconJsonRpcResponse} from '../../interfaces/icon-json-rpc-response';
 import {ScoreService} from '../score-service/score.service';
 import {PersistenceService} from '../persistence-service/persistence.service';
+import {AllReserves} from "../../interfaces/AllReserves";
+import {Mapper} from "../../common/mapper";
 
 @Injectable({
   providedIn: 'root'
@@ -34,7 +36,10 @@ export class TransactionResultService {
               const amount: number = Utils.ixcValueToNormalisedValue(res.eventLogs[0].indexed[3]);
               console.log("processTransactionResult -> Amount deposited:", amount);
 
-              this.scoreService.getReserveDataForAllReserves().then(res => console.log("getReserveDataForAllReserves", res));
+              this.scoreService.getReserveDataForAllReserves().then((res: AllReserves) => {
+                this.persistenceService.allReserves = Mapper.mapAllReserves(res);
+                console.log("getReserveDataForAllReserves", res);
+              });
 
               this.scoreService.getUserReserveDataForAllReserves().then(res => console.log("getUserReserveDataForAllReserves", res));
 
@@ -42,6 +47,8 @@ export class TransactionResultService {
                 .then(res => console.log("getUserReserveDataForSpecificReserve", res));
 
           }
+        } else {
+          console.log("Transaction failed! Details: ", res);
         }
       }).catch(e => {
         console.log("catch->e:", e);

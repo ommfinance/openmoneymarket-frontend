@@ -21,5 +21,4 @@ export class ScoreMethodNames {
   public static GET_USER_RESERVE_DATA = "getUserReserveData";
   public static GET_USER_ALL_RESERVE_DATA = "getUserAllReserveData";
   public static GET_ALL_RESERVE_DATA = "getAllReserveData";
-
 }

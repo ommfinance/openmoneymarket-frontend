@@ -31,7 +31,7 @@
 			<ul>
 				<p>Navigation</p>
 				<li>
-					<a href="/" ><img src="assets/img/icons/home.svg" width="24px" class="svg home"><span>Home</span></a>
+					<a href="javascript:void(0);" routerLink="" ><img src="assets/img/icons/home.svg" width="24px" class="svg home"><span>Home</span></a>
 				</li>
 				<li>
 					<a href="javascript:void(0);" class="active"><img src="assets/img/icons/markets.svg" width="21px" class="svg markets"><span>Markets</span></a>
@@ -62,7 +62,7 @@
           <div class="grid legend">
             <div class="grid-cell">
               <p class="label">Total supplied</p>
-              <p class="text-size-25">${{this.formatNumberToUSLocaleString(this.mockScoreService.totalSuppliedUSD)}}</p>
+              <p class="text-size-25">${{this.formatNumberToUSLocaleString(this.persistenceService.allReserves?.USDb?.totalLiquidity)}}</p>
             </div>
           </div>
         </div>
@@ -71,7 +71,7 @@
           <div class="grid legend">
             <div class="grid-cell">
               <p class="label">Total borrowed</p>
-              <p class="text-size-25">${{this.formatNumberToUSLocaleString(this.mockScoreService.totalBorrowedUSD)}}</p>
+              <p class="text-size-25">${{this.formatNumberToUSLocaleString(this.persistenceService.allReserves?.USDb?.totalBorrows)}}</p>
             </div>
           </div>
         </div>
@@ -161,7 +161,7 @@
                   <div class="grid legend">
                     <div class="grid-cell">
                       <p class="label deposited">Supplied</p>
-                      <input title="Deposited supply" id="supply-deposited" (keyup)="depositUSDbAmountChange()" disabled="" value="50 USDb">
+                      <input title="Deposited supply" id="supply-deposited" (keyup)="depositUSDbAmountChange()" step="1" min="0" disabled="" value="50 USDb">
                     </div>
                     <div class="grid-cell">
                       <p class="label available">Available</p>

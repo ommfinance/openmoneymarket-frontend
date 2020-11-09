@@ -9,7 +9,7 @@ import {DataLoaderService} from './services/data-loader-service/data-loader.serv
 })
 export class AppComponent implements OnInit, OnDestroy {
 
-  title = 'frontend';
+  title = 'Open money market';
 
   private attachedListener: boolean;
 
@@ -17,7 +17,7 @@ export class AppComponent implements OnInit, OnDestroy {
               private dataLoaderService: DataLoaderService) {
     window.addEventListener("ICONEX_RELAY_RESPONSE", (e: any) => this.iconexApiService.iconexEventHandler(e));
     this.attachedListener = true;
-    dataLoaderService.loadScoreAddresses();
+    dataLoaderService.loadScoreAddresses().then(() => dataLoaderService.loadAllReserves());
   }
 
   ngOnInit(): void {
