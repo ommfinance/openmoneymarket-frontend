@@ -1,29 +1,27 @@
 import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
-import {IconexApiService} from '../../services/iconex-api/iconex-api.service';
-import {PersistenceService} from '../../services/persistence-service/persistence.service';
-import {MockScoreService} from '../../services/mock-score/mock-score.service';
-import {BaseClass} from '../base-class';
-import {DepositService} from '../../services/deposit/deposit.service';
+import {BaseClass} from "../base-class";
+import {IconexApiService} from "../../services/iconex-api/iconex-api.service";
+import {PersistenceService} from "../../services/persistence-service/persistence.service";
+import {MockScoreService} from "../../services/mock-score/mock-score.service";
+import {DepositService} from "../../services/deposit/deposit.service";
 import {
   ommPrefixPlusFormat,
   percentageFormat,
-  usdbFormat,
-  usdbPrefixMinusFormat,
+  usdbFormat, usdbPrefixMinusFormat,
   usdbPrefixPlusFormat,
   usdFormat
-} from '../../common/formatting';
+} from "../../common/formatting";
 
 declare var $: any;
 declare var noUiSlider: any;
 declare var wNumb: any;
 
-
 @Component({
-  selector: 'app-markets-page',
-  templateUrl: './markets-page.component.html',
-  styleUrls: ['./markets-page.component.css']
+  selector: 'app-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.css']
 })
-export class MarketsPageComponent extends BaseClass implements OnInit, OnDestroy, AfterViewInit {
+export class HomeComponent extends BaseClass implements OnInit, OnDestroy, AfterViewInit {
 
   public USDbDepositAmount = 0;
   public bridgeSupplySlider: any;
@@ -145,37 +143,37 @@ export class MarketsPageComponent extends BaseClass implements OnInit, OnDestroy
       //updateBorrowRange(parseFloat(values[handle] * 0.33 - usdbFormat.from(borrowAvailable.value)));
     });
 
-      /*
-      * Bridge borrow sliders
-      */
+    /*
+    * Bridge borrow sliders
+    */
 
-      // Bridge borrow slider updates the borrow borrowed editbox
-      // tslint:disable-next-line:no-shadowed-variable
-      this.bridgeBorrowSlider.noUiSlider.on('update', (values: any, handle: any) => {
+    // Bridge borrow slider updates the borrow borrowed editbox
+    // tslint:disable-next-line:no-shadowed-variable
+    this.bridgeBorrowSlider.noUiSlider.on('update', (values: any, handle: any) => {
 
-        // Bridge borrow text boxes
-        this.borrowBorrowed.value = usdbFormat.to(values[handle] * 1);
-        this.borrowAvailable.value = (usdbFormat.to(3300 - values[handle]));
+      // Bridge borrow text boxes
+      this.borrowBorrowed.value = usdbFormat.to(values[handle] * 1);
+      this.borrowAvailable.value = (usdbFormat.to(3300 - values[handle]));
 
-        // Supply interest
-        $('#borrow-interest').text(usdbPrefixMinusFormat.to((values[handle] * 1) * 0.0725 / 365));
+      // Supply interest
+      $('#borrow-interest').text(usdbPrefixMinusFormat.to((values[handle] * 1) * 0.0725 / 365));
 
-        // Supply rewards
-        $('#borrow-rewards').text(ommPrefixPlusFormat.to((values[handle] * 1) * 0.4725 / 365));
+      // Supply rewards
+      $('#borrow-rewards').text(ommPrefixPlusFormat.to((values[handle] * 1) * 0.4725 / 365));
 
-        // Position borrow
-        $('#position-borrow').text(usdFormat.to(values[handle] * 1));
+      // Position borrow
+      $('#position-borrow').text(usdFormat.to(values[handle] * 1));
 
-        // Risk ratio
-        this.riskRatio.noUiSlider.set(1 / ((usdbFormat.from(this.supplyDeposited.value) * 0.66) / usdbFormat.from(this.borrowBorrowed.value)) * 100);
+      // Risk ratio
+      this.riskRatio.noUiSlider.set(1 / ((usdbFormat.from(this.supplyDeposited.value) * 0.66) / usdbFormat.from(this.borrowBorrowed.value)) * 100);
 
-        // Update risk percentage
-        $('#risk-percentage-bridge').text(percentageFormat.to( 1 / ((usdbFormat.from(this.supplyDeposited.value) * 0.66) / usdbFormat.from(this.borrowBorrowed.value)) * 100));
+      // Update risk percentage
+      $('#risk-percentage-bridge').text(percentageFormat.to( 1 / ((usdbFormat.from(this.supplyDeposited.value) * 0.66) / usdbFormat.from(this.borrowBorrowed.value)) * 100));
 
-        // Adjust locked indicator for collateral
-        document.getElementById("locked")!.style.left = (23 * (usdbFormat.from(this.borrowBorrowed.value) / 2053)) + "%";
+      // Adjust locked indicator for collateral
+      document.getElementById("locked")!.style.left = (23 * (usdbFormat.from(this.borrowBorrowed.value) / 2053)) + "%";
 
-      });
+    });
   }
 
   public onUSDbDepositConfirmClick(): void {
@@ -190,9 +188,9 @@ export class MarketsPageComponent extends BaseClass implements OnInit, OnDestroy
   ngOnDestroy(): void {
   }
 
-/* ==========================================================================
-    Asset expand logic
-========================================================================== */
+  /* ==========================================================================
+      Asset expand logic
+  ========================================================================== */
   onAssetBridgeClick(): void {
     $("#asset-bridge").toggleClass('active');
     $("#asset-bridge-expanded").slideToggle();

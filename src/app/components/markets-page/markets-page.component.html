@@ -26,74 +26,25 @@
   </div>
 </div>
 
-<!-- Header -->
-<header class="header">
-  <div class="grid grid-center">
-    <!-- Logo -->
-    <div class="grid-cell">
-      <!-- tooltip -->
-      <span id="logo-back-container" class="tooltip hover">
-						<span class="tooltip-item"><a href="javascript:void(0);" class="logo"><img src="assets//img/logos/omm-logo1.png" alt="Omm logo"></a></span>
-						<span id="logo-back" class="tooltip-content clearfix" style="margin-left: -105px;margin-bottom: -47px;">
-							<div class="grid">
-								<div class="grid-cell no-margin">
-									<p>Back to the OMM website</p>
-								</div>
-							</div>
-						</span>
-					</span>
-    </div>
-
-    <!-- Utilities -->
-    <div class="grid-cell"  *ngIf="this.persistenceService.isIconexWalletConnected()">
-      <!-- tooltip -->
-      <span class="tooltip">
-						<span class="tooltip-item"><span id="profile" class="profile" (click)="onProfileClick()"></span></span>
-						<span id="profile-tooltip" class="tooltip-content clearfix" style="margin: 0 0 -160px 59px;">
-
-							<div class="grid">
-								<div class="grid-cell">
-									<p class="text-center"><a href="javascript:void(0);" class="button text-center"
-                                            (click)="this.persistenceService.iconexLogout()">Sign out</a></p>
-								</div>
-							</div>
-						</span>
-					</span>
-      <div class="active-wallet">
-        <p style="color: #49546a;">Wallet</p>
-        <p class="label" *ngIf="this.persistenceService.isIconexWalletConnected()">
-          {{this.persistenceService.iconexWallet!.address}}</p>
-      </div>
-    </div>
-
-    <div class="grid-cell" *ngIf="!this.persistenceService.isIconexWalletConnected()">
-      <div class="active-wallet">
-        <a href="javascript:void(0);" class="button" (click)="onConnectWalletClick()">Sign in</a>
-      </div>
-    </div>
-  </div>
-</header>
-<!-- /Header -->
-
-<!-- Navigation -->
-<nav class="nav-height">
-  <ul>
-    <p>Navigation</p>
-    <li>
-      <a href="javascript:void(0);" class="active"><img src="assets/img/icons/markets.png" width="23px"><span>Markets</span></a>
-    </li>
-    <li>
-      <a href="javascript:void(0);"><img src="assets/img/icons/portfolio.png" style="opacity: 0.75;">Portfolio</a>
-    </li>
-    <li>
-      <a href="javascript:void(0);"><img src="assets/img/icons/governance.png" style="opacity: 0.75;">Governance</a>
-    </li>
-    <li>
-      <a href="javascript:void(0);"><img src="assets/img/icons/liquidation.png" style="opacity: 0.75;">Liquidation</a>
-    </li>
-  </ul>
-</nav>
-<!-- /Navigation -->
+		<!-- Navigation -->
+		<nav>
+			<ul>
+				<p>Navigation</p>
+				<li>
+					<a href="/" ><img src="assets/img/icons/home.svg" width="24px" class="svg home"><span>Home</span></a>
+				</li>
+				<li>
+					<a href="javascript:void(0);" class="active"><img src="assets/img/icons/markets.svg" width="21px" class="svg markets"><span>Markets</span></a>
+				</li>
+				<li>
+					<a href="javascript:void(0);"><img src="assets/img/icons/governance.svg" width="23px" class="svg governance"><span>Governance</span></a>
+				</li>
+				<li>
+					<a href="javascript:void(0);"><img src="assets/img/icons/liquidation.svg" width="22px" class="svg liquidation"><span>Liquidation</span></a>
+				</li>
+			</ul>
+		</nav>
+		<!-- /Navigation -->
 
 <!-- Markets content -->
 <main class="markets" (click)="onMainClick()">
@@ -137,9 +88,33 @@
           <tr>
             <th>Asset</th>
             <th>Total supplied</th>
+            <th>Supply APY
+              <!-- tooltip -->
+              <span class="tooltip hover" style="display: inline-block;">
+											<span class="tooltip-item"><img src="assets/img/icons/info-dark.svg" width="14px" style="margin-top: -5px;"></span>
+											<span class="tooltip-content clearfix" style="width: 228px; margin-left: -113px;">
+												<div class="grid">
+													<div class="grid-cell no-margin">
+														<p>The amount of ICX available to deposit from your wallet.</p>
+													</div>
+												</div>
+											</span>
+										</span>
+            </th>
             <th>Total borrowed</th>
-            <th>Supply APY</th>
-            <th>Borrow APY</th>
+            <th>Borrow APY
+              <!-- tooltip -->
+              <span class="tooltip hover" style="display: inline-block;">
+											<span class="tooltip-item"><img src="assets/img/icons/info-dark.svg" width="14px" style="margin-top: -5px;"></span>
+											<span class="tooltip-content clearfix" style="width: 228px; margin-left: -113px;">
+												<div class="grid">
+													<div class="grid-cell no-margin">
+														<p>The amount of ICX available to deposit from your wallet.</p>
+													</div>
+												</div>
+											</span>
+										</span>
+            </th>
           </tr>
           </thead>
           <tbody>
@@ -147,10 +122,10 @@
             <td><span>Bridge Dollars</span><br>USDb</td>
             <td><span>${{this.formatNumberToNdigits(this.mockScoreService.userSuppliedUSD)}}</span>
               <br>{{this.formatNumberToUSLocaleString(this.mockScoreService.userSuppliedUSDb)}} USDb</td>
+            <td><span class="text-green">6.47%</span><br>+0.51% past 24H</td>
             <td><span>${{this.formatNumberToNdigits(this.mockScoreService.userBorrowedUSD)}}</span>
               <br>{{this.formatNumberToUSLocaleString(this.mockScoreService.totalBorrowedUSDb)}} USDb</td>
-            <td><span>{{this.mockScoreService.supplyApy}}%</span><br>+$0.06 per USDb</td>
-            <td><span>{{this.mockScoreService.borrowApy}}%</span><br>-$0.07 per USDb</td>
+            <td><span class="text-purple">7.25%</span><br>-0.27% past 24H</td>
           </tr>
           <tr>
             <td colspan="5" class="no-padding">
@@ -177,6 +152,7 @@
                   <!-- Slider -->
                   <div class="grid margin-top-35">
                     <div class="grid-cell">
+                      <div class="locked" id="locked" style="opacity: 0;"></div>
                       <div id="bridge-supply-slider" disabled></div>
                     </div>
                   </div>
@@ -316,10 +292,22 @@
                 <div class="grid-cell risk">
                   <div class="grid grid-center">
                     <div class="grid-cell" style="max-width: 200px;">
-                      <h2>Risk <span id="risk-percentage-bridge" class="risk-percentage">35%</span></h2>
+                      <h2>Risk <span id="risk-percentage-bridge" class="risk-percentage">35%</span>
+                        <!-- tooltip -->
+                        <span class="tooltip hover" style="display: inline-block;">
+																<span class="tooltip-item"><img src="assets/img/icons/info-dark.svg" width="17px" style="margin-top: -5px;"></span>
+																<span class="tooltip-content clearfix" style="width: 228px; margin-left: -113px;">
+																	<div class="grid">
+																		<div class="grid-cell no-margin">
+																			<p>The amount of ICX available to deposit from your wallet.</p>
+																		</div>
+																	</div>
+																</span>
+															</span>
+                      </h2>
                     </div>
                     <div class="grid-cell">
-                      <p class="label text-right">Your entire supply will be liquidated at 100%.</p>
+                      <p class="label text-right" style="margin-top: 4px;">Your entire supply will be liquidated at 100%.</p>
                     </div>
                   </div>
                   <div id="risk-slider" disabled></div>
@@ -328,21 +316,25 @@
               </div>
             </td>
           </tr>
-          <tr id="asset-icon" class="icon asset">
-            <td><span>ICON</span><br>ICX</td>
-            <td><span>$120.69K</span><br>420,690 ICX</td>
-            <td><span>$7.12K</span><br>9,840 ICX</td>
-            <td><span>3.47%</span><br>+$0.03 per ICX</td>
-            <td><span>5.25%</span><br>-$0.04 per ICX</td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-  <!-- /Asset list -->
-</main>
-<!-- /Markets content -->
+
+								<tr class="spacer"></tr>
+
+								<tr id="asset-icon" class="icon asset">
+									<td><span>ICON</span><br>ICX</td>
+									<td><span>$120.69K</span><br>420,690 ICX</td>
+									<td><span class="text-green">3.47%</span><br>+0.34% past 24H</td>
+									<td><span>$7.12K</span><br>9,840 ICX</td>
+									<td><span class="text-purple">5.25%</span><br>-0.27% past 24H</td>
+								</tr>
+
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</section>
+			<!-- /Asset list -->
+		</main>
+		<!-- /Markets content -->
 
 <!-- Modal overlay -->
 <div class="modal-overlay"></div>

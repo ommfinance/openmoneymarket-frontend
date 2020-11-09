@@ -1,0 +1,379 @@
+
+<body>
+<!-- Bridge supply modal -->
+<div class="modal" id="modal-1">
+  <div class="modal-content">
+    <h3 class="text-center"><span class="adjust-label">Adjust</span> supply by <br><strong id="supply-increase">XXX USDb</strong>?</h3>
+    <div>
+      <p class="text-center">Before: <span id="supply-before"></span></p>
+      <p class="text-center">After: <span id="confirm-supply"></span></p>
+      <div class="modal-actions">
+        <a href="#" class="cancel modal-close">Cancel</a> <a href="./" id="confirm-supply-adjust" class="button">Confirm</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bridge borrow modal -->
+<div class="modal" id="modal-2">
+  <div class="modal-content">
+    <h3 class="text-center"><span class="adjust-label">Adjust</span> borrow by <br><strong id="borrow-increase">XXX USDb</strong>?</h3>
+    <div>
+      <p class="text-center">Before: <span id="borrow-before"></span></p>
+      <p class="text-center">After: <span id="confirm-borrow"></span></p>
+      <div class="modal-actions">
+        <a href="#" class="cancel modal-close">Cancel</a> <a href="./" id="confirm-borrow-adjust" class="button">Confirm</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Navigation -->
+<nav>
+  <ul>
+    <p>Navigation</p>
+    <li>
+      <a href="/" class="active"><img src="assets/img/icons/home.svg" width="24px" class="svg home"><span>Home</span></a>
+    </li>
+    <li>
+      <a href="./markets"><img src="assets/img/icons/markets.svg" width="21px" class="svg markets"><span>Markets</span></a>
+    </li>
+    <li>
+      <a href="./"><img src="assets/img/icons/governance.svg" width="23px" class="svg governance"><span>Governance</span></a>
+    </li>
+    <li>
+      <a href="./"><img src="assets/img/icons/liquidation.svg" width="22px" class="svg liquidation"><span>Liquidation</span></a>
+    </li>
+  </ul>
+</nav>
+<!-- /Navigation -->
+
+<!-- Home content -->
+<main class="home">
+  <div class="grid grid-bottom">
+    <div class="grid-cell">
+      <h1>Home</h1>
+      <p>Keep an eye on your risk rate, interest earned and accrued, and the APY for your active markets. Claim your Omm rewards daily, and send assets from your wallet.</p>
+    </div>
+
+    <!-- Market overview -->
+    <div class="grid-cell market-overview">
+      <div class="grid">
+        <div class="grid-cell border-right">
+          <div class="grid legend">
+            <div class="grid-cell">
+              <p class="label">You've supplied</p>
+              <p class="text-size-25">$10,000</p>
+              <p class="label text-green">6.47% APY</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-cell">
+          <div class="grid legend">
+            <div class="grid-cell">
+              <p class="label">You've borrowed</p>
+              <p class="text-size-25">$2,712</p>
+              <p class="label text-purple">5.25% APY</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Risk / Rewards -->
+  <section class="risk-rewards">
+    <div class="grid">
+      <div class="grid-cell risk">
+        <h2>Risk <span class="risk-percentage">23%</span></h2>
+        <div class="panel">
+          <p class="label text-right"><span>Your supply will be liquidated at 100%.</span></p>
+          <div id="risk-slider" disabled></div>
+
+          <div class="grid legend">
+            <div class="grid-cell">
+              <p class="label bridge">Bridge Dollars</p><p class="label icx">ICON</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="grid-cell rewards">
+        <h2>Rewards<span class="label text-green" style="margin-left: 10px;">Past day</span></h2>
+        <div class="panel">
+          <div class="grid">
+            <div class="grid-cell"><h3 class="text-center"><span class="label">Supply interest</span><br>+$1.77</h3></div>
+            <div class="grid-cell"><h3 class="text-center"><span class="label">Borrow interest</span><br>-$2.18</h3></div>
+            <div class="grid-cell"><h3 class="text-center"><span class="label">Omm rewards</span><br>+50 <span class="label">OMM</span></h3></div>
+          </div>
+          <p class="text-center"><a href="#" class="button">Claim Omm rewards</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Asset list -->
+  <section>
+    <h2 class="margin-bottom-25">Your markets</h2>
+    <div class="grid">
+      <div class="grid-cell">
+        <table class="list">
+          <thead>
+          <tr>
+            <th>Asset</th>
+            <th>You've supplied</th>
+            <th>Supply APY</th>
+            <th>You've borrowed</th>
+            <th>Borrow APY</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr id="asset-bridge" class="asset bridge">
+            <td><span>Bridge Dollars</span><br>USDb</td>
+            <td><span>$10,000</span><br>10,000 USDb</td>
+            <td><span class="text-green">6.47%</span><br>+$1.77 per day</td>
+            <td><span>$1,500</span><br>1,800 USDb</td>
+            <td><span class="text-purple">7.25%</span><br>-$0.30 per day</td>
+          </tr>
+          <tr>
+            <td colspan="5" class="no-padding">
+              <div id="asset-bridge-expanded" class="grid asset-expanded" style="display: none;">
+                <!-- Supply -->
+                <div id="supply" class="grid-cell container supply">
+                  <!-- Title -->
+                  <div class="grid grid-center title">
+                    <div class="grid-cell">
+                      <h2>Supply</h2>
+                    </div>
+                    <div class="grid-cell text-right">
+                      <span class="text-green">6.47% APY</span>
+                    </div>
+                  </div>
+
+                  <!-- Chart -->
+                  <div class="grid">
+                    <div class="grid-cell">
+                      <img src="assets/img/placeholders/chart3.png">
+                    </div>
+                  </div>
+
+                  <!-- Slider -->
+                  <div class="grid margin-top-35">
+                    <div class="grid-cell">
+                      <div id="bridge-supply-slider" disabled></div>
+                    </div>
+                  </div>
+
+                  <!-- Legend -->
+                  <div class="grid legend">
+                    <div class="grid-cell">
+                      <p class="label deposited">Supplied</p>
+                      <input title="Deposited supply" id="supply-deposited" disabled="" value="50 USDb">
+                    </div>
+                    <div class="grid-cell">
+                      <p class="label available">Available</p>
+                      <input title="Available supply" id="supply-available" disabled="" value="50 USDb">
+                    </div>
+                  </div>
+
+                  <!-- Income -->
+                  <div class="grid legend income">
+                    <div class="grid-cell">
+                      <p class="label">Daily interest</p>
+                      <p id="supply-interest">+ 10 USDb</p>
+                    </div>
+                    <div class="grid-cell">
+                      <p class="label">Daily rewards</p>
+                      <p id="supply-rewards">+ 10 OMM</p>
+                    </div>
+                  </div>
+
+                  <!-- Button -->
+                  <div class="grid">
+                    <div class="grid-cell text-center">
+
+                      <div class="grid grid-center supply-actions">
+                        <div class="grid-cell text-center">
+                          <a href="#" class="button supply-adjust" id="supply-adjust-button">Adjust</a>
+                        </div>
+                      </div>
+                      <div class="grid grid-center supply-actions hide">
+                        <div class="grid-cell text-right">
+                          <a id="cancel-supply-adjust" href="#" class="cancel supply-adjust">Cancel</a>
+                        </div>
+                        <div class="grid-cell text-left">
+                          <a href="#" class="button modal-trigger" data-modal="modal-1" id="modal-trigger-1">Confirm</a>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Borrow -->
+                <div id="borrow" class="grid-cell container borrow">
+                  <!-- Title -->
+                  <div class="grid grid-center title">
+                    <div class="grid-cell">
+                      <h2>Borrow</h2>
+                    </div>
+                    <div class="grid-cell text-right">
+                      <span>7.25% APY</span>
+                    </div>
+                  </div>
+
+                  <!-- Chart -->
+                  <div class="grid">
+                    <div class="grid-cell">
+                      <img src="assets/img/placeholders/chart4.png">
+                    </div>
+                  </div>
+
+                  <!-- Slider -->
+                  <div class="grid margin-top-35">
+                    <div class="grid-cell">
+                      <div id="bridge-borrow-slider" disabled></div>
+                    </div>
+                  </div>
+
+                  <!-- Legend -->
+                  <div class="grid legend">
+                    <div class="grid-cell">
+                      <p class="label deposited">Borrowed</p>
+                      <input title="Deposited borrow" id="borrow-borrowed" disabled="" value="50 USDb">
+                    </div>
+                    <div class="grid-cell">
+                      <p class="label available">Available</p>
+                      <input title="Available borrow" id="borrow-available" disabled="" value="50 USDb">
+                    </div>
+                  </div>
+
+                  <!-- Income -->
+                  <div class="grid legend income">
+                    <div class="grid-cell">
+                      <p class="label">Daily interest</p>
+                      <p id="borrow-interest">- 10 USDb</p>
+                    </div>
+                    <div class="grid-cell">
+                      <p class="label">Daily rewards</p>
+                      <p id="borrow-rewards">+ 10 OMM</p>
+                    </div>
+                  </div>
+
+                  <!-- Button -->
+                  <div class="grid">
+                    <div class="grid-cell text-center">
+                      <div class="grid grid-center borrow-actions">
+                        <div class="grid-cell text-center">
+                          <a href="#" class="button borrow-adjust" id="borrow-adjust-button">Adjust</a>
+                        </div>
+                      </div>
+                      <div class="grid grid-center borrow-actions hide">
+                        <div class="grid-cell text-right">
+                          <a href="#" class="cancel borrow-adjust">Cancel</a>
+                        </div>
+                        <div class="grid-cell text-left">
+                          <a href="#" class="button modal-trigger" data-modal="modal-2" id="modal-trigger-2">Confirm</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+
+          <tr class="spacer"></tr>
+
+          <tr id="asset-icon" class="icon asset">
+            <td><span>ICON</span><br>ICX</td>
+            <td><p class="opacity-half"><span>—</span><br>—</p></td>
+            <td><p class="opacity-half"><span>—</span><br>—</p></td>
+            <td><span>$1,212</span><br>9,840 ICX</td>
+            <td><span class="text-purple">5.25%</span><br>-$2.18 per day</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+  <!-- /Asset list -->
+
+  <!-- Wallet -->
+  <section class="wallet" style="margin-left: 285px;">
+    <h2 class="margin-bottom-25">Wallet</h2>
+    <table class="list-activity">
+      <thead>
+      <tr>
+        <th>Asset</th>
+        <th>Balance</th>
+        <th>Price</th>
+        <th>Chart</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr id="asset-bridge" class="asset bridge">
+        <td><span>Bridge Dollars</span><br>USDb</td>
+        <td><span>$1,690</span><br>1,690 USDb</td>
+        <td><span>$1.00</span><br>+0% past 24H</td>
+        <td><img src="assets/img/placeholders/sparkline.png"></td>
+      </tr>
+      <tr>
+        <td colspan="5" class="no-padding">
+          <div id="asset-bridge-expanded" class="grid asset-expanded" style="display: none;">
+
+          </div>
+        </td>
+      </tr>
+
+      <!-- Spacer -->
+      <tr class="spacer"></tr>
+
+      <!-- Asset omm -->
+      <tr id="asset-omm" class="asset omm">
+        <td><span>Omm Tokens</span><br>OMM</td>
+        <td><span>$2,089</span><br>12,210 OMM</td>
+        <td><span>$0.17</span><br>+6.34% past 24H</td>
+        <td><img src="assets/img/placeholders/sparkline.png"></td>
+      </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Activity list -->
+  <section style="margin-left: 285px;">
+    <h2 class="margin-bottom-25">Activity</h2>
+    <table class="list-activity">
+      <thead>
+      <tr>
+        <th>Date</th>
+        <th>Activity</th>
+        <th>Transaction</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr class="activity-item">
+        <td><span>9 June, Tuesday</span><br>10:23 am</td>
+        <td><span>Supplied 10,000 Bridge Dollars</span><br>+ 10,000 USDb</td>
+        <td><span>View on the ICON tracker</span><br>0x28c08b2...2240bc3</td>
+      </tr>
+      <tr class="spacer"></tr>
+      <tr class="activity-item">
+        <td><span>8 June, Monday</span><br>4:20 pm</td>
+        <td><span>Supplied 840 ICON</span><br>+ 840 ICX</td>
+        <td><span>View on the ICON tracker</span><br>0x28c08b2...2240bc3</td>
+      </tr>
+      <tr class="spacer"></tr>
+      <tr class="activity-item">
+        <td><span>3 June, Wednesday</span><br>7:55 am</td>
+        <td><span>Borrowed 1,500 Bridge Dollars</span><br>+ 500 USDb</td>
+        <td><span>View on the ICON tracker</span><br>0x28c08b2...2240bc3</td>
+      </tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+<!-- /Markets content -->
+
+<!-- Modal overlay -->
+<div class="modal-overlay"></div>
