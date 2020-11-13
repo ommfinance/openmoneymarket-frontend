@@ -46,13 +46,13 @@ export class DepositService {
       alert("SCORE all addresses not loaded!");
       return;
     }
+    const data = encodeURI("{\"method\": \"deposit\", \"params\": {\"amount\": 100000000000000000}}");
     // TODO: refactor for Bridge
     const params = {
       _to: this.persistenceService.allAddresses.systemContract.LendingPool,
       _value: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
-      _data:  IconConverter.fromUtf8('{ "method": "deposit", "params": { "_amount": '+
-      IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()))
-    }
+      _data: data
+    };
 
     const tx = this.iconApiService.buildTransaction(wallet.address,  this.persistenceService.allAddresses.collateral.USDb,
       ScoreMethodNames.TRANSFER, params, IconTransactionType.WRITE);

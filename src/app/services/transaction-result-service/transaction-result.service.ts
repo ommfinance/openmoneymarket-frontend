@@ -26,7 +26,7 @@ export class TransactionResultService {
           this.scoreService.getUserBalanceOfUSDb().then(res => {
             console.log("USDb balance after: ", res);
           });
-          console.log("payload.id: ",payload.id);
+          console.log("payload.id: ", payload.id);
           console.log("res:", res);
           switch (payload.id) {
             case IconexRequestsMap.DEPOSIT_USDb:

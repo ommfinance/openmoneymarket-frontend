@@ -171,7 +171,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
       $('#risk-percentage-bridge').text(percentageFormat.to( 1 / ((usdbFormat.from(this.supplyDeposited.value) * 0.66) / usdbFormat.from(this.borrowBorrowed.value)) * 100));
 
       // Adjust locked indicator for collateral
-      document.getElementById("locked")!.style.left = (23 * (usdbFormat.from(this.borrowBorrowed.value) / 2053)) + "%";
+      // document.getElementById("locked")!.style.left = (23 * (usdbFormat.from(this.borrowBorrowed.value) / 2053)) + "%";
 
     });
   }
