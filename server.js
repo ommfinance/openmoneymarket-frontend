@@ -2,13 +2,19 @@ const express = require('express');
 const http = require('http');
 const path = require('path');
 
+const _app_folder = __dirname + '/dist/frontend';
+
 const app = express();
 
 const port = process.env.PORT || 3001;
 
-app.use(express.static(__dirname + '/dist/frontend'));
+// ---- SERVE STATIC FILES ---- //
+app.get('*.*', express.static(_app_folder, {maxAge: '1y'}));
 
-app.all('/*', (req, res) => res.sendFile(path.join(config.root, 'index.html')));
+// ---- SERVE APLICATION PATHS ---- //
+app.all('*', function (req, res) {
+  res.status(200).sendFile(`/`, {root: _app_folder});
+});
 
 const server = http.createServer(app);
 
