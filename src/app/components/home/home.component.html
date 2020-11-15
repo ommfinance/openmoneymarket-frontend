@@ -63,7 +63,7 @@
           <div class="grid legend">
             <div class="grid-cell">
               <p class="label">You've supplied</p>
-              <p class="text-size-25">$10,000</p>
+              <p class="text-size-25">${{this.formatNumberToUSLocaleString(this.persistenceService.userUSDbReserve?.currentOTokenBalanceUSD)}}</p>
               <p class="label text-green">6.47% APY</p>
             </div>
           </div>
@@ -73,7 +73,7 @@
           <div class="grid legend">
             <div class="grid-cell">
               <p class="label">You've borrowed</p>
-              <p class="text-size-25">$2,712</p>
+              <p class="text-size-25">${{this.formatNumberToUSLocaleString(this.persistenceService.userUSDbReserve?.principalBorrowBalanceUSD)}}</p>
               <p class="label text-purple">5.25% APY</p>
             </div>
           </div>
@@ -128,11 +128,13 @@
           </tr>
           </thead>
           <tbody>
-          <tr id="asset-bridge" class="asset bridge">
+          <tr id="asset-bridge" class="asset bridge" (click)="onAssetBridgeClick()">
             <td><span>Bridge Dollars</span><br>USDb</td>
-            <td><span>$10,000</span><br>10,000 USDb</td>
+            <td><span>${{this.formatNumberToNdigits(this.persistenceService.userUSDbReserve?.currentOTokenBalanceUSD)}}</span>
+              <br>{{this.formatNumberToUSLocaleString(this.persistenceService.userUSDbReserve?.currentOTokenBalance)}} USDb</td>
             <td><span class="text-green">6.47%</span><br>+$1.77 per day</td>
-            <td><span>$1,500</span><br>1,800 USDb</td>
+            <td><span>${{this.formatNumberToNdigits(this.persistenceService.userUSDbReserve?.principalBorrowBalanceUSD)}}</span>
+              <br>{{this.formatNumberToUSLocaleString(this.persistenceService.userUSDbReserve?.principalBorrowBalance)}} USDb</td>
             <td><span class="text-purple">7.25%</span><br>-$0.30 per day</td>
           </tr>
           <tr>
@@ -168,7 +170,8 @@
                   <div class="grid legend">
                     <div class="grid-cell">
                       <p class="label deposited">Supplied</p>
-                      <input title="Deposited supply" id="supply-deposited" disabled="" value="50 USDb">
+                      <input title="Deposited supply" id="supply-deposited" (keyup)="depositUSDbAmountChange()" step="1" min="0" [max]="persistenceService.iconexWallet?.balances?.USDb"
+                             disabled="" value="50 USDb">
                     </div>
                     <div class="grid-cell">
                       <p class="label available">Available</p>
@@ -194,15 +197,15 @@
 
                       <div class="grid grid-center supply-actions">
                         <div class="grid-cell text-center">
-                          <a href="#" class="button supply-adjust" id="supply-adjust-button">Adjust</a>
+                          <a href="javascript:void(0);" class="button supply-adjust" id="supply-adjust-button" (click)="onSupplyAdjustClick()">Adjust</a>
                         </div>
                       </div>
                       <div class="grid grid-center supply-actions hide">
                         <div class="grid-cell text-right">
-                          <a id="cancel-supply-adjust" href="#" class="cancel supply-adjust">Cancel</a>
+                          <a id="cancel-supply-adjust" href="javascript:void(0);" class="cancel supply-adjust" (click)="onSupplyAdjustClick()">Cancel</a>
                         </div>
                         <div class="grid-cell text-left">
-                          <a href="#" class="button modal-trigger" data-modal="modal-1" id="modal-trigger-1">Confirm</a>
+                          <a href="javascript:void(0);" class="button modal-trigger" data-modal="modal-1" id="modal-trigger-1" (click)="onUSDbSupplyConfirmClick()">Confirm</a>
                         </div>
                       </div>
 
@@ -312,7 +315,7 @@
       </tr>
       </thead>
       <tbody>
-      <tr id="asset-bridge" class="asset bridge">
+      <tr id="asset-bridge2" class="asset bridge">
         <td><span>Bridge Dollars</span><br>USDb</td>
         <td><span>$1,690</span><br>1,690 USDb</td>
         <td><span>$1.00</span><br>+0% past 24H</td>
@@ -320,7 +323,7 @@
       </tr>
       <tr>
         <td colspan="5" class="no-padding">
-          <div id="asset-bridge-expanded" class="grid asset-expanded" style="display: none;">
+          <div id="asset-bridge-expanded2" class="grid asset-expanded" style="display: none;">
 
           </div>
         </td>

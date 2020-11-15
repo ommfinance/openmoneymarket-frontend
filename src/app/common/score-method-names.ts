@@ -8,6 +8,7 @@ export class ScoreMethodNames {
    * LendingPool SCORE
    */
   public static DEPOSIT = "deposit";
+  public static WITHDRAW = "redeem";
 
   /*
    * IRC2 interface methods

@@ -36,6 +36,7 @@ export class DataLoaderService {
       .then((res: UserUSDbReserve) => {
         this.persistenceService.userUSDbReserve = Mapper.mapHexStringsOfObjectToNormalisedValue(res);
         console.log("loadUserUSDbReserveData:", res);
+        this.persistenceService.userUSDbReserveChange.next(res);
       });
   }
 }

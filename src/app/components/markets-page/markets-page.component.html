@@ -47,7 +47,7 @@
 		<!-- /Navigation -->
 
 <!-- Markets content -->
-<main class="markets" (click)="onMainClick()">
+<main class="markets">
 
   <div class="grid grid-bottom">
     <div class="grid-cell">
@@ -118,13 +118,13 @@
           </tr>
           </thead>
           <tbody>
-          <tr id="asset-bridge" class="asset bridge" (click)="onAssetBridgeClick()">
+          <tr id="asset-bridge" class="asset bridge">
             <td><span>Bridge Dollars</span><br>USDb</td>
-            <td><span>${{this.formatNumberToNdigits(this.persistenceService.userUSDbReserve?.currentOTokenBalanceUSD)}}</span>
-              <br>{{this.formatNumberToUSLocaleString(this.persistenceService.userUSDbReserve?.currentOTokenBalance)}} USDb</td>
+            <td><span>${{this.formatNumberToNdigits(this.persistenceService.allReserves?.USDb?.totalLiquidity)}}</span>
+              <br>{{this.formatNumberToUSLocaleString(this.persistenceService.allReserves?.USDb?.totalLiquidity)}} USDb</td>
             <td><span class="text-green">6.47%</span><br>+0.51% past 24H</td>
-            <td><span>${{this.formatNumberToNdigits(this.persistenceService.userUSDbReserve?.principalBorrowBalanceUSD)}}</span>
-              <br>{{this.formatNumberToUSLocaleString(this.persistenceService.userUSDbReserve?.principalBorrowBalance)}} USDb</td>
+            <td><span>${{this.formatNumberToNdigits(this.persistenceService.allReserves?.USDb?.totalBorrows)}}</span>
+              <br>{{this.formatNumberToUSLocaleString(this.persistenceService.allReserves?.USDb?.totalBorrows)}} USDb</td>
             <td><span class="text-purple">7.25%</span><br>-0.27% past 24H</td>
           </tr>
           <tr>
@@ -161,7 +161,7 @@
                   <div class="grid legend">
                     <div class="grid-cell">
                       <p class="label deposited">Supplied</p>
-                      <input title="Deposited supply" id="supply-deposited" (keyup)="depositUSDbAmountChange()" step="1" min="0" disabled="" value="50 USDb">
+                      <input title="Deposited supply" id="supply-deposited" step="1" min="0" disabled="" value="50 USDb">
                     </div>
                     <div class="grid-cell">
                       <p class="label available">Available</p>
@@ -187,15 +187,15 @@
 
                       <div class="grid grid-center supply-actions">
                         <div class="grid-cell text-center">
-                          <a href="javascript:void(0);" class="button supply-adjust" id="supply-adjust-button"  (click)="onSupplyAdjustClick()">Adjust</a>
+                          <a href="javascript:void(0);" class="button supply-adjust" id="supply-adjust-button"  >Adjust</a>
                         </div>
                       </div>
                       <div class="grid grid-center supply-actions hide">
                         <div class="grid-cell text-right">
-                          <a id="cancel-supply-adjust" class="cancel supply-adjust" href="javascript:void(0);" (click)="onSupplyAdjustClick()">Cancel</a>
+                          <a id="cancel-supply-adjust" class="cancel supply-adjust" href="javascript:void(0);" >Cancel</a>
                         </div>
                         <div class="grid-cell text-left">
-                          <a href="javascript:void(0);" class="button modal-trigger" data-modal="modal-1" id="modal-trigger-1" (click)="onUSDbDepositConfirmClick()">Confirm</a>
+                          <a href="javascript:void(0);" class="button modal-trigger" data-modal="modal-1" id="modal-trigger-1" >Confirm</a>
                         </div>
                       </div>
 
@@ -258,7 +258,7 @@
                     <div class="grid-cell text-center">
                       <div class="grid grid-center borrow-actions">
                         <div class="grid-cell text-center">
-                          <a href="javascript:void(0);" class="button borrow-adjust" id="borrow-adjust-button" (click)="onBorrowAdjustClick()">Adjust</a>
+                          <a href="javascript:void(0);" class="button borrow-adjust" id="borrow-adjust-button" >Adjust</a>
                         </div>
                       </div>
                       <div class="grid grid-center borrow-actions hide">
@@ -266,7 +266,7 @@
                           <a href="javascript:void(0);" class="cancel borrow-adjust">Cancel</a>
                         </div>
                         <div class="grid-cell text-left">
-                          <a href="javascript:void(0);" class="button modal-trigger" data-modal="modal-2" id="modal-trigger-2" (click)="onBorrowAdjustClick()">Confirm</a>
+                          <a href="javascript:void(0);" class="button modal-trigger" data-modal="modal-2" id="modal-trigger-2" >Confirm</a>
                         </div>
                       </div>
                     </div>

@@ -26,21 +26,27 @@ export class TransactionResultService {
       this.iconApiService.getTxResult(payload.result).
       then((res: any) => {
         if (res.status === 1) {
-          this.scoreService.getUserBalanceOfUSDb().then(res => {
-            console.log("USDb balance after: ", res);
-          });
           console.log("payload.id: ", payload.id);
           console.log("res:", res);
           switch (payload.id) {
             case IconexRequestsMap.DEPOSIT_USDb:
-              // TODO: handle what happens after deposited USDb
-              // Get reserve data for a specific reserve -> LendingPoolDataProvider SCORE (that will give USDb reserve information)
-              // After deposit->LendingPoolDataProvider->get user reserve data for specific user and get user all reserve data
-              const amount: number = Utils.ixcValueToNormalisedValue(res.eventLogs[0].indexed[3]);
-              console.log("processTransactionResult -> Amount deposited:", amount);
-
+              this.scoreService.getUserBalanceOfUSDb().then(res => {
+                console.log("USDb balance after deposit: ", res);
+              });
+              // load all reserves and user specific USDb reserve data
               this.dataLoaderService.loadAllReserves();
               this.dataLoaderService.loadUserUSDbReserveData();
+              break;
+            case IconexRequestsMap.WITHDRAW_USDb:
+              this.scoreService.getUserBalanceOfUSDb().then(res => {
+                console.log("USDb balance after withdraw: ", res);
+              });
+              // load all reserves and user specific USDb reserve data
+              this.dataLoaderService.loadAllReserves();
+              this.dataLoaderService.loadUserUSDbReserveData();
+              break;
+            default:
+              break;
           }
         } else {
           console.log("Transaction failed! Details: ", res);

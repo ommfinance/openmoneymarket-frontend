@@ -3,6 +3,7 @@ import {IconWallet} from '../../models/IconWallet';
 import {AllAddresses} from '../../interfaces/all-addresses';
 import {AllReserves} from "../../interfaces/all-reserves";
 import {UserUSDbReserve} from "../../interfaces/user-usdb-reserve";
+import {Subject} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,26 @@ export class PersistenceService {
   public allReserves: AllReserves | undefined;
   public userUSDbReserve: UserUSDbReserve | undefined;
 
+  public userUSDbBalanceChange: Subject<number> = new Subject<number>();
+  public userUSDbReserveChange: Subject<UserUSDbReserve> = new Subject<UserUSDbReserve>();
+
   constructor() {
+    this.userUSDbBalanceChange.subscribe(value => {
+      if (this.iconexWallet) {
+        this.iconexWallet.balances.USDb = value;
+      }
+    })
+    this.userUSDbReserveChange.subscribe(value => {
+      this.userUSDbReserve = value;
+    })
+  }
+
+  public updateUserUSDbBalance(balance: number) {
+    this.userUSDbBalanceChange.next(balance);
+  }
+
+  public updateUserUSDbReserve(userUSDbReserve: UserUSDbReserve) {
+    this.userUSDbReserveChange.next(userUSDbReserve);
   }
 
   public iconexLogin(iconWallet: IconWallet): void {

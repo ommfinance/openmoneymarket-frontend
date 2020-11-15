@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
 import {IconTransactionType} from '../../models/IconTransactionType';
-import IconService, { IconBuilder, IconAmount, IconConverter, SignedTransaction } from "icon-sdk-js";
+import IconService, { IconAmount, IconConverter } from "icon-sdk-js";
 import {IconApiService} from '../icon-api-service/icon-api.service';
 import {PersistenceService} from '../persistence-service/persistence.service';
 import {ScoreMethodNames} from '../../common/score-method-names';
 import {MockScoreService} from '../mock-score/mock-score.service';
-import {Constants} from '../../common/constants';
 import {IconWallet} from '../../models/IconWallet';
 import {IconexApiService} from '../iconex-api/iconex-api.service';
 import {IconexRequestsMap} from '../../common/iconex-requests-map';
@@ -62,7 +61,6 @@ export class DepositService {
     });
 
     this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.DEPOSIT_USDb);
-    this.mockScoreService.depositUSDbStateChange(amount);
   }
 
 }

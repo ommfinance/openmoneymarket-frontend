@@ -51,10 +51,4 @@ export class MockScoreService {
     };
   }
 
-  public depositUSDbStateChange(amount: number): void {
-    this.userSuppliedUSD += +amount;
-    this.userSuppliedUSDb += +amount;
-    this.totalSuppliedUSD += +amount;
-  }
-
 }

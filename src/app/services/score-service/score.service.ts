@@ -78,7 +78,9 @@ export class ScoreService {
         _owner: address ?? this.persistenceService.iconexWallet?.address
       }, IconTransactionType.READ);
     const res = await this.iconApiService.iconService.call(tx).execute();
-    return Utils.ixcValueToNormalisedValue(res);
+    const balance = Utils.ixcValueToNormalisedValue(res);
+    this.persistenceService.updateUserUSDbBalance(balance);
+    return balance;
   }
 
 }
