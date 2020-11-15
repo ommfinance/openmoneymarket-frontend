@@ -3,6 +3,14 @@
 
 module.exports = function (config) {
   config.set({
+    files: [
+      "src/assets/js/vendor/jquery-3.4.1.min.js",
+      "src/assets/js/vendor/modernizr-3.8.0.min.js",
+      "src/assets/js/plugins.js",
+      "src/assets/js/classie.js",
+      "src/assets/js/slider.js",
+      "src/assets/js/wNumb.min.js"
+    ],
     basePath: '',
     frameworks: ['jasmine', '@angular-devkit/build-angular'],
     plugins: [
