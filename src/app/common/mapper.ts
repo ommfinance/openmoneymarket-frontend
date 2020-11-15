@@ -1,12 +1,12 @@
-import {AllReserves} from "../interfaces/AllReserves";
+import {AllReserves} from "../interfaces/all-reserves";
 import {Utils} from "./utils";
 
 export class Mapper {
-  public static mapAllReserves(allReserves: AllReserves): AllReserves {
-    Object.keys(allReserves.USDb).map(function(key, index) {
+  public static mapHexStringsOfObjectToNormalisedValue<T>(object: T): T {
+    Object.keys(object).map(function(key, index) {
       // @ts-ignore
-      allReserves.USDb[key] = Utils.ixcValueToNormalisedValue(allReserves.USDb[key]).toFixed(2);
+      object[key] = Utils.ixcValueToNormalisedValue(object[key]);
     });
-    return allReserves;
+    return object;
   }
 }

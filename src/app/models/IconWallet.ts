@@ -1,10 +1,12 @@
+import {TokenBalances} from "./TokenBalances";
+
 export class IconWallet {
   address: string;
-  balance: number;
+  balances: TokenBalances;
 
-  constructor(address: string, balance: number) {
+  constructor(address: string, balances: TokenBalances) {
     this.address = address;
-    this.balance = balance;
+    this.balances = balances;
   }
 
 }

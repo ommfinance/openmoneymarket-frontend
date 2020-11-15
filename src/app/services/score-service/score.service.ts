@@ -32,6 +32,10 @@ export class ScoreService {
       alert("getUserReserveDataForSpecificReserve->reserve or allAddresses undefined");
       throw new Error("getUserReserveDataForSpecificReserve->reserve or allAddresses undefined");
     }
+    if (!this.persistenceService.iconexWallet) {
+      alert("getUserReserveDataForSpecificReserve-> No wallet connected!");
+      throw new Error("getUserReserveDataForSpecificReserve-> No wallet connected!");
+    }
     const params = {
       _user: this.persistenceService.iconexWallet?.address,
       _reserve: reserve
@@ -64,14 +68,14 @@ export class ScoreService {
     return await this.iconApiService.iconService.call(tx).execute();
   }
 
-  public async getUserBalanceOfUSDb(): Promise<number> {
+  public async getUserBalanceOfUSDb(address?: string): Promise<number> {
     if (!this.persistenceService.allAddresses) {
       alert("getUserBalanceOfUSDb: All addresses not loaded!")
       return -1;
     }
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses?.collateral.USDb,
       ScoreMethodNames.BALANCE, {
-        _owner: this.persistenceService.iconexWallet?.address
+        _owner: address ?? this.persistenceService.iconexWallet?.address
       }, IconTransactionType.READ);
     const res = await this.iconApiService.iconService.call(tx).execute();
     return Utils.ixcValueToNormalisedValue(res);

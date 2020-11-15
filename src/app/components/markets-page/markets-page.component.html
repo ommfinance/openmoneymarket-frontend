@@ -120,11 +120,11 @@
           <tbody>
           <tr id="asset-bridge" class="asset bridge" (click)="onAssetBridgeClick()">
             <td><span>Bridge Dollars</span><br>USDb</td>
-            <td><span>${{this.formatNumberToNdigits(this.mockScoreService.userSuppliedUSD)}}</span>
-              <br>{{this.formatNumberToUSLocaleString(this.mockScoreService.userSuppliedUSDb)}} USDb</td>
+            <td><span>${{this.formatNumberToNdigits(this.persistenceService.userUSDbReserve?.currentOTokenBalanceUSD)}}</span>
+              <br>{{this.formatNumberToUSLocaleString(this.persistenceService.userUSDbReserve?.currentOTokenBalance)}} USDb</td>
             <td><span class="text-green">6.47%</span><br>+0.51% past 24H</td>
-            <td><span>${{this.formatNumberToNdigits(this.mockScoreService.userBorrowedUSD)}}</span>
-              <br>{{this.formatNumberToUSLocaleString(this.mockScoreService.totalBorrowedUSDb)}} USDb</td>
+            <td><span>${{this.formatNumberToNdigits(this.persistenceService.userUSDbReserve?.principalBorrowBalanceUSD)}}</span>
+              <br>{{this.formatNumberToUSLocaleString(this.persistenceService.userUSDbReserve?.principalBorrowBalance)}} USDb</td>
             <td><span class="text-purple">7.25%</span><br>-0.27% past 24H</td>
           </tr>
           <tr>

@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import {IconWallet} from '../../models/IconWallet';
 import {AllAddresses} from '../../interfaces/all-addresses';
-import {AllReserves} from "../../interfaces/AllReserves";
+import {AllReserves} from "../../interfaces/all-reserves";
+import {UserUSDbReserve} from "../../interfaces/user-usdb-reserve";
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +12,7 @@ export class PersistenceService {
   public iconexWallet: IconWallet | undefined;
   public allAddresses: AllAddresses | undefined;
   public allReserves: AllReserves | undefined;
+  public userUSDbReserve: UserUSDbReserve | undefined;
 
   constructor() {
   }

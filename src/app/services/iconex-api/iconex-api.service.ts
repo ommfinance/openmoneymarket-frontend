@@ -5,6 +5,9 @@ import {IconApiService} from "../icon-api-service/icon-api.service";
 import {PersistenceService} from "../persistence-service/persistence.service";
 import {IconConverter } from "icon-sdk-js";
 import {TransactionResultService} from '../transaction-result-service/transaction-result.service';
+import {TokenBalances} from "../../models/TokenBalances";
+import {ScoreService} from "../score-service/score.service";
+import {DataLoaderService} from "../data-loader-service/data-loader.service";
 
 @Injectable({
   providedIn: "root"
@@ -17,14 +20,13 @@ export class IconexApiService {
 
   constructor(private iconApiService: IconApiService,
               private persistenceService: PersistenceService,
-              private transactionResultService: TransactionResultService) { }
+              private transactionResultService: TransactionResultService,
+              private scoreService: ScoreService,
+              private dataLoaderService: DataLoaderService) { }
 
   public iconexEventHandler( e: any): void {
     const {type, payload} = e.detail;
-
-    if (!environment.production) {
-      console.log(type, " : ", payload);
-    }
+    console.log(type, " : ", payload);
 
     switch (type) {
       case "RESPONSE_HAS_ACCOUNT": {
@@ -33,11 +35,17 @@ export class IconexApiService {
         break;
       }
       case "RESPONSE_ADDRESS": {
-        this.iconApiService.getIcxBalance(payload).then((result: number) => {
-          if (!environment.production) { console.log("Balances: ", result); }
-          this.persistenceService.iconexLogin(new IconWallet(payload, result));
-        }).catch( err => console.error(err));
-        alert("Successfully connected your Icon wallet!");
+        this.persistenceService.iconexLogin(new IconWallet(payload, new TokenBalances()));
+        this.dataLoaderService.loadUserUSDbReserveData();
+        this.iconApiService.getIcxBalance(payload).then((icxBalance: number) => {
+          console.log("ICX balance: ", icxBalance);
+          this.persistenceService.iconexWallet!.balances.ICX = icxBalance;
+          this.scoreService.getUserBalanceOfUSDb(payload).then((USDbBalance: number) => {
+            console.log("USDb balance: ", USDbBalance);
+            this.persistenceService.iconexWallet!.balances.USDb = USDbBalance;
+          })
+        });
+        console.log("Successfully connected your Icon wallet!");
         break;
       }
       case "RESPONSE_JSON-RPC": {

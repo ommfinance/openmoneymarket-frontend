@@ -3,24 +3,24 @@ export interface AllReserves {
 }
 
 export interface USDbReserve {
-  availableLiquidity: string;
-  baseLTVasCollateral: string;
-  borrowCumulativeIndex: string;
-  borrowRate: string;
-  borrowingEnabled: string;
-  decimals: string;
-  isActive: string;
-  isFreezed: string;
-  lastUpdateTimestamp: string;
-  liquidationBonus: string;
-  liquidationThreshold: string;
-  liquidityCumulativeIndex: string;
-  liquidityRate: string;
-  oTokenAddress: string;
-  reserveAddress: string;
-  totalBorrows: string;
-  totalLiquidity: string;
-  usageAsCollateralEnabled: string;
+  availableLiquidity: number;
+  baseLTVasCollateral: number;
+  borrowCumulativeIndex: number;
+  borrowRate: number;
+  borrowingEnabled: number;
+  decimals: number;
+  isActive: number;
+  isFreezed: number;
+  lastUpdateTimestamp: number;
+  liquidationBonus: number;
+  liquidationThreshold: number;
+  liquidityCumulativeIndex: number;
+  liquidityRate: number;
+  oTokenAddress: number;
+  reserveAddress: number;
+  totalBorrows: number;
+  totalLiquidity: number;
+  usageAsCollateralEnabled: number;
 }
 
 // Example

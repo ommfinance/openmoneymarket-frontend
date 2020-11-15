@@ -2,8 +2,10 @@ import { Injectable } from '@angular/core';
 import {ScoreService} from '../score-service/score.service';
 import {PersistenceService} from '../persistence-service/persistence.service';
 import {AllAddresses} from '../../interfaces/all-addresses';
-import {AllReserves} from "../../interfaces/AllReserves";
+import {AllReserves} from "../../interfaces/all-reserves";
 import {Mapper} from "../../common/mapper";
+import {IconWallet} from "../../models/IconWallet";
+import {UserUSDbReserve} from "../../interfaces/user-usdb-reserve";
 
 @Injectable({
   providedIn: 'root'
@@ -17,14 +19,23 @@ export class DataLoaderService {
   public loadScoreAddresses(): Promise<void> {
     return this.scoreService.getAllScoreAddresses().then((allAddresses: AllAddresses) => {
       this.persistenceService.allAddresses = allAddresses;
-      console.log("All addresses: ", allAddresses);
+      console.log("Loaded all addresses: ", allAddresses);
     });
   }
 
   public loadAllReserves(): Promise<void> {
     return this.scoreService.getReserveDataForAllReserves().then((allReserves: AllReserves) => {
-      this.persistenceService.allReserves = Mapper.mapAllReserves(allReserves);
-      console.log("All reserves: ", allReserves);
+      allReserves.USDb = Mapper.mapHexStringsOfObjectToNormalisedValue(allReserves.USDb);
+      this.persistenceService.allReserves = allReserves;
+      console.log("loadAllReserves: ", allReserves);
     });
+  }
+
+  public loadUserUSDbReserveData() {
+    this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses?.collateral.USDb)
+      .then((res: UserUSDbReserve) => {
+        this.persistenceService.userUSDbReserve = Mapper.mapHexStringsOfObjectToNormalisedValue(res);
+        console.log("loadUserUSDbReserveData:", res);
+      });
   }
 }

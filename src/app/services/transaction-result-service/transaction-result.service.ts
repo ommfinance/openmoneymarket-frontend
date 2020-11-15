@@ -5,8 +5,10 @@ import {IconApiService} from '../icon-api-service/icon-api.service';
 import {IconJsonRpcResponse} from '../../interfaces/icon-json-rpc-response';
 import {ScoreService} from '../score-service/score.service';
 import {PersistenceService} from '../persistence-service/persistence.service';
-import {AllReserves} from "../../interfaces/AllReserves";
+import {AllReserves} from "../../interfaces/all-reserves";
 import {Mapper} from "../../common/mapper";
+import {UserUSDbReserve} from "../../interfaces/user-usdb-reserve";
+import {DataLoaderService} from "../data-loader-service/data-loader.service";
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +17,8 @@ export class TransactionResultService {
 
   constructor(private iconApiService: IconApiService,
               private scoreService: ScoreService,
-              private persistenceService: PersistenceService) { }
+              private persistenceService: PersistenceService,
+              private dataLoaderService: DataLoaderService) { }
 
   public processIconexTransactionResult(payload: IconJsonRpcResponse): void {
     console.log("processTransactionResult->payload: ", payload);
@@ -36,16 +39,8 @@ export class TransactionResultService {
               const amount: number = Utils.ixcValueToNormalisedValue(res.eventLogs[0].indexed[3]);
               console.log("processTransactionResult -> Amount deposited:", amount);
 
-              this.scoreService.getReserveDataForAllReserves().then((res: AllReserves) => {
-                this.persistenceService.allReserves = Mapper.mapAllReserves(res);
-                console.log("getReserveDataForAllReserves", res);
-              });
-
-              this.scoreService.getUserReserveDataForAllReserves().then(res => console.log("getUserReserveDataForAllReserves", res));
-
-              this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses?.collateral.USDb)
-                .then(res => console.log("getUserReserveDataForSpecificReserve", res));
-
+              this.dataLoaderService.loadAllReserves();
+              this.dataLoaderService.loadUserUSDbReserveData();
           }
         } else {
           console.log("Transaction failed! Details: ", res);
