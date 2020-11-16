@@ -47,6 +47,9 @@ export class TransactionResultService {
               this.dataLoaderService.loadUserUSDbReserveData();
               alert("Successful withdraw of USDb!");
               break;
+            case IconexRequestsMap.BORROW_USDb:
+              console.log("IconexRequestsMap.BORROW_USDb");
+              break;
             default:
               break;
           }
