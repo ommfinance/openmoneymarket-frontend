@@ -45,6 +45,9 @@ export class TransactionResultService {
               this.dataLoaderService.loadAllReserves();
               this.dataLoaderService.loadUserUSDbReserveData();
               break;
+            case IconexRequestsMap.BORROW_USDb:
+              console.log("IconexRequestsMap.BORROW_USDb");
+              break;
             default:
               break;
           }

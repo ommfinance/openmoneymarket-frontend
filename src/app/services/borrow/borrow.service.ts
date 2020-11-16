@@ -12,7 +12,7 @@ import {IconexRequestsMap} from "../../common/iconex-requests-map";
 @Injectable({
   providedIn: 'root'
 })
-export class WithdrawService {
+export class BorrowService {
 
   constructor(private iconApiService: IconApiService,
               private persistenceService: PersistenceService,
@@ -21,7 +21,7 @@ export class WithdrawService {
               private scoreService: ScoreService) {
   }
 
-  public withdrawUSDb(amount: number) {
+  public borrowUSDb(amount: number) {
     if (!this.persistenceService.allAddresses || !this.persistenceService.iconexWallet) {
       alert("withdrawUSDb ->SCORE all addresses or icon wallet not loaded!");
       return;
@@ -29,19 +29,18 @@ export class WithdrawService {
     // TODO: refactor for Bridge
     const params = {
       _amount: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
+      _reserve: this.persistenceService.allAddresses.collateral.USDb
     };
 
     const tx = this.iconApiService.buildTransaction(this.persistenceService.iconexWallet.address,  this.persistenceService.allAddresses.oTokens.oUSDb,
-      ScoreMethodNames.WITHDRAW_USDB, params, IconTransactionType.WRITE);
+      ScoreMethodNames.BORROW_USDB, params, IconTransactionType.WRITE);
 
     console.log("TX: ", tx);
     this.scoreService.getUserBalanceOfUSDb().then(res => {
       console.log("USDb balance before withdraw: ", res);
     });
 
-    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.WITHDRAW_USDb);
+    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.BORROW_USDb);
   }
-
-
 
 }
