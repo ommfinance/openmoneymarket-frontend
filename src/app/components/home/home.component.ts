@@ -228,19 +228,20 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
         return;
       }
     }
-    const supplyAmountDiff = this.USDbDepositAmount - Math.round(this.persistenceService.userUSDbReserve!.currentOTokenBalance)
+    const supplyAmountDiff = this.USDbDepositAmount - Math.round(this.persistenceService.userUSDbReserve!.currentOTokenBalance);
     if (supplyAmountDiff > 0) {
-      console.log("Actual deposit = ", supplyAmountDiff)
+      console.log("Actual deposit = ", supplyAmountDiff);
+      // toggle USDb asset
+      this.onAssetBridgeClick();
       // deposit the amount - current supply
       this.depositService.depositUSDb(supplyAmountDiff);
     } else if (supplyAmountDiff < 0) {
-      console.log("Actual withdraw = ", supplyAmountDiff)
+      console.log("Actual withdraw = ", supplyAmountDiff);
       this.withdrawService.withdrawUSDb(Math.abs(supplyAmountDiff));
 
-      // toggle USDb asset
-      this.onAssetBridgeClick();
+
     } else {
-      alert("No change in supplied value!")
+      alert("No change in supplied value!");
       return;
     }
   }
