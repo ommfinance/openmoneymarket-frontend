@@ -1,4 +1,4 @@
-export interface UserUSDbReserve {
+export class UserUSDbReserve {
   borrowRate: number;
   currentBorrowBalance: number;
   currentBorrowBalanceUSD: number;
@@ -11,6 +11,21 @@ export interface UserUSDbReserve {
   principalBorrowBalanceUSD: number;
   useAsCollateral: number;
   userBorrowCumulativeIndex: number;
+
+  constructor(borrowRate: number, currentBorrowBalance: number, currentBorrowBalanceUSD: number, currentOTokenBalance: number, currentOTokenBalanceUSD: number, lastUpdateTimestamp: number, liquidityRate: number, originationFee: number, principalBorrowBalance: number, principalBorrowBalanceUSD: number, useAsCollateral: number, userBorrowCumulativeIndex: number) {
+    this.borrowRate = borrowRate;
+    this.currentBorrowBalance = currentBorrowBalance;
+    this.currentBorrowBalanceUSD = currentBorrowBalanceUSD;
+    this.currentOTokenBalance = currentOTokenBalance;
+    this.currentOTokenBalanceUSD = currentOTokenBalanceUSD;
+    this.lastUpdateTimestamp = lastUpdateTimestamp;
+    this.liquidityRate = liquidityRate;
+    this.originationFee = originationFee;
+    this.principalBorrowBalance = principalBorrowBalance;
+    this.principalBorrowBalanceUSD = principalBorrowBalanceUSD;
+    this.useAsCollateral = useAsCollateral;
+    this.userBorrowCumulativeIndex = userBorrowCumulativeIndex;
+  }
 }
 
 // EXAMPLE

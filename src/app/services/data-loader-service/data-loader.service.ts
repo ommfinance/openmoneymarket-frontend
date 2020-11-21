@@ -34,9 +34,9 @@ export class DataLoaderService {
   public loadUserUSDbReserveData() {
     this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses?.collateral.USDb)
       .then((res: UserUSDbReserve) => {
-        this.persistenceService.userUSDbReserve = Mapper.mapHexStringsOfObjectToNormalisedValue(res);
-        console.log("loadUserUSDbReserveData:", res);
-        this.persistenceService.updateUserUSDbReserve(res);
+        this.persistenceService.userUSDbReserve = Mapper.mapUserUSDbReserve(res);
+        console.log("userUSDbReserve:", res);
+        this.persistenceService.updateUserUSDbReserve(this.persistenceService.userUSDbReserve);
       });
   }
 }

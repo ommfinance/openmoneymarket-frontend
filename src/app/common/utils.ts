@@ -12,6 +12,13 @@ export class Utils {
     }
   }
 
+  public static hexToNumber(value: string | number): number {
+    if (typeof value === "string")
+      return parseInt(value, 16);
+    else
+      return value;
+  }
+
   // Returns true if the address is valid EOA address, false otherwise
   public static isEoaAddress(address: string): boolean {
     if (!address) { return false; }
