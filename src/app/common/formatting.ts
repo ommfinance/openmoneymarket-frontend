@@ -13,6 +13,14 @@ export const percentageFormat = wNumb({
   suffix: '%'
 });
 
+// + .00
+
+export const prefixPlusFormat = wNumb({
+  decimals: 2,
+  thousand: ',',
+  prefix: ' + '
+});
+
 // ICX
 
 export const icxFormat = wNumb({
@@ -78,4 +86,20 @@ export const usdTwoDecimalFormat = wNumb({
   decimals: 2,
   thousand: ',',
   prefix: '$'
+});
+
+// +$ .00
+
+export const usdTwoDecimalPlusFormat = wNumb({
+  decimals: 2,
+  thousand: ',',
+  prefix: '+$'
+});
+
+// -$ .00
+
+export const usdTwoDecimalMinusFormat = wNumb({
+  decimals: 2,
+  thousand: ',',
+  prefix: '-$'
 });

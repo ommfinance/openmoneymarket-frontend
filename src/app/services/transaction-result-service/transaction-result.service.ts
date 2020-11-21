@@ -36,6 +36,7 @@ export class TransactionResultService {
               // load all reserves and user specific USDb reserve data
               this.dataLoaderService.loadAllReserves();
               this.dataLoaderService.loadUserUSDbReserveData();
+              alert("Successful deposit of USDb!");
               break;
             case IconexRequestsMap.WITHDRAW_USDb:
               this.scoreService.getUserBalanceOfUSDb().then(res => {
@@ -44,11 +45,13 @@ export class TransactionResultService {
               // load all reserves and user specific USDb reserve data
               this.dataLoaderService.loadAllReserves();
               this.dataLoaderService.loadUserUSDbReserveData();
+              alert("Successful withdraw of USDb!");
               break;
             default:
               break;
           }
         } else {
+          alert("Transaction failed! Details: " +  String(res));
           console.log("Transaction failed! Details: ", res);
         }
       }).catch(e => {

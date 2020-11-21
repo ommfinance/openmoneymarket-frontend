@@ -17,7 +17,7 @@
     </div>
 
     <!-- Utilities -->
-    <div class="grid-cell"  *ngIf="this.persistenceService.isIconexWalletConnected()">
+    <div class="grid-cell"  *ngIf="this.persistenceService.userLoggedIn()">
       <!-- tooltip -->
       <span class="tooltip">
 						<span class="tooltip-item"><span id="profile" class="profile" (click)="onProfileClick()"></span></span>
@@ -33,12 +33,12 @@
 					</span>
       <div class="active-wallet">
         <p style="color: #49546a;">Wallet</p>
-        <p class="label" *ngIf="this.persistenceService.isIconexWalletConnected()">
+        <p class="label" *ngIf="this.persistenceService.userLoggedIn()">
           {{this.persistenceService.iconexWallet!.address}}</p>
       </div>
     </div>
 
-    <div class="grid-cell" *ngIf="!this.persistenceService.isIconexWalletConnected()">
+    <div class="grid-cell" *ngIf="!this.persistenceService.userLoggedIn()">
       <div class="active-wallet">
         <a href="javascript:void(0);" class="button" (click)="onConnectWalletClick()">Sign in</a>
       </div>

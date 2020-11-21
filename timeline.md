@@ -32,19 +32,19 @@
 - Documentation
 - Increase in test coverage
 
-## 2020-11-23: Integration of Ibriz SCORE ICX deposit/withdraw flow and Parrot9 Governance page
-- Integration of Governance page UI (exp.dlv Nov 17)
+## 2020-11-23: Integration of Ibriz SCORE ICX deposit/withdraw flow
 - Integration of SCORE ICX deposit/withdraw flow (exp.dlv Nov 21, possible delay)
 - Mocking Governance page variables (maybe real data if ready)
 
-## 2020-11-30: Work on backlogged tasks, refactor, documentation, tests, 4th prototype release
+## 2020-11-30: Work on backlogged tasks, refactor, documentation, tests, 4th prototype release, Parrot9 Governance page??
 - Work on backlogged tasks (Governance page, ICX deposit/withdraw flow)
 - Refactoring
 - Documentation
 - Increase of test coverage
 - 4th prototype release
+- Integration of Governance page UI (exp.dlv Nov 31) ???
 
-## 2020-12-14: Integration of Ibriz SCORE ICX loan/repay and Parrot9 Liquidation page
+## 2020-12-14: Integration of Ibriz SCORE ICX loan/repay and Parrot9 Liquidation page, Parrot9 Governance page??
 - Integration of SCORE ICX loan/repay (exp.dlv. Dec 2)
 - Integration of Parrot9 Liquidation page (exp.dlv. Nov 30)
 - Increase in test coverage

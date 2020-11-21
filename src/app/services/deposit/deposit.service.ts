@@ -9,6 +9,7 @@ import {IconWallet} from '../../models/IconWallet';
 import {IconexApiService} from '../iconex-api/iconex-api.service';
 import {IconexRequestsMap} from '../../common/iconex-requests-map';
 import {ScoreService} from "../score-service/score.service";
+import {Utils} from "../../common/utils";
 
 
 @Injectable({
@@ -41,6 +42,7 @@ export class DepositService {
   }
 
   private transferUSDbTokenToLendingPool(amount: number, wallet: IconWallet): void {
+    console.log("Deposit USDb amount = " + amount);
     if (!this.persistenceService.allAddresses) {
       alert("SCORE all addresses not loaded!");
       return;
@@ -49,8 +51,9 @@ export class DepositService {
     const params = {
       _to: this.persistenceService.allAddresses.systemContract.LendingPool,
       _value: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
-      _data: IconConverter.fromUtf8('{ "method": "deposit", "params": { "amount":' + IconAmount.of(amount, IconAmount.Unit.ICX).toLoop() + '}}')
+      _data: IconConverter.fromUtf8('{ "method": "deposit", "params": { "amount":' + Utils.scientificNotationToBigNumberString(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()) + '}}')
 };
+    console.log("Deposit USDb params amount = " + Utils.scientificNotationToBigNumberString(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()));
 
     const tx = this.iconApiService.buildTransaction(wallet.address,  this.persistenceService.allAddresses.collateral.USDb,
       ScoreMethodNames.TRANSFER, params, IconTransactionType.WRITE);

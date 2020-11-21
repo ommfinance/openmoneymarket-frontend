@@ -42,4 +42,26 @@ export class Utils {
     return num.toLocaleString('en-US');
   }
 
+  public static scientificNotationToBigNumberString(amount: string) {
+    amount = String(amount);
+    // example: 3.214e+21
+    if (amount.includes("e")) {
+      let splitAmount = amount.split("e+");
+      let exponent = +splitAmount[1]; // 21
+      let number = splitAmount[0]; // 3.214
+      let nrOfDecimals = 0;
+      if (number.split(".").length > 1) {
+        nrOfDecimals =  number.split(".")[1].length;
+      }
+      console.log("number of decimals = " + nrOfDecimals)
+      let res = number.toString();
+      for (let i = exponent - nrOfDecimals; i > 0; i--) {
+        res += "0";
+      }
+      return res.replace(".","");
+    } else {
+      return amount;
+    }
+  }
+
 }

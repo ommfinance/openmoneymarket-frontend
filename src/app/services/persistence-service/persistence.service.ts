@@ -47,7 +47,7 @@ export class PersistenceService {
     localStorage.removeItem('IconWallet');
   }
 
-  public isIconexWalletConnected(): boolean {
+  public userLoggedIn(): boolean {
     return this.iconexWallet != null;
   }
 
