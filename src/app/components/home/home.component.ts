@@ -201,7 +201,6 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     this.bridgeBorrowSlider.noUiSlider.on('update', (values: any, handle: any) => {
       // Bridge borrow text boxes
       this.borrowBorrowed.value = usdbFormat.to(values[handle] * 1);
-      $('.borrow-borrowed-dollar').text(usdFormat.to(values[handle] * 1));
       this.borrowBorrowed.value = (usdbFormat.to(3300 - values[handle]));
       // Supply interest
       $('#borrow-interest').text(usdbPrefixMinusFormat.to((values[handle] * 1) * 0.0725 / 365));
