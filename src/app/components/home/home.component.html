@@ -175,7 +175,7 @@
                           <h2>Supply</h2>
                         </div>
                         <div class="grid-cell text-right">
-                          <span class="text-green">6.47% APY</span>
+                          <span class="text-green">{{this.persistenceService.userUSDbReserve?.liquidityRate?.toFixed(5)}}% APY</span>
                         </div>
                       </div>
 
@@ -242,7 +242,7 @@
                           <h2>Borrow</h2>
                         </div>
                         <div class="grid-cell text-right">
-                          <span>7.25% APY</span>
+                          <span>{{this.persistenceService.userUSDbReserve?.borrowRate?.toFixed(5)}}% APY</span>
                         </div>
                       </div>
 
