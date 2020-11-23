@@ -13,7 +13,7 @@
   </div>
 </div>
 
-<!-- Bridge borrow modal -->
+<!-- Bridge borrow-service modal -->
 <div class="modal" id="modal-2">
   <div class="modal-content">
     <h3 class="text-center"><span class="adjust-label">Adjust</span> borrow by <br><strong id="borrow-increase">XXX USDb</strong>?</h3>
@@ -257,7 +257,7 @@
                       <div class="grid legend">
                         <div class="grid-cell">
                           <p class="label deposited">Borrowed</p>
-                          <input title="Deposited borrow" id="borrow-borrowed" disabled="" value="50 USDb">
+                          <input (keyup)="borrowUSDbAmountChange()" title="Deposited borrow" id="borrow-borrowed" disabled="" value="50 USDb">
                         </div>
                         <div class="grid-cell">
                           <p class="label available">Available</p>
@@ -282,15 +282,15 @@
                         <div class="grid-cell text-center">
                           <div class="grid grid-center borrow-actions">
                             <div class="grid-cell text-center">
-                              <a href="#" class="button borrow-adjust" id="borrow-adjust-button">Adjust</a>
+                              <a href="javascript:void(0);" class="button borrow-adjust" id="borrow-adjust-button" (click)="onBorrowAdjustClick()">Adjust</a>
                             </div>
                           </div>
                           <div class="grid grid-center borrow-actions hide">
                             <div class="grid-cell text-right">
-                              <a href="#" class="cancel borrow-adjust">Cancel</a>
+                              <a href="javascript:void(0);" class="cancel borrow-adjust">Cancel</a>
                             </div>
                             <div class="grid-cell text-left">
-                              <a href="#" class="button modal-trigger" data-modal="modal-2" id="modal-trigger-2">Confirm</a>
+                              <a href="javascript:void(0);" class="button modal-trigger" data-modal="modal-2" id="modal-trigger-2" (click)="onBorrowUSDbConfirmClick()">Confirm</a>
                             </div>
                           </div>
                         </div>
@@ -343,11 +343,11 @@
                       <div class="grid legend">
                         <div class="grid-cell">
                           <p class="label deposited">Supplied</p>
-                          <input title="Deposited supply" id="supply-deposited" disabled="" value="0 ICX">
+                          <input title="Deposited supply" id="supply-deposited-icon" disabled="" value="0 ICX">
                         </div>
                         <div class="grid-cell">
                           <p class="label available">Available</p>
-                          <input title="Available supply" id="supply-available" disabled="" value="3,000 ICX">
+                          <input title="Available supply" id="supply-available-icon" disabled="" value="3,000 ICX">
                         </div>
                       </div>
 

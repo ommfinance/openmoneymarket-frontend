@@ -17,7 +17,7 @@ export class AppComponent implements OnInit, OnDestroy {
               private dataLoaderService: DataLoaderService) {
     window.addEventListener("ICONEX_RELAY_RESPONSE", (e: any) => this.iconexApiService.iconexEventHandler(e));
     this.attachedListener = true;
-    dataLoaderService.loadScoreAddresses().then(() => dataLoaderService.loadAllReserves());
+    dataLoaderService.loadAllScoreAddresses().then(() => dataLoaderService.loadAllReserves());
   }
 
   ngOnInit(): void {

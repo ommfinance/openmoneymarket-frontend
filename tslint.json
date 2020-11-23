@@ -21,6 +21,7 @@
       true,
       "rxjs/Rx"
     ],
+    "no-unused-variable": true,
     "import-spacing": true,
     "indent": {
       "options": [
@@ -57,7 +58,7 @@
       true,
       "ignore-params"
     ],
-    "no-non-null-assertion": true,
+    "no-non-null-assertion": false,
     "no-redundant-jsdoc": true,
     "no-switch-case-fall-through": true,
     "no-var-requires": false,

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {IconexApiService} from "../../services/iconex-api/iconex-api.service";
 import {PersistenceService} from "../../services/persistence-service/persistence.service";
-import {DepositService} from "../../services/deposit/deposit.service";
+import {DepositService} from "../../services/deposit-service/deposit.service";
 
 declare var $: any;
 

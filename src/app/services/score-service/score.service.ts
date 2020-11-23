@@ -58,7 +58,7 @@ export class ScoreService {
     return await this.iconApiService.iconService.call(tx).execute();
   }
 
-  public async getReserveDataForAllReserves() {
+  public async getReserveDataForAllReserves(): Promise<any> {
     if (!this.persistenceService.allAddresses) {
       alert("getReserveDataForAllReserves->allAddresses");
       throw new Error("getReserveDataForAllReserves->allAddresses undefined");
@@ -70,7 +70,7 @@ export class ScoreService {
 
   public async getUserBalanceOfUSDb(address?: string): Promise<number> {
     if (!this.persistenceService.allAddresses) {
-      alert("getUserBalanceOfUSDb: All addresses not loaded!")
+      alert("getUserBalanceOfUSDb: All addresses not loaded!");
       return -1;
     }
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses?.collateral.USDb,

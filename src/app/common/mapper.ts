@@ -3,7 +3,7 @@ import {UserUSDbReserve} from "../interfaces/user-usdb-reserve";
 
 export class Mapper {
   public static mapHexStringsOfObjectToNormalisedValue<T>(object: T): T {
-    Object.keys(object).map(function(key, index) {
+    Object.keys(object).map((key, index) => {
       // @ts-ignore
       object[key] = Utils.ixcValueToNormalisedValue(object[key]);
     });

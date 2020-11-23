@@ -31,24 +31,30 @@ export class TransactionResultService {
           switch (payload.id) {
             case IconexRequestsMap.DEPOSIT_USDb:
               this.scoreService.getUserBalanceOfUSDb().then(res => {
-                console.log("USDb balance after deposit: ", res);
+                console.log("USDb balance after deposit-service: ", res);
               });
               // load all reserves and user specific USDb reserve data
               this.dataLoaderService.loadAllReserves();
               this.dataLoaderService.loadUserUSDbReserveData();
-              alert("Successful deposit of USDb!");
+              alert("Successful deposit-service of USDb!");
               break;
             case IconexRequestsMap.WITHDRAW_USDb:
               this.scoreService.getUserBalanceOfUSDb().then(res => {
-                console.log("USDb balance after withdraw: ", res);
+                console.log("USDb balance after withdraw-service: ", res);
               });
               // load all reserves and user specific USDb reserve data
               this.dataLoaderService.loadAllReserves();
               this.dataLoaderService.loadUserUSDbReserveData();
-              alert("Successful withdraw of USDb!");
+              alert("Successful withdraw-service of USDb!");
               break;
             case IconexRequestsMap.BORROW_USDb:
               console.log("IconexRequestsMap.BORROW_USDb");
+              this.scoreService.getUserBalanceOfUSDb().then(res => {
+                console.log("USDb balance after borrow-service: ", res);
+              });
+              // load all reserves and user specific USDb reserve data
+              this.dataLoaderService.loadAllReserves();
+              this.dataLoaderService.loadUserUSDbReserveData();
               break;
             default:
               break;

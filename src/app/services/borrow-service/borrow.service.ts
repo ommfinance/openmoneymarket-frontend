@@ -8,40 +8,34 @@ import {IconAmount, IconConverter} from "icon-sdk-js";
 import {ScoreMethodNames} from "../../common/score-method-names";
 import {IconTransactionType} from "../../models/IconTransactionType";
 import {IconexRequestsMap} from "../../common/iconex-requests-map";
+import {CheckerService} from "../checker-service/checker.service";
 
 @Injectable({
   providedIn: 'root'
 })
-export class WithdrawService {
+export class BorrowService {
 
   constructor(private iconApiService: IconApiService,
               private persistenceService: PersistenceService,
               private mockScoreService: MockScoreService,
               private iconexApiService: IconexApiService,
-              private scoreService: ScoreService) {
+              private checkerService: CheckerService) {
   }
 
-  public withdrawUSDb(amount: number) {
-    if (!this.persistenceService.allAddresses || !this.persistenceService.iconexWallet) {
-      alert("withdrawUSDb ->SCORE all addresses or icon wallet not loaded!");
-      return;
-    }
-    // TODO: refactor for Bridge
+  public borrowUSDb(amount: number): void {
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
     const params = {
       _amount: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
+      _reserve: this.persistenceService.allAddresses!.collateral.USDb
     };
 
-    const tx = this.iconApiService.buildTransaction(this.persistenceService.iconexWallet.address,  this.persistenceService.allAddresses.oTokens.oUSDb,
-      ScoreMethodNames.WITHDRAW_USDB, params, IconTransactionType.WRITE);
+    const tx = this.iconApiService.buildTransaction(this.persistenceService.iconexWallet!.address,
+      this.persistenceService.allAddresses!.systemContract.LendingPool, ScoreMethodNames.BORROW_USDB, params, IconTransactionType.WRITE);
 
-    console.log("TX: ", tx);
-    this.scoreService.getUserBalanceOfUSDb().then(res => {
-      console.log("USDb balance before withdraw: ", res);
-    });
+    console.log("borrowUSDb TX: ", tx);
 
-    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.WITHDRAW_USDb);
+    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.BORROW_USDb);
   }
-
-
 
 }

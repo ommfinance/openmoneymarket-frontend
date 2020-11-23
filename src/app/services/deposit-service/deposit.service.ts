@@ -29,7 +29,7 @@ export class DepositService {
    * 2. Call to AddressProvider SCORE -> getAllAddresses and extract USDb SCORE address (Bridge SCORE)
    * 3. Call USDb SCORE transfer in params to lending pool SCORE
    * Get reserve data for a specific reserve -> LendingPoolDataProvider SCORE (that will give USDb reserve information)
-   * Once the user does the deposit -> LendingPoolDataProvider -> get user reserve data for specific user and get user all reserve data
+   * Once the user does the deposit-service -> LendingPoolDataProvider -> get user reserve data for specific user and get user all reserve data
    *
    */
   public depositUSDb(amount: number): void {
@@ -51,7 +51,7 @@ export class DepositService {
     const params = {
       _to: this.persistenceService.allAddresses.systemContract.LendingPool,
       _value: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
-      _data: IconConverter.fromUtf8('{ "method": "deposit", "params": { "amount":' + Utils.scientificNotationToBigNumberString(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()) + '}}')
+      _data: IconConverter.fromUtf8('{ "method": "deposit-service", "params": { "amount":' + Utils.scientificNotationToBigNumberString(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()) + '}}')
 };
     console.log("Deposit USDb params amount = " + Utils.scientificNotationToBigNumberString(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()));
 

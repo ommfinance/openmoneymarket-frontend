@@ -4,7 +4,6 @@ import {PersistenceService} from '../persistence-service/persistence.service';
 import {AllAddresses} from '../../interfaces/all-addresses';
 import {AllReserves} from "../../interfaces/all-reserves";
 import {Mapper} from "../../common/mapper";
-import {IconWallet} from "../../models/IconWallet";
 import {UserUSDbReserve} from "../../interfaces/user-usdb-reserve";
 
 @Injectable({
@@ -16,7 +15,7 @@ export class DataLoaderService {
               private persistenceService: PersistenceService) {
   }
 
-  public loadScoreAddresses(): Promise<void> {
+  public loadAllScoreAddresses(): Promise<void> {
     return this.scoreService.getAllScoreAddresses().then((allAddresses: AllAddresses) => {
       this.persistenceService.allAddresses = allAddresses;
       console.log("Loaded all addresses: ", allAddresses);
@@ -31,7 +30,7 @@ export class DataLoaderService {
     });
   }
 
-  public loadUserUSDbReserveData() {
+  public loadUserUSDbReserveData(): void {
     this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses?.collateral.USDb)
       .then((res: UserUSDbReserve) => {
         this.persistenceService.userUSDbReserve = Mapper.mapUserUSDbReserve(res);
