@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {IconexApiService} from './services/iconex-api/iconex-api.service';
-import {DataLoaderService} from './services/data-loader-service/data-loader.service';
+import {DataLoaderService} from './services/data-loader/data-loader.service';
 
 @Component({
   selector: 'app-root',

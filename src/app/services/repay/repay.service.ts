@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import {IconApiService} from "../icon-api-service/icon-api.service";
-import {PersistenceService} from "../persistence-service/persistence.service";
+import {IconApiService} from "../icon-api/icon-api.service";
+import {PersistenceService} from "../persistence/persistence.service";
 import {MockScoreService} from "../mock-score/mock-score.service";
 import {IconexApiService} from "../iconex-api/iconex-api.service";
 import {IconAmount, IconConverter} from "icon-sdk-js";
@@ -8,7 +8,7 @@ import {ScoreMethodNames} from "../../common/score-method-names";
 import {IconTransactionType} from "../../models/IconTransactionType";
 import {IconexRequestsMap} from "../../common/iconex-requests-map";
 import {Utils} from "../../common/utils";
-import {CheckerService} from "../checker-service/checker.service";
+import {CheckerService} from "../checker/checker.service";
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +29,7 @@ export class RepayService {
     console.log("repayUSDb amount = " + amount, "repayUSDb params amount = " + amountString);
 
     const to = this.persistenceService.allAddresses!.collateral.USDb;
-    const data = `'{ "method": "repay", "params": {"_reserveAddress":"${to}" ,"amount":"${amountString}"}}'`;
+    const data = `{"method": "repay", "params": {"_reserveAddress":"${to}" ,"amount":${amountString}}}`;
 
     const params = {
       _to: this.persistenceService.allAddresses!.systemContract.LendingPool,
@@ -42,6 +42,6 @@ export class RepayService {
 
     console.log("repayUSDb TX: ", tx);
 
-    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.DEPOSIT_USDb);
+    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.REPAY_USDb);
   }
 }

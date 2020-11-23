@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import {ScoreService} from '../score-service/score.service';
-import {PersistenceService} from '../persistence-service/persistence.service';
+import {ScoreService} from '../score/score.service';
+import {PersistenceService} from '../persistence/persistence.service';
 import {AllAddresses} from '../../interfaces/all-addresses';
 import {AllReserves} from "../../interfaces/all-reserves";
 import {Mapper} from "../../common/mapper";

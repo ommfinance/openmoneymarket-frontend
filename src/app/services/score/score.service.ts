@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
-import {IconApiService} from '../icon-api-service/icon-api.service';
+import {IconApiService} from '../icon-api/icon-api.service';
 import {ScoreMethodNames} from '../../common/score-method-names';
 import {IconTransactionType} from '../../models/IconTransactionType';
-import {PersistenceService} from '../persistence-service/persistence.service';
+import {PersistenceService} from '../persistence/persistence.service';
 import {environment} from '../../../environments/environment';
 import {Utils} from "../../common/utils";
 

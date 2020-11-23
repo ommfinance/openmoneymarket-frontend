@@ -23,17 +23,17 @@ export class PersistenceService {
       if (this.iconexWallet) {
         this.iconexWallet.balances.USDb = value;
       }
-    })
+    });
     this.userUSDbReserveChange.subscribe(value => {
       this.userUSDbReserve = value;
-    })
+    });
   }
 
-  public updateUserUSDbBalance(balance: number) {
+  public updateUserUSDbBalance(balance: number): void {
     this.userUSDbBalanceChange.next(balance);
   }
 
-  public updateUserUSDbReserve(userUSDbReserve: UserUSDbReserve) {
+  public updateUserUSDbReserve(userUSDbReserve: UserUSDbReserve): void {
     this.userUSDbReserveChange.next(userUSDbReserve);
   }
 

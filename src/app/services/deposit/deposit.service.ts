@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import {IconTransactionType} from '../../models/IconTransactionType';
 import IconService, { IconAmount, IconConverter } from "icon-sdk-js";
-import {IconApiService} from '../icon-api-service/icon-api.service';
-import {PersistenceService} from '../persistence-service/persistence.service';
+import {IconApiService} from '../icon-api/icon-api.service';
+import {PersistenceService} from '../persistence/persistence.service';
 import {ScoreMethodNames} from '../../common/score-method-names';
 import {MockScoreService} from '../mock-score/mock-score.service';
 import {IconWallet} from '../../models/IconWallet';
 import {IconexApiService} from '../iconex-api/iconex-api.service';
 import {IconexRequestsMap} from '../../common/iconex-requests-map';
-import {ScoreService} from "../score-service/score.service";
+import {ScoreService} from "../score/score.service";
 import {Utils} from "../../common/utils";
 
 
@@ -29,7 +29,7 @@ export class DepositService {
    * 2. Call to AddressProvider SCORE -> getAllAddresses and extract USDb SCORE address (Bridge SCORE)
    * 3. Call USDb SCORE transfer in params to lending pool SCORE
    * Get reserve data for a specific reserve -> LendingPoolDataProvider SCORE (that will give USDb reserve information)
-   * Once the user does the deposit-service -> LendingPoolDataProvider -> get user reserve data for specific user and get user all reserve data
+   * Once the user does the deposit -> LendingPoolDataProvider -> get user reserve data for specific user and get user all reserve data
    *
    */
   public depositUSDb(amount: number): void {
@@ -51,7 +51,7 @@ export class DepositService {
     const params = {
       _to: this.persistenceService.allAddresses.systemContract.LendingPool,
       _value: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
-      _data: IconConverter.fromUtf8('{ "method": "deposit-service", "params": { "amount":' + Utils.scientificNotationToBigNumberString(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()) + '}}')
+      _data: IconConverter.fromUtf8('{ "method": "deposit", "params": { "amount":' + Utils.scientificNotationToBigNumberString(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()) + '}}')
 };
     console.log("Deposit USDb params amount = " + Utils.scientificNotationToBigNumberString(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()));
 

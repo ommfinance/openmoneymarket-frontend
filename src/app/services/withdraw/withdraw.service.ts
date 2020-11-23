@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import {IconApiService} from "../icon-api-service/icon-api.service";
-import {PersistenceService} from "../persistence-service/persistence.service";
+import {IconApiService} from "../icon-api/icon-api.service";
+import {PersistenceService} from "../persistence/persistence.service";
 import {MockScoreService} from "../mock-score/mock-score.service";
 import {IconexApiService} from "../iconex-api/iconex-api.service";
-import {ScoreService} from "../score-service/score.service";
+import {ScoreService} from "../score/score.service";
 import {IconAmount, IconConverter} from "icon-sdk-js";
 import {ScoreMethodNames} from "../../common/score-method-names";
 import {IconTransactionType} from "../../models/IconTransactionType";
@@ -36,7 +36,7 @@ export class WithdrawService {
 
     console.log("TX: ", tx);
     this.scoreService.getUserBalanceOfUSDb().then(res => {
-      console.log("USDb balance before withdraw-service: ", res);
+      console.log("USDb balance before withdraw: ", res);
     });
 
     this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.WITHDRAW_USDb);

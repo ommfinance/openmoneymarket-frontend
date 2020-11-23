@@ -28,12 +28,12 @@ $("#asset-bridge").click(function(){
         bridgeSupplySlider.noUiSlider.set(10000);
     }
 
-    // Disable borrow-service adjust view
-    if ($("#borrow-service").hasClass("adjust")) {
-        $('#borrow-service').removeClass("adjust");
-        $('.borrow-service-actions').toggleClass("hide");
-        $('#borrow-service-borrowed').prop('disabled', function(i, v) { return !v; });
-        $('#borrow-service-available').prop('disabled', function(i, v) { return !v; });
+    // Disable borrow adjust view
+    if ($("#borrow").hasClass("adjust")) {
+        $('#borrow').removeClass("adjust");
+        $('.borrow-actions').toggleClass("hide");
+        $('#borrow-borrowed').prop('disabled', function(i, v) { return !v; });
+        $('#borrow-available').prop('disabled', function(i, v) { return !v; });
         bridgeBorrowSlider.toggleAttribute('disabled');
         bridgeBorrowSlider.noUiSlider.set(1500);
     }
@@ -58,12 +58,12 @@ $("#asset-icon").click(function(){
         bridgeSupplySlider.noUiSlider.set(10000);
     }
 
-    // Disable borrow-service adjust view
-    if ($("#borrow-service").hasClass("adjust")) {
-        $('#borrow-service').removeClass("adjust");
-        $('.borrow-service-actions').toggleClass("hide");
-        $('#borrow-service-borrowed').prop('disabled', function(i, v) { return !v; });
-        $('#borrow-service-available').prop('disabled', function(i, v) { return !v; });
+    // Disable borrow adjust view
+    if ($("#borrow").hasClass("adjust")) {
+        $('#borrow').removeClass("adjust");
+        $('.borrow-actions').toggleClass("hide");
+        $('#borrow-borrowed').prop('disabled', function(i, v) { return !v; });
+        $('#borrow-available').prop('disabled', function(i, v) { return !v; });
         bridgeBorrowSlider.toggleAttribute('disabled');
         bridgeBorrowSlider.noUiSlider.set(1500);
     }
@@ -124,12 +124,12 @@ $("#toggle-all-markets").click(function(){
         bridgeSupplySlider.noUiSlider.set(10000);
     }
 
-    // Disable borrow-service adjust view
-    if ($("#borrow-service").hasClass("adjust")) {
-        $('#borrow-service').removeClass("adjust");
-        $('.borrow-service-actions').toggleClass("hide");
-        $('#borrow-service-borrowed').prop('disabled', function(i, v) { return !v; });
-        $('#borrow-service-available').prop('disabled', function(i, v) { return !v; });
+    // Disable borrow adjust view
+    if ($("#borrow").hasClass("adjust")) {
+        $('#borrow').removeClass("adjust");
+        $('.borrow-actions').toggleClass("hide");
+        $('#borrow-borrowed').prop('disabled', function(i, v) { return !v; });
+        $('#borrow-available').prop('disabled', function(i, v) { return !v; });
         bridgeBorrowSlider.toggleAttribute('disabled');
         bridgeBorrowSlider.noUiSlider.set(1500);
     }
@@ -158,7 +158,7 @@ noUiSlider.create(bridgeSupplySlider, {
     })
 });
 
-// Bridge borrow-service slider
+// Bridge borrow slider
 
 var bridgeBorrowSlider = document.getElementById('bridge-borrow-slider');
 
@@ -194,9 +194,9 @@ noUiSlider.create(iconSupplySlider, {
     })
 });
 
-// Icon borrow-service slider
+// Icon borrow slider
 
-var iconBorrowSlider = document.getElementById('icon-borrow-service-slider');
+var iconBorrowSlider = document.getElementById('icon-borrow-slider');
 
 noUiSlider.create(iconBorrowSlider, {
     start: [9480],
@@ -336,7 +336,7 @@ var supplyDeposited = document.getElementById('supply-deposited');
 var supplyAvailable = document.getElementById('supply-available');
 var borrowBorrowed = document.getElementById('borrow-borrowed');
 var borrowAvailable = document.getElementById('borrow-available');
-var borrowAvailableRange = document.getElementById('borrow-service-limit');
+var borrowAvailableRange = document.getElementById('borrow-limit');
 var supplyRewards = document.getElementById('supply-rewards');
 
 /*
@@ -363,8 +363,8 @@ bridgeSupplySlider.noUiSlider.on('update', function (values, handle) {
     // Position supply
 	$('.position-supply').text(usdFormat.to(values[handle] * 1));
 
-    // Position borrow-service limit
-	$('#position-borrow-service-limit').text(usdFormat.to(values[handle] * 1 + 10000));
+    // Position borrow limit
+	$('#position-borrow-limit').text(usdFormat.to(values[handle] * 1 + 10000));
 
     // Risk ratio
     riskRatio.noUiSlider.set(1 / ((usdbFormat.from(supplyDeposited.value) * 0.66) / usdbFormat.from(borrowBorrowed.value)) * 100);
@@ -372,15 +372,15 @@ bridgeSupplySlider.noUiSlider.on('update', function (values, handle) {
     // Update risk percentage
     $('.risk-percentage').text(percentageFormat.to( 1 / ((usdbFormat.from(supplyDeposited.value) * 0.66) / usdbFormat.from(borrowBorrowed.value)) * 100));
 
-    // Update borrow-service limit
+    // Update borrow limit
     borrowAvailable.value = (usdbFormat.to((usdbFormat.from(supplyDeposited.value) * 0.33) - 1500));
 
-    // Update borrow-service range
+    // Update borrow range
     //updateBorrowRange(parseFloat(values[handle] * 0.33 - usdbFormat.from(borrowAvailable.value)));
 
 });
 
-// Update borrow-service range
+// Update borrow range
 
 function updateBorrowRange(borrowLimit){
     bridgeBorrowSlider.noUiSlider.updateOptions({
@@ -393,28 +393,28 @@ function updateBorrowRange(borrowLimit){
 
 /*
 *
-* Bridge borrow-service sliders
+* Bridge borrow sliders
 *
 */
 
-// Bridge borrow-service slider updates the borrow-service borrowed editbox
+// Bridge borrow slider updates the borrow borrowed editbox
 
 bridgeBorrowSlider.noUiSlider.on('update', function (values, handle) {
 
-    // Bridge borrow-service text boxes
+    // Bridge borrow text boxes
     borrowBorrowed.value = usdbFormat.to(values[handle] * 1);
-    $('.borrow-service-borrowed-dollar').text(usdFormat.to(values[handle] * 1));
+    $('.borrow-borrowed-dollar').text(usdFormat.to(values[handle] * 1));
     borrowAvailable.value = (usdbFormat.to(3300 - values[handle]));
 
     // Supply interest
-	$('#borrow-service-interest').text(usdbPrefixMinusFormat.to((values[handle] * 1) * 0.0725 / 365));
-    $('.borrow-service-interest-dollar').text(usdTwoDecimalMinusFormat.to(((values[handle] * 1) * 0.0725 / 365) + 0.12));
+	$('#borrow-interest').text(usdbPrefixMinusFormat.to((values[handle] * 1) * 0.0725 / 365));
+    $('.borrow-interest-dollar').text(usdTwoDecimalMinusFormat.to(((values[handle] * 1) * 0.0725 / 365) + 0.12));
 
     // Supply rewards
-	$('#borrow-service-rewards').text(ommPrefixPlusFormat.to((values[handle] * 1) * 0.4725 / 365));
+	$('#borrow-rewards').text(ommPrefixPlusFormat.to((values[handle] * 1) * 0.4725 / 365));
 
-    // Position borrow-service
-	$('.position-borrow-service').text(usdFormat.to((values[handle] * 1) + 1212));
+    // Position borrow
+	$('.position-borrow').text(usdFormat.to((values[handle] * 1) + 1212));
 
     // Risk ratio
     riskRatio.noUiSlider.set(1 / ((usdbFormat.from(supplyDeposited.value) * 0.66) / usdbFormat.from(borrowBorrowed.value)) * 100);
@@ -441,12 +441,12 @@ $(".supply-adjust").click(function(){
     bridgeSupplySlider.toggleAttribute('disabled');
     bridgeSupplySlider.noUiSlider.set(10000);
 
-    if ($("#borrow-service").hasClass("adjust")) {
+    if ($("#borrow").hasClass("adjust")) {
 
-        $('#borrow-service').removeClass("adjust");
-        $('.borrow-service-actions').toggleClass("hide");
-        $('#borrow-service-borrowed').prop('disabled', function(i, v) { return !v; });
-        $('#borrow-service-available').prop('disabled', function(i, v) { return !v; });
+        $('#borrow').removeClass("adjust");
+        $('.borrow-actions').toggleClass("hide");
+        $('#borrow-borrowed').prop('disabled', function(i, v) { return !v; });
+        $('#borrow-available').prop('disabled', function(i, v) { return !v; });
         bridgeBorrowSlider.toggleAttribute('disabled');
         bridgeBorrowSlider.noUiSlider.set(1500);
     }
@@ -455,11 +455,11 @@ $(".supply-adjust").click(function(){
 
 // Borrow adjust logic
 
-$(".borrow-service-adjust").click(function(){
-    $('#borrow-service').toggleClass("adjust");
-    $('.borrow-service-actions').toggleClass("hide");
-    $('#borrow-service-borrowed').prop('disabled', function(i, v) { return !v; });
-    $('#borrow-service-available').prop('disabled', function(i, v) { return !v; });
+$(".borrow-adjust").click(function(){
+    $('#borrow').toggleClass("adjust");
+    $('.borrow-actions').toggleClass("hide");
+    $('#borrow-borrowed').prop('disabled', function(i, v) { return !v; });
+    $('#borrow-available').prop('disabled', function(i, v) { return !v; });
     bridgeBorrowSlider.toggleAttribute('disabled');
     bridgeBorrowSlider.noUiSlider.set(1500);
 

@@ -13,10 +13,21 @@ export class Utils {
   }
 
   public static hexToNumber(value: string | number): number {
-    if (typeof value === "string")
+    if (typeof value === "string") {
       return parseInt(value, 16);
-    else
+    }
+    else {
       return value;
+    }
+  }
+
+  public static hexToPercent(value: string | number): number {
+    if (typeof value === "string") {
+      return parseInt(value, 16) / 10 ** 16;
+    }
+    else {
+      return value;
+    }
   }
 
   // Returns true if the address is valid EOA address, false otherwise

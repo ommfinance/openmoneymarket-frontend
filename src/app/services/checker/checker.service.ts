@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import {PersistenceService} from "../persistence-service/persistence.service";
-import {DataLoaderService} from "../data-loader-service/data-loader.service";
+import {PersistenceService} from "../persistence/persistence.service";
+import {DataLoaderService} from "../data-loader/data-loader.service";
 
 @Injectable({
   providedIn: 'root'

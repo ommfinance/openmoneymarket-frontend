@@ -1,8 +1,8 @@
 import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
 import {BaseClass} from "../base-class";
-import {PersistenceService} from "../../services/persistence-service/persistence.service";
+import {PersistenceService} from "../../services/persistence/persistence.service";
 import {MockScoreService} from "../../services/mock-score/mock-score.service";
-import {DepositService} from "../../services/deposit-service/deposit.service";
+import {DepositService} from "../../services/deposit/deposit.service";
 import {
   ommPrefixPlusFormat,
   percentageFormat, prefixPlusFormat,
@@ -11,10 +11,11 @@ import {
   usdFormat, usdTwoDecimalMinusFormat, usdTwoDecimalPlusFormat
 } from "../../common/formatting";
 import {UserUSDbReserve} from "../../interfaces/user-usdb-reserve";
-import {WithdrawService} from "../../services/withdraw-service/withdraw.service";
-import {BorrowService} from "../../services/borrow-service/borrow.service";
+import {WithdrawService} from "../../services/withdraw/withdraw.service";
+import {BorrowService} from "../../services/borrow/borrow.service";
 import {SlidersService} from "../../services/sliders/sliders.service";
-import {RepayService} from "../../services/repay-service/repay.service";
+import {RepayService} from "../../services/repay/repay.service";
+import {CalculationsService} from "../../services/calculations/calculations.service";
 
 declare var $: any;
 declare var noUiSlider: any;
@@ -27,8 +28,6 @@ declare var wNumb: any;
 })
 export class HomeComponent extends BaseClass implements OnInit, OnDestroy, AfterViewInit {
 
-  public USDbDepositAmount = 0;
-  public USDbBorrowAmount = 0;
   public bridgeSupplySlider: any;
   public bridgeBorrowSlider: any;
   public iconSupplySlider: any;
@@ -49,7 +48,8 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
               public withdrawService: WithdrawService,
               public borrowService: BorrowService,
               public repayService: RepayService,
-              public slidersService: SlidersService) {
+              public slidersService: SlidersService,
+              public calculationService: CalculationsService) {
     super();
   }
 
@@ -66,7 +66,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     this.slidersService.createNoUiSlider(this.bridgeSupplySlider);
 
 
-    // Bridge borrow-service slider
+    // Bridge borrow slider
     this.bridgeBorrowSlider = document.getElementById('bridge-borrow-slider');
     this.slidersService.createNoUiSlider(this.bridgeBorrowSlider, 1500, undefined, undefined, undefined,
       {min: [0], max: [3300]});
@@ -75,8 +75,8 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     this.iconSupplySlider = document.getElementById('icon-supply-slider');
     this.slidersService.createNoUiSlider(this.iconSupplySlider, 0);
 
-    // Icon borrow-service slider
-    this.iconBorrowSlider = document.getElementById('icon-borrow-service-slider');
+    // Icon borrow slider
+    this.iconBorrowSlider = document.getElementById('icon-borrow-slider');
     this.slidersService.createNoUiSlider(this.iconBorrowSlider, 9480, 0, undefined, undefined,
       {min: [0], max: [16000]});
 
@@ -97,7 +97,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     this.supplyAvailable = document.getElementById('supply-available');
     this.borrowBorrowed = document.getElementById('borrow-borrowed');
     this.borrowAvailable = document.getElementById('borrow-available');
-    this.borrowAvailableRange = document.getElementById('borrow-service-limit');
+    this.borrowAvailableRange = document.getElementById('borrow-limit');
     this.supplyRewards = document.getElementById('supply-rewards');
 
     /*
@@ -105,10 +105,8 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     */
     this.bridgeSupplySlider.noUiSlider.on('update', (values: { [x: string]: number; }, handle: string | number) => {
       // Supply deposited / available text boxes
-      this.USDbDepositAmount = +values[handle];
       this.supplyDeposited.value = usdbFormat.to(values[handle] * 1);
-      this.supplyAvailable.value = usdbFormat.to((this.persistenceService.iconexWallet?.balances.USDb ?? 15000) -
-        (usdbFormat.from(this.supplyDeposited.value) - (this.persistenceService.userUSDbReserve?.currentOTokenBalance ?? 0)));
+      this.supplyAvailable.value = usdbFormat.to(this.calculationService.calculateSliderAvailableUSDbSupply(+values[handle]));
 
       // Supply interest
       $('.supply-interest').text(usdbPrefixPlusFormat.to((values[handle] * 1) * 0.0647 / 365));
@@ -118,44 +116,48 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
       $('.supply-rewards-total').text(prefixPlusFormat.to(((values[handle] * 1) * 0.447 / 365) + 4.74));
       // Position supply
       $('.position-supply').text(usdFormat.to(values[handle] * 1));
-      // Position borrow-service limit
-      $('#position-borrow-service-limit').text(usdFormat.to(values[handle] * 1 + 10000));
+      // Position borrow limit
+      $('#position-borrow-limit').text(usdFormat.to(values[handle] * 1 + 10000));
       // Risk ratio
       this.riskRatio.noUiSlider.set(1 / ((usdbFormat.from(this.supplyDeposited.value) * 0.66) / usdbFormat.from(this.borrowBorrowed.value)) * 100);
       // Update risk percentage
       $('.risk-percentage').text(percentageFormat.to( 1 / ((usdbFormat.from(this.supplyDeposited.value) * 0.66) / usdbFormat.from(this.borrowBorrowed.value)) * 100));
-      // Update borrow-service limit
-      this.borrowAvailable.value = (usdbFormat.to((usdbFormat.from(this.supplyDeposited.value) * 0.33) - 1500));
-      // Update borrow-service range
+      // Update borrow limit
+      // this.borrowAvailable.value = (usdbFormat.to((usdbFormat.from(this.supplyDeposited.value) * 0.33) - 1500));
+      // Update borrow range
       // updateBorrowRange(parseFloat(values[handle] * 0.33 - usdbFormat.from(borrowAvailable.value)));
     });
 
     /*
-    * Bridge borrow-service sliders
+    * Bridge borrow sliders
     */
-    // Bridge borrow-service slider updates the borrow-service borrowed editbox
+    // Bridge borrow slider updates the borrow borrowed editbox
     // tslint:disable-next-line:no-shadowed-variable
     this.bridgeBorrowSlider.noUiSlider.on('update', (values: any, handle: any) => {
-      // Bridge borrow-service text boxes
       this.borrowBorrowed.value = usdbFormat.to(values[handle] * 1);
-      this.borrowBorrowed.value = (usdbFormat.to(3300 - values[handle]));
+      this.borrowAvailable.value = (usdbFormat.to(this.calculationService.calculateSliderAvailableUSDbBorrow(values[handle])));
       // Supply interest
-      $('#borrow-service-interest').text(usdbPrefixMinusFormat.to((values[handle] * 1) * 0.0725 / 365));
-      $('.borrow-service-interest-dollar').text(usdTwoDecimalMinusFormat.to(((values[handle] * 1) * 0.0725 / 365) + 0.12));
+      $('#borrow-interest').text(usdbPrefixMinusFormat.to((values[handle] * 1) * 0.0725 / 365));
+      $('.borrow-interest-dollar').text(usdTwoDecimalMinusFormat.to(((values[handle] * 1) * 0.0725 / 365) + 0.12));
       // Supply rewards
-      $('#borrow-service-rewards').text(ommPrefixPlusFormat.to((values[handle] * 1) * 0.4725 / 365));
-      // Position borrow-service
-      $('.position-borrow-service').text(usdFormat.to((values[handle] * 1) + 1212));
+      $('#borrow-rewards').text(ommPrefixPlusFormat.to((values[handle] * 1) * 0.4725 / 365));
+      // Position borrow
+      $('.position-borrow').text(usdFormat.to((values[handle] * 1) + 1212));
       // Risk ratio
-      this.riskRatio.noUiSlider.set(1 / ((usdbFormat.from(this.supplyDeposited.value) * 0.66) / usdbFormat.from(this.borrowBorrowed.value)) * 100);
+      this.riskRatio.noUiSlider.set(1 / ((usdbFormat.from(this.supplyDeposited.value) * 0.66) /
+        usdbFormat.from(this.borrowBorrowed.value)) * 100);
       // Update risk percentage
-      $('.risk-percentage').text(percentageFormat.to( 1 / ((usdbFormat.from(this.supplyDeposited.value) * 0.66) / usdbFormat.from(this.borrowBorrowed.value)) * 100));
+      $('.risk-percentage').text(percentageFormat.to( 1 / ((usdbFormat.from(this.supplyDeposited.value) * 0.66) /
+        usdbFormat.from(this.borrowBorrowed.value)) * 100));
       // Adjust locked indicator for collateral
       document.getElementById("locked")!.style.left = (23 * (usdbFormat.from(this.borrowBorrowed.value) / 2053)) + "%";
     });
 
 
-    // subscribed handlers
+    /* ==========================================================================
+    Handle variable/state changes for subscribed values
+    ========================================================================== */
+
     this.persistenceService.userUSDbBalanceChange.subscribe(userUSDbBalance => {
       console.log("homePage-> userUSDbBalanceChange:", userUSDbBalance);
       if (this.bridgeSupplySlider) {
@@ -168,23 +170,38 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
         });
       }
     });
+
     this.persistenceService.userUSDbReserveChange.subscribe((userUSDbReserve: UserUSDbReserve) => {
       console.log("homePage-> userUSDbReserveChange:", userUSDbReserve);
+      console.log("homePage-> userUSDbReserveChange -> noUiSlider.set -> " + userUSDbReserve.currentOTokenBalance);
+      // set new USDb supplied value to input deposit amount, supply slider and supply deposited value
       this.supplyDeposited.value = usdbFormat.to(userUSDbReserve.currentOTokenBalance);
-      console.log("homePage-> userUSDbReserveChange -> set slider value = " + userUSDbReserve.currentOTokenBalance);
       this.bridgeSupplySlider.noUiSlider.set(userUSDbReserve.currentOTokenBalance);
+      // update USDb slider max value to  -> user USDb balance + supplied USDb
       this.bridgeSupplySlider.noUiSlider.updateOptions({
         range: {
           min: 0,
-          max: (this.persistenceService.iconexWallet?.balances.USDb ?? 0) + (this.persistenceService.userUSDbReserve?.currentOTokenBalance ?? 0)
+          max: (this.persistenceService.iconexWallet?.balances.USDb ?? 0) +
+            (this.persistenceService.userUSDbReserve?.currentOTokenBalance ?? 0)
+        }
+      });
+      // set borrow supplied and slider value
+      this.borrowBorrowed.value = usdbFormat.to(userUSDbReserve.principalBorrowBalance);
+      this.borrowAvailable.value = this.calculationService.calculateSliderAvailableUSDbBorrow(usdbFormat.from(this.borrowAvailable.value));
+      this.bridgeBorrowSlider.noUiSlider.set(userUSDbReserve.principalBorrowBalance);
+      // update USDb borrow slider max value to  -> user USDb balance + supplied USDb
+      this.bridgeBorrowSlider.noUiSlider.updateOptions({
+        range: {
+          min: 0,
+          max: this.calculationService.calculateUSDbBorrowSliderMax()
         }
       });
     });
   }
 
   public onBorrowUSDbConfirmClick(): void {
-    this.USDbBorrowAmount = Math.floor(this.USDbBorrowAmount);
-    const borrowAmountDiff = this.USDbBorrowAmount - Math.floor(this.persistenceService.userUSDbReserve!.currentBorrowBalance);
+    const amount = +usdbFormat.from(this.borrowBorrowed.value);
+    const borrowAmountDiff = amount - Math.floor(this.persistenceService.userUSDbReserve!.currentBorrowBalance);
     // toggle USDb assets view
     this.onAssetBridgeClick();
     if (borrowAmountDiff > 0) {
@@ -195,33 +212,32 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
       console.log("Actual repay = ", borrowAmountDiff);
       this.repayService.repayUSDb(Math.abs(borrowAmountDiff));
     } else {
-      alert("No change in supplied value!");
+      alert("No change in borrowed value!");
       return;
     }
-
-    this.borrowService.borrowUSDb(this.USDbBorrowAmount);
   }
 
   public onUSDbSupplyConfirmClick(): void {
-    this.USDbDepositAmount = Math.floor(this.USDbDepositAmount);
+    let amount = +usdbFormat.from(this.supplyDeposited.value);
+    console.log("onUSDbSupplyConfirmClick -> amount = " , amount);
     // check that value is not greater than user USDb balance
     if (this.persistenceService.iconexWallet) {
-      if (this.USDbDepositAmount > this.persistenceService.iconexWallet.balances.USDb + this.persistenceService.userUSDbReserve!.currentOTokenBalance) {
-        this.USDbDepositAmount = Math.floor(this.persistenceService.iconexWallet.balances.USDb + this.persistenceService.userUSDbReserve!.currentOTokenBalance);
-        this.bridgeSupplySlider.noUiSlider.set(this.USDbDepositAmount);
+      if (amount > this.persistenceService.iconexWallet.balances.USDb + this.persistenceService.userUSDbReserve!.currentOTokenBalance) {
+        amount = Math.floor(this.persistenceService.iconexWallet.balances.USDb + this.persistenceService.userUSDbReserve!.currentOTokenBalance);
+        this.bridgeSupplySlider.noUiSlider.set(amount);
         return;
       }
     }
-    const supplyAmountDiff = this.USDbDepositAmount - Math.floor(this.persistenceService.userUSDbReserve!.currentOTokenBalance);
+    const supplyAmountDiff = amount - Math.floor(this.persistenceService.userUSDbReserve!.currentOTokenBalance);
     // toggle USDb assets view
     this.onAssetBridgeClick();
     if (supplyAmountDiff > 0) {
-      console.log("Actual deposit-service = ", supplyAmountDiff);
+      console.log("Actual deposit = ", supplyAmountDiff);
       // toggle USDb asset
-      // deposit-service the amount - current supply
+      // deposit the amount - current supply
       this.depositService.depositUSDb(supplyAmountDiff);
     } else if (supplyAmountDiff < 0) {
-      console.log("Actual withdraw-service = ", supplyAmountDiff);
+      console.log("Actual withdraw = ", supplyAmountDiff);
       this.withdrawService.withdrawUSDb(Math.abs(supplyAmountDiff));
 
     } else {
@@ -231,9 +247,9 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   }
 
   public depositUSDbAmountChange(): void {
-    this.USDbDepositAmount = +usdbFormat.from(this.supplyDeposited.value);
+    const amount = +usdbFormat.from(this.supplyDeposited.value);
     if (this.persistenceService.iconexWallet) {
-      if (this.USDbDepositAmount > this.persistenceService.iconexWallet.balances.USDb) {
+      if (amount > this.persistenceService.iconexWallet.balances.USDb) {
         this.supplyDeposited.style.borderColor = "red";
       } else {
         this.supplyDeposited.style.borderColor = "#c7ccd5";
@@ -242,7 +258,8 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   }
 
   public borrowUSDbAmountChange(): void {
-    this.USDbBorrowAmount = +usdbFormat.from(this.borrowBorrowed.value);
+    this.borrowBorrowed.value = +usdbFormat.from(this.borrowBorrowed.value);
+    // TODO add check
     // if (this.persistenceService.iconexWallet) {
     //   if (this.USDbBorrowAmount > this.persistenceService.iconexWallet.balances.USDb) {
     //     this.supplyDeposited.style.borderColor = "red";
@@ -269,17 +286,21 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     if ($("#supply").hasClass("adjust")) {
       $('#supply').removeClass("adjust");
       $('.supply-actions').toggleClass("hide");
-      $('#supply-deposited').prop('disabled', function(i: any, v: any) { return !v; });
-      $('#supply-available').prop('disabled', function(i: any, v: any) { return !v; });
+      $('#supply-deposited').prop('disabled', (i: any, v: any) => !v);
+      $('#supply-available').prop('disabled', (i: any, v: any) => !v);
       this.bridgeSupplySlider.toggleAttribute('disabled');
+      this.bridgeSupplySlider.noUiSlider.set(this.persistenceService.userUSDbReserve?.currentOTokenBalance ?? 1500);
+      this.supplyAvailable.value = usdbFormat.to((this.persistenceService.iconexWallet?.balances.USDb ?? 5000) +
+        (this.persistenceService.userUSDbReserve?.currentOTokenBalance ?? 0));
+      this.supplyDeposited.value = usdbFormat.to(this.persistenceService.userUSDbReserve?.currentOTokenBalance ?? 10000);
     }
 
-    // Disable borrow-service adjust view
-    if ($("#borrow-service").hasClass("adjust")) {
-      $('#borrow-service').removeClass("adjust");
-      $('.borrow-service-actions').toggleClass("hide");
-      $('#borrow-service-borrowed').prop('disabled', function(i: any, v: any) { return !v; });
-      $('#borrow-service-available').prop('disabled', function(i: any, v: any) { return !v; });
+    // Disable borrow adjust view
+    if ($("#borrow").hasClass("adjust")) {
+      $('#borrow').removeClass("adjust");
+      $('.borrow-actions').toggleClass("hide");
+      $('#borrow-borrowed').prop('disabled', (i: any, v: any) => !v);
+      $('#borrow-available').prop('disabled', (i: any, v: any) => !v);
       this.bridgeBorrowSlider.toggleAttribute('disabled');
       this.bridgeBorrowSlider.noUiSlider.set(this.persistenceService.userUSDbReserve?.currentBorrowBalance ?? 1500);
     }
@@ -304,11 +325,11 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     this.bridgeSupplySlider.toggleAttribute('disabled');
     this.bridgeSupplySlider.noUiSlider.set(this.persistenceService.userUSDbReserve?.currentOTokenBalance ?? 10000);
 
-    if ($("#borrow-service").hasClass("adjust")) {
-      $('#borrow-service').toggleClass("adjust");
-      $('.borrow-service-actions').toggleClass("hide");
-      $('#borrow-service-borrowed').prop('disabled', (i: any, v: any) => !v);
-      $('#borrow-service-available').prop('disabled', (i: any, v: any) => !v);
+    if ($("#borrow").hasClass("adjust")) {
+      $('#borrow').toggleClass("adjust");
+      $('.borrow-actions').toggleClass("hide");
+      $('#borrow-borrowed').prop('disabled', (i: any, v: any) => !v);
+      $('#borrow-available').prop('disabled', (i: any, v: any) => !v);
       this.bridgeBorrowSlider.toggleAttribute('disabled');
       this.bridgeBorrowSlider.noUiSlider.set(this.persistenceService.userUSDbReserve?.currentBorrowBalance ?? 1500);
     }
@@ -361,12 +382,12 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
       this.bridgeSupplySlider.toggleAttribute('disabled');
     }
 
-    // Disable borrow-service adjust view
-    if ($("#borrow-service").hasClass("adjust")) {
-      $('#borrow-service').removeClass("adjust");
-      $('.borrow-service-actions').toggleClass("hide");
-      $('#borrow-service-borrowed').prop('disabled', (i: any, v: any) => !v);
-      $('#borrow-service-available').prop('disabled', (i: any, v: any) => !v);
+    // Disable borrow adjust view
+    if ($("#borrow").hasClass("adjust")) {
+      $('#borrow').removeClass("adjust");
+      $('.borrow-actions').toggleClass("hide");
+      $('#borrow-borrowed').prop('disabled', (i: any, v: any) => !v);
+      $('#borrow-available').prop('disabled', (i: any, v: any) => !v);
       this.bridgeBorrowSlider.toggleAttribute('disabled');
       this.bridgeBorrowSlider.noUiSlider.set(1500);
     }
@@ -412,12 +433,12 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
       this.bridgeSupplySlider.toggleAttribute('disabled');
     }
 
-    // Disable borrow-service adjust view
-    if ($("#borrow-service").hasClass("adjust")) {
-      $('#borrow-service').removeClass("adjust");
-      $('.borrow-service-actions').toggleClass("hide");
-      $('#borrow-service-borrowed').prop('disabled', (i: any, v: any) => !v);
-      $('#borrow-service-available').prop('disabled', (i: any, v: any) => !v);
+    // Disable borrow adjust view
+    if ($("#borrow").hasClass("adjust")) {
+      $('#borrow').removeClass("adjust");
+      $('.borrow-actions').toggleClass("hide");
+      $('#borrow-borrowed').prop('disabled', (i: any, v: any) => !v);
+      $('#borrow-available').prop('disabled', (i: any, v: any) => !v);
       this.bridgeBorrowSlider.toggleAttribute('disabled');
       this.bridgeBorrowSlider.noUiSlider.set(1500);
     }

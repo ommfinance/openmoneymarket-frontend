@@ -1,13 +1,13 @@
 import { Injectable } from "@angular/core";
 import {environment} from "../../../environments/environment";
 import {IconWallet} from "../../models/IconWallet";
-import {IconApiService} from "../icon-api-service/icon-api.service";
-import {PersistenceService} from "../persistence-service/persistence.service";
+import {IconApiService} from "../icon-api/icon-api.service";
+import {PersistenceService} from "../persistence/persistence.service";
 import {IconConverter } from "icon-sdk-js";
-import {TransactionResultService} from '../transaction-result-service/transaction-result.service';
+import {TransactionResultService} from '../transaction-result/transaction-result.service';
 import {TokenBalances} from "../../models/TokenBalances";
-import {ScoreService} from "../score-service/score.service";
-import {DataLoaderService} from "../data-loader-service/data-loader.service";
+import {ScoreService} from "../score/score.service";
+import {DataLoaderService} from "../data-loader/data-loader.service";
 
 @Injectable({
   providedIn: "root"

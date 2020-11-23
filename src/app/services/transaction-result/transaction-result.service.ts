@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import {IconexRequestsMap} from '../../common/iconex-requests-map';
 import {Utils} from '../../common/utils';
-import {IconApiService} from '../icon-api-service/icon-api.service';
+import {IconApiService} from '../icon-api/icon-api.service';
 import {IconJsonRpcResponse} from '../../interfaces/icon-json-rpc-response';
-import {ScoreService} from '../score-service/score.service';
-import {PersistenceService} from '../persistence-service/persistence.service';
+import {ScoreService} from '../score/score.service';
+import {PersistenceService} from '../persistence/persistence.service';
 import {AllReserves} from "../../interfaces/all-reserves";
 import {Mapper} from "../../common/mapper";
 import {UserUSDbReserve} from "../../interfaces/user-usdb-reserve";
-import {DataLoaderService} from "../data-loader-service/data-loader.service";
+import {DataLoaderService} from "../data-loader/data-loader.service";
 
 @Injectable({
   providedIn: 'root'
@@ -31,33 +31,35 @@ export class TransactionResultService {
           switch (payload.id) {
             case IconexRequestsMap.DEPOSIT_USDb:
               this.scoreService.getUserBalanceOfUSDb().then(res => {
-                console.log("USDb balance after deposit-service: ", res);
+                console.log("USDb balance after deposit: ", res);
               });
               // load all reserves and user specific USDb reserve data
               this.dataLoaderService.loadAllReserves();
               this.dataLoaderService.loadUserUSDbReserveData();
-              alert("Successful deposit-service of USDb!");
+              alert("Successful deposit of USDb!");
               break;
             case IconexRequestsMap.WITHDRAW_USDb:
               this.scoreService.getUserBalanceOfUSDb().then(res => {
-                console.log("USDb balance after withdraw-service: ", res);
+                console.log("USDb balance after withdraw: ", res);
               });
               // load all reserves and user specific USDb reserve data
               this.dataLoaderService.loadAllReserves();
               this.dataLoaderService.loadUserUSDbReserveData();
-              alert("Successful withdraw-service of USDb!");
+              alert("Successful withdraw of USDb!");
               break;
             case IconexRequestsMap.BORROW_USDb:
               console.log("IconexRequestsMap.BORROW_USDb");
-              this.scoreService.getUserBalanceOfUSDb().then(res => {
-                console.log("USDb balance after borrow-service: ", res);
-              });
               // load all reserves and user specific USDb reserve data
-              this.dataLoaderService.loadAllReserves();
+              // this.dataLoaderService.loadAllReserves();
               this.dataLoaderService.loadUserUSDbReserveData();
+              alert("Successful borrow of USDb!");
               break;
-            case IconexRequestsMap.BORROW_USDb:
-              console.log("IconexRequestsMap.BORROW_USDb");
+            case IconexRequestsMap.REPAY_USDb:
+              console.log("IconexRequestsMap.REPAY_USDb");
+              // load all reserves and user specific USDb reserve data
+              // this.dataLoaderService.loadAllReserves();
+              this.dataLoaderService.loadUserUSDbReserveData();
+              alert("Successful repay of USDb!");
               break;
             default:
               break;

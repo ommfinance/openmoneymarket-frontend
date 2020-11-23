@@ -13,7 +13,7 @@
   </div>
 </div>
 
-<!-- Bridge borrow-service modal -->
+<!-- Bridge borrow modal -->
 <div class="modal" id="modal-2">
   <div class="modal-content">
     <h3 class="text-center"><span class="adjust-label">Adjust</span> borrow by <br><strong id="borrow-increase">XXX USDb</strong>?</h3>
@@ -79,9 +79,9 @@
     </div>
     <div id="your-overview-content" class="grid panel" [ngStyle]="{'display': this.persistenceService.userLoggedIn() ? null: 'none'}">
       <div class="grid-cell"><h3 class="text-center"><span class="label">You've supplied</span><br><span class="text-size-25 supply-deposited-dollar">${{this.formatNumberToUSLocaleString(this.persistenceService.userUSDbReserve?.currentOTokenBalanceUSD)}}</span></h3></div>
-      <div class="grid-cell border-right"><h3 class="text-center"><span class="label">Your supply APY</span><br><span class="text-green text-size-25">6.47%</span></h3></div>
+      <div class="grid-cell border-right"><h3 class="text-center"><span class="label">Your supply APY</span><br><span class="text-green text-size-25">{{this.persistenceService.userUSDbReserve?.liquidityRate?.toFixed(5)}}%</span></h3></div>
       <div class="grid-cell"><h3 class="text-center"><span class="label">You've borrowed</span><br><span class="text-size-25 borrow-borrowed-dollar">${{this.formatNumberToUSLocaleString(this.persistenceService.userUSDbReserve?.principalBorrowBalanceUSD)}}</span></h3></div>
-      <div class="grid-cell"><h3 class="text-center"><span class="label">Your borrow APY</span><br><span class="text-purple text-size-25">6.29%</span></h3></div>
+      <div class="grid-cell"><h3 class="text-center"><span class="label">Your borrow APY</span><br><span class="text-purple text-size-25">{{this.persistenceService.userUSDbReserve?.borrowRate?.toFixed(5)}}%</span></h3></div>
     </div>
     <div id="market-overview-content" class="grid panel" [ngStyle]="{'display': !this.persistenceService.userLoggedIn() ? null: 'none'}">
       <div class="grid-cell"><h3 class="text-center"><span class="label">Total supplied</span><br><span class="text-size-25">$982,647</span></h3></div>
@@ -156,10 +156,10 @@
             <td><span>Bridge Dollars</span><br>USDb</td>
             <td><span>${{this.formatNumberToNdigits(this.persistenceService.userUSDbReserve?.currentOTokenBalanceUSD)}}</span>
               <br>{{this.formatNumberToUSLocaleString(this.persistenceService.userUSDbReserve?.currentOTokenBalance)}} USDb</td>
-            <td><span class="text-green">6.47%</span><br>+0.51% / 24h</td>
+            <td><span class="text-green">{{this.persistenceService.userUSDbReserve?.liquidityRate?.toFixed(5)}}%</span><br>+0.51% / 24h</td>
             <td><span>${{this.formatNumberToNdigits(this.persistenceService.userUSDbReserve?.principalBorrowBalanceUSD)}}</span>
               <br>{{this.formatNumberToUSLocaleString(this.persistenceService.userUSDbReserve?.principalBorrowBalance)}} USDb</td>
-            <td><span class="text-purple">7.25%</span><br>-0.27% / 24h</td>
+            <td><span class="text-purple">{{this.persistenceService.userUSDbReserve?.borrowRate?.toFixed(5)}}%</span><br>-0.27% / 24h</td>
           </tr>
           <tr>
             <td colspan="5" class="no-padding">
@@ -287,7 +287,7 @@
                           </div>
                           <div class="grid grid-center borrow-actions hide">
                             <div class="grid-cell text-right">
-                              <a href="javascript:void(0);" class="cancel borrow-adjust">Cancel</a>
+                              <a href="javascript:void(0);" class="cancel borrow-adjust" (click)="onBorrowAdjustClick()">Cancel</a>
                             </div>
                             <div class="grid-cell text-left">
                               <a href="javascript:void(0);" class="button modal-trigger" data-modal="modal-2" id="modal-trigger-2" (click)="onBorrowUSDbConfirmClick()">Confirm</a>
