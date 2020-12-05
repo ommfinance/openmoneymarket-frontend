@@ -32,7 +32,7 @@ export class WithdrawService {
     };
 
     const tx = this.iconApiService.buildTransaction(this.persistenceService.iconexWallet.address,  this.persistenceService.allAddresses.oTokens.oUSDb,
-      ScoreMethodNames.WITHDRAW_USDB, params, IconTransactionType.WRITE);
+      ScoreMethodNames.REDEEM, params, IconTransactionType.WRITE);
 
     console.log("TX: ", tx);
     this.scoreService.getUserBalanceOfUSDb().then(res => {

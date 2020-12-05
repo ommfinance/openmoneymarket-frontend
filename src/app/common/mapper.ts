@@ -1,5 +1,5 @@
 import {Utils} from "./utils";
-import {UserUSDbReserve} from "../interfaces/user-usdb-reserve";
+import {Reserve} from "../interfaces/reserve";
 
 export class Mapper {
   public static mapHexStringsOfObjectToNormalisedValue<T>(object: T): T {
@@ -10,9 +10,9 @@ export class Mapper {
     return object;
   }
 
-  public static mapUserUSDbReserve(userUSDbReserve: UserUSDbReserve): UserUSDbReserve {
+  public static mapUserUSDbReserve(userUSDbReserve: Reserve): Reserve {
     console.log("mapUserUSDbReserve before: ", userUSDbReserve);
-    const res = new UserUSDbReserve(
+    const res = new Reserve(
       Utils.hexToPercent(userUSDbReserve.borrowRate),
       Utils.ixcValueToNormalisedValue(userUSDbReserve.currentBorrowBalance),
       Utils.ixcValueToNormalisedValue(userUSDbReserve.currentBorrowBalanceUSD),

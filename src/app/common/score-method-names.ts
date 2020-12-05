@@ -7,9 +7,9 @@ export class ScoreMethodNames {
   /*
    * LendingPool SCORE
    */
-  public static DEPOSIT_USDB = "deposit";
-  public static WITHDRAW_USDB = "redeem";
-  public static BORROW_USDB = "borrow";
+  public static DEPOSIT = "deposit";
+  public static REDEEM = "redeem";
+  public static BORROW = "borrow";
 
   /*
    * IRC2 interface methods

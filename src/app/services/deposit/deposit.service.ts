@@ -10,6 +10,7 @@ import {IconexApiService} from '../iconex-api/iconex-api.service';
 import {IconexRequestsMap} from '../../common/iconex-requests-map';
 import {ScoreService} from "../score/score.service";
 import {Utils} from "../../common/utils";
+import {CheckerService} from "../checker/checker.service";
 
 
 @Injectable({
@@ -21,7 +22,8 @@ export class DepositService {
               private persistenceService: PersistenceService,
               private mockScoreService: MockScoreService,
               private iconexApiService: IconexApiService,
-              private scoreService: ScoreService) {
+              private scoreService: ScoreService,
+              private checkerService: CheckerService) {
   }
 
   /* Deposit USDb flow:
@@ -64,6 +66,25 @@ export class DepositService {
     });
 
     this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.DEPOSIT_USDb);
+  }
+
+  public depositIcxToLendingPool(amount: number): void {
+    console.log("Deposit ICX amount = " + amount);
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+    // TODO: refactor for Bridge
+    const params = {
+      _amount: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
+    };
+
+    const tx = this.iconApiService.buildTransaction(this.persistenceService.iconexWallet!.address,  this.persistenceService.allAddresses!.systemContract.LendingPool,
+      ScoreMethodNames.DEPOSIT, params, IconTransactionType.WRITE, amount);
+
+    console.log("TX: ", tx);
+    this.iconApiService.getIcxBalance(this.persistenceService.iconexWallet!.address).then(res => {
+      console.log("ICX balance before: ", res);
+    });
+
+    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.DEPOSIT_ICX);
   }
 
 }

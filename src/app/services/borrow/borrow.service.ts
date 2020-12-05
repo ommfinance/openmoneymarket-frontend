@@ -31,11 +31,27 @@ export class BorrowService {
     };
 
     const tx = this.iconApiService.buildTransaction(this.persistenceService.iconexWallet!.address,
-      this.persistenceService.allAddresses!.systemContract.LendingPool, ScoreMethodNames.BORROW_USDB, params, IconTransactionType.WRITE);
+      this.persistenceService.allAddresses!.systemContract.LendingPool, ScoreMethodNames.BORROW, params, IconTransactionType.WRITE);
 
     console.log("borrowUSDb TX: ", tx);
 
     this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.BORROW_USDb);
+  }
+
+  public borrowIcx(amount: number): void {
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
+    const params = {
+      _amount: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
+      _reserve: this.persistenceService.allAddresses!.collateral.sICX
+    };
+
+    const tx = this.iconApiService.buildTransaction(this.persistenceService.iconexWallet!.address,
+      this.persistenceService.allAddresses!.systemContract.LendingPool, ScoreMethodNames.BORROW, params, IconTransactionType.WRITE);
+
+    console.log("borrowIcx TX: ", tx);
+
+    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.BORROW_ICX);
   }
 
 }

@@ -1,4 +1,4 @@
-export class UserUSDbReserve {
+export class Reserve {
   borrowRate: number;
   currentBorrowBalance: number;
   currentBorrowBalanceUSD: number;

@@ -343,7 +343,7 @@
                       <div class="grid legend">
                         <div class="grid-cell">
                           <p class="label deposited">Supplied</p>
-                          <input title="Deposited supply" id="supply-deposited-icon" disabled="" value="0 ICX">
+                          <input title="Deposited supply" id="supply-deposited-icon" (keyup)="depositIcxAmountChange()" disabled="" value="0 ICX">
                         </div>
                         <div class="grid-cell">
                           <p class="label available">Available</p>
@@ -369,7 +369,7 @@
 
                           <div class="grid grid-center supply-actions">
                             <div class="grid-cell text-center">
-                              <a href="#" class="button supply-adjust" id="supply-adjust-button">Supply</a>
+                              <a href="javascript:void(0);" class="button supply-adjust" id="supply-adjust-button" (click)="onSupplyAdjustIcxClick()">Supply</a>
                             </div>
                           </div>
                           <div class="grid grid-center supply-actions hide">
@@ -377,7 +377,7 @@
                               <a href="#" class="cancel supply-adjust">Cancel</a>
                             </div>
                             <div class="grid-cell text-left">
-                              <a href="#" class="button modal-trigger" data-modal="modal-1" id="modal-trigger-1">Confirm</a>
+                              <a href="#" class="button modal-trigger" data-modal="modal-1" id="modal-trigger-1" (click)="onIcxSupplyConfirmClick()">Confirm</a>
                             </div>
                           </div>
 

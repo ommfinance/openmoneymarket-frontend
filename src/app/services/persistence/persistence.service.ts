@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {IconWallet} from '../../models/IconWallet';
 import {AllAddresses} from '../../interfaces/all-addresses';
 import {AllReserves} from "../../interfaces/all-reserves";
-import {UserUSDbReserve} from "../../interfaces/user-usdb-reserve";
+import {Reserve} from "../../interfaces/reserve";
 import {Subject} from "rxjs";
 
 @Injectable({
@@ -13,10 +13,15 @@ export class PersistenceService {
   public iconexWallet: IconWallet | undefined;
   public allAddresses: AllAddresses | undefined;
   public allReserves: AllReserves | undefined;
-  public userUSDbReserve: UserUSDbReserve | undefined;
+
+  public userUSDbReserve: Reserve | undefined;
+  public userIcxReserve: Reserve | undefined;
 
   public userUSDbBalanceChange: Subject<number> = new Subject<number>();
-  public userUSDbReserveChange: Subject<UserUSDbReserve> = new Subject<UserUSDbReserve>();
+  public userUSDbReserveChange: Subject<Reserve> = new Subject<Reserve>();
+
+  public userIcxBalanceChange: Subject<number> = new Subject<number>();
+  public userIcxReserveChange: Subject<Reserve> = new Subject<Reserve>();
 
   constructor() {
     this.userUSDbBalanceChange.subscribe(value => {
@@ -27,14 +32,30 @@ export class PersistenceService {
     this.userUSDbReserveChange.subscribe(value => {
       this.userUSDbReserve = value;
     });
+    this.userIcxBalanceChange.subscribe(value => {
+      if (this.iconexWallet) {
+        this.iconexWallet.balances.ICX = value;
+      }
+    });
+    this.userIcxReserveChange.subscribe(value => {
+      this.userIcxReserve = value;
+    });
   }
 
   public updateUserUSDbBalance(balance: number): void {
     this.userUSDbBalanceChange.next(balance);
   }
 
-  public updateUserUSDbReserve(userUSDbReserve: UserUSDbReserve): void {
-    this.userUSDbReserveChange.next(userUSDbReserve);
+  public updateUserUSDbReserve(reserve: Reserve): void {
+    this.userUSDbReserveChange.next(reserve);
+  }
+
+  public updateUserIcxBalance(balance: number): void {
+    this.userIcxBalanceChange.next(balance);
+  }
+
+  public updateUserIcxReserve(reserve: Reserve): void {
+    this.userIcxReserveChange.next(reserve);
   }
 
   public iconexLogin(iconWallet: IconWallet): void {

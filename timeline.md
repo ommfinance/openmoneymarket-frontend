@@ -32,7 +32,7 @@
 - Documentation
 - Increase in test coverage
 
-## 2020-11-23: Integration of Ibriz SCORE ICX deposit/withdraw flow
+## 2020-11-23: Integration of Ibriz SCORE ICX deposit/withdraw flow, UI formulas
 - Integration of SCORE ICX deposit/withdraw flow (exp.dlv Nov 21, possible delay)
 - Mocking Governance page variables (maybe real data if ready)
 

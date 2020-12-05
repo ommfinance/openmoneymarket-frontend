@@ -10,7 +10,7 @@ import {
   usdbPrefixPlusFormat,
   usdFormat, usdTwoDecimalMinusFormat, usdTwoDecimalPlusFormat
 } from "../../common/formatting";
-import {UserUSDbReserve} from "../../interfaces/user-usdb-reserve";
+import {Reserve} from "../../interfaces/reserve";
 import {WithdrawService} from "../../services/withdraw/withdraw.service";
 import {BorrowService} from "../../services/borrow/borrow.service";
 import {SlidersService} from "../../services/sliders/sliders.service";
@@ -34,13 +34,21 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   public iconBorrowSlider: any;
   public riskRatio: any;
 
-  // Position manager variables
-  public supplyDeposited: any;
-  public supplyAvailable: any;
-  public borrowBorrowed: any;
-  public borrowAvailable: any;
-  public borrowAvailableRange: any;
-  public supplyRewards: any;
+  // Position manager variables USDb
+  public supplyDepositedUSDb: any;
+  public supplyAvailableUSDb: any;
+  public borrowBorrowedUSDb: any;
+  public borrowAvailableUSDb: any;
+  public borrowAvailableRangeUSDb: any;
+  public supplyRewardsUSDb: any;
+
+  // Position manager variables ICX
+  public supplyDepositedIcx: any;
+  public supplyAvailableIcx: any;
+  public borrowBorrowedIcx: any;
+  public borrowAvailableIcx: any;
+  public borrowAvailableRangeIcx: any;
+  public supplyRewardsIcx: any;
 
   constructor(public persistenceService: PersistenceService,
               public mockScoreService: MockScoreService,
@@ -93,20 +101,28 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     });
 
     // Position manager variables
-    this.supplyDeposited = document.getElementById('supply-deposited');
-    this.supplyAvailable = document.getElementById('supply-available');
-    this.borrowBorrowed = document.getElementById('borrow-borrowed');
-    this.borrowAvailable = document.getElementById('borrow-available');
-    this.borrowAvailableRange = document.getElementById('borrow-limit');
-    this.supplyRewards = document.getElementById('supply-rewards');
+    this.supplyDepositedUSDb = document.getElementById('supply-deposited');
+    this.supplyAvailableUSDb = document.getElementById('supply-available');
+    this.borrowBorrowedUSDb = document.getElementById('borrow-borrowed');
+    this.borrowAvailableUSDb = document.getElementById('borrow-available');
+    this.borrowAvailableRangeUSDb = document.getElementById('borrow-limit');
+    this.supplyRewardsUSDb = document.getElementById('supply-rewards');
+
+    this.supplyDepositedIcx = document.getElementById('supply-deposited-icon');
+    this.supplyAvailableIcx = document.getElementById('supply-available-icon');
+    this.borrowBorrowedIcx = document.getElementById('borrow-borrowed');
+    this.borrowAvailableIcx = document.getElementById('borrow-available');
+    this.borrowAvailableRangeIcx = document.getElementById('borrow-limit');
+    this.supplyRewardsIcx = document.getElementById('supply-rewards');
+
 
     /*
     * Bridge supply slider
     */
     this.bridgeSupplySlider.noUiSlider.on('update', (values: { [x: string]: number; }, handle: string | number) => {
       // Supply deposited / available text boxes
-      this.supplyDeposited.value = usdbFormat.to(values[handle] * 1);
-      this.supplyAvailable.value = usdbFormat.to(this.calculationService.calculateSliderAvailableUSDbSupply(+values[handle]));
+      this.supplyDepositedUSDb.value = usdbFormat.to(values[handle] * 1);
+      this.supplyAvailableUSDb.value = usdbFormat.to(this.calculationService.calculateSliderAvailableUSDbSupply(+values[handle]));
 
       // Supply interest
       $('.supply-interest').text(usdbPrefixPlusFormat.to((values[handle] * 1) * 0.0647 / 365));
@@ -119,9 +135,9 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
       // Position borrow limit
       $('#position-borrow-limit').text(usdFormat.to(values[handle] * 1 + 10000));
       // Risk ratio
-      this.riskRatio.noUiSlider.set(1 / ((usdbFormat.from(this.supplyDeposited.value) * 0.66) / usdbFormat.from(this.borrowBorrowed.value)) * 100);
+      this.riskRatio.noUiSlider.set(1 / ((usdbFormat.from(this.supplyDepositedUSDb.value) * 0.66) / usdbFormat.from(this.borrowBorrowedUSDb.value)) * 100);
       // Update risk percentage
-      $('.risk-percentage').text(percentageFormat.to( 1 / ((usdbFormat.from(this.supplyDeposited.value) * 0.66) / usdbFormat.from(this.borrowBorrowed.value)) * 100));
+      $('.risk-percentage').text(percentageFormat.to( 1 / ((usdbFormat.from(this.supplyDepositedUSDb.value) * 0.66) / usdbFormat.from(this.borrowBorrowedUSDb.value)) * 100));
       // Update borrow limit
       // this.borrowAvailable.value = (usdbFormat.to((usdbFormat.from(this.supplyDeposited.value) * 0.33) - 1500));
       // Update borrow range
@@ -134,8 +150,8 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     // Bridge borrow slider updates the borrow borrowed editbox
     // tslint:disable-next-line:no-shadowed-variable
     this.bridgeBorrowSlider.noUiSlider.on('update', (values: any, handle: any) => {
-      this.borrowBorrowed.value = usdbFormat.to(values[handle] * 1);
-      this.borrowAvailable.value = (usdbFormat.to(this.calculationService.calculateSliderAvailableUSDbBorrow(values[handle])));
+      this.borrowBorrowedUSDb.value = usdbFormat.to(values[handle] * 1);
+      this.borrowAvailableUSDb.value = (usdbFormat.to(this.calculationService.calculateSliderAvailableUSDbBorrow(values[handle])));
       // Supply interest
       $('#borrow-interest').text(usdbPrefixMinusFormat.to((values[handle] * 1) * 0.0725 / 365));
       $('.borrow-interest-dollar').text(usdTwoDecimalMinusFormat.to(((values[handle] * 1) * 0.0725 / 365) + 0.12));
@@ -144,13 +160,67 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
       // Position borrow
       $('.position-borrow').text(usdFormat.to((values[handle] * 1) + 1212));
       // Risk ratio
-      this.riskRatio.noUiSlider.set(1 / ((usdbFormat.from(this.supplyDeposited.value) * 0.66) /
-        usdbFormat.from(this.borrowBorrowed.value)) * 100);
+      this.riskRatio.noUiSlider.set(1 / ((usdbFormat.from(this.supplyDepositedUSDb.value) * 0.66) /
+        usdbFormat.from(this.borrowBorrowedUSDb.value)) * 100);
       // Update risk percentage
-      $('.risk-percentage').text(percentageFormat.to( 1 / ((usdbFormat.from(this.supplyDeposited.value) * 0.66) /
-        usdbFormat.from(this.borrowBorrowed.value)) * 100));
+      $('.risk-percentage').text(percentageFormat.to( 1 / ((usdbFormat.from(this.supplyDepositedUSDb.value) * 0.66) /
+        usdbFormat.from(this.borrowBorrowedUSDb.value)) * 100));
       // Adjust locked indicator for collateral
-      document.getElementById("locked")!.style.left = (23 * (usdbFormat.from(this.borrowBorrowed.value) / 2053)) + "%";
+      document.getElementById("locked")!.style.left = (23 * (usdbFormat.from(this.borrowBorrowedUSDb.value) / 2053)) + "%";
+    });
+
+
+    /*
+    * ICX supply slider
+    */
+    this.iconSupplySlider.noUiSlider.on('update', (values: { [x: string]: number; }, handle: string | number) => {
+      // Supply deposited / available text boxes
+      this.supplyDepositedUSDb.value = usdbFormat.to(values[handle] * 1);
+      this.supplyAvailableUSDb.value = usdbFormat.to(this.calculationService.calculateSliderAvailableUSDbSupply(+values[handle]));
+
+      // Supply interest
+      $('.supply-interest').text(usdbPrefixPlusFormat.to((values[handle] * 1) * 0.0647 / 365));
+      $('.supply-interest-dollar').text(usdTwoDecimalPlusFormat.to((values[handle] * 1) * 0.0647 / 365));
+      // Supply rewards
+      $('#supply-rewards').text(ommPrefixPlusFormat.to((values[handle] * 1) * 0.447 / 365));
+      $('.supply-rewards-total').text(prefixPlusFormat.to(((values[handle] * 1) * 0.447 / 365) + 4.74));
+      // Position supply
+      $('.position-supply').text(usdFormat.to(values[handle] * 1));
+      // Position borrow limit
+      $('#position-borrow-limit').text(usdFormat.to(values[handle] * 1 + 10000));
+      // Risk ratio
+      this.riskRatio.noUiSlider.set(1 / ((usdbFormat.from(this.supplyDepositedUSDb.value) * 0.66) / usdbFormat.from(this.borrowBorrowedUSDb.value)) * 100);
+      // Update risk percentage
+      $('.risk-percentage').text(percentageFormat.to( 1 / ((usdbFormat.from(this.supplyDepositedUSDb.value) * 0.66) / usdbFormat.from(this.borrowBorrowedUSDb.value)) * 100));
+      // Update borrow limit
+      // this.borrowAvailable.value = (usdbFormat.to((usdbFormat.from(this.supplyDeposited.value) * 0.33) - 1500));
+      // Update borrow range
+      // updateBorrowRange(parseFloat(values[handle] * 0.33 - usdbFormat.from(borrowAvailable.value)));
+    });
+
+    /*
+    * ICX borrow sliders
+    */
+    // Bridge borrow slider updates the borrow borrowed editbox
+    // tslint:disable-next-line:no-shadowed-variable
+    this.bridgeBorrowSlider.noUiSlider.on('update', (values: any, handle: any) => {
+      this.borrowBorrowedUSDb.value = usdbFormat.to(values[handle] * 1);
+      this.borrowAvailableUSDb.value = (usdbFormat.to(this.calculationService.calculateSliderAvailableUSDbBorrow(values[handle])));
+      // Supply interest
+      $('#borrow-interest').text(usdbPrefixMinusFormat.to((values[handle] * 1) * 0.0725 / 365));
+      $('.borrow-interest-dollar').text(usdTwoDecimalMinusFormat.to(((values[handle] * 1) * 0.0725 / 365) + 0.12));
+      // Supply rewards
+      $('#borrow-rewards').text(ommPrefixPlusFormat.to((values[handle] * 1) * 0.4725 / 365));
+      // Position borrow
+      $('.position-borrow').text(usdFormat.to((values[handle] * 1) + 1212));
+      // Risk ratio
+      this.riskRatio.noUiSlider.set(1 / ((usdbFormat.from(this.supplyDepositedUSDb.value) * 0.66) /
+        usdbFormat.from(this.borrowBorrowedUSDb.value)) * 100);
+      // Update risk percentage
+      $('.risk-percentage').text(percentageFormat.to( 1 / ((usdbFormat.from(this.supplyDepositedUSDb.value) * 0.66) /
+        usdbFormat.from(this.borrowBorrowedUSDb.value)) * 100));
+      // Adjust locked indicator for collateral
+      document.getElementById("locked")!.style.left = (23 * (usdbFormat.from(this.borrowBorrowedUSDb.value) / 2053)) + "%";
     });
 
 
@@ -161,7 +231,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     this.persistenceService.userUSDbBalanceChange.subscribe(userUSDbBalance => {
       console.log("homePage-> userUSDbBalanceChange:", userUSDbBalance);
       if (this.bridgeSupplySlider) {
-        this.supplyAvailable.value = usdbFormat.to(userUSDbBalance);
+        this.supplyAvailableUSDb.value = usdbFormat.to(userUSDbBalance);
         this.bridgeSupplySlider.noUiSlider.updateOptions({
           range: {
             min: 0,
@@ -171,11 +241,11 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
       }
     });
 
-    this.persistenceService.userUSDbReserveChange.subscribe((userUSDbReserve: UserUSDbReserve) => {
+    this.persistenceService.userUSDbReserveChange.subscribe((userUSDbReserve: Reserve) => {
       console.log("homePage-> userUSDbReserveChange:", userUSDbReserve);
       console.log("homePage-> userUSDbReserveChange -> noUiSlider.set -> " + userUSDbReserve.currentOTokenBalance);
       // set new USDb supplied value to input deposit amount, supply slider and supply deposited value
-      this.supplyDeposited.value = usdbFormat.to(userUSDbReserve.currentOTokenBalance);
+      this.supplyDepositedUSDb.value = usdbFormat.to(userUSDbReserve.currentOTokenBalance);
       this.bridgeSupplySlider.noUiSlider.set(userUSDbReserve.currentOTokenBalance);
       // update USDb slider max value to  -> user USDb balance + supplied USDb
       this.bridgeSupplySlider.noUiSlider.updateOptions({
@@ -186,8 +256,8 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
         }
       });
       // set borrow supplied and slider value
-      this.borrowBorrowed.value = usdbFormat.to(userUSDbReserve.principalBorrowBalance);
-      this.borrowAvailable.value = this.calculationService.calculateSliderAvailableUSDbBorrow(usdbFormat.from(this.borrowAvailable.value));
+      this.borrowBorrowedUSDb.value = usdbFormat.to(userUSDbReserve.principalBorrowBalance);
+      this.borrowAvailableUSDb.value = this.calculationService.calculateSliderAvailableUSDbBorrow(usdbFormat.from(this.borrowAvailableUSDb.value));
       this.bridgeBorrowSlider.noUiSlider.set(userUSDbReserve.principalBorrowBalance);
       // update USDb borrow slider max value to  -> user USDb balance + supplied USDb
       this.bridgeBorrowSlider.noUiSlider.updateOptions({
@@ -200,7 +270,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   }
 
   public onBorrowUSDbConfirmClick(): void {
-    const amount = +usdbFormat.from(this.borrowBorrowed.value);
+    const amount = +usdbFormat.from(this.borrowBorrowedUSDb.value);
     const borrowAmountDiff = amount - Math.floor(this.persistenceService.userUSDbReserve!.currentBorrowBalance);
     // toggle USDb assets view
     this.onAssetBridgeClick();
@@ -218,7 +288,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   }
 
   public onUSDbSupplyConfirmClick(): void {
-    let amount = +usdbFormat.from(this.supplyDeposited.value);
+    let amount = +usdbFormat.from(this.supplyDepositedUSDb.value);
     console.log("onUSDbSupplyConfirmClick -> amount = " , amount);
     // check that value is not greater than user USDb balance
     if (this.persistenceService.iconexWallet) {
@@ -246,19 +316,61 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     }
   }
 
+  public onIcxSupplyConfirmClick(): void {
+    const amount = +usdbFormat.from(this.supplyDepositedIcx.value);
+    console.log("onIcxSupplyConfirmClick -> amount = " , amount);
+    // check that value is not greater than user ICX balance
+    // if (this.persistenceService.iconexWallet) {
+    //   if (amount > this.persistenceService.iconexWallet.balances.ICX + this.persistenceService.userIcxReserve!.currentOTokenBalance) {
+    //     amount = Math.floor(this.persistenceService.iconexWallet.balances.ICX + this.persistenceService.userIcxReserve!.currentOTokenBalance);
+    //     this.bridgeSupplySlider.noUiSlider.set(amount);
+    //     return;
+    //   }
+    // }
+    // const supplyAmountDiff = amount - Math.floor(this.persistenceService.userIcxReserve!.currentOTokenBalance);
+    // toggle USDb assets view
+    this.onAssetBridgeClick();
+    // if (supplyAmountDiff > 0) {
+    // console.log("Actual deposit = ", supplyAmountDiff);
+      // toggle USDb asset
+      // deposit the amount - current supply
+    this.depositService.depositIcxToLendingPool(amount);
+    // }
+    // else if (supplyAmountDiff < 0) {
+    //   console.log("Actual withdraw = ", supplyAmountDiff);
+    //   this.withdrawService.withdrawUSDb(Math.abs(supplyAmountDiff));
+    // }
+    // else {
+    //   alert("No change in supplied value!");
+    //   return;
+    // }
+    this.borrowService.borrowIcx(amount - 1);
+  }
+
   public depositUSDbAmountChange(): void {
-    const amount = +usdbFormat.from(this.supplyDeposited.value);
+    const amount = +usdbFormat.from(this.supplyDepositedUSDb.value);
     if (this.persistenceService.iconexWallet) {
       if (amount > this.persistenceService.iconexWallet.balances.USDb) {
-        this.supplyDeposited.style.borderColor = "red";
+        this.supplyDepositedUSDb.style.borderColor = "red";
       } else {
-        this.supplyDeposited.style.borderColor = "#c7ccd5";
+        this.supplyDepositedUSDb.style.borderColor = "#c7ccd5";
+      }
+    }
+  }
+
+  public depositIcxAmountChange(): void {
+    const amount = +usdbFormat.from(this.supplyDepositedIcx.value);
+    if (this.persistenceService.iconexWallet) {
+      if (amount > this.persistenceService.iconexWallet.balances.ICX) {
+        this.supplyDepositedIcx.style.borderColor = "red";
+      } else {
+        this.supplyDepositedIcx.style.borderColor = "#c7ccd5";
       }
     }
   }
 
   public borrowUSDbAmountChange(): void {
-    this.borrowBorrowed.value = +usdbFormat.from(this.borrowBorrowed.value);
+    this.borrowBorrowedUSDb.value = +usdbFormat.from(this.borrowBorrowedUSDb.value);
     // TODO add check
     // if (this.persistenceService.iconexWallet) {
     //   if (this.USDbBorrowAmount > this.persistenceService.iconexWallet.balances.USDb) {
@@ -290,9 +402,9 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
       $('#supply-available').prop('disabled', (i: any, v: any) => !v);
       this.bridgeSupplySlider.toggleAttribute('disabled');
       this.bridgeSupplySlider.noUiSlider.set(this.persistenceService.userUSDbReserve?.currentOTokenBalance ?? 1500);
-      this.supplyAvailable.value = usdbFormat.to((this.persistenceService.iconexWallet?.balances.USDb ?? 5000) +
+      this.supplyAvailableUSDb.value = usdbFormat.to((this.persistenceService.iconexWallet?.balances.USDb ?? 5000) +
         (this.persistenceService.userUSDbReserve?.currentOTokenBalance ?? 0));
-      this.supplyDeposited.value = usdbFormat.to(this.persistenceService.userUSDbReserve?.currentOTokenBalance ?? 10000);
+      this.supplyDepositedUSDb.value = usdbFormat.to(this.persistenceService.userUSDbReserve?.currentOTokenBalance ?? 10000);
     }
 
     // Disable borrow adjust view
@@ -333,6 +445,24 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
       this.bridgeBorrowSlider.toggleAttribute('disabled');
       this.bridgeBorrowSlider.noUiSlider.set(this.persistenceService.userUSDbReserve?.currentBorrowBalance ?? 1500);
     }
+  }
+
+  public onSupplyAdjustIcxClick(): void {
+    $('#supply').toggleClass("adjust");
+    $('.supply-actions').toggleClass("hide");
+    $('#supply-deposited-icon').prop('disabled', (i: any, v: any) => !v);
+    $('#supply-available-icon').prop('disabled', (i: any, v: any) => !v);
+    // this.bridgeSupplySlider.toggleAttribute('disabled');
+    // this.bridgeSupplySlider.noUiSlider.set(this.persistenceService.userUSDbReserve?.currentOTokenBalance ?? 10000);
+
+    // if ($("#borrow").hasClass("adjust")) {
+    //   $('#borrow').toggleClass("adjust");
+    //   $('.borrow-actions').toggleClass("hide");
+    //   $('#borrow-borrowed').prop('disabled', (i: any, v: any) => !v);
+    //   $('#borrow-available').prop('disabled', (i: any, v: any) => !v);
+    //   this.bridgeBorrowSlider.toggleAttribute('disabled');
+    //   this.bridgeBorrowSlider.noUiSlider.set(this.persistenceService.userUSDbReserve?.currentBorrowBalance ?? 1500);
+    // }
   }
 
 // Borrow adjust logic

@@ -7,8 +7,9 @@ import {ScoreService} from '../score/score.service';
 import {PersistenceService} from '../persistence/persistence.service';
 import {AllReserves} from "../../interfaces/all-reserves";
 import {Mapper} from "../../common/mapper";
-import {UserUSDbReserve} from "../../interfaces/user-usdb-reserve";
+import {Reserve} from "../../interfaces/reserve";
 import {DataLoaderService} from "../data-loader/data-loader.service";
+import {BorrowService} from "../borrow/borrow.service";
 
 @Injectable({
   providedIn: 'root'
@@ -60,6 +61,22 @@ export class TransactionResultService {
               // this.dataLoaderService.loadAllReserves();
               this.dataLoaderService.loadUserUSDbReserveData();
               alert("Successful repay of USDb!");
+              break;
+            case IconexRequestsMap.DEPOSIT_ICX:
+              this.iconApiService.getIcxBalance(this.persistenceService.iconexWallet!.address).then(res => {
+                console.log("ICX balance after deposit: ", res);
+              });
+              // load all reserves and user specific USDb reserve data
+              this.dataLoaderService.loadAllReserves();
+              this.dataLoaderService.loadUserIcxReserveData();
+              alert("Successful deposit of ICX!");
+              break;
+            case IconexRequestsMap.BORROW_ICX:
+              console.log("IconexRequestsMap.BORROW_ICX");
+              // load all reserves and user specific ICX reserve data
+              // this.dataLoaderService.loadAllReserves();
+              this.dataLoaderService.loadUserIcxReserveData();
+              alert("Successful borrow of ICX!");
               break;
             default:
               break;

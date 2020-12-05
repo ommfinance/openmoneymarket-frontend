@@ -39,7 +39,7 @@ export class IconApiService {
     const stepLimit = IconConverter.toBigNumber(2000000);
     const version = IconConverter.toBigNumber(3);
     const nid = IconConverter.toBigNumber(3);
-    value = value ? IconAmount.of(value, IconAmount.Unit.ICX).toLoop() : undefined;
+    value = value ? IconAmount.of(value, IconAmount.Unit.ICX).toLoop() : "0x0";
 
     switch (transactionType) {
       case IconTransactionType.WRITE:
@@ -49,6 +49,7 @@ export class IconApiService {
           .to(to)
           .stepLimit(stepLimit)
           .nid(nid)
+          .value(value)
           .nonce(nonce)
           .version(version)
           .timestamp(timestamp)

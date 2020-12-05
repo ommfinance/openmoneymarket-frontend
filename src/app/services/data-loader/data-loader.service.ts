@@ -4,7 +4,7 @@ import {PersistenceService} from '../persistence/persistence.service';
 import {AllAddresses} from '../../interfaces/all-addresses';
 import {AllReserves} from "../../interfaces/all-reserves";
 import {Mapper} from "../../common/mapper";
-import {UserUSDbReserve} from "../../interfaces/user-usdb-reserve";
+import {Reserve} from "../../interfaces/reserve";
 
 @Injectable({
   providedIn: 'root'
@@ -32,10 +32,19 @@ export class DataLoaderService {
 
   public loadUserUSDbReserveData(): void {
     this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses?.collateral.USDb)
-      .then((res: UserUSDbReserve) => {
+      .then((res: Reserve) => {
         this.persistenceService.userUSDbReserve = Mapper.mapUserUSDbReserve(res);
         console.log("userUSDbReserve:", res);
         this.persistenceService.updateUserUSDbReserve(this.persistenceService.userUSDbReserve);
+      });
+  }
+
+  public loadUserIcxReserveData(): void {
+    this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses?.collateral.sICX)
+      .then((res: Reserve) => {
+        this.persistenceService.userIcxReserve = Mapper.mapUserUSDbReserve(res);
+        console.log("userIcxReserveData:", res);
+        this.persistenceService.updateUserIcxReserve(this.persistenceService.userIcxReserve);
       });
   }
 }
