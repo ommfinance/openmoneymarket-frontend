@@ -3,8 +3,8 @@ import IconService from 'icon-sdk-js';
 
 export class Utils {
 
-  // Returns icx value divided by the 10^18 to get normal value
-  public static ixcValueToNormalisedValue(value: number | string): number {
+  // Returns value divided by the 10^18 to get normalised value
+  public static hex18DecimalToNormalisedNumber(value: number | string): number {
     if (typeof value === "string") {
       return parseInt(value, 16) / 10 ** 18;
     } else {

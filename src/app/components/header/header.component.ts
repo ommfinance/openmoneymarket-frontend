@@ -30,4 +30,9 @@ export class HeaderComponent implements OnInit {
     $('.profile').toggleClass("active");
   }
 
+  onMainClick(): void {
+    $('#profile-tooltip').removeClass("active");
+    $('.profile').removeClass("active");
+  }
+
 }

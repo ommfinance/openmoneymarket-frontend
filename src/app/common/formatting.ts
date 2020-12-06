@@ -1,20 +1,16 @@
 declare var wNumb: any;
 
-/*
-*
-* Formats
-*
-*/
+/* ==========================================================================
+    Formats
+========================================================================== */
 
 // %
-
 export const percentageFormat = wNumb({
   decimals: 0,
   suffix: '%'
 });
 
 // + .00
-
 export const prefixPlusFormat = wNumb({
   decimals: 2,
   thousand: ',',
@@ -22,7 +18,6 @@ export const prefixPlusFormat = wNumb({
 });
 
 // ICX
-
 export const icxFormat = wNumb({
   decimals: 0,
   thousand: ',',
@@ -30,7 +25,6 @@ export const icxFormat = wNumb({
 });
 
 // USDb
-
 export const usdbFormat = wNumb({
   decimals: 0,
   thousand: ',',
@@ -38,7 +32,6 @@ export const usdbFormat = wNumb({
 });
 
 // + USDb .00
-
 export const usdbPrefixPlusFormat = wNumb({
   decimals: 2,
   thousand: ',',
@@ -47,7 +40,6 @@ export const usdbPrefixPlusFormat = wNumb({
 });
 
 // - USDb .00
-
 export const usdbPrefixMinusFormat = wNumb({
   decimals: 2,
   thousand: ',',
@@ -56,7 +48,6 @@ export const usdbPrefixMinusFormat = wNumb({
 });
 
 // + OMM .00
-
 export const ommPrefixPlusFormat = wNumb({
   decimals: 2,
   thousand: ',',
@@ -65,7 +56,6 @@ export const ommPrefixPlusFormat = wNumb({
 });
 
 // ICD
-
 export const icdFormat = wNumb({
   decimals: 0,
   thousand: ',',
@@ -73,7 +63,6 @@ export const icdFormat = wNumb({
 });
 
 // $
-
 export const usdFormat = wNumb({
   decimals: 0,
   thousand: ',',
@@ -81,7 +70,6 @@ export const usdFormat = wNumb({
 });
 
 // $ .00
-
 export const usdTwoDecimalFormat = wNumb({
   decimals: 2,
   thousand: ',',
@@ -89,7 +77,6 @@ export const usdTwoDecimalFormat = wNumb({
 });
 
 // +$ .00
-
 export const usdTwoDecimalPlusFormat = wNumb({
   decimals: 2,
   thousand: ',',
@@ -97,7 +84,6 @@ export const usdTwoDecimalPlusFormat = wNumb({
 });
 
 // -$ .00
-
 export const usdTwoDecimalMinusFormat = wNumb({
   decimals: 2,
   thousand: ',',

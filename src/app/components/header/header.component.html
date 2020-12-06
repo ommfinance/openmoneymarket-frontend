@@ -5,7 +5,7 @@
     <div class="grid-cell">
       <!-- tooltip -->
       <span id="logo-back-container" class="tooltip hover">
-						<span class="tooltip-item"><a href="javascript:void(0);" class="logo"><img src="assets/img/logos/omm-logo.svg" alt="Omm logo"></a></span>
+						<span class="tooltip-item"><a href="javascript:void(0);" routerLink="" class="logo"><img src="assets/img/logos/omm-logo.svg" alt="Omm logo"></a></span>
 						<span id="logo-back" class="tooltip-content clearfix" style="margin-left: -105px;margin-bottom: -47px;">
 							<div class="grid">
 								<div class="grid-cell no-margin">
@@ -17,16 +17,19 @@
     </div>
 
     <!-- Utilities -->
-    <div class="grid-cell"  *ngIf="this.persistenceService.userLoggedIn()">
+    <div class="grid-cell" *ngIf="this.persistenceService.userLoggedIn()">
       <!-- tooltip -->
       <span class="tooltip">
-						<span class="tooltip-item"><span id="profile" class="profile" (click)="onProfileClick()"></span></span>
-						<span id="profile-tooltip" class="tooltip-content clearfix" style="margin: 0 0 -160px 59px;">
+						<span class="tooltip-item"><span id="profile" class="profile" (click)="onProfileClick()"><img src="assets/img/icons/wallet1.svg"></span></span>
+						<span id="profile-tooltip" class="tooltip-content clearfix">
 
-							<div class="grid">
-								<div class="grid-cell">
-									<p class="text-center"><a href="javascript:void(0);" class="button text-center"
-                                            (click)="this.persistenceService.iconexLogout()">Sign out</a></p>
+							<div class="grid grid-center">
+								<div class="grid-cell border-right" style="padding-right: 25px;">
+									<h3 class="text-right"><span class="label">Wallet value</span><br><span>$17,825</span></h3>
+								</div>
+								<div class="grid-cell" style="padding-left: 25px;">
+									<p class="text-left"><a href="javascript:void(0);" class="button text-center"
+                                          (click)="this.persistenceService.iconexLogout()">Sign out</a></p>
 								</div>
 							</div>
 						</span>
@@ -37,7 +40,6 @@
           {{this.persistenceService.iconexWallet!.address}}</p>
       </div>
     </div>
-
     <div class="grid-cell" *ngIf="!this.persistenceService.userLoggedIn()">
       <div class="active-wallet">
         <a href="javascript:void(0);" class="button" (click)="onConnectWalletClick()">Sign in</a>

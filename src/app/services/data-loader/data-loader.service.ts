@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {ScoreService} from '../score/score.service';
 import {PersistenceService} from '../persistence/persistence.service';
 import {AllAddresses} from '../../interfaces/all-addresses';
-import {AllReserves} from "../../interfaces/all-reserves";
+import {AllReserves, ReserveData} from "../../interfaces/all-reserves";
 import {Mapper} from "../../common/mapper";
 import {Reserve} from "../../interfaces/reserve";
 
@@ -24,7 +24,10 @@ export class DataLoaderService {
 
   public loadAllReserves(): Promise<void> {
     return this.scoreService.getReserveDataForAllReserves().then((allReserves: AllReserves) => {
-      allReserves.USDb = Mapper.mapHexStringsOfObjectToNormalisedValue(allReserves.USDb);
+      Object.entries(allReserves).forEach((value: [string, ReserveData]) => {
+        // @ts-ignore
+        allReserves[value[0]] = Mapper.mapReserveData(value[1]);
+      });
       this.persistenceService.allReserves = allReserves;
       console.log("loadAllReserves: ", allReserves);
     });

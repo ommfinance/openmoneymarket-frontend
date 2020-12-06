@@ -1,8 +1,9 @@
 export interface AllReserves {
-  USDb: USDbReserve
+  USDb: ReserveData;
+  sICX: ReserveData;
 }
 
-export interface USDbReserve {
+export class ReserveData {
   availableLiquidity: number;
   baseLTVasCollateral: number;
   borrowCumulativeIndex: number;
@@ -16,11 +17,38 @@ export interface USDbReserve {
   liquidationThreshold: number;
   liquidityCumulativeIndex: number;
   liquidityRate: number;
-  oTokenAddress: number;
-  reserveAddress: number;
+  oTokenAddress: string;
+  reserveAddress: string;
   totalBorrows: number;
   totalLiquidity: number;
   usageAsCollateralEnabled: number;
+
+
+  constructor(availableLiquidity: number, baseLTVasCollateral: number, borrowCumulativeIndex: number, borrowRate: number
+              ,borrowingEnabled: number, decimals: number, isActive: number, isFreezed: number, lastUpdateTimestamp: number,
+              liquidationBonus: number, liquidationThreshold: number, liquidityCumulativeIndex: number, liquidityRate: number,
+              oTokenAddress: string, reserveAddress: string, totalBorrows: number, totalLiquidity: number,
+              usageAsCollateralEnabled: number) {
+
+    this.availableLiquidity = availableLiquidity;
+    this.baseLTVasCollateral = baseLTVasCollateral;
+    this.borrowCumulativeIndex = borrowCumulativeIndex;
+    this.borrowRate = borrowRate;
+    this.borrowingEnabled = borrowingEnabled;
+    this.decimals = decimals;
+    this.isActive = isActive;
+    this.isFreezed = isFreezed;
+    this.lastUpdateTimestamp = lastUpdateTimestamp;
+    this.liquidationBonus = liquidationBonus;
+    this.liquidationThreshold = liquidationThreshold;
+    this.liquidityCumulativeIndex = liquidityCumulativeIndex;
+    this.liquidityRate = liquidityRate;
+    this.oTokenAddress = oTokenAddress;
+    this.reserveAddress = reserveAddress;
+    this.totalBorrows = totalBorrows;
+    this.totalLiquidity = totalLiquidity;
+    this.usageAsCollateralEnabled = usageAsCollateralEnabled;
+  }
 }
 
 // Example
