@@ -80,6 +80,10 @@ export class PersistenceService {
     return this.userUSDbReserve?.currentOTokenBalance ?? 0;
   }
 
+  public getUserBorrowedUSDbBalance(): number {
+    return this.userUSDbReserve?.principalBorrowBalance ?? 0;
+  }
+
   public getUserIcxBalance(): number {
     return this.iconexWallet?.balances.ICX ?? 0;
   }
@@ -134,6 +138,11 @@ export class PersistenceService {
       counter++;
     });
     return total / counter;
+  }
+
+  public getWalletValue(): number {
+    // TODO consider all balances and reserves, for now just USDb
+    return (this.iconexWallet?.balances.USDb ?? 0) + (this.userUSDbReserve?.currentOTokenBalance ?? 0);
   }
 
 }

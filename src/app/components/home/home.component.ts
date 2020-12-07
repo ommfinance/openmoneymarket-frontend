@@ -4,6 +4,7 @@ import {PersistenceService} from "../../services/persistence/persistence.service
 import {MockScoreService} from "../../services/mock-score/mock-score.service";
 import {DepositService} from "../../services/deposit/deposit.service";
 import {
+  icxFormat,
   ommPrefixPlusFormat,
   percentageFormat, prefixPlusFormat,
   usdbFormat, usdbPrefixMinusFormat,
@@ -83,6 +84,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy {
     Handle variable/state changes for subscribed values
     ========================================================================== */
 
+    // Bridge dollars - USDb
     this.persistenceService.userUSDbBalanceChange.subscribe(userUSDbBalance => {
       console.log("homePage-> userUSDbBalanceChange:", userUSDbBalance);
       if (this.bridgeSupplySlider) {
@@ -120,6 +122,49 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy {
         range: {
           min: 0,
           max: this.calculationService.calculateUSDbBorrowSliderMax()
+        }
+      });
+    });
+
+    this.persistenceService.userUSDbBalanceChange.subscribe(userUSDbBalance => {
+      console.log("homePage-> userUSDbBalanceChange:", userUSDbBalance);
+      if (this.bridgeSupplySlider) {
+        this.supplyAvailableBridge.value = usdbFormat.to(userUSDbBalance);
+        this.bridgeSupplySlider.noUiSlider.updateOptions({
+          range: {
+            min: 0,
+            max: userUSDbBalance + (this.persistenceService.userUSDbReserve?.currentOTokenBalance ?? 0)
+          }
+        });
+      }
+    });
+    // ICON - ICX
+    this.persistenceService.userIcxReserveChange.subscribe((userIcxReserve: Reserve) => {
+      console.log("homePage-> userIcxReserveChange:", userIcxReserve);
+      console.log("homePage-> userIcxReserveChange -> noUiSlider.set -> " + userIcxReserve.currentOTokenBalance);
+      console.log("this.borrowBorrowedIcon.value=" + this.borrowBorrowedIcon.value);
+      // set new ICX supplied value to input deposit amount, supply slider and supply deposited value
+      this.supplyDepositedIcon.value = icxFormat.to(userIcxReserve.currentOTokenBalance);
+      this.iconSupplySlider.noUiSlider.set(userIcxReserve.currentOTokenBalance);
+      // update ICX slider max value to  -> user ICX balance + supplied ICX
+      this.iconSupplySlider.noUiSlider.updateOptions({
+        range: {
+          min: 0,
+          max: (this.persistenceService.iconexWallet?.balances.ICX ?? 0) +
+            (this.persistenceService.userIcxReserve?.currentOTokenBalance ?? 0)
+        }
+      });
+      // set borrow supplied and slider value
+      this.borrowBorrowedIcon.value = icxFormat.to(userIcxReserve.principalBorrowBalance);
+      this.borrowAvailableIcon.value = this.calculationService.calculateSliderAvailableIcxBorrow(
+        icxFormat.from(this.borrowAvailableIcon.value));
+      console.log("this.iconBorrowSlider.noUiSlider.set(userIcxReserve.principalBorrowBalance) =" + userIcxReserve.principalBorrowBalance);
+      this.iconBorrowSlider.noUiSlider.set(userIcxReserve.principalBorrowBalance);
+      // update ICX borrow slider max value to  -> user ICX balance + supplied ICX
+      this.iconBorrowSlider.noUiSlider.updateOptions({
+        range: {
+          min: 0,
+          max: this.calculationService.calculateIcxBorrowSliderMax()
         }
       });
     });
@@ -206,7 +251,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy {
       // Update Bridge supply available text box
       this.supplyAvailableBridge.value = usdbFormat.to(this.calculationService.calculateSliderAvailableUSDbSupply(+values[handle]));
       // Update Bridge borrow limit text box
-      this.borrowAvailableBridge.value = (usdbFormat.to((usdbFormat.from(this.supplyDepositedBridge.value) * 0.33) - 1500));
+      this.borrowAvailableBridge.value = (usdbFormat.to((usdbFormat.from(this.supplyDepositedBridge.value) * 0.33) - usdbFormat.from(this.borrowBorrowedBridge.value)));
 
       // Update Bridge's supply interest
       $('.supply-interest-bridge').text(usdbPrefixPlusFormat.to((values[handle] * 1) * 0.0647 / 365));
@@ -287,14 +332,19 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy {
     // On ICON supply slider update
     this.iconSupplySlider.noUiSlider.on('update', (values: { [x: string]: number; }, handle: string | number) => {
       // Supply deposited / available text boxes
-      this.supplyDepositedIcon.value = usdbFormat.to(values[handle] * 1);
-      this.supplyAvailableIcon.value = usdbFormat.to(this.calculationService.calculateSliderAvailableUSDbSupply(+values[handle]));
+      this.supplyDepositedIcon.value = icxFormat.to(values[handle] * 1);
+      this.supplyAvailableIcon.value = icxFormat.to(this.calculationService.calculateSliderAvailableIcxSupply(+values[handle]));
 
+      // Update ICX borrow limit text box
+      this.borrowAvailableIcon.value = (icxFormat.to((icxFormat.from(this.supplyDepositedIcon.value) * 0.33) - icxFormat.from(this.borrowBorrowedIcon.value)));
+      console.log("Update ICX borrow limit text box this.borrowAvailableIcon.value =" + this.borrowAvailableIcon.value);
     });
 
     // On ICON borrow slider update
-    this.bridgeBorrowSlider.noUiSlider.on('update', (values: any, handle: any) => {
-
+    this.iconBorrowSlider.noUiSlider.on('update', (values: any, handle: any) => {
+      this.borrowBorrowedIcon.value = icxFormat.to(values[handle] * 1);
+      this.borrowAvailableIcon.value = (icxFormat.to(this.calculationService.calculateSliderAvailableIcxBorrow(values[handle])));
+      console.log("On ICON borrow slider update this.borrowAvailableIcon.value =" + this.borrowAvailableIcon.value);
     });
 
     /*
@@ -318,6 +368,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy {
 
       const modal = document.querySelector( '#' + el.getAttribute( 'data-modal' ) );
       const close = modal!.querySelector( '.modal-close' );
+      const confirmed = modal!.querySelector('.modal-confirm');
 
       const removeModal = ( hasPerspective: any ) => {
         classie.remove( modal, 'modal-show' );
@@ -341,13 +392,32 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy {
         ev.stopPropagation();
         removeModalHandler();
       });
+
+      confirmed!.addEventListener( 'click', ( ev ) => {
+        ev.stopPropagation();
+        removeModalHandler();
+      });
     } );
 
     this.initSubscribedValues();
   }
 
-
-
+  public onBorrowIcxConfirmClick(): void {
+    const amount = +icxFormat.from(this.borrowBorrowedIcon.value);
+    const borrowAmountDiff = amount - Math.floor(this.persistenceService.userIcxReserve!.currentBorrowBalance);
+    // toggle ICX assets view
+    this.onAssetIconClick();
+    if (borrowAmountDiff > 0) {
+      console.log("Actual borrow = ", borrowAmountDiff);
+      this.borrowService.borrowIcx(borrowAmountDiff);
+    } else if (borrowAmountDiff < 0) {
+      console.log("Actual repay = ", borrowAmountDiff);
+      this.repayService.repayIcx(Math.abs(borrowAmountDiff));
+    } else {
+      alert("No change in borrowed value!");
+      return;
+    }
+  }
 
   public onBorrowUSDbConfirmClick(): void {
     const amount = +usdbFormat.from(this.borrowBorrowedBridge.value);
@@ -398,35 +468,33 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy {
   }
 
   public onIcxSupplyConfirmClick(): void {
-    const amount = +usdbFormat.from(this.supplyDepositedIcon.value);
+    let amount = +icxFormat.from(this.supplyDepositedIcon.value);
     console.log("onIcxSupplyConfirmClick -> amount = " , amount);
     // check that value is not greater than user ICX balance
-    // if (this.persistenceService.iconexWallet) {
-    //   if (amount > this.persistenceService.iconexWallet.balances.ICX + this.persistenceService.userIcxReserve!.currentOTokenBalance) {
-    //     amount = Math.floor(this.persistenceService.iconexWallet.balances.ICX +
-    //     this.persistenceService.userIcxReserve!.currentOTokenBalance);
-    //     this.bridgeSupplySlider.noUiSlider.set(amount);
-    //     return;
-    //   }
-    // }
-    // const supplyAmountDiff = amount - Math.floor(this.persistenceService.userIcxReserve!.currentOTokenBalance);
-    // toggle USDb assets view
-    this.onAssetBridgeClick();
-    // if (supplyAmountDiff > 0) {
-    // console.log("Actual deposit = ", supplyAmountDiff);
-      // toggle USDb asset
-      // deposit the amount - current supply
+    if (this.persistenceService.iconexWallet) {
+      if (amount > this.persistenceService.iconexWallet.balances.ICX + this.persistenceService.userIcxReserve!.currentOTokenBalance) {
+        amount = Math.floor(this.persistenceService.iconexWallet.balances.ICX +
+        this.persistenceService.userIcxReserve!.currentOTokenBalance);
+        this.iconSupplySlider.noUiSlider.set(amount);
+        return;
+      }
+    }
+    const supplyAmountDiff = amount - Math.floor(this.persistenceService.userIcxReserve!.currentOTokenBalance);
+    // toggle ICON assets view
+    this.onAssetIconClick();
+    if (supplyAmountDiff > 0) {
+    console.log("Actual ICX deposit = ", supplyAmountDiff);
+    //  deposit the amount - current supply
     this.depositService.depositIcxToLendingPool(amount);
-    // }
-    // else if (supplyAmountDiff < 0) {
-    //   console.log("Actual withdraw = ", supplyAmountDiff);
-    //   this.withdrawService.withdrawUSDb(Math.abs(supplyAmountDiff));
-    // }
-    // else {
-    //   alert("No change in supplied value!");
-    //   return;
-    // }
-    this.borrowService.borrowIcx(amount - 1);
+    }
+    else if (supplyAmountDiff < 0) {
+      console.log("Actual ICX withdraw = ", supplyAmountDiff);
+      this.withdrawService.withdrawIcx(Math.abs(supplyAmountDiff));
+    }
+    else {
+      alert("No change in supplied value!");
+      return;
+    }
   }
 
   public depositUSDbAmountChange(): void {
@@ -441,7 +509,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy {
   }
 
   public depositIcxAmountChange(): void {
-    const amount = +usdbFormat.from(this.supplyDepositedIcon.value);
+    const amount = +icxFormat.from(this.supplyDepositedIcon.value);
     if (this.persistenceService.iconexWallet) {
       if (amount > this.persistenceService.iconexWallet.balances.ICX) {
         this.supplyDepositedIcon.style.borderColor = "red";
@@ -501,8 +569,11 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy {
       // Reset ICON
       $('#supply-deposited-icon').prop('disabled', (i: any, v: any) => !v);
       $('#supply-available-icon').prop('disabled', (i: any, v: any) => !v);
-      this.iconSupplySlider.toggleAttribute('disabled');
-      this.iconSupplySlider.noUiSlider.set(10000);
+      // this.iconSupplySlider.toggleAttribute('disabled');
+      this.iconSupplySlider.noUiSlider.set(this.persistenceService.userIcxReserve?.currentOTokenBalance ?? 10000);
+      this.supplyAvailableIcon.value = icxFormat.to((this.persistenceService.iconexWallet?.balances.ICX ?? 5000) +
+        (this.persistenceService.userIcxReserve?.currentOTokenBalance ?? 0));
+      this.supplyDepositedIcon.value = icxFormat.to(this.persistenceService.userIcxReserve?.currentOTokenBalance ?? 10000);
 
       // Reset TAP
       $('#supply-deposited-tap').prop('disabled', (i: any, v: any) => !v);
@@ -525,8 +596,8 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy {
       // Reset ICON
       $('#borrow-borrowed-icon').prop('disabled', (i: any, v: any) => !v);
       $('#borrow-available-icon').prop('disabled', (i: any, v: any) => !v);
-      this.iconBorrowSlider.toggleAttribute('disabled');
-      this.iconBorrowSlider.noUiSlider.set(1500);
+      // this.iconBorrowSlider.toggleAttribute('disabled'); TODO
+      this.iconBorrowSlider.noUiSlider.set(this.persistenceService.userIcxReserve?.currentBorrowBalance ?? 1500);
 
       // Reset TAP
       $('#borrow-borrowed-tap').prop('disabled', (i: any, v: any) => !v);
@@ -563,13 +634,13 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy {
       $('#supply-deposited-bridge').prop('disabled', (i: any, v: any) => !v);
       $('#supply-available-bridge').prop('disabled', (i: any, v: any) => !v);
       this.bridgeSupplySlider.toggleAttribute('disabled');
-      this.bridgeSupplySlider.noUiSlider.set(10000);
+      // this.bridgeSupplySlider.noUiSlider.set(10000);
 
       // Reset ICON
       $('#supply-deposited-icon').prop('disabled', (i: any, v: any) => !v);
       $('#supply-available-icon').prop('disabled', (i: any, v: any) => !v);
-      this.iconSupplySlider.toggleAttribute('disabled');
-      this.iconSupplySlider.noUiSlider.set(10000);
+      // this.iconSupplySlider.toggleAttribute('disabled');
+      // this.iconSupplySlider.noUiSlider.set(10000);
 
       // Reset TAP
       $('#supply-deposited-tap').prop('disabled', (i: any, v: any) => !v);
@@ -587,13 +658,13 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy {
       $('#borrow-borrowed-bridge').prop('disabled', (i: any, v: any) => !v);
       $('#borrow-available-bridge').prop('disabled', (i: any, v: any) => !v);
       this.bridgeBorrowSlider.toggleAttribute('disabled');
-      this.bridgeBorrowSlider.noUiSlider.set(1500);
+      // this.bridgeBorrowSlider.noUiSlider.set(1500);
 
       // Reset ICON
       $('#borrow-borrowed-icon').prop('disabled', (i: any, v: any) => !v);
       $('#borrow-available-icon').prop('disabled', (i: any, v: any) => !v);
-      this.iconBorrowSlider.toggleAttribute('disabled');
-      this.iconBorrowSlider.noUiSlider.set(1500);
+      // this.iconBorrowSlider.toggleAttribute('disabled'); TODO
+      // this.iconBorrowSlider.noUiSlider.set(1500);
 
       // Reset TAP
       $('#borrow-borrowed-tap').prop('disabled', (i: any, v: any) => !v);
@@ -630,12 +701,12 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy {
       $('#supply-deposited-bridge').prop('disabled', (i: any, v: any) => !v);
       $('#supply-available-bridge').prop('disabled', (i: any, v: any) => !v);
       this.bridgeSupplySlider.toggleAttribute('disabled');
-      this.bridgeSupplySlider.noUiSlider.set(10000);
+      // this.bridgeSupplySlider.noUiSlider.set(10000);
 
       // Reset ICON
       $('#supply-deposited-icon').prop('disabled', (i: any, v: any) => !v);
       $('#supply-available-icon').prop('disabled', (i: any, v: any) => !v);
-      this.iconSupplySlider.toggleAttribute('disabled');
+      // this.iconSupplySlider.toggleAttribute('disabled');
       this.iconSupplySlider.noUiSlider.set(10000);
 
       // Reset TAP
@@ -654,13 +725,13 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy {
       $('#borrow-borrowed-bridge').prop('disabled', (i: any, v: any) => !v);
       $('#borrow-available-bridge').prop('disabled', (i: any, v: any) => !v);
       this.bridgeBorrowSlider.toggleAttribute('disabled');
-      this.bridgeBorrowSlider.noUiSlider.set(1500);
+      // this.bridgeBorrowSlider.noUiSlider.set(1500);
 
       // Reset ICON
       $('#borrow-borrowed-icon').prop('disabled', (i: any, v: any) => !v);
       $('#borrow-available-icon').prop('disabled', (i: any, v: any) => !v);
-      this.iconBorrowSlider.toggleAttribute('disabled');
-      this.iconBorrowSlider.noUiSlider.set(1500);
+      // this.iconBorrowSlider.toggleAttribute('disabled'); TODO
+      // this.iconBorrowSlider.noUiSlider.set(1500);
 
       // Reset TAP
       $('#borrow-borrowed-tap').prop('disabled', (i: any, v: any) => !v);
@@ -679,6 +750,16 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy {
     $('#notifications-tooltip').removeClass("active");
     $('.notifications').removeClass("active");
     this.headerComponent.onMainClick();
+  }
+
+  getSupplyBridgeDifference(): number {
+    return Math.abs(this.fromUSDbFormatToNumber(this.supplyDepositedBridge?.value) -
+      this.persistenceService.getUserSuppliedUSDbBalance());
+  }
+
+  getBorrowBridgeDifference(): number {
+    return Math.abs(this.persistenceService.getUserBorrowedUSDbBalance() -
+      this.fromUSDbFormatToNumber(this.borrowBorrowedBridge?.value));
   }
 
 

@@ -25,7 +25,7 @@ export class RepayService {
   public repayUSDb(amount: number): void {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
-    const amountString = Utils.scientificNotationToBigNumberString(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop());
+    const amountString = Utils.amountToe18MultipliedString(amount);
     console.log("repayUSDb amount = " + amount, "repayUSDb params amount = " + amountString);
 
     const to = this.persistenceService.allAddresses!.collateral.USDb;
@@ -43,5 +43,28 @@ export class RepayService {
     console.log("repayUSDb TX: ", tx);
 
     this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.REPAY_USDb);
+  }
+
+  public repayIcx(amount: number): void {
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
+    const amountString = Utils.amountToe18MultipliedString(amount);
+    console.log("repayIcx amount = " + amount, "repayIcx params amount = " + amountString);
+
+    const to = this.persistenceService.allAddresses!.collateral.sICX;
+    const data = `{"method": "repay", "params": {"_reserveAddress":"${to}" ,"amount":${amountString}}}`;
+
+    const params = {
+      _to: this.persistenceService.allAddresses!.systemContract.LendingPool,
+      _value: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
+      _data: IconConverter.fromUtf8(data)
+    };
+
+    const tx = this.iconApiService.buildTransaction(this.persistenceService.iconexWallet!.address, to,
+      ScoreMethodNames.TRANSFER, params, IconTransactionType.WRITE);
+
+    console.log("repayIcx TX: ", tx);
+
+    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.REPAY_ICX);
   }
 }

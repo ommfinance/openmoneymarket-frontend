@@ -53,9 +53,9 @@ export class DepositService {
     const params = {
       _to: this.persistenceService.allAddresses.systemContract.LendingPool,
       _value: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
-      _data: IconConverter.fromUtf8('{ "method": "deposit", "params": { "amount":' + Utils.scientificNotationToBigNumberString(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()) + '}}')
+      _data: IconConverter.fromUtf8('{ "method": "deposit", "params": { "amount":' + Utils.amountToe18MultipliedString(amount) + '}}')
 };
-    console.log("Deposit USDb params amount = " + Utils.scientificNotationToBigNumberString(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()));
+    console.log("Deposit USDb params amount = " +  Utils.amountToe18MultipliedString(amount));
 
     const tx = this.iconApiService.buildTransaction(wallet.address,  this.persistenceService.allAddresses.collateral.USDb,
       ScoreMethodNames.TRANSFER, params, IconTransactionType.WRITE);

@@ -36,7 +36,7 @@ export class DataLoaderService {
   public loadUserUSDbReserveData(): void {
     this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses?.collateral.USDb)
       .then((res: Reserve) => {
-        this.persistenceService.userUSDbReserve = Mapper.mapUserUSDbReserve(res);
+        this.persistenceService.userUSDbReserve = Mapper.mapUserReserve(res);
         console.log("userUSDbReserve:", res);
         this.persistenceService.updateUserUSDbReserve(this.persistenceService.userUSDbReserve);
       });
@@ -45,7 +45,7 @@ export class DataLoaderService {
   public loadUserIcxReserveData(): void {
     this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses?.collateral.sICX)
       .then((res: Reserve) => {
-        this.persistenceService.userIcxReserve = Mapper.mapUserUSDbReserve(res);
+        this.persistenceService.userIcxReserve = Mapper.mapUserReserve(res);
         console.log("userIcxReserveData:", res);
         this.persistenceService.updateUserIcxReserve(this.persistenceService.userIcxReserve);
       });

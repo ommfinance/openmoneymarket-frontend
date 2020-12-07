@@ -9,26 +9,27 @@
 <!-- Bridge supply modal -->
 <div class="modal" id="modal-1">
   <div class="modal-content">
-    <p class="text-center label">Supply Bridge Dollars?</p>
-    <p class="text-bold text-center text-size-25 margin-bottom-15">{{this.formatNumberToUSLocaleString(fromUSDbFormatToNumber(this.supplyDepositedBridge?.value))}}</p>
+    <p class="text-center label">{{this.persistenceService.getUserSuppliedUSDbBalance() < fromUSDbFormatToNumber(this.supplyDepositedBridge?.value) ?"Supply" : "Withdraw"}} Bridge Dollars?</p>
+    <p class="text-bold text-center text-size-25 margin-bottom-15">{{getSupplyBridgeDifference().toFixed(2)}} USDb</p>
 
     <!-- Before & after -->
     <div class="grid">
       <div class="grid-cell text-center border-right">
         <p class="label">Before</p>
-        <p>{{this.formatNumberToUSLocaleString(this.persistenceService.getUserSuppliedUSDbBalance())}} USDb</p>
+        <p>{{this.formatNumberToUSLocaleString(this.persistenceService.getUserSuppliedUSDbBalance().toFixed(2))}} USDb</p>
       </div>
 
       <div class="grid-cell text-center">
         <p class="label">After</p>
-        <p>{{this.formatNumberToUSLocaleString(fromUSDbFormatToNumber(this.supplyDepositedBridge?.value))}} USDb</p>
+        <p>{{this.formatNumberToUSLocaleString(fromUSDbFormatToNumber(this.supplyDepositedBridge?.value).toFixed(2))}} USDb</p>
       </div>
     </div>
 
     <!-- Modal actions -->
     <div class="modal-actions">
       <a href="javascript:void(0);" class="cancel modal-close">Cancel</a>
-      <a href="javascript:void(0);" id="confirm-collateral-adjust" class="button no-margin" (click)="onUSDbSupplyConfirmClick()">Supply</a>
+      <a href="javascript:void(0);" id="confirm-collateral-adjust" class="button no-margin modal-confirm"
+         (click)="onUSDbSupplyConfirmClick()">{{this.persistenceService.getUserSuppliedUSDbBalance() < fromUSDbFormatToNumber(this.supplyDepositedBridge?.value) ?"Supply" : "Withdraw"}}</a>
     </div>
   </div>
 </div>
@@ -36,22 +37,24 @@
 <!-- Bridge borrow modal -->
 <div class="modal" id="modal-2">
   <div class="modal-content">
-    <p class="text-center label">Borrow Bridge Dollars?</p>
-    <p class="text-bold text-center text-size-25 margin-bottom-15">200 USDb</p>
+    <p class="text-center label">{{this.persistenceService.getUserBorrowedUSDbBalance() < fromUSDbFormatToNumber(this.borrowBorrowedBridge?.value) ? "Borrow": "Repay"}} Bridge Dollars?</p>
+    <p class="text-bold text-center text-size-25 margin-bottom-15">{{getBorrowBridgeDifference().toFixed(2)}} USDb</p>
     <div class="grid">
       <div class="grid-cell text-center border-right">
         <p class="label">Before</p>
-        <p>1,500 USDb</p>
+        <p>{{this.formatNumberToUSLocaleString(this.persistenceService.getUserBorrowedUSDbBalance().toFixed(2))}} USDb</p>
       </div>
 
       <div class="grid-cell text-center">
         <p class="label">After</p>
-        <p>1,700 USDb</p>
+        <p>{{this.formatNumberToUSLocaleString(fromUSDbFormatToNumber(this.borrowBorrowedBridge?.value).toFixed(2))}} USDb</p>
       </div>
     </div>
-    <p class="label text-center margin-top-15">Risk: <span class="risk-percentage" style="font-size: 14px !important;">23%</span></p>
+    <p class="label text-center margin-top-15">Risk: <span class="risk-percentage" style="font-size: 14px !important;">??%</span></p>
     <div class="modal-actions margin-top-15">
-      <a href="javascript:void(0);" class="cancel modal-close">Cancel</a> <a href="javascript:void(0);" id="confirm-collateral-adjust" class="button purple no-margin">Borrow</a>
+      <a href="javascript:void(0);" class="cancel modal-close">Cancel</a>
+      <a href="javascript:void(0);" id="confirm-collateral-adjust" class="button purple no-margin modal-confirm"
+         (click)="onBorrowUSDbConfirmClick()">{{this.persistenceService.getUserBorrowedUSDbBalance() < fromUSDbFormatToNumber(this.borrowBorrowedBridge?.value) ? "Borrow": "Repay"}}</a>
     </div>
   </div>
 </div>
@@ -73,7 +76,8 @@
       </div>
     </div>
     <div class="modal-actions">
-      <a href="javascript:void(0);" class="cancel modal-close">Not now</a> <a href="javascript:void(0);" id="confirm-collateral-adjust" class="button no-margin">Claim rewards</a>
+      <a href="javascript:void(0);" class="cancel modal-close">Not now</a>
+      <a href="javascript:void(0);" id="confirm-collateral-adjust" class="button no-margin modal-confirm">Claim rewards</a>
     </div>
   </div>
 </div>
@@ -100,7 +104,7 @@
 </div>
 
 <!-- Header -->
-<app-header> </app-header>
+<app-header [walletValue]="'$' + this.formatNumberToUSLocaleString(this.persistenceService.getWalletValue())"> </app-header>
 <!-- /Header -->
 
 <!-- Navigation -->
@@ -214,7 +218,7 @@
       <div [ngStyle]="{'display': this.persistenceService.userLoggedIn() ? null: 'none'}" class="grid-cell">
         <ul class="toggle text-left no-padding">
           <li id="toggle-your-markets" class="active animation-underline" (click)="toggleLogic.onToggleYourMarketsClick()">Your markets</li>
-          <li id="toggle-all-markets" class="animation-underline" (click)="toggleLogic.onToggleAllMarketsClick(bridgeSupplySlider, bridgeBorrowSlider)">All markets</li>
+          <li id="toggle-all-markets" class="animation-underline" (click)="toggleLogic.onToggleAllMarketsClick(bridgeSupplySlider, bridgeBorrowSlider, iconSupplySlider, iconBorrowSlider)">All markets</li>
         </ul>
       </div>
       <div class="grid-cell text-right">
@@ -262,10 +266,10 @@
             <td><span>Bridge Dollars</span><br>USDb</td>
             <td><span>${{this.formatNumberToNdigits(this.persistenceService.userUSDbReserve?.currentOTokenBalanceUSD)}}</span>
               <br>{{this.formatNumberToUSLocaleString(this.persistenceService.userUSDbReserve?.currentOTokenBalance)}} USDb</td>
-            <td><span class="text-green">{{this.persistenceService.userUSDbReserve?.liquidityRate?.toFixed(5)}}%</span><br>+0.51%</td>
+            <td><span class="text-green">{{this.persistenceService.userUSDbReserve?.liquidityRate?.toFixed(5)}}%</span><br>+??%</td>
             <td><span>${{this.formatNumberToNdigits(this.persistenceService.userUSDbReserve?.principalBorrowBalanceUSD)}}</span>
               <br>{{this.formatNumberToUSLocaleString(this.persistenceService.userUSDbReserve?.principalBorrowBalance)}} USDb</td>
-            <td><span class="text-purple">{{this.persistenceService.userUSDbReserve?.borrowRate?.toFixed(5)}}%</span><br>-0.27%</td>
+            <td><span class="text-purple">{{this.persistenceService.userUSDbReserve?.borrowRate?.toFixed(5)}}%</span><br>-??%</td>
           </tr>
           <tr class="expanded">
             <td colspan="5" class="no-padding">
@@ -323,14 +327,14 @@
                           <div class="grid grid-center supply-actions">
                             <div class="grid-cell text-center">
                               <a href="javascript:void(0);" class="button supply-adjust"
-                                 (click)="toggleLogic.onSupplyAdjustClick(bridgeSupplySlider,iconSupplySlider, tapSupplySlider, bridgeBorrowSlider)">Adjust</a>
+                                 (click)="toggleLogic.onSupplyAdjustClick(bridgeSupplySlider,iconSupplySlider, tapSupplySlider, bridgeBorrowSlider, this.persistenceService, iconBorrowSlider)">Adjust</a>
                             </div>
                           </div>
                           <!-- Confirm -->
                           <div class="grid grid-center supply-actions hide">
                             <div class="grid-cell text-right">
                               <a href="javascript:void(0);" class="cancel supply-adjust"
-                                 (click)="toggleLogic.onSupplyAdjustClick(bridgeSupplySlider,iconSupplySlider, tapSupplySlider, bridgeBorrowSlider)">Cancel</a>
+                                 (click)="toggleLogic.onSupplyAdjustClick(bridgeSupplySlider,iconSupplySlider, tapSupplySlider, bridgeBorrowSlider, this.persistenceService, iconBorrowSlider)">Cancel</a>
                             </div>
                             <div class="grid-cell text-left">
                               <a href="javascript:void(0);" class="button modal-trigger" data-modal="modal-1">Confirm</a>
@@ -390,16 +394,16 @@
                           <div class="grid grid-center borrow-actions">
                             <div class="grid-cell text-center">
                               <a href="javascript:void(0);" class="button purple borrow-adjust" id="borrow-adjust-button"
-                                 (click)="toggleLogic.onBorrowAdjustClick(bridgeBorrowSlider, iconSupplySlider, tapSupplySlider, bridgeSupplySlider)">Adjust</a>
+                                 (click)="toggleLogic.onBorrowAdjustClick(bridgeBorrowSlider, iconSupplySlider, tapSupplySlider, bridgeSupplySlider, this.persistenceService)">Adjust</a>
                             </div>
                           </div>
                           <div class="grid grid-center borrow-actions hide">
                             <div class="grid-cell text-right">
                               <a href="javascript:void(0);" class="cancel borrow-adjust"
-                                 (click)="toggleLogic.onBorrowAdjustClick(bridgeBorrowSlider, iconSupplySlider, tapSupplySlider, bridgeSupplySlider)">Cancel</a>
+                                 (click)="toggleLogic.onBorrowAdjustClick(bridgeBorrowSlider, iconSupplySlider, tapSupplySlider, bridgeSupplySlider, this.persistenceService)">Cancel</a>
                             </div>
                             <div class="grid-cell text-left">
-                              <a href="javascript:void(0);" class="button purple modal-trigger" data-modal="modal-2" id="modal-trigger-2" (click)="onBorrowUSDbConfirmClick()">Confirm</a>
+                              <a href="javascript:void(0);" class="button purple modal-trigger" data-modal="modal-2" id="modal-trigger-2">Confirm</a>
                             </div>
                           </div>
                         </div>
@@ -417,10 +421,13 @@
 
           <tr id="asset-icon" class="icon asset" (click)="onAssetIconClick()">
             <td><span>ICON</span><br>ICX</td>
-            <td><p class="opacity-half"><span>—</span><br>—</p></td>
-            <td><span class="text-green">4.83%</span><br>+0.12% / 24h</td>
-            <td><span>$1,212</span><br>9,840 ICX</td>
-            <td><span class="text-purple">5.25%</span><br>+0.23% / 24h</td>
+            <td><span>${{this.formatNumberToNdigits(this.persistenceService.userIcxReserve?.currentOTokenBalanceUSD)}}</span>
+              <br>{{this.formatNumberToUSLocaleString(this.persistenceService.userIcxReserve?.currentOTokenBalance)}} ICX</td>
+            <td><span class="text-green">{{this.persistenceService.userIcxReserve?.liquidityRate?.toFixed(5)}}%</span>
+              <br>+??%</td>
+            <td><span>${{this.formatNumberToNdigits(this.persistenceService.userIcxReserve?.principalBorrowBalanceUSD)}}</span>
+              <br>{{this.formatNumberToUSLocaleString(this.persistenceService.userIcxReserve?.principalBorrowBalance)}} ICX</td>
+            <td><span class="text-purple">{{this.persistenceService.userIcxReserve?.borrowRate?.toFixed(5)}}%</span><br>+??%</td>
           </tr>
           <tr class="expanded">
             <td colspan="5" class="no-padding">
@@ -437,14 +444,14 @@
                           <h2>Supply</h2>
                         </div>
                         <div class="grid-cell text-right">
-                          <span class="text-green">4.83% APY</span>
+                          <span class="text-green">{{this.persistenceService.userIcxReserve?.liquidityRate?.toFixed(5)}}% APY</span>
                         </div>
                       </div>
 
                       <!-- Slider -->
                       <div class="grid">
                         <div class="grid-cell">
-                          <div id="icon-supply-slider" disabled></div>
+                          <div id="icon-supply-slider"></div>
                         </div>
                       </div>
 
@@ -452,11 +459,11 @@
                       <div class="grid legend">
                         <div class="grid-cell margin-right-25">
                           <p class="label deposited">Supplied</p>
-                          <input title="Deposited supply" id="supply-deposited-icon" class="input-borrow-borrowed" (keyup)="depositIcxAmountChange()" disabled="" value="30,000 ICX">
+                          <input title="Deposited supply" id="supply-deposited-icon" class="input-borrow-borrowed" (keyup)="depositIcxAmountChange()" value="30,000 ICX">
                         </div>
                         <div class="grid-cell">
                           <p class="label available">Wallet</p>
-                          <input title="Available supply" id="supply-available-icon" class="input-borrow-borrowed" disabled="" value="0 ICX">
+                          <input title="Available supply" id="supply-available-icon" class="input-borrow-borrowed" value="0 ICX">
                         </div>
                       </div>
 
@@ -478,15 +485,17 @@
 
                           <div class="grid grid-center supply-actions">
                             <div class="grid-cell text-center">
-                              <a href="javascript:void(0);" class="button supply-adjust" id="supply-adjust-button" (click)="toggleLogic.onSupplyAdjustClick(bridgeSupplySlider, iconSupplySlider, tapSupplySlider, bridgeBorrowSlider)">Withdraw</a>
+                              <a href="javascript:void(0);" class="button supply-adjust" id="supply-adjust-button"
+                                 (click)="toggleLogic.onSupplyAdjustClick(bridgeSupplySlider, iconSupplySlider, tapSupplySlider, bridgeBorrowSlider, this.persistenceService, iconBorrowSlider)">Adjust</a>
                             </div>
                           </div>
                           <div class="grid grid-center supply-actions hide">
                             <div class="grid-cell text-right">
-                              <a href="#" class="cancel supply-adjust">Cancel</a>
+                              <a href="javascript:void(0);" class="cancel supply-adjust"
+                                 (click)="toggleLogic.onSupplyAdjustClick(bridgeSupplySlider, iconSupplySlider, tapSupplySlider, bridgeBorrowSlider, this.persistenceService, iconBorrowSlider)">Cancel</a>
                             </div>
                             <div class="grid-cell text-left">
-                              <a href="#" class="button modal-trigger" data-modal="modal-1" (click)="onIcxSupplyConfirmClick()">Confirm</a>
+                              <a href="javascript:void(0);" class="button" (click)="onIcxSupplyConfirmClick()">Confirm</a>
                             </div>
                           </div>
 
@@ -502,14 +511,14 @@
                           <h2>Borrow <span class="label">Risk: <span class="risk-percentage text-grey" style="font-size: 14px !important;">23%</span></span></h2>
                         </div>
                         <div class="grid-cell text-right">
-                          <span class="text-purple">5.25% APY</span>
+                          <span class="text-purple">{{this.persistenceService.userIcxReserve?.borrowRate?.toFixed(5)}}% APY</span>
                         </div>
                       </div>
 
                       <!-- Slider -->
                       <div class="grid">
                         <div class="grid-cell">
-                          <div id="icon-borrow-slider" disabled></div>
+                          <div id="icon-borrow-slider" ></div>
                         </div>
                       </div>
 
@@ -517,11 +526,11 @@
                       <div class="grid legend">
                         <div class="grid-cell">
                           <p class="label deposited">Borrowed</p>
-                          <input title="Deposited borrow" id="borrow-borrowed-icon" class="input-borrow-borrowed" disabled="" value="0 ICX">
+                          <input title="Deposited borrow" id="borrow-borrowed-icon" class="input-borrow-borrowed"  value="0 ICX">
                         </div>
                         <div class="grid-cell">
                           <p class="label available">Available</p>
-                          <input title="Available borrow" id="borrow-available-icon" class="input-borrow-borrowed" disabled="" value="16,000 ICX">
+                          <input title="Available borrow" id="borrow-available-icon" class="input-borrow-borrowed"  value="16,000 ICX">
                         </div>
                       </div>
 
@@ -543,15 +552,16 @@
                           <div class="grid grid-center borrow-actions">
                             <div class="grid-cell text-center">
                               <a href="javascript:void(0);" class="button purple borrow-adjust" id="borrow-adjust-button"
-                                 (click)="toggleLogic.onBorrowAdjustClick(bridgeBorrowSlider, iconSupplySlider, tapSupplySlider, bridgeSupplySlider)">Borrow</a>
+                                 (click)="toggleLogic.onBorrowAdjustClick(bridgeBorrowSlider, iconSupplySlider, tapSupplySlider, bridgeSupplySlider, this.persistenceService)">Adjust</a>
                             </div>
                           </div>
                           <div class="grid grid-center borrow-actions hide">
                             <div class="grid-cell text-right">
-                              <a href="javascript:void(0);" class="cancel borrow-adjust">Cancel</a>
+                              <a href="javascript:void(0);" class="cancel borrow-adjust"
+                                 (click)="toggleLogic.onBorrowAdjustClick(bridgeBorrowSlider, iconSupplySlider, tapSupplySlider, bridgeSupplySlider, this.persistenceService)">Cancel</a>
                             </div>
                             <div class="grid-cell text-left">
-                              <a href="javascript:void(0);" class="button purple modal-trigger" data-modal="modal-2">Confirm</a>
+                              <a href="javascript:void(0);" class="button purple" (click)="onBorrowIcxConfirmClick()">Confirm</a>
                             </div>
                           </div>
                         </div>
@@ -635,7 +645,8 @@
 
                           <div class="grid grid-center supply-actions">
                             <div class="grid-cell text-center">
-                              <a href="#" class="button supply-adjust" id="supply-adjust-button">Supply</a>
+                              <a href="#" class="button supply-adjust" id="supply-adjust-button"
+                              >Supply</a>
                             </div>
                           </div>
                           <div class="grid grid-center supply-actions hide">
@@ -738,10 +749,14 @@
 
           <tr id="asset-bridge" class="asset bridge">
             <td><span>Bridge Dollars</span><br>USDb</td>
-            <td><span>$120.69K</span><br>120,690 USDb</td>
-            <td><span class="text-green">6.47%</span><br>+0.51%</td>
-            <td><span>$11.84K</span><br>11,840 USDb</td>
-            <td><span class="text-purple">7.25%</span><br>-0.27%</td>
+            <td><span>${{this.formatNumberToNdigits(this.persistenceService.allReserves?.USDb?.totalLiquidity)}}</span>
+              <br>{{this.formatNumberToUSLocaleString(this.persistenceService.allReserves?.USDb?.totalLiquidity)}} USDb</td>
+            <td><span class="text-green">{{this.persistenceService.allReserves?.USDb?.liquidityRate?.toFixed(5)}}%</span>
+              <br>+??%</td>
+            <td><span>${{this.formatNumberToNdigits(this.persistenceService.allReserves?.USDb?.totalBorrows)}}</span>
+              <br>{{this.formatNumberToUSLocaleString(this.persistenceService.allReserves?.USDb?.totalBorrows)}} USDb</td>
+            <td><span class="text-purple">{{this.persistenceService.allReserves?.USDb?.borrowRate?.toFixed(5)}}%</span>
+              <br>-??%</td>
           </tr>
 
           <tr>
@@ -890,30 +905,34 @@
 
           <tr id="asset-tap" class="tap asset">
             <td><span>TAP Tokens</span><br>TAP</td>
-            <td><span>$75.82K</span><br>811,655 TAP</td>
-            <td><span class="text-green">9.83%</span><br>+1.12%</td>
-            <td><span>$24.96K</span><br>211,707 TAP</td>
-            <td><span class="text-purple">15.25%</span><br>+4.23%</td>
+            <td><span>$??K</span><br>?? TAP</td>
+            <td><span class="text-green">??%</span><br>+??%</td>
+            <td><span>$??K</span><br>?? TAP</td>
+            <td><span class="text-purple">??%</span><br>+??%</td>
           </tr>
 
           <tr class="spacer"></tr>
 
           <tr id="asset-icon-all" class="icon asset">
             <td><span>ICON</span><br>ICX</td>
-            <td><span>$310.12K</span><br>951,287 ICX</td>
-            <td><span class="text-green">4.83%</span><br>+0.12% / 24h</td>
-            <td><span>$69.82K</span><br>248,143 ICX</td>
-            <td><span class="text-purple">5.25%</span><br>+0.23% / 24h</td>
+            <td><span>${{this.formatNumberToNdigits(this.persistenceService.allReserves?.sICX?.totalLiquidity)}}</span>
+              <br>{{this.formatNumberToUSLocaleString(this.persistenceService.allReserves?.sICX?.totalLiquidity)}} ICX</td>
+            <td><span class="text-green">{{this.persistenceService.allReserves?.sICX?.liquidityRate?.toFixed(5)}}%</span>
+              <br>+??%</td>
+            <td><span>${{this.formatNumberToNdigits(this.persistenceService.allReserves?.sICX?.totalBorrows)}}</span>
+              <br>{{this.formatNumberToUSLocaleString(this.persistenceService.allReserves?.sICX?.totalBorrows)}} ICX</td>
+            <td><span class="text-purple">{{this.persistenceService.allReserves?.sICX?.borrowRate?.toFixed(5)}}%</span>
+              <br>-??%</td>
           </tr>
 
           <tr class="spacer"></tr>
 
           <tr id="asset-1" class="asset">
             <td><span>ICON Dollars</span><br>ICD</td>
-            <td><span>$105.24K</span><br>105,245 ICD</td>
-            <td><span class="text-green">6.47%</span><br>+0.51%</td>
-            <td><span>$11.84K</span><br>11,840 ICD</td>
-            <td><span class="text-purple">7.25%</span><br>-0.27%</td>
+            <td><span>$??K</span><br>?? ICD</td>
+            <td><span class="text-green">??%</span><br>+??%</td>
+            <td><span>$??K</span><br>?? ICD</td>
+            <td><span class="text-purple">??%</span><br>??%</td>
           </tr>
 
           </tbody>

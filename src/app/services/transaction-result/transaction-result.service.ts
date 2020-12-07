@@ -51,14 +51,14 @@ export class TransactionResultService {
             case IconexRequestsMap.BORROW_USDb:
               console.log("IconexRequestsMap.BORROW_USDb");
               // load all reserves and user specific USDb reserve data
-              // this.dataLoaderService.loadAllReserves();
+              this.dataLoaderService.loadAllReserves();
               this.dataLoaderService.loadUserUSDbReserveData();
               alert("Successful borrow of USDb!");
               break;
             case IconexRequestsMap.REPAY_USDb:
               console.log("IconexRequestsMap.REPAY_USDb");
               // load all reserves and user specific USDb reserve data
-              // this.dataLoaderService.loadAllReserves();
+              this.dataLoaderService.loadAllReserves();
               this.dataLoaderService.loadUserUSDbReserveData();
               alert("Successful repay of USDb!");
               break;
@@ -66,17 +66,33 @@ export class TransactionResultService {
               this.iconApiService.getIcxBalance(this.persistenceService.iconexWallet!.address).then(res => {
                 console.log("ICX balance after deposit: ", res);
               });
-              // load all reserves and user specific USDb reserve data
+              // load all reserves and user specific ICX reserve data
               this.dataLoaderService.loadAllReserves();
               this.dataLoaderService.loadUserIcxReserveData();
               alert("Successful deposit of ICX!");
               break;
+            case IconexRequestsMap.WITHDRAW_ICX:
+              this.iconApiService.getIcxBalance(this.persistenceService.iconexWallet!.address).then(res => {
+                console.log("ICX balance after withdraw: ", res);
+              });
+              // load all reserves and user specific ICX reserve data
+              this.dataLoaderService.loadAllReserves();
+              this.dataLoaderService.loadUserIcxReserveData();
+              alert("Successful withdraw of ICX!");
+              break;
             case IconexRequestsMap.BORROW_ICX:
               console.log("IconexRequestsMap.BORROW_ICX");
               // load all reserves and user specific ICX reserve data
-              // this.dataLoaderService.loadAllReserves();
+              this.dataLoaderService.loadAllReserves();
               this.dataLoaderService.loadUserIcxReserveData();
               alert("Successful borrow of ICX!");
+              break;
+            case IconexRequestsMap.REPAY_ICX:
+              console.log("IconexRequestsMap.REPAY_ICX");
+              // load all reserves and user specific ICX reserve data
+              this.dataLoaderService.loadAllReserves();
+              this.dataLoaderService.loadUserIcxReserveData();
+              alert("Successful repay of ICX!");
               break;
             default:
               break;

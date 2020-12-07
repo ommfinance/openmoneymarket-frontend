@@ -37,13 +37,14 @@ export class IconexApiService {
       case "RESPONSE_ADDRESS": {
         this.persistenceService.iconexLogin(new IconWallet(payload, new TokenBalances()));
         this.dataLoaderService.loadUserUSDbReserveData();
+        this.dataLoaderService.loadUserIcxReserveData();
         this.iconApiService.getIcxBalance(payload).then((icxBalance: number) => {
           console.log("ICX balance: ", icxBalance);
           this.persistenceService.iconexWallet!.balances.ICX = icxBalance;
           this.scoreService.getUserBalanceOfUSDb(payload).then((USDbBalance: number) => {
             console.log("USDb balance: ", USDbBalance);
             this.persistenceService.iconexWallet!.balances.USDb = USDbBalance;
-          })
+          });
         });
         console.log("Successfully connected your Icon wallet!");
         break;

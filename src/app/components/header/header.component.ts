@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {IconexApiService} from "../../services/iconex-api/iconex-api.service";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {DepositService} from "../../services/deposit/deposit.service";
@@ -11,6 +11,8 @@ declare var $: any;
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit {
+
+  @Input() walletValue!: string;
 
   constructor(public persistenceService: PersistenceService,
               public depositService: DepositService,

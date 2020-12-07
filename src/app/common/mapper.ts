@@ -11,23 +11,23 @@ export class Mapper {
     return object;
   }
 
-  public static mapUserUSDbReserve(userUSDbReserve: Reserve): Reserve {
-    console.log("mapUserUSDbReserve before: ", userUSDbReserve);
+  public static mapUserReserve(reserve: Reserve): Reserve {
+    console.log("mapUserReserve before: ", reserve);
     const res = new Reserve(
-      Utils.hexToPercent(userUSDbReserve.borrowRate),
-      Utils.hex18DecimalToNormalisedNumber(userUSDbReserve.currentBorrowBalance),
-      Utils.hex18DecimalToNormalisedNumber(userUSDbReserve.currentBorrowBalanceUSD),
-      Utils.hex18DecimalToNormalisedNumber(userUSDbReserve.currentOTokenBalance),
-      Utils.hex18DecimalToNormalisedNumber(userUSDbReserve.currentOTokenBalanceUSD),
-      Utils.hexToNumber(userUSDbReserve.lastUpdateTimestamp),
-      Utils.hexToPercent(userUSDbReserve.liquidityRate),
-      Utils.hexToNumber(userUSDbReserve.originationFee),
-      Utils.hex18DecimalToNormalisedNumber(userUSDbReserve.principalBorrowBalance),
-      Utils.hex18DecimalToNormalisedNumber(userUSDbReserve.principalBorrowBalanceUSD),
-      Utils.hexToNumber(userUSDbReserve.useAsCollateral),
-      Utils.hexToNumber(userUSDbReserve.userBorrowCumulativeIndex),
+      Utils.hexToPercent(reserve.borrowRate),
+      Utils.hex18DecimalToNormalisedNumber(reserve.currentBorrowBalance),
+      Utils.hex18DecimalToNormalisedNumber(reserve.currentBorrowBalanceUSD),
+      Utils.hex18DecimalToNormalisedNumber(reserve.currentOTokenBalance),
+      Utils.hex18DecimalToNormalisedNumber(reserve.currentOTokenBalanceUSD),
+      Utils.hexToNumber(reserve.lastUpdateTimestamp),
+      Utils.hexToPercent(reserve.liquidityRate),
+      Utils.hexToNumber(reserve.originationFee),
+      Utils.hex18DecimalToNormalisedNumber(reserve.principalBorrowBalance),
+      Utils.hex18DecimalToNormalisedNumber(reserve.principalBorrowBalanceUSD),
+      Utils.hexToNumber(reserve.useAsCollateral),
+      Utils.hexToNumber(reserve.userBorrowCumulativeIndex),
     );
-    console.log("mapUserUSDbReserve after: ", res);
+    console.log("mapUserReserve after: ", res);
 
     return res;
   }
