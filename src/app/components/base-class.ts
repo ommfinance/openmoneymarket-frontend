@@ -1,5 +1,5 @@
 import {Utils} from "../common/utils";
-import {usdbFormat} from "../common/formatting";
+import {usdbFormat} from "../common/formats";
 
 
 export class BaseClass {

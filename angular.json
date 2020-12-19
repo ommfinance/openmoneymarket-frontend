@@ -31,13 +31,14 @@
               "src/styles.css"
             ],
             "scripts": [
-              "node_modules/jquery/dist/jquery.min.js",
+              "src/assets/js/vendor/modernizr-3.11.2.min.js",
               "src/assets/js/vendor/jquery-3.4.1.min.js",
-              "src/assets/js/vendor/modernizr-3.8.0.min.js",
+              "src/assets/js/vendor/js.cookie-2.2.1.min.js",
+              "src/assets/js/vendor/classie.js",
+              "src/assets/js/vendor/nouislider.min.js",
+              "src/assets/js/vendor/wnumb.min.js",
               "src/assets/js/plugins.js",
-              "src/assets/js/classie.js",
-              "src/assets/js/slider.js",
-              "src/assets/js/wNumb.min.js"
+              "src/assets/js/formats.js"
             ]
           },
           "configurations": {

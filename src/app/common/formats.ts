@@ -1,8 +1,17 @@
-declare var wNumb: any;
+/*
+* Omm
+* Formats JS
+* Version 1.0
+* Last updated 10/12/20
+*/
 
 /* ==========================================================================
     Formats
 ========================================================================== */
+
+// declare wNumb
+declare var wNumb: any;
+
 
 // %
 export const percentageFormat = wNumb({
@@ -80,12 +89,12 @@ export const usdTwoDecimalFormat = wNumb({
 export const usdTwoDecimalPlusFormat = wNumb({
   decimals: 2,
   thousand: ',',
-  prefix: '+$'
+  prefix: '+ $'
 });
 
 // -$ .00
 export const usdTwoDecimalMinusFormat = wNumb({
   decimals: 2,
   thousand: ',',
-  prefix: '-$'
+  prefix: '- $'
 });

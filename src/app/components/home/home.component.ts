@@ -9,7 +9,7 @@ import {
   usdbFormat, usdbPrefixMinusFormat,
   usdbPrefixPlusFormat,
   usdFormat, usdTwoDecimalMinusFormat, usdTwoDecimalPlusFormat
-} from "../../common/formatting";
+} from "../../common/formats";
 import {Reserve} from "../../interfaces/reserve";
 import {WithdrawService} from "../../services/withdraw/withdraw.service";
 import {BorrowService} from "../../services/borrow/borrow.service";
