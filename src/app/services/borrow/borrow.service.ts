@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import {IconApiService} from "../icon-api/icon-api.service";
 import {PersistenceService} from "../persistence/persistence.service";
-import {MockScoreService} from "../mock-score/mock-score.service";
 import {IconexApiService} from "../iconex-api/iconex-api.service";
-import {ScoreService} from "../score/score.service";
 import {IconAmount, IconConverter} from "icon-sdk-js";
 import {ScoreMethodNames} from "../../common/score-method-names";
 import {IconTransactionType} from "../../models/IconTransactionType";
@@ -17,7 +15,6 @@ export class BorrowService {
 
   constructor(private iconApiService: IconApiService,
               private persistenceService: PersistenceService,
-              private mockScoreService: MockScoreService,
               private iconexApiService: IconexApiService,
               private checkerService: CheckerService) {
   }

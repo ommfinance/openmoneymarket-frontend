@@ -228,7 +228,7 @@ input[type=text]:focus {
 	box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.017), 0 6.7px 5.3px rgba(0, 0, 0, 0.024), 0 12.5px 10px rgba(0, 0, 0, 0.03), 0 22.3px 17.9px rgba(0, 0, 0, 0.036), 0 41.8px 33.4px rgba(0, 0, 0, 0.043), 0 100px 80px rgba(0, 0, 0, 0.06);
 	transition: box-shadow 0.2s ease;
 }
-.header .tooltip.hover, 
+.header .tooltip.hover,
 .header .tooltip.hover .tooltip-item {
 	cursor: initial !important;
 }
@@ -1903,7 +1903,7 @@ tr.spacer {
 	height: 20px;
 	border-radius: 5px;
 	margin-right: 10px;
-	margin-bottom: -4px; 
+	margin-bottom: -4px;
 }
 .label.deposited::before,
 .label.borrowed::before {
@@ -1992,7 +1992,7 @@ tr.spacer {
 }
 
 /*
-* 
+*
 * Performance / Risk
 *
 */
@@ -2007,7 +2007,7 @@ tr.spacer {
 }
 
 /*
-* 
+*
 * Performance
 *
 */
@@ -2029,7 +2029,7 @@ tr.spacer {
 }
 
 /*
-* 
+*
 * Risk
 *
 */
@@ -2186,7 +2186,7 @@ tr.spacer {
 ========================================================================== */
 
 /*
-* 
+*
 * Responsive styles - 1600px & larger
 *
 */
@@ -2210,7 +2210,7 @@ tr.spacer {
 }
 
 /*
-* 
+*
 * Responsive styles - 1600px & smaller
 *
 */

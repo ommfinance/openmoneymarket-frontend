@@ -13,4 +13,8 @@ describe('ScoreService', () => {
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
+
+  it('should get all SCORE addresses', () => {
+    expect(service.getAllScoreAddresses()).toBeTruthy();
+  });
 });

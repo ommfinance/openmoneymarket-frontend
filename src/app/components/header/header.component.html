@@ -43,6 +43,7 @@
     <div class="grid-cell" *ngIf="!this.persistenceService.userLoggedIn()">
       <div class="active-wallet">
         <a href="javascript:void(0);" class="button" (click)="onConnectWalletClick()">Sign in</a>
+          <icon-bridge-widget></icon-bridge-widget>
       </div>
     </div>
   </div>

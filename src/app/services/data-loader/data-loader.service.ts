@@ -5,6 +5,7 @@ import {AllAddresses} from '../../interfaces/all-addresses';
 import {AllReserves, ReserveData} from "../../interfaces/all-reserves";
 import {Mapper} from "../../common/mapper";
 import {Reserve} from "../../interfaces/reserve";
+import {UserAccountData} from "../../models/user-account-data";
 
 @Injectable({
   providedIn: 'root'
@@ -34,7 +35,7 @@ export class DataLoaderService {
   }
 
   public loadUserUSDbReserveData(): void {
-    this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses?.collateral.USDb)
+    this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses!.collateral.USDb)
       .then((res: Reserve) => {
         this.persistenceService.userUSDbReserve = Mapper.mapUserReserve(res);
         console.log("userUSDbReserve:", res);
@@ -43,11 +44,17 @@ export class DataLoaderService {
   }
 
   public loadUserIcxReserveData(): void {
-    this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses?.collateral.sICX)
+    this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses!.collateral.sICX)
       .then((res: Reserve) => {
         this.persistenceService.userIcxReserve = Mapper.mapUserReserve(res);
         console.log("userIcxReserveData:", res);
         this.persistenceService.updateUserIcxReserve(this.persistenceService.userIcxReserve);
       });
+  }
+
+  public loadUserAccountData(): void {
+    this.scoreService.getUserAccountData().then((userAccountData: UserAccountData) => {
+      this.persistenceService.userAccountData = Mapper.mapUserAccountData(userAccountData);
+    });
   }
 }

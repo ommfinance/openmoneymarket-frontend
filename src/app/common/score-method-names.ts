@@ -23,4 +23,6 @@ export class ScoreMethodNames {
   public static GET_USER_RESERVE_DATA = "getUserReserveData";
   public static GET_USER_ALL_RESERVE_DATA = "getUserAllReserveData";
   public static GET_ALL_RESERVE_DATA = "getAllReserveData";
+  public static GET_USER_ACCOUNT_DATA = "getUserAccountData";
+  public static GET_RESERVE_CONFIGURATION_DATA = "getReserveConfigurationData";
 }

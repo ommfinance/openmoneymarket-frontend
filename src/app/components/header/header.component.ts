@@ -2,13 +2,15 @@ import {Component, Input, OnInit} from '@angular/core';
 import {IconexApiService} from "../../services/iconex-api/iconex-api.service";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {DepositService} from "../../services/deposit/deposit.service";
+// @ts-ignore
+import BridgeService from "icon-bridge-sdk/build/bridge.bundle";
 
 declare var $: any;
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.css']
+  styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent implements OnInit {
 
@@ -16,7 +18,11 @@ export class HeaderComponent implements OnInit {
 
   constructor(public persistenceService: PersistenceService,
               public depositService: DepositService,
-              public iconexApiService: IconexApiService) { }
+              public iconexApiService: IconexApiService) {
+    const bridge = new BridgeService("https://bicon.net.solidwallet.io/api/v3");
+
+    console.log("BridgeService instance = ", bridge);
+  }
 
   ngOnInit(): void {
   }

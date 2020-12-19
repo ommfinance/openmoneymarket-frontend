@@ -1,7 +1,6 @@
-import {AfterViewChecked, AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {BaseClass} from "../base-class";
 import {PersistenceService} from "../../services/persistence/persistence.service";
-import {MockScoreService} from "../../services/mock-score/mock-score.service";
 import {DepositService} from "../../services/deposit/deposit.service";
 import {
   icxFormat,
@@ -68,7 +67,6 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy {
   public supplyRewardsIcx: any;
 
   constructor(public persistenceService: PersistenceService,
-              public mockScoreService: MockScoreService,
               public depositService: DepositService,
               public withdrawService: WithdrawService,
               public borrowService: BorrowService,

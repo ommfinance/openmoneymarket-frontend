@@ -4,24 +4,30 @@ import {AllAddresses} from '../../interfaces/all-addresses';
 import {AllReserves, ReserveData} from "../../interfaces/all-reserves";
 import {Reserve} from "../../interfaces/reserve";
 import {Subject} from "rxjs";
+import {UserAccountData} from "../../models/user-account-data";
+// import {BridgeService} from "icon-bridge-sdk/build/lib/BridgeService";
 
 @Injectable({
   providedIn: 'root'
 })
 export class PersistenceService {
 
-  public iconexWallet: IconWallet | undefined;
-  public allAddresses: AllAddresses | undefined;
-  public allReserves: AllReserves | undefined;
+  public iconexWallet?: IconWallet;
+  // public bridgeInstance?: BridgeService;
 
-  public userUSDbReserve: Reserve | undefined;
-  public userIcxReserve: Reserve | undefined;
+  public allAddresses?: AllAddresses;
+  public allReserves?: AllReserves;
+
+  public userUSDbReserve?: Reserve;
+  public userIcxReserve?: Reserve;
 
   public userUSDbBalanceChange: Subject<number> = new Subject<number>();
   public userUSDbReserveChange: Subject<Reserve> = new Subject<Reserve>();
 
   public userIcxBalanceChange: Subject<number> = new Subject<number>();
   public userIcxReserveChange: Subject<Reserve> = new Subject<Reserve>();
+
+  public userAccountData?: UserAccountData;
 
   constructor() {
     this.userUSDbBalanceChange.subscribe(value => {

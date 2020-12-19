@@ -5,6 +5,12 @@ import {IconTransactionType} from '../../models/IconTransactionType';
 import {PersistenceService} from '../persistence/persistence.service';
 import {environment} from '../../../environments/environment';
 import {Utils} from "../../common/utils";
+import {CheckerService} from "../checker/checker.service";
+import {AllAddresses} from "../../interfaces/all-addresses";
+import {Reserve} from "../../interfaces/reserve";
+import {AllReserves} from "../../interfaces/all-reserves";
+import {UserAccountData} from "../../models/user-account-data";
+import {ReserveConfigData} from "../../models/reserve-config-data";
 
 
 @Injectable({
@@ -13,10 +19,15 @@ import {Utils} from "../../common/utils";
 export class ScoreService {
 
   constructor(private iconApiService: IconApiService,
-              private persistenceService: PersistenceService) {
+              private persistenceService: PersistenceService,
+              private checkerService: CheckerService) {
   }
 
-  public async getAllScoreAddresses(): Promise<any> {
+  /**
+   * @description Get all SCORE addresses (collateral, oTokens, System Contract, ..)
+   * @return  List os collateral, oTokens and System Contract addresses
+   */
+  public async getAllScoreAddresses(): Promise<AllAddresses> {
     const tx = this.iconApiService.buildTransaction("",  environment.ADDRESS_PROVIDER_SCORE,
       ScoreMethodNames.GET_ALL_ADDRESSES, {}, IconTransactionType.READ);
     return await this.iconApiService.iconService.call(tx).execute();
@@ -25,55 +36,93 @@ export class ScoreService {
   /**
    * @description Get user reserve data for a specific reserve
    * @param reserve - Address using 1 a  for USDb and sICX
-   * @return Icon API response
+   * @return reserve data
    */
-  public async getUserReserveDataForSpecificReserve(reserve: string | undefined): Promise<any> {
-    if (!reserve || !this.persistenceService.allAddresses) {
-      alert("getUserReserveDataForSpecificReserve->reserve or allAddresses undefined");
-      throw new Error("getUserReserveDataForSpecificReserve->reserve or allAddresses undefined");
-    }
-    if (!this.persistenceService.iconexWallet) {
-      alert("getUserReserveDataForSpecificReserve-> No wallet connected!");
-      throw new Error("getUserReserveDataForSpecificReserve-> No wallet connected!");
-    }
+  public async getUserReserveDataForSpecificReserve(reserve: string): Promise<Reserve> {
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
     const params = {
       _user: this.persistenceService.iconexWallet?.address,
       _reserve: reserve
     };
-    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses?.systemContract.LendingPoolDataProvider,
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
       ScoreMethodNames.GET_USER_RESERVE_DATA, params, IconTransactionType.READ);
     return await this.iconApiService.iconService.call(tx).execute();
   }
 
+  /**
+   * @description Get user reserve data for a all reserves
+   * @return All user reserve data
+   */
   public async getUserReserveDataForAllReserves(): Promise<any> {
-    if (!this.persistenceService.allAddresses || !this.persistenceService.iconexWallet) {
-      alert("getUserReserveDataForAllReserves->allAddresses or iconexWalletundefined");
-      throw new Error("getUserReserveDataForAllReserves->allAddresses or iconexWallet undefined");
-    }
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
     const params = {
-      _user: this.persistenceService.iconexWallet.address
+      _user: this.persistenceService.iconexWallet!.address
     };
-    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses?.systemContract.LendingPoolDataProvider,
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
       ScoreMethodNames.GET_USER_ALL_RESERVE_DATA, params, IconTransactionType.READ);
     return await this.iconApiService.iconService.call(tx).execute();
   }
 
-  public async getReserveDataForAllReserves(): Promise<any> {
-    if (!this.persistenceService.allAddresses) {
-      alert("getReserveDataForAllReserves->allAddresses");
-      throw new Error("getReserveDataForAllReserves->allAddresses undefined");
-    }
-    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses?.systemContract.LendingPoolDataProvider,
+  /**
+   * @description Get user account data
+   * @return All user reserve data
+   */
+  public async getUserAccountData(): Promise<UserAccountData> {
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
+    const params = {
+      _user: this.persistenceService.iconexWallet!.address
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
+      ScoreMethodNames.GET_USER_ACCOUNT_DATA, params, IconTransactionType.READ);
+    return await this.iconApiService.iconService.call(tx).execute();
+  }
+
+  /**
+   * @description Get configuration data for the specific reserve
+   * @param reserve - Address using 1 a  for USDb and sICX
+   * @return reserve configuration data
+   */
+  public async getReserveConfigurationData(reserve: string): Promise<ReserveConfigData> {
+    const params = {
+      _reserve: reserve
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
+      ScoreMethodNames.GET_RESERVE_CONFIGURATION_DATA, params, IconTransactionType.READ);
+    return await this.iconApiService.iconService.call(tx).execute();
+  }
+
+  /**
+   * @description Get configuration data for all reserves
+   * @return All reserves configuration data
+   */
+  public async getAllReserveConfigurationData(): Promise<any> {
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
+      ScoreMethodNames.GET_RESERVE_CONFIGURATION_DATA, {}, IconTransactionType.READ);
+    return await this.iconApiService.iconService.call(tx).execute();
+  }
+
+  /**
+   * @description Get all reserve data
+   * @return All reserve data
+   */
+  public async getReserveDataForAllReserves(): Promise<AllReserves> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
       ScoreMethodNames.GET_ALL_RESERVE_DATA, {}, IconTransactionType.READ);
     return await this.iconApiService.iconService.call(tx).execute();
   }
 
   public async getUserBalanceOfUSDb(address?: string): Promise<number> {
-    if (!this.persistenceService.allAddresses) {
-      alert("getUserBalanceOfUSDb: All addresses not loaded!");
-      return -1;
-    }
-    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses?.collateral.USDb,
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.collateral.USDb,
       ScoreMethodNames.BALANCE, {
         _owner: address ?? this.persistenceService.iconexWallet?.address
       }, IconTransactionType.READ);

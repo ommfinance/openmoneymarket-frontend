@@ -1,29 +1,25 @@
 import { Injectable } from '@angular/core';
 import {PersistenceService} from "../persistence/persistence.service";
-import {DataLoaderService} from "../data-loader/data-loader.service";
+import {OmmError} from "../../core/errors/OmmError";
 
 @Injectable({
   providedIn: 'root'
 })
 export class CheckerService {
 
-  constructor(private persistenceService: PersistenceService,
-              private dataLoaderService: DataLoaderService) {
+  constructor(private persistenceService: PersistenceService) {
 
   }
 
   public checkUserLoggedIn(): any {
     if (!this.persistenceService.iconexWallet) {
-      alert("User not logged in.");
-      throw new Error("User not logged in.");
+      throw new OmmError("User not logged in.", );
     }
   }
 
   public checkAllAddressesLoaded(): void {
     if (!this.persistenceService.allAddresses) {
-      this.dataLoaderService.loadAllScoreAddresses();
-      alert("All score addresses not loaded. Try again in few moments");
-      throw new Error("All score addresses not loaded.");
+      throw new OmmError("All score addresses not loaded.");
     }
   }
 

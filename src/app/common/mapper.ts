@@ -1,6 +1,7 @@
 import {Utils} from "./utils";
 import {Reserve} from "../interfaces/reserve";
 import {ReserveData} from "../interfaces/all-reserves";
+import {UserAccountData} from "../models/user-account-data";
 
 export class Mapper {
   public static mapHexStringsOfObjectToNormalisedValue<T>(object: T): T {
@@ -29,6 +30,31 @@ export class Mapper {
     );
     console.log("mapUserReserve after: ", res);
 
+    return res;
+  }
+
+  public static mapUserAccountData(userAccountData: UserAccountData): UserAccountData {
+    console.log("mapUserAccountData before: ", userAccountData);
+    const res = new UserAccountData(
+      Utils.hex18DecimalToNormalisedNumber(userAccountData.totalLiquidityICX),
+      Utils.hex18DecimalToNormalisedNumber(userAccountData.totalCollateralICX),
+      Utils.hex18DecimalToNormalisedNumber(userAccountData.totalBorrowsICX),
+      Utils.hex18DecimalToNormalisedNumber(userAccountData.totalFeesICX),
+      Utils.hex18DecimalToNormalisedNumber(userAccountData.availableBorrowsICX),
+      Utils.hex18DecimalToNormalisedNumber(userAccountData.collateralInterestICX),
+      Utils.hex18DecimalToNormalisedNumber(userAccountData.totalLiquidityUSD),
+      Utils.hex18DecimalToNormalisedNumber(userAccountData.totalCollateralUSD),
+      Utils.hex18DecimalToNormalisedNumber(userAccountData.totalBorrowsUSD),
+      Utils.hex18DecimalToNormalisedNumber(userAccountData.totalFeesUSD),
+      Utils.hex18DecimalToNormalisedNumber(userAccountData.availableBorrowsUSD),
+      Utils.hex18DecimalToNormalisedNumber(userAccountData.collateralInterestUSD),
+      Utils.hexToPercent(userAccountData.liquidityRate),
+      Utils.hexToPercent(userAccountData.borrowRate),
+      Utils.hex18DecimalToNormalisedNumber(userAccountData.currentLiquidationThreshold),
+      Utils.hexToNumber(userAccountData.ltv),
+      Utils.hexToNumber(userAccountData.healthFactor),
+    );
+    console.log("mapUserAccountData after: ", res);
     return res;
   }
 
