@@ -1,101 +1,89 @@
-import { Injectable } from '@angular/core';
-import {IconWallet} from '../../models/IconWallet';
+import {Injectable} from '@angular/core';
+import {IconexWallet} from '../../models/IconexWallet';
 import {AllAddresses} from '../../interfaces/all-addresses';
 import {AllReserves, ReserveData} from "../../interfaces/all-reserves";
-import {Reserve} from "../../interfaces/reserve";
-import {Subject} from "rxjs";
+import {Reserve, UserReserves} from "../../interfaces/reserve";
 import {UserAccountData} from "../../models/user-account-data";
-// import {BridgeService} from "icon-bridge-sdk/build/lib/BridgeService";
+import {BridgeWallet} from "../../models/BridgeWallet";
+import {AssetTag} from "../../models/Asset";
 
 @Injectable({
   providedIn: 'root'
 })
+/**
+ * Service that holds and manages client data.
+ */
 export class PersistenceService {
 
-  public iconexWallet?: IconWallet;
-  // public bridgeInstance?: BridgeService;
+  public activeWallet?: IconexWallet | BridgeWallet;
 
   public allAddresses?: AllAddresses;
   public allReserves?: AllReserves;
 
-  public userUSDbReserve?: Reserve;
-  public userIcxReserve?: Reserve;
-
-  public userUSDbBalanceChange: Subject<number> = new Subject<number>();
-  public userUSDbReserveChange: Subject<Reserve> = new Subject<Reserve>();
-
-  public userIcxBalanceChange: Subject<number> = new Subject<number>();
-  public userIcxReserveChange: Subject<Reserve> = new Subject<Reserve>();
+  public userReserves?: UserReserves;
 
   public userAccountData?: UserAccountData;
 
-  constructor() {
-    this.userUSDbBalanceChange.subscribe(value => {
-      if (this.iconexWallet) {
-        this.iconexWallet.balances.USDb = value;
-      }
-    });
-    this.userUSDbReserveChange.subscribe(value => {
-      this.userUSDbReserve = value;
-    });
-    this.userIcxBalanceChange.subscribe(value => {
-      if (this.iconexWallet) {
-        this.iconexWallet.balances.ICX = value;
-      }
-    });
-    this.userIcxReserveChange.subscribe(value => {
-      this.userIcxReserve = value;
-    });
+  constructor() {}
+
+  public walletLogin(wallet: IconexWallet | BridgeWallet): void {
+    this.activeWallet = wallet;
   }
 
-  public updateUserUSDbBalance(balance: number): void {
-    this.userUSDbBalanceChange.next(balance);
-  }
-
-  public updateUserUSDbReserve(reserve: Reserve): void {
-    this.userUSDbReserveChange.next(reserve);
-  }
-
-  public updateUserIcxBalance(balance: number): void {
-    this.userIcxBalanceChange.next(balance);
-  }
-
-  public updateUserIcxReserve(reserve: Reserve): void {
-    this.userIcxReserveChange.next(reserve);
-  }
-
-  public iconexLogin(iconWallet: IconWallet): void {
-    this.iconexWallet = iconWallet;
-    localStorage.setItem('IconWallet', JSON.stringify(iconWallet));
-  }
-
-  public iconexLogout(): void {
-    this.iconexWallet = undefined;
-    localStorage.removeItem('IconWallet');
+  public walletLogout(): void {
+    this.activeWallet = undefined;
   }
 
   public userLoggedIn(): boolean {
-    return this.iconexWallet != null;
+    return this.activeWallet != null;
+  }
+
+  public bridgeWalletActive(): boolean {
+    return this.activeWallet instanceof BridgeWallet;
+  }
+
+  public iconexWalletActive(): boolean {
+    return this.activeWallet instanceof IconexWallet;
   }
 
   public getUserUSDbBalance(): number {
-    return this.iconexWallet?.balances.USDb ?? 0;
+    return this.activeWallet?.balances.get(AssetTag.USDb) ?? 0;
+  }
+
+  public getUserSuppliedAssetBalance(assetTag: AssetTag): number {
+    return this.userReserves?.reserveMap.get(assetTag)?.currentOTokenBalance ?? 0;
+  }
+
+  public getUserAssetBorrowedBalance(assetTag: AssetTag): number {
+    return this.userReserves?.reserveMap.get(assetTag)?.principalBorrowBalance ?? 0;
   }
 
   public getUserSuppliedUSDbBalance(): number {
-    return this.userUSDbReserve?.currentOTokenBalance ?? 0;
+    return this.userReserves?.reserveMap.get(AssetTag.USDb)?.currentOTokenBalance ?? 0;
   }
 
   public getUserBorrowedUSDbBalance(): number {
-    return this.userUSDbReserve?.principalBorrowBalance ?? 0;
+    return this.userReserves?.reserveMap.get(AssetTag.USDb)?.principalBorrowBalance ?? 0;
   }
 
   public getUserIcxBalance(): number {
-    return this.iconexWallet?.balances.ICX ?? 0;
+    return this.activeWallet?.balances.get(AssetTag.ICX) ?? 0;
   }
 
   public getUserSuppliedIcxBalance(): number {
-    return this.userIcxReserve?.currentOTokenBalance ?? 0;
+    return this.userReserves?.reserveMap.get(AssetTag.ICX)?.currentOTokenBalance ?? 0;
+  }
+
+  public getUserAssetReserve(assetTag: AssetTag): Reserve | undefined {
+    return this.userReserves?.reserveMap.get(assetTag);
+  }
+
+  public getUserUSDbReserve(): Reserve | undefined {
+    return this.userReserves?.reserveMap.get(AssetTag.USDb);
+  }
+
+  public getUserIcxReserve(): Reserve | undefined {
+    return this.userReserves?.reserveMap.get(AssetTag.ICX);
   }
 
   public getTotalSupplied(): number {
@@ -144,11 +132,6 @@ export class PersistenceService {
       counter++;
     });
     return total / counter;
-  }
-
-  public getWalletValue(): number {
-    // TODO consider all balances and reserves, for now just USDb
-    return (this.iconexWallet?.balances.USDb ?? 0) + (this.userUSDbReserve?.currentOTokenBalance ?? 0);
   }
 
 }

@@ -1,0 +1,164 @@
+<!-- ICON (ICX) - Default state -->
+<tr id="market-icx" class="asset icx your hide">
+  <td>ICON<br><span class="label">ICX</span></td>
+  <td><span class="value-supplied-icx-dollar">$0</span><br><span class="value-supplied-icx label">0 ICX</span></td>
+  <td class="text-green">4.83%</td>
+  <td><span class="value-borrowed-icx-dollar">$0</span><br><span class="value-borrowed-icx label">0 ICX</span></td>
+  <td class="text-purple">5.11%</td>
+</tr>
+
+<!-- ICON (ICX) - All markets state -->
+<tr class="asset icx all hide">
+  <td>ICON<br><span class="label">ICX</span></td>
+  <td>$561,957<br><span class="label">1,454,347 ICX</span></td>
+  <td class="text-green">4.83%</td>
+  <td>$125,716<br><span class="label">325,353 ICX</span></td>
+  <td class="text-purple">5.11%</td>
+</tr>
+
+<!-- ICON (ICX) - Expanded -->
+<tr class="expanded">
+  <td colspan="5">
+    <div class="market-expanded market-icx-expanded">
+      <div class="grid">
+        <!-- ICON Supply -->
+        <div class="grid-cell supply border-right">
+          <!-- Supply title -->
+          <div class="grid grid-center title">
+            <div class="grid-cell">
+              <h2>Supply</h2>
+            </div>
+            <div class="grid-cell text-right">
+              <p class="supply-apy">4.83% APY</p>
+            </div>
+          </div>
+
+          <!-- Supply allow (Show if user can supply) -->
+          <div class="supply-allow icx">
+            <!-- Supply slider -->
+            <div id="slider-supply-icx" disabled></div>
+
+            <!-- Supply inputs -->
+            <div class="grid legend">
+              <div class="grid-cell">
+                <label class="label supplied">Supplied</label>
+                <input type="text" title="USDb supplied" id="input-supply-icx" class="input-supply" disabled="" value="0">
+              </div>
+              <div class="grid-cell">
+                <label class="label available">Available</label>
+                <input type="text" title="USDb available to supply" id="input-supply-available-icx" class="input-supply-available" disabled="" value="0">
+              </div>
+            </div>
+
+            <!-- Supply income -->
+            <div class="grid legend income">
+              <div class="grid-cell">
+                <dl class="metadata">
+                  <dt>Daily interest</dt>
+                  <dd class="value-supply-interest-icx">+ 0 USDb</dd>
+                </dl>
+              </div>
+              <div class="grid-cell">
+                <dl class="metadata">
+                  <dt>Daily rewards</dt>
+                  <dd class="value-supply-rewards-icx">+ 0 OMM</dd>
+                </dl>
+              </div>
+            </div>
+
+            <!-- Adjust-->
+            <div class="grid grid-center supply-actions actions-1">
+              <div class="grid-cell text-center">
+                <a href="#" class="button icx supply-adjust">Adjust</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Confirm -->
+          <div class="grid grid-center supply-actions actions-2 hide">
+            <div class="grid-cell text-right">
+              <a href="#" class="cancel adjust-cancel">Cancel</a>
+            </div>
+            <div class="grid-cell text-left">
+              <a href="#" class="button modal-trigger" data-modal="modal-supply-icx">Confirm</a>
+            </div>
+          </div>
+
+          <!-- Supply deny (Show if user can't borrow) -->
+          <div class="supply-deny icx hide">
+            <p class="text-center label message">You have no ICON available to supply.</p>
+          </div>
+        </div>
+
+        <!-- ICON Borrow -->
+        <div class="grid-cell borrow">
+          <!-- Borrow title -->
+          <div class="grid grid-center title">
+            <div class="grid-cell">
+              <h2>Borrow</h2><span class="risk-outer">Risk: <span class="value-risk-total">54%</span></span>
+            </div>
+            <div class="grid-cell text-right">
+              <p class="borrow-apy">5.11% APY</p>
+            </div>
+          </div>
+
+          <!-- Borrow allow (Show if user can borrow) -->
+          <div class="borrow-allow">
+            <!-- Borrow slider -->
+            <div id="slider-borrow-icx" disabled></div>
+
+            <!-- Borrow legend -->
+            <div class="grid legend">
+              <div class="grid-cell">
+                <label class="label borrowed">Borrowed</label>
+                <input type="text" title="USDb borrowed" id="input-borrow-icx" class="input-borrow" disabled="" value="0">
+              </div>
+              <div class="grid-cell">
+                <label class="label available">Available</label>
+                <input type="text" title="USDb available to borrow" id="input-borrow-available-icx" class="input-borrow-available" disabled="" value="0">
+              </div>
+            </div>
+
+            <!-- Borrow income legend -->
+            <div class="grid legend income">
+              <div class="grid-cell">
+                <dl class="metadata">
+                  <dt>Daily interest</dt>
+                  <dd class="value-borrow-interest-icx">+ 0 USDb</dd>
+                </dl>
+              </div>
+              <div class="grid-cell">
+                <dl class="metadata">
+                  <dt>Daily rewards</dt>
+                  <dd class="value-borrow-rewards-icx">+ 0 OMM</dd>
+                </dl>
+              </div>
+            </div>
+
+            <!-- Adjust-->
+            <div class="grid grid-center borrow-actions actions-1">
+              <div class="grid-cell text-center">
+                <a href="#" class="button icx purple borrow-adjust">Adjust</a>
+              </div>
+            </div>
+
+            <!-- Confirm -->
+            <div class="grid grid-center borrow-actions actions-2 hide">
+              <div class="grid-cell text-right">
+                <a href="#" class="cancel adjust-cancel">Cancel</a>
+              </div>
+              <div class="grid-cell text-left">
+                <a href="#" class="button purple modal-trigger" data-modal="modal-borrow-icx">Confirm</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Borrow deny (Show if user can't borrow) -->
+          <div class="borrow-deny hide">
+            <p class="text-center label message">Supply an asset to borrow ICON.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </td>
+</tr>

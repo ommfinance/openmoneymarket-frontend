@@ -8,6 +8,7 @@ import {ScoreMethodNames} from "../../common/score-method-names";
 import {IconTransactionType} from "../../models/IconTransactionType";
 import {IconexRequestsMap} from "../../common/iconex-requests-map";
 import {CheckerService} from "../checker/checker.service";
+import log from "loglevel";
 
 @Injectable({
   providedIn: 'root'
@@ -28,12 +29,12 @@ export class WithdrawService {
       _amount: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
     };
 
-    const tx = this.iconApiService.buildTransaction(this.persistenceService.iconexWallet!.address,
+    const tx = this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
       this.persistenceService.allAddresses!.oTokens.oUSDb, ScoreMethodNames.REDEEM, params, IconTransactionType.WRITE);
 
-    console.log("TX: ", tx);
+    log.debug("TX: ", tx);
     this.scoreService.getUserBalanceOfUSDb().then(res => {
-      console.log("USDb balance before withdraw: ", res);
+      log.debug("USDb balance before withdraw: ", res);
     });
 
     this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.WITHDRAW_USDb);
@@ -47,10 +48,10 @@ export class WithdrawService {
       _waitForUnstaking: waitForUnstaking ? "0x1" : "0x0"
     };
 
-    const tx = this.iconApiService.buildTransaction(this.persistenceService.iconexWallet!.address,
+    const tx = this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
       this.persistenceService.allAddresses!.oTokens.oICX, ScoreMethodNames.REDEEM, params, IconTransactionType.WRITE);
 
-    console.log("TX: ", tx);
+    log.debug("TX: ", tx);
 
     this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.WITHDRAW_ICX);
   }

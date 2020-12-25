@@ -11,6 +11,7 @@ import {Reserve} from "../../interfaces/reserve";
 import {AllReserves} from "../../interfaces/all-reserves";
 import {UserAccountData} from "../../models/user-account-data";
 import {ReserveConfigData} from "../../models/reserve-config-data";
+import {StateChangeService} from "../state-change/state-change.service";
 
 
 @Injectable({
@@ -20,7 +21,8 @@ export class ScoreService {
 
   constructor(private iconApiService: IconApiService,
               private persistenceService: PersistenceService,
-              private checkerService: CheckerService) {
+              private checkerService: CheckerService,
+              private stateChangeService: StateChangeService) {
   }
 
   /**
@@ -42,7 +44,7 @@ export class ScoreService {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const params = {
-      _user: this.persistenceService.iconexWallet?.address,
+      _user: this.persistenceService.activeWallet?.address,
       _reserve: reserve
     };
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
@@ -58,7 +60,7 @@ export class ScoreService {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const params = {
-      _user: this.persistenceService.iconexWallet!.address
+      _user: this.persistenceService.activeWallet!.address
     };
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
@@ -74,7 +76,7 @@ export class ScoreService {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const params = {
-      _user: this.persistenceService.iconexWallet!.address
+      _user: this.persistenceService.activeWallet!.address
     };
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
@@ -124,11 +126,11 @@ export class ScoreService {
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.collateral.USDb,
       ScoreMethodNames.BALANCE, {
-        _owner: address ?? this.persistenceService.iconexWallet?.address
+        _owner: address ?? this.persistenceService.activeWallet?.address
       }, IconTransactionType.READ);
     const res = await this.iconApiService.iconService.call(tx).execute();
     const balance = Utils.hex18DecimalToNormalisedNumber(res);
-    this.persistenceService.updateUserUSDbBalance(balance);
+    this.stateChangeService.updateUserUSDbBalance(balance);
     return balance;
   }
 

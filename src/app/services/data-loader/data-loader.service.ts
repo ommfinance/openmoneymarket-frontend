@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {ScoreService} from '../score/score.service';
 import {PersistenceService} from '../persistence/persistence.service';
 import {AllAddresses} from '../../interfaces/all-addresses';
@@ -6,6 +6,9 @@ import {AllReserves, ReserveData} from "../../interfaces/all-reserves";
 import {Mapper} from "../../common/mapper";
 import {Reserve} from "../../interfaces/reserve";
 import {UserAccountData} from "../../models/user-account-data";
+import {StateChangeService} from "../state-change/state-change.service";
+import {AssetTag} from "../../models/Asset";
+import log from "loglevel";
 
 @Injectable({
   providedIn: 'root'
@@ -13,13 +16,14 @@ import {UserAccountData} from "../../models/user-account-data";
 export class DataLoaderService {
 
   constructor(private scoreService: ScoreService,
-              private persistenceService: PersistenceService) {
+              private persistenceService: PersistenceService,
+              private stateChangeService: StateChangeService) {
   }
 
   public loadAllScoreAddresses(): Promise<void> {
     return this.scoreService.getAllScoreAddresses().then((allAddresses: AllAddresses) => {
       this.persistenceService.allAddresses = allAddresses;
-      console.log("Loaded all addresses: ", allAddresses);
+      log.debug("Loaded all addresses: ", allAddresses);
     });
   }
 
@@ -30,25 +34,29 @@ export class DataLoaderService {
         allReserves[value[0]] = Mapper.mapReserveData(value[1]);
       });
       this.persistenceService.allReserves = allReserves;
-      console.log("loadAllReserves: ", allReserves);
+      log.debug("loadAllReserves: ", allReserves);
     });
   }
 
   public loadUserUSDbReserveData(): void {
+    let mappedReserve: any;
     this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses!.collateral.USDb)
       .then((res: Reserve) => {
-        this.persistenceService.userUSDbReserve = Mapper.mapUserReserve(res);
-        console.log("userUSDbReserve:", res);
-        this.persistenceService.updateUserUSDbReserve(this.persistenceService.userUSDbReserve);
+        mappedReserve = Mapper.mapUserReserve(res);
+        this.persistenceService.userReserves!.reserveMap.set(AssetTag.USDb, mappedReserve);
+        log.debug("User USDb reserve:", res);
+        this.stateChangeService.updateUserUSDbReserve(mappedReserve);
       });
   }
 
   public loadUserIcxReserveData(): void {
+    let mappedReserve: any;
     this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses!.collateral.sICX)
       .then((res: Reserve) => {
-        this.persistenceService.userIcxReserve = Mapper.mapUserReserve(res);
-        console.log("userIcxReserveData:", res);
-        this.persistenceService.updateUserIcxReserve(this.persistenceService.userIcxReserve);
+        mappedReserve = Mapper.mapUserReserve(res);
+        this.persistenceService.userReserves!.reserveMap.set(AssetTag.ICX, mappedReserve);
+        log.debug("User ICX reserve data:", res);
+        this.stateChangeService.updateUserIcxReserve(mappedReserve);
       });
   }
 

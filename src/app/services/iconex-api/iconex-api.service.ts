@@ -1,13 +1,13 @@
 import { Injectable } from "@angular/core";
-import {environment} from "../../../environments/environment";
-import {IconWallet} from "../../models/IconWallet";
+import {IconexWallet} from "../../models/IconexWallet";
 import {IconApiService} from "../icon-api/icon-api.service";
 import {PersistenceService} from "../persistence/persistence.service";
 import {IconConverter } from "icon-sdk-js";
 import {TransactionResultService} from '../transaction-result/transaction-result.service';
-import {TokenBalances} from "../../models/TokenBalances";
 import {ScoreService} from "../score/score.service";
 import {DataLoaderService} from "../data-loader/data-loader.service";
+import log from "loglevel";
+import {AssetTag} from "../../models/Asset";
 
 @Injectable({
   providedIn: "root"
@@ -26,7 +26,7 @@ export class IconexApiService {
 
   public iconexEventHandler( e: any): void {
     const {type, payload} = e.detail;
-    console.log(type, " : ", payload);
+    log.debug(type, " : ", payload);
 
     switch (type) {
       case "RESPONSE_HAS_ACCOUNT": {
@@ -35,22 +35,24 @@ export class IconexApiService {
         break;
       }
       case "RESPONSE_ADDRESS": {
-        this.persistenceService.iconexLogin(new IconWallet(payload, new TokenBalances()));
+        this.persistenceService.walletLogin(new IconexWallet(payload));
         this.dataLoaderService.loadUserUSDbReserveData();
         this.dataLoaderService.loadUserIcxReserveData();
+
+        // TODO improve so that it calls in parallel
         this.iconApiService.getIcxBalance(payload).then((icxBalance: number) => {
-          console.log("ICX balance: ", icxBalance);
-          this.persistenceService.iconexWallet!.balances.ICX = icxBalance;
+          log.debug("ICX balance: ", icxBalance);
+          this.persistenceService.activeWallet!.balances.set(AssetTag.ICX, icxBalance);
           this.scoreService.getUserBalanceOfUSDb(payload).then((USDbBalance: number) => {
-            console.log("USDb balance: ", USDbBalance);
-            this.persistenceService.iconexWallet!.balances.USDb = USDbBalance;
+            log.debug("USDb balance: ", USDbBalance);
+            this.persistenceService.activeWallet!.balances.set(AssetTag.USDb, USDbBalance);
           });
         });
-        console.log("Successfully connected your Icon wallet!");
+        log.debug("Successfully connected your Icon wallet!");
         break;
       }
       case "RESPONSE_JSON-RPC": {
-        console.log("RESPONSE_JSON-RPC", payload.result);
+        log.debug("RESPONSE_JSON-RPC", payload.result);
         this.transactionResultService.processIconexTransactionResult(payload);
         break;
       }
@@ -59,7 +61,7 @@ export class IconexApiService {
         break;
       }
       default: {
-        console.log("Iconex default response handler:", payload, type);
+        log.debug("Iconex default response handler:", payload, type);
         break;
       }
     }

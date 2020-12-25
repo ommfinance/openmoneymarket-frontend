@@ -1,3 +1,6 @@
+import {AssetTag} from "../models/Asset";
+import {Subject} from "rxjs";
+
 export class Reserve {
   borrowRate: number;
   currentBorrowBalance: number;
@@ -26,6 +29,13 @@ export class Reserve {
     this.useAsCollateral = useAsCollateral;
     this.userBorrowCumulativeIndex = userBorrowCumulativeIndex;
   }
+}
+
+export class UserReserves {
+  public reserveMap: Map<AssetTag, Reserve | undefined> = new Map([
+    [AssetTag.USDb, undefined],
+    [AssetTag.ICX, undefined],
+  ]);
 }
 
 // EXAMPLE

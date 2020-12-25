@@ -1,0 +1,168 @@
+<!-- Available to supply state -->
+<tr class="asset {{asset.className}} asset-available hide">
+  <td>{{asset.name}}<br><span class="label">{{asset.tag}}</span></td>
+  <td colspan="2" class="text-right">$15,000<br><span class="label">15,000 {{asset.tag}}</span></td>
+  <td colspan="2" class="text-right"><span class="text-green">6.47% APY</span></td>
+</tr>
+
+<!-- Your markets state -->
+<tr class="asset {{asset.className}} your" (click)="onAssetClick()" #assetYour>
+  <td>{{asset.name}}<br><span class="label">{{asset.tag}}</span></td>
+  <td><span class="value-supplied">$10,000</span><br><span class="value-supplied label">10,000 {{asset.tag}}</span></td>
+  <td class="text-green">6.47%</td>
+  <td><span class="value-borrowed">$1,500</span><br><span class="value-borrowed label">1,500 {{asset.tag}}</span></td>
+  <td class="text-purple">7.25%</td>
+</tr>
+
+<!-- All markets state -->
+<tr class="asset {{asset.className}} all hide">
+  <td>{{asset.name}}<br><span class="label">{{asset.tag}}</span></td>
+  <td><span>$420,690</span><br><span class="label">420,690 {{asset.tag}}</span></td>
+  <td class="text-green">6.47%</td>
+  <td>$197,843<br><span class="label">197,843 {{asset.tag}}</span></td>
+  <td class="text-purple">7.25%</td>
+</tr>
+
+<!-- Expanded -->
+<tr class="expanded">
+  <td colspan="5">
+    <div class="market-expanded" #marketExpandedEl>
+      <div class="grid">
+        <!-- Asset Supply -->
+        <div class="grid-cell supply border-right" #supply>
+          <!-- Supply title -->
+          <div class="grid grid-center title">
+            <div class="grid-cell">
+              <h2>Supply</h2>
+            </div>
+            <div class="grid-cell text-right">
+              <p class="supply-apy">6.47% APY</p>
+            </div>
+          </div>
+
+          <!-- Supply slider -->
+          <div id="slider-supply" #sliderSupply disabled></div>
+
+          <!-- Supply inputs -->
+          <div class="grid legend">
+            <div class="grid-cell">
+              <label class="label supplied">Supplied</label>
+              <input type="text" title="{{asset.tag}} supplied" id="input-supply" #inputSupply class="input-supply" disabled="" value="0">
+            </div>
+            <div class="grid-cell">
+              <label class="label available">Available</label>
+              <input type="text" title="{{asset.tag}} available to supply" #inpSuppAvail id="input-supply-available" class="input-supply-available" disabled="" value="0">
+            </div>
+          </div>
+
+          <!-- Supply income -->
+          <div class="grid legend income">
+            <div class="grid-cell">
+              <dl class="metadata">
+                <dt>Daily interest</dt>
+                <dd class="value-supply-interest">+ 0 {{asset.tag}}</dd>
+              </dl>
+            </div>
+            <div class="grid-cell">
+              <dl class="metadata">
+                <dt>Daily rewards</dt>
+                <dd class="value-supply-rewards">+ 0 OMM</dd>
+              </dl>
+            </div>
+          </div>
+
+          <!-- Adjust-->
+          <div class="grid grid-center supply-actions actions-1">
+            <div class="grid-cell text-center">
+              <a href="#" class="button {{asset.className}} supply-adjust">Adjust</a>
+            </div>
+          </div>
+
+          <!-- Confirm -->
+          <div class="grid grid-center supply-actions actions-2 hide">
+            <div class="grid-cell text-right">
+              <a href="#" class="cancel adjust-cancel">Cancel</a>
+            </div>
+            <div class="grid-cell text-left">
+              <a href="#" class="button modal-trigger" data-modal="modal-supply">Confirm</a>
+            </div>
+          </div>
+
+          <!-- Supply deny (Show if user can't borrow) -->
+          <div class="supply-deny {{asset.className}} hide">
+            <p class="text-center label message">You have no {{asset.name}} available to supply.</p>
+          </div>
+        </div>
+
+        <!-- Asset Borrow -->
+        <div class="grid-cell borrow" #borrow>
+          <!-- Borrow title -->
+          <div class="grid grid-center title">
+            <div class="grid-cell">
+              <h2>Borrow</h2><span class="risk-outer">Risk: <span class="value-risk-total">54%</span></span>
+            </div>
+            <div class="grid-cell text-right">
+              <p class="borrow-apy">7.25% APY</p>
+            </div>
+          </div>
+
+          <!-- Borrow allow (Show if user can borrow) -->
+          <div class="borrow-allow">
+            <!-- Borrow slider -->
+            <div id="slider-borrow" #sliderBorrow disabled></div>
+
+            <!-- Borrow legend -->
+            <div class="grid legend">
+              <div class="grid-cell">
+                <label class="label borrowed">Borrowed</label>
+                <input type="text" title="{{asset.tag}} borrowed" id="input-borrow" class="input-borrow" #inputBorrow disabled value="0">
+              </div>
+              <div class="grid-cell">
+                <label class="label available">Available</label>
+                <input type="text" title="{{asset.tag}} available to borrow" #inpBorrAvail id="input-borrow-available" class="input-borrow-available" disabled value="0">
+              </div>
+            </div>
+
+            <!-- Borrow income legend -->
+            <div class="grid legend income">
+              <div class="grid-cell">
+                <dl class="metadata">
+                  <dt>Daily interest</dt>
+                  <dd class="value-borrow-interest">+ 0 {{asset.tag}}</dd>
+                </dl>
+              </div>
+              <div class="grid-cell">
+                <dl class="metadata">
+                  <dt>Daily rewards</dt>
+                  <dd class="value-borrow-rewards">+ 0 OMM</dd>
+                </dl>
+              </div>
+            </div>
+
+            <!-- Adjust-->
+            <div class="grid grid-center borrow-actions actions-1">
+              <div class="grid-cell text-center">
+                <a href="#" class="button {{asset.className}} purple borrow-adjust">Adjust</a>
+              </div>
+            </div>
+
+            <!-- Confirm -->
+            <div class="grid grid-center borrow-actions actions-2 hide">
+              <div class="grid-cell text-right">
+                <a href="#" class="cancel adjust-cancel">Cancel</a>
+              </div>
+              <div class="grid-cell text-left">
+                <a href="#" class="button purple modal-trigger" data-modal="modal-borrow">Confirm</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Borrow deny (Show if user can't borrow) -->
+          <div class="borrow-deny hide">
+            <p class="text-center label message">Supply an asset to borrow {{asset.name}}.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </td>
+</tr>

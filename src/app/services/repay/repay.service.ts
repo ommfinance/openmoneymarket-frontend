@@ -8,6 +8,7 @@ import {IconTransactionType} from "../../models/IconTransactionType";
 import {IconexRequestsMap} from "../../common/iconex-requests-map";
 import {Utils} from "../../common/utils";
 import {CheckerService} from "../checker/checker.service";
+import log from "loglevel";
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +25,7 @@ export class RepayService {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const amountString = Utils.amountToe18MultipliedString(amount);
-    console.log("repayUSDb amount = " + amount, "repayUSDb params amount = " + amountString);
+    log.debug("repayUSDb amount = " + amount, "repayUSDb params amount = " + amountString);
 
     const to = this.persistenceService.allAddresses!.collateral.USDb;
     const data = `{"method": "repay", "params": {"_reserveAddress":"${to}" ,"amount":${amountString}}}`;
@@ -35,10 +36,10 @@ export class RepayService {
       _data: IconConverter.fromUtf8(data)
     };
 
-    const tx = this.iconApiService.buildTransaction(this.persistenceService.iconexWallet!.address, to,
+    const tx = this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address, to,
       ScoreMethodNames.TRANSFER, params, IconTransactionType.WRITE);
 
-    console.log("repayUSDb TX: ", tx);
+    log.debug("repayUSDb TX: ", tx);
 
     this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.REPAY_USDb);
   }
@@ -47,7 +48,7 @@ export class RepayService {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const amountString = Utils.amountToe18MultipliedString(amount);
-    console.log("repayIcx amount = " + amount, "repayIcx params amount = " + amountString);
+    log.debug("repayIcx amount = " + amount, "repayIcx params amount = " + amountString);
 
     const to = this.persistenceService.allAddresses!.collateral.sICX;
     const data = `{"method": "repay", "params": {"_reserveAddress":"${to}" ,"amount":${amountString}}}`;
@@ -58,10 +59,10 @@ export class RepayService {
       _data: IconConverter.fromUtf8(data)
     };
 
-    const tx = this.iconApiService.buildTransaction(this.persistenceService.iconexWallet!.address, to,
+    const tx = this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address, to,
       ScoreMethodNames.TRANSFER, params, IconTransactionType.WRITE);
 
-    console.log("repayIcx TX: ", tx);
+    log.debug("repayIcx TX: ", tx);
 
     this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.REPAY_ICX);
   }

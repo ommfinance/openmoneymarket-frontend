@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {PersistenceService} from "../persistence/persistence.service";
 import {LTV} from "../../common/constants";
+import {AssetTag} from "../../models/Asset";
 
 @Injectable({
   providedIn: 'root'
@@ -9,30 +10,16 @@ export class CalculationsService {
 
   constructor(private persistenceService: PersistenceService) { }
 
-  public calculateSliderAvailableUSDbSupply(userSliderSuppliedUSDbValue: number): number {
-    return (this.persistenceService.iconexWallet?.balances.USDb ?? 15000) +
-      ((this.persistenceService.userUSDbReserve?.currentOTokenBalance ?? 0) - userSliderSuppliedUSDbValue);
+  public calculateAssetSliderAvailableSupply(currentAssetSupplied: number, assetTag: AssetTag): number {
+    return (this.persistenceService.activeWallet?.balances.get(assetTag) ?? 15000) +
+      ((this.persistenceService.getUserSuppliedAssetBalance(assetTag)) - currentAssetSupplied);
   }
 
-  public calculateSliderAvailableIcxSupply(userSliderSuppliedIcxValue: number): number {
-    return (this.persistenceService.iconexWallet?.balances.ICX ?? 15000) +
-      ((this.persistenceService.userIcxReserve?.currentOTokenBalance ?? 0) - userSliderSuppliedIcxValue);
+  public calculateAssetSliderAvailableBorrow(currentAssetBorrowed: number, assetTag: AssetTag): number {
+    return ((this.persistenceService.getUserSuppliedAssetBalance(assetTag) ?? 10000) * LTV) - currentAssetBorrowed;
   }
 
-  public calculateSliderAvailableUSDbBorrow(userSliderBorrowedUSDbValue: number): number {
-    return ((this.persistenceService.userUSDbReserve?.currentOTokenBalance ?? 10000) * LTV) - userSliderBorrowedUSDbValue;
-  }
-
-  public calculateSliderAvailableIcxBorrow(userSliderBorrowedIcxValue: number): number {
-    console.log("calculateSliderAvailableIcxBorrow->userSliderBorrowedIcxValue=" + userSliderBorrowedIcxValue);
-    return ((this.persistenceService.userIcxReserve?.currentOTokenBalance ?? 10000) * LTV) - userSliderBorrowedIcxValue;
-  }
-
-  public calculateUSDbBorrowSliderMax(): number {
-    return ((this.persistenceService.userUSDbReserve?.currentOTokenBalance ?? 10000) * LTV);
-  }
-
-  public calculateIcxBorrowSliderMax(): number {
-    return ((this.persistenceService.userIcxReserve?.currentOTokenBalance ?? 10000) * LTV);
+  public calculateAssetBorrowSliderMax(assetTag: AssetTag): number {
+    return ((this.persistenceService.getUserSuppliedAssetBalance(assetTag) ?? 10000) * LTV);
   }
 }

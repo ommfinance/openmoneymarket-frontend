@@ -1,1 +1,19 @@
-<router-outlet></router-outlet>
+<body>
+  <!-- Header -->
+  <app-header [walletValue]="'$' + 0"> </app-header>
+  <!-- /Header -->
+
+  <!-- Modals -->
+  <app-modal></app-modal>
+  <!-- /Modals -->
+
+  <!-- Main content -->
+  <router-outlet></router-outlet>
+  <!-- /Main content -->
+
+  <!-- Modal overlay -->
+  <div class="modal-overlay" (click)="onOverlayClick()"></div>
+
+  <!-- Bridge widget (hidden) -->
+  <icon-bridge-widget hideButton="true"></icon-bridge-widget>
+</body>

@@ -1,0 +1,141 @@
+<!-- Sign in modal -->
+<div class="modal" id="modal-sign-in" #signInModal>
+  <div class="modal-content">
+    <h3 class="text-center label">Sign in with:</h3>
+    <div class="grid sign-in-options">
+      <div class="grid-cell border-right">
+        <a href="javascript:void(0);" class="sign-in-icon animation-underline" (click)="onSignInIconexClick()">
+          <img src="assets/img/logo/icx.svg">
+          <p>ICONex</p>
+        </a>
+      </div>
+
+      <div class="grid-cell">
+        <a href="javascript:void(0);" class="sign-in-bridge animation-underline" (click)="onSignInBridgeClick()">
+          <img src="assets/img/logo/usdb.png">
+          <p>Bridge</p>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Claim Omm rewards modal -->
+<div class="modal" id="modal-claim-rewards">
+  <div class="modal-content">
+    <h3 class="text-center label">Claim Omm rewards?</h3>
+    <p class="text-bold text-center value-rewards-total">50 OMM</p>
+    <div class="grid">
+      <div class="grid-cell text-center border-right">
+        <p class="label">Before</p>
+        <p class="text-dark">0 OMM</p>
+      </div>
+
+      <div class="grid-cell text-center">
+        <p class="label">After</p>
+        <p class="text-dark value-rewards-total">50 OMM</p>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <a href="#" class="cancel modal-close">Not now</a> <a href="./" class="button no-margin">Claim rewards</a>
+    </div>
+  </div>
+</div>
+
+<!-- Bridge supply modal -->
+<div class="modal" id="modal-supply-usdb">
+  <div class="modal-content">
+    <h3 class="text-center label">Supply Bridge Dollars?</h3>
+    <p class="text-bold text-center value-supply-usdb-difference">0 USDb</p>
+
+    <!-- Before & after -->
+    <div class="grid">
+      <div class="grid-cell text-center border-right">
+        <p class="label">Before</p>
+        <p class="text-dark value-supplied-usdb">0 USDb</p>
+      </div>
+
+      <div class="grid-cell text-center">
+        <p class="label">After</p>
+        <p class="text-dark value-supply-usdb-after">0 USDb</p>
+      </div>
+    </div>
+
+    <!-- Modal actions -->
+    <div class="modal-actions">
+      <a href="#" class="cancel modal-close">Cancel</a> <a href="#" class="button no-margin supply-usdb-commit">Supply</a>
+    </div>
+  </div>
+</div>
+
+<!-- Bridge borrow modal -->
+<div class="modal" id="modal-borrow-usdb">
+  <div class="modal-content">
+    <h3 class="text-center label">Borrow Bridge Dollars?</h3>
+    <p class="text-bold text-center value-borrow-usdb-difference">200 USDb</p>
+    <div class="grid">
+      <div class="grid-cell text-center border-right">
+        <p class="label">Before</p>
+        <p class="text-dark value-borrowed-usdb">0 USDb</p>
+      </div>
+
+      <div class="grid-cell text-center">
+        <p class="label">After</p>
+        <p class="text-dark value-borrow-usdb-after">0 USDb</p>
+      </div>
+    </div>
+    <p class="label text-center" style="margin-top: 25px;">Risk: <span class="value-risk-total" style="font-size: 14px !important;">0%</span></p>
+    <div class="modal-actions">
+      <a href="#" class="cancel modal-close">Cancel</a> <a href="#" class="button purple borrow-usdb-commit">Borrow</a>
+    </div>
+  </div>
+</div>
+
+<!-- ICON supply modal -->
+<div class="modal" id="modal-supply-icx">
+  <div class="modal-content">
+    <h3 class="text-center label">Supply ICON?</h3>
+    <p class="text-bold text-center value-supply-icx-difference">0 ICX</p>
+
+    <!-- Before & after -->
+    <div class="grid">
+      <div class="grid-cell text-center border-right">
+        <p class="label">Before</p>
+        <p class="text-dark value-supplied-icx">0 ICX</p>
+      </div>
+
+      <div class="grid-cell text-center">
+        <p class="label">After</p>
+        <p class="text-dark value-supply-icx-after">0 ICX</p>
+      </div>
+    </div>
+
+    <!-- Modal actions -->
+    <div class="modal-actions">
+      <a href="#" class="cancel modal-close">Cancel</a> <a href="#" class="button no-margin supply-icx-commit">Supply</a>
+    </div>
+  </div>
+</div>
+
+<!-- ICON borrow modal -->
+<div class="modal" id="modal-borrow-icx">
+  <div class="modal-content">
+    <h3 class="text-center label">Borrow ICON?</h3>
+    <p class="text-bold text-center value-borrow-icx-difference">200 USDb</p>
+    <div class="grid">
+      <div class="grid-cell text-center border-right">
+        <p class="label">Before</p>
+        <p class="text-dark value-borrow-icx-before">1,500 USDb</p>
+      </div>
+
+      <div class="grid-cell text-center">
+        <p class="label">After</p>
+        <p class="text-dark value-borrow-icx-after">1,700 USDb</p>
+      </div>
+    </div>
+    <p class="label text-center" style="margin-top: 25px;">Risk: <span class="value-risk-total" style="font-size: 14px !important;">0%</span></p>
+    <div class="modal-actions">
+      <a href="#" class="cancel modal-close">Cancel</a> <a href="#" class="button purple borrow-icx-commit">Borrow</a>
+    </div>
+  </div>
+</div>

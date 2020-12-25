@@ -12,7 +12,7 @@ export class CheckerService {
   }
 
   public checkUserLoggedIn(): any {
-    if (!this.persistenceService.iconexWallet) {
+    if (!this.persistenceService.activeWallet) {
       throw new OmmError("User not logged in.", );
     }
   }

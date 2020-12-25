@@ -1,4 +1,5 @@
 import {PersistenceService} from "../../services/persistence/persistence.service";
+import {AssetTag} from "../../models/Asset";
 
 declare var $: any;
 declare var noUiSlider: any;
@@ -38,8 +39,7 @@ export function onToggleYourMarketsClick(): void {
 }
 
 // On "All markets" click
-export function onToggleAllMarketsClick(bridgeSupplySlider: any, bridgeBorrowSlider: any, iconSupplySlider: any,
-                                        iconBorrowSlider: any): void {
+export function onToggleAllMarketsClick(): void {
   // Hide "Your markets" view
   $("#toggle-your-markets").removeClass('active');
   $("#your-markets-list").hide();
@@ -55,28 +55,28 @@ export function onToggleAllMarketsClick(bridgeSupplySlider: any, bridgeBorrowSli
   $("#asset-icon-expanded").slideUp();
   $("#asset-tap").removeClass('active');
   $("#asset-tap-expanded").slideUp();
-
-  // If "Supply" is in the "adjust" state, this will disable the state and reset the data
-  if ($("#supply").hasClass("adjust")) {
-      $('#supply').removeClass("adjust");
-      $('.supply-actions').toggleClass("hide");
-      $('#supply-deposited-bridge').prop('disabled', (i: any, v: any) => !v);
-      $('#supply-available-bridge').prop('disabled', (i: any, v: any) => !v);
-      bridgeSupplySlider.toggleAttribute('disabled');
-      // iconSupplySlider.toggleAttribute('disabled');
-      // bridgeSupplySlider.noUiSlider.set(10000);
-  }
-
-  // If "Borrow" is in the "adjust" state, this will disable the state and reset the data
-  if ($("#borrow").hasClass("adjust")) {
-      $('#borrow').removeClass("adjust");
-      $('.borrow-actions').toggleClass("hide");
-      $('#borrow-borrowed-bridge').prop('disabled', (i: any, v: any) => !v);
-      $('#borrow-available-bridge').prop('disabled', (i: any, v: any) => !v);
-      bridgeBorrowSlider.toggleAttribute('disabled');
-      // iconBorrowSlider.toggleAttribute('disabled');
-      // bridgeBorrowSlider.noUiSlider.set(1500);
-  }
+  //
+  // // If "Supply" is in the "adjust" state, this will disable the state and reset the data
+  // if ($("#supply").hasClass("adjust")) {
+  //     $('#supply').removeClass("adjust");
+  //     $('.supply-actions').toggleClass("hide");
+  //     $('#supply-deposited-bridge').prop('disabled', (i: any, v: any) => !v);
+  //     $('#supply-available-bridge').prop('disabled', (i: any, v: any) => !v);
+  //     bridgeSupplySlider.toggleAttribute('disabled');
+  //     // iconSupplySlider.toggleAttribute('disabled');
+  //     // bridgeSupplySlider.noUiSlider.set(10000);
+  // }
+  //
+  // // If "Borrow" is in the "adjust" state, this will disable the state and reset the data
+  // if ($("#borrow").hasClass("adjust")) {
+  //     $('#borrow').removeClass("adjust");
+  //     $('.borrow-actions').toggleClass("hide");
+  //     $('#borrow-borrowed-bridge').prop('disabled', (i: any, v: any) => !v);
+  //     $('#borrow-available-bridge').prop('disabled', (i: any, v: any) => !v);
+  //     bridgeBorrowSlider.toggleAttribute('disabled');
+  //     // iconBorrowSlider.toggleAttribute('disabled');
+  //     // bridgeBorrowSlider.noUiSlider.set(1500);
+  // }
 }
 
 // On Supply / Adjust click
@@ -89,13 +89,13 @@ export function onSupplyAdjustClick(bridgeSupplySlider: any, iconSupplySlider: a
   $('#supply-deposited-bridge').prop('disabled', (i: any, v: any) => !v);
   $('#supply-available-bridge').prop('disabled', (i: any, v: any) => !v);
   bridgeSupplySlider.toggleAttribute('disabled');
-  bridgeSupplySlider.noUiSlider.set(persistenceService.userUSDbReserve?.currentOTokenBalance ?? 0);
+  bridgeSupplySlider.noUiSlider.set(persistenceService.getUserSuppliedAssetBalance(AssetTag.USDb) ?? 0);
 
   // ICON
   $('#supply-deposited-icon').prop('disabled', (i: any, v: any) => !v);
   $('#supply-available-icon').prop('disabled', (i: any, v: any) => !v);
   // iconSupplySlider.toggleAttribute('disabled');
-  iconSupplySlider.noUiSlider.set(persistenceService.userIcxReserve?.currentOTokenBalance ?? 0);
+  iconSupplySlider.noUiSlider.set(persistenceService.getUserSuppliedAssetBalance(AssetTag.ICX) ?? 0);
 
   // TAP
   $('#supply-deposited-tap').prop('disabled', (i: any, v: any) => !v);
@@ -109,10 +109,10 @@ export function onSupplyAdjustClick(bridgeSupplySlider: any, iconSupplySlider: a
     $('#borrow-borrowed-bridge').prop('disabled', (i: any, v: any) => !v);
     $('#borrow-available-bridge').prop('disabled', (i: any, v: any) => !v);
     bridgeBorrowSlider.toggleAttribute('disabled');
-    bridgeBorrowSlider.noUiSlider.set(persistenceService.userUSDbReserve?.principalBorrowBalance ?? 0);
+    bridgeBorrowSlider.noUiSlider.set(persistenceService.getUserAssetBorrowedBalance(AssetTag.USDb) ?? 0);
 
     // iconBorrowSlider.toggleAttribute('disabled');
-    iconBorrowSlider.noUiSlider.set(persistenceService.userIcxReserve?.principalBorrowBalance ?? 0);
+    iconBorrowSlider.noUiSlider.set(persistenceService.getUserAssetBorrowedBalance(AssetTag.ICX) ?? 0);
   }
 }
 
@@ -125,13 +125,13 @@ export function onBorrowAdjustClick(bridgeBorrowSlider: any, iconSupplySlider: a
   $('#borrow-borrowed-bridge').prop('disabled', (i: any, v: any) => !v);
   $('#borrow-available-bridge').prop('disabled', (i: any, v: any) => !v);
   bridgeBorrowSlider.toggleAttribute('disabled');
-  bridgeBorrowSlider.noUiSlider.set(persistenceService.userUSDbReserve?.principalBorrowBalance ?? 0);
+  bridgeBorrowSlider.noUiSlider.set(persistenceService.getUserAssetBorrowedBalance(AssetTag.USDb) ?? 0);
 
   // ICON
   $('#supply-deposited-icon').prop('disabled', (i: any, v: any) => !v);
   $('#supply-available-icon').prop('disabled', (i: any, v: any) => !v);
   // iconSupplySlider.toggleAttribute('disabled');
-  iconSupplySlider.noUiSlider.set(persistenceService.userIcxReserve?.currentOTokenBalance ?? 0);
+  iconSupplySlider.noUiSlider.set(persistenceService.getUserSuppliedAssetBalance(AssetTag.ICX) ?? 0);
 
   // TAP
   $('#supply-deposited-tap').prop('disabled', (i: any, v: any) => !v);
@@ -146,9 +146,9 @@ export function onBorrowAdjustClick(bridgeBorrowSlider: any, iconSupplySlider: a
     $('#supply-deposited-bridge').prop('disabled', (i: any, v: any) => !v);
     $('#supply-available-bridge').prop('disabled', (i: any, v: any) => !v);
     bridgeSupplySlider.toggleAttribute('disabled');
-    bridgeSupplySlider.noUiSlider.set(persistenceService.userUSDbReserve?.currentOTokenBalance ?? 0);
+    bridgeSupplySlider.noUiSlider.set(persistenceService.getUserSuppliedAssetBalance(AssetTag.USDb) ?? 0);
 
     // iconSupplySlider.toggleAttribute('disabled');
-    iconSupplySlider.noUiSlider.set(persistenceService.userIcxReserve?.currentOTokenBalance ?? 0);
+    iconSupplySlider.noUiSlider.set(persistenceService.getUserSuppliedAssetBalance(AssetTag.ICX) ?? 0);
   }
 }

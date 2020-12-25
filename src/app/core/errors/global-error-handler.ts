@@ -17,7 +17,7 @@ export class GlobalErrorHandler implements ErrorHandler {
     if (error instanceof OmmError && this.errorCodeToHandlerMap.get(error.code)) {
       this.errorCodeToHandlerMap.get(error.code);
     } else {
-      alert(error.message || "Undefined client error");
+      console.log(error.message || "Undefined client error");
       console.error("Error from global error handler", error);
     }
   }

@@ -2,6 +2,7 @@ import {Utils} from "./utils";
 import {Reserve} from "../interfaces/reserve";
 import {ReserveData} from "../interfaces/all-reserves";
 import {UserAccountData} from "../models/user-account-data";
+import log from "loglevel";
 
 export class Mapper {
   public static mapHexStringsOfObjectToNormalisedValue<T>(object: T): T {
@@ -13,7 +14,7 @@ export class Mapper {
   }
 
   public static mapUserReserve(reserve: Reserve): Reserve {
-    console.log("mapUserReserve before: ", reserve);
+    log.debug("mapUserReserve before: ", reserve);
     const res = new Reserve(
       Utils.hexToPercent(reserve.borrowRate),
       Utils.hex18DecimalToNormalisedNumber(reserve.currentBorrowBalance),
@@ -28,13 +29,13 @@ export class Mapper {
       Utils.hexToNumber(reserve.useAsCollateral),
       Utils.hexToNumber(reserve.userBorrowCumulativeIndex),
     );
-    console.log("mapUserReserve after: ", res);
+    log.debug("mapUserReserve after: ", res);
 
     return res;
   }
 
   public static mapUserAccountData(userAccountData: UserAccountData): UserAccountData {
-    console.log("mapUserAccountData before: ", userAccountData);
+    log.debug("mapUserAccountData before: ", userAccountData);
     const res = new UserAccountData(
       Utils.hex18DecimalToNormalisedNumber(userAccountData.totalLiquidityICX),
       Utils.hex18DecimalToNormalisedNumber(userAccountData.totalCollateralICX),
@@ -54,7 +55,7 @@ export class Mapper {
       Utils.hexToNumber(userAccountData.ltv),
       Utils.hexToNumber(userAccountData.healthFactor),
     );
-    console.log("mapUserAccountData after: ", res);
+    log.debug("mapUserAccountData after: ", res);
     return res;
   }
 

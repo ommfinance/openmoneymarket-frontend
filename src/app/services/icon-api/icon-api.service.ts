@@ -89,7 +89,7 @@ export class IconApiService {
     // Send signed transaction
     // const txHash = await this.iconService.sendTransaction(signedTransaction).execute();
     // Print transaction hash
-    // console.log(txHash);
+    // log.debug(txHash);
     return "0x6b17886de346655d96373f2e0de494cb8d7f36ce9086cb15a57d3dcf24523c8f"; // MOCK tx hash TODO uncomment
   }
 }

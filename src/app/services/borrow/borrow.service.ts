@@ -7,6 +7,7 @@ import {ScoreMethodNames} from "../../common/score-method-names";
 import {IconTransactionType} from "../../models/IconTransactionType";
 import {IconexRequestsMap} from "../../common/iconex-requests-map";
 import {CheckerService} from "../checker/checker.service";
+import log from "loglevel";
 
 @Injectable({
   providedIn: 'root'
@@ -27,10 +28,10 @@ export class BorrowService {
       _reserve: this.persistenceService.allAddresses!.collateral.USDb
     };
 
-    const tx = this.iconApiService.buildTransaction(this.persistenceService.iconexWallet!.address,
+    const tx = this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
       this.persistenceService.allAddresses!.systemContract.LendingPool, ScoreMethodNames.BORROW, params, IconTransactionType.WRITE);
 
-    console.log("borrowUSDb TX: ", tx);
+    log.debug("borrowUSDb TX: ", tx);
 
     this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.BORROW_USDb);
   }
@@ -43,10 +44,10 @@ export class BorrowService {
       _reserve: this.persistenceService.allAddresses!.collateral.sICX
     };
 
-    const tx = this.iconApiService.buildTransaction(this.persistenceService.iconexWallet!.address,
+    const tx = this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
       this.persistenceService.allAddresses!.systemContract.LendingPool, ScoreMethodNames.BORROW, params, IconTransactionType.WRITE);
 
-    console.log("borrowIcx TX: ", tx);
+    log.debug("borrowIcx TX: ", tx);
 
     this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.BORROW_ICX);
   }

@@ -1,51 +1,51 @@
 <!-- Header -->
 <header class="header">
   <div class="grid grid-center">
-    <!-- Logo -->
     <div class="grid-cell">
-      <!-- tooltip -->
-      <span id="logo-back-container" class="tooltip hover">
-						<span class="tooltip-item"><a href="javascript:void(0);" routerLink="" class="logo"><img src="assets/img/logos/omm-logo.svg" alt="Omm logo"></a></span>
-						<span id="logo-back" class="tooltip-content clearfix" style="margin-left: -105px;margin-bottom: -47px;">
-							<div class="grid">
-								<div class="grid-cell no-margin">
-									<p>Back to the OMM website</p>
-								</div>
-							</div>
-						</span>
-					</span>
+      <div class="grid grid-center">
+        <!-- Logo -->
+        <div routerLink="">
+          <img src="assets/img/logo/omm-wordmark.svg" alt="Omm logo" class="logo">
+        </div>
+        <!-- Page title -->
+        <div class="grid-cell">
+          <h1>Home</h1>
+        </div>
+      </div>
     </div>
 
     <!-- Utilities -->
-    <div class="grid-cell" *ngIf="this.persistenceService.userLoggedIn()">
-      <!-- tooltip -->
-      <span class="tooltip">
-						<span class="tooltip-item"><span id="profile" class="profile" (click)="onProfileClick()"><img src="assets/img/icons/wallet1.svg"></span></span>
-						<span id="profile-tooltip" class="tooltip-content clearfix">
+    <div class="grid-cell" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn())">
+      <!-- Bridge wallet -->
+      <div class="grid grid-center wallet bridge">
+        <div class="grid-cell text-right">
+          <p class="text-dark">{{getWalletName()}}</p>
+          <span class="label">{{getWalletId()}}</span>
+        </div>
+        <div class="grid-cell">
+          <div class="dot">
+            <img src="assets/img/icon/wallet.svg" (click)="onProfileClick()" class="svg" alt="Wallet icon" width="50px">
+          </div>
+        </div>
+      </div>
 
-							<div class="grid grid-center">
-								<div class="grid-cell border-right" style="padding-right: 25px;">
-									<h3 class="text-right"><span class="label">Wallet value</span><br><span>{{walletValue}}</span></h3>
-								</div>
-								<div class="grid-cell" style="padding-left: 25px;">
-									<p class="text-left"><a href="javascript:void(0);" class="button text-center"
-                                          (click)="this.persistenceService.iconexLogout()">Sign out</a></p>
-								</div>
-							</div>
-						</span>
-					</span>
-      <div class="active-wallet">
-        <p style="color: #49546a;">Wallet</p>
-        <p class="label" *ngIf="this.persistenceService.userLoggedIn()">
-          {{this.persistenceService.iconexWallet!.address}}</p>
+      <div class="grid wallet-content bridge panel">
+        <div class="grid-cell">
+          <ul>
+            <li [ngStyle]="hideElement(!this.persistenceService.bridgeWalletActive())">
+              <a href="javascript:void(0);" (click)="onOpenBridgeClick()" class="animation-underline">Open Bridge</a>
+            </li>
+            <li><a href="javascript:void(0);" class="animation-underline">Copy ICON address</a></li>
+          </ul>
+          <p class="text-center"><a href="javascript:void(0);" class="button" (click)="onSignOutClick()">Sign out</a></p>
+        </div>
       </div>
     </div>
-    <div class="grid-cell" *ngIf="!this.persistenceService.userLoggedIn()">
-      <div class="active-wallet">
-        <a href="javascript:void(0);" class="button" (click)="onConnectWalletClick()">Sign in</a>
-          <icon-bridge-widget></icon-bridge-widget>
-      </div>
+
+    <!-- Sign in button -->
+    <div class="text-right sign-in-container" [ngStyle]="hideElement(this.persistenceService.userLoggedIn())">
+      <a href="javascript:void(0);" class="button modal-trigger" data-modal="modal-sign-in" (click)="onSignInClick()">Sign in</a>
     </div>
+
   </div>
 </header>
-<!-- /Header -->

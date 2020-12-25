@@ -8,12 +8,26 @@ import { HeaderComponent } from './components/header/header.component';
 import { HomeComponent } from './components/home/home.component';
 import {CoreModule} from "./core/core.module";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NotificationComponent } from './components/notification/notification.component';
+import { ModalComponent } from './components/modal/modal.component';
+import { PerformanceComponent } from './components/performance/performance.component';
+import { RiskComponent } from './components/risk/risk.component';
+import { AssetComponent } from './components/asset/asset.component';
+import {environment} from "../environments/environment";
+import log from "loglevel";
+// set logging level
+log.setLevel(environment.production ? "error" : "debug");
 
 @NgModule({
   declarations: [
     AppComponent,
     HeaderComponent,
-    HomeComponent
+    HomeComponent,
+    NotificationComponent,
+    ModalComponent,
+    PerformanceComponent,
+    RiskComponent,
+    AssetComponent
   ],
   imports: [
     BrowserModule,
