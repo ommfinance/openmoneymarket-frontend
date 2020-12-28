@@ -180,14 +180,16 @@
           <div class="grid-cell">
             <h2>Markets</h2>
             <ul class="toggle" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn())">
-              <li id="toggle-your-markets" class="active" (click)="toggleLogic.onToggleYourMarketsClick()">Your markets</li>
-              <li id="toggle-all-markets" (click)="toggleLogic.onToggleAllMarketsClick()">All markets</li>
+              <li id="toggle-your-markets" class="active" (click)="onToggleYourMarketsClick()">Your markets</li>
+              <li id="toggle-all-markets" (click)="onToggleAllMarketsClick()">All markets</li>
             </ul>
           </div>
 
           <!-- Search -->
           <div class="grid-cell">
-            <input id="search-markets" class="search" type="text" name="search-markets" placeholder="Search markets">
+            <input id="search-markets" class="search" type="text" name="search-markets"
+                   [ngModel]="searchValue"
+                   (ngModelChange)="onSearchValueChange($event)" placeholder="Search markets">
           </div>
         </div>
 
@@ -204,7 +206,7 @@
                   <th>Borrow APY</th>
                 </tr>
 
-                <tr id="all-markets-header">
+                <tr id="all-markets-header" class="hide">
                   <th>Asset</th>
                   <th>Total supplied</th>
                   <th>Supply APY</th>
@@ -224,8 +226,13 @@
                 </td>
               </tr>
 
-              <ng-container *ngFor="let asset of assets; last as isLast">
-                <app-asset [asset]="asset" style="display: contents"></app-asset>
+              <ng-container *ngFor="let a of supportedAssets; last as isLast">
+                <!-- Asset (USDb, ICX, ..) -->
+                <app-asset [asset]="a" style="display: contents" #asset
+                           (collOtherAssetTables)="collapseOtherAssetsTable($event)"
+                           (disableAndResetSliders)="disableAndResetAssetsSupplyAndBorrowSliders()"
+                           (disableAssetsInputs)="disableAssetsInputs()">
+                </app-asset>
                 <!-- Spacer -->
                 <tr *ngIf="!isLast" class="spacer"></tr>
               </ng-container>

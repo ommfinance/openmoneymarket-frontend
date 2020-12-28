@@ -1,4 +1,5 @@
-import {BridgeService} from "icon-bridge-sdk/build/lib/BridgeService";
+// @ts-ignore
+import {BridgeService} from "icon-bridge-sdk/build/bridge.bundle";
 import {Wallet} from "./Wallet";
 import {AssetTag} from "./Asset";
 

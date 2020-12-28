@@ -6,6 +6,7 @@ import {Reserve, UserReserves} from "../../interfaces/reserve";
 import {UserAccountData} from "../../models/user-account-data";
 import {BridgeWallet} from "../../models/BridgeWallet";
 import {AssetTag} from "../../models/Asset";
+import {User} from "icon-bridge-sdk/build/lib/models/User/User";
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,7 @@ export class PersistenceService {
   public allAddresses?: AllAddresses;
   public allReserves?: AllReserves;
 
-  public userReserves?: UserReserves;
+  public userReserves: UserReserves = new UserReserves();
 
   public userAccountData?: UserAccountData;
 
@@ -132,6 +133,47 @@ export class PersistenceService {
       counter++;
     });
     return total / counter;
+  }
+
+  public userHasNotBorrowedAnyAsset(): boolean {
+    for (const value of this.userReserves!.reserveMap.values()) {
+      if (value!.principalBorrowBalance > 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public userHasNotSuppliedAnyAsset(): boolean {
+    for (const value of this.userReserves!.reserveMap.values()) {
+      if (value!.currentOTokenBalance > 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public userAssetSuppliedOrBorrowedNotZero(assetTag: AssetTag): boolean {
+    return !this.userAssetSuppliedIsZero(assetTag) || !this.userAssetBorrowedIsZero(assetTag);
+  }
+
+  public userAssetWalletSupplyAndBorrowIsZero(assetTag: AssetTag): boolean {
+    // If asset wallet, supply, and borrow balance = 0
+    return this.userAssetWalletIsZero(assetTag)
+      && this.userAssetSuppliedIsZero(assetTag)
+      && this.userAssetBorrowedIsZero(assetTag);
+  }
+
+  public userAssetSuppliedIsZero(assetTag: AssetTag): boolean {
+    return this.userReserves!.reserveMap.get(assetTag)?.currentOTokenBalance === 0;
+  }
+
+  public userAssetBorrowedIsZero(assetTag: AssetTag): boolean {
+    return this.userReserves!.reserveMap.get(assetTag)?.principalBorrowBalance === 0;
+  }
+
+  public userAssetWalletIsZero(assetTag: AssetTag): boolean {
+    return this.activeWallet?.balances.get(assetTag) === 0;
   }
 
 }

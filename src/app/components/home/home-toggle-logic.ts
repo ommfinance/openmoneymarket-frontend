@@ -30,55 +30,6 @@ export function onTimeSelectorClick(): void {
   $('#time-tooltip').toggleClass("active");
 }
 
-// On "Your markets" click
-export function onToggleYourMarketsClick(): void {
-  $("#toggle-your-markets").addClass('active');
-  $("#toggle-all-markets").removeClass('active');
-  $("#your-markets-list").show();
-  $("#all-markets-list").hide();
-}
-
-// On "All markets" click
-export function onToggleAllMarketsClick(): void {
-  // Hide "Your markets" view
-  $("#toggle-your-markets").removeClass('active');
-  $("#your-markets-list").hide();
-
-  // Show "All markets" view
-  $("#toggle-all-markets").addClass('active');
-  $("#all-markets-list").show();
-
-  // Disable any active states on the "Your markets" view
-  $("#asset-bridge").removeClass('active');
-  $("#asset-bridge-expanded").slideUp();
-  $("#asset-icon").removeClass('active');
-  $("#asset-icon-expanded").slideUp();
-  $("#asset-tap").removeClass('active');
-  $("#asset-tap-expanded").slideUp();
-  //
-  // // If "Supply" is in the "adjust" state, this will disable the state and reset the data
-  // if ($("#supply").hasClass("adjust")) {
-  //     $('#supply').removeClass("adjust");
-  //     $('.supply-actions').toggleClass("hide");
-  //     $('#supply-deposited-bridge').prop('disabled', (i: any, v: any) => !v);
-  //     $('#supply-available-bridge').prop('disabled', (i: any, v: any) => !v);
-  //     bridgeSupplySlider.toggleAttribute('disabled');
-  //     // iconSupplySlider.toggleAttribute('disabled');
-  //     // bridgeSupplySlider.noUiSlider.set(10000);
-  // }
-  //
-  // // If "Borrow" is in the "adjust" state, this will disable the state and reset the data
-  // if ($("#borrow").hasClass("adjust")) {
-  //     $('#borrow').removeClass("adjust");
-  //     $('.borrow-actions').toggleClass("hide");
-  //     $('#borrow-borrowed-bridge').prop('disabled', (i: any, v: any) => !v);
-  //     $('#borrow-available-bridge').prop('disabled', (i: any, v: any) => !v);
-  //     bridgeBorrowSlider.toggleAttribute('disabled');
-  //     // iconBorrowSlider.toggleAttribute('disabled');
-  //     // bridgeBorrowSlider.noUiSlider.set(1500);
-  // }
-}
-
 // On Supply / Adjust click
 export function onSupplyAdjustClick(bridgeSupplySlider: any, iconSupplySlider: any, tapSupplySlider: any,
                                     bridgeBorrowSlider: any, persistenceService: PersistenceService, iconBorrowSlider: any): void {

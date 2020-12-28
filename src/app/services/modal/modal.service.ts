@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import {Subject} from "rxjs";
 import {Modals} from "../../models/Modals";
+import log from "loglevel";
 
 declare var classie: any;
+declare var $:any;
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +23,7 @@ export class ModalService {
   }
 
   hideActiveModal(): void {
+    console.log("hideActiveModal activeModal=", this.activeModal);
     if (this.activeModal) {
       classie.remove( this.activeModal, 'modal-show' );
 
@@ -28,12 +31,15 @@ export class ModalService {
         classie.remove(document.documentElement, 'md-perspective');
       }
       this.activeModal = undefined;
+
+      $(".modal-overlay").css({opacity: 0, visibility: "hidden"});
     }
   }
 
   showModal(modal?: HTMLElement): void {
     if (modal) {
       classie.add(modal, 'modal-show');
+      $(".modal-overlay").css({opacity: 1, visibility: "visible"});
       this.activeModal = modal;
     }
   }

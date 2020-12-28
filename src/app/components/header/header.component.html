@@ -17,14 +17,14 @@
     <!-- Utilities -->
     <div class="grid-cell" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn())">
       <!-- Bridge wallet -->
-      <div class="grid grid-center wallet bridge">
+      <div class="grid grid-center wallet bridge" (click)="onWalletClick($event)">
         <div class="grid-cell text-right">
           <p class="text-dark">{{getWalletName()}}</p>
           <span class="label">{{getWalletId()}}</span>
         </div>
         <div class="grid-cell">
           <div class="dot">
-            <img src="assets/img/icon/wallet.svg" (click)="onProfileClick()" class="svg" alt="Wallet icon" width="50px">
+            <img src="assets/img/icon/wallet.svg" class="svg" alt="Wallet icon" width="50px">
           </div>
         </div>
       </div>
@@ -44,7 +44,7 @@
 
     <!-- Sign in button -->
     <div class="text-right sign-in-container" [ngStyle]="hideElement(this.persistenceService.userLoggedIn())">
-      <a href="javascript:void(0);" class="button modal-trigger" data-modal="modal-sign-in" (click)="onSignInClick()">Sign in</a>
+      <a href="javascript:void(0);" id="sign-in-btn" class="button modal-trigger" data-modal="modal-sign-in" (click)="onSignInClick()">Sign in</a>
     </div>
 
   </div>

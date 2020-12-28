@@ -4,6 +4,9 @@ import {DataLoaderService} from './services/data-loader/data-loader.service';
 import {ModalService} from "./services/modal/modal.service";
 import {PersistenceService} from "./services/persistence/persistence.service";
 import {BaseClass} from "./components/base-class";
+import log from "loglevel";
+
+declare var $: any;
 
 
 @Component({
@@ -22,9 +25,26 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
               private modalService: ModalService,
               public persistenceService: PersistenceService) {
     super();
+    // register Iconex handler
     window.addEventListener("ICONEX_RELAY_RESPONSE", (e: any) => this.iconexApiService.iconexEventHandler(e));
     this.attachedListener = true;
+
+    // load all SCORE addresses
     dataLoaderService.loadAllScoreAddresses().then(() => dataLoaderService.loadAllReserves());
+
+    // register on document click handler
+    $(document).on("click", (e: any) => {
+      if ($(e.target).is(".wallet.bridge") === false) {
+        this.onBodyClick(e);
+
+      }
+    });
+  }
+
+  onBodyClick(e: any): void {
+    $(".wallet.bridge").removeClass("active");
+    $(".wallet-content.bridge").removeClass("active");
+    e.stopPropagation();
   }
 
   ngOnInit(): void {

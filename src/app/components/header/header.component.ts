@@ -10,6 +10,7 @@ import {BridgeWallet} from "../../models/BridgeWallet";
 import {ModalService} from "../../services/modal/modal.service";
 import {Modals} from "../../models/Modals";
 import log from "loglevel";
+import {BridgeWidgetService} from "../../services/bridge-widget/bridge-widget.service";
 
 declare var $: any;
 
@@ -25,11 +26,9 @@ export class HeaderComponent extends BaseClass implements OnInit {
   constructor(public persistenceService: PersistenceService,
               public depositService: DepositService,
               public iconexApiService: IconexApiService,
-              private modalService: ModalService) {
+              private modalService: ModalService,
+              private bridgeWidgetService: BridgeWidgetService) {
     super();
-    const bridge = new BridgeService("https://bicon.net.solidwallet.io/api/v3");
-
-    log.debug("BridgeService instance = ", bridge);
   }
 
   ngOnInit(): void {
@@ -43,20 +42,14 @@ export class HeaderComponent extends BaseClass implements OnInit {
     this.iconexApiService.hasAccount();
   }
 
-  onProfileClick(): void {
-    $('#notifications-tooltip').removeClass("active");
-    $('.notifications').removeClass("active");
-    $('#profile-tooltip').toggleClass("active");
-    $('.profile').toggleClass("active");
-  }
-
-  onMainClick(): void {
-    $('#profile-tooltip').removeClass("active");
-    $('.profile').removeClass("active");
+  onWalletClick(e: any): void {
+    $(".wallet.bridge").toggleClass("active");
+    $(".wallet-content.bridge").toggleClass("active");
+    e.stopPropagation();
   }
 
   onOpenBridgeClick(): void {
-    // TODO open Bridge modal!
+    this.bridgeWidgetService.openBridgeWidget();
   }
 
   onSignOutClick(): void {

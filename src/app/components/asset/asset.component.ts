@@ -3,12 +3,12 @@ import {
   Input,
   OnInit,
   ChangeDetectorRef,
-  ViewChild, AfterViewInit, ElementRef
+  ViewChild, AfterViewInit, ElementRef, Output, EventEmitter
 } from '@angular/core';
 import {SlidersService} from "../../services/sliders/sliders.service";
 import {ommPrefixPlusFormat, usdbFormat, usdbPrefixMinusFormat, usdbPrefixPlusFormat} from "../../common/formats";
 import {CalculationsService} from "../../services/calculations/calculations.service";
-import {Asset} from "../../models/Asset";
+import {Asset, AssetTag, supportedAssetsMap} from "../../models/Asset";
 import log from "loglevel";
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import {PersistenceService} from "../../services/persistence/persistence.service";
@@ -28,36 +28,27 @@ export class AssetComponent implements OnInit, AfterViewInit {
   @Input()
   asset!: Asset;
 
-  // sliders
-  @ViewChild("sliderSupply")
-  set sliderSupplySetter(sliderSupply: ElementRef) {this.sliderSupply = sliderSupply.nativeElement; }
+  @ViewChild("sliderSupply")set sliderSupplySetter(sliderSupply: ElementRef) {this.sliderSupply = sliderSupply.nativeElement; }
+  @ViewChild("sliderBorrow") set sliderBorrowSetter(sliderBorrow: ElementRef) {this.sliderBorrow = sliderBorrow.nativeElement; }
+  @ViewChild("supply")set supplyElSetter(supplyEl: ElementRef) {this.supplyEl = supplyEl.nativeElement; }
+  @ViewChild("borrow")set borrowElSetter(borrowEl: ElementRef) {this.borrowEl = borrowEl.nativeElement; }
+  @ViewChild("assetYour")set assetElSetter(assetEl: ElementRef) { this.assetYourEl = assetEl.nativeElement; }
+  @ViewChild("marketExpandedEl")set marketExpandedElSetter(marketExpandedEl: ElementRef) {this.marketExpandedEl = marketExpandedEl.nativeElement; }
+  @ViewChild("inputSupply")set inputSupplySetter(inputSupply: ElementRef) { this.inputSupply = inputSupply.nativeElement; }
+  @ViewChild("inputBorrow")set inputBorrowSetter(inputBorrow: ElementRef) { this.inputBorrow = inputBorrow.nativeElement; }
+  @ViewChild("inpSuppAvail")set inputSupplyAvailableSetter(inputSupplyAvailable: ElementRef) { this.inputSupplyAvailable = inputSupplyAvailable.nativeElement; }
+  @ViewChild("inpBorrAvail")set inputBorrowAvailableSetter(inputBorrowAvailable: ElementRef) { this.inputBorrowAvailable = inputBorrowAvailable.nativeElement; }
+  @ViewChild("assetAvail")set assetAvailableSetter(assetAvailableEl: ElementRef) { this.assetAvailableEl = assetAvailableEl.nativeElement; }
+  @ViewChild("assetAll") set assetAllSetter(assetAllEl: ElementRef) { this.assetAllEl = assetAllEl.nativeElement; }
+  @ViewChild("suppAct1") set supplyAction1(suppAct1El: ElementRef) { this.supplyAction1El = suppAct1El.nativeElement; }
+  @ViewChild("borrAct1") set borrowAction1(borrAct1El: ElementRef) { this.borrowAction1El = borrAct1El.nativeElement; }
+  @ViewChild("suppAct2") set supplyAction2(suppAct2El: ElementRef) { this.supplyAction2El = suppAct2El.nativeElement; }
+  @ViewChild("borrAct2") set borrowAction2(borrAct2El: ElementRef) { this.borrowAction2El = borrAct2El.nativeElement; }
 
-  @ViewChild("sliderBorrow")
-  set sliderBorrowSetter(sliderBorrow: ElementRef) {this.sliderBorrow = sliderBorrow.nativeElement; }
-
-  @ViewChild("supply")
-  set supplyElSetter(supplyEl: ElementRef) {this.supplyEl = supplyEl.nativeElement; }
-
-  @ViewChild("borrow")
-  set borrowElSetter(borrowEl: ElementRef) {this.borrowEl = borrowEl.nativeElement; }
-
-  @ViewChild("assetYour")
-  set assetElSetter(assetEl: ElementRef) { this.assetEl = assetEl.nativeElement; }
-
-  @ViewChild("marketExpandedEl")
-  set marketExpandedElSetter(marketExpandedEl: ElementRef) {this.marketExpandedEl = marketExpandedEl.nativeElement; }
-
-  @ViewChild("inputSupply")
-  set inputSupplySetter(inputSupply: ElementRef) { this.inputSupply = inputSupply.nativeElement; }
-
-  @ViewChild("inputBorrow")
-  set inputBorrowSetter(inputBorrow: ElementRef) { this.inputBorrow = inputBorrow.nativeElement; }
-
-  @ViewChild("inpSuppAvail")
-  set inputSupplyAvailableSetter(inputSupplyAvailable: ElementRef) { this.inputSupplyAvailable = inputSupplyAvailable.nativeElement; }
-
-  @ViewChild("inpBorrAvail")
-  set inputBorrowAvailableSetter(inputBorrowAvailable: ElementRef) { this.inputBorrowAvailable = inputBorrowAvailable.nativeElement; }
+  supplyAction1El: any;
+  borrowAction1El: any;
+  supplyAction2El: any;
+  borrowAction2El: any;
 
   sliderBorrow: any;
   sliderSupply: any;
@@ -65,9 +56,10 @@ export class AssetComponent implements OnInit, AfterViewInit {
   // elements
   supplyEl: any;
   borrowEl: any;
-  assetEl: any;
+  assetYourEl: any;
   marketExpandedEl: any;
-
+  assetAvailableEl: any;
+  assetAllEl: any;
 
   // inputs
   inputSupply: any;
@@ -75,16 +67,15 @@ export class AssetComponent implements OnInit, AfterViewInit {
   inputBorrow: any;
   inputBorrowAvailable: any;
 
-  // @Output() inputSupplyChanged = new EventEmitter<{ value: number, assetTag: AssetTag }>();
-  // @Output() inputBorrowChanged = new EventEmitter<{ value: number, assetTag: AssetTag }>();
-
+  @Output() collOtherAssetTables = new EventEmitter<AssetTag>();
+  @Output() disableAndResetSliders = new EventEmitter<undefined>();
+  @Output() disableAssetsInputs = new EventEmitter<undefined>();
 
   constructor(private slidersService: SlidersService,
               private calculationService: CalculationsService,
               private stateChangeService: StateChangeService,
               private persistenceService: PersistenceService,
-              private modalService: ModalService,
-              private cdr: ChangeDetectorRef) {
+              private modalService: ModalService) {
   }
 
   ngOnInit(): void {
@@ -102,72 +93,32 @@ export class AssetComponent implements OnInit, AfterViewInit {
    * Asset expand logic
    */
   onAssetClick(): void {
-  // On Asset click
-    // Layout
+
+    /** Layout */
 
     // Expand asset table
-    $(this.assetEl).toggleClass('active');
+    $(`.asset.${this.asset.tag}`).toggleClass('active');
     $(this.marketExpandedEl).slideToggle();
 
-    // Collapse ICX table TODO
-    // $(".asset.icx").removeClass('active');
-    // $(".market-icx-expanded").slideUp();
+    // Collapse other assets table
+    this.collOtherAssetTables.emit(this.asset.tag);
 
-    //
-    // Set everything to default
-    //
+    /** Set everything to default */
 
     // Remove adjust class
-    $(this.supplyEl).removeClass("adjust");
-    $(this.borrowEl).removeClass("adjust");
+    this.removeAdjustClass();
 
     // Show default actions
-    // $('.actions-1').removeClass("hide");
-    // $('.actions-2').addClass("hide");
+    this.showDefaultActions();
 
-    // Disable USDb supply sliders (Your markets) TODO
-    // this.sliderSupply.noUiSlider.set(Cookies.get('supplied-usdb'));
-    // this.sliderSupply.setAttribute("disabled", "");
+    // Disable and reset asset supply and borrow sliders (Your markets)
+    this.disableAndResetSliders.emit(undefined);
 
-    // Disable USDb borrow sliders (Your markets)
-    // this.sliderBorrow.noUiSlider.set(Cookies.get('borrowed-usdb'));
-    // this.sliderBorrow.setAttribute("disabled", "");
-
-    // Disable ICX supply sliders
-    // sliderSupplyIcx.noUiSlider.set(Cookies.get('supplied-icx'));
-    // sliderSupplyIcx.setAttribute("disabled", "");
-
-    // Disable ICX borrow sliders  (Your markets)
-    // sliderBorrowIcx.noUiSlider.set(Cookies.get('borrowed-icx'));
-    // sliderBorrowIcx.setAttribute("disabled", "");
 
     // Disable USDb inputs
-    $('#input-supply').attr('disabled', 'disabled');
-    $('#input-supply-available').attr('disabled', 'disabled');
-    $('#input-borrow').attr('disabled', 'disabled');
-    $('#input-borrow-available').attr('disabled', 'disabled');
+    this.disableAssetsInputs.emit(undefined);
 
-    // Disable ICX inputs
-    // $('#input-supply-icx').attr('disabled', 'disabled');
-    // $('#input-supply-available-icx').attr('disabled', 'disabled');
-    // $('#input-borrow-icx').attr('disabled', 'disabled');
-    // $('#input-borrow-available-icx').attr('disabled', 'disabled');
 
-    // If USDb and ICX borrow = 0
-    // if (parseFloat(Cookies.get('borrowed-usdb')) == 0 && parseFloat(Cookies.get('borrowed-icx')) == 0) {
-    //   // show risk data
-    //   $('.risk-container').css("display", "none");
-    //   // Hide risk message
-    //   $('.risk-message-noassets').css("display", "block");
-    // };
-    //
-    // // If USDb or ICX borrow is greater than 0
-    // if (parseFloat(Cookies.get('borrowed-usdb')) > 0 || parseFloat(Cookies.get('borrowed-icx')) > 0) {
-    //   // show risk data
-    //   $('.risk-container').css("display", "block");
-    //   // Hide risk message
-    //   $('.risk-message-noassets').css("display", "none");
-    // };
   }
 
   /**
@@ -387,6 +338,76 @@ export class AssetComponent implements OnInit, AfterViewInit {
     });
   }
 
+  collapseAssetTable(): void {
+    // Collapse asset table`
+    $(`.asset.${this.asset.tag}`).removeClass('active');
+    $(this.marketExpandedEl).hide();
+  }
 
+  hideAvailableAssetData(): void {
+    // Hide available assets data
+    $(this.assetAvailableEl).css("display", "none");
+    $(this.assetYourEl).css("display", "none");
+  }
+
+  showAllMarketTableData(): void {
+    // Show "All market" table data
+    $(this.assetAllEl).css("display", "table-row");
+  }
+
+  hideAllMarketTableData(): void {
+    // Hide "All market" table data
+    $(this.assetAllEl).css("display", "none");
+  }
+
+  removeAdjustClass(): void {
+    // Remove adjust class
+    $(this.supplyEl).removeClass("adjust");
+    $(this.borrowEl).removeClass("adjust");
+  }
+
+  showDefaultActions(): void {
+    // Show default actions
+    $(this.supplyAction1El).removeClass("hide");
+    $(this.supplyAction2El).addClass("hide");
+    $(this.borrowAction1El).removeClass("hide");
+    $(this.borrowAction2El).addClass("hide");
+  }
+
+  disableAndResetSupplySlider(): void {
+    // Disable asset supply sliders (Your markets)
+    this.sliderSupply.noUiSlider.set(5000); // TODO
+    this.sliderSupply.setAttribute("disabled", "");
+  }
+
+  disableAndResetBorrowSlider(): void {
+    // Disable USDb borrow sliders (Your markets)
+    this.sliderBorrow.noUiSlider.set(5000); // TODO
+    this.sliderBorrow.setAttribute("disabled", "");
+  }
+
+  disableInputs(): void {
+    // Disable asset inputs (Your markets)
+    this.inputSupply.setAttribute('disabled', "");
+    this.inputSupplyAvailable.setAttribute('disabled', "");
+    this.inputBorrow.setAttribute('disabled', "");
+    this.inputBorrowAvailable.setAttribute('disabled', "");
+  }
+
+  hideYourAsset(): void {
+    $(this.assetYourEl).css("display", "none");
+  }
+
+  hideAllMarketAsset(): void {
+    $(this.assetAllEl).css("display", "none");
+  }
+
+  showYourAsset(): void {
+    $(this.assetYourEl).css("display", "table-row");
+  }
+
+  showAllMarketAsset(): void {
+    $(this.assetAllEl).css("display", "table-row");
+  }
 
 }

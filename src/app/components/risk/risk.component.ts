@@ -2,6 +2,7 @@ import {AfterViewInit, Component, OnInit} from '@angular/core';
 
 declare var noUiSlider: any;
 declare var wNumb: any;
+declare var $: any;
 
 @Component({
   selector: 'app-risk',
@@ -31,5 +32,26 @@ export class RiskComponent implements OnInit, AfterViewInit {
       },
     });
   }
+
+  hideRiskData(): void {
+    // show risk data
+    $('.risk-container').css("display", "none");
+  }
+
+  showRiskData(): void {
+    // show risk data
+    $('.risk-container').css("display", "block");
+  }
+
+  showRiskMessage(): void {
+    // Hide risk message
+    $('.risk-message-noassets').css("display", "block");
+  }
+
+  hideRiskMessage(): void {
+    // Hide risk message
+    $('.risk-message-noassets').css("display", "none");
+  }
+
 
 }
