@@ -11,6 +11,7 @@ import {ModalService} from "../../services/modal/modal.service";
 import {Modals} from "../../models/Modals";
 import log from "loglevel";
 import {BridgeWidgetService} from "../../services/bridge-widget/bridge-widget.service";
+import {DataLoaderService} from "../../services/data-loader/data-loader.service";
 
 declare var $: any;
 
@@ -27,7 +28,8 @@ export class HeaderComponent extends BaseClass implements OnInit {
               public depositService: DepositService,
               public iconexApiService: IconexApiService,
               private modalService: ModalService,
-              private bridgeWidgetService: BridgeWidgetService) {
+              private bridgeWidgetService: BridgeWidgetService,
+              private dataLoaderService: DataLoaderService) {
     super();
   }
 
@@ -53,7 +55,7 @@ export class HeaderComponent extends BaseClass implements OnInit {
   }
 
   onSignOutClick(): void {
-    this.persistenceService.walletLogout();
+    this.dataLoaderService.walletLogout();
   }
   // get Iconex wallet address or Bridge email
   getWalletId(): string {

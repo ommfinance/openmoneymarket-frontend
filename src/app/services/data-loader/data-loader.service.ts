@@ -9,6 +9,10 @@ import {UserAccountData} from "../../models/user-account-data";
 import {StateChangeService} from "../state-change/state-change.service";
 import {AssetTag} from "../../models/Asset";
 import log from "loglevel";
+import {IconexWallet} from "../../models/IconexWallet";
+import {BridgeWallet} from "../../models/BridgeWallet";
+import {IconApiService} from "../icon-api/icon-api.service";
+import {OmmError} from "../../core/errors/OmmError";
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +21,38 @@ export class DataLoaderService {
 
   constructor(private scoreService: ScoreService,
               private persistenceService: PersistenceService,
-              private stateChangeService: StateChangeService) {
+              private stateChangeService: StateChangeService,
+              private iconApiService: IconApiService) {
+  }
+
+  public async walletLogin(wallet: IconexWallet | BridgeWallet, iconAddress: string): Promise<void> {
+    this.persistenceService.activeWallet = wallet;
+
+    try {
+      const [usdbReserveResponse, icxReserveResponse, icxBalResponse, usdbBalResponse] = await Promise.all([
+        this.loadUserUSDbReserveData(),
+        this.loadUserIcxReserveData(),
+        this.iconApiService.getIcxBalance(iconAddress),
+        this.scoreService.getUserBalanceOfUSDb(iconAddress)
+      ]);
+
+      // set ICX balance
+      log.debug(`User ICX balance: ${icxBalResponse}`);
+      this.persistenceService.activeWallet!.balances.set(AssetTag.ICX, icxBalResponse);
+
+      // set USDb balance
+      log.debug(`User USDb balance: ${usdbBalResponse}`);
+      this.persistenceService.activeWallet!.balances.set(AssetTag.USDb, usdbBalResponse);
+    } catch (e) {
+      throw new OmmError("Error occurred! Try again in a moment.", e);
+    }
+
+    this.stateChangeService.updateLoginStatus(this.persistenceService.activeWallet);
+  }
+
+  public walletLogout(): void {
+    this.persistenceService.activeWallet = undefined;
+    this.stateChangeService.updateLoginStatus(this.persistenceService.activeWallet);
   }
 
   public loadAllScoreAddresses(): Promise<void> {

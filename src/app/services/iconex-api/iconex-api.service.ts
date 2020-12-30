@@ -35,19 +35,7 @@ export class IconexApiService {
         break;
       }
       case "RESPONSE_ADDRESS": {
-        this.persistenceService.walletLogin(new IconexWallet(payload));
-        this.dataLoaderService.loadUserUSDbReserveData();
-        this.dataLoaderService.loadUserIcxReserveData();
-
-        // TODO improve so that it calls in parallel
-        this.iconApiService.getIcxBalance(payload).then((icxBalance: number) => {
-          log.debug("ICX balance: ", icxBalance);
-          this.persistenceService.activeWallet!.balances.set(AssetTag.ICX, icxBalance);
-          this.scoreService.getUserBalanceOfUSDb(payload).then((USDbBalance: number) => {
-            log.debug("USDb balance: ", USDbBalance);
-            this.persistenceService.activeWallet!.balances.set(AssetTag.USDb, USDbBalance);
-          });
-        });
+        this.dataLoaderService.walletLogin(new IconexWallet(payload), payload);
         log.debug("Successfully connected your Icon wallet!");
         break;
       }

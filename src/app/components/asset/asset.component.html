@@ -74,14 +74,15 @@
           <!-- Adjust-->
           <div class="grid grid-center supply-actions actions-1" #suppAct1>
             <div class="grid-cell text-center">
-              <a href="#" class="button {{asset.className}} supply-adjust">Adjust</a>
+              <a href="javascript:void(0);" class="button {{asset.className}} supply-adjust"
+                 (click)="onSupplyAdjustClick()">Adjust</a>
             </div>
           </div>
 
           <!-- Confirm -->
           <div class="grid grid-center supply-actions actions-2 hide" #suppAct2>
             <div class="grid-cell text-right">
-              <a href="#" class="cancel adjust-cancel">Cancel</a>
+              <a href="javascript:void(0);" class="cancel adjust-cancel" (click)="onAdjustCancelClick()">Cancel</a>
             </div>
             <div class="grid-cell text-left">
               <a href="#" class="button modal-trigger" data-modal="modal-supply">Confirm</a>
@@ -142,14 +143,15 @@
             <!-- Adjust-->
             <div class="grid grid-center borrow-actions actions-1" #borrAct1>
               <div class="grid-cell text-center">
-                <a href="#" class="button {{asset.className}} purple borrow-adjust">Adjust</a>
+                <a href="javascript:void(0);" class="button {{asset.className}} purple borrow-adjust"
+                   (click)="onBorrowAdjustClick()">Adjust</a>
               </div>
             </div>
 
             <!-- Confirm -->
             <div class="grid grid-center borrow-actions actions-2 hide" #borrAct2>
               <div class="grid-cell text-right">
-                <a href="#" class="cancel adjust-cancel">Cancel</a>
+                <a href="javascript:void(0);" class="cancel adjust-cancel" (click)="onAdjustCancelClick()">Cancel</a>
               </div>
               <div class="grid-cell text-left">
                 <a href="#" class="button purple modal-trigger" data-modal="modal-borrow">Confirm</a>

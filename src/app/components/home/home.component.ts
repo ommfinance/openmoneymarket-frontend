@@ -24,6 +24,7 @@ import {RiskComponent} from "../risk/risk.component";
 import {Asset} from "../../models/Asset";
 import log from "loglevel";
 import {AssetComponent} from "../asset/asset.component";
+import {StateChangeService} from "../../services/state-change/state-change.service";
 
 declare var $: any;
 
@@ -33,6 +34,8 @@ declare var $: any;
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent extends BaseClass implements OnInit, OnDestroy, AfterViewInit {
+
+  className = "HomeComponent";
 
   // Child components
   @ViewChild(HeaderComponent) private headerComponent!: HeaderComponent;
@@ -53,11 +56,20 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
               public repayService: RepayService,
               public slidersService: SlidersService,
               public calculationService: CalculationsService,
-              private cd: ChangeDetectorRef) {
+              private cd: ChangeDetectorRef,
+              private stateChangeService: StateChangeService) {
     super();
   }
 
   ngOnInit(): void {
+    this.stateChangeService.loginChange.subscribe(wallet => {
+      if (wallet) { // TODO improve
+        log.debug(`${this.className} Login change to walet = ${wallet}`);
+        this.onToggleYourMarketsClick();
+      } else {
+        this.onToggleAllMarketsClick();
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -75,10 +87,10 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   }
 
   hideNonSearchedAssets(): void {
-    log.debug("hideNonSearchedAssets");
+    log.debug(`${this.className} hideNonSearchedAssets called`);
     this.assets.forEach(assetComponent => {
-      const yourMarketsShown = !$("#toggle-your-markets").hasClass("active");
-      const allMarketsShown = !$("#toggle-all-markets").hasClass("active");
+      const yourMarketsShown = $("#toggle-your-markets").hasClass("active");
+      const allMarketsShown = $("#toggle-all-markets").hasClass("active");
       if (!assetComponent.asset.tag.toLowerCase().includes(this.searchValue.toLowerCase())) {
         if (!this.persistenceService.userLoggedIn()) {
           assetComponent.hideAllMarketAsset();
@@ -107,7 +119,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   onToggleAllMarketsClick(): void {
 
     // if all borrowed assets are 0
-    this.hideRiskIfNothinBorrowed();
+    this.hideRiskIfNothingBorrowed();
 
     /** Toggles */
 
@@ -153,7 +165,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
 
   onToggleYourMarketsClick(): void {
     // if all borrowed assets are 0
-    this.hideRiskIfNothinBorrowed();
+    this.hideRiskIfNothingBorrowed();
 
     /** Toggles */
 
@@ -239,9 +251,9 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   }
 
   collapseOtherAssetsTable(assetTag: any): void {
-    this.assets.forEach(assetComponent => {
+    this.assets.forEach((assetComponent, index) => {
       if (assetComponent.asset.tag !== assetTag) {
-        assetComponent.collapseAssetTable();
+        assetComponent.collapseAssetTableSlideUp();
       }
     });
   }
@@ -260,7 +272,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     });
   }
 
-  hideRiskIfNothinBorrowed(): void {
+  hideRiskIfNothingBorrowed(): void {
     // if all borrowed assets are 0
     if (this.persistenceService.userHasNotBorrowedAnyAsset()) {
       this.riskComponent.hideRiskData();

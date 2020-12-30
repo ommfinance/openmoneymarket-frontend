@@ -1,14 +1,8 @@
-import {
-  Component,
-  Input,
-  OnInit,
-  ChangeDetectorRef,
-  ViewChild, AfterViewInit, ElementRef, Output, EventEmitter
-} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {SlidersService} from "../../services/sliders/sliders.service";
 import {ommPrefixPlusFormat, usdbFormat, usdbPrefixMinusFormat, usdbPrefixPlusFormat} from "../../common/formats";
 import {CalculationsService} from "../../services/calculations/calculations.service";
-import {Asset, AssetTag, supportedAssetsMap} from "../../models/Asset";
+import {Asset, AssetTag} from "../../models/Asset";
 import log from "loglevel";
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import {PersistenceService} from "../../services/persistence/persistence.service";
@@ -25,8 +19,9 @@ declare var $: any;
   styleUrls: ['./asset.component.css'],
 })
 export class AssetComponent implements OnInit, AfterViewInit {
-  @Input()
-  asset!: Asset;
+
+  @Input() asset!: Asset;
+  @Input() index!: number;
 
   @ViewChild("sliderSupply")set sliderSupplySetter(sliderSupply: ElementRef) {this.sliderSupply = sliderSupply.nativeElement; }
   @ViewChild("sliderBorrow") set sliderBorrowSetter(sliderBorrow: ElementRef) {this.sliderBorrow = sliderBorrow.nativeElement; }
@@ -88,6 +83,79 @@ export class AssetComponent implements OnInit, AfterViewInit {
     this.initSubscribedValues();
   }
 
+  /**
+   * On Adjust cancel click
+   */
+
+  onAdjustCancelClick(): void {
+    // Reset actions
+    $('.actions-2').addClass("hide");
+    $('.actions-1').removeClass("hide");
+
+    // Remove adjust
+    $(this.supplyEl).removeClass("adjust");
+    $(this.borrowEl).removeClass("adjust");
+
+    // Reset asset sliders
+    this.sliderSupply.noUiSlider.set(5000); // TODO
+    this.sliderBorrow.noUiSlider.set(5000);
+    this.sliderSupply.setAttribute("disabled", "");
+    this.sliderBorrow.setAttribute("disabled", "");
+
+    // Disable asset inputs
+    this.disableInputs();
+  }
+
+  /**
+   * Borrow adjust
+   */
+
+  onBorrowAdjustClick(): void {
+    /** Setup actions */
+    $(this.borrowEl).addClass("adjust");
+    $(this.supplyEl).removeClass("adjust");
+    $(this.supplyAction1El).removeClass("hide");
+    $(this.supplyAction2El).addClass("hide");
+    $(this.borrowAction1El).addClass("hide");
+    $(this.borrowAction2El).removeClass("hide");
+
+    /** Reset Supply sliders */
+    this.disableAndResetSupplySlider();
+
+    /** Reset Supply inputs */
+    this.resetSupplyInputs();
+
+    /** Enable Borrow of asset */
+    this.enableAssetBorrow();
+  }
+
+  /**
+   * Supply adjust
+   */
+
+  onSupplyAdjustClick(): void {
+
+    /** Setup actions */
+    $(this.supplyEl).addClass("adjust");
+    $(this.borrowEl).removeClass("adjust");
+    $(this.supplyAction1El).addClass("hide");
+    $(this.supplyAction2El).removeClass("hide");
+    $(this.borrowAction1El).removeClass("hide");
+    $(this.borrowAction2El).addClass("hide");
+
+    /** Reset Borrow sliders */
+    this.resetBorrowSliders();
+
+    /** Reset Borrow inputs */
+    this.resetBorrowInputs();
+
+    /** Enable Supply inputs of asset */
+    $(this.inputSupply).removeAttr("disabled");
+    $(this.inputSupplyAvailable).removeAttr("disabled");
+    $(this.sliderSupply).removeAttr("disabled");
+    this.sliderSupply.noUiSlider.set(5000); // TODO
+  }
+
 
   /**
    * Asset expand logic
@@ -96,12 +164,20 @@ export class AssetComponent implements OnInit, AfterViewInit {
 
     /** Layout */
 
-    // Expand asset table
-    $(`.asset.${this.asset.tag}`).toggleClass('active');
-    $(this.marketExpandedEl).slideToggle();
+    if (this.index === 0) {
+      // Expand asset table
+      $(`.asset.${this.asset.tag}`).toggleClass('active');
+      $(this.marketExpandedEl).slideToggle();
+    }
 
     // Collapse other assets table
     this.collOtherAssetTables.emit(this.asset.tag);
+
+    if (this.index !== 0) {
+      $(`.asset.${this.asset.tag}`).toggleClass('active');
+      $(this.marketExpandedEl).slideToggle();
+    }
+
 
     /** Set everything to default */
 
@@ -338,6 +414,12 @@ export class AssetComponent implements OnInit, AfterViewInit {
     });
   }
 
+  collapseAssetTableSlideUp(): void {
+    // Collapse asset table`
+    $(`.asset.${this.asset.tag}`).removeClass('active');
+    $(this.marketExpandedEl).slideUp();
+  }
+
   collapseAssetTable(): void {
     // Collapse asset table`
     $(`.asset.${this.asset.tag}`).removeClass('active');
@@ -374,6 +456,21 @@ export class AssetComponent implements OnInit, AfterViewInit {
     $(this.borrowAction2El).addClass("hide");
   }
 
+  resetBorrowSliders(): void {
+    this.sliderBorrow.noUiSlider.set(5000); // TODO
+    this.sliderBorrow.setAttribute("disabled", "");
+  }
+
+  resetBorrowInputs(): void {
+    $(this.inputBorrow).attr('disabled', 'disabled');
+    $(this.inputBorrowAvailable).attr('disabled', 'disabled');
+  }
+
+  resetSupplyInputs(): void {
+    $(this.inputSupply).attr('disabled', 'disabled');
+    $(this.inputSupplyAvailable).attr('disabled', 'disabled');
+  }
+
   disableAndResetSupplySlider(): void {
     // Disable asset supply sliders (Your markets)
     this.sliderSupply.noUiSlider.set(5000); // TODO
@@ -388,10 +485,17 @@ export class AssetComponent implements OnInit, AfterViewInit {
 
   disableInputs(): void {
     // Disable asset inputs (Your markets)
-    this.inputSupply.setAttribute('disabled', "");
-    this.inputSupplyAvailable.setAttribute('disabled', "");
-    this.inputBorrow.setAttribute('disabled', "");
-    this.inputBorrowAvailable.setAttribute('disabled', "");
+    $('#input-supply-usdb').attr('disabled', 'disabled');
+    $('#input-supply-available-usdb').attr('disabled', 'disabled');
+    $('#input-borrow-usdb').attr('disabled', 'disabled');
+    $('#input-borrow-available-usdb').attr('disabled', 'disabled');
+  }
+
+  enableAssetBorrow(): void {
+    $(this.inputBorrow).removeAttr("disabled");
+    $(this.inputBorrowAvailable).removeAttr("disabled");
+    $(this.sliderBorrow).removeAttr("disabled");
+    this.sliderBorrow.noUiSlider.set(5000); // TODO
   }
 
   hideYourAsset(): void {

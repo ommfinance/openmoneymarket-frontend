@@ -6,7 +6,6 @@ import {Reserve, UserReserves} from "../../interfaces/reserve";
 import {UserAccountData} from "../../models/user-account-data";
 import {BridgeWallet} from "../../models/BridgeWallet";
 import {AssetTag} from "../../models/Asset";
-import {User} from "icon-bridge-sdk/build/lib/models/User/User";
 
 @Injectable({
   providedIn: 'root'
@@ -26,14 +25,6 @@ export class PersistenceService {
   public userAccountData?: UserAccountData;
 
   constructor() {}
-
-  public walletLogin(wallet: IconexWallet | BridgeWallet): void {
-    this.activeWallet = wallet;
-  }
-
-  public walletLogout(): void {
-    this.activeWallet = undefined;
-  }
 
   public userLoggedIn(): boolean {
     return this.activeWallet != null;
@@ -137,7 +128,7 @@ export class PersistenceService {
 
   public userHasNotBorrowedAnyAsset(): boolean {
     for (const value of this.userReserves!.reserveMap.values()) {
-      if (value!.principalBorrowBalance > 0) {
+      if (value && value!.principalBorrowBalance > 0) {
         return false;
       }
     }
@@ -146,7 +137,7 @@ export class PersistenceService {
 
   public userHasNotSuppliedAnyAsset(): boolean {
     for (const value of this.userReserves!.reserveMap.values()) {
-      if (value!.currentOTokenBalance > 0) {
+      if (value && value!.currentOTokenBalance > 0) {
         return false;
       }
     }

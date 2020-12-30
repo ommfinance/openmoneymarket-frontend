@@ -198,7 +198,7 @@
           <div class="grid-cell">
             <table class="list markets">
               <thead>
-                <tr id="your-markets-header" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn())">
+                <tr id="your-markets-header" class="hide">
                   <th>Asset</th>
                   <th>You've supplied</th>
                   <th>Supply APY</th>
@@ -226,9 +226,10 @@
                 </td>
               </tr>
 
-              <ng-container *ngFor="let a of supportedAssets; last as isLast">
+              <ng-container *ngFor="let a of supportedAssets; last as isLast; let i = index">
                 <!-- Asset (USDb, ICX, ..) -->
                 <app-asset [asset]="a" style="display: contents" #asset
+                           [index]="i"
                            (collOtherAssetTables)="collapseOtherAssetsTable($event)"
                            (disableAndResetSliders)="disableAndResetAssetsSupplyAndBorrowSliders()"
                            (disableAssetsInputs)="disableAssetsInputs()">

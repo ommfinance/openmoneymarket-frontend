@@ -3,6 +3,8 @@ import {Subject} from "rxjs";
 import {Reserve} from "../../interfaces/reserve";
 import {PersistenceService} from "../persistence/persistence.service";
 import {AssetTag} from "../../models/Asset";
+import {IconexWallet} from "../../models/IconexWallet";
+import {BridgeWallet} from "../../models/BridgeWallet";
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +13,11 @@ import {AssetTag} from "../../models/Asset";
  * Service that manages state changes
  */
 export class StateChangeService {
+
+  /**
+   * login change
+   */
+  public loginChange: Subject<IconexWallet | BridgeWallet | undefined> = new Subject<IconexWallet | BridgeWallet | undefined>();
 
   /**
    * Map containing subscribable Subjects for each of the Asset (e.g. USDb, ICX, ..)
@@ -44,6 +51,10 @@ export class StateChangeService {
         }
       });
     });
+  }
+
+  public updateLoginStatus(wallet: IconexWallet | BridgeWallet | undefined): void {
+    this.loginChange.next(wallet);
   }
 
   public updateUserUSDbBalance(balance: number): void {
