@@ -7,6 +7,10 @@ import {Asset, AssetTag, supportedAssetsMap} from "../models/Asset";
 * Base class to be used as extension in component in order to inherit useful methods
 */
 export class BaseClass {
+
+  public supportedAssetsMap = supportedAssetsMap;
+  public AssetTag = AssetTag;
+
   public formatNumberToNdigits(num: number | string | undefined, digits: number = 2): string {
     if (!num) { return "-"; }
     if (typeof num === 'string') {
@@ -41,10 +45,6 @@ export class BaseClass {
 
   public hideElement(hide: boolean): any {
     return {display: hide ? 'none' : null};
-  }
-
-  getSupportedAssetsMap(): Map<AssetTag, Asset> {
-    return supportedAssetsMap;
   }
 
 }

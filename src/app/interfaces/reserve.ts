@@ -1,5 +1,4 @@
 import {AssetTag} from "../models/Asset";
-import {Subject} from "rxjs";
 
 export class Reserve {
   borrowRate: number;

@@ -1,6 +1,25 @@
-export interface AllReserves {
+import {AssetTag} from "../models/Asset";
+import {OmmError} from "../core/errors/OmmError";
+
+export class AllReserves {
   USDb: ReserveData;
   sICX: ReserveData;
+
+  constructor(USDb: ReserveData, sICX: ReserveData) {
+    this.USDb = USDb;
+    this.sICX = sICX;
+  }
+
+  public getReserveData(assetTag: AssetTag): ReserveData {
+    switch (assetTag) {
+      case AssetTag.ICX:
+        return this.sICX;
+      case AssetTag.USDb:
+        return this.USDb;
+      default:
+        throw new OmmError(`AllReserves.getReserveData: Unsupported parameter = ${assetTag}`);
+    }
+  }
 }
 
 export class ReserveData {

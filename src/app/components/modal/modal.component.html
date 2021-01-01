@@ -42,100 +42,26 @@
   </div>
 </div>
 
-<!-- Bridge supply modal -->
-<div class="modal" id="modal-supply-usdb">
+<!-- Asset borrow modal -->
+<div class="modal" #assetActionModal>
   <div class="modal-content">
-    <h3 class="text-center label">Supply Bridge Dollars?</h3>
-    <p class="text-bold text-center value-supply-usdb-difference">0 USDb</p>
-
-    <!-- Before & after -->
+    <h3 class="text-center label">{{getModalActionName()}} {{this.activeAsset?.name}}?</h3>
+    <p class="text-bold text-center value-borrow-difference">200 {{this.activeAsset?.tag}}</p>
     <div class="grid">
       <div class="grid-cell text-center border-right">
         <p class="label">Before</p>
-        <p class="text-dark value-supplied-usdb">0 USDb</p>
+        <p class="text-dark value-borrowed">0 {{this.activeAsset?.tag}}</p>
       </div>
 
       <div class="grid-cell text-center">
         <p class="label">After</p>
-        <p class="text-dark value-supply-usdb-after">0 USDb</p>
+        <p class="text-dark value-borrow-after">0 {{this.activeAsset?.tag}}</p>
       </div>
     </div>
-
-    <!-- Modal actions -->
+    <p class="label text-center {{isBorrowModal() ? '': 'hide'}}" style="margin-top: 25px;">Risk: <span class="value-risk-total" style="font-size: 14px !important;">0%</span></p>
     <div class="modal-actions">
-      <a href="#" class="cancel modal-close">Cancel</a> <a href="#" class="button no-margin supply-usdb-commit">Supply</a>
-    </div>
-  </div>
-</div>
-
-<!-- Bridge borrow modal -->
-<div class="modal" id="modal-borrow-usdb">
-  <div class="modal-content">
-    <h3 class="text-center label">Borrow Bridge Dollars?</h3>
-    <p class="text-bold text-center value-borrow-usdb-difference">200 USDb</p>
-    <div class="grid">
-      <div class="grid-cell text-center border-right">
-        <p class="label">Before</p>
-        <p class="text-dark value-borrowed-usdb">0 USDb</p>
-      </div>
-
-      <div class="grid-cell text-center">
-        <p class="label">After</p>
-        <p class="text-dark value-borrow-usdb-after">0 USDb</p>
-      </div>
-    </div>
-    <p class="label text-center" style="margin-top: 25px;">Risk: <span class="value-risk-total" style="font-size: 14px !important;">0%</span></p>
-    <div class="modal-actions">
-      <a href="#" class="cancel modal-close">Cancel</a> <a href="#" class="button purple borrow-usdb-commit">Borrow</a>
-    </div>
-  </div>
-</div>
-
-<!-- ICON supply modal -->
-<div class="modal" id="modal-supply-icx">
-  <div class="modal-content">
-    <h3 class="text-center label">Supply ICON?</h3>
-    <p class="text-bold text-center value-supply-icx-difference">0 ICX</p>
-
-    <!-- Before & after -->
-    <div class="grid">
-      <div class="grid-cell text-center border-right">
-        <p class="label">Before</p>
-        <p class="text-dark value-supplied-icx">0 ICX</p>
-      </div>
-
-      <div class="grid-cell text-center">
-        <p class="label">After</p>
-        <p class="text-dark value-supply-icx-after">0 ICX</p>
-      </div>
-    </div>
-
-    <!-- Modal actions -->
-    <div class="modal-actions">
-      <a href="#" class="cancel modal-close">Cancel</a> <a href="#" class="button no-margin supply-icx-commit">Supply</a>
-    </div>
-  </div>
-</div>
-
-<!-- ICON borrow modal -->
-<div class="modal" id="modal-borrow-icx">
-  <div class="modal-content">
-    <h3 class="text-center label">Borrow ICON?</h3>
-    <p class="text-bold text-center value-borrow-icx-difference">200 USDb</p>
-    <div class="grid">
-      <div class="grid-cell text-center border-right">
-        <p class="label">Before</p>
-        <p class="text-dark value-borrow-icx-before">1,500 USDb</p>
-      </div>
-
-      <div class="grid-cell text-center">
-        <p class="label">After</p>
-        <p class="text-dark value-borrow-icx-after">1,700 USDb</p>
-      </div>
-    </div>
-    <p class="label text-center" style="margin-top: 25px;">Risk: <span class="value-risk-total" style="font-size: 14px !important;">0%</span></p>
-    <div class="modal-actions">
-      <a href="#" class="cancel modal-close">Cancel</a> <a href="#" class="button purple borrow-icx-commit">Borrow</a>
+      <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Cancel</a>
+      <a href="javascript:void(0);" class="button {{isBorrowModal() ? 'no-margin' : 'purple'}}purple borrow-commit">{{getModalActionName()}}</a>
     </div>
   </div>
 </div>

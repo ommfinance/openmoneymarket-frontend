@@ -78,7 +78,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>You've supplied</dt>
-                  <dd class="value-supplied-total">${{this.formatNumberToUSLocaleString(this.persistenceService.getUserSuppliedUSDbBalance())}}</dd>
+                  <dd class="value-supplied-total">${{this.formatNumberToUSLocaleString(this.persistenceService.getUserTotalSupplied())}}</dd>
                 </dl>
               </div>
 
@@ -86,8 +86,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Your supply APY</dt>
-                  <dd class="text-green value-supplied-apy">{{this.persistenceService.getUserUSDbReserve()?.liquidityRate ?
-                    this.persistenceService.getUserUSDbReserve()?.liquidityRate?.toFixed(2): "-"}}%</dd>
+                  <dd class="text-green value-supplied-apy">{{this.persistenceService.getUserAvgSupplyApy().toFixed(2)}}%</dd>
                 </dl>
               </div>
             </div>
@@ -100,7 +99,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>You've borrowed</dt>
-                  <dd class="value-borrowed-total">${{this.formatNumberToUSLocaleString(this.persistenceService.getUserUSDbReserve()?.principalBorrowBalanceUSD)}}</dd>
+                  <dd class="value-borrowed-total">${{this.formatNumberToUSLocaleString(this.persistenceService.getUserTotalBorrowed())}}</dd>
                 </dl>
               </div>
 
@@ -108,7 +107,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Your borrow APY</dt>
-                  <dd class="text-purple value-borrowed-apy">{{this.persistenceService.getUserUSDbReserve()?.borrowRate?.toFixed(2)}}%</dd>
+                  <dd class="text-purple value-borrowed-apy">{{this.persistenceService.getUserAvgBorrowApy().toFixed(2)}}%</dd>
                 </dl>
               </div>
             </div>

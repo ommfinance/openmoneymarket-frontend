@@ -64,12 +64,13 @@ export class DataLoaderService {
 
   public loadAllReserves(): Promise<void> {
     return this.scoreService.getReserveDataForAllReserves().then((allReserves: AllReserves) => {
-      Object.entries(allReserves).forEach((value: [string, ReserveData]) => {
+      const newAllReserve = new AllReserves(allReserves.USDb, allReserves.sICX);
+      Object.entries(newAllReserve).forEach((value: [string, ReserveData]) => {
         // @ts-ignore
-        allReserves[value[0]] = Mapper.mapReserveData(value[1]);
+        newAllReserve[value[0]] = Mapper.mapReserveData(value[1]);
       });
-      this.persistenceService.allReserves = allReserves;
-      log.debug("loadAllReserves: ", allReserves);
+      this.persistenceService.allReserves = newAllReserve;
+      log.debug("loadAllReserves: ", newAllReserve);
     });
   }
 

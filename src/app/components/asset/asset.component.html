@@ -8,19 +8,23 @@
 <!-- Your markets state -->
 <tr class="asset {{asset.className}} your hide" (click)="onAssetClick()" #assetYour>
   <td>{{asset.name}}<br><span class="label">{{asset.tag}}</span></td>
-  <td><span class="value-supplied">$10,000</span><br><span class="value-supplied label">10,000 {{asset.tag}}</span></td>
-  <td class="text-green">6.47%</td>
-  <td><span class="value-borrowed">$1,500</span><br><span class="value-borrowed label">1,500 {{asset.tag}}</span></td>
-  <td class="text-purple">7.25%</td>
+  <td><span class="value-supplied">${{this.formatNumberToNdigits(this.persistenceService.getUserAssetReserve(asset.tag)?.currentOTokenBalance)}}</span><br>
+    <span class="value-supplied label">{{this.formatNumberToUSLocaleString(this.persistenceService.getUserSuppliedAssetBalance(asset.tag))}} {{asset.tag}}</span></td>
+  <td class="text-green">{{this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate?.toFixed(5)}}%</td>
+  <td><span class="value-borrowed">${{this.formatNumberToNdigits(this.persistenceService.getUserAssetReserve(asset.tag)?.principalBorrowBalanceUSD)}}</span><br>
+    <span class="value-borrowed label">{{this.formatNumberToUSLocaleString(this.persistenceService.getUserAssetBorrowedBalance(asset.tag))}} {{asset.tag}}</span></td>
+  <td class="text-purple">{{this.persistenceService.getUserAssetReserve(asset.tag)?.borrowRate?.toFixed(5)}}%</td>
 </tr>
 
 <!-- All markets state -->
 <tr class="asset {{asset.className}} all" #assetAll>
   <td>{{asset.name}}<br><span class="label">{{asset.tag}}</span></td>
-  <td><span>$420,690</span><br><span class="label">420,690 {{asset.tag}}</span></td>
-  <td class="text-green">6.47%</td>
-  <td>$197,843<br><span class="label">197,843 {{asset.tag}}</span></td>
-  <td class="text-purple">7.25%</td>
+  <td><span>${{this.formatNumberToNdigits(this.persistenceService.getAssetAllReserveData(asset.tag)?.totalLiquidity)}}</span><br>
+    <span class="label">{{this.formatNumberToUSLocaleString(this.persistenceService.getAssetAllReserveData(asset.tag)?.totalLiquidity)}} {{asset.tag}}</span></td>
+  <td class="text-green">{{this.persistenceService.getAssetAllReserveData(asset.tag)?.liquidityRate?.toFixed(5)}}%</td>
+  <td>${{this.formatNumberToNdigits(this.persistenceService.getAssetAllReserveData(asset.tag)?.totalBorrows)}}<br>
+    <span class="label">{{this.formatNumberToUSLocaleString(this.persistenceService.getAssetAllReserveData(asset.tag)?.totalBorrows)}} {{asset.tag}}</span></td>
+  <td class="text-purple">{{this.persistenceService.getAssetAllReserveData(asset.tag)?.borrowRate?.toFixed(5)}}%</td>
 </tr>
 
 <!-- Expanded -->
@@ -85,7 +89,7 @@
               <a href="javascript:void(0);" class="cancel adjust-cancel" (click)="onAdjustCancelClick()">Cancel</a>
             </div>
             <div class="grid-cell text-left">
-              <a href="#" class="button modal-trigger" data-modal="modal-supply">Confirm</a>
+              <a href="javascript:void(0);" class="button modal-trigger" data-modal="modal-supply" (click)="onAssetSupplyConfirmClick()">Confirm</a>
             </div>
           </div>
 
@@ -154,7 +158,7 @@
                 <a href="javascript:void(0);" class="cancel adjust-cancel" (click)="onAdjustCancelClick()">Cancel</a>
               </div>
               <div class="grid-cell text-left">
-                <a href="#" class="button purple modal-trigger" data-modal="modal-borrow">Confirm</a>
+                <a href="javascript:void(0);" class="button purple modal-trigger" data-modal="modal-borrow" (click)="onAssetBorrowConfirmClick()">Confirm</a>
               </div>
             </div>
           </div>

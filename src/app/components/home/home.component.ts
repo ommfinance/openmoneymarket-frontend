@@ -47,7 +47,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
 
   public toggleLogic = toggleLogic;
 
-  public supportedAssets: Asset[] = Array.from(this.getSupportedAssetsMap().values());
+  public supportedAssets: Asset[] = Array.from(this.supportedAssetsMap.values());
 
   constructor(public persistenceService: PersistenceService,
               public depositService: DepositService,
@@ -77,7 +77,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
 
   ngAfterViewInit(): void {
     // call cd after to avoid ExpressionChangedAfterItHasBeenCheckedError
-    this.supportedAssets = Array.from(this.getSupportedAssetsMap().values());
+    this.supportedAssets = Array.from(this.supportedAssetsMap.values());
     this.cd.detectChanges();
   }
 

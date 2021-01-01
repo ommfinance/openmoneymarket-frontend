@@ -10,6 +10,7 @@ import {Reserve} from "../../interfaces/reserve";
 import {ModalService} from "../../services/modal/modal.service";
 import {Modals} from "../../models/Modals";
 import {OmmError} from "../../core/errors/OmmError";
+import {BaseClass} from "../base-class";
 
 declare var $: any;
 
@@ -18,7 +19,7 @@ declare var $: any;
   templateUrl: './asset.component.html',
   styleUrls: ['./asset.component.css'],
 })
-export class AssetComponent implements OnInit, AfterViewInit {
+export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   @Input() asset!: Asset;
   @Input() index!: number;
@@ -69,8 +70,9 @@ export class AssetComponent implements OnInit, AfterViewInit {
   constructor(private slidersService: SlidersService,
               private calculationService: CalculationsService,
               private stateChangeService: StateChangeService,
-              private persistenceService: PersistenceService,
+              public persistenceService: PersistenceService,
               private modalService: ModalService) {
+    super();
   }
 
   ngOnInit(): void {
@@ -244,9 +246,9 @@ export class AssetComponent implements OnInit, AfterViewInit {
     const supplyAmountDiff = amount - Math.floor(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
 
     if (supplyAmountDiff > 0) {
-      this.modalService.showNewModal(Modals.SUPPLY);
+      this.modalService.showNewModal(Modals.SUPPLY, this.asset);
     } else if (supplyAmountDiff < 0) {
-      this.modalService.showNewModal(Modals.WITHDRAW);
+      this.modalService.showNewModal(Modals.WITHDRAW, this.asset);
     } else {
       alert("No change in supplied value!");
       return;
@@ -261,9 +263,9 @@ export class AssetComponent implements OnInit, AfterViewInit {
     const borrowAmountDiff = amount - Math.floor(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
   // TODO add check
     if (borrowAmountDiff > 0) {
-      this.modalService.showNewModal(Modals.BORROW);
+      this.modalService.showNewModal(Modals.BORROW, this.asset);
     } else if (borrowAmountDiff < 0) {
-      this.modalService.showNewModal(Modals.REPAY);
+      this.modalService.showNewModal(Modals.REPAY, this.asset);
     }
   }
 

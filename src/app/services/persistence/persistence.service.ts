@@ -78,6 +78,10 @@ export class PersistenceService {
     return this.userReserves?.reserveMap.get(AssetTag.ICX);
   }
 
+  public getAssetAllReserveData(assetTag: AssetTag): ReserveData | undefined {
+    return this.allReserves?.getReserveData(assetTag);
+  }
+
   public getTotalSupplied(): number {
     let totalSupplied = 0;
     if (!this.allReserves) {
@@ -98,6 +102,58 @@ export class PersistenceService {
       totalBorrowed += property.totalBorrows;
     });
     return totalBorrowed;
+  }
+
+  public getUserTotalSupplied(): number {
+    let totalSupplied = 0;
+    if (!this.userReserves) {
+      return totalSupplied;
+    }
+    this.userReserves.reserveMap.forEach((reserve: Reserve | undefined) => {
+      totalSupplied += reserve?.currentOTokenBalance ?? 0;
+    });
+    return totalSupplied;
+  }
+
+  public getUserTotalBorrowed(): number {
+    let totalBorrowed = 0;
+    if (!this.userReserves) {
+      return totalBorrowed;
+    }
+    this.userReserves.reserveMap.forEach((reserve: Reserve | undefined) => {
+      totalBorrowed += reserve?.principalBorrowBalance ?? 0;
+    });
+    return totalBorrowed;
+  }
+
+  public getUserAvgSupplyApy(): number {
+    let counter = 0;
+    let total = 0;
+    if (!this.allReserves) {
+      return total;
+    }
+
+    this.userReserves.reserveMap.forEach((reserve: Reserve | undefined) => {
+      total += reserve?.liquidityRate ?? 0;
+      counter++;
+    });
+
+    return total / counter;
+  }
+
+  public getUserAvgBorrowApy(): number {
+    let counter = 0;
+    let total = 0;
+    if (!this.allReserves) {
+      return total;
+    }
+
+    this.userReserves.reserveMap.forEach((reserve: Reserve | undefined) => {
+      total += reserve?.borrowRate ?? 0;
+      counter++;
+    });
+
+    return total / counter;
   }
 
   public getAvgSupplyApy(): number {
