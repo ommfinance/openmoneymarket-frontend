@@ -1,4 +1,6 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
+import {Subscription} from "rxjs";
+import {NotificationService} from "../../services/notification/notification.service";
 
 declare var $: any;
 
@@ -9,21 +11,20 @@ declare var $: any;
 })
 export class NotificationComponent implements OnInit {
 
+  @ViewChild('ntf', { static: true }) notificationEl!: ElementRef;
+
   @Input() message = "This is a confirmation notification.";
 
-  constructor() { }
+  notificationSubscription: Subscription;
+
+  constructor(private notificationService: NotificationService) {
+    this.notificationSubscription = this.notificationService.activeNotificationChange$.subscribe((action) => {
+      this.message = action.message;
+      this.notificationService.showNotification(this.notificationEl.nativeElement);
+    });
+  }
 
   ngOnInit(): void {
   }
-
-  showNotification(message: string, type: string): void {
-    this.message = message;
-    $('.notification').toggleClass('active');
-  }
-
-  // On "Notification" click
-  // $(".notification-trigger").click(function() {
-  //   $('.notification').toggleClass('active');
-  // });
 
 }

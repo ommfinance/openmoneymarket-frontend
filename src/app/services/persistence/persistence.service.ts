@@ -46,7 +46,7 @@ export class PersistenceService {
     return this.userReserves?.reserveMap.get(assetTag)?.currentOTokenBalance ?? 0;
   }
 
-  public getUserAssetBorrowedBalance(assetTag: AssetTag): number {
+  public getUserBorrowedAssetBalance(assetTag: AssetTag): number {
     return this.userReserves?.reserveMap.get(assetTag)?.principalBorrowBalance ?? 0;
   }
 
@@ -129,9 +129,6 @@ export class PersistenceService {
   public getUserAvgSupplyApy(): number {
     let counter = 0;
     let total = 0;
-    if (!this.allReserves) {
-      return total;
-    }
 
     this.userReserves.reserveMap.forEach((reserve: Reserve | undefined) => {
       total += reserve?.liquidityRate ?? 0;
@@ -144,9 +141,6 @@ export class PersistenceService {
   public getUserAvgBorrowApy(): number {
     let counter = 0;
     let total = 0;
-    if (!this.allReserves) {
-      return total;
-    }
 
     this.userReserves.reserveMap.forEach((reserve: Reserve | undefined) => {
       total += reserve?.borrowRate ?? 0;

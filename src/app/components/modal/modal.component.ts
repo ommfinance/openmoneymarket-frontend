@@ -4,7 +4,7 @@ import {Subscription} from "rxjs";
 import {Modals} from "../../models/Modals";
 import {IconexApiService} from "../../services/iconex-api/iconex-api.service";
 import {BridgeWidgetService} from "../../services/bridge-widget/bridge-widget.service";
-import {ActiveModalChange} from "../../models/ActiveModalChange";
+import {ModalAction} from "../../models/ModalAction";
 import {Asset} from "../../models/Asset";
 import {BaseClass} from "../base-class";
 import {BORROW, REPAY, SUPPLY, WITHDRAW} from "../../common/constants";
@@ -22,24 +22,21 @@ export class ModalComponent extends BaseClass implements OnInit {
 
   activeModalSubscription: Subscription;
   activeModal?: HTMLElement;
-  activeAsset?: Asset;
-  activeModalType?: Modals;
+  activeModalChange?: ModalAction;
 
 
   constructor(private modalService: ModalService,
               private iconexApiService: IconexApiService,
               private bridgeWidgetService: BridgeWidgetService) {
     super();
-    this.activeModalSubscription = this.modalService.activeModalChange$.subscribe((activeModalChange: ActiveModalChange) => {
+    this.activeModalSubscription = this.modalService.activeModalChange$.subscribe((activeModalChange: ModalAction) => {
       switch (activeModalChange.modalType) {
         case Modals.SIGN_IN:
           this.activeModal = this.signInModal.nativeElement;
-          this.activeAsset = undefined;
           break;
         default:
           this.activeModal = this.assetActionModal.nativeElement;
-          this.activeAsset = activeModalChange.asset;
-          this.activeModalType = activeModalChange.modalType;
+          this.activeModalChange = activeModalChange;
       }
       this.modalService.showModal(this.activeModal);
     });
@@ -63,11 +60,11 @@ export class ModalComponent extends BaseClass implements OnInit {
   }
 
   isBorrowModal(): boolean {
-    return this.activeModalType === Modals.BORROW;
+    return this.activeModalChange?.modalType === Modals.BORROW;
   }
 
   getModalActionName(): string {
-    switch (this.activeModalType) {
+    switch (this.activeModalChange?.modalType) {
       case Modals.BORROW:
         return BORROW;
       case Modals.SUPPLY:

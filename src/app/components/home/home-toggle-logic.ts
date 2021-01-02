@@ -60,10 +60,10 @@ export function onSupplyAdjustClick(bridgeSupplySlider: any, iconSupplySlider: a
     $('#borrow-borrowed-bridge').prop('disabled', (i: any, v: any) => !v);
     $('#borrow-available-bridge').prop('disabled', (i: any, v: any) => !v);
     bridgeBorrowSlider.toggleAttribute('disabled');
-    bridgeBorrowSlider.noUiSlider.set(persistenceService.getUserAssetBorrowedBalance(AssetTag.USDb) ?? 0);
+    bridgeBorrowSlider.noUiSlider.set(persistenceService.getUserBorrowedAssetBalance(AssetTag.USDb) ?? 0);
 
     // iconBorrowSlider.toggleAttribute('disabled');
-    iconBorrowSlider.noUiSlider.set(persistenceService.getUserAssetBorrowedBalance(AssetTag.ICX) ?? 0);
+    iconBorrowSlider.noUiSlider.set(persistenceService.getUserBorrowedAssetBalance(AssetTag.ICX) ?? 0);
   }
 }
 
@@ -76,7 +76,7 @@ export function onBorrowAdjustClick(bridgeBorrowSlider: any, iconSupplySlider: a
   $('#borrow-borrowed-bridge').prop('disabled', (i: any, v: any) => !v);
   $('#borrow-available-bridge').prop('disabled', (i: any, v: any) => !v);
   bridgeBorrowSlider.toggleAttribute('disabled');
-  bridgeBorrowSlider.noUiSlider.set(persistenceService.getUserAssetBorrowedBalance(AssetTag.USDb) ?? 0);
+  bridgeBorrowSlider.noUiSlider.set(persistenceService.getUserBorrowedAssetBalance(AssetTag.USDb) ?? 0);
 
   // ICON
   $('#supply-deposited-icon').prop('disabled', (i: any, v: any) => !v);

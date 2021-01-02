@@ -11,6 +11,8 @@ import {ModalService} from "../../services/modal/modal.service";
 import {Modals} from "../../models/Modals";
 import {OmmError} from "../../core/errors/OmmError";
 import {BaseClass} from "../base-class";
+import {AssetAction} from "../../models/AssetAction";
+import {NotificationService} from "../../services/notification/notification.service";
 
 declare var $: any;
 
@@ -99,8 +101,8 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     $(this.borrowEl).removeClass("adjust");
 
     // Reset asset sliders
-    this.sliderSupply.noUiSlider.set(5000); // TODO
-    this.sliderBorrow.noUiSlider.set(5000);
+    this.sliderSupply.noUiSlider.set(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
+    this.sliderBorrow.noUiSlider.set(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
     this.sliderSupply.setAttribute("disabled", "");
     this.sliderBorrow.setAttribute("disabled", "");
 
@@ -136,7 +138,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    */
 
   onSupplyAdjustClick(): void {
-
     /** Setup actions */
     $(this.supplyEl).addClass("adjust");
     $(this.borrowEl).removeClass("adjust");
@@ -155,7 +156,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     $(this.inputSupply).removeAttr("disabled");
     $(this.inputSupplyAvailable).removeAttr("disabled");
     $(this.sliderSupply).removeAttr("disabled");
-    this.sliderSupply.noUiSlider.set(5000); // TODO
+    this.sliderSupply.noUiSlider.set(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
   }
 
 
@@ -232,23 +233,24 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * Logic to trigger when user clicks confirm of asset supply
    */
   onAssetSupplyConfirmClick(): void {
-    let amount = +usdbFormat.from(this.inputSupply.value);
-    log.debug(`Supply of ${this.asset.tag} changed to ${amount}`);
+    let value = +usdbFormat.from(this.inputSupply.value);
+    log.debug(`Supply of ${this.asset.tag} changed to ${value}`);
 
     // check that supplied value is not greater than user asset balance
-    if (amount > this.persistenceService.activeWallet!.balances.get(this.asset.tag)!
+    if (value > this.persistenceService.activeWallet!.balances.get(this.asset.tag)!
       + this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag)) {
-      amount = Math.floor(this.persistenceService.activeWallet?.balances.get(this.asset.tag)! +
+      value = Math.floor(this.persistenceService.activeWallet?.balances.get(this.asset.tag)! +
         this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
-      this.sliderSupply.noUiSlider.set(amount);
+      this.sliderSupply.noUiSlider.set(value);
       throw new OmmError(`Supplied value greater than ${this.asset.tag} balance.`);
     }
-    const supplyAmountDiff = amount - Math.floor(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
+    const supplyAmountDiff = value - Math.floor(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
 
+    const before = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag);
     if (supplyAmountDiff > 0) {
-      this.modalService.showNewModal(Modals.SUPPLY, this.asset);
+      this.modalService.showNewModal(Modals.SUPPLY, new AssetAction(this.asset, before , value));
     } else if (supplyAmountDiff < 0) {
-      this.modalService.showNewModal(Modals.WITHDRAW, this.asset);
+      this.modalService.showNewModal(Modals.WITHDRAW, new AssetAction(this.asset, before , value));
     } else {
       alert("No change in supplied value!");
       return;
@@ -259,13 +261,15 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * Logic to trigger when user clicks confirm of asset borrow
    */
   onAssetBorrowConfirmClick(): void {
-    const amount = +usdbFormat.from(this.inputBorrow.value);
-    const borrowAmountDiff = amount - Math.floor(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
+    const value = +usdbFormat.from(this.inputBorrow.value);
+    const borrowAmountDiff = value - Math.floor(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
   // TODO add check
+
+    const before = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag);
     if (borrowAmountDiff > 0) {
-      this.modalService.showNewModal(Modals.BORROW, this.asset);
+      this.modalService.showNewModal(Modals.BORROW, new AssetAction(this.asset, before , value));
     } else if (borrowAmountDiff < 0) {
-      this.modalService.showNewModal(Modals.REPAY, this.asset);
+      this.modalService.showNewModal(Modals.REPAY, new AssetAction(this.asset, before , value));
     }
   }
 
@@ -459,7 +463,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   resetBorrowSliders(): void {
-    this.sliderBorrow.noUiSlider.set(5000); // TODO
+    this.sliderBorrow.noUiSlider.set(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
     this.sliderBorrow.setAttribute("disabled", "");
   }
 
@@ -475,13 +479,13 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   disableAndResetSupplySlider(): void {
     // Disable asset supply sliders (Your markets)
-    this.sliderSupply.noUiSlider.set(5000); // TODO
+    this.sliderSupply.noUiSlider.set(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
     this.sliderSupply.setAttribute("disabled", "");
   }
 
   disableAndResetBorrowSlider(): void {
-    // Disable USDb borrow sliders (Your markets)
-    this.sliderBorrow.noUiSlider.set(5000); // TODO
+    // Disable asset borrow sliders (Your markets)
+    this.sliderBorrow.noUiSlider.set(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
     this.sliderBorrow.setAttribute("disabled", "");
   }
 
@@ -497,7 +501,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     $(this.inputBorrow).removeAttr("disabled");
     $(this.inputBorrowAvailable).removeAttr("disabled");
     $(this.sliderBorrow).removeAttr("disabled");
-    this.sliderBorrow.noUiSlider.set(5000); // TODO
+    this.sliderBorrow.noUiSlider.set(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
   }
 
   hideYourAsset(): void {

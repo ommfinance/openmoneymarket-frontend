@@ -6,6 +6,7 @@ import {ScoreService} from '../score/score.service';
 import {PersistenceService} from '../persistence/persistence.service';
 import {DataLoaderService} from "../data-loader/data-loader.service";
 import log from "loglevel";
+import {NotificationService} from "../notification/notification.service";
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +16,8 @@ export class TransactionResultService {
   constructor(private iconApiService: IconApiService,
               private scoreService: ScoreService,
               private persistenceService: PersistenceService,
-              private dataLoaderService: DataLoaderService) { }
+              private dataLoaderService: DataLoaderService,
+              private notificationService: NotificationService) { }
 
   public processIconexTransactionResult(payload: IconJsonRpcResponse): void {
     log.debug("processTransactionResult->payload: ", payload);
@@ -23,6 +25,9 @@ export class TransactionResultService {
       this.iconApiService.getTxResult(payload.result).
       then((res: any) => {
         if (res.status === 1) {
+          // Show success notification
+          this.notificationService.showNewNotification("Success");
+
           log.debug("payload.id: ", payload.id);
           log.debug("res:", res);
           switch (payload.id) {
@@ -94,7 +99,8 @@ export class TransactionResultService {
               break;
           }
         } else {
-          alert("Transaction failed! Details: " +  String(res));
+          // Show error notification TODO get error styling?
+          this.notificationService.showNewNotification("Transaction failed! Details: " +  String(res));
           log.debug("Transaction failed! Details: ", res);
         }
       }).catch(e => {

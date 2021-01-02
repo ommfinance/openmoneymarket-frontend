@@ -12,7 +12,7 @@
     <span class="value-supplied label">{{this.formatNumberToUSLocaleString(this.persistenceService.getUserSuppliedAssetBalance(asset.tag))}} {{asset.tag}}</span></td>
   <td class="text-green">{{this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate?.toFixed(5)}}%</td>
   <td><span class="value-borrowed">${{this.formatNumberToNdigits(this.persistenceService.getUserAssetReserve(asset.tag)?.principalBorrowBalanceUSD)}}</span><br>
-    <span class="value-borrowed label">{{this.formatNumberToUSLocaleString(this.persistenceService.getUserAssetBorrowedBalance(asset.tag))}} {{asset.tag}}</span></td>
+    <span class="value-borrowed label">{{this.formatNumberToUSLocaleString(this.persistenceService.getUserBorrowedAssetBalance(asset.tag))}} {{asset.tag}}</span></td>
   <td class="text-purple">{{this.persistenceService.getUserAssetReserve(asset.tag)?.borrowRate?.toFixed(5)}}%</td>
 </tr>
 

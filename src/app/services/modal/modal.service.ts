@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import {Subject} from "rxjs";
 import {Modals} from "../../models/Modals";
-import {ActiveModalChange} from "../../models/ActiveModalChange";
-import {Asset} from "../../models/Asset";
+import {ModalAction} from "../../models/ModalAction";
 import log from "loglevel";
+import {AssetAction} from "../../models/AssetAction";
 
 declare var classie: any;
 declare var $: any;
@@ -13,15 +13,15 @@ declare var $: any;
 })
 export class ModalService {
 
-  private activeModalChange: Subject<ActiveModalChange> = new Subject<ActiveModalChange>();
+  private activeModalChange: Subject<ModalAction> = new Subject<ModalAction>();
   activeModalChange$ = this.activeModalChange.asObservable();
 
   public activeModal?: HTMLElement;
 
   constructor() { }
 
-  showNewModal(modal: Modals, asset?: Asset): void {
-    this.activeModalChange.next(new ActiveModalChange(modal, asset));
+  showNewModal(modal: Modals, assetAction?: AssetAction): void {
+    this.activeModalChange.next(new ModalAction(modal, assetAction));
   }
 
   hideActiveModal(): void {

@@ -1,9 +1,3 @@
-<!-- Notification trigger -->
-<div class="panel notification">
-  <p>This is a confirmation notification.</p>
-</div>
-
-
 <!-- Wrapper -->
 <div class="grid wrapper">
   <!-- Navigation -->
@@ -86,7 +80,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Your supply APY</dt>
-                  <dd class="text-green value-supplied-apy">{{this.persistenceService.getUserAvgSupplyApy().toFixed(2)}}%</dd>
+                  <dd class="text-green value-supplied-apy">{{this.persistenceService.getUserAvgSupplyApy().toFixed(3)}}%</dd>
                 </dl>
               </div>
             </div>
@@ -107,7 +101,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Your borrow APY</dt>
-                  <dd class="text-purple value-borrowed-apy">{{this.persistenceService.getUserAvgBorrowApy().toFixed(2)}}%</dd>
+                  <dd class="text-purple value-borrowed-apy">{{this.persistenceService.getUserAvgBorrowApy().toFixed(3)}}%</dd>
                 </dl>
               </div>
             </div>
@@ -132,7 +126,7 @@
                 <dl class="metadata">
                   <dt>Total supply APY</dt>
                   <dd class="text-green">{{this.persistenceService.getAvgSupplyApy() != 0 ?
-                    this.persistenceService.getAvgSupplyApy().toFixed(2): "-"}}%</dd>
+                    this.persistenceService.getAvgSupplyApy().toFixed(3): "-"}}%</dd>
                 </dl>
               </div>
             </div>
@@ -154,7 +148,7 @@
                 <dl class="metadata">
                   <dt>Total borrow APY</dt>
                   <dd class="text-purple">{{this.persistenceService.getAvgBorrowApy() != 0 ?
-                    this.persistenceService.getAvgBorrowApy().toFixed(2): "-"}}%</dd>
+                    this.persistenceService.getAvgBorrowApy().toFixed(3): "-"}}%</dd>
                 </dl>
               </div>
             </div>
