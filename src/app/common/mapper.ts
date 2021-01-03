@@ -3,6 +3,8 @@ import {Reserve} from "../interfaces/reserve";
 import {ReserveData} from "../interfaces/all-reserves";
 import {UserAccountData} from "../models/user-account-data";
 import log from "loglevel";
+import {ReserveConfigData} from "../models/ReserveConfigData";
+import {AllReserveConfigData} from "../models/AllReserveConfigData";
 
 export class Mapper {
   public static mapHexStringsOfObjectToNormalisedValue<T>(object: T): T {
@@ -79,6 +81,18 @@ export class Mapper {
       Utils.hex18DecimalToNormalisedNumber(reserveData.totalBorrows),
       Utils.hex18DecimalToNormalisedNumber(reserveData.totalLiquidity),
       Utils.hexToNumber(reserveData.usageAsCollateralEnabled)
+    );
+  }
+
+  public static mapReserveConfigurationData(reserveConfigData: ReserveConfigData): ReserveConfigData {
+    return new ReserveConfigData(
+      Utils.hex18DecimalToNormalisedNumber(reserveConfigData.baseLTVasCollateral),
+      Utils.hexToNumber(reserveConfigData.decimals),
+      Utils.hex18DecimalToNormalisedNumber(reserveConfigData.liquidationThreshold),
+      Utils.hex18DecimalToNormalisedNumber(reserveConfigData.liquidationBonus),
+      Utils.hexToNumber(reserveConfigData.usageAsCollateralEnabled),
+      Utils.hexToNumber(reserveConfigData.borrowingEnabled),
+      Utils.hexToNumber(reserveConfigData.isActive)
     );
   }
 }

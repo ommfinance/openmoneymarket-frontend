@@ -10,8 +10,9 @@ import {AllAddresses} from "../../interfaces/all-addresses";
 import {Reserve} from "../../interfaces/reserve";
 import {AllReserves} from "../../interfaces/all-reserves";
 import {UserAccountData} from "../../models/user-account-data";
-import {ReserveConfigData} from "../../models/reserve-config-data";
+import {ReserveConfigData} from "../../models/ReserveConfigData";
 import {StateChangeService} from "../state-change/state-change.service";
+import {AssetTag} from "../../models/Asset";
 
 
 @Injectable({
@@ -105,7 +106,7 @@ export class ScoreService {
    */
   public async getAllReserveConfigurationData(): Promise<any> {
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
-      ScoreMethodNames.GET_RESERVE_CONFIGURATION_DATA, {}, IconTransactionType.READ);
+      ScoreMethodNames.GET_ALL_RESERVE_CONFIGURATION_DATA, {}, IconTransactionType.READ);
     return await this.iconApiService.iconService.call(tx).execute();
   }
 
@@ -121,7 +122,7 @@ export class ScoreService {
     return await this.iconApiService.iconService.call(tx).execute();
   }
 
-  public async getUserBalanceOfUSDb(address?: string): Promise<number> {
+  private async getUserBalanceOfUSDb(address?: string): Promise<number> {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.collateral.USDb,
@@ -130,7 +131,21 @@ export class ScoreService {
       }, IconTransactionType.READ);
     const res = await this.iconApiService.iconService.call(tx).execute();
     const balance = Utils.hex18DecimalToNormalisedNumber(res);
-    this.stateChangeService.updateUserUSDbBalance(balance);
+    this.stateChangeService.updateUserAssetBalance(balance, AssetTag.USDb);
+    return balance;
+  }
+
+  public async getUserAssetBalance(assetTag: AssetTag): Promise<number> {
+    let balance = 0;
+    switch (assetTag) {
+      case AssetTag.ICX:
+        balance = await this.iconApiService.getIcxBalance(this.persistenceService.activeWallet!.address);
+        break;
+      case AssetTag.USDb:
+        balance = await this.getUserBalanceOfUSDb(this.persistenceService.activeWallet!.address);
+        break;
+    }
+    this.stateChangeService.updateUserAssetBalance(balance, assetTag);
     return balance;
   }
 

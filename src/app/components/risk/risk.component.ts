@@ -1,4 +1,13 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {RiskData} from "../../models/RiskData";
+import {percentageFormat} from "../../common/formats";
+import {Subject} from "rxjs";
+import {Reserve} from "../../interfaces/reserve";
+import {AssetTag} from "../../models/Asset";
+import {PersistenceService} from "../../services/persistence/persistence.service";
+import {StateChangeService} from "../../services/state-change/state-change.service";
+import log from "loglevel";
+import {CalculationsService} from "../../services/calculations/calculations.service";
 
 declare var noUiSlider: any;
 declare var wNumb: any;
@@ -11,15 +20,17 @@ declare var $: any;
 })
 export class RiskComponent implements OnInit, AfterViewInit {
 
-  private sliderRisk?: HTMLElement | null;
+  private sliderRisk?: any;
+  // private totalRisk = 0;
 
-  constructor() { }
+  constructor(private stateChangeService: StateChangeService,
+              private persistenceService: PersistenceService,
+              private calculationService: CalculationsService) { }
 
   ngOnInit(): void {
   }
 
   ngAfterViewInit(): void {
-
     // Risk slider
     this.sliderRisk = document.getElementById('slider-risk');
     noUiSlider.create(this.sliderRisk, {
@@ -31,6 +42,41 @@ export class RiskComponent implements OnInit, AfterViewInit {
         max: [100]
       },
     });
+  }
+
+  initSubscribedValues(): void {
+    // subscribe to total risk changes
+    // this.stateChangeService.userTotalRiskChange.subscribe(totalRisk => {
+    //   log.debug("Total risk change = " + totalRisk);
+    //   this.totalRisk = totalRisk;
+    //   this.updateRiskData(new RiskData(totalRisk));
+    // });
+  }
+
+  updateRiskData(riskData?: RiskData): void {
+    const riskTotal = riskData ? riskData.riskTotal : this.calculationService.calculateValueRiskTotal();
+
+    // Update the risk percentage
+    $('.value-risk-total').text(percentageFormat.to(riskTotal));
+
+    // Update the risk slider
+    this.sliderRisk.noUiSlider.set(riskTotal);
+
+    // Change text to red if over 100
+    if (riskTotal > 100) {
+      // Hide supply actions
+      $('.supply-actions.actions-2').css("display", "none");
+    }
+
+    // Change text to red if over 75
+    if (riskTotal > 75) {
+      $('.value-risk-total').addClass("alert");
+    }
+    // Change text to normal if under 75
+    if (riskTotal < 75) {
+      $('.value-risk-total').removeClass("alert");
+    }
+
   }
 
   hideRiskData(): void {

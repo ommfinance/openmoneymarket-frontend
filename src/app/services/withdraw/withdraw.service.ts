@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {IconApiService} from "../icon-api/icon-api.service";
 import {PersistenceService} from "../persistence/persistence.service";
 import {IconexApiService} from "../iconex-api/iconex-api.service";
@@ -9,6 +9,7 @@ import {IconTransactionType} from "../../models/IconTransactionType";
 import {IconexRequestsMap} from "../../common/iconex-requests-map";
 import {CheckerService} from "../checker/checker.service";
 import log from "loglevel";
+import {AssetTag} from "../../models/Asset";
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +23,18 @@ export class WithdrawService {
               private checkerService: CheckerService) {
   }
 
-  public withdrawUSDb(amount: number): void {
+  public withdrawAsset(amount: number, assetTag: AssetTag): void {
+    switch (assetTag) {
+      case AssetTag.ICX:
+        this.withdrawIcx(amount);
+        break;
+      case AssetTag.USDb:
+        this.withdrawUSDb(amount);
+        break;
+    }
+  }
+
+  private withdrawUSDb(amount: number): void {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
     // TODO: refactor for Bridge
     const params = {
@@ -33,14 +45,14 @@ export class WithdrawService {
       this.persistenceService.allAddresses!.oTokens.oUSDb, ScoreMethodNames.REDEEM, params, IconTransactionType.WRITE);
 
     log.debug("TX: ", tx);
-    this.scoreService.getUserBalanceOfUSDb().then(res => {
+    this.scoreService.getUserAssetBalance(AssetTag.USDb).then(res => {
       log.debug("USDb balance before withdraw: ", res);
     });
 
-    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.WITHDRAW_USDb);
+    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.WITHDRAW);
   }
 
-  public withdrawIcx(amount: number, waitForUnstaking = false): void {
+  private withdrawIcx(amount: number, waitForUnstaking = false): void {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
     // TODO: refactor for Bridge
     const params = {
@@ -53,6 +65,6 @@ export class WithdrawService {
 
     log.debug("TX: ", tx);
 
-    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.WITHDRAW_ICX);
+    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.WITHDRAW);
   }
 }

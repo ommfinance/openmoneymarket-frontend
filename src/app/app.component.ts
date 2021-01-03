@@ -30,7 +30,7 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
     this.attachedListener = true;
 
     // load all SCORE addresses
-    dataLoaderService.loadAllScoreAddresses().then(() => dataLoaderService.loadAllReserves());
+    dataLoaderService.loadAllScoreAddresses().then(() => this.loadCoreData());
 
     // register on document click handler
     $(document).on("click", (e: any) => {
@@ -39,6 +39,11 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
 
       }
     });
+  }
+
+  loadCoreData(): void {
+    this.dataLoaderService.loadAllReserves();
+    this.dataLoaderService.loadAllReservesConfigData();
   }
 
   onBodyClick(e: any): void {

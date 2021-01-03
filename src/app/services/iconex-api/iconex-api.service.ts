@@ -7,7 +7,6 @@ import {TransactionResultService} from '../transaction-result/transaction-result
 import {ScoreService} from "../score/score.service";
 import {DataLoaderService} from "../data-loader/data-loader.service";
 import log from "loglevel";
-import {AssetTag} from "../../models/Asset";
 
 @Injectable({
   providedIn: "root"

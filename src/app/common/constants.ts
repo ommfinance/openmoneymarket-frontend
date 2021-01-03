@@ -1,7 +1,4 @@
-export const LTV = 1 / 3;
-
 /** Modal constants */
-
 export const BORROW = "Borrow";
 export const SUPPLY = "Supply";
 export const REPAY = "Repay";

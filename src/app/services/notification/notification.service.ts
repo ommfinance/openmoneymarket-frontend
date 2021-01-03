@@ -35,7 +35,7 @@ export class NotificationService {
       classie.add(notification, 'active');
       this.activeNotification = notification;
 
-      setTimeout(() => this.hideActiveNotification(), 3000);
+      setTimeout(() => this.hideActiveNotification(), 5000);
     }
   }
 

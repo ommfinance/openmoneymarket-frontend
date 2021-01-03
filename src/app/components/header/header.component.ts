@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {IconexApiService} from "../../services/iconex-api/iconex-api.service";
 import {PersistenceService} from "../../services/persistence/persistence.service";
-import {DepositService} from "../../services/deposit/deposit.service";
+import {SupplyService} from "../../services/supply/supply.service";
 // @ts-ignore
 import BridgeService from "icon-bridge-sdk/build/bridge.bundle";
 import {BaseClass} from "../base-class";
@@ -25,7 +25,7 @@ export class HeaderComponent extends BaseClass implements OnInit {
   @Input() walletValue!: string;
 
   constructor(public persistenceService: PersistenceService,
-              public depositService: DepositService,
+              public depositService: SupplyService,
               public iconexApiService: IconexApiService,
               private modalService: ModalService,
               private bridgeWidgetService: BridgeWidgetService,

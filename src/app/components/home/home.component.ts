@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import {BaseClass} from "../base-class";
 import {PersistenceService} from "../../services/persistence/persistence.service";
-import {DepositService} from "../../services/deposit/deposit.service";
+import {SupplyService} from "../../services/supply/supply.service";
 
 import {WithdrawService} from "../../services/withdraw/withdraw.service";
 import {BorrowService} from "../../services/borrow/borrow.service";
@@ -25,6 +25,7 @@ import {Asset} from "../../models/Asset";
 import log from "loglevel";
 import {AssetComponent} from "../asset/asset.component";
 import {StateChangeService} from "../../services/state-change/state-change.service";
+import {RiskData} from "../../models/RiskData";
 
 declare var $: any;
 
@@ -50,7 +51,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   public supportedAssets: Asset[] = Array.from(this.supportedAssetsMap.values());
 
   constructor(public persistenceService: PersistenceService,
-              public depositService: DepositService,
+              public depositService: SupplyService,
               public withdrawService: WithdrawService,
               public borrowService: BorrowService,
               public repayService: RepayService,
@@ -281,6 +282,10 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
       this.riskComponent.showRiskData();
       this.riskComponent.hideRiskMessage();
     }
+  }
+
+  updateRiskData(riskData?: RiskData): void {
+    this.riskComponent?.updateRiskData(riskData);
   }
 
 }

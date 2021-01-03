@@ -9,6 +9,7 @@ import {IconexRequestsMap} from "../../common/iconex-requests-map";
 import {Utils} from "../../common/utils";
 import {CheckerService} from "../checker/checker.service";
 import log from "loglevel";
+import {AssetTag} from "../../models/Asset";
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +22,18 @@ export class RepayService {
               private checkerService: CheckerService) {
   }
 
-  public repayUSDb(amount: number): void {
+  public repayAsset(amount: number, assetTag: AssetTag): void {
+    switch (assetTag) {
+      case AssetTag.ICX:
+        this.repayIcx(amount);
+        break;
+      case AssetTag.USDb:
+        this.repayUSDb(amount);
+        break;
+    }
+  }
+
+  private repayUSDb(amount: number): void {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const amountString = Utils.amountToe18MultipliedString(amount);
@@ -41,10 +53,10 @@ export class RepayService {
 
     log.debug("repayUSDb TX: ", tx);
 
-    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.REPAY_USDb);
+    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.REPAY);
   }
 
-  public repayIcx(amount: number): void {
+  private repayIcx(amount: number): void {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const amountString = Utils.amountToe18MultipliedString(amount);
@@ -64,6 +76,6 @@ export class RepayService {
 
     log.debug("repayIcx TX: ", tx);
 
-    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.REPAY_ICX);
+    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.REPAY);
   }
 }

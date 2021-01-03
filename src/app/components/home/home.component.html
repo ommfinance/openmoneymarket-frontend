@@ -225,7 +225,8 @@
                            [index]="i"
                            (collOtherAssetTables)="collapseOtherAssetsTable($event)"
                            (disableAndResetSliders)="disableAndResetAssetsSupplyAndBorrowSliders()"
-                           (disableAssetsInputs)="disableAssetsInputs()">
+                           (disableAssetsInputs)="disableAssetsInputs()"
+                           (updateRiskData)="updateRiskData($event)">
                 </app-asset>
                 <!-- Spacer -->
                 <tr *ngIf="!isLast" class="spacer"></tr>

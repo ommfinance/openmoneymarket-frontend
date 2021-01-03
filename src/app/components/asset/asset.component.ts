@@ -1,6 +1,12 @@
 import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {SlidersService} from "../../services/sliders/sliders.service";
-import {ommPrefixPlusFormat, usdbFormat, usdbPrefixMinusFormat, usdbPrefixPlusFormat} from "../../common/formats";
+import {
+  ommPrefixPlusFormat,
+  percentageFormat,
+  usdbFormat,
+  usdbPrefixMinusFormat,
+  usdbPrefixPlusFormat
+} from "../../common/formats";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {Asset, AssetTag} from "../../models/Asset";
 import log from "loglevel";
@@ -13,6 +19,7 @@ import {OmmError} from "../../core/errors/OmmError";
 import {BaseClass} from "../base-class";
 import {AssetAction} from "../../models/AssetAction";
 import {NotificationService} from "../../services/notification/notification.service";
+import {RiskData} from "../../models/RiskData";
 
 declare var $: any;
 
@@ -42,6 +49,15 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   @ViewChild("borrAct1") set borrowAction1(borrAct1El: ElementRef) { this.borrowAction1El = borrAct1El.nativeElement; }
   @ViewChild("suppAct2") set supplyAction2(suppAct2El: ElementRef) { this.supplyAction2El = suppAct2El.nativeElement; }
   @ViewChild("borrAct2") set borrowAction2(borrAct2El: ElementRef) { this.borrowAction2El = borrAct2El.nativeElement; }
+  @ViewChild("suppInterest") set suppInterestSetter(suppInterest: ElementRef) { this.suppInterestEl = suppInterest.nativeElement; }
+  @ViewChild("borrInterest") set borrInterestSetter(borrInterest: ElementRef) { this.borrInterestEl = borrInterest.nativeElement; }
+  @ViewChild("suppRewards") set suppRewardsSetter(suppRewards: ElementRef) { this.suppRewardsEl = suppRewards.nativeElement; }
+  @ViewChild("borrRewards") set borrRewardsSetter(borrRewards: ElementRef) { this.borrRewardsEl = borrRewards.nativeElement; }
+
+  suppInterestEl: any;
+  suppRewardsEl: any;
+  borrInterestEl: any;
+  borrRewardsEl: any;
 
   supplyAction1El: any;
   borrowAction1El: any;
@@ -68,12 +84,14 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   @Output() collOtherAssetTables = new EventEmitter<AssetTag>();
   @Output() disableAndResetSliders = new EventEmitter<undefined>();
   @Output() disableAssetsInputs = new EventEmitter<undefined>();
+  @Output() updateRiskData = new EventEmitter<RiskData | undefined>();
 
   constructor(private slidersService: SlidersService,
               private calculationService: CalculationsService,
               private stateChangeService: StateChangeService,
               public persistenceService: PersistenceService,
-              private modalService: ModalService) {
+              private modalService: ModalService,
+              private notificationService: NotificationService) {
     super();
   }
 
@@ -84,13 +102,13 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.initSliders();
     this.initSupplySliderlogic();
+    this.initBorrowSliderLogic();
     this.initSubscribedValues();
   }
 
   /**
    * On Adjust cancel click
    */
-
   onAdjustCancelClick(): void {
     // Reset actions
     $('.actions-2').addClass("hide");
@@ -106,6 +124,9 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.sliderSupply.setAttribute("disabled", "");
     this.sliderBorrow.setAttribute("disabled", "");
 
+    // Reset risk data
+    this.updateRiskData.emit();
+
     // Disable asset inputs
     this.disableInputs();
   }
@@ -113,7 +134,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   /**
    * Borrow adjust
    */
-
   onBorrowAdjustClick(): void {
     /** Setup actions */
     $(this.borrowEl).addClass("adjust");
@@ -136,7 +156,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   /**
    * Supply adjust
    */
-
   onSupplyAdjustClick(): void {
     /** Setup actions */
     $(this.supplyEl).addClass("adjust");
@@ -193,11 +212,11 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     // Disable and reset asset supply and borrow sliders (Your markets)
     this.disableAndResetSliders.emit(undefined);
 
+    // Reset risk data
+    this.updateRiskData.emit();
 
     // Disable USDb inputs
     this.disableAssetsInputs.emit(undefined);
-
-
   }
 
   /**
@@ -247,12 +266,13 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     const supplyAmountDiff = value - Math.floor(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
 
     const before = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag);
+    const amount = Math.floor(Math.abs(supplyAmountDiff));
     if (supplyAmountDiff > 0) {
-      this.modalService.showNewModal(Modals.SUPPLY, new AssetAction(this.asset, before , value));
+      this.modalService.showNewModal(Modals.SUPPLY, new AssetAction(this.asset, before , value, amount));
     } else if (supplyAmountDiff < 0) {
-      this.modalService.showNewModal(Modals.WITHDRAW, new AssetAction(this.asset, before , value));
+      this.modalService.showNewModal(Modals.WITHDRAW, new AssetAction(this.asset, before , value, amount));
     } else {
-      alert("No change in supplied value!");
+      this.notificationService.showNewNotification("No change in supplied value.");
       return;
     }
   }
@@ -262,14 +282,18 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    */
   onAssetBorrowConfirmClick(): void {
     const value = +usdbFormat.from(this.inputBorrow.value);
-    const borrowAmountDiff = value - Math.floor(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
+    const borrowAmountDiff = value - Math.floor(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
   // TODO add check
 
     const before = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag);
+    const amount = Math.floor(Math.abs(borrowAmountDiff));
     if (borrowAmountDiff > 0) {
-      this.modalService.showNewModal(Modals.BORROW, new AssetAction(this.asset, before , value));
+      this.modalService.showNewModal(Modals.BORROW, new AssetAction(this.asset, before , value, amount));
     } else if (borrowAmountDiff < 0) {
-      this.modalService.showNewModal(Modals.REPAY, new AssetAction(this.asset, before , value));
+      this.modalService.showNewModal(Modals.REPAY, new AssetAction(this.asset, before , value, amount));
+    }  else {
+      this.notificationService.showNewNotification("No change in borrowed value.");
+      return;
     }
   }
 
@@ -342,38 +366,20 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
       // Update supplied text box
       this.inputSupply.value = (parseFloat(values[handle]));
+      const supplyDiff = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag) - this.inputSupply.value;
 
       // Update asset available text box
       this.inputSupplyAvailable.value = usdbFormat.to(this.calculationService.calculateAssetSliderAvailableSupply(+values[handle], this.asset.tag));
 
       // Update asset's supply interest
-      $('.value-supply-interest').text(usdbPrefixPlusFormat.to((parseFloat(values[handle])) * 0.0647 / 365));
+      $(this.suppInterestEl).text(usdbPrefixPlusFormat.to((parseFloat(values[handle])) * 0.0647 / 365));
 
       // Update asset's supply omm rewards
-      $('.value-supply-rewards').text(ommPrefixPlusFormat.to((parseFloat(values[handle])) * 0.447 / 365));
+      $(this.suppRewardsEl).text(ommPrefixPlusFormat.to((parseFloat(values[handle])) * 0.447 / 365));
 
-      // Update the risk percentage TODO
-      // $('.value-risk-total').text(percentageFormat.to((parseFloat(Cookies.get('borrowed-usdb')) + parseFloat(Cookies.get('borrowed-icx'))) / ((inputSupplyUsdb.value * 0.66) + (parseFloat(Cookies.get('supplied-icx')) * 0.66)) * 100));
-
-      // Update the risk slider v2 TODO
-      // sliderRisk.noUiSlider.set((parseFloat(Cookies.get('borrowed-usdb')) + parseFloat(Cookies.get('borrowed-icx'))) / ((inputSupplyUsdb.value * 0.66) + (parseFloat(Cookies.get('supplied-icx')) * 0.66)) * 100);
-
-      // Change text to red if over 100 TODO
-      // if (((parseFloat(Cookies.get('borrowed-usdb')) + parseFloat(Cookies.get('borrowed-icx'))) / ((inputSupplyUsdb.value * 0.66) + (parseFloat(Cookies.get('supplied-icx')) * 0.66)) * 100) > 100) {
-      //   // Hide supply actions
-      //   $('.supply-actions.actions-2').css("display", "none");
-      //   // Show supply warning
-      //   $('.supply-actions.actions-2').css("display", "none");
-      // };
-
-      // Change text to red if over 75 TODO
-      // if (((parseFloat(Cookies.get('borrowed-usdb')) + parseFloat(Cookies.get('borrowed-icx'))) / ((inputSupplyUsdb.value * 0.66) + (parseFloat(Cookies.get('supplied-icx')) * 0.66)) * 100) > 75) {
-      //   $('.value-risk-total').addClass("alert");
-      // }
-      // // Change text to normal if under 75
-      // if (((parseFloat(Cookies.get('borrowed-usdb')) + parseFloat(Cookies.get('borrowed-icx'))) / ((inputSupplyUsdb.value * 0.66) + (parseFloat(Cookies.get('supplied-icx')) * 0.66)) * 100) < 75) {
-      //   $('.value-risk-total').removeClass("alert");
-      // }
+      // update risk data
+      const riskData = new RiskData(this.calculationService.calculateValueRiskTotal(this.asset.tag, supplyDiff, undefined));
+      this.updateRiskData.emit(riskData);
     });
   }
 
@@ -385,30 +391,21 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.sliderBorrow.noUiSlider.on('update', (values: any, handle: any) => {
       // Update asset borrowed text box
       this.inputBorrow.value = (parseFloat(values[handle]));
+      const borrowDiff = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag) - this.inputBorrow.value;
 
       // Update asset available text box
       this.inputBorrowAvailable.value = usdbFormat.to(this.calculationService.calculateAssetSliderAvailableBorrow(values[handle], this.asset.tag));
 
       // Update asset's borrow interest
-      $('.value-borrow-interest-usdb').text(usdbPrefixMinusFormat.to((values[handle] * 1) * 0.0725 / 365));
+      $(this.borrInterestEl).text(usdbPrefixMinusFormat.to((values[handle] * 1) * 0.0725 / 365));
 
       // Update asset's borrow omm rewards
-      $('.value-borrow-rewards-usdb').text(ommPrefixPlusFormat.to((values[handle] * 1) * 0.4725 / 365));
+      $(this.borrRewardsEl).text(ommPrefixPlusFormat.to((values[handle] * 1) * 0.4725 / 365));
 
-      // Update the risk percentage TODO
-      // $('.value-risk-total').text(percentageFormat.to(((parseFloat(values[handle])) + parseFloat(Cookies.get('borrowed-icx'))) / ((parseFloat(Cookies.get('supplied-usdb')) * 0.66) + (parseFloat(Cookies.get('supplied-icx')) * 0.66)) * 100));
+      // update risk data
+      const riskData = new RiskData(this.calculationService.calculateValueRiskTotal(this.asset.tag, undefined, borrowDiff));
+      this.updateRiskData.emit(riskData);
 
-      // Update the risk slider v2 TODO
-      // sliderRisk.noUiSlider.set((((parseFloat(values[handle])) + parseFloat(Cookies.get('borrowed-icx'))) / ((parseFloat(Cookies.get('supplied-usdb')) * 0.66) + (parseFloat(Cookies.get('supplied-icx')) * 0.66)) * 100));
-
-      // Change text to red if over 75 TODO
-      // if ((((parseFloat(values[handle])) + parseFloat(Cookies.get('borrowed-icx'))) / ((parseFloat(Cookies.get('supplied-usdb')) * 0.66) + (parseFloat(Cookies.get('supplied-icx')) * 0.66)) * 100) > 75) {
-      //   $('.value-risk-total').addClass("alert");
-      // }
-      // // Change text to normal if under 75
-      // if ((((parseFloat(values[handle])) + parseFloat(Cookies.get('borrowed-icx'))) / ((parseFloat(Cookies.get('supplied-usdb')) * 0.66) + (parseFloat(Cookies.get('supplied-icx')) * 0.66)) * 100) < 75) {
-      //   $('.value-risk-total').removeClass("alert");
-      // }
       // TODO
       // if (inputBorrowUsdb.value > 0) {
       //   // show risk data
@@ -491,10 +488,10 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   disableInputs(): void {
     // Disable asset inputs (Your markets)
-    $('#input-supply-usdb').attr('disabled', 'disabled');
-    $('#input-supply-available-usdb').attr('disabled', 'disabled');
-    $('#input-borrow-usdb').attr('disabled', 'disabled');
-    $('#input-borrow-available-usdb').attr('disabled', 'disabled');
+    $(this.inputSupply).attr('disabled', 'disabled');
+    $(this.inputSupplyAvailable).attr('disabled', 'disabled');
+    $(this.inputBorrow).attr('disabled', 'disabled');
+    $(this.inputBorrowAvailable).attr('disabled', 'disabled');
   }
 
   enableAssetBorrow(): void {

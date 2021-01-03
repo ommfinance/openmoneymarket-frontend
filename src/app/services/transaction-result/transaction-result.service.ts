@@ -7,6 +7,8 @@ import {PersistenceService} from '../persistence/persistence.service';
 import {DataLoaderService} from "../data-loader/data-loader.service";
 import log from "loglevel";
 import {NotificationService} from "../notification/notification.service";
+import {LocalStorageService} from "../local-storage/local-storage.service";
+import {environment} from "../../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +19,8 @@ export class TransactionResultService {
               private scoreService: ScoreService,
               private persistenceService: PersistenceService,
               private dataLoaderService: DataLoaderService,
-              private notificationService: NotificationService) { }
+              private notificationService: NotificationService,
+              private localStorageService: LocalStorageService) { }
 
   public processIconexTransactionResult(payload: IconJsonRpcResponse): void {
     log.debug("processTransactionResult->payload: ", payload);
@@ -30,77 +33,44 @@ export class TransactionResultService {
 
           log.debug("payload.id: ", payload.id);
           log.debug("res:", res);
+
+          const assetAction = this.localStorageService.getAssetAction();
+          if (!environment.production) {
+            this.scoreService.getUserAssetBalance(assetAction.asset.tag).then(balance => {
+              log.debug(`${assetAction.asset.tag} balance after ${IconexRequestsMap[payload.id]}: `, balance);
+            });
+          }
           switch (payload.id) {
-            case IconexRequestsMap.DEPOSIT_USDb:
-              this.scoreService.getUserBalanceOfUSDb().then(res => {
-                log.debug("USDb balance after deposit: ", res);
-              });
+            case IconexRequestsMap.SUPPLY:
               // load all reserves and user specific USDb reserve data
               this.dataLoaderService.loadAllReserves();
               this.dataLoaderService.loadUserUSDbReserveData();
-              alert("Successful deposit of USDb!");
+              this.notificationService.showNewNotification(`Successfully supplied ${assetAction.amount} ${assetAction.asset.tag}.`);
               break;
-            case IconexRequestsMap.WITHDRAW_USDb:
-              this.scoreService.getUserBalanceOfUSDb().then(res => {
-                log.debug("USDb balance after withdraw: ", res);
-              });
+            case IconexRequestsMap.WITHDRAW:
               // load all reserves and user specific USDb reserve data
               this.dataLoaderService.loadAllReserves();
               this.dataLoaderService.loadUserUSDbReserveData();
-              alert("Successful withdraw of USDb!");
+              this.notificationService.showNewNotification(`Successfully withdrawn ${assetAction.amount} ${assetAction.asset.tag}.`);
               break;
-            case IconexRequestsMap.BORROW_USDb:
-              log.debug("IconexRequestsMap.BORROW_USDb");
-              // load all reserves and user specific USDb reserve data
+            case IconexRequestsMap.BORROW:
+              // load all reserves and user specific asset reserve data
               this.dataLoaderService.loadAllReserves();
               this.dataLoaderService.loadUserUSDbReserveData();
-              alert("Successful borrow of USDb!");
+              this.notificationService.showNewNotification(`Successfully borrowed ${assetAction.amount} ${assetAction.asset.tag}.`);
               break;
-            case IconexRequestsMap.REPAY_USDb:
-              log.debug("IconexRequestsMap.REPAY_USDb");
-              // load all reserves and user specific USDb reserve data
+            case IconexRequestsMap.REPAY:
+              // load all reserves and user specific asset reserve data
               this.dataLoaderService.loadAllReserves();
               this.dataLoaderService.loadUserUSDbReserveData();
-              alert("Successful repay of USDb!");
-              break;
-            case IconexRequestsMap.DEPOSIT_ICX:
-              this.iconApiService.getIcxBalance(this.persistenceService.activeWallet!.address).then(res => {
-                log.debug("ICX balance after deposit: ", res);
-              });
-              // load all reserves and user specific ICX reserve data
-              this.dataLoaderService.loadAllReserves();
-              this.dataLoaderService.loadUserIcxReserveData();
-              alert("Successful deposit of ICX!");
-              break;
-            case IconexRequestsMap.WITHDRAW_ICX:
-              this.iconApiService.getIcxBalance(this.persistenceService.activeWallet!.address).then(res => {
-                log.debug("ICX balance after withdraw: ", res);
-              });
-              // load all reserves and user specific ICX reserve data
-              this.dataLoaderService.loadAllReserves();
-              this.dataLoaderService.loadUserIcxReserveData();
-              alert("Successful withdraw of ICX!");
-              break;
-            case IconexRequestsMap.BORROW_ICX:
-              log.debug("IconexRequestsMap.BORROW_ICX");
-              // load all reserves and user specific ICX reserve data
-              this.dataLoaderService.loadAllReserves();
-              this.dataLoaderService.loadUserIcxReserveData();
-              alert("Successful borrow of ICX!");
-              break;
-            case IconexRequestsMap.REPAY_ICX:
-              log.debug("IconexRequestsMap.REPAY_ICX");
-              // load all reserves and user specific ICX reserve data
-              this.dataLoaderService.loadAllReserves();
-              this.dataLoaderService.loadUserIcxReserveData();
-              alert("Successful repay of ICX!");
+              this.notificationService.showNewNotification(`Successfully repayed ${assetAction.amount} ${assetAction.asset.tag}.`);
               break;
             default:
               break;
           }
         } else {
           // Show error notification TODO get error styling?
-          this.notificationService.showNewNotification("Transaction failed! Details: " +  String(res));
+          this.notificationService.showNewNotification("Transaction failed! Message: " +  String(res.failure.message));
           log.debug("Transaction failed! Details: ", res);
         }
       }).catch(e => {

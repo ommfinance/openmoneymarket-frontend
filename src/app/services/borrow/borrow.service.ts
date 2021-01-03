@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {IconApiService} from "../icon-api/icon-api.service";
 import {PersistenceService} from "../persistence/persistence.service";
 import {IconexApiService} from "../iconex-api/iconex-api.service";
@@ -8,6 +8,7 @@ import {IconTransactionType} from "../../models/IconTransactionType";
 import {IconexRequestsMap} from "../../common/iconex-requests-map";
 import {CheckerService} from "../checker/checker.service";
 import log from "loglevel";
+import {AssetTag} from "../../models/Asset";
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,18 @@ export class BorrowService {
               private checkerService: CheckerService) {
   }
 
-  public borrowUSDb(amount: number): void {
+  public borrowAsset(amount: number, assetTag: AssetTag): void {
+    switch (assetTag) {
+      case AssetTag.ICX:
+        this.borrowIcx(amount);
+        break;
+      case AssetTag.USDb:
+        this.borrowUSDb(amount);
+        break;
+    }
+  }
+
+  private borrowUSDb(amount: number): void {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const params = {
@@ -33,10 +45,10 @@ export class BorrowService {
 
     log.debug("borrowUSDb TX: ", tx);
 
-    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.BORROW_USDb);
+    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.BORROW);
   }
 
-  public borrowIcx(amount: number): void {
+  private borrowIcx(amount: number): void {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const params = {
@@ -49,7 +61,7 @@ export class BorrowService {
 
     log.debug("borrowIcx TX: ", tx);
 
-    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.BORROW_ICX);
+    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.BORROW);
   }
 
 }

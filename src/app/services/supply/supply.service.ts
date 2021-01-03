@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {IconTransactionType} from '../../models/IconTransactionType';
-import IconService, { IconAmount, IconConverter } from "icon-sdk-js";
+import {IconAmount, IconConverter} from "icon-sdk-js";
 import {IconApiService} from '../icon-api/icon-api.service';
 import {PersistenceService} from '../persistence/persistence.service';
 import {ScoreMethodNames} from '../../common/score-method-names';
@@ -11,12 +11,13 @@ import {ScoreService} from "../score/score.service";
 import {Utils} from "../../common/utils";
 import {CheckerService} from "../checker/checker.service";
 import log from "loglevel";
+import {AssetTag} from "../../models/Asset";
 
 
 @Injectable({
   providedIn: 'root'
 })
-export class DepositService {
+export class SupplyService {
 
   constructor(private iconApiService: IconApiService,
               private persistenceService: PersistenceService,
@@ -25,15 +26,18 @@ export class DepositService {
               private checkerService: CheckerService) {
   }
 
-  /* Deposit USDb flow:
-   * 1. Ibriz will give AddressProvider SCORE address
-   * 2. Call to AddressProvider SCORE -> getAllAddresses and extract USDb SCORE address (Bridge SCORE)
-   * 3. Call USDb SCORE transfer in params to lending pool SCORE
-   * Get reserve data for a specific reserve -> LendingPoolDataProvider SCORE (that will give USDb reserve information)
-   * Once the user does the deposit -> LendingPoolDataProvider -> get user reserve data for specific user and get user all reserve data
-   *
-   */
-  public depositUSDb(amount: number): void {
+  public supplyAsset(amount: number, assetTag: AssetTag): void {
+    switch (assetTag) {
+      case AssetTag.ICX:
+        this.depositIcxToLendingPool(amount);
+        break;
+      case AssetTag.USDb:
+        this.depositUSDb(amount);
+        break;
+    }
+  }
+
+  private depositUSDb(amount: number): void {
     if (this.persistenceService.activeWallet == null) {
       alert("Please connect your Iconex wallet!");
       return;
@@ -60,14 +64,14 @@ export class DepositService {
       ScoreMethodNames.TRANSFER, params, IconTransactionType.WRITE);
 
     log.debug("TX: ", tx);
-    this.scoreService.getUserBalanceOfUSDb().then(res => {
+    this.scoreService.getUserAssetBalance(AssetTag.USDb).then(res => {
       log.debug("USDb balance before: ", res);
     });
 
-    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.DEPOSIT_USDb);
+    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.SUPPLY);
   }
 
-  public depositIcxToLendingPool(amount: number): void {
+  private depositIcxToLendingPool(amount: number): void {
     log.debug("Deposit ICX amount = " + amount);
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
     // TODO: refactor for Bridge
@@ -83,7 +87,7 @@ export class DepositService {
       log.debug("ICX balance before: ", res);
     });
 
-    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.DEPOSIT_ICX);
+    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.SUPPLY);
   }
 
 }

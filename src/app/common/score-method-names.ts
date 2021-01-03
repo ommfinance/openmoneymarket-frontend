@@ -7,7 +7,7 @@ export class ScoreMethodNames {
   /*
    * LendingPool SCORE
    */
-  public static DEPOSIT = "deposit";
+  public static DEPOSIT = "supply";
   public static REDEEM = "redeem";
   public static BORROW = "borrow";
 
@@ -25,4 +25,5 @@ export class ScoreMethodNames {
   public static GET_ALL_RESERVE_DATA = "getAllReserveData";
   public static GET_USER_ACCOUNT_DATA = "getUserAccountData";
   public static GET_RESERVE_CONFIGURATION_DATA = "getReserveConfigurationData";
+  public static GET_ALL_RESERVE_CONFIGURATION_DATA = "getAllReserveConfigurationData";
 }

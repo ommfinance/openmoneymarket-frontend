@@ -13,6 +13,7 @@ import {IconexWallet} from "../../models/IconexWallet";
 import {BridgeWallet} from "../../models/BridgeWallet";
 import {IconApiService} from "../icon-api/icon-api.service";
 import {OmmError} from "../../core/errors/OmmError";
+import {AllReserveConfigData} from "../../models/AllReserveConfigData";
 
 @Injectable({
   providedIn: 'root'
@@ -29,11 +30,12 @@ export class DataLoaderService {
     this.persistenceService.activeWallet = wallet;
 
     try {
+      // TODO optimise by saving and reading from localstorage
       const [usdbReserveResponse, icxReserveResponse, icxBalResponse, usdbBalResponse] = await Promise.all([
         this.loadUserUSDbReserveData(),
         this.loadUserIcxReserveData(),
         this.iconApiService.getIcxBalance(iconAddress),
-        this.scoreService.getUserBalanceOfUSDb(iconAddress)
+        this.scoreService.getUserAssetBalance(AssetTag.USDb)
       ]);
 
       // set ICX balance
@@ -74,6 +76,19 @@ export class DataLoaderService {
     });
   }
 
+  public loadAllReservesConfigData(): Promise<void> {
+    return this.scoreService.getAllReserveConfigurationData().then((allReservesConfigData: AllReserveConfigData) => {
+      log.debug("loadAllReservesConfigData : ", allReservesConfigData);
+      const newAllReserveConfigData = new AllReserveConfigData(allReservesConfigData.USDb, allReservesConfigData.sICX);
+      Object.entries(newAllReserveConfigData).forEach((value: [string, ReserveData]) => {
+        // @ts-ignore
+        newAllReserveConfigData[value[0]] = Mapper.mapReserveConfigurationData(value[1]);
+      });
+      this.persistenceService.allReservesConfigData = newAllReserveConfigData;
+      log.debug("loadAllReservesConfigData after mapping : ", newAllReserveConfigData);
+    });
+  }
+
   public loadUserUSDbReserveData(): void {
     let mappedReserve: any;
     this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses!.collateral.USDb)
@@ -81,7 +96,7 @@ export class DataLoaderService {
         mappedReserve = Mapper.mapUserReserve(res);
         this.persistenceService.userReserves!.reserveMap.set(AssetTag.USDb, mappedReserve);
         log.debug("User USDb reserve:", res);
-        this.stateChangeService.updateUserUSDbReserve(mappedReserve);
+        this.stateChangeService.updateUserAssetReserve(mappedReserve, AssetTag.USDb);
       });
   }
 
@@ -92,7 +107,7 @@ export class DataLoaderService {
         mappedReserve = Mapper.mapUserReserve(res);
         this.persistenceService.userReserves!.reserveMap.set(AssetTag.ICX, mappedReserve);
         log.debug("User ICX reserve data:", res);
-        this.stateChangeService.updateUserIcxReserve(mappedReserve);
+        this.stateChangeService.updateUserAssetReserve(mappedReserve, AssetTag.ICX);
       });
   }
 

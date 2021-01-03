@@ -5,9 +5,14 @@ import {Modals} from "../../models/Modals";
 import {IconexApiService} from "../../services/iconex-api/iconex-api.service";
 import {BridgeWidgetService} from "../../services/bridge-widget/bridge-widget.service";
 import {ModalAction} from "../../models/ModalAction";
-import {Asset} from "../../models/Asset";
 import {BaseClass} from "../base-class";
 import {BORROW, REPAY, SUPPLY, WITHDRAW} from "../../common/constants";
+import {SupplyService} from "../../services/supply/supply.service";
+import {WithdrawService} from "../../services/withdraw/withdraw.service";
+import {BorrowService} from "../../services/borrow/borrow.service";
+import {RepayService} from "../../services/repay/repay.service";
+import {OmmError} from "../../core/errors/OmmError";
+import {LocalStorageService} from "../../services/local-storage/local-storage.service";
 
 
 @Component({
@@ -27,7 +32,12 @@ export class ModalComponent extends BaseClass implements OnInit {
 
   constructor(private modalService: ModalService,
               private iconexApiService: IconexApiService,
-              private bridgeWidgetService: BridgeWidgetService) {
+              private bridgeWidgetService: BridgeWidgetService,
+              private supplyService: SupplyService,
+              private withdrawService: WithdrawService,
+              private borrowService: BorrowService,
+              private repayService: RepayService,
+              private localStorageService: LocalStorageService) {
     super();
     this.activeModalSubscription = this.modalService.activeModalChange$.subscribe((activeModalChange: ModalAction) => {
       switch (activeModalChange.modalType) {
@@ -76,6 +86,39 @@ export class ModalComponent extends BaseClass implements OnInit {
       default:
         return "";
     }
+  }
+
+  getBeforeAfterDiff(): number {
+    return Math.abs((this.activeModalChange?.assetAction?.before ?? 0) -
+      (this.activeModalChange?.assetAction?.after ?? 0));
+  }
+
+  onAssetModalActionClick(): void {
+    // store asset action in local storage
+    this.localStorageService.persistAssetAction(this.activeModalChange!.assetAction!);
+
+    switch (this.activeModalChange?.modalType) {
+      case Modals.BORROW:
+        this.borrowService.borrowAsset(this.activeModalChange!.assetAction!.amount,
+          this.activeModalChange!.assetAction!.asset.tag);
+        break;
+      case Modals.SUPPLY:
+        this.supplyService.supplyAsset(this.activeModalChange!.assetAction!.amount,
+          this.activeModalChange!.assetAction!.asset.tag);
+        break;
+      case Modals.REPAY:
+        this.repayService.repayAsset(this.activeModalChange!.assetAction!.amount,
+          this.activeModalChange!.assetAction!.asset.tag);
+        break;
+      case Modals.WITHDRAW:
+        this.withdrawService.withdrawAsset(this.activeModalChange!.assetAction!.amount,
+          this.activeModalChange!.assetAction!.asset.tag);
+        break;
+      default:
+        throw new OmmError(`Invalid modal type: ${this.activeModalChange?.modalType}`);
+    }
+
+    this.modalService.hideActiveModal();
   }
 
 }

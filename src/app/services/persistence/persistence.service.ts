@@ -6,6 +6,7 @@ import {Reserve, UserReserves} from "../../interfaces/reserve";
 import {UserAccountData} from "../../models/user-account-data";
 import {BridgeWallet} from "../../models/BridgeWallet";
 import {AssetTag} from "../../models/Asset";
+import {AllReserveConfigData} from "../../models/AllReserveConfigData";
 
 @Injectable({
   providedIn: 'root'
@@ -19,8 +20,10 @@ export class PersistenceService {
 
   public allAddresses?: AllAddresses;
   public allReserves?: AllReserves;
+  public allReservesConfigData?: AllReserveConfigData;
 
   public userReserves: UserReserves = new UserReserves();
+  public userTotalRisk = 0;
 
   public userAccountData?: UserAccountData;
 

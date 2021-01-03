@@ -5,6 +5,7 @@ import {PersistenceService} from "../persistence/persistence.service";
 import {AssetTag} from "../../models/Asset";
 import {IconexWallet} from "../../models/IconexWallet";
 import {BridgeWallet} from "../../models/BridgeWallet";
+import {CalculationsService} from "../calculations/calculations.service";
 
 @Injectable({
   providedIn: 'root'
@@ -27,6 +28,8 @@ export class StateChangeService {
     [AssetTag.ICX, new Subject<number>()],
   ]);
 
+  // public userTotalRiskChange: Subject<number> = new Subject<number>();
+
   /**
    * Map containing subscribable Subjects for each of the Asset reserve (e.g. USDb, ICX, ..)
    */
@@ -35,7 +38,8 @@ export class StateChangeService {
     [AssetTag.ICX, new Subject<Reserve>()],
   ]);
 
-  constructor(private persistenceService: PersistenceService) {
+  constructor(private persistenceService: PersistenceService,
+              private calculationService: CalculationsService) {
     this.userBalanceChangeMap.forEach((subject: Subject<number>, key: AssetTag) => {
       subject.subscribe(value => {
         if (this.persistenceService.activeWallet) {
@@ -44,32 +48,29 @@ export class StateChangeService {
       });
     });
 
-    this.userReserveChangeMap.forEach((subject: Subject<Reserve>, key: AssetTag) => {
+    this.userReserveChangeMap.forEach((subject: Subject<Reserve>, assetTag: AssetTag) => {
       subject.subscribe((value: Reserve) => {
         if (this.persistenceService.activeWallet) {
-          this.persistenceService.userReserves!.reserveMap.set(key, value);
+          this.persistenceService.userReserves!.reserveMap.set(assetTag, value);
+          // update user total risk
+          // this.userTotalRiskChange.next(this.calculationService.calculateValueRiskTotal(assetTag));
         }
       });
     });
+
+    // this.userTotalRiskChange.subscribe(totalRisk => this.persistenceService.userTotalRisk = totalRisk);
   }
 
   public updateLoginStatus(wallet: IconexWallet | BridgeWallet | undefined): void {
     this.loginChange.next(wallet);
   }
 
-  public updateUserUSDbBalance(balance: number): void {
-    this.userBalanceChangeMap.get(AssetTag.USDb)!.next(balance);
+  public updateUserAssetBalance(balance: number, assetTag: AssetTag): void {
+    this.userBalanceChangeMap.get(assetTag)!.next(balance);
   }
 
-  public updateUserUSDbReserve(reserve: Reserve): void {
-    this.userReserveChangeMap.get(AssetTag.USDb)!.next(reserve);
+  public updateUserAssetReserve(reserve: Reserve, assetTag: AssetTag): void {
+    this.userReserveChangeMap.get(assetTag)!.next(reserve);
   }
 
-  public updateUserIcxBalance(balance: number): void {
-    this.userBalanceChangeMap.get(AssetTag.ICX)!.next(balance);
-  }
-
-  public updateUserIcxReserve(reserve: Reserve): void {
-    this.userReserveChangeMap.get(AssetTag.ICX)!.next(reserve);
-  }
 }
