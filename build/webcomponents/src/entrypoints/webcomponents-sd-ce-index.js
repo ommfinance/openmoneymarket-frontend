@@ -1,0 +1,2 @@
+/*! For license information please see webcomponents-sd-ce-index.js.LICENSE.txt */
+"use strict";import"../../node_modules/@webcomponents/shadydom/src/shadydom.js";import"../../node_modules/@webcomponents/custom-elements/src/custom-elements.js";import"../../node_modules/@webcomponents/shadycss/entrypoints/scoping-shim.js";

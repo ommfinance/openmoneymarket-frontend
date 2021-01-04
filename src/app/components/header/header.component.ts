@@ -3,7 +3,7 @@ import {IconexApiService} from "../../services/iconex-api/iconex-api.service";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {SupplyService} from "../../services/supply/supply.service";
 // @ts-ignore
-import BridgeService from "icon-bridge-sdk/build/bridge.bundle";
+import BridgeService from "../../../../build/bridge.bundle";
 import {BaseClass} from "../base-class";
 import {IconexWallet} from "../../models/IconexWallet";
 import {BridgeWallet} from "../../models/BridgeWallet";

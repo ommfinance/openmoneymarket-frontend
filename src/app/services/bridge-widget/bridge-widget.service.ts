@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {OmmError} from "../../core/errors/OmmError";
 
 // @ts-ignore
-import BridgeService from "icon-bridge-sdk/build/bridge.bundle";
+import BridgeService from "../../../../build/bridge.bundle";
 import {PersistenceService} from "../persistence/persistence.service";
 import {BridgeWallet} from "../../models/BridgeWallet";
 import {DataLoaderService} from "../data-loader/data-loader.service";

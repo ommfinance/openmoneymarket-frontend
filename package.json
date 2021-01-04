@@ -31,7 +31,6 @@
     "@angular/router": "~10.1.1",
     "bignumber.js": "^9.0.1",
     "express": "^4.17.1",
-    "icon-bridge-sdk": "file:../../bridge-frontend/bridge-frontend-sdk",
     "icon-sdk-js": "0.0.18",
     "jquery": "3.4.1",
     "loglevel": "^1.7.1",
