@@ -1,6 +1,6 @@
 import {Utils} from "../common/utils";
-import {usdbFormat} from "../common/formats";
-import {Asset, AssetTag, supportedAssetsMap} from "../models/Asset";
+import {AssetTag, supportedAssetsMap} from "../models/Asset";
+import {assetFormat} from "../common/formats";
 
 
 /*
@@ -33,14 +33,14 @@ export class BaseClass {
     if (!value) {
       return 0;
     }
-    return +usdbFormat.from(value);
+    return +assetFormat(AssetTag.USDb).from(value);
   }
 
   public fromNumberToUSDbFormat(value: number): string {
     if (!value) {
       return "- USDb";
     }
-    return usdbFormat.to(value);
+    return assetFormat(AssetTag.USDb).to(value);
   }
 
   public hideElement(hide: boolean): any {

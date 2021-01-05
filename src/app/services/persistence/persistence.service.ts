@@ -118,6 +118,17 @@ export class PersistenceService {
     return totalSupplied;
   }
 
+  public getUserTotalSuppliedUSD(): number {
+    let totalSupplied = 0;
+    if (!this.userReserves) {
+      return totalSupplied;
+    }
+    this.userReserves.reserveMap.forEach((reserve: Reserve | undefined) => {
+      totalSupplied += reserve?.currentOTokenBalanceUSD ?? 0;
+    });
+    return totalSupplied;
+  }
+
   public getUserTotalBorrowed(): number {
     let totalBorrowed = 0;
     if (!this.userReserves) {

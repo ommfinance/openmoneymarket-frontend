@@ -7,7 +7,7 @@ export class ScoreMethodNames {
   /*
    * LendingPool SCORE
    */
-  public static DEPOSIT = "supply";
+  public static DEPOSIT = "deposit";
   public static REDEEM = "redeem";
   public static BORROW = "borrow";
 

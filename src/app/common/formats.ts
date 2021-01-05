@@ -10,6 +10,8 @@
 ========================================================================== */
 
 // declare wNumb
+import {AssetTag} from "../models/Asset";
+
 declare var wNumb: any;
 
 
@@ -26,35 +28,33 @@ export const prefixPlusFormat = wNumb({
   prefix: ' + '
 });
 
-// ICX
-export const icxFormat = wNumb({
-  decimals: 0,
-  thousand: ',',
-  suffix: ' ICX'
-});
-
-// USDb
-export const usdbFormat = wNumb({
-  decimals: 0,
-  thousand: ',',
-  suffix: ' USDb'
-});
+export function assetFormat(assetTag: AssetTag): any {
+    return wNumb({
+      decimals: 0,
+      thousand: ',',
+      suffix: ` ${assetTag.toString()}`
+    });
+}
 
 // + USDb .00
-export const usdbPrefixPlusFormat = wNumb({
-  decimals: 2,
-  thousand: ',',
-  prefix: ' + ',
-  suffix: ' USDb'
-});
+export function assetPrefixPlusFormat(assetTag: AssetTag): any {
+  return wNumb({
+    decimals: 2,
+    thousand: ',',
+    prefix: ' + ',
+    suffix: ` ${assetTag.toString()}`
+  });
+}
 
 // - USDb .00
-export const usdbPrefixMinusFormat = wNumb({
-  decimals: 2,
-  thousand: ',',
-  prefix: ' - ',
-  suffix: ' USDb'
-});
+export function assetPrefixMinusFormat(assetTag: AssetTag): any {
+  return wNumb({
+    decimals: 2,
+    thousand: ',',
+    prefix: ' - ',
+    suffix: ` ${assetTag.toString()}`
+  });
+}
 
 // + OMM .00
 export const ommPrefixPlusFormat = wNumb({

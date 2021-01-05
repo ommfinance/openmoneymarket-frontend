@@ -1,14 +1,15 @@
-<!-- Available to supply state -->
+<!-- Available to supply state  TODO!!! -->
 <tr class="asset {{asset.className}} asset-available hide" #assetAvail>
   <td>{{asset.name}}<br><span class="label">{{asset.tag}}</span></td>
   <td colspan="2" class="text-right">$15,000<br><span class="label">15,000 {{asset.tag}}</span></td>
   <td colspan="2" class="text-right"><span class="text-green">6.47% APY</span></td>
 </tr>
 
+
 <!-- Your markets state -->
 <tr class="asset {{asset.className}} your hide" (click)="onAssetClick()" #assetYour>
   <td>{{asset.name}}<br><span class="label">{{asset.tag}}</span></td>
-  <td><span class="value-supplied">${{this.formatNumberToNdigits(this.persistenceService.getUserAssetReserve(asset.tag)?.currentOTokenBalance)}}</span><br>
+  <td><span class="value-supplied">${{this.formatNumberToNdigits(this.persistenceService.getUserAssetReserve(asset.tag)?.currentOTokenBalanceUSD)}}</span><br>
     <span class="value-supplied label">{{this.formatNumberToUSLocaleString(this.persistenceService.getUserSuppliedAssetBalance(asset.tag))}} {{asset.tag}}</span></td>
   <td class="text-green">{{this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate?.toFixed(5)}}%</td>
   <td><span class="value-borrowed">${{this.formatNumberToNdigits(this.persistenceService.getUserAssetReserve(asset.tag)?.principalBorrowBalanceUSD)}}</span><br>

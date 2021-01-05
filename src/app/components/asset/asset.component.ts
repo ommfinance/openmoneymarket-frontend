@@ -1,11 +1,9 @@
 import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {SlidersService} from "../../services/sliders/sliders.service";
 import {
+  assetFormat, assetPrefixMinusFormat, assetPrefixPlusFormat,
   ommPrefixPlusFormat,
-  percentageFormat,
-  usdbFormat,
-  usdbPrefixMinusFormat,
-  usdbPrefixPlusFormat
+  percentageFormat
 } from "../../common/formats";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {Asset, AssetTag} from "../../models/Asset";
@@ -223,7 +221,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * Logic to trigger on supply amount change
    */
   supplyAssetAmountChange(): void {
-    const amount = +usdbFormat.from(this.inputSupply.value);
+    const amount = +assetFormat(this.asset.tag).from(this.inputSupply.value);
     if (this.persistenceService.activeWallet) {
       if (amount > this.persistenceService.activeWallet.balances.get(this.asset.tag)!) {
         this.inputSupply.style.borderColor = "red";
@@ -237,9 +235,9 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * Logic to trigger on borrow amount change
    */
   public borrowAssetAmountChange(): void {
-    const amount = +usdbFormat.from(this.inputBorrow.value);
+    const amount = +assetFormat(this.asset.tag).from(this.inputBorrow.value);
     if (this.persistenceService.activeWallet) {
-      if (amount > +usdbFormat.from(this.inputBorrowAvailable.value)) {
+      if (amount > +assetFormat(this.asset.tag).from(this.inputBorrowAvailable.value)) {
         this.inputBorrow.style.borderColor = "red";
       } else {
         this.inputBorrow.style.borderColor = "#c7ccd5";
@@ -252,7 +250,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * Logic to trigger when user clicks confirm of asset supply
    */
   onAssetSupplyConfirmClick(): void {
-    let value = +usdbFormat.from(this.inputSupply.value);
+    let value = +assetFormat(this.asset.tag).from(this.inputSupply.value);
     log.debug(`Supply of ${this.asset.tag} changed to ${value}`);
 
     // check that supplied value is not greater than user asset balance
@@ -281,7 +279,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * Logic to trigger when user clicks confirm of asset borrow
    */
   onAssetBorrowConfirmClick(): void {
-    const value = +usdbFormat.from(this.inputBorrow.value);
+    const value = +assetFormat(this.asset.tag).from(this.inputBorrow.value);
     const borrowAmountDiff = value - Math.floor(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
   // TODO add check
 
@@ -314,7 +312,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.stateChangeService.userBalanceChangeMap.get(this.asset.tag)!.subscribe(newBalance => {
       log.debug(`${this.asset.tag} balance changed to ${newBalance}`);
       if (this.sliderSupply) {
-        this.inputSupplyAvailable.value = usdbFormat.to(newBalance);
+        this.inputSupplyAvailable.value = assetFormat(this.asset.tag).to(newBalance);
         this.sliderSupply.noUiSlider.updateOptions({
           range: {
             min: 0,
@@ -329,7 +327,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       log.debug(`${this.asset.tag} reserve changed to: `, reserve);
 
       // update input supply value to new asset reserve balance
-      this.inputSupply.value = usdbFormat.to(reserve.currentOTokenBalance);
+      this.inputSupply.value = assetFormat(this.asset.tag).to(reserve.currentOTokenBalance);
 
       // update supply slider value
       this.sliderSupply.noUiSlider.set(reserve.currentOTokenBalance);
@@ -343,9 +341,9 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         }
       });
       // set borrow supplied and slider value
-      this.inputBorrow.value = usdbFormat.to(reserve.principalBorrowBalance);
+      this.inputBorrow.value = assetFormat(this.asset.tag).to(reserve.principalBorrowBalance);
       this.inputBorrowAvailable.value = this.calculationService.calculateAssetSliderAvailableBorrow(
-        usdbFormat.from(this.inputBorrowAvailable.value), this.asset.tag);
+        assetFormat(this.asset.tag).from(this.inputBorrowAvailable.value), this.asset.tag);
       this.sliderBorrow.noUiSlider.set(reserve.principalBorrowBalance);
       // update USDb borrow slider max value to  -> user USDb balance + supplied USDb
       this.sliderBorrow.noUiSlider.updateOptions({
@@ -369,10 +367,10 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       const supplyDiff = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag) - this.inputSupply.value;
 
       // Update asset available text box
-      this.inputSupplyAvailable.value = usdbFormat.to(this.calculationService.calculateAssetSliderAvailableSupply(+values[handle], this.asset.tag));
+      this.inputSupplyAvailable.value = assetFormat(this.asset.tag).to(this.calculationService.calculateAssetSliderAvailableSupply(+values[handle], this.asset.tag));
 
       // Update asset's supply interest
-      $(this.suppInterestEl).text(usdbPrefixPlusFormat.to((parseFloat(values[handle])) * 0.0647 / 365));
+      $(this.suppInterestEl).text(assetPrefixPlusFormat(this.asset.tag).to((parseFloat(values[handle])) * 0.0647 / 365));
 
       // Update asset's supply omm rewards
       $(this.suppRewardsEl).text(ommPrefixPlusFormat.to((parseFloat(values[handle])) * 0.447 / 365));
@@ -394,10 +392,10 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       const borrowDiff = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag) - this.inputBorrow.value;
 
       // Update asset available text box
-      this.inputBorrowAvailable.value = usdbFormat.to(this.calculationService.calculateAssetSliderAvailableBorrow(values[handle], this.asset.tag));
+      this.inputBorrowAvailable.value = assetFormat(this.asset.tag).to(this.calculationService.calculateAssetSliderAvailableBorrow(values[handle], this.asset.tag));
 
       // Update asset's borrow interest
-      $(this.borrInterestEl).text(usdbPrefixMinusFormat.to((values[handle] * 1) * 0.0725 / 365));
+      $(this.borrInterestEl).text(assetPrefixMinusFormat(this.asset.tag).to((values[handle] * 1) * 0.0725 / 365));
 
       // Update asset's borrow omm rewards
       $(this.borrRewardsEl).text(ommPrefixPlusFormat.to((values[handle] * 1) * 0.4725 / 365));
