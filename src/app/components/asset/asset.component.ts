@@ -313,10 +313,11 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       log.debug(`${this.asset.tag} balance changed to ${newBalance}`);
       if (this.sliderSupply) {
         this.inputSupplyAvailable.value = assetFormat(this.asset.tag).to(newBalance);
+        const max = newBalance + (this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag) ?? 0);
         this.sliderSupply.noUiSlider.updateOptions({
           range: {
             min: 0,
-            max: newBalance + (this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag) ?? 0)
+            max: max === 0 ? 1 : max // min and max must not equal
           }
         });
       }
@@ -333,11 +334,13 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       this.sliderSupply.noUiSlider.set(reserve.currentOTokenBalance);
 
       // update supply slider max value to  -> user asset balance + supplied
+      const assetBalance = this.persistenceService.activeWallet?.balances.get(this.asset.tag) ?? 0;
+      const suppliedAssetBalance = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag) ?? 0;
+      let max = assetBalance + suppliedAssetBalance;
       this.sliderSupply.noUiSlider.updateOptions({
         range: {
           min: 0,
-          max: (this.persistenceService.activeWallet?.balances.get(this.asset.tag) ?? 0) +
-            (this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag) ?? 0)
+          max: max === 0 ? 1 : max // min and max must not equal
         }
       });
       // set borrow supplied and slider value
@@ -346,10 +349,11 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         assetFormat(this.asset.tag).from(this.inputBorrowAvailable.value), this.asset.tag);
       this.sliderBorrow.noUiSlider.set(reserve.principalBorrowBalance);
       // update USDb borrow slider max value to  -> user USDb balance + supplied USDb
+      max = this.calculationService.calculateAssetBorrowSliderMax(this.asset.tag);
       this.sliderBorrow.noUiSlider.updateOptions({
         range: {
           min: 0,
-          max: this.calculationService.calculateAssetBorrowSliderMax(this.asset.tag)
+          max: max === 0 ? 1 : max // min and max must not equal
         }
       });
     });
@@ -415,6 +419,18 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     });
   }
 
+  userAssetBalanceIsZero(): boolean {
+    return this.persistenceService.userAssetWalletIsZero(this.asset.tag);
+  }
+
+  userAssetSuppliedBalanceIsZero(): boolean {
+    return this.persistenceService.userAssetSuppliedIsZero(this.asset.tag);
+  }
+
+  userAssetBorrowedBalanceIsZero(): boolean {
+    return this.persistenceService.userAssetBorrowedIsZero(this.asset.tag);
+  }
+
   collapseAssetTableSlideUp(): void {
     // Collapse asset table`
     $(`.asset.${this.asset.tag}`).removeClass('active');
@@ -430,6 +446,13 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   hideAvailableAssetData(): void {
     // Hide available assets data
     $(this.assetAvailableEl).css("display", "none");
+    $(this.assetYourEl).css("display", "none");
+  }
+
+  showAssetAvailableAndHideAssetYour(): void {
+    // Show available asset version
+    $(this.assetAvailableEl).css("display", "table-row");
+    // Hide your asset version
     $(this.assetYourEl).css("display", "none");
   }
 
@@ -500,7 +523,16 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   hideYourAsset(): void {
+    if ($(this.assetYourEl).is(":visible")) {
+      $(this.assetYourEl).css("display", "none");
+    } else if ($(this.assetAvailableEl).is(":visible")) {
+      $(this.assetAvailableEl).css("display", "none");
+    }
+  }
+
+  hideYourAndAvailableAsset(): void {
     $(this.assetYourEl).css("display", "none");
+    $(this.assetAvailableEl).css("display", "none");
   }
 
   hideAllMarketAsset(): void {
@@ -508,7 +540,16 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   showYourAsset(): void {
-    $(this.assetYourEl).css("display", "table-row");
+    log.debug(`showYourAsset() called`);
+    if (this.persistenceService.userHasNotSuppliedAnyAsset()
+      && !this.userAssetBalanceIsZero()
+      && this.persistenceService.userLoggedIn()) {
+      $(this.assetAvailableEl).css("display", "table-row");
+    } else {
+      if (this.persistenceService.userAssetSuppliedOrBorrowedNotZero(this.asset.tag)) {
+        $(this.assetYourEl).css("display", "table-row");
+      }
+    }
   }
 
   showAllMarketAsset(): void {

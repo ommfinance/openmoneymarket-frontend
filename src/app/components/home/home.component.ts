@@ -65,7 +65,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   ngOnInit(): void {
     this.stateChangeService.loginChange.subscribe(wallet => {
       if (wallet) { // TODO improve
-        log.debug(`${this.className} Login change to walet = ${wallet}`);
+        log.debug(`${this.className} Login with wallet = ${wallet}`);
         this.onToggleYourMarketsClick();
       } else {
         this.onToggleAllMarketsClick();
@@ -81,6 +81,8 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     this.supportedAssets = Array.from(this.supportedAssetsMap.values());
     this.cd.detectChanges();
   }
+
+
 
   onSearchValueChange(newValue: any): void {
     this.searchValue = newValue;
@@ -208,19 +210,22 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     // If asset wallet, supply, and borrow = 0
     this.assets.forEach(asset => {
       if (this.persistenceService.userAssetWalletSupplyAndBorrowIsZero(asset.asset.tag)) {
-        $(`.${asset.asset.tag}.asset`).css("display", "none");
+        asset.hideYourAndAvailableAsset();
       }
     });
 
     // If asset wallet does not = 0, and Supply = 0, and Borrow = 0
+    log.debug(`If asset wallet does not = 0, and Supply = 0, and Borrow = 0`);
     this.assets.forEach(asset => {
+      log.debug(`${asset.asset.tag} wallet does not = 0 -> boolean = ${!this.persistenceService.userAssetWalletIsZero(asset.asset.tag)}`);
+      log.debug(`${asset.asset.tag} Supply = 0, and Borrow = 0 -> boolean = ${this.persistenceService.userAssetSuppliedAndBorrowedIsZero(asset.asset.tag)}`);
+      log.debug(`${asset.asset.tag} Supplied = ${this.persistenceService.getUserSuppliedAssetBalance(asset.asset.tag)}`);
+      log.debug(`${asset.asset.tag} Borrowed = ${this.persistenceService.getUserBorrowedAssetBalance(asset.asset.tag)}`);
+
+
       if (!this.persistenceService.userAssetWalletIsZero(asset.asset.tag)
-        && this.persistenceService.userAssetWalletSupplyAndBorrowIsZero(asset.asset.tag)) {
-        $(`.${asset.asset.tag}.asset`).css("display", "none");
-        // Show available ICX version
-        $(`.${asset.asset.tag}.asset-available`).css("display", "table-row");
-        // Hide your ICX version
-        $(`.${asset.asset.tag}.your`).css("display", "none");
+        && this.persistenceService.userAssetSuppliedAndBorrowedIsZero(asset.asset.tag)) {
+        asset.showAssetAvailableAndHideAssetYour();
       }
     });
 

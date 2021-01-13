@@ -8,6 +8,7 @@ import {PersistenceService} from "../../services/persistence/persistence.service
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import log from "loglevel";
 import {CalculationsService} from "../../services/calculations/calculations.service";
+import {BaseClass} from "../base-class";
 
 declare var noUiSlider: any;
 declare var wNumb: any;
@@ -18,14 +19,16 @@ declare var $: any;
   templateUrl: './risk.component.html',
   styleUrls: ['./risk.component.css']
 })
-export class RiskComponent implements OnInit, AfterViewInit {
+export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
 
   private sliderRisk?: any;
   // private totalRisk = 0;
 
   constructor(private stateChangeService: StateChangeService,
-              private persistenceService: PersistenceService,
-              private calculationService: CalculationsService) { }
+              public persistenceService: PersistenceService,
+              private calculationService: CalculationsService) {
+    super();
+  }
 
   ngOnInit(): void {
   }

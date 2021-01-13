@@ -47,4 +47,12 @@ export class BaseClass {
     return {display: hide ? 'none' : null};
   }
 
+  public displayAsTableRow(show: boolean): any {
+    return {display: show ? 'table-row' : null};
+  }
+
+  public displayAsBlock(show: boolean): any {
+    return {display: show ? 'block' : null};
+  }
+
 }

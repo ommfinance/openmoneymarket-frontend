@@ -34,7 +34,7 @@ export class DataLoaderService {
       const [usdbReserveResponse, icxReserveResponse, icxBalResponse, usdbBalResponse] = await Promise.all([
         this.loadUserUSDbReserveData(),
         this.loadUserIcxReserveData(),
-        this.iconApiService.getIcxBalance(iconAddress),
+        this.scoreService.getUserAssetBalance(AssetTag.ICX),
         this.scoreService.getUserAssetBalance(AssetTag.USDb)
       ]);
 

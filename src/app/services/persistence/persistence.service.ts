@@ -45,6 +45,15 @@ export class PersistenceService {
     return this.activeWallet?.balances.get(AssetTag.USDb) ?? 0;
   }
 
+  public getUserAssetBalance(assetTag: AssetTag): number {
+    return this.activeWallet?.balances.get(assetTag) ?? 0;
+  }
+
+  public getUserAssetUSDBalance(assetTag: AssetTag): number {
+    // TODO get USD price of the asset!!!
+    return this.activeWallet?.balances.get(assetTag) ?? 0;
+  }
+
   public getUserSuppliedAssetBalance(assetTag: AssetTag): number {
     return this.userReserves?.reserveMap.get(assetTag)?.currentOTokenBalance ?? 0;
   }
@@ -212,6 +221,10 @@ export class PersistenceService {
     return !this.userAssetSuppliedIsZero(assetTag) || !this.userAssetBorrowedIsZero(assetTag);
   }
 
+  public userAssetSuppliedAndBorrowedIsZero(assetTag: AssetTag): boolean {
+    return this.userAssetSuppliedIsZero(assetTag) && this.userAssetBorrowedIsZero(assetTag);
+  }
+
   public userAssetWalletSupplyAndBorrowIsZero(assetTag: AssetTag): boolean {
     // If asset wallet, supply, and borrow balance = 0
     return this.userAssetWalletIsZero(assetTag)
@@ -220,11 +233,11 @@ export class PersistenceService {
   }
 
   public userAssetSuppliedIsZero(assetTag: AssetTag): boolean {
-    return this.userReserves!.reserveMap.get(assetTag)?.currentOTokenBalance === 0;
+    return this.getUserSuppliedAssetBalance(assetTag) === 0;
   }
 
   public userAssetBorrowedIsZero(assetTag: AssetTag): boolean {
-    return this.userReserves!.reserveMap.get(assetTag)?.principalBorrowBalance === 0;
+    return this.getUserBorrowedAssetBalance(assetTag) === 0;
   }
 
   public userAssetWalletIsZero(assetTag: AssetTag): boolean {
