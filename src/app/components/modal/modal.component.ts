@@ -95,7 +95,7 @@ export class ModalComponent extends BaseClass implements OnInit {
 
   onAssetModalActionClick(): void {
     // store asset action in local storage
-    this.localStorageService.persistAssetAction(this.activeModalChange!.assetAction!);
+    this.localStorageService.persistModalAction(this.activeModalChange!);
 
     switch (this.activeModalChange?.modalType) {
       case Modals.BORROW:

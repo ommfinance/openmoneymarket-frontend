@@ -7,6 +7,7 @@ import {TransactionResultService} from '../transaction-result/transaction-result
 import {ScoreService} from "../score/score.service";
 import {DataLoaderService} from "../data-loader/data-loader.service";
 import log from "loglevel";
+import {OmmError} from "../../core/errors/OmmError";
 
 @Injectable({
   providedIn: "root"
@@ -30,7 +31,9 @@ export class IconexApiService {
     switch (type) {
       case "RESPONSE_HAS_ACCOUNT": {
         if (payload.hasAccount) { this.requestAddress(); }
-        else { alert("Wallet does not exist. (Not logged in Iconex?)"); }
+        else {
+          throw new OmmError("Wallet does not exist. (Not logged in Iconex?)");
+        }
         break;
       }
       case "RESPONSE_ADDRESS": {
@@ -44,8 +47,7 @@ export class IconexApiService {
         break;
       }
       case "CANCEL_JSON-RPC": {
-        alert("ICONEX send transaction cancelled!");
-        break;
+        throw new OmmError("ICONEX send transaction cancelled!");
       }
       default: {
         log.debug("Iconex default response handler:", payload, type);

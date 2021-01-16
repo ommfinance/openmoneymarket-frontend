@@ -24,11 +24,10 @@ export class GlobalErrorHandler implements ErrorHandler {
 
   private handleScoreAddressesNotLoaded(): void {
     this.dataLoaderService.loadAllScoreAddresses();
-    alert("All score addresses not loaded. Try again in few moments");
+    throw new OmmError("All score addresses not loaded. Try again in few moments");
   }
 
   private handleUserNotLoggedIn(): void {
-    alert("User not logged in. Please log in and try again.");
-    // TODO show log in dialog
+    throw new OmmError("User not logged in. Please log in and try again.");
   }
 }

@@ -9,6 +9,9 @@ import {IconexRequestsMap} from "../../common/iconex-requests-map";
 import {CheckerService} from "../checker/checker.service";
 import log from "loglevel";
 import {AssetTag} from "../../models/Asset";
+import {IconexWallet} from "../../models/IconexWallet";
+import {BridgeWallet} from "../../models/BridgeWallet";
+import {BridgeWidgetService} from "../bridge-widget/bridge-widget.service";
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +21,8 @@ export class BorrowService {
   constructor(private iconApiService: IconApiService,
               private persistenceService: PersistenceService,
               private iconexApiService: IconexApiService,
-              private checkerService: CheckerService) {
+              private checkerService: CheckerService,
+              private bridgeWidgetService: BridgeWidgetService) {
   }
 
   public borrowAsset(amount: number, assetTag: AssetTag): void {
@@ -45,7 +49,11 @@ export class BorrowService {
 
     log.debug("borrowUSDb TX: ", tx);
 
-    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.BORROW);
+    if (this.persistenceService.activeWallet instanceof IconexWallet) {
+      this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.BORROW);
+    } else if (this.persistenceService.activeWallet instanceof BridgeWallet) {
+      this.bridgeWidgetService.sendTransaction(tx);
+    }
   }
 
   private borrowIcx(amount: number): void {
@@ -61,7 +69,11 @@ export class BorrowService {
 
     log.debug("borrowIcx TX: ", tx);
 
-    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.BORROW);
+    if (this.persistenceService.activeWallet instanceof IconexWallet) {
+      this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.BORROW);
+    } else if (this.persistenceService.activeWallet instanceof BridgeWallet) {
+      this.bridgeWidgetService.sendTransaction(tx);
+    }
   }
 
 }

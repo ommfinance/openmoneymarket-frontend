@@ -6,6 +6,7 @@ import {AssetTag} from "../../models/Asset";
 import {IconexWallet} from "../../models/IconexWallet";
 import {BridgeWallet} from "../../models/BridgeWallet";
 import {CalculationsService} from "../calculations/calculations.service";
+import {DataLoaderService} from "../data-loader/data-loader.service";
 
 @Injectable({
   providedIn: 'root'
@@ -38,8 +39,7 @@ export class StateChangeService {
     [AssetTag.ICX, new Subject<Reserve>()],
   ]);
 
-  constructor(private persistenceService: PersistenceService,
-              private calculationService: CalculationsService) {
+  constructor(private persistenceService: PersistenceService) {
     this.userBalanceChangeMap.forEach((subject: Subject<number>, key: AssetTag) => {
       subject.subscribe(value => {
         if (this.persistenceService.activeWallet) {

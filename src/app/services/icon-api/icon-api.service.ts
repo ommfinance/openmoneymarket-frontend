@@ -35,11 +35,11 @@ export class IconApiService {
                           value?: number): any {
     let tx = null;
     const timestamp = (new Date()).getTime() * 1000;
-    const nonce = IconConverter.toBigNumber(1);
-    const stepLimit = IconConverter.toBigNumber(2000000);
-    const version = IconConverter.toBigNumber(3);
-    const nid = IconConverter.toBigNumber(3);
-    value = value ? IconAmount.of(value, IconAmount.Unit.ICX).toLoop() : "0x0";
+    const nonce = IconConverter.toHex(IconConverter.toBigNumber(1));
+    const stepLimit = IconConverter.toHex(IconConverter.toBigNumber(2000000));
+    const version = IconConverter.toHex((IconConverter.toBigNumber(3)));
+    const nid = IconConverter.toHex(IconConverter.toBigNumber(3));
+    value = value ? IconConverter.toHex(IconAmount.of(value, IconAmount.Unit.ICX).toLoop()) : "0x0";
 
     switch (transactionType) {
       case IconTransactionType.WRITE:

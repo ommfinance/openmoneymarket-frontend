@@ -12,6 +12,9 @@ import {Utils} from "../../common/utils";
 import {CheckerService} from "../checker/checker.service";
 import log from "loglevel";
 import {AssetTag} from "../../models/Asset";
+import {OmmError} from "../../core/errors/OmmError";
+import {BridgeWallet} from "../../models/BridgeWallet";
+import {BridgeWidgetService} from "../bridge-widget/bridge-widget.service";
 
 
 @Injectable({
@@ -23,7 +26,8 @@ export class SupplyService {
               private persistenceService: PersistenceService,
               private iconexApiService: IconexApiService,
               private scoreService: ScoreService,
-              private checkerService: CheckerService) {
+              private checkerService: CheckerService,
+              private bridgeWidgetService: BridgeWidgetService) {
   }
 
   public supplyAsset(amount: number, assetTag: AssetTag): void {
@@ -39,8 +43,7 @@ export class SupplyService {
 
   private depositUSDb(amount: number): void {
     if (this.persistenceService.activeWallet == null) {
-      alert("Please connect your Iconex wallet!");
-      return;
+      throw new OmmError("Please connect your Iconex wallet!");
     }
 
     this.transferUSDbTokenToLendingPool(amount, this.persistenceService.activeWallet);
@@ -49,8 +52,7 @@ export class SupplyService {
   private transferUSDbTokenToLendingPool(amount: number, wallet: IconexWallet): void {
     log.debug("Deposit USDb amount = " + amount);
     if (!this.persistenceService.allAddresses) {
-      alert("SCORE all addresses not loaded!");
-      return;
+      throw new OmmError("SCORE all addresses not loaded!");
     }
     // TODO: refactor for Bridge
     const params = {
@@ -68,7 +70,11 @@ export class SupplyService {
       log.debug("USDb balance before: ", res);
     });
 
-    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.SUPPLY);
+    if (this.persistenceService.activeWallet instanceof IconexWallet) {
+      this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.SUPPLY);
+    } else if (this.persistenceService.activeWallet instanceof BridgeWallet) {
+      this.bridgeWidgetService.sendTransaction(tx);
+    }
   }
 
   private depositIcxToLendingPool(amount: number): void {
@@ -87,7 +93,11 @@ export class SupplyService {
       log.debug("ICX balance before: ", res);
     });
 
-    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.SUPPLY);
+    if (this.persistenceService.activeWallet instanceof IconexWallet) {
+      this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.SUPPLY);
+    } else if (this.persistenceService.activeWallet instanceof BridgeWallet) {
+      this.bridgeWidgetService.sendTransaction(tx);
+    }
   }
 
 }

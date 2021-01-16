@@ -2,6 +2,7 @@ import {Injectable} from "@angular/core";
 import {HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from "@angular/common/http";
 import {Observable, throwError} from "rxjs";
 import {catchError, finalize} from "rxjs/operators";
+import {OmmError} from "./OmmError";
 
 @Injectable()
 export class HttpErrorInterceptor implements HttpInterceptor {
@@ -28,8 +29,7 @@ export class HttpErrorInterceptor implements HttpInterceptor {
 
         }
         // show dialog for error message
-        alert(errorMessage);
-        return throwError(error);
+        throw new OmmError(errorMessage);
       }),
       finalize(() => {
         // hide loading spinner

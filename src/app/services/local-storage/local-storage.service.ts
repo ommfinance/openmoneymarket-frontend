@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {Subject} from "rxjs";
 import {AssetAction} from "../../models/AssetAction";
+import {ModalAction} from "../../models/ModalAction";
 
 @Injectable({
   providedIn: 'root'
@@ -14,12 +15,12 @@ export class LocalStorageService {
     this.localStorage   = window.localStorage;
   }
 
-  persistAssetAction(assetAction: AssetAction): void {
-    this.set("asset.action", assetAction);
+  persistModalAction(modalAction: ModalAction): void {
+    this.set("modal.action", modalAction);
   }
 
-  getAssetAction(): AssetAction {
-    return this.get("asset.action");
+  getLastModalAction(): ModalAction {
+    return this.get("modal.action");
   }
 
   get(key: string): any {

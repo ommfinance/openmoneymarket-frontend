@@ -6,6 +6,7 @@ import BridgeService from "../../../../build/bridge.bundle";
 import {PersistenceService} from "../persistence/persistence.service";
 import {BridgeWallet} from "../../models/BridgeWallet";
 import {DataLoaderService} from "../data-loader/data-loader.service";
+import log from "loglevel";
 
 @Injectable({
   providedIn: 'root'
@@ -17,18 +18,23 @@ export class BridgeWidgetService {
   constructor(private dataLoaderService: DataLoaderService) {
     this.bridge = new BridgeService();
     window.addEventListener("bri.login", (e) => this.handleBridgeLogin(e));
-    window.addEventListener("bri.tx.result", (e) => this.handleTxResult(e));
     window.addEventListener("bri.widget.res", (e) => this.handleWidgetRes(e));
   }
 
   handleBridgeLogin(e: any): void {
     const {publicAddress, email} = e.detail;
+    log.debug("Bridge login with publicAddress=" + publicAddress);
     this.dataLoaderService.walletLogin(new BridgeWallet(publicAddress, email, this.bridge), publicAddress);
   }
 
-  handleTxResult(e: any): void{
-    const {txHash, error, status} = e.detail;
-    console.log(txHash, error, status);
+  sendTransaction(tx: any): void {
+    log.debug(`sendTransaction tx:`, tx);
+    log.debug(JSON.stringify(tx));
+    window.dispatchEvent(new CustomEvent('bri.send.tx', {
+      detail: {
+        payload: tx
+      }
+    }));
   }
 
   handleWidgetRes(e: any): void {

@@ -10,6 +10,9 @@ import {IconexRequestsMap} from "../../common/iconex-requests-map";
 import {CheckerService} from "../checker/checker.service";
 import log from "loglevel";
 import {AssetTag} from "../../models/Asset";
+import {IconexWallet} from "../../models/IconexWallet";
+import {BridgeWallet} from "../../models/BridgeWallet";
+import {BridgeWidgetService} from "../bridge-widget/bridge-widget.service";
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +23,8 @@ export class WithdrawService {
               private persistenceService: PersistenceService,
               private iconexApiService: IconexApiService,
               private scoreService: ScoreService,
-              private checkerService: CheckerService) {
+              private checkerService: CheckerService,
+              private bridgeWidgetService: BridgeWidgetService) {
   }
 
   public withdrawAsset(amount: number, assetTag: AssetTag): void {
@@ -49,7 +53,11 @@ export class WithdrawService {
       log.debug("USDb balance before withdraw: ", res);
     });
 
-    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.WITHDRAW);
+    if (this.persistenceService.activeWallet instanceof IconexWallet) {
+      this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.WITHDRAW);
+    } else if (this.persistenceService.activeWallet instanceof BridgeWallet) {
+      this.bridgeWidgetService.sendTransaction(tx);
+    }
   }
 
   private withdrawIcx(amount: number, waitForUnstaking = false): void {
@@ -65,6 +73,10 @@ export class WithdrawService {
 
     log.debug("TX: ", tx);
 
-    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.WITHDRAW);
+    if (this.persistenceService.activeWallet instanceof IconexWallet) {
+      this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.WITHDRAW);
+    } else if (this.persistenceService.activeWallet instanceof BridgeWallet) {
+      this.bridgeWidgetService.sendTransaction(tx);
+    }
   }
 }

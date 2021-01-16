@@ -10,6 +10,9 @@ import {Utils} from "../../common/utils";
 import {CheckerService} from "../checker/checker.service";
 import log from "loglevel";
 import {AssetTag} from "../../models/Asset";
+import {IconexWallet} from "../../models/IconexWallet";
+import {BridgeWallet} from "../../models/BridgeWallet";
+import {BridgeWidgetService} from "../bridge-widget/bridge-widget.service";
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +22,8 @@ export class RepayService {
   constructor(private iconApiService: IconApiService,
               private persistenceService: PersistenceService,
               private iconexApiService: IconexApiService,
-              private checkerService: CheckerService) {
+              private checkerService: CheckerService,
+              private bridgeWidgetService: BridgeWidgetService) {
   }
 
   public repayAsset(amount: number, assetTag: AssetTag): void {
@@ -53,7 +57,11 @@ export class RepayService {
 
     log.debug("repayUSDb TX: ", tx);
 
-    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.REPAY);
+    if (this.persistenceService.activeWallet instanceof IconexWallet) {
+      this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.REPAY);
+    } else if (this.persistenceService.activeWallet instanceof BridgeWallet) {
+      this.bridgeWidgetService.sendTransaction(tx);
+    }
   }
 
   private repayIcx(amount: number): void {
@@ -76,6 +84,10 @@ export class RepayService {
 
     log.debug("repayIcx TX: ", tx);
 
-    this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.REPAY);
+    if (this.persistenceService.activeWallet instanceof IconexWallet) {
+      this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.REPAY);
+    } else if (this.persistenceService.activeWallet instanceof BridgeWallet) {
+      this.bridgeWidgetService.sendTransaction(tx);
+    }
   }
 }

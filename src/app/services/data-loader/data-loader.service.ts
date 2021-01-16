@@ -7,7 +7,7 @@ import {Mapper} from "../../common/mapper";
 import {Reserve} from "../../interfaces/reserve";
 import {UserAccountData} from "../../models/user-account-data";
 import {StateChangeService} from "../state-change/state-change.service";
-import {AssetTag} from "../../models/Asset";
+import {Asset, AssetTag} from "../../models/Asset";
 import log from "loglevel";
 import {IconexWallet} from "../../models/IconexWallet";
 import {BridgeWallet} from "../../models/BridgeWallet";
@@ -19,6 +19,8 @@ import {AllReserveConfigData} from "../../models/AllReserveConfigData";
   providedIn: 'root'
 })
 export class DataLoaderService {
+
+  public userAssetsBalanceReloadInterval: any;
 
   constructor(private scoreService: ScoreService,
               private persistenceService: PersistenceService,
@@ -45,6 +47,11 @@ export class DataLoaderService {
       // set USDb balance
       log.debug(`User USDb balance: ${usdbBalResponse}`);
       this.persistenceService.activeWallet!.balances.set(AssetTag.USDb, usdbBalResponse);
+
+
+        // register user balance reloader interval
+      // this.userAssetsBalanceReloadInterval = setTimeout(() => this.loadAllUserAssetsBalances(), 2000);
+
     } catch (e) {
       throw new OmmError("Error occurred! Try again in a moment.", e);
     }
@@ -53,6 +60,9 @@ export class DataLoaderService {
   }
 
   public walletLogout(): void {
+    if (this.userAssetsBalanceReloadInterval) {
+      clearInterval(this.userAssetsBalanceReloadInterval);
+    }
     this.persistenceService.activeWallet = undefined;
     this.stateChangeService.updateLoginStatus(this.persistenceService.activeWallet);
   }
@@ -89,6 +99,15 @@ export class DataLoaderService {
     });
   }
 
+  public loadUserAssetReserveData(assetTag: AssetTag): void {
+    switch (assetTag) {
+      case AssetTag.ICX:
+        return this.loadUserIcxReserveData();
+      case AssetTag.USDb:
+        return this.loadUserUSDbReserveData();
+    }
+  }
+
   public loadUserUSDbReserveData(): void {
     let mappedReserve: any;
     this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses!.collateral.USDb)
@@ -98,6 +117,13 @@ export class DataLoaderService {
         log.debug("User USDb reserve:", res);
         this.stateChangeService.updateUserAssetReserve(mappedReserve, AssetTag.USDb);
       });
+  }
+
+  public loadAllUserAssetsBalances(): void {
+    if (this.persistenceService.activeWallet) {
+      this.loadUserUSDbReserveData();
+      this.loadUserIcxReserveData();
+    }
   }
 
   public loadUserIcxReserveData(): void {

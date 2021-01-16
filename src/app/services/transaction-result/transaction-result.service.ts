@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {IconexRequestsMap} from '../../common/iconex-requests-map';
 import {IconApiService} from '../icon-api/icon-api.service';
 import {IconJsonRpcResponse} from '../../interfaces/icon-json-rpc-response';
@@ -9,6 +9,10 @@ import log from "loglevel";
 import {NotificationService} from "../notification/notification.service";
 import {LocalStorageService} from "../local-storage/local-storage.service";
 import {environment} from "../../../environments/environment";
+import {OmmError} from "../../core/errors/OmmError";
+import {ModalAction} from "../../models/ModalAction";
+import {AssetAction} from "../../models/AssetAction";
+import {Modals} from "../../models/Modals";
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +24,9 @@ export class TransactionResultService {
               private persistenceService: PersistenceService,
               private dataLoaderService: DataLoaderService,
               private notificationService: NotificationService,
-              private localStorageService: LocalStorageService) { }
+              private localStorageService: LocalStorageService) {
+    window.addEventListener("bri.tx.result", (e) => this.processBridgeTransactionResult(e));
+  }
 
   public processIconexTransactionResult(payload: IconJsonRpcResponse): void {
     log.debug("processTransactionResult->payload: ", payload);
@@ -28,42 +34,34 @@ export class TransactionResultService {
       this.iconApiService.getTxResult(payload.result).
       then((res: any) => {
         if (res.status === 1) {
-          // Show success notification
-          this.notificationService.showNewNotification("Success");
-
           log.debug("payload.id: ", payload.id);
           log.debug("res:", res);
 
-          const assetAction = this.localStorageService.getAssetAction();
+          const modalAction: ModalAction = this.localStorageService.getLastModalAction();
+          const assetAction: AssetAction = modalAction.assetAction!;
           if (!environment.production) {
             this.scoreService.getUserAssetBalance(assetAction.asset.tag).then(balance => {
               log.debug(`${assetAction.asset.tag} balance after ${IconexRequestsMap[payload.id]}: `, balance);
             });
           }
+
+          // reload all reserves and user asset reserve data
+          this.dataLoaderService.loadAllReserves();
+          this.dataLoaderService.loadUserAssetReserveData(assetAction.asset.tag);
+
           switch (payload.id) {
             case IconexRequestsMap.SUPPLY:
-              // load all reserves and user specific USDb reserve data
-              this.dataLoaderService.loadAllReserves();
-              this.dataLoaderService.loadUserUSDbReserveData();
               this.notificationService.showNewNotification(`Successfully supplied ${assetAction.amount} ${assetAction.asset.tag}.`);
               break;
             case IconexRequestsMap.WITHDRAW:
-              // load all reserves and user specific USDb reserve data
-              this.dataLoaderService.loadAllReserves();
-              this.dataLoaderService.loadUserUSDbReserveData();
-              this.notificationService.showNewNotification(`Successfully withdrawn ${assetAction.amount} ${assetAction.asset.tag}.`);
+
+              this.notificationService.showNewNotification(`Successfully withdraw ${assetAction.amount} ${assetAction.asset.tag}.`);
               break;
             case IconexRequestsMap.BORROW:
-              // load all reserves and user specific asset reserve data
-              this.dataLoaderService.loadAllReserves();
-              this.dataLoaderService.loadUserUSDbReserveData();
               this.notificationService.showNewNotification(`Successfully borrowed ${assetAction.amount} ${assetAction.asset.tag}.`);
               break;
             case IconexRequestsMap.REPAY:
-              // load all reserves and user specific asset reserve data
-              this.dataLoaderService.loadAllReserves();
-              this.dataLoaderService.loadUserUSDbReserveData();
-              this.notificationService.showNewNotification(`Successfully repayed ${assetAction.amount} ${assetAction.asset.tag}.`);
+              this.notificationService.showNewNotification(`Successfully repaid ${assetAction.amount} ${assetAction.asset.tag}.`);
               break;
             default:
               break;
@@ -83,7 +81,45 @@ export class TransactionResultService {
         }
       });
     } else  {
-      alert("ICON RPC ERROR: " + payload.error?.message);
+      throw new OmmError("ICON RPC ERROR: " + payload.error?.message);
+    }
+  }
+
+  public processBridgeTransactionResult(event: any): void {
+    const {txHash, error, status} = event.detail;
+    if (status !== 1) {
+      throw new OmmError(error);
+    } else {
+
+      const modalAction: ModalAction = this.localStorageService.getLastModalAction();
+      const assetAction = modalAction.assetAction!;
+
+      if (!environment.production) {
+        this.scoreService.getUserAssetBalance(assetAction.asset.tag).then(balance => {
+          log.debug(`${assetAction.asset.tag} balance after ${modalAction.modalType.valueOf()}: `, balance);
+        });
+      }
+
+      // reload all reserves and user asset reserve data
+      this.dataLoaderService.loadAllReserves();
+      this.dataLoaderService.loadUserAssetReserveData(assetAction.asset.tag);
+
+      switch (modalAction.modalType) {
+        case Modals.SUPPLY:
+          this.notificationService.showNewNotification(`Successfully supplied ${assetAction.amount} ${assetAction.asset.tag}.`);
+          break;
+        case Modals.WITHDRAW:
+          this.notificationService.showNewNotification(`Successfully withdraw ${assetAction.amount} ${assetAction.asset.tag}.`);
+          break;
+        case Modals.BORROW:
+          this.notificationService.showNewNotification(`Successfully borrowed ${assetAction.amount} ${assetAction.asset.tag}.`);
+          break;
+        case Modals.REPAY:
+          this.notificationService.showNewNotification(`Successfully repaid ${assetAction.amount} ${assetAction.asset.tag}.`);
+          break;
+        default:
+          break;
+      }
     }
   }
 }
