@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {IconexWallet} from '../../models/IconexWallet';
 import {AllAddresses} from '../../interfaces/all-addresses';
-import {AllReserves, ReserveData} from "../../interfaces/all-reserves";
+import {AllReservesData, ReserveData} from "../../interfaces/all-reserves-data";
 import {Reserve, UserReserves} from "../../interfaces/reserve";
 import {UserAccountData} from "../../models/user-account-data";
 import {BridgeWallet} from "../../models/BridgeWallet";
@@ -19,7 +19,7 @@ export class PersistenceService {
   public activeWallet?: IconexWallet | BridgeWallet;
 
   public allAddresses?: AllAddresses;
-  public allReserves?: AllReserves;
+  public allReserves?: AllReservesData;
   public allReservesConfigData?: AllReserveConfigData;
 
   public userReserves: UserReserves = new UserReserves();
@@ -50,24 +50,29 @@ export class PersistenceService {
   }
 
   public getUserAssetUSDBalance(assetTag: AssetTag): number {
-    // TODO get USD price of the asset!!!
-    return this.activeWallet?.balances.get(assetTag) ?? 0;
+    const balance = this.activeWallet?.balances.get(assetTag) ?? 0;
+    const exchangePrice = this.activeWallet?.balances.get(assetTag) ?? 0;
+    return balance * exchangePrice;
+  }
+
+  public getAssetExchangePrice(assetTag: AssetTag): number {
+    return this.getAssetReserveData(assetTag)?.exchangePrice ?? 0;
   }
 
   public getUserSuppliedAssetBalance(assetTag: AssetTag): number {
     return this.userReserves?.reserveMap.get(assetTag)?.currentOTokenBalance ?? 0;
   }
 
+  public getUserSuppliedAssetUSDBalance(assetTag: AssetTag): number {
+    return this.userReserves?.reserveMap.get(assetTag)?.currentOTokenBalanceUSD ?? 0;
+  }
+
   public getUserBorrowedAssetBalance(assetTag: AssetTag): number {
     return this.userReserves?.reserveMap.get(assetTag)?.principalBorrowBalance ?? 0;
   }
 
-  public getUserSuppliedUSDbBalance(): number {
-    return this.userReserves?.reserveMap.get(AssetTag.USDb)?.currentOTokenBalance ?? 0;
-  }
-
-  public getUserBorrowedUSDbBalance(): number {
-    return this.userReserves?.reserveMap.get(AssetTag.USDb)?.principalBorrowBalance ?? 0;
+  public getUserBorrowedAssetUSDBalance(assetTag: AssetTag): number {
+    return this.userReserves?.reserveMap.get(assetTag)?.principalBorrowBalanceUSD ?? 0;
   }
 
   public getUserIcxBalance(): number {
@@ -90,7 +95,7 @@ export class PersistenceService {
     return this.userReserves?.reserveMap.get(AssetTag.ICX);
   }
 
-  public getAssetAllReserveData(assetTag: AssetTag): ReserveData | undefined {
+  public getAssetReserveData(assetTag: AssetTag): ReserveData | undefined {
     return this.allReserves?.getReserveData(assetTag);
   }
 
@@ -226,22 +231,35 @@ export class PersistenceService {
   }
 
   public userAssetWalletSupplyAndBorrowIsZero(assetTag: AssetTag): boolean {
-    // If asset wallet, supply, and borrow balance = 0
-    return this.userAssetWalletIsZero(assetTag)
+    // If asset-user wallet, supply, and borrow balance = 0
+    return this.userAssetBalanceIsZero(assetTag)
       && this.userAssetSuppliedIsZero(assetTag)
       && this.userAssetBorrowedIsZero(assetTag);
   }
 
   public userAssetSuppliedIsZero(assetTag: AssetTag): boolean {
-    return this.getUserSuppliedAssetBalance(assetTag) === 0;
+    return (this.getUserSuppliedAssetBalance(assetTag) ?? 0) === 0;
   }
 
   public userAssetBorrowedIsZero(assetTag: AssetTag): boolean {
-    return this.getUserBorrowedAssetBalance(assetTag) === 0;
+    return (this.getUserBorrowedAssetBalance(assetTag) ?? 0) === 0;
   }
 
-  public userAssetWalletIsZero(assetTag: AssetTag): boolean {
-    return this.activeWallet?.balances.get(assetTag) === 0;
+  public userAssetBalanceIsZero(assetTag: AssetTag): boolean {
+    return (this.activeWallet?.balances.get(assetTag) ?? 0) === 0;
+  }
+
+  public isAssetSuppliedBorrowedBalanceZero(assetTag: AssetTag): boolean {
+    return this.userAssetSuppliedIsZero(assetTag)
+      && this.userAssetBorrowedIsZero(assetTag)
+      && this.userAssetBalanceIsZero(assetTag);
+  }
+
+  public isAssetAvailableToSupply(assetTag: AssetTag): boolean {
+    // if user has not supplied or borrowed the asset and has balance of it > 0
+    return this.userAssetSuppliedIsZero(assetTag)
+      && this.userAssetBorrowedIsZero(assetTag)
+      && !this.userAssetBalanceIsZero(assetTag);
   }
 
 }

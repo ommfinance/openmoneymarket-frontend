@@ -1,63 +1,38 @@
 export class UserAccountData {
-  totalLiquidityICX: number;
-  totalCollateralICX: number;
-  totalBorrowsICX: number;
-  totalFeesICX: number;
-  availableBorrowsICX: number;
-  collateralInterestICX: number;
-  totalLiquidityUSD: number;
-  totalCollateralUSD: number;
-  totalBorrowsUSD: number;
-  totalFeesUSD: number;
-  availableBorrowsUSD: number;
-  collateralInterestUSD: number;
-  liquidityRate: number;
-  borrowRate: number;
+  borrowingPower: number;
   currentLiquidationThreshold: number;
-  ltv: number;
+  currentLtv: number;
   healthFactor: number;
+  healthFactorBelowThreshold: number;
+  totalBorrowBalanceUSD: number;
+  totalCollateralBalanceUSD: number;
+  totalFeesUSD: number;
+  totalLiquidityBalanceUSD: number;
 
 
-  constructor(totalLiquidityICX: number, totalCollateralICX: number, totalBorrowsICX: number, totalFeesICX: number,
-              availableBorrowsICX: number, collateralInterestICX: number, totalLiquidityUSD: number,
-              totalCollateralUSD: number, totalBorrowsUSD: number, totalFeesUSD: number, availableBorrowsUSD: number,
-              collateralInterestUSD: number, liquidityRate: number, borrowRate: number,
-              currentLiquidationThreshold: number, ltv: number, healthFactor: number) {
-    this.totalLiquidityICX = totalLiquidityICX;
-    this.totalCollateralICX = totalCollateralICX;
-    this.totalBorrowsICX = totalBorrowsICX;
-    this.totalFeesICX = totalFeesICX;
-    this.availableBorrowsICX = availableBorrowsICX;
-    this.collateralInterestICX = collateralInterestICX;
-    this.totalLiquidityUSD = totalLiquidityUSD;
-    this.totalCollateralUSD = totalCollateralUSD;
-    this.totalBorrowsUSD = totalBorrowsUSD;
-    this.totalFeesUSD = totalFeesUSD;
-    this.availableBorrowsUSD = availableBorrowsUSD;
-    this.collateralInterestUSD = collateralInterestUSD;
-    this.liquidityRate = liquidityRate;
-    this.borrowRate = borrowRate;
+  constructor(borrowingPower: number, currentLiquidationThreshold: number, currentLtv: number, healthFactor: number,
+              healthFactorBelowThreshold: number, totalBorrowBalanceUSD: number, totalCollateralBalanceUSD: number,
+              totalFeesUSD: number, totalLiquidityBalanceUSD: number) {
+    this.borrowingPower = borrowingPower;
     this.currentLiquidationThreshold = currentLiquidationThreshold;
-    this.ltv = ltv;
+    this.currentLtv = currentLtv;
     this.healthFactor = healthFactor;
+    this.healthFactorBelowThreshold = healthFactorBelowThreshold;
+    this.totalBorrowBalanceUSD = totalBorrowBalanceUSD;
+    this.totalCollateralBalanceUSD = totalCollateralBalanceUSD;
+    this.totalFeesUSD = totalFeesUSD;
+    this.totalLiquidityBalanceUSD = totalLiquidityBalanceUSD;
   }
 }
 
 // example
-// "totalLiquidityICX": 100,
-//   "totalCollateralICX": 1000,
-//   "totalBorrowsICX": 100,
-//   "totalFeesICX": 5.6,
-//   "availableBorrowsICX": 100,
-//   "collateralInterestICX": 10,
-//   "totalLiquidityUSD": 100,
-//   "totalCollateralUSD": 1000,
-//   "totalBorrowsUSD": 100,
-//   "totalFeesUSD": 5.6,
-//   "availableBorrowsUSD": 100,
-//   "collateralInterestUSD": 10,
-//   “liquidityRate”: 12.6,
-//   “borrowRate”: 14.7,
-//   "currentLiquidationThreshold": 0.65,
-//   "ltv": 0.75,
-//   "healthFactor": 1.2
+// borrowingPower: "0x0"
+// currentLiquidationThreshold: "0x0"
+// currentLtv: "0x0"
+// healthFactor: "-0x1"
+// healthFactorBelowThreshold: "0x0"
+// totalBorrowBalanceUSD: "0x0"
+// totalCollateralBalanceUSD: "0x0"
+// totalFeesUSD: "0x0"
+// totalLiquidityBalanceUSD: "0x0"
+

@@ -1,12 +1,13 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {OmmError} from "../../core/errors/OmmError";
 
 // @ts-ignore
 import BridgeService from "../../../../build/bridge.bundle";
-import {PersistenceService} from "../persistence/persistence.service";
 import {BridgeWallet} from "../../models/BridgeWallet";
 import {DataLoaderService} from "../data-loader/data-loader.service";
 import log from "loglevel";
+import {BridgeWidgetAction} from "../../models/BridgeWidgetAction";
+import {NotificationService} from "../notification/notification.service";
 
 @Injectable({
   providedIn: 'root'
@@ -15,10 +16,12 @@ export class BridgeWidgetService {
 
   bridge: BridgeService;
 
-  constructor(private dataLoaderService: DataLoaderService) {
+  constructor(private dataLoaderService: DataLoaderService,
+              private notificationService: NotificationService) {
     this.bridge = new BridgeService();
     window.addEventListener("bri.login", (e) => this.handleBridgeLogin(e));
     window.addEventListener("bri.widget.res", (e) => this.handleWidgetRes(e));
+    window.addEventListener("bri.logout.res", (e) => this.handleWidgetLogoutRes(e));
   }
 
   handleBridgeLogin(e: any): void {
@@ -37,16 +40,31 @@ export class BridgeWidgetService {
     }));
   }
 
+  handleWidgetLogoutRes(e: any): void {
+    const publicAddress: string = e.detail.publicAddress;
+    const email: string = e.detail.email;
+    const error: string = e.detail.error;
+
+    if (error) {
+      throw new OmmError(error);
+    }
+
+    this.notificationService.showNewNotification("Successfully logged out.");
+  }
+
   handleWidgetRes(e: any): void {
-    const error = e.detail.error;
-    const successAction = e.detail.success;
-    console.log("handleWidgetRes:", e);
+    const error: string = e.detail.error;
+    const action: BridgeWidgetAction = e.detail.success;
+
+    if (error) {
+      throw new OmmError(error);
+    }
   }
 
   getUserBridgeAddress(): string {
     const userBridgeAddress = localStorage.getItem("BRIDGE_USER_ICON_ADDRESS");
     if (!userBridgeAddress) {
-      throw new OmmError("No Bridge user Icon address found.");
+      throw new OmmError("Unable to retrieve Bridge Icon address from the localstorage.");
     }
     return userBridgeAddress;
   }
@@ -54,24 +72,29 @@ export class BridgeWidgetService {
   getUserBridgeEmail(): string {
     const userBridgeEmail = localStorage.getItem("BRIDGE_USER_ICON_EMAIL");
     if (!userBridgeEmail) {
-      throw new OmmError("No Bridge user email found.");
+      throw new OmmError("Unable to retrieve Bridge email from the localstorage.");
     }
     return userBridgeEmail;
   }
 
   openBridgeWidget(): void {
+    this.dispatchBridgeWidgetAction(BridgeWidgetAction.OPEN);
+  }
+
+  closeBridgeWidget(): void {
+    this.dispatchBridgeWidgetAction(BridgeWidgetAction.CLOSE);
+  }
+
+  signOutUser(): void {
+    this.dispatchBridgeWidgetAction(BridgeWidgetAction.LOGOUT);
+  }
+
+  private dispatchBridgeWidgetAction(action: BridgeWidgetAction): void {
     window.dispatchEvent(new CustomEvent('bri.widget', {
       detail: {
-        action: "open"
+        action: action.valueOf()
       }
     }));
   }
 
-  closeBridgeWidget(): void {
-    window.dispatchEvent(new CustomEvent('bri.widget', {
-      detail: {
-        action: "close"
-      }
-    }));
-  }
 }

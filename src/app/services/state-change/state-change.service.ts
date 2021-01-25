@@ -5,8 +5,8 @@ import {PersistenceService} from "../persistence/persistence.service";
 import {AssetTag} from "../../models/Asset";
 import {IconexWallet} from "../../models/IconexWallet";
 import {BridgeWallet} from "../../models/BridgeWallet";
-import {CalculationsService} from "../calculations/calculations.service";
-import {DataLoaderService} from "../data-loader/data-loader.service";
+import {UserAccountData} from "../../models/user-account-data";
+import {ModalAction} from "../../models/ModalAction";
 
 @Injectable({
   providedIn: 'root'
@@ -39,6 +39,17 @@ export class StateChangeService {
     [AssetTag.ICX, new Subject<Reserve>()],
   ]);
 
+  /**
+   * Subscribable subject for user account data change
+   */
+  public userAccountDataChange: Subject<UserAccountData> = new Subject<UserAccountData>();
+
+  /**
+   * Subscribable subject for monitoring the user modal action changes (supply, withdraw, ..)
+   * Example: when user confirms the modal action, this Subject should get updated
+   */
+  public userModalActionChange: Subject<ModalAction> = new Subject<ModalAction>();
+
   constructor(private persistenceService: PersistenceService) {
     this.userBalanceChangeMap.forEach((subject: Subject<number>, key: AssetTag) => {
       subject.subscribe(value => {
@@ -52,13 +63,9 @@ export class StateChangeService {
       subject.subscribe((value: Reserve) => {
         if (this.persistenceService.activeWallet) {
           this.persistenceService.userReserves!.reserveMap.set(assetTag, value);
-          // update user total risk
-          // this.userTotalRiskChange.next(this.calculationService.calculateValueRiskTotal(assetTag));
         }
       });
     });
-
-    // this.userTotalRiskChange.subscribe(totalRisk => this.persistenceService.userTotalRisk = totalRisk);
   }
 
   public updateLoginStatus(wallet: IconexWallet | BridgeWallet | undefined): void {
@@ -71,6 +78,14 @@ export class StateChangeService {
 
   public updateUserAssetReserve(reserve: Reserve, assetTag: AssetTag): void {
     this.userReserveChangeMap.get(assetTag)!.next(reserve);
+  }
+
+  public updateUserAccountData(userAccountData: UserAccountData): void {
+    this.userAccountDataChange.next(userAccountData);
+  }
+
+  public updateUserModalAction(modalAction: ModalAction): void {
+    this.userModalActionChange.next(modalAction);
   }
 
 }

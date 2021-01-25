@@ -25,10 +25,11 @@ export declare class AccountApiService {
     /**
      * @description Update Prime Trust contact linked to the user account which contains more information about the user
      * @param {PatchContact} patchContact - PatchContact model
+     * @param {string} include - Optionally include can be specified as documented in https://documentation.primetrust.com/#operation/GET__v2_contacts
      * @return {Promise<AxiosResponse<Contact>>} Promise with Prime Trust GET contact response https://documentation.primetrust.com/#operation/GET__v2_contacts
      * @throws {BridgeError} - contains user friendly message from the API and external error
      */
-    updateContact(patchContact: PatchContact): Promise<AxiosResponse<Contact>>;
+    updateContact(patchContact: PatchContact, include?: string): Promise<AxiosResponse<Contact>>;
     /**
      * @description Get Prime Trust account KYC data (including contact kyc info)
      * @return {Promise<AxiosResponse<UserKycData>>} Promise with AccountKyc model as response

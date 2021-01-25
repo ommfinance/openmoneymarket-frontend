@@ -14,7 +14,10 @@ export class Reserve {
   useAsCollateral: number;
   userBorrowCumulativeIndex: number;
 
-  constructor(borrowRate: number, currentBorrowBalance: number, currentBorrowBalanceUSD: number, currentOTokenBalance: number, currentOTokenBalanceUSD: number, lastUpdateTimestamp: number, liquidityRate: number, originationFee: number, principalBorrowBalance: number, principalBorrowBalanceUSD: number, useAsCollateral: number, userBorrowCumulativeIndex: number) {
+  constructor(borrowRate: number, currentBorrowBalance: number, currentBorrowBalanceUSD: number, currentOTokenBalance: number,
+              currentOTokenBalanceUSD: number, lastUpdateTimestamp: number, liquidityRate: number, originationFee: number,
+              principalBorrowBalance: number, principalBorrowBalanceUSD: number, useAsCollateral: number,
+              userBorrowCumulativeIndex: number) {
     this.borrowRate = borrowRate;
     this.currentBorrowBalance = currentBorrowBalance;
     this.currentBorrowBalanceUSD = currentBorrowBalanceUSD;

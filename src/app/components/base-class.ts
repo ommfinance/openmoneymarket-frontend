@@ -47,12 +47,16 @@ export class BaseClass {
     return {display: hide ? 'none' : null};
   }
 
-  public displayAsTableRow(show: boolean): any {
-    return {display: show ? 'table-row' : null};
+  public hideElementOrDisplayContents(hide: boolean): any {
+    return {display: hide ? 'none' : 'contents'};
   }
 
-  public displayAsBlock(show: boolean): any {
-    return {display: show ? 'block' : null};
+  public displayAsTableRowOrHide(show: boolean): any {
+    return {display: show ? 'table-row' : 'none'};
+  }
+
+  public displayAsBlockOrHide(show: boolean): any {
+    return {display: show ? 'block' : 'none'};
   }
 
 }

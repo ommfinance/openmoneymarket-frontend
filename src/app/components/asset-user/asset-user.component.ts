@@ -2,8 +2,7 @@ import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Outpu
 import {SlidersService} from "../../services/sliders/sliders.service";
 import {
   assetFormat, assetPrefixMinusFormat, assetPrefixPlusFormat,
-  ommPrefixPlusFormat,
-  percentageFormat
+  ommPrefixPlusFormat
 } from "../../common/formats";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {Asset, AssetTag} from "../../models/Asset";
@@ -22,62 +21,51 @@ import {RiskData} from "../../models/RiskData";
 declare var $: any;
 
 @Component({
-  selector: 'app-asset',
-  templateUrl: './asset.component.html',
-  styleUrls: ['./asset.component.css'],
+  selector: 'app-asset-user',
+  templateUrl: './asset-user.component.html',
 })
-export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
+export class AssetUserComponent extends BaseClass implements OnInit, AfterViewInit {
 
   @Input() asset!: Asset;
   @Input() index!: number;
 
-  @ViewChild("sliderSupply")set sliderSupplySetter(sliderSupply: ElementRef) {this.sliderSupply = sliderSupply.nativeElement; }
-  @ViewChild("sliderBorrow") set sliderBorrowSetter(sliderBorrow: ElementRef) {this.sliderBorrow = sliderBorrow.nativeElement; }
-  @ViewChild("supply")set supplyElSetter(supplyEl: ElementRef) {this.supplyEl = supplyEl.nativeElement; }
-  @ViewChild("borrow")set borrowElSetter(borrowEl: ElementRef) {this.borrowEl = borrowEl.nativeElement; }
-  @ViewChild("assetYour")set assetElSetter(assetEl: ElementRef) { this.assetYourEl = assetEl.nativeElement; }
-  @ViewChild("marketExpandedEl")set marketExpandedElSetter(marketExpandedEl: ElementRef) {this.marketExpandedEl = marketExpandedEl.nativeElement; }
-  @ViewChild("inputSupply")set inputSupplySetter(inputSupply: ElementRef) { this.inputSupply = inputSupply.nativeElement; }
-  @ViewChild("inputBorrow")set inputBorrowSetter(inputBorrow: ElementRef) { this.inputBorrow = inputBorrow.nativeElement; }
-  @ViewChild("inpSuppAvail")set inputSupplyAvailableSetter(inputSupplyAvailable: ElementRef) { this.inputSupplyAvailable = inputSupplyAvailable.nativeElement; }
-  @ViewChild("inpBorrAvail")set inputBorrowAvailableSetter(inputBorrowAvailable: ElementRef) { this.inputBorrowAvailable = inputBorrowAvailable.nativeElement; }
-  @ViewChild("assetAvail")set assetAvailableSetter(assetAvailableEl: ElementRef) { this.assetAvailableEl = assetAvailableEl.nativeElement; }
-  @ViewChild("assetAll") set assetAllSetter(assetAllEl: ElementRef) { this.assetAllEl = assetAllEl.nativeElement; }
-  @ViewChild("suppAct1") set supplyAction1(suppAct1El: ElementRef) { this.supplyAction1El = suppAct1El.nativeElement; }
-  @ViewChild("borrAct1") set borrowAction1(borrAct1El: ElementRef) { this.borrowAction1El = borrAct1El.nativeElement; }
-  @ViewChild("suppAct2") set supplyAction2(suppAct2El: ElementRef) { this.supplyAction2El = suppAct2El.nativeElement; }
-  @ViewChild("borrAct2") set borrowAction2(borrAct2El: ElementRef) { this.borrowAction2El = borrAct2El.nativeElement; }
-  @ViewChild("suppInterest") set suppInterestSetter(suppInterest: ElementRef) { this.suppInterestEl = suppInterest.nativeElement; }
-  @ViewChild("borrInterest") set borrInterestSetter(borrInterest: ElementRef) { this.borrInterestEl = borrInterest.nativeElement; }
-  @ViewChild("suppRewards") set suppRewardsSetter(suppRewards: ElementRef) { this.suppRewardsEl = suppRewards.nativeElement; }
-  @ViewChild("borrRewards") set borrRewardsSetter(borrRewards: ElementRef) { this.borrRewardsEl = borrRewards.nativeElement; }
-
-  suppInterestEl: any;
-  suppRewardsEl: any;
-  borrInterestEl: any;
-  borrRewardsEl: any;
-
-  supplyAction1El: any;
-  borrowAction1El: any;
-  supplyAction2El: any;
-  borrowAction2El: any;
-
-  sliderBorrow: any;
+  /** Bind html elements to variables using template referencing */
   sliderSupply: any;
-
-  // elements
+  @ViewChild("sliderSupply")set a(sliderSupply: ElementRef) {this.sliderSupply = sliderSupply.nativeElement; }
+  sliderBorrow: any;
+  @ViewChild("sliderBorrow") set b(sliderBorrow: ElementRef) {this.sliderBorrow = sliderBorrow.nativeElement; }
   supplyEl: any;
+  @ViewChild("supply")set c(supplyEl: ElementRef) {this.supplyEl = supplyEl.nativeElement; }
   borrowEl: any;
+  @ViewChild("borrow")set d(borrowEl: ElementRef) {this.borrowEl = borrowEl.nativeElement; }
   assetYourEl: any;
+  @ViewChild("assetYour")set e(assetEl: ElementRef) { this.assetYourEl = assetEl.nativeElement; }
   marketExpandedEl: any;
-  assetAvailableEl: any;
-  assetAllEl: any;
-
-  // inputs
+  @ViewChild("marketExpandedEl")set f(marketExpandedEl: ElementRef) {this.marketExpandedEl = marketExpandedEl.nativeElement; }
   inputSupply: any;
-  inputSupplyAvailable: any;
+  @ViewChild("inputSupply")set g(inputSupply: ElementRef) { this.inputSupply = inputSupply.nativeElement; }
   inputBorrow: any;
+  @ViewChild("inputBorrow")set h(inputBorrow: ElementRef) { this.inputBorrow = inputBorrow.nativeElement; }
+  inputSupplyAvailable: any;
+  @ViewChild("inpSuppAvail")set i(inputSupplyAvailable: ElementRef) { this.inputSupplyAvailable = inputSupplyAvailable.nativeElement; }
   inputBorrowAvailable: any;
+  @ViewChild("inpBorrAvail")set j(inputBorrowAvailable: ElementRef) { this.inputBorrowAvailable = inputBorrowAvailable.nativeElement; }
+  supplyAction1El: any;
+  @ViewChild("suppAct1") set k(suppAct1El: ElementRef) { this.supplyAction1El = suppAct1El.nativeElement; }
+  borrowAction1El: any;
+  @ViewChild("borrAct1") set l(borrAct1El: ElementRef) { this.borrowAction1El = borrAct1El.nativeElement; }
+  supplyAction2El: any;
+  @ViewChild("suppAct2") set m(suppAct2El: ElementRef) { this.supplyAction2El = suppAct2El.nativeElement; }
+  borrowAction2El: any;
+  @ViewChild("borrAct2") set n(borrAct2El: ElementRef) { this.borrowAction2El = borrAct2El.nativeElement; }
+  suppInterestEl: any;
+  @ViewChild("suppInterest") set o(suppInterest: ElementRef) { this.suppInterestEl = suppInterest.nativeElement; }
+  borrInterestEl: any;
+  @ViewChild("borrInterest") set p(borrInterest: ElementRef) { this.borrInterestEl = borrInterest.nativeElement; }
+  suppRewardsEl: any;
+  @ViewChild("suppRewards") set r(suppRewards: ElementRef) { this.suppRewardsEl = suppRewards.nativeElement; }
+  borrRewardsEl: any;
+  @ViewChild("borrRewards") set s(borrRewards: ElementRef) { this.borrRewardsEl = borrRewards.nativeElement; }
 
   @Output() collOtherAssetTables = new EventEmitter<AssetTag>();
   @Output() disableAndResetSliders = new EventEmitter<undefined>();
@@ -94,7 +82,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    log.info("ngOnInit of asset=", this.asset.tag);
   }
 
   ngAfterViewInit(): void {
@@ -116,16 +103,16 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     $(this.supplyEl).removeClass("adjust");
     $(this.borrowEl).removeClass("adjust");
 
-    // Reset asset sliders
+    // Reset user asset sliders
     this.sliderSupply.noUiSlider.set(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
     this.sliderBorrow.noUiSlider.set(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
     this.sliderSupply.setAttribute("disabled", "");
     this.sliderBorrow.setAttribute("disabled", "");
 
     // Reset risk data
-    this.updateRiskData.emit();
+    // this.updateRiskData.emit(); // TODO
 
-    // Disable asset inputs
+    // Disable asset-user inputs
     this.disableInputs();
   }
 
@@ -147,7 +134,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     /** Reset Supply inputs */
     this.resetSupplyInputs();
 
-    /** Enable Borrow of asset */
+    /** Enable Borrow of asset-user */
     this.enableAssetBorrow();
   }
 
@@ -169,9 +156,8 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     /** Reset Borrow inputs */
     this.resetBorrowInputs();
 
-    /** Enable Supply inputs of asset */
+    /** Enable Supply inputs of asset-user */
     $(this.inputSupply).removeAttr("disabled");
-    $(this.inputSupplyAvailable).removeAttr("disabled");
     $(this.sliderSupply).removeAttr("disabled");
     this.sliderSupply.noUiSlider.set(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
   }
@@ -181,11 +167,14 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * Asset expand logic
    */
   onAssetClick(): void {
+    // reset sliders
+    this.disableAndResetSupplySlider();
+    this.disableAndResetBorrowSlider();
 
     /** Layout */
 
     if (this.index === 0) {
-      // Expand asset table
+      // Expand asset-user table
       $(`.asset.${this.asset.tag}`).toggleClass('active');
       $(this.marketExpandedEl).slideToggle();
     }
@@ -207,13 +196,13 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     // Show default actions
     this.showDefaultActions();
 
-    // Disable and reset asset supply and borrow sliders (Your markets)
+    // Disable and reset asset-user supply and borrow sliders (Your markets)
     this.disableAndResetSliders.emit(undefined);
 
     // Reset risk data
-    this.updateRiskData.emit();
+    // this.updateRiskData.emit(); TODO
 
-    // Disable USDb inputs
+    // Disable Asset inputs
     this.disableAssetsInputs.emit(undefined);
   }
 
@@ -222,6 +211,12 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    */
   supplyAssetAmountChange(): void {
     const amount = +assetFormat(this.asset.tag).from(this.inputSupply.value);
+
+    // update risk data TODO
+    // const supplyDiff = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag) - amount;
+    // const riskData = new RiskData(this.calculationService.calculateValueRiskTotal(this.asset.tag, supplyDiff, undefined));
+    // this.updateRiskData.emit(riskData);
+
     if (this.persistenceService.activeWallet) {
       if (amount > this.persistenceService.activeWallet.balances.get(this.asset.tag)!) {
         this.inputSupply.style.borderColor = "red";
@@ -236,6 +231,12 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    */
   public borrowAssetAmountChange(): void {
     const amount = +assetFormat(this.asset.tag).from(this.inputBorrow.value);
+
+    // update risk data TODO
+    // const borrowDiff = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag) - amount;
+    // const riskData = new RiskData(this.calculationService.calculateValueRiskTotal(this.asset.tag, undefined, borrowDiff));
+    // this.updateRiskData.emit(riskData);
+
     if (this.persistenceService.activeWallet) {
       if (amount > +assetFormat(this.asset.tag).from(this.inputBorrowAvailable.value)) {
         this.inputBorrow.style.borderColor = "red";
@@ -247,24 +248,28 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
 
   /**
-   * Logic to trigger when user clicks confirm of asset supply
+   * Logic to trigger when user clicks confirm of asset-user supply
    */
   onAssetSupplyConfirmClick(): void {
-    let value = +assetFormat(this.asset.tag).from(this.inputSupply.value);
+    let value = +this.inputSupply.value;
     log.debug(`Supply of ${this.asset.tag} changed to ${value}`);
 
-    // check that supplied value is not greater than user asset balance
-    if (value > this.persistenceService.activeWallet!.balances.get(this.asset.tag)!
-      + this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag)) {
-      value = Math.floor(this.persistenceService.activeWallet?.balances.get(this.asset.tag)! +
-        this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
+    // check that supplied value is not greater than max
+    const max = this.calculationService.calculateAssetSupplySliderMax(this.asset.tag);
+    if (value > max) {
+      value = max;
       this.sliderSupply.noUiSlider.set(value);
       throw new OmmError(`Supplied value greater than ${this.asset.tag} balance.`);
     }
-    const supplyAmountDiff = value - Math.floor(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
+
+    const currentSupply = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag);
+    log.debug(`currentSupply = ${currentSupply}`);
+    const supplyAmountDiff = value - currentSupply;
+    log.debug(`supplyAmountDiff = ${supplyAmountDiff}`);
 
     const before = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag);
-    const amount = Math.floor(Math.abs(supplyAmountDiff));
+    const amount = Math.abs(supplyAmountDiff);
+
     if (supplyAmountDiff > 0) {
       this.modalService.showNewModal(Modals.SUPPLY, new AssetAction(this.asset, before , value, amount));
     } else if (supplyAmountDiff < 0) {
@@ -276,7 +281,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   /**
-   * Logic to trigger when user clicks confirm of asset borrow
+   * Logic to trigger when user clicks confirm of asset-user borrow
    */
   onAssetBorrowConfirmClick(): void {
     const value = +assetFormat(this.asset.tag).from(this.inputBorrow.value);
@@ -299,16 +304,102 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * Supply / Borrow sliders
    */
   initSliders(): void {
-    this.slidersService.createNoUiSlider(this.sliderSupply);
-    this.slidersService.createNoUiSlider(this.sliderBorrow, 1500, undefined, undefined, undefined,
-      {min: [0], max: [3300]});
+    // set supply slider values
+    const supplied = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag);
+    const suppliedMax = this.calculationService.calculateAssetSupplySliderMax(this.asset.tag);
+    this.slidersService.createNoUiSlider(this.sliderSupply, supplied,
+      undefined, undefined, undefined, {min: [0], max: [suppliedMax]});
+
+    // set borrow slider values
+    const borrowed = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag);
+    const borrowAvailable = this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag);
+    const borrowMax = borrowed + borrowAvailable;
+    log.debug("borrowed=" + borrowed);
+    log.debug("borrowAvailable=" + borrowAvailable);
+    log.debug("borrowMax=" + borrowMax);
+    this.slidersService.createNoUiSlider(this.sliderBorrow, borrowed, undefined, undefined, undefined,
+      {min: [0], max: [borrowMax]});
   }
 
   /**
    * Handle variable/state changes for subscribed assets
    */
   initSubscribedValues(): void {
-    // handle asset balance change
+    // handle user assets balance changes
+    this.subscribeToUserBalanceChange();
+
+    // handle users assets reserve changes
+    this.subscribeToUserAssetReserveChange();
+
+    // handle user account data change
+    this.subscribeToUserAccountDataChange();
+  }
+
+  public subscribeToUserAccountDataChange(): void {
+    this.stateChangeService.userAccountDataChange.subscribe(userAccountData => {
+      // set borrowed available value
+      const borrowAvailable = this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag);
+      this.inputBorrowAvailable.value = assetFormat(this.asset.tag).to(borrowAvailable);
+
+      // update asset borrow slider max value to  -> borrowed + borrow available
+      const max = +this.inputBorrow.value + borrowAvailable;
+      this.sliderBorrow.noUiSlider.updateOptions({
+        range: { min: 0, max: max === 0 ? 1 : max } // min and max must not equal
+      });
+    });
+  }
+
+  public subscribeToUserAssetReserveChange(): void {
+    this.stateChangeService.userReserveChangeMap.get(this.asset.tag)!.subscribe((reserve: Reserve) => {
+      log.debug(`${this.asset.tag} reserve changed to: `, reserve);
+
+      // supplied asset balance
+      const supplied = reserve.currentOTokenBalance ?? 0;
+
+      // update input supply value to new asset-user reserve balance
+      this.inputSupply.value = assetFormat(this.asset.tag).to(supplied);
+
+      // update input supply available value to new users asset reserve balance
+      const supplyAvailable = this.calculationService.calculateAssetSliderAvailableSupply(supplied, this.asset.tag);
+      this.inputSupplyAvailable.value = assetFormat(this.asset.tag).to(supplyAvailable);
+
+      // update supply slider value
+      this.sliderSupply.noUiSlider.set(supplied);
+
+      // update asset supply slider max value to  -> supplied + supplied available
+      let max = supplied + supplyAvailable;
+      this.sliderSupply.noUiSlider.updateOptions({
+        range: {
+          min: 0,
+          max: max === 0 ? 1 : max // min and max must not equal
+        }
+      });
+      // set borrow supplied and slider value
+      const borrowed = reserve.principalBorrowBalance;
+
+      // set borrowed value
+      this.inputBorrow.value = assetFormat(this.asset.tag).to(borrowed);
+
+      // set borrowed available value
+      const borrowAvailable = this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag);
+      this.inputBorrowAvailable.value = assetFormat(this.asset.tag).to(borrowAvailable);
+
+      // set borrow slider value
+      this.sliderBorrow.noUiSlider.set(borrowed);
+
+      // update asset borrow slider max value to  -> borrowed + borrow available
+      max = borrowed + borrowAvailable;
+      this.sliderBorrow.noUiSlider.updateOptions({
+        range: {
+          min: 0,
+          max: max === 0 ? 1 : max // min and max must not equal
+        }
+      });
+    });
+  }
+
+  public subscribeToUserBalanceChange(): void {
+    // handle asset-user balance change
     this.stateChangeService.userBalanceChangeMap.get(this.asset.tag)!.subscribe(newBalance => {
       log.debug(`${this.asset.tag} balance changed to ${newBalance}`);
       if (this.sliderSupply) {
@@ -322,66 +413,32 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         });
       }
     });
-
-    // handle users asset reserve change
-    this.stateChangeService.userReserveChangeMap.get(this.asset.tag)!.subscribe((reserve: Reserve) => {
-      log.debug(`${this.asset.tag} reserve changed to: `, reserve);
-
-      // update input supply value to new asset reserve balance
-      this.inputSupply.value = assetFormat(this.asset.tag).to(reserve.currentOTokenBalance);
-
-      // update supply slider value
-      this.sliderSupply.noUiSlider.set(reserve.currentOTokenBalance);
-
-      // update supply slider max value to  -> user asset balance + supplied
-      const assetBalance = this.persistenceService.activeWallet?.balances.get(this.asset.tag) ?? 0;
-      const suppliedAssetBalance = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag) ?? 0;
-      let max = assetBalance + suppliedAssetBalance;
-      this.sliderSupply.noUiSlider.updateOptions({
-        range: {
-          min: 0,
-          max: max === 0 ? 1 : max // min and max must not equal
-        }
-      });
-      // set borrow supplied and slider value
-      this.inputBorrow.value = assetFormat(this.asset.tag).to(reserve.principalBorrowBalance);
-      this.inputBorrowAvailable.value = this.calculationService.calculateAssetSliderAvailableBorrow(
-        assetFormat(this.asset.tag).from(this.inputBorrowAvailable.value), this.asset.tag);
-      this.sliderBorrow.noUiSlider.set(reserve.principalBorrowBalance);
-      // update USDb borrow slider max value to  -> user USDb balance + supplied USDb
-      max = this.calculationService.calculateAssetBorrowSliderMax(this.asset.tag);
-      this.sliderBorrow.noUiSlider.updateOptions({
-        range: {
-          min: 0,
-          max: max === 0 ? 1 : max // min and max must not equal
-        }
-      });
-    });
   }
 
   /**
    * Supply slider logic
    */
   initSupplySliderlogic(): void {
-    // On asset supply slider update (Your markets)
+    // On asset-user supply slider update (Your markets)
     this.sliderSupply.noUiSlider.on('update', (values: any, handle: any) => {
-
+      const value = +values[handle];
       // Update supplied text box
-      this.inputSupply.value = (parseFloat(values[handle]));
+      this.inputSupply.value = value;
       const supplyDiff = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag) - this.inputSupply.value;
 
-      // Update asset available text box
-      this.inputSupplyAvailable.value = assetFormat(this.asset.tag).to(this.calculationService.calculateAssetSliderAvailableSupply(+values[handle], this.asset.tag));
+      // Update asset-user available text box
+      this.inputSupplyAvailable.value = assetFormat(this.asset.tag).to(this.sliderSupply.noUiSlider.options.range.max - value);
 
-      // Update asset's supply interest
-      $(this.suppInterestEl).text(assetPrefixPlusFormat(this.asset.tag).to((parseFloat(values[handle])) * 0.0647 / 365));
+      // Update asset-user's supply interest
+      $(this.suppInterestEl).text(assetPrefixPlusFormat(this.asset.tag).to(
+        this.calculationService.calculateUsersDailySupplyInterestForAsset(this.asset.tag, value)));
 
-      // Update asset's supply omm rewards
+      // Update asset-user's supply omm rewards // TODO
       $(this.suppRewardsEl).text(ommPrefixPlusFormat.to((parseFloat(values[handle])) * 0.447 / 365));
 
-      // update risk data
-      const riskData = new RiskData(this.calculationService.calculateValueRiskTotal(this.asset.tag, supplyDiff, undefined));
-      this.updateRiskData.emit(riskData);
+      // update risk data TODO
+      // const riskData = new RiskData(this.calculationService.calculateValueRiskTotal(this.asset.tag, supplyDiff, undefined));
+      // this.updateRiskData.emit(riskData);
     });
   }
 
@@ -389,38 +446,39 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * Borrow slider logic
    */
   initBorrowSliderLogic(): void {
-    // On asset borrow slider update (Your markets)
+    // On asset-user borrow slider update (Your markets)
     this.sliderBorrow.noUiSlider.on('update', (values: any, handle: any) => {
-      // Update asset borrowed text box
-      this.inputBorrow.value = (parseFloat(values[handle]));
+      const value = parseFloat(values[handle]);
+      // Update asset-user borrowed text box
+      this.inputBorrow.value = (value);
       const borrowDiff = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag) - this.inputBorrow.value;
 
-      // Update asset available text box
-      this.inputBorrowAvailable.value = assetFormat(this.asset.tag).to(this.calculationService.calculateAssetSliderAvailableBorrow(values[handle], this.asset.tag));
+      // Update asset-user available text box
+      this.inputBorrowAvailable.value = assetFormat(this.asset.tag).to(this.sliderBorrow.noUiSlider.options.range.max - value);
 
-      // Update asset's borrow interest
-      $(this.borrInterestEl).text(assetPrefixMinusFormat(this.asset.tag).to((values[handle] * 1) * 0.0725 / 365));
+      // Update asset-user's borrow interest
+      $(this.borrInterestEl).text(assetPrefixMinusFormat(this.asset.tag).to(
+        this.calculationService.calculateUsersDailyBorrowInterestForAsset(this.asset.tag, value)));
 
-      // Update asset's borrow omm rewards
-      $(this.borrRewardsEl).text(ommPrefixPlusFormat.to((values[handle] * 1) * 0.4725 / 365));
+      // Update asset-user's borrow omm rewards
+      $(this.borrRewardsEl).text(ommPrefixPlusFormat.to(value * 0.4725 / 365)); // TODO
 
-      // update risk data
-      const riskData = new RiskData(this.calculationService.calculateValueRiskTotal(this.asset.tag, undefined, borrowDiff));
-      this.updateRiskData.emit(riskData);
+      // update risk data TODO
+      // const riskData = new RiskData(this.calculationService.calculateValueRiskTotal(this.asset.tag, undefined, borrowDiff));
+      // this.updateRiskData.emit(riskData);
 
-      // TODO
-      // if (inputBorrowUsdb.value > 0) {
-      //   // show risk data
-      //   $('.risk-container').css("display", "block");
-      //
-      //   // Hide risk message
-      //   $('.risk-message-noassets').css("display", "none");
-      // }
+      if (this.inputBorrow.value > 0) {
+        // show risk data
+        $('.risk-container').css("display", "block");
+
+        // Hide risk message
+        $('.risk-message-noassets').css("display", "none");
+      }
     });
   }
 
   userAssetBalanceIsZero(): boolean {
-    return this.persistenceService.userAssetWalletIsZero(this.asset.tag);
+    return this.persistenceService.userAssetBalanceIsZero(this.asset.tag);
   }
 
   userAssetSuppliedBalanceIsZero(): boolean {
@@ -432,38 +490,25 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   collapseAssetTableSlideUp(): void {
-    // Collapse asset table`
+    // Collapse asset-user table`
     $(`.asset.${this.asset.tag}`).removeClass('active');
     $(this.marketExpandedEl).slideUp();
   }
 
   collapseAssetTable(): void {
-    // Collapse asset table`
+    // Collapse asset-user table`
     $(`.asset.${this.asset.tag}`).removeClass('active');
     $(this.marketExpandedEl).hide();
   }
 
   hideAvailableAssetData(): void {
     // Hide available assets data
-    $(this.assetAvailableEl).css("display", "none");
     $(this.assetYourEl).css("display", "none");
   }
 
   showAssetAvailableAndHideAssetYour(): void {
-    // Show available asset version
-    $(this.assetAvailableEl).css("display", "table-row");
-    // Hide your asset version
+    // Hide your asset-user version
     $(this.assetYourEl).css("display", "none");
-  }
-
-  showAllMarketTableData(): void {
-    // Show "All market" table data
-    $(this.assetAllEl).css("display", "table-row");
-  }
-
-  hideAllMarketTableData(): void {
-    // Hide "All market" table data
-    $(this.assetAllEl).css("display", "none");
   }
 
   removeAdjustClass(): void {
@@ -475,8 +520,9 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   showDefaultActions(): void {
     // Show default actions
     $(this.supplyAction1El).removeClass("hide");
-    $(this.supplyAction2El).addClass("hide");
     $(this.borrowAction1El).removeClass("hide");
+
+    $(this.supplyAction2El).addClass("hide");
     $(this.borrowAction2El).addClass("hide");
   }
 
@@ -496,19 +542,20 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   disableAndResetSupplySlider(): void {
-    // Disable asset supply sliders (Your markets)
+    // Disable asset-user supply sliders (Your markets)
     this.sliderSupply.noUiSlider.set(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
     this.sliderSupply.setAttribute("disabled", "");
   }
 
   disableAndResetBorrowSlider(): void {
-    // Disable asset borrow sliders (Your markets)
+    // Disable asset-user borrow sliders (Your markets)
     this.sliderBorrow.noUiSlider.set(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
     this.sliderBorrow.setAttribute("disabled", "");
   }
 
+
   disableInputs(): void {
-    // Disable asset inputs (Your markets)
+    // Disable asset-user inputs (Your markets)
     $(this.inputSupply).attr('disabled', 'disabled');
     $(this.inputSupplyAvailable).attr('disabled', 'disabled');
     $(this.inputBorrow).attr('disabled', 'disabled');
@@ -517,43 +564,16 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   enableAssetBorrow(): void {
     $(this.inputBorrow).removeAttr("disabled");
-    $(this.inputBorrowAvailable).removeAttr("disabled");
     $(this.sliderBorrow).removeAttr("disabled");
     this.sliderBorrow.noUiSlider.set(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
   }
 
-  hideYourAsset(): void {
-    if ($(this.assetYourEl).is(":visible")) {
-      $(this.assetYourEl).css("display", "none");
-    } else if ($(this.assetAvailableEl).is(":visible")) {
-      $(this.assetAvailableEl).css("display", "none");
-    }
-  }
-
-  hideYourAndAvailableAsset(): void {
+  hideAsset(): void {
     $(this.assetYourEl).css("display", "none");
-    $(this.assetAvailableEl).css("display", "none");
   }
 
-  hideAllMarketAsset(): void {
-    $(this.assetAllEl).css("display", "none");
-  }
-
-  showYourAsset(): void {
-    log.debug(`showYourAsset() called`);
-    if (this.persistenceService.userHasNotSuppliedAnyAsset()
-      && !this.userAssetBalanceIsZero()
-      && this.persistenceService.userLoggedIn()) {
-      $(this.assetAvailableEl).css("display", "table-row");
-    } else {
-      if (this.persistenceService.userAssetSuppliedOrBorrowedNotZero(this.asset.tag)) {
-        $(this.assetYourEl).css("display", "table-row");
-      }
-    }
-  }
-
-  showAllMarketAsset(): void {
-    $(this.assetAllEl).css("display", "table-row");
+  showAsset(): void {
+    $(this.assetYourEl).css("display", "table-row");
   }
 
 }

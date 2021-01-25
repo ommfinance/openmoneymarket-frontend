@@ -8,11 +8,12 @@ import {Utils} from "../../common/utils";
 import {CheckerService} from "../checker/checker.service";
 import {AllAddresses} from "../../interfaces/all-addresses";
 import {Reserve} from "../../interfaces/reserve";
-import {AllReserves} from "../../interfaces/all-reserves";
+import {AllReservesData, ReserveData} from "../../interfaces/all-reserves-data";
 import {UserAccountData} from "../../models/user-account-data";
 import {ReserveConfigData} from "../../models/ReserveConfigData";
 import {StateChangeService} from "../state-change/state-change.service";
 import {AssetTag} from "../../models/Asset";
+import log from "loglevel";
 
 
 @Injectable({
@@ -114,7 +115,7 @@ export class ScoreService {
    * @description Get all reserve data
    * @return All reserve data
    */
-  public async getReserveDataForAllReserves(): Promise<AllReserves> {
+  public async getAllReserveData(): Promise<AllReservesData> {
     this.checkerService.checkAllAddressesLoaded();
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
@@ -122,7 +123,25 @@ export class ScoreService {
     return await this.iconApiService.iconService.call(tx).execute();
   }
 
-  private async getUserBalanceOfUSDb(address?: string): Promise<number> {
+  /**
+   * @description Get specific reserve data
+   * @param reserve - Address using 1 a  for USDb and sICX
+   * @return ReserveData
+   */
+  public async getsSpecificReserveData(reserve: string): Promise<ReserveData> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const params = {
+      _reserve: reserve
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
+      ScoreMethodNames.GET_SPECIFIC_RESERVE_DATA, params, IconTransactionType.READ);
+    return await this.iconApiService.iconService.call(tx).execute();
+  }
+
+
+  private async getUserUSDbBalance(address?: string): Promise<number> {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.collateral.USDb,
@@ -131,6 +150,7 @@ export class ScoreService {
       }, IconTransactionType.READ);
     const res = await this.iconApiService.iconService.call(tx).execute();
     const balance = Utils.hex18DecimalToNormalisedNumber(res);
+    log.debug(`User USDb balance = ${balance}`);
     this.stateChangeService.updateUserAssetBalance(balance, AssetTag.USDb);
     return balance;
   }
@@ -142,10 +162,17 @@ export class ScoreService {
         balance = await this.iconApiService.getIcxBalance(this.persistenceService.activeWallet!.address);
         break;
       case AssetTag.USDb:
-        balance = await this.getUserBalanceOfUSDb(this.persistenceService.activeWallet!.address);
+        balance = await this.getUserUSDbBalance(this.persistenceService.activeWallet!.address);
         break;
     }
+
+    // set asset balance
+    log.debug(`User ${assetTag} balance: ${balance}`);
+    this.persistenceService.activeWallet!.balances.set(assetTag, balance);
+
+    // commit the change
     this.stateChangeService.updateUserAssetBalance(balance, assetTag);
+
     return balance;
   }
 

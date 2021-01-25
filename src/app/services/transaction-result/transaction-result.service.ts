@@ -45,9 +45,9 @@ export class TransactionResultService {
             });
           }
 
-          // reload all reserves and user asset reserve data
-          this.dataLoaderService.loadAllReserves();
-          this.dataLoaderService.loadUserAssetReserveData(assetAction.asset.tag);
+          // reload all reserves and user specific data (reserve, account data, ..)
+          this.dataLoaderService.loadAllReserveData();
+          this.dataLoaderService.loadUserSpecificData();
 
           switch (payload.id) {
             case IconexRequestsMap.SUPPLY:
@@ -100,9 +100,9 @@ export class TransactionResultService {
         });
       }
 
-      // reload all reserves and user asset reserve data
-      this.dataLoaderService.loadAllReserves();
-      this.dataLoaderService.loadUserAssetReserveData(assetAction.asset.tag);
+      // reload all reserves and user asset-user reserve data
+      this.dataLoaderService.loadAllReserveData();
+      this.dataLoaderService.loadUserSpecificData();
 
       switch (modalAction.modalType) {
         case Modals.SUPPLY:

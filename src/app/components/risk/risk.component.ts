@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {RiskData} from "../../models/RiskData";
 import {percentageFormat} from "../../common/formats";
 import {Subject} from "rxjs";
@@ -9,6 +9,7 @@ import {StateChangeService} from "../../services/state-change/state-change.servi
 import log from "loglevel";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {BaseClass} from "../base-class";
+import {UserAccountData} from "../../models/user-account-data";
 
 declare var noUiSlider: any;
 declare var wNumb: any;
@@ -21,6 +22,11 @@ declare var $: any;
 })
 export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
 
+  className = "[RiskComponent]";
+
+  @ViewChild("totalRisk")set totalRiskSetter(totalRisk: ElementRef) {this.totalRiskEl = totalRisk.nativeElement; }
+  totalRiskEl!: HTMLElement;
+
   private sliderRisk?: any;
   // private totalRisk = 0;
 
@@ -31,6 +37,8 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.subscribeToLoginChange();
+
   }
 
   ngAfterViewInit(): void {
@@ -56,28 +64,47 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
     // });
   }
 
-  updateRiskData(riskData?: RiskData): void {
-    const riskTotal = riskData ? riskData.riskTotal : this.calculationService.calculateValueRiskTotal();
+  subscribeToUserAccountDataChange(): void {
+    this.stateChangeService.userAccountDataChange.subscribe((userAccountData: UserAccountData) => {
+      // calculate total risk percentage
+      this.updateViewRiskData(this.calculationService.calculateTotalRiskPercentage());
+    });
+  }
 
+  subscribeToLoginChange(): void {
+    this.stateChangeService.loginChange.subscribe(wallet => {
+      log.debug(`${this.className} Login change to wallet = ${wallet}`);
+      // user has logged in
+      if (wallet) {
+        // calculate total risk percentage
+        this.updateViewRiskData(this.calculationService.calculateTotalRiskPercentage());
+      } else {
+        // user has logged out
+        // TODO do something on logout
+      }
+    });
+  }
+
+  updateViewRiskData(riskTotal: number): void {
     // Update the risk percentage
-    $('.value-risk-total').text(percentageFormat.to(riskTotal));
+    $(this.totalRiskEl).text(percentageFormat.to(riskTotal));
 
     // Update the risk slider
     this.sliderRisk.noUiSlider.set(riskTotal);
 
     // Change text to red if over 100
     if (riskTotal > 100) {
-      // Hide supply actions
-      $('.supply-actions.actions-2').css("display", "none");
+      $(this.totalRiskEl).addClass("alert");
     }
 
     // Change text to red if over 75
     if (riskTotal > 75) {
-      $('.value-risk-total').addClass("alert");
+      $(this.totalRiskEl).addClass("alert");
     }
+
     // Change text to normal if under 75
     if (riskTotal < 75) {
-      $('.value-risk-total').removeClass("alert");
+      $(this.totalRiskEl).removeClass("alert");
     }
 
   }

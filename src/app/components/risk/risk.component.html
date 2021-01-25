@@ -5,7 +5,7 @@
       <div class="grid-cell">
         <h2>Risk</h2>
         <span class="value-risk-total" #totalRisk>{{this.persistenceService.userHasNotSuppliedAnyAsset()
-        || this.persistenceService.userHasNotBorrowedAnyAsset() ? "0%" : "23%"}}</span>
+        || this.persistenceService.userHasNotBorrowedAnyAsset() ? "0%" : "- %"}}</span>
       </div>
     </div>
 
@@ -17,7 +17,7 @@
           <div id="slider-risk" disabled></div>
         </div>
         <p class="risk-message-noassets label text-center hide"
-           [ngStyle]="displayAsBlock(this.persistenceService.userHasNotBorrowedAnyAsset())">You have no risk until you borrow an asset.</p>
+           [ngStyle]="displayAsBlockOrHide(this.persistenceService.userHasNotBorrowedAnyAsset())">You have no risk until you borrow an asset.</p>
       </div>
     </div>
   </section>

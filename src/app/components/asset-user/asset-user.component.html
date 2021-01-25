@@ -1,17 +1,5 @@
-<!-- Available to supply state  TODO!!! -->
-<tr class="asset {{asset.className}} asset-available hide" (click)="onAssetClick()" #assetAvail
-    [ngStyle]="displayAsTableRow(this.persistenceService.userHasNotSuppliedAnyAsset()
-    && !userAssetBalanceIsZero()
-    && this.persistenceService.userLoggedIn())">
-  <td>{{asset.name}}<br><span class="label">{{asset.tag}}</span></td>
-  <td colspan="2" class="text-right">${{this.formatNumberToNdigits(this.persistenceService.getUserAssetBalance(asset.tag))}}
-    <br><span class="label">{{this.formatNumberToUSLocaleString(this.persistenceService.getUserAssetUSDBalance(asset.tag))}} {{asset.tag}}</span></td>
-  <td colspan="2" class="text-right"><span class="text-green">??% APY</span></td>
-</tr>
-
-
-<!-- Your markets state -->
-<tr class="asset {{asset.className}} your hide" (click)="onAssetClick()" #assetYour>
+<!-- Your markets (users asset) state -->
+<tr class="asset {{asset.className}} your " (click)="onAssetClick()" #assetYour>
   <td>{{asset.name}}<br><span class="label">{{asset.tag}}</span></td>
   <td><span class="value-supplied">${{this.formatNumberToNdigits(this.persistenceService.getUserAssetReserve(asset.tag)?.currentOTokenBalanceUSD)}}</span><br>
     <span class="value-supplied label">{{this.formatNumberToUSLocaleString(this.persistenceService.getUserSuppliedAssetBalance(asset.tag))}} {{asset.tag}}</span></td>
@@ -21,16 +9,6 @@
   <td class="text-purple">{{this.persistenceService.getUserAssetReserve(asset.tag)?.borrowRate?.toFixed(5)}}%</td>
 </tr>
 
-<!-- All markets state -->
-<tr class="asset {{asset.className}} all" #assetAll>
-  <td>{{asset.name}}<br><span class="label">{{asset.tag}}</span></td>
-  <td><span>${{this.formatNumberToNdigits(this.persistenceService.getAssetAllReserveData(asset.tag)?.totalLiquidity)}}</span><br>
-    <span class="label">{{this.formatNumberToUSLocaleString(this.persistenceService.getAssetAllReserveData(asset.tag)?.totalLiquidity)}} {{asset.tag}}</span></td>
-  <td class="text-green">{{this.persistenceService.getAssetAllReserveData(asset.tag)?.liquidityRate?.toFixed(5)}}%</td>
-  <td>${{this.formatNumberToNdigits(this.persistenceService.getAssetAllReserveData(asset.tag)?.totalBorrows)}}<br>
-    <span class="label">{{this.formatNumberToUSLocaleString(this.persistenceService.getAssetAllReserveData(asset.tag)?.totalBorrows)}} {{asset.tag}}</span></td>
-  <td class="text-purple">{{this.persistenceService.getAssetAllReserveData(asset.tag)?.borrowRate?.toFixed(5)}}%</td>
-</tr>
 
 <!-- Asset Expanded -->
 <tr class="expanded">
@@ -45,7 +23,7 @@
               <h2>Supply</h2>
             </div>
             <div class="grid-cell text-right">
-              <p class="supply-apy">6.47% APY</p>
+              <p class="supply-apy">- % APY</p>
             </div>
           </div>
 
@@ -58,11 +36,13 @@
             <div class="grid legend">
               <div class="grid-cell">
                 <label class="label supplied">Supplied</label>
-                <input type="text" title="{{asset.tag}} supplied" id="input-supply" #inputSupply class="input-supply" disabled="" value="0">
+                <input type="text" title="{{asset.tag}} supplied" id="input-supply" #inputSupply class="input-supply"
+                       (keyup)="supplyAssetAmountChange()" disabled="" value="0">
               </div>
               <div class="grid-cell">
                 <label class="label available">Available</label>
-                <input type="text" title="{{asset.tag}} available to supply" #inpSuppAvail id="input-supply-available" class="input-supply-available" disabled="" value="0">
+                <input type="text" title="{{asset.tag}} available to supply" #inpSuppAvail id="input-supply-available"
+                       class="input-supply-available" disabled value="0">
               </div>
             </div>
 
@@ -102,7 +82,7 @@
           </div>
 
           <!-- Supply deny (Show if user can't borrow) -->
-          <div class="supply-deny {{asset.className}} hide" [ngStyle]="displayAsBlock(userAssetBalanceIsZero())">
+          <div class="supply-deny {{asset.className}} hide" [ngStyle]="displayAsBlockOrHide(userAssetBalanceIsZero())">
             <p class="text-center label message">You have no {{asset.name}} available to supply.</p>
           </div>
         </div>
@@ -112,10 +92,10 @@
           <!-- Borrow title -->
           <div class="grid grid-center title">
             <div class="grid-cell">
-              <h2>Borrow</h2><span class="risk-outer" [ngStyle]="hideElement(this.persistenceService.userHasNotSuppliedAnyAsset())">Risk: <span class="value-risk-total">54%</span></span>
+              <h2>Borrow</h2><span class="risk-outer" [ngStyle]="hideElement(this.persistenceService.userHasNotSuppliedAnyAsset())">Risk: <span class="value-risk-total">- %</span></span>
             </div>
             <div class="grid-cell text-right">
-              <p class="borrow-apy">7.25% APY</p>
+              <p class="borrow-apy">- % APY</p>
             </div>
           </div>
 
@@ -173,7 +153,7 @@
           </div>
 
           <!-- Borrow deny (Show if user can't borrow) -->
-          <div class="borrow-deny hide" [ngStyle]="displayAsBlock(this.persistenceService.userHasNotSuppliedAnyAsset())">
+          <div class="borrow-deny hide" [ngStyle]="displayAsBlockOrHide(this.persistenceService.userHasNotSuppliedAnyAsset())">
             <p class="text-center label message">Supply an asset to borrow {{asset.name}}.</p>
           </div>
         </div>

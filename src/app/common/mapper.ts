@@ -1,6 +1,6 @@
 import {Utils} from "./utils";
 import {Reserve} from "../interfaces/reserve";
-import {ReserveData} from "../interfaces/all-reserves";
+import {ReserveData} from "../interfaces/all-reserves-data";
 import {UserAccountData} from "../models/user-account-data";
 import log from "loglevel";
 import {ReserveConfigData} from "../models/ReserveConfigData";
@@ -39,23 +39,15 @@ export class Mapper {
   public static mapUserAccountData(userAccountData: UserAccountData): UserAccountData {
     log.debug("mapUserAccountData before: ", userAccountData);
     const res = new UserAccountData(
-      Utils.hex18DecimalToNormalisedNumber(userAccountData.totalLiquidityICX),
-      Utils.hex18DecimalToNormalisedNumber(userAccountData.totalCollateralICX),
-      Utils.hex18DecimalToNormalisedNumber(userAccountData.totalBorrowsICX),
-      Utils.hex18DecimalToNormalisedNumber(userAccountData.totalFeesICX),
-      Utils.hex18DecimalToNormalisedNumber(userAccountData.availableBorrowsICX),
-      Utils.hex18DecimalToNormalisedNumber(userAccountData.collateralInterestICX),
-      Utils.hex18DecimalToNormalisedNumber(userAccountData.totalLiquidityUSD),
-      Utils.hex18DecimalToNormalisedNumber(userAccountData.totalCollateralUSD),
-      Utils.hex18DecimalToNormalisedNumber(userAccountData.totalBorrowsUSD),
-      Utils.hex18DecimalToNormalisedNumber(userAccountData.totalFeesUSD),
-      Utils.hex18DecimalToNormalisedNumber(userAccountData.availableBorrowsUSD),
-      Utils.hex18DecimalToNormalisedNumber(userAccountData.collateralInterestUSD),
-      Utils.hexToPercent(userAccountData.liquidityRate),
-      Utils.hexToPercent(userAccountData.borrowRate),
+      Utils.hex18DecimalToNormalisedNumber(userAccountData.borrowingPower),
       Utils.hex18DecimalToNormalisedNumber(userAccountData.currentLiquidationThreshold),
-      Utils.hexToNumber(userAccountData.ltv),
-      Utils.hexToNumber(userAccountData.healthFactor),
+      Utils.hex18DecimalToNormalisedNumber(userAccountData.currentLtv),
+      Utils.hex18DecimalToNormalisedNumber(userAccountData.healthFactor),
+      Utils.hex18DecimalToNormalisedNumber(userAccountData.healthFactorBelowThreshold),
+      Utils.hex18DecimalToNormalisedNumber(userAccountData.totalBorrowBalanceUSD),
+      Utils.hex18DecimalToNormalisedNumber(userAccountData.totalCollateralBalanceUSD),
+      Utils.hex18DecimalToNormalisedNumber(userAccountData.totalFeesUSD),
+      Utils.hex18DecimalToNormalisedNumber(userAccountData.totalLiquidityBalanceUSD),
     );
     log.debug("mapUserAccountData after: ", res);
     return res;
@@ -63,24 +55,29 @@ export class Mapper {
 
   public static mapReserveData(reserveData: ReserveData): ReserveData {
     return new ReserveData(
+      Utils.hex18DecimalToNormalisedNumber(reserveData.totalLiquidity),
       Utils.hex18DecimalToNormalisedNumber(reserveData.availableLiquidity),
-      Utils.hexToNumber(reserveData.baseLTVasCollateral),
-      Utils.hex18DecimalToNormalisedNumber(reserveData.borrowCumulativeIndex),
+      Utils.hex18DecimalToNormalisedNumber(reserveData.totalLiquidityUSD),
+      Utils.hex18DecimalToNormalisedNumber(reserveData.availableLiquidityUSD),
+      Utils.hex18DecimalToNormalisedNumber(reserveData.totalBorrows),
+      Utils.hex18DecimalToNormalisedNumber(reserveData.totalBorrowsUSD),
+      Utils.hexToPercent(reserveData.liquidityRate),
       Utils.hexToPercent(reserveData.borrowRate),
+      Utils.hexToPercent(reserveData.utilizationRate),
+      reserveData.oTokenAddress,
+      Utils.hex18DecimalToNormalisedNumber(reserveData.exchangePrice),
+      Utils.hexToNumber(reserveData.lastUpdateTimestamp),
+      Utils.hex18DecimalToNormalisedNumber(reserveData.baseLTVasCollateral),
+      Utils.hex18DecimalToNormalisedNumber(reserveData.borrowCumulativeIndex),
       Utils.hexToNumber(reserveData.borrowingEnabled),
       Utils.hexToNumber(reserveData.decimals),
       Utils.hexToNumber(reserveData.isActive),
       Utils.hexToNumber(reserveData.isFreezed),
-      Utils.hexToNumber(reserveData.lastUpdateTimestamp),
-      Utils.hexToNumber(reserveData.liquidationBonus),
-      Utils.hexToNumber(reserveData.liquidationThreshold),
-      Utils.hexToNumber(reserveData.liquidityCumulativeIndex),
-      Utils.hexToPercent(reserveData.liquidityRate),
-      reserveData.oTokenAddress,
+      Utils.hex18DecimalToNormalisedNumber(reserveData.liquidationBonus),
+      Utils.hex18DecimalToNormalisedNumber(reserveData.liquidationThreshold),
+      Utils.hex18DecimalToNormalisedNumber(reserveData.utilizationRate),
       reserveData.reserveAddress,
-      Utils.hex18DecimalToNormalisedNumber(reserveData.totalBorrows),
-      Utils.hex18DecimalToNormalisedNumber(reserveData.totalLiquidity),
-      Utils.hexToNumber(reserveData.usageAsCollateralEnabled)
+      Utils.hexToNumber(reserveData.usageAsCollateralEnabled),
     );
   }
 

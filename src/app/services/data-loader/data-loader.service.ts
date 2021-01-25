@@ -2,16 +2,15 @@ import {Injectable} from '@angular/core';
 import {ScoreService} from '../score/score.service';
 import {PersistenceService} from '../persistence/persistence.service';
 import {AllAddresses} from '../../interfaces/all-addresses';
-import {AllReserves, ReserveData} from "../../interfaces/all-reserves";
+import {AllReservesData, ReserveData} from "../../interfaces/all-reserves-data";
 import {Mapper} from "../../common/mapper";
 import {Reserve} from "../../interfaces/reserve";
 import {UserAccountData} from "../../models/user-account-data";
 import {StateChangeService} from "../state-change/state-change.service";
-import {Asset, AssetTag} from "../../models/Asset";
+import {AssetTag} from "../../models/Asset";
 import log from "loglevel";
 import {IconexWallet} from "../../models/IconexWallet";
 import {BridgeWallet} from "../../models/BridgeWallet";
-import {IconApiService} from "../icon-api/icon-api.service";
 import {OmmError} from "../../core/errors/OmmError";
 import {AllReserveConfigData} from "../../models/AllReserveConfigData";
 
@@ -20,12 +19,10 @@ import {AllReserveConfigData} from "../../models/AllReserveConfigData";
 })
 export class DataLoaderService {
 
-  public userAssetsBalanceReloadInterval: any;
-
   constructor(private scoreService: ScoreService,
               private persistenceService: PersistenceService,
-              private stateChangeService: StateChangeService,
-              private iconApiService: IconApiService) {
+              private stateChangeService: StateChangeService) {
+
   }
 
   public async walletLogin(wallet: IconexWallet | BridgeWallet, iconAddress: string): Promise<void> {
@@ -33,24 +30,14 @@ export class DataLoaderService {
 
     try {
       // TODO optimise by saving and reading from localstorage
-      const [usdbReserveResponse, icxReserveResponse, icxBalResponse, usdbBalResponse] = await Promise.all([
+      const [usdbReserveResponse, icxReserveResponse, icxBalResponse, usdbBalResponse, userAccountDataRes
+      ] = await Promise.all([
         this.loadUserUSDbReserveData(),
         this.loadUserIcxReserveData(),
         this.scoreService.getUserAssetBalance(AssetTag.ICX),
-        this.scoreService.getUserAssetBalance(AssetTag.USDb)
+        this.scoreService.getUserAssetBalance(AssetTag.USDb),
+        this.loadUserAccountData(),
       ]);
-
-      // set ICX balance
-      log.debug(`User ICX balance: ${icxBalResponse}`);
-      this.persistenceService.activeWallet!.balances.set(AssetTag.ICX, icxBalResponse);
-
-      // set USDb balance
-      log.debug(`User USDb balance: ${usdbBalResponse}`);
-      this.persistenceService.activeWallet!.balances.set(AssetTag.USDb, usdbBalResponse);
-
-
-        // register user balance reloader interval
-      // this.userAssetsBalanceReloadInterval = setTimeout(() => this.loadAllUserAssetsBalances(), 2000);
 
     } catch (e) {
       throw new OmmError("Error occurred! Try again in a moment.", e);
@@ -60,11 +47,17 @@ export class DataLoaderService {
   }
 
   public walletLogout(): void {
-    if (this.userAssetsBalanceReloadInterval) {
-      clearInterval(this.userAssetsBalanceReloadInterval);
-    }
+    // clear active wallet
     this.persistenceService.activeWallet = undefined;
+
+    // commit change to the state change service
     this.stateChangeService.updateLoginStatus(this.persistenceService.activeWallet);
+  }
+
+  public loadAllUserAssetsBalances(): void {
+    Object.values(AssetTag).forEach(assetTag => {
+      this.scoreService.getUserAssetBalance(assetTag);
+    });
   }
 
   public loadAllScoreAddresses(): Promise<void> {
@@ -74,32 +67,46 @@ export class DataLoaderService {
     });
   }
 
-  public loadAllReserves(): Promise<void> {
-    return this.scoreService.getReserveDataForAllReserves().then((allReserves: AllReserves) => {
-      const newAllReserve = new AllReserves(allReserves.USDb, allReserves.sICX);
+  public loadAllReserveData(): Promise<void> {
+    return this.scoreService.getAllReserveData().then((allReserves: AllReservesData) => {
+      log.debug("loadAllReserves.allReserves: ", allReserves);
+      const newAllReserve = new AllReservesData(allReserves.USDb, allReserves.ICX);
       Object.entries(newAllReserve).forEach((value: [string, ReserveData]) => {
         // @ts-ignore
         newAllReserve[value[0]] = Mapper.mapReserveData(value[1]);
       });
       this.persistenceService.allReserves = newAllReserve;
-      log.debug("loadAllReserves: ", newAllReserve);
+      log.debug("loadAllReserves.allReserves after: ", this.persistenceService.allReserves);
     });
+  }
+
+  public loadSpecificReserveData(assetTag: AssetTag): Promise<void> {
+    return this.scoreService.getsSpecificReserveData(this.persistenceService.allAddresses!.getAssetAddress(assetTag))
+      .then(reserveData => {
+        const newReserveData = Mapper.mapReserveData(reserveData);
+        this.persistenceService.allReserves?.setReserveData(assetTag, newReserveData);
+        log.debug(`Loaded ${assetTag} reserveData: `, newReserveData);
+      }).catch(e => {
+        throw new OmmError(`Error occurred in loadSpecificReserveData`, e);
+      });
   }
 
   public loadAllReservesConfigData(): Promise<void> {
     return this.scoreService.getAllReserveConfigurationData().then((allReservesConfigData: AllReserveConfigData) => {
       log.debug("loadAllReservesConfigData : ", allReservesConfigData);
-      const newAllReserveConfigData = new AllReserveConfigData(allReservesConfigData.USDb, allReservesConfigData.sICX);
+      const newAllReserveConfigData = new AllReserveConfigData(allReservesConfigData.USDb, allReservesConfigData.ICX);
       Object.entries(newAllReserveConfigData).forEach((value: [string, ReserveData]) => {
         // @ts-ignore
         newAllReserveConfigData[value[0]] = Mapper.mapReserveConfigurationData(value[1]);
       });
       this.persistenceService.allReservesConfigData = newAllReserveConfigData;
       log.debug("loadAllReservesConfigData after mapping : ", newAllReserveConfigData);
+    }).catch(e => {
+      throw new OmmError(`Error occurred in loadAllReservesConfigData`, e);
     });
   }
 
-  public loadUserAssetReserveData(assetTag: AssetTag): void {
+  public loadUserAssetReserveData(assetTag: AssetTag): Promise<void> {
     switch (assetTag) {
       case AssetTag.ICX:
         return this.loadUserIcxReserveData();
@@ -108,9 +115,9 @@ export class DataLoaderService {
     }
   }
 
-  public loadUserUSDbReserveData(): void {
+  public loadUserUSDbReserveData(): Promise<void> {
     let mappedReserve: any;
-    this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses!.collateral.USDb)
+    return this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses!.collateral.USDb)
       .then((res: Reserve) => {
         mappedReserve = Mapper.mapUserReserve(res);
         this.persistenceService.userReserves!.reserveMap.set(AssetTag.USDb, mappedReserve);
@@ -119,16 +126,16 @@ export class DataLoaderService {
       });
   }
 
-  public loadAllUserAssetsBalances(): void {
+  public loadAllUserAssetReserveData(): void {
     if (this.persistenceService.activeWallet) {
       this.loadUserUSDbReserveData();
       this.loadUserIcxReserveData();
     }
   }
 
-  public loadUserIcxReserveData(): void {
+  public loadUserIcxReserveData(): Promise<void> {
     let mappedReserve: any;
-    this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses!.collateral.sICX)
+    return this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses!.collateral.sICX)
       .then((res: Reserve) => {
         mappedReserve = Mapper.mapUserReserve(res);
         this.persistenceService.userReserves!.reserveMap.set(AssetTag.ICX, mappedReserve);
@@ -137,9 +144,17 @@ export class DataLoaderService {
       });
   }
 
-  public loadUserAccountData(): void {
-    this.scoreService.getUserAccountData().then((userAccountData: UserAccountData) => {
+  public loadUserAccountData(): Promise<void> {
+    return this.scoreService.getUserAccountData().then((userAccountData: UserAccountData) => {
       this.persistenceService.userAccountData = Mapper.mapUserAccountData(userAccountData);
+      this.stateChangeService.updateUserAccountData(this.persistenceService.userAccountData);
+      log.debug("loadUserAccountData -> userAccountData:", this.persistenceService.userAccountData);
     });
+  }
+
+  public loadUserSpecificData(): void {
+    this.loadAllUserAssetReserveData();
+    this.loadAllUserAssetsBalances();
+    this.loadUserAccountData();
   }
 }

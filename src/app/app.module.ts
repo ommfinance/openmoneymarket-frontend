@@ -12,9 +12,11 @@ import { NotificationComponent } from './components/notification/notification.co
 import { ModalComponent } from './components/modal/modal.component';
 import { PerformanceComponent } from './components/performance/performance.component';
 import { RiskComponent } from './components/risk/risk.component';
-import { AssetComponent } from './components/asset/asset.component';
+import { AssetUserComponent } from './components/asset-user/asset-user.component';
 import {environment} from "../environments/environment";
 import log from "loglevel";
+import { AssetUserAvailableComponent } from './components/asset-user-available/asset-user-available.component';
+import { AssetMarketComponent } from './components/asset-market/asset-market.component';
 // set logging level
 log.setLevel(environment.production ? "error" : "debug");
 
@@ -27,7 +29,9 @@ log.setLevel(environment.production ? "error" : "debug");
     ModalComponent,
     PerformanceComponent,
     RiskComponent,
-    AssetComponent
+    AssetUserComponent,
+    AssetUserAvailableComponent,
+    AssetMarketComponent
   ],
   imports: [
     BrowserModule,

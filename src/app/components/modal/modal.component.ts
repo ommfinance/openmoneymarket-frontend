@@ -13,6 +13,8 @@ import {BorrowService} from "../../services/borrow/borrow.service";
 import {RepayService} from "../../services/repay/repay.service";
 import {OmmError} from "../../core/errors/OmmError";
 import {LocalStorageService} from "../../services/local-storage/local-storage.service";
+import {StateChangeService} from "../../services/state-change/state-change.service";
+import {NotificationService} from "../../services/notification/notification.service";
 
 
 @Component({
@@ -37,7 +39,9 @@ export class ModalComponent extends BaseClass implements OnInit {
               private withdrawService: WithdrawService,
               private borrowService: BorrowService,
               private repayService: RepayService,
-              private localStorageService: LocalStorageService) {
+              private localStorageService: LocalStorageService,
+              private stateChangeService: StateChangeService,
+              private notificationService: NotificationService) {
     super();
     this.activeModalSubscription = this.modalService.activeModalChange$.subscribe((activeModalChange: ModalAction) => {
       switch (activeModalChange.modalType) {
@@ -94,30 +98,34 @@ export class ModalComponent extends BaseClass implements OnInit {
   }
 
   onAssetModalActionClick(): void {
-    // store asset action in local storage
+    // store asset-user action in local storage
     this.localStorageService.persistModalAction(this.activeModalChange!);
-
+    const assetTag = this.activeModalChange!.assetAction!.asset.tag;
     switch (this.activeModalChange?.modalType) {
       case Modals.BORROW:
-        this.borrowService.borrowAsset(this.activeModalChange!.assetAction!.amount,
-          this.activeModalChange!.assetAction!.asset.tag);
+        this.borrowService.borrowAsset(this.activeModalChange!.assetAction!.amount, assetTag);
+        this.notificationService.showNewNotification(`Committing borrow ${assetTag} transaction...`);
         break;
       case Modals.SUPPLY:
-        this.supplyService.supplyAsset(this.activeModalChange!.assetAction!.amount,
-          this.activeModalChange!.assetAction!.asset.tag);
+        this.supplyService.supplyAsset(this.activeModalChange!.assetAction!.amount, assetTag);
+        this.notificationService.showNewNotification(`Committing supply ${assetTag} transaction...`);
         break;
       case Modals.REPAY:
-        this.repayService.repayAsset(this.activeModalChange!.assetAction!.amount,
-          this.activeModalChange!.assetAction!.asset.tag);
+        this.repayService.repayAsset(this.activeModalChange!.assetAction!.amount, assetTag);
+        this.notificationService.showNewNotification(`Committing repay ${assetTag} transaction...`);
         break;
       case Modals.WITHDRAW:
-        this.withdrawService.withdrawAsset(this.activeModalChange!.assetAction!.amount,
-          this.activeModalChange!.assetAction!.asset.tag);
+        this.withdrawService.withdrawAsset(this.activeModalChange!.assetAction!.amount, assetTag);
+        this.notificationService.showNewNotification(`Committing withdraw ${assetTag} transaction...`);
         break;
       default:
         throw new OmmError(`Invalid modal type: ${this.activeModalChange?.modalType}`);
     }
 
+    // commit modal action change
+    this.stateChangeService.updateUserModalAction(this.activeModalChange);
+
+    // hide current modal
     this.modalService.hideActiveModal();
   }
 

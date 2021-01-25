@@ -16,34 +16,6 @@
             </div>
           </a>
         </li>
-        <!--
-        <li>
-          <a href="./vote/">
-            <div class="grid grid-center">
-              <div class="grid-cell">
-                <img src="./img/icon/vote.svg" class="svg" alt="Vote icon">
-              </div>
-              <div class="grid-cell">
-                Vote
-              </div>
-            </div>
-          </a>
-        </li>
-        -->
-        <!--
-        <li>
-          <a href="./liquidate/">
-            <div class="grid grid-center">
-              <div class="grid-cell">
-                <img src="./img/icon/liquidate.svg" class="svg" alt="Liquidate icon">
-              </div>
-              <div class="grid-cell">
-                Liquidate
-              </div>
-            </div>
-          </a>
-        </li>
-        -->
       </ul>
     </nav>
   </div>
@@ -57,8 +29,8 @@
           <div class="grid-cell">
             <h2>Overview</h2>
             <ul class="toggle" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn())">
-              <li id="toggle-your-overview" class="active" (click)="toggleLogic.onToggleYourOverviewClick()">Your overview</li>
-              <li id="toggle-market-overview" (click)="toggleLogic.onToggleMarketOverviewClick()">Market overview</li>
+              <li id="toggle-your-overview" class="active" (click)="onToggleYourOverviewClick()">Your overview</li>
+              <li id="toggle-market-overview" (click)="onToggleMarketOverviewClick()">Market overview</li>
             </ul>
           </div>
         </div>
@@ -156,7 +128,7 @@
         </div>
       </section>
 
-      <!-- Performance / Risk , hide if user not logged in or he has not supplied any asset -->
+      <!-- Performance / Risk , hide if user not logged in or he has not supplied any asset-user -->
       <div class="grid side-by-side performance-risk" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn()
                                                                  || this.persistenceService.userHasNotSuppliedAnyAsset())">
         <!-- Performance -->
@@ -178,13 +150,6 @@
               <li id="toggle-all-markets" (click)="onToggleAllMarketsClick()">All markets</li>
             </ul>
           </div>
-
-          <!-- Search -->
-          <div class="grid-cell">
-            <input id="search-markets" class="search" type="text" name="search-markets"
-                   [ngModel]="searchValue"
-                   (ngModelChange)="onSearchValueChange($event)" placeholder="Search markets">
-          </div>
         </div>
 
         <!-- Markets list -->
@@ -192,7 +157,7 @@
           <div class="grid-cell">
             <table class="list markets">
               <thead>
-                <tr id="your-markets-header" class="hide" [ngStyle]="hideElement(this.persistenceService.userHasNotSuppliedAnyAsset())">
+                <tr id="your-markets-header" [ngStyle]="hideElement(this.userAssets.length == 0 || !userMarketViewActive())">
                   <th>Asset</th>
                   <th>You've supplied</th>
                   <th>Supply APY</th>
@@ -200,7 +165,7 @@
                   <th>Borrow APY</th>
                 </tr>
 
-                <tr id="all-markets-header" class="hide" [ngStyle]="hideElement(this.persistenceService.userHasNotSuppliedAnyAsset())">
+                <tr id="all-markets-header" [ngStyle]="hideElement(!allMarketViewActive())">
                   <th>Asset</th>
                   <th>Total supplied</th>
                   <th>Supply APY</th>
@@ -209,9 +174,36 @@
                 </tr>
               </thead>
               <tbody>
+
+              <!-- Market Assets -->
+              <ng-container *ngFor="let a of marketAssets; last as isLast; let i = index">
+                <!-- Asset (USDb, ICX, ..) -->
+                <app-asset-market [asset]="a" #marketAsset
+                                  [index]="i"
+                                  [ngStyle]="hideElementOrDisplayContents(!allMarketViewActive())">
+
+                </app-asset-market>
+                <!-- Spacer -->
+                <tr *ngIf="!isLast" class="spacer"></tr>
+              </ng-container>
+
+              <!-- User Assets (hide if user market view is not active) -->
+              <ng-container *ngFor="let a of userAssets; last as isLast; let i = index">
+                <!-- Asset (USDb, ICX, ..) -->
+                <app-asset-user [asset]="a" #userAsset
+                           [index]="i"
+                           [ngStyle]="hideElementOrDisplayContents(!userMarketViewActive())"
+                           (collOtherAssetTables)="collapseOtherAssetsTable($event)"
+                           (disableAndResetSliders)="disableAndResetAssetsSupplyAndBorrowSliders()"
+                           (disableAssetsInputs)="disableAssetsInputs()"
+                           (updateRiskData)="updateRiskData($event)">
+                </app-asset-user>
+                <!-- Spacer -->
+                <tr *ngIf="!isLast || shouldShowAssetAvailable()" class="spacer"></tr>
+              </ng-container>
+
               <!-- Available to supply -->
-              <tr class="available-to-supply hide" [ngStyle]="displayAsTableRow(this.persistenceService.userHasNotSuppliedAnyAsset()
-              && this.persistenceService.userLoggedIn())">
+              <tr class="available-to-supply" [ngStyle]="displayAsTableRowOrHide(shouldShowAssetAvailable())">
                 <td colspan="5">
                   <div class="grid">
                     <div class="grid-cell">
@@ -221,15 +213,17 @@
                 </td>
               </tr>
 
-              <ng-container *ngFor="let a of supportedAssets; last as isLast; let i = index">
-                <!-- Asset (USDb, ICX, ..) -->
-                <app-asset [asset]="a" style="display: contents" #asset
+              <!-- User available Assets (hide if user market view is not active) -->
+              <ng-container *ngFor="let a of availableAssets; last as isLast; let i = index">
+                <!-- Asset available (USDb, ICX, ..) -->
+                <app-asset-available [asset]="a" #availAsset
                            [index]="i"
+                           [ngStyle]="hideElementOrDisplayContents(!userMarketViewActive())"
                            (collOtherAssetTables)="collapseOtherAssetsTable($event)"
                            (disableAndResetSliders)="disableAndResetAssetsSupplyAndBorrowSliders()"
                            (disableAssetsInputs)="disableAssetsInputs()"
                            (updateRiskData)="updateRiskData($event)">
-                </app-asset>
+                </app-asset-available>
                 <!-- Spacer -->
                 <tr *ngIf="!isLast" class="spacer"></tr>
               </ng-container>
@@ -243,844 +237,6 @@
     </main>
   </div>
 </div>
-
-<!--&lt;!&ndash; Navigation &ndash;&gt;-->
-<!--<nav>-->
-<!--  <ul>-->
-<!--    <li>-->
-<!--      <a href="javascript:void(0);" routerLink="" class="active"><img src="assets/img/icons/1.svg" class="svg home"><span>Home</span></a>-->
-<!--    </li>-->
-<!--    <li>-->
-<!--      <a href="javascript:void(0);" routerLink="liquidate"><img src="assets/img/icons/3.svg" class="svg liquidation"><span>Liquidate</span></a>-->
-<!--    </li>-->
-<!--  </ul>-->
-<!--</nav>-->
-<!--&lt;!&ndash; /Navigation &ndash;&gt;-->
-
-<!--&lt;!&ndash; Home content &ndash;&gt;-->
-<!--<main class="home" (click)="onMainClick()">-->
-
-<!--  &lt;!&ndash; Overview &ndash;&gt;-->
-<!--  <section class="overview">-->
-<!--    <div class="grid grid-center margin-bottom-15">-->
-<!--      <div class="grid-cell" style="max-width: 125px;">-->
-<!--        <h2>Overview</h2>-->
-<!--      </div>-->
-<!--      <div class="grid-cell" [ngStyle]="hideElement(this.persistenceService.userLoggedIn())">-->
-<!--        <ul class="toggle text-left no-padding">-->
-<!--          <li id="toggle-your-overview" class="animation-underline active" (click)="toggleLogic.onToggleYourOverviewClick()">Your overview</li>-->
-<!--          <li id="toggle-market-overview" class="animation-underline" (click)="toggleLogic.onToggleMarketOverviewClick()">Market overview</li>-->
-<!--        </ul>-->
-<!--      </div>-->
-<!--    </div>-->
-<!--    <div id="your-overview-content" class="grid panel" [ngStyle]="hideElement(this.persistenceService.userLoggedIn())">-->
-<!--      <div class="grid-cell"><h3 class="text-center"><span class="label">You've supplied</span><br><span class="text-size-25 supply-total-dollar">${{this.formatNumberToUSLocaleString(this.persistenceService.getUserSuppliedIcxBalance())}}</span></h3></div>-->
-<!--      <div class="grid-cell border-right"><h3 class="text-center"><span class="label">Your supply APY</span><br><span class="text-green text-size-25">{{this.persistenceService.userUSDbReserve?.liquidityRate?.toFixed(5)}}%</span></h3></div>-->
-<!--      <div class="grid-cell"><h3 class="text-center"><span class="label">You've borrowed</span><br><span class="text-size-25 borrow-total-dollar">${{this.formatNumberToUSLocaleString(this.persistenceService.userUSDbReserve?.principalBorrowBalanceUSD)}}</span></h3></div>-->
-<!--      <div class="grid-cell"><h3 class="text-center"><span class="label">Your borrow APY</span><br><span class="text-purple text-size-25">{{this.persistenceService.userUSDbReserve?.borrowRate?.toFixed(5)}}%</span></h3></div>-->
-<!--    </div>-->
-<!--    <div id="market-overview-content" class="grid panel" style="display: none;" [ngStyle]="hideElement(this.persistenceService.userLoggedIn())">-->
-<!--      <div class="grid-cell"><h3 class="text-center"><span class="label">Total supplied</span><br><span class="text-size-25">${{this.formatNumberToUSLocaleString(this.persistenceService.getTotalSupplied())}}</span></h3></div>-->
-<!--      <div class="grid-cell border-right"><h3 class="text-center"><span class="label">Avg. supply APY</span><br><span class="text-green text-size-25">{{this.persistenceService.getAvgSupplyApy().toFixed(5)}}%</span></h3></div>-->
-<!--      <div class="grid-cell"><h3 class="text-center"><span class="label">Total borrowed</span><br><span class="text-size-25">${{this.formatNumberToUSLocaleString(this.persistenceService.getTotalBorrowed())}}</span></h3></div>-->
-<!--      <div class="grid-cell"><h3 class="text-center"><span class="label">Avg. borrow APY</span><br><span class="text-purple text-size-25">{{this.persistenceService.getAvgBorrowApy().toFixed(5)}}%</span></h3></div>-->
-<!--    </div>-->
-<!--  </section>-->
-
-
-
-
-<!--  &lt;!&ndash; Risk / Rewards &ndash;&gt;-->
-<!--  <section class="risk-rewards" [ngStyle]="hideElement(this.persistenceService.userLoggedIn())">-->
-<!--    <div class="grid">-->
-
-<!--      &lt;!&ndash; Rewards &ndash;&gt;-->
-<!--      <div class="grid-cell rewards">-->
-<!--        <div class="grid">-->
-<!--          <div class="grid-cell" style="max-width: 150px;">-->
-<!--            <h2>Performance</h2>-->
-<!--          </div>-->
-<!--          <div class="grid-cell">-->
-<!--								<span class="tooltip" style="margin-top: 8px;">-->
-<!--                  <span class="tooltip-item"><span class="label margin-left-15 animation-underline" id="time-selector" (click)="toggleLogic.onTimeSelectorClick()"><a href="javascript:void(0);" class="time-selector">Per day</a></span></span>-->
-<!--									<span id="time-tooltip" class="tooltip-content clearfix">-->
-<!--										<div class="grid">-->
-<!--											<div class="grid-cell">-->
-<!--												<ul>-->
-<!--													<li>Week</li>-->
-<!--													<li>Month</li>-->
-<!--													<li>Year</li>-->
-<!--												</ul>-->
-<!--											</div>-->
-<!--										</div>-->
-<!--									</span>-->
-<!--								</span>-->
-<!--          </div>-->
-<!--        </div>-->
-
-<!--        <div class="panel">-->
-<!--          <div class="grid">-->
-<!--            <div class="grid-cell"><h3 class="text-center"><span class="label">Supply interest</span><br><span class="supply-interest-total">+$1.77</span></h3></div>-->
-<!--            <div class="grid-cell"><h3 class="text-center"><span class="label">Borrow interest</span><br><span class="borrow-interest-total">-$0.47</span></h3></div>-->
-<!--            <div class="grid-cell"><h3 class="text-center"><span class="label">Omm rewards</span><br><span class="omm-rewards-total">+16.99</span></h3></div>-->
-<!--          </div>-->
-<!--          <p class="text-center"><a href="#" class="button modal-trigger" data-modal="modal-3">Claim Omm rewards</a></p>-->
-<!--        </div>-->
-<!--      </div>-->
-
-<!--      &lt;!&ndash; Risk &ndash;&gt;-->
-<!--      <div class="grid-cell risk">-->
-<!--        <h2>Risk <span class="risk-percentage">23%</span></h2>-->
-<!--        <div class="panel">-->
-<!--          <p class="label text-right"><span>Your supply will be liquidated at 100%.</span></p>-->
-<!--          <div id="risk-slider" disabled></div>-->
-<!--          <div class="grid legend margin-bottom-5">-->
-<!--            <div class="grid-cell">-->
-<!--              <p class="label bridge">Bridge Dollars</p>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </div>-->
-
-
-<!--    </div>-->
-<!--  </section>-->
-
-<!--  &lt;!&ndash; Asset list &ndash;&gt;-->
-<!--  <section>-->
-<!--    <div class="grid grid-center margin-bottom-25">-->
-<!--      <div class="grid-cell" style="max-width: 110px;">-->
-<!--        <h2>Markets</h2>-->
-<!--      </div>-->
-<!--      <div [ngStyle]="hideElement(this.persistenceService.userLoggedIn())" class="grid-cell">-->
-<!--        <ul class="toggle text-left no-padding">-->
-<!--          <li id="toggle-your-markets" class="active animation-underline" (click)="toggleLogic.onToggleYourMarketsClick()">Your markets</li>-->
-<!--          <li id="toggle-all-markets" class="animation-underline" (click)="toggleLogic.onToggleAllMarketsClick(bridgeSupplySlider, bridgeBorrowSlider, iconSupplySlider, iconBorrowSlider)">All markets</li>-->
-<!--        </ul>-->
-<!--      </div>-->
-<!--      <div class="grid-cell text-right">-->
-<!--        <input type="text" name="" placeholder="Search markets" style="max-width: 300px;">-->
-<!--      </div>-->
-<!--    </div>-->
-
-<!--    <div class="grid">-->
-<!--      <div class="grid-cell">-->
-<!--        &lt;!&ndash; Your markets &ndash;&gt;-->
-<!--        <table [ngStyle]="hideElement(this.persistenceService.userLoggedIn())" id="your-markets-list" class="list">-->
-<!--          <thead>-->
-<!--          <tr>-->
-<!--            <th>Asset</th>-->
-<!--            <th>You've supplied</th>-->
-<!--            <th>-->
-<!--              <span class="tooltip hover">-->
-<!--                <span class="tooltip-item">Supply APY</span>-->
-<!--                <span class="tooltip-content clearfix" style="width:285px;margin-left:-120px;margin-bottom: 10px;">-->
-<!--                  <div class="grid">-->
-<!--                    <div class="grid-cell no-margin">-->
-<!--                      <p style="line-height: 1.4;">The amount of compounded interest you’ll earn if you supply an asset for 1 year. Rates vary based on supply and demand. The higher, the better.</p>-->
-<!--                    </div>-->
-<!--                  </div>-->
-<!--                </span>-->
-<!--              </span>-->
-<!--            </th>-->
-<!--            <th>You've borrowed</th>-->
-<!--            <th>-->
-<!--              <span class="tooltip hover">-->
-<!--                <span class="tooltip-item">Borrow APY</span>-->
-<!--                <span class="tooltip-content clearfix" style="width:325px;margin-left:-130px;margin-bottom: 10px;">-->
-<!--                  <div class="grid">-->
-<!--                    <div class="grid-cell no-margin">-->
-<!--                      <p style="line-height: 1.4;">The amount of compounded interest you’ll lose from your supply if you borrow an asset for 1 year. Rates vary based on supply and demand. The lower, the better.</p>-->
-<!--                    </div>-->
-<!--                  </div>-->
-<!--                </span>-->
-<!--              </span>-->
-<!--            </th>-->
-<!--          </tr>-->
-<!--          </thead>-->
-<!--          <tbody>-->
-<!--          <tr id="asset-bridge" class="asset bridge" (click)="onAssetBridgeClick()">-->
-<!--            <td><span>Bridge Dollars</span><br>USDb</td>-->
-<!--            <td><span>${{this.formatNumberToNdigits(this.persistenceService.getUserSuppliedIcxBalance())}}</span>-->
-<!--              <br>{{this.formatNumberToUSLocaleString(this.persistenceService.getUserSuppliedIcxBalance())}} USDb</td>-->
-<!--            <td><span class="text-green">{{this.persistenceService.userUSDbReserve?.liquidityRate?.toFixed(5)}}%</span><br>+??%</td>-->
-<!--            <td><span>${{this.formatNumberToNdigits(this.persistenceService.userUSDbReserve?.principalBorrowBalanceUSD)}}</span>-->
-<!--              <br>{{this.formatNumberToUSLocaleString(this.persistenceService.userUSDbReserve?.principalBorrowBalance)}} USDb</td>-->
-<!--            <td><span class="text-purple">{{this.persistenceService.userUSDbReserve?.borrowRate?.toFixed(5)}}%</span><br>-??%</td>-->
-<!--          </tr>-->
-<!--          <tr class="expanded">-->
-<!--            <td colspan="5" class="no-padding">-->
-<!--              <div id="asset-bridge-expanded" class="grid asset-expanded" style="display: none;">-->
-<!--                <div class="grid-cell">-->
-<!--                  &lt;!&ndash; Market container &ndash;&gt;-->
-<!--                  <div class="grid">-->
-<!--                    &lt;!&ndash; Supply container&ndash;&gt;-->
-<!--                    <div id="supply" class="grid-cell container supply">-->
-<!--                      &lt;!&ndash; Title &ndash;&gt;-->
-<!--                      <div class="grid grid-center title">-->
-<!--                        <div class="grid-cell">-->
-<!--                          <h2>Supply</h2>-->
-<!--                        </div>-->
-<!--                        <div class="grid-cell text-right">-->
-<!--                          <span class="text-green">{{this.persistenceService.userUSDbReserve?.liquidityRate?.toFixed(5)}}% APY</span>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Slider &ndash;&gt;-->
-<!--                      <div class="grid">-->
-<!--                        <div class="grid-cell">-->
-<!--                          <div id="bridge-supply-slider" disabled></div>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Legend &ndash;&gt;-->
-<!--                      <div class="grid legend">-->
-<!--                        <div class="grid-cell margin-right-25">-->
-<!--                          <p class="label deposited">Supplied</p>-->
-<!--                          <input title="Deposited supply" id="supply-deposited-bridge" class="input-supply-deposited" (keyup)="depositUSDbAmountChange()" disabled="" value="50 USDb">-->
-<!--                        </div>-->
-<!--                        <div class="grid-cell">-->
-<!--                          <p class="label available">Wallet</p>-->
-<!--                          <input title="Available supply" id="supply-available-bridge" class="input-supply-available" disabled="" value="50 USDb">-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Income &ndash;&gt;-->
-<!--                      <div class="grid legend income">-->
-<!--                        <div class="grid-cell margin-right-25">-->
-<!--                          <p class="label">Daily interest</p>-->
-<!--                          <p class="supply-interest-bridge">+ 10 USDb</p>-->
-<!--                        </div>-->
-<!--                        <div class="grid-cell">-->
-<!--                          <p class="label">Daily rewards</p>-->
-<!--                          <p class="supply-rewards-bridge">+ 10 OMM</p>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Actions &ndash;&gt;-->
-<!--                      <div class="grid">-->
-<!--                        <div class="grid-cell text-center">-->
-<!--                          &lt;!&ndash; Adjust &ndash;&gt;-->
-<!--                          <div class="grid grid-center supply-actions">-->
-<!--                            <div class="grid-cell text-center">-->
-<!--                              <a href="javascript:void(0);" class="button supply-adjust"-->
-<!--                                 (click)="toggleLogic.onSupplyAdjustClick(bridgeSupplySlider,iconSupplySlider, tapSupplySlider, bridgeBorrowSlider, this.persistenceService, iconBorrowSlider)">Adjust</a>-->
-<!--                            </div>-->
-<!--                          </div>-->
-<!--                          &lt;!&ndash; Confirm &ndash;&gt;-->
-<!--                          <div class="grid grid-center supply-actions hide">-->
-<!--                            <div class="grid-cell text-right">-->
-<!--                              <a href="javascript:void(0);" class="cancel supply-adjust"-->
-<!--                                 (click)="toggleLogic.onSupplyAdjustClick(bridgeSupplySlider,iconSupplySlider, tapSupplySlider, bridgeBorrowSlider, this.persistenceService, iconBorrowSlider)">Cancel</a>-->
-<!--                            </div>-->
-<!--                            <div class="grid-cell text-left">-->
-<!--                              <a href="javascript:void(0);" class="button modal-trigger" data-modal="modal-1">Confirm</a>-->
-<!--                            </div>-->
-<!--                          </div>-->
-<!--                        </div>-->
-<!--                      </div>-->
-<!--                    </div>-->
-<!--                    &lt;!&ndash; /Supply container&ndash;&gt;-->
-
-<!--                    &lt;!&ndash; Borrow container &ndash;&gt;-->
-<!--                    <div id="borrow" class="grid-cell container borrow">-->
-<!--                      &lt;!&ndash; Title &ndash;&gt;-->
-<!--                      <div class="grid grid-center title">-->
-<!--                        <div class="grid-cell">-->
-<!--                          <h2>Borrow <span class="label text-grey">Risk: <span class="risk-percentage text-grey" style="font-size: 14px !important;">23%</span></span></h2>-->
-<!--                        </div>-->
-<!--                        <div class="grid-cell text-right">-->
-<!--                          <span class="text-purple">{{this.persistenceService.userUSDbReserve?.borrowRate?.toFixed(5)}}% APY</span>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Slider &ndash;&gt;-->
-<!--                      <div class="grid">-->
-<!--                        <div class="grid-cell">-->
-<!--                          <div id="bridge-borrow-slider" disabled></div>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Legend &ndash;&gt;-->
-<!--                      <div class="grid legend">-->
-<!--                        <div class="grid-cell  margin-right-25">-->
-<!--                          <p class="label deposited">Borrowed</p>-->
-<!--                          <input (keyup)="borrowUSDbAmountChange()" title="Deposited borrow" id="borrow-borrowed-bridge" class="input-borrow-borrowed" disabled="" value="1,500 USDb">-->
-<!--                        </div>-->
-<!--                        <div class="grid-cell">-->
-<!--                          <p class="label available">Available</p>-->
-<!--                          <input title="Available borrow" id="borrow-available-bridge" class="input-borrow-available" disabled="" value="1,800 USDb">-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Income &ndash;&gt;-->
-<!--                      <div class="grid legend income">-->
-<!--                        <div class="grid-cell margin-right-25">-->
-<!--                          <p class="label">Daily interest</p>-->
-<!--                          <p class="borrow-interest-bridge">- 10 USDb</p>-->
-<!--                        </div>-->
-<!--                        <div class="grid-cell">-->
-<!--                          <p class="label">Daily rewards</p>-->
-<!--                          <p class="borrow-rewards-bridge">+ 10 OMM</p>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Button &ndash;&gt;-->
-<!--                      <div class="grid">-->
-<!--                        <div class="grid-cell text-center">-->
-<!--                          <div class="grid grid-center borrow-actions">-->
-<!--                            <div class="grid-cell text-center">-->
-<!--                              <a href="javascript:void(0);" class="button purple borrow-adjust" id="borrow-adjust-button"-->
-<!--                                 (click)="toggleLogic.onBorrowAdjustClick(bridgeBorrowSlider, iconSupplySlider, tapSupplySlider, bridgeSupplySlider, this.persistenceService)">Adjust</a>-->
-<!--                            </div>-->
-<!--                          </div>-->
-<!--                          <div class="grid grid-center borrow-actions hide">-->
-<!--                            <div class="grid-cell text-right">-->
-<!--                              <a href="javascript:void(0);" class="cancel borrow-adjust"-->
-<!--                                 (click)="toggleLogic.onBorrowAdjustClick(bridgeBorrowSlider, iconSupplySlider, tapSupplySlider, bridgeSupplySlider, this.persistenceService)">Cancel</a>-->
-<!--                            </div>-->
-<!--                            <div class="grid-cell text-left">-->
-<!--                              <a href="javascript:void(0);" class="button purple modal-trigger" data-modal="modal-2" id="modal-trigger-2">Confirm</a>-->
-<!--                            </div>-->
-<!--                          </div>-->
-<!--                        </div>-->
-<!--                      </div>-->
-<!--                    </div>-->
-<!--                    &lt;!&ndash; /Borrow container &ndash;&gt;-->
-<!--                  </div>-->
-<!--                  &lt;!&ndash; /Market container &ndash;&gt;-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </td>-->
-<!--          </tr>-->
-
-<!--          <tr class="spacer"></tr>-->
-
-<!--          <tr id="asset-icon" class="icon asset" (click)="onAssetIconClick()">-->
-<!--            <td><span>ICON</span><br>ICX</td>-->
-<!--            <td><span>${{this.formatNumberToNdigits(this.persistenceService.userIcxReserve?.currentOTokenBalanceUSD)}}</span>-->
-<!--              <br>{{this.formatNumberToUSLocaleString(this.persistenceService.getUserSuppliedIcxBalance())}} ICX</td>-->
-<!--            <td><span class="text-green">{{this.persistenceService.userIcxReserve?.liquidityRate?.toFixed(5)}}%</span>-->
-<!--              <br>+??%</td>-->
-<!--            <td><span>${{this.formatNumberToNdigits(this.persistenceService.userIcxReserve?.principalBorrowBalanceUSD)}}</span>-->
-<!--              <br>{{this.formatNumberToUSLocaleString(this.persistenceService.userIcxReserve?.principalBorrowBalance)}} ICX</td>-->
-<!--            <td><span class="text-purple">{{this.persistenceService.userIcxReserve?.borrowRate?.toFixed(5)}}%</span><br>+??%</td>-->
-<!--          </tr>-->
-<!--          <tr class="expanded">-->
-<!--            <td colspan="5" class="no-padding">-->
-<!--              <div id="asset-icon-expanded" class="grid asset-expanded" style="display: none;">-->
-
-<!--                <div class="grid-cell">-->
-<!--                  <div class="grid">-->
-
-<!--                    &lt;!&ndash; Supply &ndash;&gt;-->
-<!--                    <div id="supply" class="grid-cell container supply">-->
-<!--                      &lt;!&ndash; Title &ndash;&gt;-->
-<!--                      <div class="grid grid-center title">-->
-<!--                        <div class="grid-cell">-->
-<!--                          <h2>Supply</h2>-->
-<!--                        </div>-->
-<!--                        <div class="grid-cell text-right">-->
-<!--                          <span class="text-green">{{this.persistenceService.userIcxReserve?.liquidityRate?.toFixed(5)}}% APY</span>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Slider &ndash;&gt;-->
-<!--                      <div class="grid">-->
-<!--                        <div class="grid-cell">-->
-<!--                          <div id="icon-supply-slider"></div>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Legend &ndash;&gt;-->
-<!--                      <div class="grid legend">-->
-<!--                        <div class="grid-cell margin-right-25">-->
-<!--                          <p class="label deposited">Supplied</p>-->
-<!--                          <input title="Deposited supply" id="supply-deposited-icon" class="input-borrow-borrowed" (keyup)="depositIcxAmountChange()" value="30,000 ICX">-->
-<!--                        </div>-->
-<!--                        <div class="grid-cell">-->
-<!--                          <p class="label available">Wallet</p>-->
-<!--                          <input title="Available supply" id="supply-available-icon" class="input-borrow-borrowed" value="0 ICX">-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Income &ndash;&gt;-->
-<!--                      <div class="grid legend income">-->
-<!--                        <div class="grid-cell margin-right-25">-->
-<!--                          <p class="label">Daily interest</p>-->
-<!--                          <p id="supply-interest">+7.12 ICX</p>-->
-<!--                        </div>-->
-<!--                        <div class="grid-cell">-->
-<!--                          <p class="label">Daily rewards</p>-->
-<!--                          <p id="supply-rewards">+18.84 OMM</p>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Button &ndash;&gt;-->
-<!--                      <div class="grid">-->
-<!--                        <div class="grid-cell text-center">-->
-
-<!--                          <div class="grid grid-center supply-actions">-->
-<!--                            <div class="grid-cell text-center">-->
-<!--                              <a href="javascript:void(0);" class="button supply-adjust" id="supply-adjust-button"-->
-<!--                                 (click)="toggleLogic.onSupplyAdjustClick(bridgeSupplySlider, iconSupplySlider, tapSupplySlider, bridgeBorrowSlider, this.persistenceService, iconBorrowSlider)">Adjust</a>-->
-<!--                            </div>-->
-<!--                          </div>-->
-<!--                          <div class="grid grid-center supply-actions hide">-->
-<!--                            <div class="grid-cell text-right">-->
-<!--                              <a href="javascript:void(0);" class="cancel supply-adjust"-->
-<!--                                 (click)="toggleLogic.onSupplyAdjustClick(bridgeSupplySlider, iconSupplySlider, tapSupplySlider, bridgeBorrowSlider, this.persistenceService, iconBorrowSlider)">Cancel</a>-->
-<!--                            </div>-->
-<!--                            <div class="grid-cell text-left">-->
-<!--                              <a href="javascript:void(0);" class="button" (click)="onIcxSupplyConfirmClick()">Confirm</a>-->
-<!--                            </div>-->
-<!--                          </div>-->
-
-<!--                        </div>-->
-<!--                      </div>-->
-<!--                    </div>-->
-
-<!--                    &lt;!&ndash; Borrow content &ndash;&gt;-->
-<!--                    <div id="borrow" class="grid-cell container borrow">-->
-<!--                      &lt;!&ndash; Title &ndash;&gt;-->
-<!--                      <div class="grid grid-center title">-->
-<!--                        <div class="grid-cell">-->
-<!--                          <h2>Borrow <span class="label">Risk: <span class="risk-percentage text-grey" style="font-size: 14px !important;">23%</span></span></h2>-->
-<!--                        </div>-->
-<!--                        <div class="grid-cell text-right">-->
-<!--                          <span class="text-purple">{{this.persistenceService.userIcxReserve?.borrowRate?.toFixed(5)}}% APY</span>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Slider &ndash;&gt;-->
-<!--                      <div class="grid">-->
-<!--                        <div class="grid-cell">-->
-<!--                          <div id="icon-borrow-slider" ></div>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Legend &ndash;&gt;-->
-<!--                      <div class="grid legend">-->
-<!--                        <div class="grid-cell">-->
-<!--                          <p class="label deposited">Borrowed</p>-->
-<!--                          <input title="Deposited borrow" id="borrow-borrowed-icon" class="input-borrow-borrowed"  value="0 ICX">-->
-<!--                        </div>-->
-<!--                        <div class="grid-cell">-->
-<!--                          <p class="label available">Available</p>-->
-<!--                          <input title="Available borrow" id="borrow-available-icon" class="input-borrow-borrowed"  value="16,000 ICX">-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Income &ndash;&gt;-->
-<!--                      <div class="grid legend income">-->
-<!--                        <div class="grid-cell margin-right-25">-->
-<!--                          <p class="label">Daily interest</p>-->
-<!--                          <p id="borrow-interest">0 ICX</p>-->
-<!--                        </div>-->
-<!--                        <div class="grid-cell">-->
-<!--                          <p class="label">Daily rewards</p>-->
-<!--                          <p id="borrow-rewards">0 OMM</p>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Button &ndash;&gt;-->
-<!--                      <div class="grid">-->
-<!--                        <div class="grid-cell text-center">-->
-<!--                          <div class="grid grid-center borrow-actions">-->
-<!--                            <div class="grid-cell text-center">-->
-<!--                              <a href="javascript:void(0);" class="button purple borrow-adjust" id="borrow-adjust-button"-->
-<!--                                 (click)="toggleLogic.onBorrowAdjustClick(bridgeBorrowSlider, iconSupplySlider, tapSupplySlider, bridgeSupplySlider, this.persistenceService)">Adjust</a>-->
-<!--                            </div>-->
-<!--                          </div>-->
-<!--                          <div class="grid grid-center borrow-actions hide">-->
-<!--                            <div class="grid-cell text-right">-->
-<!--                              <a href="javascript:void(0);" class="cancel borrow-adjust"-->
-<!--                                 (click)="toggleLogic.onBorrowAdjustClick(bridgeBorrowSlider, iconSupplySlider, tapSupplySlider, bridgeSupplySlider, this.persistenceService)">Cancel</a>-->
-<!--                            </div>-->
-<!--                            <div class="grid-cell text-left">-->
-<!--                              <a href="javascript:void(0);" class="button purple" (click)="onBorrowIcxConfirmClick()">Confirm</a>-->
-<!--                            </div>-->
-<!--                          </div>-->
-<!--                        </div>-->
-<!--                      </div>-->
-<!--                    </div>-->
-<!--                    &lt;!&ndash; Borrow content &ndash;&gt;-->
-<!--                  </div>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </td>-->
-<!--          </tr>-->
-
-<!--          &lt;!&ndash; Potential markets &ndash;&gt;-->
-<!--          <tr>-->
-<!--            <td colspan="5" class="table-label">-->
-<!--              <p class="separator-full text-center"><span>Available to supply</span></p>-->
-<!--            </td>-->
-<!--          </tr>-->
-<!--          <tr id="asset-tap" class="tap asset">-->
-<!--            <td><span>TAP Tokens</span><br>TAP</td>-->
-<!--            <td><p class="opacity-half"><span>—</span><br>—</p></td>-->
-<!--            <td><span class="text-green">9.83%</span><br>+1.12%</td>-->
-<!--            <td><p class="opacity-half"><span>—</span><br>—</p></td>-->
-<!--            <td><span class="text-purple">15.25%</span><br>+4.23%</td>-->
-<!--          </tr>-->
-<!--          &lt;!&ndash; /Potential markets &ndash;&gt;-->
-
-<!--          <tr class="expanded">-->
-<!--            <td colspan="5" class="no-padding">-->
-<!--              <div id="asset-tap-expanded" class="grid asset-expanded" style="display: none;">-->
-
-<!--                <div class="grid-cell">-->
-<!--                  <div class="grid">-->
-
-<!--                    &lt;!&ndash; Supply &ndash;&gt;-->
-<!--                    <div id="supply" class="grid-cell container supply">-->
-<!--                      &lt;!&ndash; Title &ndash;&gt;-->
-<!--                      <div class="grid grid-center title">-->
-<!--                        <div class="grid-cell">-->
-<!--                          <h2>Supply</h2>-->
-<!--                        </div>-->
-<!--                        <div class="grid-cell text-right">-->
-<!--                          <span class="text-green">9.83% APY</span>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Slider &ndash;&gt;-->
-<!--                      <div class="grid">-->
-<!--                        <div class="grid-cell">-->
-<!--                          <div id="tap-supply-slider" disabled></div>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Legend &ndash;&gt;-->
-<!--                      <div class="grid legend">-->
-<!--                        <div class="grid-cell margin-right-25">-->
-<!--                          <p class="label deposited">Supplied</p>-->
-<!--                          <input title="Deposited supply" id="supply-deposited-tap" class="input-borrow-borrowed" disabled="" value="0 TAP">-->
-<!--                        </div>-->
-<!--                        <div class="grid-cell">-->
-<!--                          <p class="label available">Wallet</p>-->
-<!--                          <input title="Available supply" id="supply-available-tap" class="input-borrow-borrowed" disabled="" value="3,000 TAP">-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Income &ndash;&gt;-->
-<!--                      <div class="grid legend income">-->
-<!--                        <div class="grid-cell margin-right-25">-->
-<!--                          <p class="label">Daily interest</p>-->
-<!--                          <p id="supply-interest">0 TAP</p>-->
-<!--                        </div>-->
-<!--                        <div class="grid-cell">-->
-<!--                          <p class="label">Daily rewards</p>-->
-<!--                          <p id="supply-rewards">0 OMM</p>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Button &ndash;&gt;-->
-<!--                      <div class="grid">-->
-<!--                        <div class="grid-cell text-center">-->
-
-<!--                          <div class="grid grid-center supply-actions">-->
-<!--                            <div class="grid-cell text-center">-->
-<!--                              <a href="#" class="button supply-adjust" id="supply-adjust-button"-->
-<!--                              >Supply</a>-->
-<!--                            </div>-->
-<!--                          </div>-->
-<!--                          <div class="grid grid-center supply-actions hide">-->
-<!--                            <div class="grid-cell text-right">-->
-<!--                              <a href="#" class="cancel supply-adjust">Cancel</a>-->
-<!--                            </div>-->
-<!--                            <div class="grid-cell text-left">-->
-<!--                              <a href="#" class="button modal-trigger" data-modal="modal-1">Confirm</a>-->
-<!--                            </div>-->
-<!--                          </div>-->
-
-<!--                        </div>-->
-<!--                      </div>-->
-<!--                    </div>-->
-
-<!--                    &lt;!&ndash; Borrow content &ndash;&gt;-->
-<!--                    <div id="borrow" class="grid-cell container borrow">-->
-<!--                      &lt;!&ndash; Title &ndash;&gt;-->
-<!--                      <div class="grid grid-center title">-->
-<!--                        <div class="grid-cell">-->
-<!--                          <h2>Borrow <span class="label">Risk: <span class="risk-percentage text-grey" style="font-size: 14px !important;">23%</span></span></h2>-->
-<!--                        </div>-->
-<!--                        <div class="grid-cell text-right">-->
-<!--                          <span class="text-purple">15.25% APY</span>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Slider &ndash;&gt;-->
-<!--                      <div class="grid">-->
-<!--                        <div class="grid-cell">-->
-<!--                          <div id="tap-borrow-slider" disabled></div>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Legend &ndash;&gt;-->
-<!--                      <div class="grid legend">-->
-<!--                        <div class="grid-cell margin-right-25">-->
-<!--                          <p class="label deposited">Borrowed</p>-->
-<!--                          <input title="Deposited borrow" id="borrow-borrowed-tap" class="input-borrow-borrowed" disabled="" value="0 TAP">-->
-<!--                        </div>-->
-<!--                        <div class="grid-cell">-->
-<!--                          <p class="label available">Available</p>-->
-<!--                          <input title="Available borrow" id="borrow-available-tap" class="input-borrow-borrowed" disabled="" value="10,000 TAP">-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Income &ndash;&gt;-->
-<!--                      <div class="grid legend income">-->
-<!--                        <div class="grid-cell margin-right-25">-->
-<!--                          <p class="label">Daily interest</p>-->
-<!--                          <p id="borrow-interest">0 TAP</p>-->
-<!--                        </div>-->
-<!--                        <div class="grid-cell">-->
-<!--                          <p class="label">Daily rewards</p>-->
-<!--                          <p id="borrow-rewards">0 OMM</p>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Button &ndash;&gt;-->
-<!--                      <div class="grid">-->
-<!--                        <div class="grid-cell text-center">-->
-<!--                          <div class="grid grid-center borrow-actions">-->
-<!--                            <div class="grid-cell text-center">-->
-<!--                              <a href="#" class="button purple borrow-adjust" id="borrow-adjust-button">Borrow</a>-->
-<!--                            </div>-->
-<!--                          </div>-->
-<!--                          <div class="grid grid-center borrow-actions hide">-->
-<!--                            <div class="grid-cell text-right">-->
-<!--                              <a href="#" class="cancel borrow-adjust">Cancel</a>-->
-<!--                            </div>-->
-<!--                            <div class="grid-cell text-left">-->
-<!--                              <a href="#" class="button purple modal-trigger" data-modal="modal-2">Confirm</a>-->
-<!--                            </div>-->
-<!--                          </div>-->
-<!--                        </div>-->
-<!--                      </div>-->
-<!--                    </div>-->
-<!--                    &lt;!&ndash; Borrow content &ndash;&gt;-->
-<!--                  </div>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </td>-->
-<!--          </tr>-->
-<!--          </tbody>-->
-<!--        </table>-->
-
-
-<!--        &lt;!&ndash; All markets &ndash;&gt;-->
-<!--        <table [ngStyle]="hideElement(this.persistenceService.userLoggedIn())" id="all-markets-list" class="list">-->
-<!--          <thead>-->
-<!--            <tr>-->
-<!--              <th>Asset</th>-->
-<!--              <th>Total supplied</th>-->
-<!--              <th>Supply APY</th>-->
-<!--              <th>Total borrowed</th>-->
-<!--              <th>Borrow APY</th>-->
-<!--            </tr>-->
-<!--          </thead>-->
-<!--          <tbody>-->
-
-<!--          <tr id="asset-bridge" class="asset bridge">-->
-<!--            <td><span>Bridge Dollars</span><br>USDb</td>-->
-<!--            <td><span>${{this.formatNumberToNdigits(this.persistenceService.allReserves?.USDb?.totalLiquidity)}}</span>-->
-<!--              <br>{{this.formatNumberToUSLocaleString(this.persistenceService.allReserves?.USDb?.totalLiquidity)}} USDb</td>-->
-<!--            <td><span class="text-green">{{this.persistenceService.allReserves?.USDb?.liquidityRate?.toFixed(5)}}%</span>-->
-<!--              <br>+??%</td>-->
-<!--            <td><span>${{this.formatNumberToNdigits(this.persistenceService.allReserves?.USDb?.totalBorrows)}}</span>-->
-<!--              <br>{{this.formatNumberToUSLocaleString(this.persistenceService.allReserves?.USDb?.totalBorrows)}} USDb</td>-->
-<!--            <td><span class="text-purple">{{this.persistenceService.allReserves?.USDb?.borrowRate?.toFixed(5)}}%</span>-->
-<!--              <br>-??%</td>-->
-<!--          </tr>-->
-
-<!--          <tr>-->
-<!--            <td colspan="5" class="no-padding">-->
-<!--              <div id="asset-bridge-expanded" class="grid asset-expanded" style="display: none;">-->
-<!--                <div class="grid-cell">-->
-<!--                  &lt;!&ndash; Market container &ndash;&gt;-->
-<!--                  <div class="grid">-->
-<!--                    &lt;!&ndash; Supply container&ndash;&gt;-->
-<!--                    <div id="supply" class="grid-cell container supply">-->
-<!--                      &lt;!&ndash; Title &ndash;&gt;-->
-<!--                      <div class="grid grid-center title">-->
-<!--                        <div class="grid-cell">-->
-<!--                          <h2>Supply</h2>-->
-<!--                        </div>-->
-<!--                        <div class="grid-cell text-right">-->
-<!--                          <span class="text-green">6.47% APY</span>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Slider &ndash;&gt;-->
-<!--                      <div class="grid">-->
-<!--                        <div class="grid-cell">-->
-<!--                          <div id="bridge-supply-slider" disabled></div>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Legend &ndash;&gt;-->
-<!--                      <div class="grid legend">-->
-<!--                        <div class="grid-cell">-->
-<!--                          <p class="label deposited">Supplied</p>-->
-<!--                          <input title="Deposited supply" id="supply-deposited" disabled="" value="50 USDb">-->
-<!--                        </div>-->
-<!--                        <div class="grid-cell">-->
-<!--                          <p class="label available">Wallet</p>-->
-<!--                          <input title="Available supply" id="supply-available" disabled="" value="50 USDb">-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Income &ndash;&gt;-->
-<!--                      <div class="grid legend income">-->
-<!--                        <div class="grid-cell">-->
-<!--                          <p class="label">Daily interest</p>-->
-<!--                          <p class="supply-interest">+ 10 USDb</p>-->
-<!--                        </div>-->
-<!--                        <div class="grid-cell">-->
-<!--                          <p class="label">Daily rewards</p>-->
-<!--                          <p id="supply-rewards">+ 10 OMM</p>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Actions &ndash;&gt;-->
-<!--                      <div class="grid">-->
-<!--                        <div class="grid-cell text-center">-->
-<!--                          &lt;!&ndash; Adjust &ndash;&gt;-->
-<!--                          <div class="grid grid-center supply-actions">-->
-<!--                            <div class="grid-cell text-center">-->
-<!--                              <a href="#" class="button supply-adjust" id="supply-adjust-button">Adjust</a>-->
-<!--                            </div>-->
-<!--                          </div>-->
-<!--                          &lt;!&ndash; Confirm &ndash;&gt;-->
-<!--                          <div class="grid grid-center supply-actions hide">-->
-<!--                            <div class="grid-cell text-right">-->
-<!--                              <a href="#" class="cancel supply-adjust">Cancel</a>-->
-<!--                            </div>-->
-<!--                            <div class="grid-cell text-left">-->
-<!--                              <a href="#" class="button modal-trigger" data-modal="modal-1">Confirm</a>-->
-<!--                            </div>-->
-<!--                          </div>-->
-<!--                        </div>-->
-<!--                      </div>-->
-<!--                    </div>-->
-<!--                    &lt;!&ndash; /Supply container&ndash;&gt;-->
-
-<!--                    &lt;!&ndash; Borrow container &ndash;&gt;-->
-<!--                    <div id="borrow" class="grid-cell container borrow">-->
-<!--                      &lt;!&ndash; Title &ndash;&gt;-->
-<!--                      <div class="grid grid-center title">-->
-<!--                        <div class="grid-cell">-->
-<!--                          <h2>Borrow <span class="label">Risk: <span class="risk-percentage text-grey" style="font-size: 14px !important;">23%</span></span></h2>-->
-<!--                        </div>-->
-<!--                        <div class="grid-cell text-right">-->
-<!--                          <span>-0.27% APY</span>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Slider &ndash;&gt;-->
-<!--                      <div class="grid">-->
-<!--                        <div class="grid-cell">-->
-<!--                          <div id="bridge-borrow-slider" disabled></div>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Legend &ndash;&gt;-->
-<!--                      <div class="grid legend">-->
-<!--                        <div class="grid-cell">-->
-<!--                          <p class="label deposited">Borrowed</p>-->
-<!--                          <input title="Deposited borrow" id="borrow-borrowed" disabled="" value="50 USDb">-->
-<!--                        </div>-->
-<!--                        <div class="grid-cell">-->
-<!--                          <p class="label available">Available</p>-->
-<!--                          <input title="Available borrow" id="borrow-available" disabled="" value="50 USDb">-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Income &ndash;&gt;-->
-<!--                      <div class="grid legend income">-->
-<!--                        <div class="grid-cell">-->
-<!--                          <p class="label">Daily interest</p>-->
-<!--                          <p class="borrow-interest-bridge">- 10 USDb</p>-->
-<!--                        </div>-->
-<!--                        <div class="grid-cell">-->
-<!--                          <p class="label">Daily rewards</p>-->
-<!--                          <p class="borrow-rewards-bridge">+ 10 OMM</p>-->
-<!--                        </div>-->
-<!--                      </div>-->
-
-<!--                      &lt;!&ndash; Button &ndash;&gt;-->
-<!--                      <div class="grid">-->
-<!--                        <div class="grid-cell text-center">-->
-<!--                          <div class="grid grid-center borrow-actions">-->
-<!--                            <div class="grid-cell text-center">-->
-<!--                              <a href="#" class="button purple borrow-adjust" id="borrow-adjust-button">Adjust</a>-->
-<!--                            </div>-->
-<!--                          </div>-->
-<!--                          <div class="grid grid-center borrow-actions hide">-->
-<!--                            <div class="grid-cell text-right">-->
-<!--                              <a href="#" class="cancel borrow-adjust">Cancel</a>-->
-<!--                            </div>-->
-<!--                            <div class="grid-cell text-left">-->
-<!--                              <a href="#" class="button purple modal-trigger" data-modal="modal-2">Confirm</a>-->
-<!--                            </div>-->
-<!--                          </div>-->
-<!--                        </div>-->
-<!--                      </div>-->
-<!--                    </div>-->
-<!--                    &lt;!&ndash; /Borrow container &ndash;&gt;-->
-<!--                  </div>-->
-<!--                  &lt;!&ndash; /Market container &ndash;&gt;-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </td>-->
-<!--          </tr>-->
-
-<!--          <tr class="spacer"></tr>-->
-
-<!--          <tr id="asset-tap" class="tap asset">-->
-<!--            <td><span>TAP Tokens</span><br>TAP</td>-->
-<!--            <td><span>$??K</span><br>?? TAP</td>-->
-<!--            <td><span class="text-green">??%</span><br>+??%</td>-->
-<!--            <td><span>$??K</span><br>?? TAP</td>-->
-<!--            <td><span class="text-purple">??%</span><br>+??%</td>-->
-<!--          </tr>-->
-
-<!--          <tr class="spacer"></tr>-->
-
-<!--          <tr id="asset-icon-all" class="icon asset">-->
-<!--            <td><span>ICON</span><br>ICX</td>-->
-<!--            <td><span>${{this.formatNumberToNdigits(this.persistenceService.allReserves?.sICX?.totalLiquidity)}}</span>-->
-<!--              <br>{{this.formatNumberToUSLocaleString(this.persistenceService.allReserves?.sICX?.totalLiquidity)}} ICX</td>-->
-<!--            <td><span class="text-green">{{this.persistenceService.allReserves?.sICX?.liquidityRate?.toFixed(5)}}%</span>-->
-<!--              <br>+??%</td>-->
-<!--            <td><span>${{this.formatNumberToNdigits(this.persistenceService.allReserves?.sICX?.totalBorrows)}}</span>-->
-<!--              <br>{{this.formatNumberToUSLocaleString(this.persistenceService.allReserves?.sICX?.totalBorrows)}} ICX</td>-->
-<!--            <td><span class="text-purple">{{this.persistenceService.allReserves?.sICX?.borrowRate?.toFixed(5)}}%</span>-->
-<!--              <br>-??%</td>-->
-<!--          </tr>-->
-
-<!--          <tr class="spacer"></tr>-->
-
-<!--          <tr id="asset-1" class="asset">-->
-<!--            <td><span>ICON Dollars</span><br>ICD</td>-->
-<!--            <td><span>$??K</span><br>?? ICD</td>-->
-<!--            <td><span class="text-green">??%</span><br>+??%</td>-->
-<!--            <td><span>$??K</span><br>?? ICD</td>-->
-<!--            <td><span class="text-purple">??%</span><br>??%</td>-->
-<!--          </tr>-->
-
-<!--          </tbody>-->
-<!--        </table>-->
-<!--      </div>-->
-
-<!--    </div>-->
-<!--  </section>-->
-  <!-- /Asset list -->
-<!--</main>-->
-<!-- /Markets content -->
 
 <script>
   ( function( $ ) {

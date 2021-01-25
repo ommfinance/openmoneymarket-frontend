@@ -5,16 +5,25 @@ export class Utils {
 
   // Returns value divided by the 10^18 to get normalised value
   public static hex18DecimalToNormalisedNumber(value: number | string): number {
+    if (!value) {
+      return 0;
+    }
     if (typeof value === "string") {
-      return parseInt(value, 16) / 10 ** 18;
+      // return rounded down to 2 decimals places number
+      return +(new BigNumber(value, 16).dividedBy(Math.pow(10, 18))).toFixed(2, BigNumber.ROUND_DOWN);
     } else {
-      return value / 10 ** 18;
+      // return rounded down to 2 decimals places number
+      return +(new BigNumber(value).dividedBy(Math.pow(10, 18))).toFixed(2, BigNumber.ROUND_DOWN);
     }
   }
 
   public static hexToNumber(value: string | number): number {
+    if (!value) {
+      return 0;
+    }
     if (typeof value === "string") {
-      return parseInt(value, 16);
+      // return rounded down to 2 decimals places number
+      return +(new BigNumber(value, 16).toFixed(2, BigNumber.ROUND_DOWN));
     }
     else {
       return value;
@@ -22,8 +31,11 @@ export class Utils {
   }
 
   public static hexToPercent(value: string | number): number {
+    if (!value) {
+      return 0;
+    }
     if (typeof value === "string") {
-      return parseInt(value, 16) / 10 ** 16;
+      return +(new BigNumber(value, 16).dividedBy(Math.pow(10, 16))).toFixed(2, BigNumber.ROUND_DOWN);
     }
     else {
       return value;

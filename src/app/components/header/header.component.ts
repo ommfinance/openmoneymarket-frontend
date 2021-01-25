@@ -58,6 +58,10 @@ export class HeaderComponent extends BaseClass implements OnInit {
 
   onSignOutClick(): void {
     this.dataLoaderService.walletLogout();
+    // if Bridge wallet commit request to Bridge to sign out
+    if (this.persistenceService.bridgeWalletActive()) {
+      this.bridgeWidgetService.signOutUser();
+    }
   }
   // get Iconex wallet address or Bridge email
   getWalletId(): string {

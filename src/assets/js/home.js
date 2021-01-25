@@ -74,7 +74,7 @@ $(document).ready(function() {
         $("#your-markets-header").css("display", "none");
 
         // Hide markets
-        $('.asset').css("display", "none");
+        $('.asset-user').css("display", "none");
 
         // Show available assets
         $('.available-to-supply').css("display", "table-row");
@@ -115,7 +115,7 @@ $(document).ready(function() {
     // Bridge Dollars (USDb)
     //
 
-    // If USDb wallet = 0 
+    // If USDb wallet = 0
     if (parseFloat(Cookies.get('wallet-usdb')) == 0) {
 
         // Block supplying
@@ -126,8 +126,8 @@ $(document).ready(function() {
     // If USDb wallet does not = 0 & Supply = 0
     if (parseFloat(Cookies.get('wallet-usdb')) !== 0 && parseFloat(Cookies.get('supplied-usdb')) == 0) {
 
-        // Show USDb as an available asset
-        $('.usdb.asset-available').css("display", "table-row");
+        // Show USDb as an available asset-user
+        $('.usdb.asset-user-available').css("display", "table-row");
     };
 
     // If USDb supply = 0
@@ -143,7 +143,7 @@ $(document).ready(function() {
         $('.value-supplied-apy').text("6.47%");
 
         // Hide available
-        $('.usdb.asset-available').css("display", "none");
+        $('.usdb.asset-user-available').css("display", "none");
     };
 
     // If USDb supply = max
@@ -171,7 +171,7 @@ $(document).ready(function() {
     // ICON (ICX)
     //
 
-    // If ICX wallet = 0 
+    // If ICX wallet = 0
     if (parseFloat(Cookies.get('wallet-icx')) == 0) {
         // Deny ICX
         $('.supply-allow.icx').css("display", "none");
@@ -195,19 +195,19 @@ $(document).ready(function() {
     // If USDb supply or borrow does not = 0
     if (parseFloat(Cookies.get('supplied-usdb')) !== 0 || parseFloat(Cookies.get('borrowed-usdb')) !== 0) {
         // Hide available usdb version
-        $('.usdb.asset-available').css("display", "none");
+        $('.usdb.asset-user-available').css("display", "none");
         // Show your usdb version
         $('.usdb.your').css("display", "table-row");
     };
     // If USDb wallet, supply, and borrow = 0
     if (parseFloat(Cookies.get('wallet-usdb')) == 0 && parseFloat(Cookies.get('supplied-usdb')) == 0 && parseFloat(Cookies.get('borrowed-usdb')) == 0) {
         // Hide all USDb versions
-        $('.usdb.asset').css("display", "none");
+        $('.usdb.asset-user').css("display", "none");
     };
     // If USDb wallet does not = 0, and Supply = 0, and Borrow = 0 ()
     if (parseFloat(Cookies.get('wallet-usdb')) !== 0 && parseFloat(Cookies.get('supplied-usdb')) == 0 && parseFloat(Cookies.get('borrowed-usdb')) == 0) {
         // Show available usdb version
-        $('.usdb.asset-available').css("display", "table-row");
+        $('.usdb.asset-user-available').css("display", "table-row");
         // Hide your usdb version
         $('.usdb.your').css("display", "none");
     };
@@ -215,21 +215,21 @@ $(document).ready(function() {
     // If ICX wallet does not = 0, and Supply = 0, and Borrow = 0 ()
     if (parseFloat(Cookies.get('wallet-icx')) !== 0 && parseFloat(Cookies.get('supplied-icx')) == 0 && parseFloat(Cookies.get('borrowed-icx')) == 0) {
         // Show available ICX version
-        $('.icx.asset-available').css("display", "table-row");
+        $('.icx.asset-user-available').css("display", "table-row");
         // Hide your ICX version
         $('.icx.your').css("display", "none");
     };
     // If ICX supply or borrow does not = 0
     if (parseFloat(Cookies.get('supplied-icx')) !== 0 || parseFloat(Cookies.get('borrowed-icx')) !== 0) {
         // Hide available ICX version
-        $('.icx.asset-available').css("display", "none");
+        $('.icx.asset-user-available').css("display", "none");
         // Show your ICX version
         $('.icx.your').css("display", "table-row");
     };
     // If ICX wallet, supply, and borrow = 0
     if (parseFloat(Cookies.get('wallet-icx')) == 0 && parseFloat(Cookies.get('supplied-icx')) == 0 && parseFloat(Cookies.get('borrowed-icx')) == 0) {
         // Hide all ICX versions
-        $('.icx.asset').css("display", "none");
+        $('.icx.asset-user').css("display", "none");
     };
 
     // If USDb and ICX supply = 0
@@ -367,11 +367,11 @@ $("#toggle-your-markets").click(function(){
     };
 
     // Collapse USDb table
-    $(".asset.usdb").removeClass('active');
+    $(".asset-user.usdb").removeClass('active');
     $(".market-usdb-expanded").hide();
 
     // Collapse ICX table
-    $(".asset.icx").removeClass('active');
+    $(".asset-user.icx").removeClass('active');
     $(".market-icx-expanded").hide();
 
     //
@@ -379,24 +379,24 @@ $("#toggle-your-markets").click(function(){
     //
 
     // Hide "All market" table data
-    $('.asset.all').css("display", "none");
+    $('.asset-user.all').css("display", "none");
 
     // If USDb supply or borrow does not = 0
     if (parseFloat(Cookies.get('supplied-usdb')) !== 0 || parseFloat(Cookies.get('borrowed-usdb')) !== 0) {
         // Hide available usdb version
-        $('.usdb.asset-available').css("display", "none");
+        $('.usdb.asset-user-available').css("display", "none");
         // Show your usdb version
         $('.usdb.your').css("display", "table-row");
     };
     // If USDb wallet, supply, and borrow = 0
     if (parseFloat(Cookies.get('wallet-usdb')) == 0 && parseFloat(Cookies.get('supplied-usdb')) == 0 && parseFloat(Cookies.get('borrowed-usdb')) == 0) {
         // Hide all USDb versions
-        $('.usdb.asset').css("display", "none");
+        $('.usdb.asset-user').css("display", "none");
     };
     // If USDb wallet does not = 0, and Supply = 0, and Borrow = 0
     if (parseFloat(Cookies.get('wallet-usdb')) !== 0 && parseFloat(Cookies.get('supplied-usdb')) == 0 && parseFloat(Cookies.get('borrowed-usdb')) == 0) {
         // Show available usdb version
-        $('.usdb.asset-available').css("display", "table-row");
+        $('.usdb.asset-user-available').css("display", "table-row");
         // Hide your usdb version
         $('.usdb.your').css("display", "none");
     };
@@ -404,21 +404,21 @@ $("#toggle-your-markets").click(function(){
     // If ICX wallet does not = 0, and Supply = 0, and Borrow = 0
     if (parseFloat(Cookies.get('wallet-icx')) !== 0 && parseFloat(Cookies.get('supplied-icx')) == 0 && parseFloat(Cookies.get('borrowed-icx')) == 0) {
         // Show available ICX version
-        $('.icx.asset-available').css("display", "table-row");
+        $('.icx.asset-user-available').css("display", "table-row");
         // Hide your ICX version
         $('.icx.your').css("display", "none");
     };
     // If ICX supply or borrow does not = 0
     if (parseFloat(Cookies.get('supplied-icx')) !== 0 || parseFloat(Cookies.get('borrowed-icx')) !== 0) {
         // Hide available ICX version
-        $('.icx.asset-available').css("display", "none");
+        $('.icx.asset-user-available').css("display", "none");
         // Show your ICX version
         $('.icx.your').css("display", "table-row");
     };
     // If ICX wallet, supply, and borrow = 0
     if (parseFloat(Cookies.get('wallet-icx')) == 0 && parseFloat(Cookies.get('supplied-icx')) == 0 && parseFloat(Cookies.get('borrowed-icx')) == 0) {
         // Hide all ICX versions
-        $('.icx.asset').css("display", "none");
+        $('.icx.asset-user').css("display", "none");
     };
 
     // If USDb and ICX supply = 0
@@ -502,11 +502,11 @@ $("#toggle-all-markets").click(function(){
     $(".available-to-supply").css("display", "none");
 
     // Collapse USDb table
-    $(".asset.usdb").removeClass('active');
+    $(".asset-user.usdb").removeClass('active');
     $(".market-usdb-expanded").hide();
 
     // Collapse ICX table
-    $(".asset.icx").removeClass('active');
+    $(".asset-user.icx").removeClass('active');
     $(".market-icx-expanded").hide();
 
     //
@@ -514,11 +514,11 @@ $("#toggle-all-markets").click(function(){
     //
 
     // Hide available assets data
-    $('.asset-available').css("display", "none");
-    $('.asset.your').css("display", "none");
+    $('.asset-user-available').css("display", "none");
+    $('.asset-user.your').css("display", "none");
 
     // Show "All market" table data
-    $('.asset.all').css("display", "table-row");
+    $('.asset-user.all').css("display", "table-row");
 
     //
     // Set everything to default
@@ -606,18 +606,18 @@ $(".wallet.icon").click(function() {
 ========================================================================== */
 
 // On "Bridge Dollars" click
-$(".asset.usdb").click(function() {
+$(".asset-user.usdb").click(function() {
 
     //
     // Layout
     //
 
     // Expand USDb table
-    $(".asset.usdb").toggleClass('active');
+    $(".asset-user.usdb").toggleClass('active');
     $(".market-usdb-expanded").slideToggle();
 
     // Collapse ICX table
-    $(".asset.icx").removeClass('active');
+    $(".asset-user.icx").removeClass('active');
     $(".market-icx-expanded").slideUp();
 
     //
@@ -682,18 +682,18 @@ $(".asset.usdb").click(function() {
 });
 
 // On "ICON" click
-$(".asset.icx").click(function() {
+$(".asset-user.icx").click(function() {
 
     //
     // Layout
     //
 
     // Collapse USDb table
-    $(".asset.usdb").removeClass('active');
+    $(".asset-user.usdb").removeClass('active');
     $(".market-usdb-expanded").slideUp();
 
     // Expand ICX table
-    $(".asset.icx").toggleClass('active');
+    $(".asset-user.icx").toggleClass('active');
     $(".market-icx-expanded").slideToggle();
 
     //

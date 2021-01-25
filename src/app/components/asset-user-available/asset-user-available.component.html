@@ -1,0 +1,104 @@
+<!-- Available to supply state  -->
+<tr class="asset {{asset.className}} asset-available" (click)="onAssetClick()" #assetAvail
+    [ngStyle]="displayAsTableRowOrHide(this.persistenceService.isAssetAvailableToSupply(asset.tag)
+    && this.persistenceService.userLoggedIn())">
+  <td>{{asset.name}}<br><span class="label">{{asset.tag}}</span></td>
+  <td colspan="2" class="text-right">${{this.formatNumberToNdigits(this.persistenceService.getUserAssetBalance(asset.tag))}}
+    <br><span class="label">{{this.formatNumberToUSLocaleString(this.persistenceService.getUserAssetUSDBalance(asset.tag))}} {{asset.tag}}</span></td>
+  <td colspan="2" class="text-right"><span class="text-green">??% APY</span></td>
+</tr>
+
+<!-- Asset Expanded -->
+<tr class="expanded">
+  <td colspan="5">
+    <div class="market-expanded" #marketExpandedEl>
+      <div class="grid">
+        <!-- Asset Supply -->
+        <div class="grid-cell supply border-right" #supply>
+          <!-- Supply title -->
+          <div class="grid grid-center title">
+            <div class="grid-cell">
+              <h2>Supply</h2>
+            </div>
+            <div class="grid-cell text-right">
+              <p class="supply-apy">??% APY</p>
+            </div>
+          </div>
+
+          <!-- Supply allow (Show if user can supply) -->
+          <div class="supply-allow" #supplyAllow [ngStyle]="hideElement(userAssetBalanceIsZero())">
+            <!-- Supply slider -->
+            <div id="slider-supply" #sliderSupply disabled></div>
+
+            <!-- Supply inputs -->
+            <div class="grid legend">
+              <div class="grid-cell">
+                <label class="label supplied">Supplied</label>
+                <input type="text" title="{{asset.tag}} supplied" id="input-supply" #inputSupply class="input-supply"
+                       (keyup)="supplyAssetAmountChange()" disabled="" value="0">
+              </div>
+              <div class="grid-cell">
+                <label class="label available">Available</label>
+                <input type="text" title="{{asset.tag}} available to supply" #inpSuppAvail id="input-supply-available"
+                       class="input-supply-available" disabled value="0">
+              </div>
+            </div>
+
+            <!-- Supply income -->
+            <div class="grid legend income">
+              <div class="grid-cell">
+                <dl class="metadata">
+                  <dt>Daily interest</dt>
+                  <dd class="value-supply-interest" #suppInterest>+ 0 {{asset.tag}}</dd>
+                </dl>
+              </div>
+              <div class="grid-cell">
+                <dl class="metadata">
+                  <dt>Daily rewards</dt>
+                  <dd class="value-supply-rewards" #suppRewards>+ 0 OMM</dd>
+                </dl>
+              </div>
+            </div>
+
+            <!-- Adjust-->
+            <div class="grid grid-center supply-actions actions-1" #suppAct1>
+              <div class="grid-cell text-center">
+                <a href="javascript:void(0);" class="button {{asset.className}} supply-adjust"
+                   (click)="onSupplyAdjustClick()">{{userAssetSuppliedBalanceIsZero() ? "Supply" : "Adjust"}}</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Confirm -->
+          <div class="grid grid-center supply-actions actions-2 hide" #suppAct2>
+            <div class="grid-cell text-right">
+              <a href="javascript:void(0);" class="cancel adjust-cancel" (click)="onAdjustCancelClick()">Cancel</a>
+            </div>
+            <div class="grid-cell text-left">
+              <a href="javascript:void(0);" class="button modal-trigger" data-modal="modal-supply" (click)="onAssetSupplyConfirmClick()">Confirm</a>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Asset Borrow -->
+        <div class="grid-cell borrow" #borrow>
+          <!-- Borrow title -->
+          <div class="grid grid-center title">
+            <div class="grid-cell">
+              <h2>Borrow</h2>
+            </div>
+            <div class="grid-cell text-right">
+              <p class="borrow-apy">??% APY</p>
+            </div>
+          </div>
+
+          <!-- Borrow deny (Show if user can't borrow) -->
+          <div class="borrow-deny" [ngStyle]="displayAsBlockOrHide(this.persistenceService.userHasNotSuppliedAnyAsset())">
+            <p class="text-center label message">Supply an asset to borrow {{asset.name}}.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </td>
+</tr>

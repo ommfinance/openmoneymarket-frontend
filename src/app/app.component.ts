@@ -4,7 +4,7 @@ import {DataLoaderService} from './services/data-loader/data-loader.service';
 import {ModalService} from "./services/modal/modal.service";
 import {PersistenceService} from "./services/persistence/persistence.service";
 import {BaseClass} from "./components/base-class";
-import log from "loglevel";
+import {ReloaderService} from "./services/reloader/reloader.service";
 
 declare var $: any;
 
@@ -23,7 +23,8 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
   constructor(private iconexApiService: IconexApiService,
               private dataLoaderService: DataLoaderService,
               private modalService: ModalService,
-              public persistenceService: PersistenceService) {
+              public persistenceService: PersistenceService,
+              private reloaderService: ReloaderService) {
     super();
     // register Iconex handler
     window.addEventListener("ICONEX_RELAY_RESPONSE", (e: any) => this.iconexApiService.iconexEventHandler(e));
@@ -31,6 +32,7 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
 
     // load all SCORE addresses
     dataLoaderService.loadAllScoreAddresses().then(() => this.loadCoreData());
+
 
     // register on document click handler
     $(document).on("click", (e: any) => {
@@ -42,7 +44,7 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
   }
 
   loadCoreData(): void {
-    this.dataLoaderService.loadAllReserves();
+    this.dataLoaderService.loadAllReserveData();
     this.dataLoaderService.loadAllReservesConfigData();
   }
 
