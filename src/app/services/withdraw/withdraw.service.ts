@@ -13,6 +13,7 @@ import {AssetTag} from "../../models/Asset";
 import {IconexWallet} from "../../models/IconexWallet";
 import {BridgeWallet} from "../../models/BridgeWallet";
 import {BridgeWidgetService} from "../bridge-widget/bridge-widget.service";
+import {Utils} from "../../common/utils";
 
 @Injectable({
   providedIn: 'root'
@@ -40,7 +41,7 @@ export class WithdrawService {
 
   private withdrawUSDb(amount: number): void {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
-    // TODO: refactor for Bridge
+
     const params = {
       _amount: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
     };
@@ -60,9 +61,13 @@ export class WithdrawService {
     }
   }
 
-  private withdrawIcx(amount: number, waitForUnstaking = false): void {
+  private async withdrawIcx(amount: number, waitForUnstaking = false): Promise<void> {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
-    // TODO: refactor for Bridge
+
+    // convert amount from ICX value to sICX
+    const todayRate = await this.scoreService.getTodayRate();
+    amount = Utils.convertICXValueTosICX(amount, todayRate);
+
     const params = {
       _amount: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
       _waitForUnstaking: waitForUnstaking ? "0x1" : "0x0"

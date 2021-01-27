@@ -1,4 +1,4 @@
-import {AssetTag} from "../models/Asset";
+import {AssetTag} from "./Asset";
 import {OmmError} from "../core/errors/OmmError";
 
 export class AllReservesData {
@@ -44,7 +44,6 @@ export class ReserveData {
   totalBorrowsUSD: number;
   liquidityRate: number;
   borrowRate: number;
-  utilizationRate: number;
   oTokenAddress: string;
   exchangePrice: number;
   lastUpdateTimestamp: number;
@@ -61,10 +60,10 @@ export class ReserveData {
   usageAsCollateralEnabled: number;
 
   constructor(totalLiquidity: number, availableLiquidity: number, totalLiquidityUSD: number, availableLiquidityUSD: number,
-              totalBorrows: number, totalBorrowsUSD: number, liquidityRate: number, borrowRate: number, utilizationRate: number,
-              oTokenAddress: string, exchangePrice: number, lastUpdateTimestamp: number, baseLTVasCollateral: number,
-              borrowCumulativeIndex: number, borrowingEnabled: number, decimals: number, isActive: number, isFreezed: number,
-              liquidationBonus: number, liquidationThreshold: number, liquidityCumulativeIndex: number, reserveAddress: string,
+              totalBorrows: number, totalBorrowsUSD: number, liquidityRate: number, borrowRate: number, oTokenAddress: string,
+              exchangePrice: number, lastUpdateTimestamp: number, baseLTVasCollateral: number, borrowCumulativeIndex: number,
+              borrowingEnabled: number, decimals: number, isActive: number, isFreezed: number, liquidationBonus: number,
+              liquidationThreshold: number, liquidityCumulativeIndex: number, reserveAddress: string,
               usageAsCollateralEnabled: number) {
     this.totalLiquidity = totalLiquidity;
     this.availableLiquidity = availableLiquidity;
@@ -74,7 +73,6 @@ export class ReserveData {
     this.totalBorrowsUSD = totalBorrowsUSD;
     this.liquidityRate = liquidityRate;
     this.borrowRate = borrowRate;
-    this.utilizationRate = utilizationRate;
     this.oTokenAddress = oTokenAddress;
     this.exchangePrice = exchangePrice;
     this.lastUpdateTimestamp = lastUpdateTimestamp;
@@ -93,7 +91,8 @@ export class ReserveData {
 }
 
 // Example
-// availableLiquidity: "0x7f207937acc857f1b"
+// availableLiquidity: "0x8848ec5632c44e279"
+// availableLiquidityUSD: "0x4424762b19622713d"
 // baseLTVasCollateral: "0x6f05b59d3b20000"
 // borrowCumulativeIndex: "0xde0b6b3a7640000"
 // borrowRate: "0x0"
@@ -102,7 +101,7 @@ export class ReserveData {
 // exchangePrice: "0x6f05b59d3b20000"
 // isActive: "0x1"
 // isFreezed: "0x0"
-// lastUpdateTimestamp: "0x5b92bbdf2a379"
+// lastUpdateTimestamp: "0x5b9aa7dcd49c3"
 // liquidationBonus: "0x16345785d8a0000"
 // liquidationThreshold: "0x905438e60010000"
 // liquidityCumulativeIndex: "0xde0b6b3a7640000"
@@ -110,6 +109,10 @@ export class ReserveData {
 // oTokenAddress: "cx7dcf7232084a085507bf2685f785589ebb0b52a1"
 // reserveAddress: "cxb7eda227d9ed9c6fc2a74aa5dd7e9a3913f6c281"
 // totalBorrows: "0x0"
-// totalLiquidity: "0x7f207937acc857f1b"
+// totalBorrowsUSD: "0x0"
+// totalLiquidity: "0x8848ec5632c44e279"
+// totalLiquidityUSD: "0x4424762b19622713d"
 // usageAsCollateralEnabled: "0x1"
+
+
 

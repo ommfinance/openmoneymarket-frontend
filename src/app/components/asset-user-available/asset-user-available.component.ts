@@ -13,7 +13,7 @@ import {assetFormat, assetPrefixPlusFormat, ommPrefixPlusFormat} from "../../com
 import {OmmError} from "../../core/errors/OmmError";
 import {Modals} from "../../models/Modals";
 import {AssetAction} from "../../models/AssetAction";
-import {Reserve} from "../../interfaces/reserve";
+import {UserReserveData} from "../../models/UserReserveData";
 
 declare var $: any;
 
@@ -239,7 +239,7 @@ export class AssetUserAvailableComponent extends BaseClass implements OnInit, Af
   }
 
   public subscribeToUserAssetReserveChange(): void {
-    this.stateChangeService.userReserveChangeMap.get(this.asset.tag)!.subscribe((reserve: Reserve) => {
+    this.stateChangeService.userReserveChangeMap.get(this.asset.tag)!.subscribe((reserve: UserReserveData) => {
       log.debug(`${this.asset.tag} reserve changed to: `, reserve);
 
       // supplied asset balance

@@ -9,7 +9,7 @@ import {Asset, AssetTag} from "../../models/Asset";
 import log from "loglevel";
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import {PersistenceService} from "../../services/persistence/persistence.service";
-import {Reserve} from "../../interfaces/reserve";
+import {UserReserveData} from "../../models/UserReserveData";
 import {ModalService} from "../../services/modal/modal.service";
 import {Modals} from "../../models/Modals";
 import {OmmError} from "../../core/errors/OmmError";
@@ -350,7 +350,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
   }
 
   public subscribeToUserAssetReserveChange(): void {
-    this.stateChangeService.userReserveChangeMap.get(this.asset.tag)!.subscribe((reserve: Reserve) => {
+    this.stateChangeService.userReserveChangeMap.get(this.asset.tag)!.subscribe((reserve: UserReserveData) => {
       log.debug(`${this.asset.tag} reserve changed to: `, reserve);
 
       // supplied asset balance

@@ -2,14 +2,14 @@ import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/
 import {RiskData} from "../../models/RiskData";
 import {percentageFormat} from "../../common/formats";
 import {Subject} from "rxjs";
-import {Reserve} from "../../interfaces/reserve";
+import {UserReserveData} from "../../models/UserReserveData";
 import {AssetTag} from "../../models/Asset";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import log from "loglevel";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {BaseClass} from "../base-class";
-import {UserAccountData} from "../../models/user-account-data";
+import {UserAccountData} from "../../models/UserAccountData";
 
 declare var noUiSlider: any;
 declare var wNumb: any;

@@ -1,11 +1,11 @@
 import {Injectable} from '@angular/core';
 import {Subject} from "rxjs";
-import {Reserve} from "../../interfaces/reserve";
+import {UserReserveData} from "../../models/UserReserveData";
 import {PersistenceService} from "../persistence/persistence.service";
 import {AssetTag} from "../../models/Asset";
 import {IconexWallet} from "../../models/IconexWallet";
 import {BridgeWallet} from "../../models/BridgeWallet";
-import {UserAccountData} from "../../models/user-account-data";
+import {UserAccountData} from "../../models/UserAccountData";
 import {ModalAction} from "../../models/ModalAction";
 
 @Injectable({
@@ -34,9 +34,9 @@ export class StateChangeService {
   /**
    * Map containing subscribable Subjects for each of the Asset reserve (e.g. USDb, ICX, ..)
    */
-  public userReserveChangeMap: Map<AssetTag, Subject<Reserve>> = new Map([
-    [AssetTag.USDb, new Subject<Reserve>()],
-    [AssetTag.ICX, new Subject<Reserve>()],
+  public userReserveChangeMap: Map<AssetTag, Subject<UserReserveData>> = new Map([
+    [AssetTag.USDb, new Subject<UserReserveData>()],
+    [AssetTag.ICX, new Subject<UserReserveData>()],
   ]);
 
   /**
@@ -59,8 +59,8 @@ export class StateChangeService {
       });
     });
 
-    this.userReserveChangeMap.forEach((subject: Subject<Reserve>, assetTag: AssetTag) => {
-      subject.subscribe((value: Reserve) => {
+    this.userReserveChangeMap.forEach((subject: Subject<UserReserveData>, assetTag: AssetTag) => {
+      subject.subscribe((value: UserReserveData) => {
         if (this.persistenceService.activeWallet) {
           this.persistenceService.userReserves!.reserveMap.set(assetTag, value);
         }
@@ -76,7 +76,7 @@ export class StateChangeService {
     this.userBalanceChangeMap.get(assetTag)!.next(balance);
   }
 
-  public updateUserAssetReserve(reserve: Reserve, assetTag: AssetTag): void {
+  public updateUserAssetReserve(reserve: UserReserveData, assetTag: AssetTag): void {
     this.userReserveChangeMap.get(assetTag)!.next(reserve);
   }
 

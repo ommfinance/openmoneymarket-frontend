@@ -6,10 +6,10 @@ import {PersistenceService} from '../persistence/persistence.service';
 import {environment} from '../../../environments/environment';
 import {Utils} from "../../common/utils";
 import {CheckerService} from "../checker/checker.service";
-import {AllAddresses} from "../../interfaces/all-addresses";
-import {Reserve} from "../../interfaces/reserve";
-import {AllReservesData, ReserveData} from "../../interfaces/all-reserves-data";
-import {UserAccountData} from "../../models/user-account-data";
+import {AllAddresses} from "../../models/AllAddresses";
+import {UserReserveData} from "../../models/UserReserveData";
+import {AllReservesData, ReserveData} from "../../models/AllReservesData";
+import {UserAccountData} from "../../models/UserAccountData";
 import {ReserveConfigData} from "../../models/ReserveConfigData";
 import {StateChangeService} from "../state-change/state-change.service";
 import {AssetTag} from "../../models/Asset";
@@ -42,7 +42,7 @@ export class ScoreService {
    * @param reserve - Address using 1 a  for USDb and sICX
    * @return reserve data
    */
-  public async getUserReserveDataForSpecificReserve(reserve: string): Promise<Reserve> {
+  public async getUserReserveDataForSpecificReserve(reserve: string): Promise<UserReserveData> {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const params = {
@@ -87,6 +87,20 @@ export class ScoreService {
   }
 
   /**
+   * @description Get today sicx to icx conversion rate
+   * @return today sICX to ICX conversion rate as number
+   */
+  public async getTodayRate(): Promise<number> {
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Staking,
+      ScoreMethodNames.GET_TODAY_RATE, {}, IconTransactionType.READ);
+
+    const todayRate = Utils.hexE18ToNormalisedNumber(await this.iconApiService.iconService.call(tx).execute());
+    log.debug(`getTodayRate: ${todayRate}`);
+
+    return todayRate;
+  }
+
+  /**
    * @description Get configuration data for the specific reserve
    * @param reserve - Address using 1 a  for USDb and sICX
    * @return reserve configuration data
@@ -112,7 +126,7 @@ export class ScoreService {
   }
 
   /**
-   * @description Get all reserve data
+   * @description Get reserve data for all reserves
    * @return All reserve data
    */
   public async getAllReserveData(): Promise<AllReservesData> {
@@ -120,23 +134,21 @@ export class ScoreService {
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
       ScoreMethodNames.GET_ALL_RESERVE_DATA, {}, IconTransactionType.READ);
+
     return await this.iconApiService.iconService.call(tx).execute();
   }
 
   /**
-   * @description Get specific reserve data
+   * @description Get reserve data for a specific reserve
    * @param reserve - Address using 1 a  for USDb and sICX
    * @return ReserveData
    */
   public async getsSpecificReserveData(reserve: string): Promise<ReserveData> {
     this.checkerService.checkAllAddressesLoaded();
 
-    const params = {
-      _reserve: reserve
-    };
-
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
-      ScoreMethodNames.GET_SPECIFIC_RESERVE_DATA, params, IconTransactionType.READ);
+      ScoreMethodNames.GET_SPECIFIC_RESERVE_DATA, { _reserve: reserve }, IconTransactionType.READ);
+
     return await this.iconApiService.iconService.call(tx).execute();
   }
 
@@ -149,7 +161,7 @@ export class ScoreService {
         _owner: address ?? this.persistenceService.activeWallet?.address
       }, IconTransactionType.READ);
     const res = await this.iconApiService.iconService.call(tx).execute();
-    const balance = Utils.hex18DecimalToNormalisedNumber(res);
+    const balance = Utils.hexE18To2DecimalRoundedDown(res);
     log.debug(`User USDb balance = ${balance}`);
     this.stateChangeService.updateUserAssetBalance(balance, AssetTag.USDb);
     return balance;

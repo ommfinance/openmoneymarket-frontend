@@ -54,7 +54,6 @@ export class SupplyService {
     if (!this.persistenceService.allAddresses) {
       throw new OmmError("SCORE all addresses not loaded!");
     }
-    // TODO: refactor for Bridge
     const params = {
       _to: this.persistenceService.allAddresses.systemContract.LendingPool,
       _value: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
@@ -80,13 +79,14 @@ export class SupplyService {
   private depositIcxToLendingPool(amount: number): void {
     log.debug("Deposit ICX amount = " + amount);
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
-    // TODO: refactor for Bridge
+
     const params = {
       _amount: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
     };
 
-    const tx = this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,  this.persistenceService.allAddresses!.systemContract.LendingPool,
-      ScoreMethodNames.DEPOSIT, params, IconTransactionType.WRITE, amount);
+    const tx = this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
+      this.persistenceService.allAddresses!.systemContract.LendingPool, ScoreMethodNames.DEPOSIT, params,
+      IconTransactionType.WRITE, amount);
 
     log.debug("TX: ", tx);
     this.iconApiService.getIcxBalance(this.persistenceService.activeWallet!.address).then(res => {

@@ -1,4 +1,4 @@
-import {AssetTag} from "../models/Asset";
+import {AssetTag} from "./Asset";
 
 export class AllAddresses {
   collateral: Collateral;
@@ -35,4 +35,5 @@ interface OTokens {
 interface SystemContract {
   LendingPool: string;
   LendingPoolDataProvider: string;
+  Staking: string;
 }

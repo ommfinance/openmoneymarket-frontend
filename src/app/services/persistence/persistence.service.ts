@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
 import {IconexWallet} from '../../models/IconexWallet';
-import {AllAddresses} from '../../interfaces/all-addresses';
-import {AllReservesData, ReserveData} from "../../interfaces/all-reserves-data";
-import {Reserve, UserReserves} from "../../interfaces/reserve";
-import {UserAccountData} from "../../models/user-account-data";
+import {AllAddresses} from '../../models/AllAddresses';
+import {AllReservesData, ReserveData} from "../../models/AllReservesData";
+import {UserReserveData, UserReserves} from "../../models/UserReserveData";
+import {UserAccountData} from "../../models/UserAccountData";
 import {BridgeWallet} from "../../models/BridgeWallet";
 import {AssetTag} from "../../models/Asset";
 import {AllReserveConfigData} from "../../models/AllReserveConfigData";
@@ -83,15 +83,15 @@ export class PersistenceService {
     return this.userReserves?.reserveMap.get(AssetTag.ICX)?.currentOTokenBalance ?? 0;
   }
 
-  public getUserAssetReserve(assetTag: AssetTag): Reserve | undefined {
+  public getUserAssetReserve(assetTag: AssetTag): UserReserveData | undefined {
     return this.userReserves?.reserveMap.get(assetTag);
   }
 
-  public getUserUSDbReserve(): Reserve | undefined {
+  public getUserUSDbReserve(): UserReserveData | undefined {
     return this.userReserves?.reserveMap.get(AssetTag.USDb);
   }
 
-  public getUserIcxReserve(): Reserve | undefined {
+  public getUserIcxReserve(): UserReserveData | undefined {
     return this.userReserves?.reserveMap.get(AssetTag.ICX);
   }
 
@@ -126,7 +126,7 @@ export class PersistenceService {
     if (!this.userReserves) {
       return totalSupplied;
     }
-    this.userReserves.reserveMap.forEach((reserve: Reserve | undefined) => {
+    this.userReserves.reserveMap.forEach((reserve: UserReserveData | undefined) => {
       totalSupplied += reserve?.currentOTokenBalance ?? 0;
     });
     return totalSupplied;
@@ -137,7 +137,7 @@ export class PersistenceService {
     if (!this.userReserves) {
       return totalSupplied;
     }
-    this.userReserves.reserveMap.forEach((reserve: Reserve | undefined) => {
+    this.userReserves.reserveMap.forEach((reserve: UserReserveData | undefined) => {
       totalSupplied += reserve?.currentOTokenBalanceUSD ?? 0;
     });
     return totalSupplied;
@@ -148,7 +148,7 @@ export class PersistenceService {
     if (!this.userReserves) {
       return totalBorrowed;
     }
-    this.userReserves.reserveMap.forEach((reserve: Reserve | undefined) => {
+    this.userReserves.reserveMap.forEach((reserve: UserReserveData | undefined) => {
       totalBorrowed += reserve?.principalBorrowBalance ?? 0;
     });
     return totalBorrowed;
@@ -158,7 +158,7 @@ export class PersistenceService {
     let counter = 0;
     let total = 0;
 
-    this.userReserves.reserveMap.forEach((reserve: Reserve | undefined) => {
+    this.userReserves.reserveMap.forEach((reserve: UserReserveData | undefined) => {
       total += reserve?.liquidityRate ?? 0;
       counter++;
     });
@@ -170,7 +170,7 @@ export class PersistenceService {
     let counter = 0;
     let total = 0;
 
-    this.userReserves.reserveMap.forEach((reserve: Reserve | undefined) => {
+    this.userReserves.reserveMap.forEach((reserve: UserReserveData | undefined) => {
       total += reserve?.borrowRate ?? 0;
       counter++;
     });

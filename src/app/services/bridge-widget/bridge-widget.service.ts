@@ -31,7 +31,7 @@ export class BridgeWidgetService {
   }
 
   sendTransaction(tx: any): void {
-    log.debug(`sendTransaction tx:`, tx);
+    log.debug(`Bridge sendTransaction tx:`, tx);
     log.debug(JSON.stringify(tx));
     window.dispatchEvent(new CustomEvent('bri.send.tx', {
       detail: {

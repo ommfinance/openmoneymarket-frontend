@@ -27,7 +27,7 @@ import {RiskData} from "../../models/RiskData";
 import {AssetUserAvailableComponent} from "../asset-user-available/asset-user-available.component";
 import {AssetMarketComponent} from "../asset-market/asset-market.component";
 import {ActiveMarketView} from "../../models/ActiveMarketView";
-import {Reserve} from "../../interfaces/reserve";
+import {UserReserveData} from "../../models/UserReserveData";
 import {ModalAction} from "../../models/ModalAction";
 import {ReloaderService} from "../../services/reloader/reloader.service";
 
@@ -134,7 +134,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   private subscribeToUserAssetReserveChange(): void {
     // for each user asset subscribe to its reserve data change
     Object.values(AssetTag).forEach(assetTag => {
-      this.stateChangeService.userReserveChangeMap.get(assetTag)!.subscribe((reserve: Reserve) => {
+      this.stateChangeService.userReserveChangeMap.get(assetTag)!.subscribe((reserve: UserReserveData) => {
         // when ever there is a change in user reserve data
 
         // reload the asset lists

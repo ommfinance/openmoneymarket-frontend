@@ -1,11 +1,11 @@
 import {Injectable} from '@angular/core';
 import {ScoreService} from '../score/score.service';
 import {PersistenceService} from '../persistence/persistence.service';
-import {AllAddresses} from '../../interfaces/all-addresses';
-import {AllReservesData, ReserveData} from "../../interfaces/all-reserves-data";
+import {AllAddresses} from '../../models/AllAddresses';
+import {AllReservesData, ReserveData} from "../../models/AllReservesData";
 import {Mapper} from "../../common/mapper";
-import {Reserve} from "../../interfaces/reserve";
-import {UserAccountData} from "../../models/user-account-data";
+import {UserReserveData} from "../../models/UserReserveData";
+import {UserAccountData} from "../../models/UserAccountData";
 import {StateChangeService} from "../state-change/state-change.service";
 import {AssetTag} from "../../models/Asset";
 import log from "loglevel";
@@ -118,7 +118,7 @@ export class DataLoaderService {
   public loadUserUSDbReserveData(): Promise<void> {
     let mappedReserve: any;
     return this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses!.collateral.USDb)
-      .then((res: Reserve) => {
+      .then((res: UserReserveData) => {
         mappedReserve = Mapper.mapUserReserve(res);
         this.persistenceService.userReserves!.reserveMap.set(AssetTag.USDb, mappedReserve);
         log.debug("User USDb reserve:", res);
@@ -136,7 +136,7 @@ export class DataLoaderService {
   public loadUserIcxReserveData(): Promise<void> {
     let mappedReserve: any;
     return this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses!.collateral.sICX)
-      .then((res: Reserve) => {
+      .then((res: UserReserveData) => {
         mappedReserve = Mapper.mapUserReserve(res);
         this.persistenceService.userReserves!.reserveMap.set(AssetTag.ICX, mappedReserve);
         log.debug("User ICX reserve data:", res);

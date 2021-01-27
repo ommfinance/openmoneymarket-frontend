@@ -27,4 +27,10 @@ export class ScoreMethodNames {
   public static GET_USER_ACCOUNT_DATA = "getUserAccountData";
   public static GET_RESERVE_CONFIGURATION_DATA = "getReserveConfigurationData";
   public static GET_ALL_RESERVE_CONFIGURATION_DATA = "getAllReserveConfigurationData";
+
+  /*
+ * Staking SCORE
+ */
+  public static GET_TODAY_RATE = "getTodayRate";
+
 }

@@ -3,17 +3,29 @@ import { BigNumber } from "bignumber.js";
 
 export class Utils {
 
-  // Returns value divided by the 10^18 to get normalised value
-  public static hex18DecimalToNormalisedNumber(value: number | string): number {
+  // Returns number divided by the 10^18 and rounded down to 2 decimal places
+  public static hexE18To2DecimalRoundedDown(value: number | string): number {
     if (!value) {
       return 0;
     }
     if (typeof value === "string") {
       // return rounded down to 2 decimals places number
-      return +(new BigNumber(value, 16).dividedBy(Math.pow(10, 18))).toFixed(2, BigNumber.ROUND_DOWN);
+      return +Utils.roundDownValueTo2Decimals(new BigNumber(value, 16).dividedBy(Math.pow(10, 18)));
     } else {
       // return rounded down to 2 decimals places number
-      return +(new BigNumber(value).dividedBy(Math.pow(10, 18))).toFixed(2, BigNumber.ROUND_DOWN);
+      return +Utils.roundDownValueTo2Decimals(new BigNumber(value).dividedBy(Math.pow(10, 18)));
+    }
+  }
+
+  // Returns number divided by the 10^18
+  public static hexE18ToNormalisedNumber(value: number | string): number {
+    if (!value) {
+      return 0;
+    }
+    if (typeof value === "string") {
+      return +new BigNumber(value, 16).dividedBy(Math.pow(10, 18));
+    } else {
+      return +new BigNumber(value).dividedBy(Math.pow(10, 18));
     }
   }
 
@@ -23,7 +35,7 @@ export class Utils {
     }
     if (typeof value === "string") {
       // return rounded down to 2 decimals places number
-      return +(new BigNumber(value, 16).toFixed(2, BigNumber.ROUND_DOWN));
+      return +Utils.roundDownValueTo2Decimals(new BigNumber(value, 16));
     }
     else {
       return value;
@@ -35,7 +47,7 @@ export class Utils {
       return 0;
     }
     if (typeof value === "string") {
-      return +(new BigNumber(value, 16).dividedBy(Math.pow(10, 16))).toFixed(2, BigNumber.ROUND_DOWN);
+      return +Utils.roundDownValueTo2Decimals(new BigNumber(value, 16).dividedBy(Math.pow(10, 16)));
     }
     else {
       return value;
@@ -74,6 +86,19 @@ export class Utils {
 
   public static amountToe18MultipliedString(amount: number): string {
     return new BigNumber(amount).multipliedBy(Math.pow(10, 18)).toFixed();
+  }
+
+  public static roundDownValueTo2Decimals(value: number | BigNumber): number {
+    if (value instanceof BigNumber) {
+      return +value.toFixed(2, BigNumber.ROUND_DOWN);
+    } else {
+      return +new BigNumber(value).toFixed(2, BigNumber.ROUND_DOWN);
+    }
+  }
+
+  // conversion used for redeeming ICX
+  public static convertICXValueTosICX(value: number, todayRate: number): number {
+    return Utils.roundDownValueTo2Decimals(value / todayRate);
   }
 
 }
