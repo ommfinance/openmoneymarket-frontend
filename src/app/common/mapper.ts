@@ -22,8 +22,6 @@ export class Mapper {
       Utils.hexToNumber(reserve.originationFee),
       Utils.hexE18To2DecimalRoundedDown(reserve.principalBorrowBalance),
       Utils.hexE18To2DecimalRoundedDown(reserve.principalBorrowBalanceUSD),
-      Utils.hexE18To2DecimalRoundedDown(reserve.principalOTokenBalance),
-      Utils.hexE18To2DecimalRoundedDown(reserve.principalOTokenBalanceUSD),
       Utils.hexToNumber(reserve.useAsCollateral),
       Utils.hexToNumber(reserve.userBorrowCumulativeIndex),
       Utils.hexToNumber(reserve.userLiquidityIndex),

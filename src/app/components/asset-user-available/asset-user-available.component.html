@@ -21,7 +21,7 @@
               <h2>Supply</h2>
             </div>
             <div class="grid-cell text-right">
-              <p class="supply-apy">??% APY</p>
+              <p class="supply-apy">{{this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate?.toFixed(2)}}% APY</p>
             </div>
           </div>
 
@@ -49,13 +49,13 @@
               <div class="grid-cell">
                 <dl class="metadata">
                   <dt>Daily interest</dt>
-                  <dd class="value-supply-interest" #suppInterest>+ 0 {{asset.tag}}</dd>
+                  <dd class="value-supply-interest" #suppInterest>+ {{getDailySupplyInterest().toFixed(2)}} {{asset.tag}}</dd>
                 </dl>
               </div>
               <div class="grid-cell">
                 <dl class="metadata">
                   <dt>Daily rewards</dt>
-                  <dd class="value-supply-rewards" #suppRewards>+ 0 OMM</dd>
+                  <dd class="value-supply-rewards" #suppRewards>+ ?? OMM</dd>
                 </dl>
               </div>
             </div>
@@ -89,7 +89,7 @@
               <h2>Borrow</h2>
             </div>
             <div class="grid-cell text-right">
-              <p class="borrow-apy">??% APY</p>
+              <p class="borrow-apy">{{this.persistenceService.getUserAssetReserve(asset.tag)?.borrowRate?.toFixed(2)}}% APY</p>
             </div>
           </div>
 

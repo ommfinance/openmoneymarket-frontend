@@ -194,11 +194,28 @@ export class PersistenceService {
   public getAvgBorrowApy(): number {
     let counter = 0;
     let total = 0;
+
     if (!this.allReserves) {
       return total;
     }
+
     Object.values(this.allReserves).forEach((property: ReserveData) => {
       total += property.borrowRate;
+      counter++;
+    });
+    return total / counter;
+  }
+
+  public getAverageLiquidationThreshold(): number {
+    let counter = 0;
+    let total = 0;
+
+    if (!this.allReserves) {
+      return total;
+    }
+
+    Object.values(this.allReserves!).forEach((property: ReserveData) => {
+      total += property.liquidationThreshold;
       counter++;
     });
     return total / counter;

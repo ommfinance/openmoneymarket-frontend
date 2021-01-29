@@ -382,7 +382,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   }
 
   updateRiskData(riskData?: RiskData): void {
-    const riskTotal = riskData ? riskData.riskTotal : this.calculationService.calculateValueRiskTotal();
+    const riskTotal = riskData ? riskData.riskTotal : this.calculationService.calculateTotalRiskPercentage();
     this.riskComponent?.updateViewRiskData(riskTotal);
   }
 

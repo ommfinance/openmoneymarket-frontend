@@ -14,6 +14,8 @@ import {OmmError} from "../../core/errors/OmmError";
 import {Modals} from "../../models/Modals";
 import {AssetAction} from "../../models/AssetAction";
 import {UserReserveData} from "../../models/UserReserveData";
+import {RiskCalculationData} from "../../models/RiskCalculationData";
+import {UserAction} from "../../models/UserAction";
 
 declare var $: any;
 
@@ -96,7 +98,7 @@ export class AssetUserAvailableComponent extends BaseClass implements OnInit, Af
     this.sliderSupply.setAttribute("disabled", "");
 
     // Reset risk data
-    // this.updateRiskData.emit(); // TODO
+    this.updateRiskData.emit();
 
     // Disable asset-user inputs
     this.disableInputs();
@@ -155,7 +157,7 @@ export class AssetUserAvailableComponent extends BaseClass implements OnInit, Af
     this.disableAndResetSliders.emit(undefined);
 
     // Reset risk data
-    // this.updateRiskData.emit(); TODO
+    this.updateRiskData.emit();
 
     // Disable USDb inputs
     this.disableAssetsInputs.emit(undefined);
@@ -165,15 +167,24 @@ export class AssetUserAvailableComponent extends BaseClass implements OnInit, Af
    * Logic to trigger on supply amount change
    */
   supplyAssetAmountChange(): void {
-    const amount = +assetFormat(this.asset.tag).from(this.inputSupply.value);
+    const value = +assetFormat(this.asset.tag).from(this.inputSupply.value);
 
-    // update risk data TODO
-    // const supplyDiff = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag) - amount;
-    // const riskData = new RiskData(this.calculationService.calculateValueRiskTotal(this.asset.tag, supplyDiff, undefined));
-    // this.updateRiskData.emit(riskData);
+    const currentSupply = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag);
+    const supplyDiff = value - currentSupply;
+
+    let riskCalculationData;
+    if (supplyDiff > 0) {
+      riskCalculationData = new RiskCalculationData(this.asset.tag, supplyDiff , UserAction.SUPPLY);
+    } else if (supplyDiff < 0) {
+      riskCalculationData = new RiskCalculationData(this.asset.tag, Math.abs(supplyDiff) , UserAction.REDEEM);
+    }
+
+    // update risk data
+    const riskData = new RiskData(this.calculationService.calculateTotalRiskPercentage(riskCalculationData));
+    this.updateRiskData.emit(riskData);
 
     if (this.persistenceService.activeWallet) {
-      if (amount > this.persistenceService.activeWallet.balances.get(this.asset.tag)!) {
+      if (value > this.persistenceService.activeWallet.balances.get(this.asset.tag)!) {
         this.inputSupply.style.borderColor = "red";
       } else {
         this.inputSupply.style.borderColor = "#c7ccd5";
@@ -298,16 +309,26 @@ export class AssetUserAvailableComponent extends BaseClass implements OnInit, Af
       this.inputSupplyAvailable.value = assetFormat(this.asset.tag).to(this.sliderSupply.noUiSlider.options.range.max - value);
 
       // Update asset-user's supply interest
-      $(this.suppInterestEl).text(assetPrefixPlusFormat(this.asset.tag).to(
-        this.calculationService.calculateUsersDailySupplyInterestForAsset(this.asset.tag, value)));
+      $(this.suppInterestEl).text(assetPrefixPlusFormat(this.asset.tag).to(this.getDailySupplyInterest(supplyDiff)));
 
-      // Update asset-user's supply omm rewards // TODO
-      $(this.suppRewardsEl).text(ommPrefixPlusFormat.to((parseFloat(values[handle])) * 0.447 / 365));
+      // Update asset-user's supply omm rewards
+      $(this.suppRewardsEl).text(ommPrefixPlusFormat.to(-1));
 
-      // update risk data TODO
-      // const riskData = new RiskData(this.calculationService.calculateValueRiskTotal(this.asset.tag, supplyDiff, undefined));
-      // this.updateRiskData.emit(riskData);
+      // update risk data
+      let riskCalculationData;
+
+      if (supplyDiff > 0) {
+        riskCalculationData = new RiskCalculationData(this.asset.tag, supplyDiff , UserAction.SUPPLY);
+      } else if (supplyDiff < 0) {
+        riskCalculationData = new RiskCalculationData(this.asset.tag, Math.abs(supplyDiff) , UserAction.REDEEM);
+      }
+      const riskData = new RiskData(this.calculationService.calculateTotalRiskPercentage(riskCalculationData));
+      this.updateRiskData.emit(riskData);
     });
+  }
+
+  getDailySupplyInterest(amountBeingSupplied?: number): number {
+    return this.calculationService.calculateUsersDailySupplyInterestForAsset(this.asset.tag, amountBeingSupplied);
   }
 
   userAssetBalanceIsZero(): boolean {

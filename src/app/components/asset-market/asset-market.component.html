@@ -3,8 +3,8 @@
   <td>{{asset.name}}<br><span class="label">{{asset.tag}}</span></td>
   <td><span>${{this.formatNumberToNdigits(this.persistenceService.getAssetReserveData(asset.tag)?.totalLiquidityUSD)}}</span><br>
     <span class="label">{{this.formatNumberToUSLocaleString(this.persistenceService.getAssetReserveData(asset.tag)?.totalLiquidity)}} {{asset.tag}}</span></td>
-  <td class="text-green">{{this.persistenceService.getAssetReserveData(asset.tag)?.liquidityRate?.toFixed(5)}}%</td>
+  <td class="text-green">{{this.persistenceService.getAssetReserveData(asset.tag)?.liquidityRate?.toFixed(2)}}%</td>
   <td>${{this.formatNumberToNdigits(this.persistenceService.getAssetReserveData(asset.tag)?.totalBorrowsUSD)}}<br>
     <span class="label">{{this.formatNumberToUSLocaleString(this.persistenceService.getAssetReserveData(asset.tag)?.totalBorrows)}} {{asset.tag}}</span></td>
-  <td class="text-purple">{{this.persistenceService.getAssetReserveData(asset.tag)?.borrowRate?.toFixed(5)}}%</td>
+  <td class="text-purple">{{this.persistenceService.getAssetReserveData(asset.tag)?.borrowRate?.toFixed(2)}}%</td>
 </tr>

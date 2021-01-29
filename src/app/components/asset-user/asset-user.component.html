@@ -3,10 +3,10 @@
   <td>{{asset.name}}<br><span class="label">{{asset.tag}}</span></td>
   <td><span class="value-supplied">${{this.formatNumberToNdigits(this.persistenceService.getUserAssetReserve(asset.tag)?.currentOTokenBalanceUSD)}}</span><br>
     <span class="value-supplied label">{{this.formatNumberToUSLocaleString(this.persistenceService.getUserSuppliedAssetBalance(asset.tag))}} {{asset.tag}}</span></td>
-  <td class="text-green">{{this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate?.toFixed(5)}}%</td>
+  <td class="text-green">{{this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate?.toFixed(2)}}%</td>
   <td><span class="value-borrowed">${{this.formatNumberToNdigits(this.persistenceService.getUserAssetReserve(asset.tag)?.principalBorrowBalanceUSD)}}</span><br>
     <span class="value-borrowed label">{{this.formatNumberToUSLocaleString(this.persistenceService.getUserBorrowedAssetBalance(asset.tag))}} {{asset.tag}}</span></td>
-  <td class="text-purple">{{this.persistenceService.getUserAssetReserve(asset.tag)?.borrowRate?.toFixed(5)}}%</td>
+  <td class="text-purple">{{this.persistenceService.getUserAssetReserve(asset.tag)?.borrowRate?.toFixed(2)}}%</td>
 </tr>
 
 
@@ -23,7 +23,7 @@
               <h2>Supply</h2>
             </div>
             <div class="grid-cell text-right">
-              <p class="supply-apy">- % APY</p>
+              <p class="supply-apy">{{this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate?.toFixed(2)}}% APY</p>
             </div>
           </div>
 
@@ -51,13 +51,13 @@
               <div class="grid-cell">
                 <dl class="metadata">
                   <dt>Daily interest</dt>
-                  <dd class="value-supply-interest" #suppInterest>+ 0 {{asset.tag}}</dd>
+                  <dd class="value-supply-interest" #suppInterest>+ {{getDailySupplyInterest().toFixed(2)}} {{asset.tag}}</dd>
                 </dl>
               </div>
               <div class="grid-cell">
                 <dl class="metadata">
                   <dt>Daily rewards</dt>
-                  <dd class="value-supply-rewards" #suppRewards>+ 0 OMM</dd>
+                  <dd class="value-supply-rewards" #suppRewards>+ ?? OMM</dd>
                 </dl>
               </div>
             </div>
@@ -95,7 +95,7 @@
               <h2>Borrow</h2><span class="risk-outer" [ngStyle]="hideElement(this.persistenceService.userHasNotSuppliedAnyAsset())">Risk: <span class="value-risk-total">- %</span></span>
             </div>
             <div class="grid-cell text-right">
-              <p class="borrow-apy">- % APY</p>
+              <p class="borrow-apy">{{this.persistenceService.getUserAssetReserve(asset.tag)?.borrowRate?.toFixed(2)}}% APY</p>
             </div>
           </div>
 
@@ -121,13 +121,13 @@
               <div class="grid-cell">
                 <dl class="metadata">
                   <dt>Daily interest</dt>
-                  <dd class="value-borrow-interest" #borrInterest>+ 0 {{asset.tag}}</dd>
+                  <dd class="value-borrow-interest" #borrInterest>+ {{getDailyBorrowInterest().toFixed(2)}} {{asset.tag}}</dd>
                 </dl>
               </div>
               <div class="grid-cell">
                 <dl class="metadata">
                   <dt>Daily rewards</dt>
-                  <dd class="value-borrow-rewards" #borrRewards>+ 0 OMM</dd>
+                  <dd class="value-borrow-rewards" #borrRewards>+ ?? OMM</dd>
                 </dl>
               </div>
             </div>
