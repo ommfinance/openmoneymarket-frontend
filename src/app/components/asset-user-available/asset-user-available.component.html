@@ -3,9 +3,9 @@
     [ngStyle]="displayAsTableRowOrHide(this.persistenceService.isAssetAvailableToSupply(asset.tag)
     && this.persistenceService.userLoggedIn())">
   <td>{{asset.name}}<br><span class="label">{{asset.tag}}</span></td>
-  <td colspan="2" class="text-right">${{this.formatNumberToNdigits(this.persistenceService.getUserAssetBalance(asset.tag))}}
+  <td colspan="2" class="text-right">{{this.toDollarUSLocaleString(this.persistenceService.getUserAssetBalance(asset.tag))}}
     <br><span class="label">{{this.formatNumberToUSLocaleString(this.persistenceService.getUserAssetUSDBalance(asset.tag))}} {{asset.tag}}</span></td>
-  <td colspan="2" class="text-right"><span class="text-green">??% APY</span></td>
+  <td colspan="2" class="text-right"><span class="text-green">{{to2DecimalPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate)}} APY</span></td>
 </tr>
 
 <!-- Asset Expanded -->
@@ -21,7 +21,7 @@
               <h2>Supply</h2>
             </div>
             <div class="grid-cell text-right">
-              <p class="supply-apy">{{this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate?.toFixed(2)}}% APY</p>
+              <p class="supply-apy">{{to2DecimalPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate)}} APY</p>
             </div>
           </div>
 
@@ -89,7 +89,7 @@
               <h2>Borrow</h2>
             </div>
             <div class="grid-cell text-right">
-              <p class="borrow-apy">{{this.persistenceService.getUserAssetReserve(asset.tag)?.borrowRate?.toFixed(2)}}% APY</p>
+              <p class="borrow-apy">{{to2DecimalPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.borrowRate)}} APY</p>
             </div>
           </div>
 

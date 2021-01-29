@@ -21,10 +21,10 @@
 </div>
 
 <!-- Claim Omm rewards modal -->
-<div class="modal" id="modal-claim-rewards">
+<div class="modal" id="modal-claim-rewards" #claimOmmRewardsModal>
   <div class="modal-content">
     <h3 class="text-center label">Claim Omm rewards?</h3>
-    <p class="text-bold text-center value-rewards-total">50 OMM</p>
+    <p class="text-bold text-center value-rewards-mdoal">50 OMM</p>
     <div class="grid">
       <div class="grid-cell text-center border-right">
         <p class="label">Before</p>
@@ -33,11 +33,11 @@
 
       <div class="grid-cell text-center">
         <p class="label">After</p>
-        <p class="text-dark value-rewards-total">50 OMM</p>
+        <p class="text-dark value-rewards-mdoal">50 OMM</p>
       </div>
     </div>
     <div class="modal-actions">
-      <a href="#" class="cancel modal-close">Not now</a> <a href="./" class="button no-margin">Claim rewards</a>
+      <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Not now</a> <a href="javascript:void(0);" class="button no-margin">Claim rewards</a>
     </div>
   </div>
 </div>
@@ -58,11 +58,23 @@
         <p class="text-dark value-borrow-after">{{this.activeModalChange?.assetAction?.after?.toFixed(2)}} {{this.activeModalChange?.assetAction?.asset?.tag}}</p>
       </div>
     </div>
+
+
     <p class="label text-center {{isBorrowModal() ? '': 'hide'}}" style="margin-top: 25px;">Risk: <span class="value-risk-total" style="font-size: 14px !important;"
     >{{this.activeModalChange?.assetAction?.risk}}%</span></p>
+
+    <!-- Withdraw ICX Message -->
+    <p class="label text-center {{isWithdrawIcxModal() ? '': 'hide'}}">Your ICX is staked (sICX). Choose what to do with it:</p>
+
+    <div class="text-center {{isWithdrawIcxModal() ? '': 'hide'}}" style="margin-top: 15px;">
+      <input type="radio" name="unstake" value="unstake" [(ngModel)]="withdrawOption" class="label" style="margin-right: 5px;">Unstake (9 days)
+      <input type="radio" name="unstake" value="keep" [(ngModel)]="withdrawOption" class="label" style="margin-right: 5px; margin-left: 15px;">Keep sICX
+    </div>
+
+    <!-- Modal actions -->
     <div class="modal-actions">
       <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Cancel</a>
-      <a href="javascript:void(0);" class="button {{isBorrowModal() ? 'no-margin' : 'purple'}}" (click)="onAssetModalActionClick()">{{getModalActionName()}}</a>
+      <a href="javascript:void(0);" class="button {{isBorrowModal() ? 'purple' : 'no-margin'}}" (click)="onAssetModalActionClick()">{{getModalActionName()}}</a>
     </div>
   </div>
 </div>

@@ -4,4 +4,5 @@ export enum Modals {
   WITHDRAW = "withdraw",
   BORROW = "borrowed",
   REPAY = "repaid",
+  CLAIM_OMM_REWARDS = "claimed omm rewards"
 }

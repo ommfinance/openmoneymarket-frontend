@@ -57,6 +57,8 @@ export class CalculationsService {
    * @return total user risk as a number in percentage
    */
   private calculateValueRiskTotal(riskCalculationData?: RiskCalculationData): number {
+    log.debug(riskCalculationData);
+
     const userAccountData = this.persistenceService.userAccountData;
     // if user account data not yet initialised return 0
     if (!userAccountData) {
@@ -157,10 +159,10 @@ export class CalculationsService {
 
     const liquidityRate = this.persistenceService.getUserAssetReserve(assetTag)?.liquidityRate ?? 0;
 
-    log.debug("**********************************************");
-    log.debug("Daily supply interest for reserve calculation:");
-    log.debug(`currentOTokenBalanceUSD=${currentOTokenBalanceUSD}`);
-    log.debug(`liquidityRate=${liquidityRate}`);
+    // log.debug("**********************************************");
+    // log.debug("Daily supply interest for reserve calculation:");
+    // log.debug(`currentOTokenBalanceUSD=${currentOTokenBalanceUSD}`);
+    // log.debug(`liquidityRate=${liquidityRate}`);
     // "easy route" formula
     return currentOTokenBalanceUSD * liquidityRate * (1 / 356);
   }
@@ -192,10 +194,10 @@ export class CalculationsService {
 
     const borrowRate = this.persistenceService.getUserAssetReserve(assetTag)?.borrowRate ?? 0;
 
-    log.debug("**********************************************");
-    log.debug("Daily borrow interest for reserve calculation:");
-    log.debug(`currentBorrowBalanceUSD=${currentBorrowBalanceUSD}`);
-    log.debug(`borrowRate=${borrowRate}`);
+    // log.debug("**********************************************");
+    // log.debug("Daily borrow interest for reserve calculation:");
+    // log.debug(`currentBorrowBalanceUSD=${currentBorrowBalanceUSD}`);
+    // log.debug(`borrowRate=${borrowRate}`);
     // "easy route" formula
     return currentBorrowBalanceUSD * borrowRate * (1 / 356);
   }

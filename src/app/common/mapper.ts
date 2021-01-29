@@ -72,6 +72,7 @@ export class Mapper {
       Utils.hexE18ToNormalisedNumber(reserveData.liquidationThreshold),
       Utils.hexE18ToNormalisedNumber(reserveData.liquidityCumulativeIndex),
       reserveData.reserveAddress,
+      Utils.hexE18ToNormalisedNumber(reserveData.sICXRate),
       Utils.hexToNumber(reserveData.usageAsCollateralEnabled),
     );
   }

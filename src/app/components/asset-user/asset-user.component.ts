@@ -214,20 +214,6 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
   supplyAssetAmountChange(): void {
     const value = +assetFormat(this.asset.tag).from(this.inputSupply.value);
 
-    const currentSupply = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag);
-    const supplyDiff = value - currentSupply;
-
-    let riskCalculationData;
-    if (supplyDiff > 0) {
-      riskCalculationData = new RiskCalculationData(this.asset.tag, supplyDiff , UserAction.SUPPLY);
-    } else if (supplyDiff < 0) {
-      riskCalculationData = new RiskCalculationData(this.asset.tag, Math.abs(supplyDiff) , UserAction.REDEEM);
-    }
-
-    // update risk data
-    const riskData = new RiskData(this.calculationService.calculateTotalRiskPercentage(riskCalculationData));
-    this.updateRiskData.emit(riskData);
-
     if (this.persistenceService.activeWallet) {
       if (value > this.persistenceService.activeWallet.balances.get(this.asset.tag)!) {
         this.inputSupply.style.borderColor = "red";
@@ -243,20 +229,6 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
   public borrowAssetAmountChange(): void {
     const value = +assetFormat(this.asset.tag).from(this.inputBorrow.value);
 
-    const currentBorrow = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag);
-    const borrowDiff = currentBorrow - value;
-
-    let riskCalculationData;
-    if (borrowDiff > 0) {
-      riskCalculationData = new RiskCalculationData(this.asset.tag, borrowDiff , UserAction.BORROW);
-    } else if (borrowDiff < 0) {
-      riskCalculationData = new RiskCalculationData(this.asset.tag, Math.abs(borrowDiff) , UserAction.REPAY);
-    }
-
-    // update risk data
-    const riskData = new RiskData(this.calculationService.calculateTotalRiskPercentage(riskCalculationData));
-    this.updateRiskData.emit(riskData);
-
     if (this.persistenceService.activeWallet) {
       if (value > +assetFormat(this.asset.tag).from(this.inputBorrowAvailable.value)) {
         this.inputBorrow.style.borderColor = "red";
@@ -271,11 +243,11 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
    * Logic to trigger when user clicks confirm of asset-user supply
    */
   onAssetSupplyConfirmClick(): void {
-    let value = +this.inputSupply.value;
+    let value = +assetFormat(this.asset.tag).from(this.inputSupply.value);
     log.debug(`Supply of ${this.asset.tag} changed to ${value}`);
 
     // check that supplied value is not greater than max
-    const max = this.calculationService.calculateAssetSupplySliderMax(this.asset.tag);
+    const max = this.sliderSupply.noUiSlider.options.range.max;
     if (value > max) {
       value = max;
       this.sliderSupply.noUiSlider.set(value);
@@ -304,9 +276,17 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
    * Logic to trigger when user clicks confirm of asset-user borrow
    */
   onAssetBorrowConfirmClick(): void {
-    const value = +assetFormat(this.asset.tag).from(this.inputBorrow.value);
+    let value = +assetFormat(this.asset.tag).from(this.inputBorrow.value);
+
+    // check that borrowed value is not greater than max
+    const max = this.sliderBorrow.noUiSlider.options.range.max;
+    if (value > max) {
+      value = max;
+      this.sliderBorrow.noUiSlider.set(value);
+      throw new OmmError(`Borrowed value greater than ${this.asset.tag} max available.`);
+    }
+
     const borrowAmountDiff = value - Math.floor(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
-  // TODO add check
 
     const before = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag);
     const amount = Math.floor(Math.abs(borrowAmountDiff));
@@ -444,7 +424,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       const value = +values[handle];
       // Update supplied text box
       this.inputSupply.value = value;
-      const supplyDiff = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag) - this.inputSupply.value;
+      const supplyDiff = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag) - value;
 
       // Update asset-user available text box
       this.inputSupplyAvailable.value = assetFormat(this.asset.tag).to(this.sliderSupply.noUiSlider.options.range.max - value);
@@ -454,6 +434,10 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
 
       // Update asset-user's supply omm rewards
       $(this.suppRewardsEl).text(ommPrefixPlusFormat.to(-1));
+    });
+
+    this.sliderSupply.noUiSlider.on('change', (values: any, handle: any) => {
+      const supplyDiff = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag) - +values[handle];
 
       // update risk data
       let riskCalculationData;
@@ -473,9 +457,9 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
   initBorrowSliderLogic(): void {
     // On asset-user borrow slider update (Your markets)
     this.sliderBorrow.noUiSlider.on('update', (values: any, handle: any) => {
-      const value = parseFloat(values[handle]);
+      const value = +values[handle];
       // Update asset-user borrowed text box
-      this.inputBorrow.value = (value);
+      this.inputBorrow.value = value;
       const borrowDiff = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag) - this.inputBorrow.value;
 
       // Update asset-user available text box
@@ -487,17 +471,6 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       // Update asset-user's borrow omm rewards
       $(this.borrRewardsEl).text(ommPrefixPlusFormat.to(-1));
 
-      // update risk data
-      let riskCalculationData;
-
-      if (borrowDiff > 0) {
-        riskCalculationData = new RiskCalculationData(this.asset.tag, borrowDiff , UserAction.BORROW);
-      } else if (borrowDiff < 0) {
-        riskCalculationData = new RiskCalculationData(this.asset.tag, Math.abs(borrowDiff) , UserAction.REPAY);
-      }
-      const riskData = new RiskData(this.calculationService.calculateTotalRiskPercentage(riskCalculationData));
-      this.updateRiskData.emit(riskData);
-
       if (this.inputBorrow.value > 0) {
         // show risk data
         $('.risk-container').css("display", "block");
@@ -505,6 +478,21 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
         // Hide risk message
         $('.risk-message-noassets').css("display", "none");
       }
+    });
+
+    this.sliderBorrow.noUiSlider.on('change', (values: any, handle: any) => {
+      const borrowDiff = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag) - +values[handle];
+      // update risk data
+      let riskCalculationData;
+
+      if (borrowDiff > 0) {
+        riskCalculationData = new RiskCalculationData(this.asset.tag, borrowDiff , UserAction.REPAY);
+      } else if (borrowDiff < 0) {
+        riskCalculationData = new RiskCalculationData(this.asset.tag, Math.abs(borrowDiff) , UserAction.BORROW);
+      }
+
+      const riskData = new RiskData(this.calculationService.calculateTotalRiskPercentage(riskCalculationData));
+      this.updateRiskData.emit(riskData);
     });
   }
 

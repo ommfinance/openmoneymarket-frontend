@@ -28,10 +28,10 @@ export class WithdrawService {
               private bridgeWidgetService: BridgeWidgetService) {
   }
 
-  public withdrawAsset(amount: number, assetTag: AssetTag): void {
+  public withdrawAsset(amount: number, assetTag: AssetTag, waitForUnstaking = false): void {
     switch (assetTag) {
       case AssetTag.ICX:
-        this.withdrawIcx(amount);
+        this.withdrawIcx(amount, waitForUnstaking);
         break;
       case AssetTag.USDb:
         this.withdrawUSDb(amount);
@@ -49,7 +49,7 @@ export class WithdrawService {
     const tx = this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
       this.persistenceService.allAddresses!.oTokens.oUSDb, ScoreMethodNames.REDEEM, params, IconTransactionType.WRITE);
 
-    log.debug("TX: ", tx);
+    log.debug("withdrawUSDb TX: ", tx);
     this.scoreService.getUserAssetBalance(AssetTag.USDb).then(res => {
       log.debug("USDb balance before withdraw: ", res);
     });
@@ -65,8 +65,9 @@ export class WithdrawService {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     // convert amount from ICX value to sICX
-    const todayRate = await this.scoreService.getTodayRate();
-    amount = Utils.convertICXValueTosICX(amount, todayRate);
+    log.debug("Withdraw amount before conversion to sICX = " + amount);
+    amount = Utils.convertICXValueTosICX(amount, this.persistenceService.getAssetReserveData(AssetTag.ICX)!.sICXRate);
+    log.debug("Withdraw amount after conversion to sICX = " + amount);
 
     const params = {
       _amount: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
@@ -76,7 +77,7 @@ export class WithdrawService {
     const tx = this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
       this.persistenceService.allAddresses!.oTokens.oICX, ScoreMethodNames.REDEEM, params, IconTransactionType.WRITE);
 
-    log.debug("TX: ", tx);
+    log.debug("withdrawIcx TX: ", tx);
 
     if (this.persistenceService.activeWallet instanceof IconexWallet) {
       this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.WITHDRAW);

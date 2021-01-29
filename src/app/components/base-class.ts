@@ -11,8 +11,8 @@ export class BaseClass {
   public supportedAssetsMap = supportedAssetsMap;
   public AssetTag = AssetTag;
 
-  public formatNumberToNdigits(num: number | string | undefined, digits: number = 2): string {
-    if (!num) { return "-"; }
+  public formatNumberToNdigits(num?: number | string, digits: number = 2): string {
+    if (!num || (+num) === 0) { return "-"; }
     if (typeof num === 'string') {
       return Utils.formatNumberToNdigits(+num, digits);
     } else {
@@ -20,12 +20,36 @@ export class BaseClass {
     }
   }
 
-  public formatNumberToUSLocaleString(num: number | string | undefined): string {
-    if (!num) { return "-"; }
+  public toDollar2digitsString(num?: number | string): string {
+    if (!num || (+num) === 0) { return "-"; }
+    return `$${this.formatNumberToNdigits(num)}`;
+  }
+
+  public toDollar2digitsStringOrZero(num?: number | string): string {
+    if (!num || (+num) === 0) { return "$0"; }
+    return `$${this.formatNumberToNdigits(num)}`;
+  }
+
+  public formatNumberToUSLocaleString(num?: number | string): string {
+    if (!num || (+num) === 0) { return "-"; }
     if (typeof num === 'string') {
       return Utils.formatNumberToUSLocaleString(+num);
     } else {
       return Utils.formatNumberToUSLocaleString(num);
+    }
+  }
+
+  public toDollarUSLocaleString(num?: number | string): string {
+    if (!num || (+num) === 0) { return "-"; }
+    return `$${this.formatNumberToUSLocaleString(num)}`;
+  }
+
+  public to2DecimalPercentString(num?: number | string): string {
+    if (!num || (+num) === 0) { return "-"; }
+    if (typeof num === 'string') {
+      return `${(+num).toFixed(2)}%`;
+    } else {
+      return `${(num).toFixed(2)}%`;
     }
   }
 

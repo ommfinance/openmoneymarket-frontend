@@ -121,7 +121,7 @@ export class DataLoaderService {
       .then((res: UserReserveData) => {
         mappedReserve = Mapper.mapUserReserve(res);
         this.persistenceService.userReserves!.reserveMap.set(AssetTag.USDb, mappedReserve);
-        log.debug("User USDb reserve:", res);
+        log.debug("User USDb reserve data:", res);
         this.stateChangeService.updateUserAssetReserve(mappedReserve, AssetTag.USDb);
       });
   }

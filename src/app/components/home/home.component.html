@@ -1,7 +1,7 @@
 <!-- Wrapper -->
 <div class="grid wrapper">
   <!-- Navigation -->
-  <div class="grid-cell">
+  <div class="grid-cell navigation-container">
     <nav class="navigation">
       <ul>
         <li>
@@ -12,6 +12,30 @@
               </div>
               <div class="grid-cell">
                 Home
+              </div>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="./vote/">
+            <div class="grid grid-center">
+              <div class="grid-cell">
+                <img src="assets/img/icon/vote.svg" class="svg" alt="Vote icon">
+              </div>
+              <div class="grid-cell">
+                Vote
+              </div>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="./liquidate/">
+            <div class="grid grid-center">
+              <div class="grid-cell">
+                <img src="assets/img/icon/liquidate.svg" class="svg" alt="Liquidate icon">
+              </div>
+              <div class="grid-cell">
+                Liquidate
               </div>
             </div>
           </a>
@@ -44,7 +68,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>You've supplied</dt>
-                  <dd class="value-supplied-total">${{this.formatNumberToUSLocaleString(this.persistenceService.getUserTotalSuppliedUSD())}}</dd>
+                  <dd class="value-supplied-total">{{this.toDollarUSLocaleString(this.persistenceService.getUserTotalSuppliedUSD())}}</dd>
                 </dl>
               </div>
 
@@ -52,7 +76,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Your supply APY</dt>
-                  <dd class="text-green value-supplied-apy">{{this.persistenceService.getUserAvgSupplyApy().toFixed(3)}}%</dd>
+                  <dd class="text-green value-supplied-apy">{{to2DecimalPercentString(this.persistenceService.getUserAvgSupplyApy())}}</dd>
                 </dl>
               </div>
             </div>
@@ -65,7 +89,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>You've borrowed</dt>
-                  <dd class="value-borrowed-total">${{this.formatNumberToUSLocaleString(this.persistenceService.getUserTotalBorrowed())}}</dd>
+                  <dd class="value-borrowed-total">{{this.toDollarUSLocaleString(this.persistenceService.getUserTotalBorrowed())}}</dd>
                 </dl>
               </div>
 
@@ -73,7 +97,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Your borrow APY</dt>
-                  <dd class="text-purple value-borrowed-apy">{{this.persistenceService.getUserAvgBorrowApy().toFixed(3)}}%</dd>
+                  <dd class="text-purple value-borrowed-apy">{{to2DecimalPercentString(this.persistenceService.getUserAvgBorrowApy())}}</dd>
                 </dl>
               </div>
             </div>
@@ -89,7 +113,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Total supplied</dt>
-                  <dd>${{this.formatNumberToUSLocaleString(this.persistenceService.getTotalSupplied())}}</dd>
+                  <dd>{{this.toDollarUSLocaleString(this.persistenceService.getTotalSupplied())}}</dd>
                 </dl>
               </div>
 
@@ -97,8 +121,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Total supply APY</dt>
-                  <dd class="text-green">{{this.persistenceService.getAvgSupplyApy() != 0 ?
-                    this.persistenceService.getAvgSupplyApy().toFixed(2): "-"}}%</dd>
+                  <dd class="text-green">{{to2DecimalPercentString(this.persistenceService.getAvgSupplyApy())}}</dd>
                 </dl>
               </div>
             </div>
@@ -111,7 +134,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Total borrowed</dt>
-                  <dd>${{this.formatNumberToUSLocaleString(this.persistenceService.getTotalBorrowed())}}</dd>
+                  <dd>{{this.toDollarUSLocaleString(this.persistenceService.getTotalBorrowed())}}</dd>
                 </dl>
               </div>
 
@@ -119,8 +142,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Total borrow APY</dt>
-                  <dd class="text-purple">{{this.persistenceService.getAvgBorrowApy() != 0 ?
-                    this.persistenceService.getAvgBorrowApy().toFixed(2): "-"}}%</dd>
+                  <dd class="text-purple">{{to2DecimalPercentString(this.persistenceService.getAvgBorrowApy())}}</dd>
                 </dl>
               </div>
             </div>
@@ -132,17 +154,23 @@
       <div class="grid side-by-side performance-risk" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn()
                                                                  || this.persistenceService.userHasNotSuppliedAnyAsset())">
         <!-- Performance -->
-        <app-performance style="display: contents"></app-performance>
-        <!-- /Performance -->
+        <div class="grid-cell">
+          <section id="performance">
+            <app-performance style="display: contents"></app-performance>
+          </section>
+        </div>
 
         <!-- Risk -->
-        <app-risk style="display: contents"></app-risk>
-        <!-- /Risk -->
+        <div class="grid-cell">
+          <section id="risk">
+            <app-risk style="display: contents"></app-risk>
+          </section>
+        </div>
       </div>
 
       <!-- Markets -->
       <section id="markets">
-        <div class="grid grid-center">
+        <div class="grid grid-center filters">
           <div class="grid-cell">
             <h2>Markets</h2>
             <ul class="toggle" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn())">

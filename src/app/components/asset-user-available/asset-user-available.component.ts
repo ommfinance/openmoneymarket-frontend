@@ -197,7 +197,7 @@ export class AssetUserAvailableComponent extends BaseClass implements OnInit, Af
    * Logic to trigger when user clicks confirm of asset-user supply
    */
   onAssetSupplyConfirmClick(): void {
-    let value = +this.inputSupply.value;
+    let value = +assetFormat(this.asset.tag).from(this.inputSupply.value);
     log.debug(`Supply of ${this.asset.tag} changed to ${value}`);
 
     // check that supplied value is not greater than max
@@ -313,10 +313,13 @@ export class AssetUserAvailableComponent extends BaseClass implements OnInit, Af
 
       // Update asset-user's supply omm rewards
       $(this.suppRewardsEl).text(ommPrefixPlusFormat.to(-1));
+    });
+
+    this.sliderSupply.noUiSlider.on('change', (values: any, handle: any) => {
+      const supplyDiff = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag) - +values[handle];
 
       // update risk data
       let riskCalculationData;
-
       if (supplyDiff > 0) {
         riskCalculationData = new RiskCalculationData(this.asset.tag, supplyDiff , UserAction.SUPPLY);
       } else if (supplyDiff < 0) {

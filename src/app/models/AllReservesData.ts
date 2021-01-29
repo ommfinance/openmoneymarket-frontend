@@ -57,13 +57,14 @@ export class ReserveData {
   liquidationThreshold: number;
   liquidityCumulativeIndex: number;
   reserveAddress: string;
+  sICXRate: number;
   usageAsCollateralEnabled: number;
 
   constructor(totalLiquidity: number, availableLiquidity: number, totalLiquidityUSD: number, availableLiquidityUSD: number,
               totalBorrows: number, totalBorrowsUSD: number, liquidityRate: number, borrowRate: number, oTokenAddress: string,
               exchangePrice: number, lastUpdateTimestamp: number, baseLTVasCollateral: number, borrowCumulativeIndex: number,
               borrowingEnabled: number, decimals: number, isActive: number, isFreezed: number, liquidationBonus: number,
-              liquidationThreshold: number, liquidityCumulativeIndex: number, reserveAddress: string,
+              liquidationThreshold: number, liquidityCumulativeIndex: number, reserveAddress: string, sICXRate: number,
               usageAsCollateralEnabled: number) {
     this.totalLiquidity = totalLiquidity;
     this.availableLiquidity = availableLiquidity;
@@ -86,6 +87,7 @@ export class ReserveData {
     this.liquidationThreshold = liquidationThreshold;
     this.liquidityCumulativeIndex = liquidityCumulativeIndex;
     this.reserveAddress = reserveAddress;
+    this.sICXRate = sICXRate;
     this.usageAsCollateralEnabled = usageAsCollateralEnabled;
   }
 }
