@@ -131,7 +131,9 @@
 	border-radius: 5px;
 }
 .noUi-connect {
-	background: #2ca9b7;
+	background: -moz-linear-gradient( 180deg, rgb(0,211,194) 0%, rgb(63,157,213) 100%);
+	background: -webkit-linear-gradient( 180deg, rgb(0,211,194) 0%, rgb(63,157,213) 100%);
+	background: -ms-linear-gradient( 180deg, rgb(0,211,194) 0%, rgb(63,157,213) 100%);
 }
 
 /* Handles and cursors */

@@ -44,6 +44,7 @@ export class CalculationsService {
       }
 
       const totalRiskPercentage = 1 / healthFactor * 100;
+      log.debug("**********************************************");
       log.debug(`${this.className} calculateTotalRiskPercentage-> healthFactor = ${this.persistenceService.userAccountData?.healthFactor}`);
       log.debug(`${this.className} calculateTotalRiskPercentage-> totalRiskPercentage = ${totalRiskPercentage}`);
       return totalRiskPercentage;
@@ -96,6 +97,7 @@ export class CalculationsService {
           totalBorrowBalanceUSD -= amount * assetExchangePrice;
       }
     }
+    log.debug("**********************************************");
     log.debug("Total risk percentage calculation:");
     log.debug(`totalBorrowBalanceUSD=${totalBorrowBalanceUSD}`);
     log.debug(`totalCollateralBalanceUSD=${totalCollateralBalanceUSD}`);
@@ -110,6 +112,7 @@ export class CalculationsService {
    * @return asset available borrow amount
    */
   public calculateAvailableBorrowForAsset(assetTag: AssetTag): number {
+    log.debug("**********************************************");
     log.debug("calculateAvailableBorrowForAsset:");
     // average across all reserves
     const currentLTV = this.persistenceService.userAccountData?.currentLtv ?? 0;
@@ -154,6 +157,7 @@ export class CalculationsService {
 
     const liquidityRate = this.persistenceService.getUserAssetReserve(assetTag)?.liquidityRate ?? 0;
 
+    log.debug("**********************************************");
     log.debug("Daily supply interest for reserve calculation:");
     log.debug(`currentOTokenBalanceUSD=${currentOTokenBalanceUSD}`);
     log.debug(`liquidityRate=${liquidityRate}`);
@@ -188,6 +192,7 @@ export class CalculationsService {
 
     const borrowRate = this.persistenceService.getUserAssetReserve(assetTag)?.borrowRate ?? 0;
 
+    log.debug("**********************************************");
     log.debug("Daily borrow interest for reserve calculation:");
     log.debug(`currentBorrowBalanceUSD=${currentBorrowBalanceUSD}`);
     log.debug(`borrowRate=${borrowRate}`);
