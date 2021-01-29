@@ -24,9 +24,8 @@ export class ReloaderService {
   constructor(private dataLoaderService: DataLoaderService,
               private persistenceService: PersistenceService,
               private stateChangeService: StateChangeService) {
-    // TODO
-    // this.initLoginChangeListener();
-    // this.registerBaseIntervals();
+    this.initLoginChangeListener();
+    this.registerBaseIntervals();
   }
 
   private initLoginChangeListener(): void {
@@ -45,7 +44,7 @@ export class ReloaderService {
     // register interval for all reserves data (need fresh exchange price)
     this.allReservesDataInterval = setInterval(() => this.dataLoaderService.loadAllReserveData() , 30000);
     // register interval for all reserves config data
-    this.allReservesConfigInterval = setInterval(() => this.dataLoaderService.loadAllReservesConfigData(), 60000);
+    this.allReservesConfigInterval = setInterval(() => this.dataLoaderService.loadAllReservesConfigData(), 30000);
   }
 
   private clearBaseIntervals(): void {
@@ -57,11 +56,11 @@ export class ReloaderService {
     // if user logged in register user specific intervals
     if (this.persistenceService.userLoggedIn()) {
       // register interval for user balances
-      this.usersBalancesInterval = setInterval(() => this.dataLoaderService.loadAllUserAssetsBalances(), 3000);
+      this.usersBalancesInterval = setInterval(() => this.dataLoaderService.loadAllUserAssetsBalances(), 15000);
       // register interval for user account data
-      this.usersAccountDataInterval = setInterval(() => this.dataLoaderService.loadAllReserveData(), 3000);
+      this.usersAccountDataInterval = setInterval(() => this.dataLoaderService.loadUserAccountData(), 30000);
       // register interval for user reserve data
-      this.userReservesDataInterval = setInterval(() => this.dataLoaderService.loadAllReserveData(), 3000);
+      this.userReservesDataInterval = setInterval(() => this.dataLoaderService.loadAllReserveData(), 30000);
     }
   }
 
