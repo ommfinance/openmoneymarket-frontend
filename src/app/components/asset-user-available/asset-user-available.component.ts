@@ -169,25 +169,14 @@ export class AssetUserAvailableComponent extends BaseClass implements OnInit, Af
   supplyAssetAmountChange(): void {
     const value = +assetFormat(this.asset.tag).from(this.inputSupply.value);
 
-    const currentSupply = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag);
-    const supplyDiff = value - currentSupply;
-
-    let riskCalculationData;
-    if (supplyDiff > 0) {
-      riskCalculationData = new RiskCalculationData(this.asset.tag, supplyDiff , UserAction.SUPPLY);
-    } else if (supplyDiff < 0) {
-      riskCalculationData = new RiskCalculationData(this.asset.tag, Math.abs(supplyDiff) , UserAction.REDEEM);
-    }
-
-    // update risk data
-    const riskData = new RiskData(this.calculationService.calculateTotalRiskPercentage(riskCalculationData));
-    this.updateRiskData.emit(riskData);
-
     if (this.persistenceService.activeWallet) {
-      if (value > this.persistenceService.activeWallet.balances.get(this.asset.tag)!) {
-        this.inputSupply.style.borderColor = "red";
+      // check that supplied value is not greater than max
+      if (value > this.supplySliderMaxValue()) {
+        this.inputSupply.classList.add("red-border");
       } else {
-        this.inputSupply.style.borderColor = "#c7ccd5";
+        // set slider to this value and reset border color if it passes the check
+        this.sliderSupply.noUiSlider.set(value);
+        this.inputSupply.classList.remove("red-border");
       }
     }
   }
@@ -205,7 +194,7 @@ export class AssetUserAvailableComponent extends BaseClass implements OnInit, Af
     if (value > max) {
       value = max;
       this.sliderSupply.noUiSlider.set(value);
-      throw new OmmError(`Supplied value greater than ${this.asset.tag} balance.`);
+      throw new OmmError(`Supplied value greater than available ${this.asset.tag} balance.`);
     }
 
     const currentSupply = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag);
@@ -394,6 +383,10 @@ export class AssetUserAvailableComponent extends BaseClass implements OnInit, Af
 
   showAsset(): void {
     $(this.assetAvailableEl).css("display", "table-row");
+  }
+
+  supplySliderMaxValue(): number {
+    return this.sliderSupply.noUiSlider.options.range.max;
   }
 
 }

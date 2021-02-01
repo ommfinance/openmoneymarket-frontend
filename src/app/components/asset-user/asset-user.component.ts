@@ -212,13 +212,17 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
    * Logic to trigger on supply amount change
    */
   supplyAssetAmountChange(): void {
-    const value = +assetFormat(this.asset.tag).from(this.inputSupply.value);
+    const value = this.inputSupply.value;
 
     if (this.persistenceService.activeWallet) {
-      if (value > this.persistenceService.activeWallet.balances.get(this.asset.tag)!) {
-        this.inputSupply.style.borderColor = "red";
+      // check that supplied value is not greater than max
+      if (value > this.supplySliderMaxValue()) {
+        log.debug("Supplied value > max = " + this.supplySliderMaxValue());
+        this.inputSupply.classList.add("red-border");
       } else {
-        this.inputSupply.style.borderColor = "#c7ccd5";
+        // set slider to this value and reset border color if it passes the check
+        this.sliderSupply.noUiSlider.set(value);
+        this.inputSupply.classList.remove("red-border");
       }
     }
   }
@@ -230,10 +234,13 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     const value = +assetFormat(this.asset.tag).from(this.inputBorrow.value);
 
     if (this.persistenceService.activeWallet) {
-      if (value > +assetFormat(this.asset.tag).from(this.inputBorrowAvailable.value)) {
-        this.inputBorrow.style.borderColor = "red";
+      // check that borrowed value is not greater than max
+      if (value > this.borrowSliderMaxValue()) {
+        this.inputBorrow.classList.add("red-border");
       } else {
-        this.inputBorrow.style.borderColor = "#c7ccd5";
+        // set slider to this value and reset border color if it passes the check
+        this.sliderBorrow.noUiSlider.set(value);
+        this.inputBorrow.classList.remove("red-border");
       }
     }
   }
@@ -244,14 +251,13 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
    */
   onAssetSupplyConfirmClick(): void {
     let value = +assetFormat(this.asset.tag).from(this.inputSupply.value);
-    log.debug(`Supply of ${this.asset.tag} changed to ${value}`);
 
     // check that supplied value is not greater than max
-    const max = this.sliderSupply.noUiSlider.options.range.max;
+    const max = this.supplySliderMaxValue();
     if (value > max) {
       value = max;
       this.sliderSupply.noUiSlider.set(value);
-      throw new OmmError(`Supplied value greater than ${this.asset.tag} balance.`);
+      throw new OmmError(`Supplied value greater than available ${this.asset.tag} balance.`);
     }
 
     const currentSupply = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag);
@@ -279,7 +285,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     let value = +assetFormat(this.asset.tag).from(this.inputBorrow.value);
 
     // check that borrowed value is not greater than max
-    const max = this.sliderBorrow.noUiSlider.options.range.max;
+    const max = this.borrowSliderMaxValue();
     if (value > max) {
       value = max;
       this.sliderBorrow.noUiSlider.set(value);
@@ -427,7 +433,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       const supplyDiff = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag) - value;
 
       // Update asset-user available text box
-      this.inputSupplyAvailable.value = assetFormat(this.asset.tag).to(this.sliderSupply.noUiSlider.options.range.max - value);
+      this.inputSupplyAvailable.value = assetFormat(this.asset.tag).to(this.supplySliderMaxValue() - value);
 
       // Update asset-user's supply interest
       $(this.suppInterestEl).text(assetPrefixPlusFormat(this.asset.tag).to(this.getDailySupplyInterest(supplyDiff)));
@@ -463,7 +469,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       const borrowDiff = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag) - this.inputBorrow.value;
 
       // Update asset-user available text box
-      this.inputBorrowAvailable.value = assetFormat(this.asset.tag).to(this.sliderBorrow.noUiSlider.options.range.max - value);
+      this.inputBorrowAvailable.value = assetFormat(this.asset.tag).to(this.borrowSliderMaxValue() - value);
 
       // Update asset-user's borrow interest
       $(this.borrInterestEl).text(assetPrefixMinusFormat(this.asset.tag).to(this.getDailyBorrowInterest(borrowDiff)));
@@ -601,6 +607,14 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
 
   showAsset(): void {
     $(this.assetYourEl).css("display", "table-row");
+  }
+
+  supplySliderMaxValue(): number {
+    return this.sliderSupply.noUiSlider.options.range.max;
+  }
+
+  borrowSliderMaxValue(): number {
+    return this.sliderBorrow.noUiSlider.options.range.max;
   }
 
 }
