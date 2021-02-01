@@ -90,8 +90,10 @@ export class AssetUserAvailableComponent extends BaseClass implements OnInit, Af
     $('.actions-1').removeClass("hide");
 
     // Remove adjust
-    $(this.supplyEl).removeClass("adjust");
-    $(this.borrowEl).removeClass("adjust");
+    this.removeAdjustClass();
+
+    // Remove red border class
+    this.removeInputRedBorderClass();
 
     // Reset asset-user sliders
     this.sliderSupply.noUiSlider.set(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
@@ -149,6 +151,9 @@ export class AssetUserAvailableComponent extends BaseClass implements OnInit, Af
 
     // Remove adjust class
     this.removeAdjustClass();
+
+    // Remove red border class
+    this.removeInputRedBorderClass();
 
     // Show default actions
     this.showDefaultActions();
@@ -387,6 +392,11 @@ export class AssetUserAvailableComponent extends BaseClass implements OnInit, Af
 
   supplySliderMaxValue(): number {
     return this.sliderSupply.noUiSlider.options.range.max;
+  }
+
+  removeInputRedBorderClass(): void {
+    // Remove red border class on input
+    this.inputSupply.classList.remove("red-border");
   }
 
 }

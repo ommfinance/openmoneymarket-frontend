@@ -102,8 +102,10 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     $('.actions-1').removeClass("hide");
 
     // Remove adjust
-    $(this.supplyEl).removeClass("adjust");
-    $(this.borrowEl).removeClass("adjust");
+    this.removeAdjustClass();
+
+    // Remove red border class on input
+    this.removeInputRedBorderClass();
 
     // Reset user asset sliders
     this.sliderSupply.noUiSlider.set(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
@@ -194,6 +196,9 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
 
     // Remove adjust class
     this.removeAdjustClass();
+
+    // Remove red border class on input
+    this.removeInputRedBorderClass();
 
     // Show default actions
     this.showDefaultActions();
@@ -615,6 +620,12 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
 
   borrowSliderMaxValue(): number {
     return this.sliderBorrow.noUiSlider.options.range.max;
+  }
+
+  removeInputRedBorderClass(): void {
+    // Remove red border class on input
+    this.inputSupply.classList.remove("red-border");
+    this.inputBorrow.classList.remove("red-border");
   }
 
 }
