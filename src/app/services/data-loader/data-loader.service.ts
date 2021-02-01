@@ -121,7 +121,7 @@ export class DataLoaderService {
       .then((res: UserReserveData) => {
         mappedReserve = Mapper.mapUserReserve(res);
         this.persistenceService.userReserves!.reserveMap.set(AssetTag.USDb, mappedReserve);
-        log.debug("User USDb reserve data:", res);
+        log.debug("User USDb reserve data:", mappedReserve);
         this.stateChangeService.updateUserAssetReserve(mappedReserve, AssetTag.USDb);
       });
   }
@@ -139,7 +139,7 @@ export class DataLoaderService {
       .then((res: UserReserveData) => {
         mappedReserve = Mapper.mapUserReserve(res);
         this.persistenceService.userReserves!.reserveMap.set(AssetTag.ICX, mappedReserve);
-        log.debug("User ICX reserve data:", res);
+        log.debug("User ICX reserve data:", mappedReserve);
         this.stateChangeService.updateUserAssetReserve(mappedReserve, AssetTag.ICX);
       });
   }

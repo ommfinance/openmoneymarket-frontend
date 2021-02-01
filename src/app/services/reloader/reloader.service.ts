@@ -17,9 +17,7 @@ export class ReloaderService {
   public allReservesConfigInterval: any;
 
   // user intervals
-  public usersBalancesInterval: any;
-  public usersAccountDataInterval: any;
-  public userReservesDataInterval: any;
+  public userSpecificDataInterval: any;
 
   constructor(private dataLoaderService: DataLoaderService,
               private persistenceService: PersistenceService,
@@ -42,9 +40,9 @@ export class ReloaderService {
   private registerBaseIntervals(): void {
     log.debug("registerBaseIntervals...");
     // register interval for all reserves data (need fresh exchange price)
-    this.allReservesDataInterval = setInterval(() => this.dataLoaderService.loadAllReserveData() , 30000);
-    // register interval for all reserves config data
-    this.allReservesConfigInterval = setInterval(() => this.dataLoaderService.loadAllReservesConfigData(), 30000);
+    // this.allReservesDataInterval = setInterval(() => this.dataLoaderService.loadAllReserveData() , 30000);
+    // // register interval for all reserves config data
+    // this.allReservesConfigInterval = setInterval(() => this.dataLoaderService.loadAllReservesConfigData(), 30000);
   }
 
   private clearBaseIntervals(): void {
@@ -56,17 +54,11 @@ export class ReloaderService {
     // if user logged in register user specific intervals
     if (this.persistenceService.userLoggedIn()) {
       // register interval for user balances
-      this.usersBalancesInterval = setInterval(() => this.dataLoaderService.loadAllUserAssetsBalances(), 15000);
-      // register interval for user account data
-      this.usersAccountDataInterval = setInterval(() => this.dataLoaderService.loadUserAccountData(), 30000);
-      // register interval for user reserve data
-      this.userReservesDataInterval = setInterval(() => this.dataLoaderService.loadAllReserveData(), 30000);
+      // this.userSpecificDataInterval = setInterval(() => this.dataLoaderService.loadUserSpecificData(), 15000);
     }
   }
 
   public clearUserIntervals(): void {
-    clearInterval(this.usersBalancesInterval);
-    clearInterval(this.usersAccountDataInterval);
-    clearInterval(this.userReservesDataInterval);
+    clearInterval(this.userSpecificDataInterval);
   }
 }

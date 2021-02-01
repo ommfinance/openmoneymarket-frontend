@@ -306,7 +306,7 @@ export class AssetUserAvailableComponent extends BaseClass implements OnInit, Af
       $(this.suppInterestEl).text(assetPrefixPlusFormat(this.asset.tag).to(this.getDailySupplyInterest(supplyDiff)));
 
       // Update asset-user's supply omm rewards
-      $(this.suppRewardsEl).text(ommPrefixPlusFormat.to(-1));
+      $(this.suppRewardsEl).text(ommPrefixPlusFormat.to(0));
     });
 
     this.sliderSupply.noUiSlider.on('change', (values: any, handle: any) => {

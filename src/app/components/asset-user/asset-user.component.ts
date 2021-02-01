@@ -444,7 +444,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       $(this.suppInterestEl).text(assetPrefixPlusFormat(this.asset.tag).to(this.getDailySupplyInterest(supplyDiff)));
 
       // Update asset-user's supply omm rewards
-      $(this.suppRewardsEl).text(ommPrefixPlusFormat.to(-1));
+      $(this.suppRewardsEl).text(ommPrefixPlusFormat.to(0));
     });
 
     this.sliderSupply.noUiSlider.on('change', (values: any, handle: any) => {
@@ -480,7 +480,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       $(this.borrInterestEl).text(assetPrefixMinusFormat(this.asset.tag).to(this.getDailyBorrowInterest(borrowDiff)));
 
       // Update asset-user's borrow omm rewards
-      $(this.borrRewardsEl).text(ommPrefixPlusFormat.to(-1));
+      $(this.borrRewardsEl).text(ommPrefixPlusFormat.to(0));
 
       if (this.inputBorrow.value > 0) {
         // show risk data

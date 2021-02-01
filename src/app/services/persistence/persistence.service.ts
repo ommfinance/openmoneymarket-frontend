@@ -163,7 +163,7 @@ export class PersistenceService {
       counter++;
     });
 
-    return total / counter;
+    return counter === 0 || total === 0 ? 0 : total / counter;
   }
 
   public getUserAvgBorrowApy(): number {
@@ -175,7 +175,7 @@ export class PersistenceService {
       counter++;
     });
 
-    return total / counter;
+    return counter === 0 || total === 0 ? 0 : total / counter;
   }
 
   public getAvgSupplyApy(): number {
