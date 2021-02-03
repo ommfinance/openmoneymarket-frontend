@@ -164,7 +164,7 @@ export class CalculationsService {
     // log.debug(`currentOTokenBalanceUSD=${currentOTokenBalanceUSD}`);
     // log.debug(`liquidityRate=${liquidityRate}`);
     // "easy route" formula
-    return currentOTokenBalanceUSD * liquidityRate * (1 / 356);
+    return currentOTokenBalanceUSD * liquidityRate * (1 / 365);
   }
 
   calculateUsersAverageDailySupplyInterest(): number {
@@ -199,7 +199,7 @@ export class CalculationsService {
     // log.debug(`currentBorrowBalanceUSD=${currentBorrowBalanceUSD}`);
     // log.debug(`borrowRate=${borrowRate}`);
     // "easy route" formula
-    return currentBorrowBalanceUSD * borrowRate * (1 / 356);
+    return currentBorrowBalanceUSD * borrowRate * (1 / 365);
   }
 
   calculateUsersAverageDailyBorrowInterest(): number {

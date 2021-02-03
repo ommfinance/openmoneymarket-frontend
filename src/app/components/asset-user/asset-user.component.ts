@@ -217,7 +217,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
    * Logic to trigger on supply amount change
    */
   supplyAssetAmountChange(): void {
-    const value = this.inputSupply.value;
+    const value = +this.inputSupply.value;
 
     if (this.persistenceService.activeWallet) {
       // check that supplied value is not greater than max
@@ -236,7 +236,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
    * Logic to trigger on borrow amount change
    */
   public borrowAssetAmountChange(): void {
-    const value = +assetFormat(this.asset.tag).from(this.inputBorrow.value);
+    const value = +this.inputBorrow.value;
 
     if (this.persistenceService.activeWallet) {
       // check that borrowed value is not greater than max
