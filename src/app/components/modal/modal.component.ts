@@ -27,6 +27,7 @@ export class ModalComponent extends BaseClass implements OnInit {
 
   @ViewChild('signInModal', { static: true }) signInModal!: ElementRef;
   @ViewChild('assetActionModal', { static: true }) assetActionModal!: ElementRef;
+  @ViewChild('iconWithdrawModal', { static: true }) iconWithdrawModal!: ElementRef;
   @ViewChild('claimOmmRewardsModal', { static: true }) claimOmmRewardsModal!: ElementRef;
 
 
@@ -57,8 +58,14 @@ export class ModalComponent extends BaseClass implements OnInit {
           this.activeModalChange = activeModalChange;
           break;
         default:
-          this.activeModal = this.assetActionModal.nativeElement;
-          this.activeModalChange = activeModalChange;
+          // check if it is ICX withdraw action and show corresponding specific view / modal
+          if (this.isIcxWithdraw(activeModalChange)) {
+            this.activeModal = this.iconWithdrawModal.nativeElement;
+            this.activeModalChange = activeModalChange;
+          } else {
+            this.activeModal = this.assetActionModal.nativeElement;
+            this.activeModalChange = activeModalChange;
+          }
       }
       this.modalService.showModal(this.activeModal);
     });
@@ -83,7 +90,15 @@ export class ModalComponent extends BaseClass implements OnInit {
     this.modalService.hideActiveModal();
   }
 
-  isBorrowModal(): boolean {
+  isNotSupply(): boolean {
+    return this.activeModalChange?.modalType !== Modals.SUPPLY;
+  }
+
+  isIcxWithdraw(activeModalChange: ModalAction): boolean {
+    return activeModalChange.modalType === Modals.WITHDRAW && activeModalChange.assetAction?.asset.tag === AssetTag.ICX;
+  }
+
+  isBorrow(): boolean {
     return this.activeModalChange?.modalType === Modals.BORROW;
   }
 
@@ -114,23 +129,24 @@ export class ModalComponent extends BaseClass implements OnInit {
   onAssetModalActionClick(): void {
     // store asset-user action in local storage
     this.localStorageService.persistModalAction(this.activeModalChange!);
+
     const assetTag = this.activeModalChange!.assetAction!.asset.tag;
     switch (this.activeModalChange?.modalType) {
       case Modals.BORROW:
         this.borrowService.borrowAsset(this.activeModalChange!.assetAction!.amount, assetTag);
-        this.notificationService.showNewNotification(`Committing borrow ${assetTag} transaction...`);
+        this.notificationService.showNewNotification(`Borrowing ${assetTag}...`);
         break;
       case Modals.SUPPLY:
         this.supplyService.supplyAsset(this.activeModalChange!.assetAction!.amount, assetTag);
-        this.notificationService.showNewNotification(`Committing supply ${assetTag} transaction...`);
+        this.notificationService.showNewNotification(`Supplying ${assetTag}...`);
         break;
       case Modals.REPAY:
         this.repayService.repayAsset(this.activeModalChange!.assetAction!.amount, assetTag);
-        this.notificationService.showNewNotification(`Committing repay ${assetTag} transaction...`);
+        this.notificationService.showNewNotification(`Repaying ${assetTag}...`);
         break;
       case Modals.WITHDRAW:
         this.withdrawService.withdrawAsset(this.activeModalChange!.assetAction!.amount, assetTag, this.withdrawOption === "unstake");
-        this.notificationService.showNewNotification(`Committing withdraw ${assetTag} transaction...`);
+        this.notificationService.showNewNotification(`Withdrawing ${assetTag}...`);
         break;
       default:
         throw new OmmError(`Invalid modal type: ${this.activeModalChange?.modalType}`);
@@ -142,5 +158,4 @@ export class ModalComponent extends BaseClass implements OnInit {
     // hide current modal
     this.modalService.hideActiveModal();
   }
-
 }

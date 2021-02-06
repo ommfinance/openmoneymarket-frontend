@@ -42,39 +42,91 @@
   </div>
 </div>
 
-<!-- Asset action (supply, borrow, withdraw, repay) modal -->
+<!-- Asset action (supply, borrow, withdraw, repay) dynamic modal -->
 <div class="modal" #assetActionModal>
   <div class="modal-content">
     <h3 class="text-center label">{{getModalActionName()}} {{this.activeModalChange?.assetAction?.asset?.name}}?</h3>
-    <p class="text-bold text-center value-borrow-difference">{{getBeforeAfterDiff()?.toFixed(2)}} {{this.activeModalChange?.assetAction?.asset?.tag}}</p>
+    <p class="text-bold text-center value-borrow-difference">{{getBeforeAfterDiff()}} {{this.activeModalChange?.assetAction?.asset?.tag}}</p>
     <div class="grid">
       <div class="grid-cell text-center border-right">
         <p class="label">Before</p>
-        <p class="text-dark value-borrowed">{{this.activeModalChange?.assetAction?.before?.toFixed(2)}} {{this.activeModalChange?.assetAction?.asset?.tag}}</p>
+        <p class="text-dark value-borrowed">{{this.activeModalChange?.assetAction?.before}} {{this.activeModalChange?.assetAction?.asset?.tag}}</p>
       </div>
 
       <div class="grid-cell text-center">
         <p class="label">After</p>
-        <p class="text-dark value-borrow-after">{{this.activeModalChange?.assetAction?.after?.toFixed(2)}} {{this.activeModalChange?.assetAction?.asset?.tag}}</p>
+        <p class="text-dark value-borrow-after">{{this.activeModalChange?.assetAction?.after}} {{this.activeModalChange?.assetAction?.asset?.tag}}</p>
       </div>
     </div>
 
 
-    <p class="label text-center {{isBorrowModal() ? '': 'hide'}}" style="margin-top: 25px;">Risk: <span class="value-risk-total" style="font-size: 14px !important;"
+    <p class="label text-center {{isNotSupply() ? '': 'hide'}}" style="margin-top: 25px;">Risk: <span class="value-risk-total" style="font-size: 14px !important;"
     >{{this.activeModalChange?.assetAction?.risk}}%</span></p>
 
-    <!-- Withdraw ICX Message -->
-    <p class="label text-center {{isWithdrawIcxModal() ? '': 'hide'}}">Your ICX is staked (sICX). Choose what to do with it:</p>
 
-    <div class="text-center {{isWithdrawIcxModal() ? '': 'hide'}}" style="margin-top: 15px;">
-      <input type="radio" name="unstake" value="unstake" [(ngModel)]="withdrawOption" class="label" style="margin-right: 5px;">Unstake (9 days)
-      <input type="radio" name="unstake" value="keep" [(ngModel)]="withdrawOption" class="label" style="margin-right: 5px; margin-left: 15px;">Keep sICX
+    <!-- Modal actions -->
+    <div class="modal-actions">
+      <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Cancel</a>
+      <a href="javascript:void(0);" class="button {{isBorrow() ? 'purple' : 'no-margin'}}" (click)="onAssetModalActionClick()">{{getModalActionName()}}</a>
+    </div>
+  </div>
+</div>
+
+<!-- ICON withdraw modal -->
+<div class="modal modal" id="modal-withdraw-icx" #iconWithdrawModal>
+  <div class="modal-content">
+    <!-- Title -->
+    <h3 class="text-center label">Withdraw ICON?</h3>
+    <p class="text-bold text-center">{{getBeforeAfterDiff()}} ICX</p>
+
+    <!-- Before / After -->
+    <div class="grid before-after">
+      <div class="grid-cell text-center border-right">
+        <p class="label">Before</p>
+        <p class="text-dark">{{this.activeModalChange?.assetAction?.before}} ICX</p>
+      </div>
+
+      <div class="grid-cell text-center">
+        <p class="label">After</p>
+        <p class="text-dark">{{this.activeModalChange?.assetAction?.after}} ICX</p>
+      </div>
+    </div>
+
+    <!-- Risk -->
+    <p class="label text-center" style="margin-top: 25px; margin-bottom: 15px;">Risk: <span class="value-risk-total" style="font-size: 14px !important;">0%</span></p>
+
+    <!-- Message -->
+    <p class="label text-center text-dark" style="margin-bottom: 15px;">Your ICX is staked (sICX).<br>Choose what to do with it:</p>
+
+    <!-- Withdraw options -->
+    <div class="grid graphical-options">
+      <div id="withdraw-wait" class="grid-cell text-center">
+        <input class="checkbox-tools" type="radio" name="tools" id="tool-2" checked>
+        <label class="for-checkbox-tools" for="tool-2">
+          <img src="assets/img/icon/clock.svg" class="svg">
+          <br>
+          <span class="text-bold">Wait 9 days</span>
+          <br>
+          <span>200 ICX</span>  <!-- TODO -->
+        </label>
+      </div>
+
+      <div id="withdraw-keep" class="grid-cell text-center">
+        <input class="checkbox-tools" type="radio" name="tools" id="tool-3">
+        <label class="for-checkbox-tools" for="tool-3">
+          <img src="assets/img/icon/wallet.svg" class="svg">
+          <br>
+          <span class="text-bold">Keep sICX</span>
+          <br>
+          <span>175 sICX</span>   <!-- TODO -->
+        </label>
+      </div>
     </div>
 
     <!-- Modal actions -->
     <div class="modal-actions">
       <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Cancel</a>
-      <a href="javascript:void(0);" class="button {{isBorrowModal() ? 'purple' : 'no-margin'}}" (click)="onAssetModalActionClick()">{{getModalActionName()}}</a>
+      <a href="javascript:void(0);" class="button" (click)="onAssetModalActionClick()">Withdraw</a>
     </div>
   </div>
 </div>

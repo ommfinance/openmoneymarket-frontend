@@ -29,55 +29,33 @@ export class TransactionResultService {
   }
 
   public processIconexTransactionResult(payload: IconJsonRpcResponse): void {
-    log.debug("processTransactionResult->payload: ", payload);
+    log.debug("processIconexTransactionResult -> payload: ", payload);
     if (payload.result) {
       this.iconApiService.getTxResult(payload.result).
       then((res: any) => {
+        // get last modal action from localstorage
+        const modalAction: ModalAction = this.localStorageService.getLastModalAction();
+        const assetAction: AssetAction = modalAction.assetAction!;
+        // success
         if (res.status === 1) {
-          log.debug("payload.id: ", payload.id);
-          log.debug("res:", res);
-
-          const modalAction: ModalAction = this.localStorageService.getLastModalAction();
-          const assetAction: AssetAction = modalAction.assetAction!;
-          if (!environment.production) {
-            this.scoreService.getUserAssetBalance(assetAction.asset.tag).then(balance => {
-              log.debug(`${assetAction.asset.tag} balance after ${IconexRequestsMap[payload.id]}: `, balance);
-            });
-          }
+          // show proper success notification
+          this.showSuccessActionNotification(modalAction, assetAction);
 
           // reload all reserves and user specific data (reserve, account data, ..)
           this.dataLoaderService.loadAllReserveData();
           this.dataLoaderService.loadUserSpecificData();
-
-          switch (payload.id) {
-            case IconexRequestsMap.SUPPLY:
-              this.notificationService.showNewNotification(`Successfully supplied ${assetAction.amount} ${assetAction.asset.tag}.`);
-              break;
-            case IconexRequestsMap.WITHDRAW:
-
-              this.notificationService.showNewNotification(`Successfully withdraw ${assetAction.amount} ${assetAction.asset.tag}.`);
-              break;
-            case IconexRequestsMap.BORROW:
-              this.notificationService.showNewNotification(`Successfully borrowed ${assetAction.amount} ${assetAction.asset.tag}.`);
-              break;
-            case IconexRequestsMap.REPAY:
-              this.notificationService.showNewNotification(`Successfully repaid ${assetAction.amount} ${assetAction.asset.tag}.`);
-              break;
-            default:
-              break;
-          }
-        } else {
-          // Show error notification TODO get error styling?
-          this.notificationService.showNewNotification("Transaction failed! Message: " +  String(res.failure.message));
+        }
+        else {
+          // show proper failed notification
+          this.showFailedActionNotification(modalAction, assetAction);
           log.debug("Transaction failed! Details: ", res);
         }
       }).catch(e => {
-        log.debug("catch->e:", e);
         if (e.includes('Pending')) {
           setTimeout(this.processIconexTransactionResult.bind(this, payload), 2000);
         } else {
           log.debug("Error in isTxConfirmed:", e);
-          throw new Error(e.message);
+          throw new OmmError(e.message);
         }
       });
     } else  {
@@ -87,39 +65,58 @@ export class TransactionResultService {
 
   public processBridgeTransactionResult(event: any): void {
     const {txHash, error, status} = event.detail;
-    if (status !== 1) {
-      throw new OmmError(error);
-    } else {
 
-      const modalAction: ModalAction = this.localStorageService.getLastModalAction();
-      const assetAction = modalAction.assetAction!;
+    // get last modal action from localstorage
+    const modalAction: ModalAction = this.localStorageService.getLastModalAction();
+    const assetAction = modalAction.assetAction!;
 
-      if (!environment.production) {
-        this.scoreService.getUserAssetBalance(assetAction.asset.tag).then(balance => {
-          log.debug(`${assetAction.asset.tag} balance after ${modalAction.modalType.valueOf()}: `, balance);
-        });
-      }
+    // success
+    if (status === 1) {
+      // show proper success notification
+      this.showSuccessActionNotification(modalAction, assetAction);
 
       // reload all reserves and user asset-user reserve data
       this.dataLoaderService.loadAllReserveData();
       this.dataLoaderService.loadUserSpecificData();
+    }
+    else {
+      log.debug("Bridge: transaction failed, details:", error);
+      // show proper failed notification
+      this.showFailedActionNotification(modalAction, assetAction);
+    }
+  }
 
-      switch (modalAction.modalType) {
-        case Modals.SUPPLY:
-          this.notificationService.showNewNotification(`Successfully supplied ${assetAction.amount} ${assetAction.asset.tag}.`);
-          break;
-        case Modals.WITHDRAW:
-          this.notificationService.showNewNotification(`Successfully withdraw ${assetAction.amount} ${assetAction.asset.tag}.`);
-          break;
-        case Modals.BORROW:
-          this.notificationService.showNewNotification(`Successfully borrowed ${assetAction.amount} ${assetAction.asset.tag}.`);
-          break;
-        case Modals.REPAY:
-          this.notificationService.showNewNotification(`Successfully repaid ${assetAction.amount} ${assetAction.asset.tag}.`);
-          break;
-        default:
-          break;
-      }
+  private showSuccessActionNotification(modalAction: ModalAction, assetAction: AssetAction): void {
+    switch (modalAction.modalType) {
+      case Modals.SUPPLY:
+        this.notificationService.showNewNotification(`${assetAction.amount} ${assetAction.asset.tag} supplied.`);
+        break;
+      case Modals.WITHDRAW:
+        this.notificationService.showNewNotification(`${assetAction.amount} ${assetAction.asset.tag} withdrawn.`);
+        break;
+      case Modals.BORROW:
+        this.notificationService.showNewNotification(`${assetAction.amount} ${assetAction.asset.tag} borrowed.`);
+        break;
+      case Modals.REPAY:
+        this.notificationService.showNewNotification(`${assetAction.amount} ${assetAction.asset.tag} repaid.`);
+        break;
+    }
+  }
+
+  private showFailedActionNotification(modalAction: ModalAction, assetAction: AssetAction): void {
+    switch (modalAction.modalType) {
+      case Modals.SUPPLY:
+        this.notificationService.showNewNotification(`Couldn't supply ${assetAction.asset.tag}. Try again.`);
+        break;
+      case Modals.WITHDRAW:
+        this.notificationService.showNewNotification(`Couldn't withdraw ${assetAction.asset.tag}. Try again.`);
+        break;
+      case Modals.BORROW:
+        this.notificationService.showNewNotification(`Couldn't borrow ${assetAction.asset.tag}. Try again.`);
+        break;
+      case Modals.REPAY:
+        this.notificationService.showNewNotification(`Couldn't repay ${assetAction.asset.tag}. Try again.`);
+        break;
     }
   }
 }
