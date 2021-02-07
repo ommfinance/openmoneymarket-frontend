@@ -32,7 +32,7 @@ export class HeaderComponent extends BaseClass implements OnInit {
               private bridgeWidgetService: BridgeWidgetService,
               private dataLoaderService: DataLoaderService,
               private notificationService: NotificationService) {
-    super();
+    super(persistenceService);
   }
 
   ngOnInit(): void {

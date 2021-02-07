@@ -37,7 +37,7 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
   constructor(private stateChangeService: StateChangeService,
               public persistenceService: PersistenceService,
               private calculationService: CalculationsService) {
-    super();
+    super(persistenceService);
   }
 
   ngOnInit(): void {

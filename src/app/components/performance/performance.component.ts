@@ -6,6 +6,7 @@ import {StateChangeService} from "../../services/state-change/state-change.servi
 import {AssetTag} from "../../models/Asset";
 import {BaseClass} from "../base-class";
 import {CalculationsService} from "../../services/calculations/calculations.service";
+import {PersistenceService} from "../../services/persistence/persistence.service";
 
 @Component({
   selector: 'app-performance',
@@ -23,8 +24,9 @@ export class PerformanceComponent extends BaseClass implements OnInit {
 
   constructor(private modalService: ModalService,
               private stateChangeService: StateChangeService,
-              private calculationService: CalculationsService) {
-    super();
+              private calculationService: CalculationsService,
+              public persistenceService: PersistenceService) {
+    super(persistenceService);
   }
 
   ngOnInit(): void {

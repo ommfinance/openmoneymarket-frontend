@@ -19,7 +19,6 @@ import {OmmError} from "../../core/errors/OmmError";
 import {BaseClass} from "../base-class";
 import {AssetAction} from "../../models/AssetAction";
 import {NotificationService} from "../../services/notification/notification.service";
-import {RiskData} from "../../models/RiskData";
 import {RiskCalculationData} from "../../models/RiskCalculationData";
 import {UserAction} from "../../models/UserAction";
 
@@ -85,7 +84,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
               public persistenceService: PersistenceService,
               private modalService: ModalService,
               private notificationService: NotificationService) {
-    super();
+    super(persistenceService);
   }
 
   ngOnInit(): void {
@@ -293,7 +292,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
    * Logic to trigger when user clicks confirm of asset-user borrow
    */
   onAssetBorrowConfirmClick(): void {
-    let value = +assetFormat(this.asset.tag).from(this.inputBorrow.value);
+    let value = this.roundDownTo2Decimals(+assetFormat(this.asset.tag).from(this.inputBorrow.value));
 
     // check that borrowed value is not greater than max
     const max = this.borrowSliderMaxValue();
@@ -591,7 +590,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
   private setBorrowSliderValue(value: number): void {
     // if asset is ICX, convert sICX -> ICX
     if (this.asset.tag === AssetTag.ICX) {
-      value = value * this.persistenceService.sIcxToIcxRate();
+      value = this.convertSICXToICX(value);
     }
     this.sliderBorrow.noUiSlider.set(value);
   }

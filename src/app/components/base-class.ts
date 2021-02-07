@@ -3,12 +3,16 @@ import {AssetTag, supportedAssetsMap} from "../models/Asset";
 import {assetFormat} from "../common/formats";
 import log from "loglevel";
 import {BigNumber} from "bignumber.js";
+import {PersistenceService} from "../services/persistence/persistence.service";
 
 
 /*
 * Base class to be used as extension in component in order to inherit useful methods
 */
 export class BaseClass {
+
+  constructor(public persistenceService: PersistenceService) {
+  }
 
   public supportedAssetsMap = supportedAssetsMap;
   public AssetTag = AssetTag;
@@ -27,7 +31,10 @@ export class BaseClass {
     return `$${this.formatNumberToNdigits(num)}`;
   }
 
-  public roundDownTo2Decimals(value: number | BigNumber | string): number {
+  public roundDownTo2Decimals(value: number | BigNumber | string | undefined): number {
+    if (!value) {
+      return 0;
+    }
     return Utils.roundDownTo2Decimals(value);
   }
 
@@ -96,6 +103,14 @@ export class BaseClass {
 
   public displayAsBlockOrHide(show: boolean): any {
     return {display: show ? 'block' : 'none'};
+  }
+
+  public convertFromICXTosICX(ICXvalue: number): number {
+    return ICXvalue / this.persistenceService.sIcxToIcxRate();
+  }
+
+  public convertSICXToICX(sICXvalue: number): number {
+    return sICXvalue * this.persistenceService.sIcxToIcxRate();
   }
 
 }

@@ -16,6 +16,7 @@ import {LocalStorageService} from "../../services/local-storage/local-storage.se
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import {NotificationService} from "../../services/notification/notification.service";
 import {AssetTag} from "../../models/Asset";
+import {PersistenceService} from "../../services/persistence/persistence.service";
 
 
 @Component({
@@ -46,8 +47,9 @@ export class ModalComponent extends BaseClass implements OnInit {
               private repayService: RepayService,
               private localStorageService: LocalStorageService,
               private stateChangeService: StateChangeService,
-              private notificationService: NotificationService) {
-    super();
+              private notificationService: NotificationService,
+              public persistenceService: PersistenceService) {
+    super(persistenceService);
     this.activeModalSubscription = this.modalService.activeModalChange$.subscribe((activeModalChange: ModalAction) => {
       switch (activeModalChange.modalType) {
         case Modals.SIGN_IN:

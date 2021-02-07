@@ -22,7 +22,7 @@ export class AssetMarketComponent extends BaseClass implements OnInit, AfterView
   assetEl: any;
 
   constructor(public persistenceService: PersistenceService) {
-    super();
+    super(persistenceService);
   }
 
   ngOnInit(): void {

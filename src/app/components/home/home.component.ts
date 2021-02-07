@@ -71,7 +71,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
               public calculationService: CalculationsService,
               private cd: ChangeDetectorRef,
               private stateChangeService: StateChangeService) {
-    super();
+    super(persistenceService);
   }
 
   // load the asset lists

@@ -53,16 +53,16 @@
 <div class="modal" #assetActionModal>
   <div class="modal-content">
     <h3 class="text-center label">{{getModalActionName()}} {{this.activeModalChange?.assetAction?.asset?.name}}?</h3>
-    <p class="text-bold text-center value-borrow-difference">{{getBeforeAfterDiff()}} {{this.activeModalChange?.assetAction?.asset?.tag}}</p>
+    <p class="text-bold text-center value-borrow-difference">{{roundDownTo2Decimals(getBeforeAfterDiff())}} {{this.activeModalChange?.assetAction?.asset?.tag}}</p>
     <div class="grid">
       <div class="grid-cell text-center border-right">
         <p class="label">Before</p>
-        <p class="text-dark value-borrowed">{{this.activeModalChange?.assetAction?.before}} {{this.activeModalChange?.assetAction?.asset?.tag}}</p>
+        <p class="text-dark value-borrowed">{{roundDownTo2Decimals(this.activeModalChange?.assetAction?.before)}} {{this.activeModalChange?.assetAction?.asset?.tag}}</p>
       </div>
 
       <div class="grid-cell text-center">
         <p class="label">After</p>
-        <p class="text-dark value-borrow-after">{{this.activeModalChange?.assetAction?.after}} {{this.activeModalChange?.assetAction?.asset?.tag}}</p>
+        <p class="text-dark value-borrow-after">{{roundDownTo2Decimals(this.activeModalChange?.assetAction?.after)}} {{this.activeModalChange?.assetAction?.asset?.tag}}</p>
       </div>
     </div>
 
@@ -84,18 +84,18 @@
   <div class="modal-content">
     <!-- Title -->
     <h3 class="text-center label">Withdraw ICON?</h3>
-    <p class="text-bold text-center">{{getBeforeAfterDiff()}} ICX</p>
+    <p class="text-bold text-center">{{roundDownTo2Decimals(getBeforeAfterDiff())}} ICX</p>
 
     <!-- Before / After -->
     <div class="grid before-after">
       <div class="grid-cell text-center border-right">
         <p class="label">Before</p>
-        <p class="text-dark">{{this.activeModalChange?.assetAction?.before}} ICX</p>
+        <p class="text-dark">{{roundDownTo2Decimals(this.activeModalChange?.assetAction?.before)}} ICX</p>
       </div>
 
       <div class="grid-cell text-center">
         <p class="label">After</p>
-        <p class="text-dark">{{this.activeModalChange?.assetAction?.after}} ICX</p>
+        <p class="text-dark">{{roundDownTo2Decimals(this.activeModalChange?.assetAction?.after)}} ICX</p>
       </div>
     </div>
 
@@ -114,7 +114,7 @@
           <br>
           <span class="text-bold">Wait 9 days</span>
           <br>
-          <span>200 ICX</span>  <!-- TODO -->
+          <span>{{roundDownTo2Decimals(getBeforeAfterDiff())}} ICX</span>
         </label>
       </div>
 
@@ -125,7 +125,7 @@
           <br>
           <span class="text-bold">Keep sICX</span>
           <br>
-          <span>175 sICX</span>   <!-- TODO -->
+          <span>{{roundDownTo2Decimals(convertFromICXTosICX(getBeforeAfterDiff()))}} sICX</span>
         </label>
       </div>
     </div>

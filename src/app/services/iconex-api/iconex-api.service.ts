@@ -43,6 +43,10 @@ export class IconexApiService {
         log.debug("Successfully connected your Icon wallet!");
         break;
       }
+      case "RESPONSE_SIGNING": {
+        console.log(payload); // e.g., 'q/dVc3qj4En0GN+...'
+        break;
+      }
       case "RESPONSE_JSON-RPC": {
         log.debug("RESPONSE_JSON-RPC", payload.result);
         this.transactionResultService.processIconexTransactionResult(payload);
@@ -91,6 +95,15 @@ export class IconexApiService {
           params: IconConverter.toRawTransaction(transaction),
           id: transactionId
         }
+      }
+    }));
+  }
+
+  public dispatchSignTransactionEvent(transaction: any): void {
+    window.dispatchEvent(new CustomEvent("ICONEX_RELAY_REQUEST", {
+      detail: {
+        type: "REQUEST_SIGNING",
+        payload: IconConverter.toRawTransaction(transaction)
       }
     }));
   }

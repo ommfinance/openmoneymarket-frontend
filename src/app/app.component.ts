@@ -25,7 +25,7 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
               private modalService: ModalService,
               public persistenceService: PersistenceService,
               private reloaderService: ReloaderService) {
-    super();
+    super(persistenceService);
     // register Iconex handler
     window.addEventListener("ICONEX_RELAY_RESPONSE", (e: any) => this.iconexApiService.iconexEventHandler(e));
     this.attachedListener = true;
