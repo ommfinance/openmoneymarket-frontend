@@ -50,6 +50,12 @@ export class StateChangeService {
    */
   public userModalActionChange: Subject<ModalAction> = new Subject<ModalAction>();
 
+  /**
+   * Subscribable subject for monitoring the user total risk changes
+   */
+  public userTotalRiskChange: Subject<number> = new Subject<number>();
+
+
   constructor(private persistenceService: PersistenceService) {
     this.userBalanceChangeMap.forEach((subject: Subject<number>, key: AssetTag) => {
       subject.subscribe(value => {
@@ -70,6 +76,11 @@ export class StateChangeService {
 
   public updateLoginStatus(wallet: IconexWallet | BridgeWallet | undefined): void {
     this.loginChange.next(wallet);
+  }
+
+  public updateUserTotalRisk(totalRisk: number): void {
+    this.persistenceService.userTotalRisk = totalRisk;
+    this.userTotalRiskChange.next(totalRisk);
   }
 
   public updateUserAssetBalance(balance: number, assetTag: AssetTag): void {

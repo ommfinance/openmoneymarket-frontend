@@ -302,6 +302,13 @@ export class PersistenceService {
     return (this.getUserSuppliedAssetBalance(assetTag) ?? 0) === 0;
   }
 
+  isAssetAvailable(assetTag: AssetTag): boolean {
+    const supplied = this.getUserSuppliedAssetBalance(assetTag) ?? 0;
+    const balance = this.getUserAssetBalance(assetTag) ?? 0;
+
+    return supplied === 0 && balance > 0;
+  }
+
   public userAssetBorrowedIsZero(assetTag: AssetTag): boolean {
     return (this.getUserBorrowedAssetBalance(assetTag) ?? 0) === 0;
   }
@@ -317,10 +324,14 @@ export class PersistenceService {
   }
 
   public isAssetAvailableToSupply(assetTag: AssetTag): boolean {
-    // if user has not supplied or borrowed the asset and has balance of it > 0
+    // if user has not supplied or the asset and has balance of it > 0
     return this.userAssetSuppliedIsZero(assetTag)
-      && this.userAssetBorrowedIsZero(assetTag)
       && !this.userAssetBalanceIsZero(assetTag);
+  }
+
+  // check if user has supplied or borrowed asset
+  public isAssetActive(assetTag: AssetTag): boolean {
+    return !this.userAssetSuppliedIsZero(assetTag) || !this.userAssetBorrowedIsZero(assetTag);
   }
 
 }

@@ -44,6 +44,7 @@ export class PerformanceComponent extends BaseClass implements OnInit {
   updatePerformanceValues(): void {
     this.updateSupplyInterest();
     this.updateBorrowInterest();
+    this.updateOmmRewards();
   }
 
   updateSupplyInterest(): void {
@@ -52,6 +53,10 @@ export class PerformanceComponent extends BaseClass implements OnInit {
 
   updateBorrowInterest(): void {
     this.borrowInterest = this.calculationService.calculateUsersBorrowInterestPerDayUSD();
+  }
+
+  updateOmmRewards(): void {
+    this.ommRewards = this.calculationService.calculateUserTotalOmmRewards();
   }
 
   onClaimOmmRewardsClick(): void {

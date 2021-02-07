@@ -5,6 +5,7 @@ import log from "loglevel";
 import {RiskCalculationData} from "../../models/RiskCalculationData";
 import {UserAction} from "../../models/UserAction";
 import {ReserveData} from "../../models/AllReservesData";
+import {StateChangeService} from "../state-change/state-change.service";
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,8 @@ import {ReserveData} from "../../models/AllReservesData";
 export class CalculationsService {
   className = "[CalculationsService]";
 
-  constructor(private persistenceService: PersistenceService) { }
+  constructor(private persistenceService: PersistenceService,
+              private stateChangeService: StateChangeService) { }
 
   public calculateAssetSliderAvailableSupply(currentAssetSupplied: number, assetTag: AssetTag): number {
     return (this.persistenceService.activeWallet?.balances.get(assetTag) ?? 0) +
@@ -24,15 +26,23 @@ export class CalculationsService {
   }
 
   // calculate the total risk percentage based on the user health factor or user action
-  public calculateTotalRiskPercentage(riskCalculationData?: RiskCalculationData): number {
+  public calculateTotalRisk(riskCalculationData?: RiskCalculationData, updateState = true): number {
+    let res: number;
     if (riskCalculationData) {
-      return this.calculateTotalRiskInPercentage(riskCalculationData);
+      res = this.calculateTotalRiskDynamic(riskCalculationData);
     } else {
-      return this.calculateTotalRiskPercentageBasedOnHF();
+      res = this.calculateTotalRiskBasedOnHF();
     }
+
+    if (updateState) {
+      // update persistence user total risk
+      this.stateChangeService.updateUserTotalRisk(res);
+    }
+
+    return res;
   }
 
-  private calculateTotalRiskPercentageBasedOnHF(): number {
+  private calculateTotalRiskBasedOnHF(): number {
     // if user has not borrowed any asset return 0
     if (this.persistenceService.userHasNotBorrowedAnyAsset()) {
       return 0;
@@ -44,10 +54,10 @@ export class CalculationsService {
         return 0;
       }
 
-      const totalRiskPercentage = 1 / healthFactor * 100;
-      log.debug("**********************************************");
-      log.debug(`${this.className} calculateTotalRiskPercentage-> healthFactor = ${this.persistenceService.userAccountData?.healthFactor}`);
-      log.debug(`${this.className} calculateTotalRiskPercentage-> totalRiskPercentage = ${totalRiskPercentage}`);
+      const totalRiskPercentage = 1 / healthFactor;
+      // log.debug("**********************************************");
+      // log.debug(`${this.className} calculateTotalRiskPercentage-> healthFactor = ${this.persistenceService.userAccountData?.healthFactor}`);
+      // log.debug(`${this.className} calculateTotalRiskPercentage-> totalRiskPercentage = ${totalRiskPercentage}`);
       return totalRiskPercentage;
     }
   }
@@ -55,9 +65,9 @@ export class CalculationsService {
   /**
    * @description Calculate the total risk based on the user action (supply, redeem, ..)
    * @param riskCalculationData - Optional data containing the values needed to dynamically calculate total risk
-   * @return total user risk as a number in percentage
+   * @return total user risk as a number (multiply by 100 to get percentage)
    */
-  private calculateTotalRiskInPercentage(riskCalculationData?: RiskCalculationData): number {
+  private calculateTotalRiskDynamic(riskCalculationData?: RiskCalculationData): number {
     log.debug(riskCalculationData);
 
     const userAccountData = this.persistenceService.userAccountData;
@@ -100,19 +110,18 @@ export class CalculationsService {
           totalBorrowBalanceUSD -= amount * assetExchangePrice;
       }
     }
-    log.debug("**********************************************");
-    log.debug("Total risk percentage calculation:");
-    log.debug(`totalBorrowBalanceUSD=${totalBorrowBalanceUSD}`);
-    log.debug(`totalCollateralBalanceUSD=${totalCollateralBalanceUSD}`);
-    log.debug(`totalFeeUSD=${totalFeeUSD}`);
-    log.debug(`liquidationThreshold=${liquidationThreshold}`);
+    // log.debug("**********************************************");
+    // log.debug("Total risk percentage calculation:");
+    // log.debug(`totalBorrowBalanceUSD=${totalBorrowBalanceUSD}`);
+    // log.debug(`totalCollateralBalanceUSD=${totalCollateralBalanceUSD}`);
+    // log.debug(`totalFeeUSD=${totalFeeUSD}`);
+    // log.debug(`liquidationThreshold=${liquidationThreshold}`);
 
     const res = totalBorrowBalanceUSD / ((totalCollateralBalanceUSD - totalFeeUSD) * liquidationThreshold);
 
     // log.debug("Total risk = " + res);
 
-    // convert to percentage
-    return res * 100;
+    return res;
   }
 
   /**
@@ -235,16 +244,28 @@ export class CalculationsService {
     return total;
   }
 
+  public calculateUserTotalOmmRewards(): number {
+    return this.calculateUsersOmmRewardsForDeposit() + this.calculateUsersOmmRewardsForBorrow();
+  }
+
   /**
    * @description Calculate users OMM rewards for deposit of specific asset - reserve (e.g. USDb, ICX, ..)
    * @param assetTag - Tag (ticker) of the asset
+   * @param supplied - Optional parameter for dynamic calculations based on supply change (slider)
    * @return users Omm reward for deposit amount
    */
-  public calculateUsersOmmRewardsForDeposit(assetTag: AssetTag): number {
-    // TODO clear out that part
+  public calculateUsersOmmRewardsForDeposit(assetTag?: AssetTag, supplied?: number): number {
     let userSum = 0;
-    this.persistenceService.userReserves.reserveMap.forEach(reserve => {
-      const collateralBalanceUSD = reserve?.currentOTokenBalanceUSD ?? 0;
+
+    this.persistenceService.userReserves.reserveMap.forEach((reserve, tag) => {
+      let collateralBalanceUSD = reserve?.currentOTokenBalanceUSD ?? 0;
+
+      // dynamic calculation
+      if (assetTag && supplied && assetTag === tag) {
+        const exchangePrice = this.persistenceService.getAssetExchangePrice(assetTag);
+        collateralBalanceUSD =  supplied * exchangePrice;
+      }
+
       const liquidityRate = reserve?.liquidityRate ?? 0;
       userSum += collateralBalanceUSD * liquidityRate;
     });
@@ -253,9 +274,8 @@ export class CalculationsService {
 
     let allUsersSum = 0;
     Object.values(this.persistenceService?.allReserves).forEach((reserve: ReserveData) => {
-      allUsersSum += reserve.totalLiquidityUSD * reserve.totalLiquidity;
+      allUsersSum += reserve.totalLiquidityUSD * reserve.liquidityRate;
     });
-
 
     return (userSum / allUsersSum) * 0.25;  // TODO add * token distribution for that day
   }
@@ -263,22 +283,29 @@ export class CalculationsService {
   /**
    * @description Calculate users OMM rewards for borrow of specific asset - reserve (e.g. USDb, ICX, ..)
    * @param assetTag - Tag (ticker) of the asset
+   * @param borrowed - Optional parameter for dynamic calculations based on borrow change (slider)
    * @return users Omm reward for borrow amount
    */
-  public calculateUsersOmmRewardsForBorrow(assetTag: AssetTag): number {
-    // TODO clear out that part
+  public calculateUsersOmmRewardsForBorrow(assetTag?: AssetTag, borrowed?: number): number {
     let userSum = 0;
-    this.persistenceService.userReserves.reserveMap.forEach(reserve => {
-      const collateralBalanceUSD = reserve?.principalBorrowBalanceUSD ?? 0;
-      const liquidityRate = reserve?.liquidityRate ?? 0;
-      userSum += collateralBalanceUSD * liquidityRate;
+    this.persistenceService.userReserves.reserveMap.forEach((reserve, tag) => {
+      let borrowBalanceUSD = reserve?.currentBorrowBalanceUSD ?? 0;
+
+      // dynamic calculation of borrow balance USD
+      if (assetTag && borrowed && assetTag === tag) {
+        const exchangePrice = this.persistenceService.getAssetExchangePrice(assetTag);
+        borrowBalanceUSD =  borrowed * exchangePrice;
+      }
+
+      const borrowRate = reserve?.borrowRate ?? 0;
+      userSum += borrowBalanceUSD * borrowRate;
     });
 
     if (!this.persistenceService.allReserves) { return 0; }
 
     let allUsersSum = 0;
     Object.values(this.persistenceService?.allReserves).forEach((reserve: ReserveData) => {
-      allUsersSum += reserve.totalBorrowsUSD * reserve.totalLiquidity;
+      allUsersSum += reserve.totalBorrowsUSD * reserve.borrowRate;
     });
 
 

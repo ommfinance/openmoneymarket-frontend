@@ -25,14 +25,14 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
 
   className = "[RiskComponent]";
 
-  @ViewChild("totalRisk")set totalRiskSetter(totalRisk: ElementRef) {this.totalRiskEl = totalRisk.nativeElement; }
+  @ViewChild("risk")set totalRiskSetter(totalRisk: ElementRef) {this.totalRiskEl = totalRisk.nativeElement; }
   totalRiskEl!: HTMLElement;
 
   // users asset components
   @Input() userAssetComponents!: QueryList<AssetUserComponent>;
 
   private sliderRisk?: any;
-  // private totalRisk = 0;
+  totalRisk = 0;
 
   constructor(private stateChangeService: StateChangeService,
               public persistenceService: PersistenceService,
@@ -41,8 +41,7 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.subscribeToLoginChange();
-
+    this.initSubscribedValues();
   }
 
   ngAfterViewInit(): void {
@@ -60,78 +59,68 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   initSubscribedValues(): void {
+    this.subscribeToTotalRiskChange();
+    this.subscribeToUserAccountDataChange();
+  }
+
+  private subscribeToTotalRiskChange(): void {
     // subscribe to total risk changes
-    // this.stateChangeService.userTotalRiskChange.subscribe(totalRisk => {
-    //   log.debug("Total risk change = " + totalRisk);
-    //   this.totalRisk = totalRisk;
-    //   this.updateRiskData(new RiskData(totalRisk));
-    // });
+    this.stateChangeService.userTotalRiskChange.subscribe(totalRisk => {
+      log.debug("Total risk change = " + totalRisk);
+      this.totalRisk = totalRisk;
+      this.updateViewRiskData();
+    });
   }
 
   subscribeToUserAccountDataChange(): void {
     this.stateChangeService.userAccountDataChange.subscribe((userAccountData: UserAccountData) => {
-      // calculate total risk percentage
-      this.updateViewRiskData(this.calculationService.calculateTotalRiskPercentage());
+      // re-calculate total risk percentage
+      this.calculationService.calculateTotalRisk();
     });
   }
 
-  subscribeToLoginChange(): void {
-    this.stateChangeService.loginChange.subscribe(wallet => {
-      log.debug(`${this.className} Login change to wallet = ${wallet}`);
-      // user has logged in
-      if (wallet) {
-        // calculate total risk percentage
-        this.updateViewRiskData(this.calculationService.calculateTotalRiskPercentage());
-      } else {
-        // user has logged out
-        // TODO do something on logout
-      }
-    });
-  }
-
-  updateViewRiskData(riskTotal: number): void {
-    // Update the risk percentage
-    $(this.totalRiskEl).text(percentageFormat.to(riskTotal));
+  updateViewRiskData(): void {
+    log.debug("Updating total risk to: " + this.totalRisk * 100);
 
     // Update the risk slider
-    this.sliderRisk.noUiSlider.set(riskTotal);
+    this.sliderRisk.noUiSlider.set(this.totalRisk * 100);
 
     // If risk over 100
-    if (riskTotal > 99) {
+    if (this.totalRisk > 0.99) {
       // Hide supply actions
-      $('.actions-2').css("display", "none");
+      $('.actions-2').addClass("display", "none");
       $('.value-risk-total').text("Max");
       $('.supply-risk-warning').css("display", "flex");
       $('.borrow-risk-warning').css("display", "flex");
+    } else {
+      $('.value-risk-total').text(percentageFormat.to(this.totalRisk * 100));
     }
 
     // If risk under 100
-    if (riskTotal < 99) {
-      this.userAssetComponents.forEach(assetComponent => {
-        assetComponent.riskUnder100Reset();
-      });
+    if (this.totalRisk < 0.99) {
+
       $('.supply-risk-warning').css("display", "none");
       $('.borrow-risk-warning').css("display", "none");
     }
 
     // Change text to purple if over 50
-    if (riskTotal > 50) {
-      $(this.totalRiskEl).addClass("alert-purple");
+    if (this.totalRisk > 0.50) {
+      $('.value-risk-total').addClass("alert-purple");
     }
 
     // Remove purple if below 50
-    if (riskTotal < 50) {
-      $(this.totalRiskEl).removeClass("alert-purple");
+    if (this.totalRisk < 0.50) {
+      $('.value-risk-total').removeClass("alert-purple");
     }
 
     // Change text to red if over 75
-    if (riskTotal > 75) {
-      $(this.totalRiskEl).addClass("alert");
+    if (this.totalRisk > 0.75) {
+      $('.value-risk-total').addClass("alert");
     }
 
     // Change text to normal if under 75
-    if (riskTotal < 75) {
-      $(this.totalRiskEl).removeClass("alert");
+    if (this.totalRisk < 0.75) {
+      $('.value-risk-total').removeClass("alert");
     }
 
   }

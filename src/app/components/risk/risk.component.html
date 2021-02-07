@@ -1,8 +1,7 @@
 <div class="grid grid-center">
   <div class="grid-cell">
     <h2>Risk</h2>
-    <span class="value-risk-total" #totalRisk>{{this.persistenceService.userHasNotSuppliedAnyAsset()
-    || this.persistenceService.userHasNotBorrowedAnyAsset() ? "0%" : "- %"}}</span>
+    <span class="value-risk-total" #risk>- %</span>
     <span id="tooltip-risk" class="tooltip">
       <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
       <div class="tooltip-content"><p>While you borrow assets, your supply is at risk of liquidation. Keep it below 50% to reduce the impact of volatile markets.</p></div>

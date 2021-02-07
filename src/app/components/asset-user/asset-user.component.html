@@ -1,14 +1,23 @@
-<!-- Your markets (users asset) state -->
-<tr class="asset {{asset.className}} your " (click)="onAssetClick()" #assetYour>
+<!-- Your markets (users asset) or Available to supply state -->
+<tr class="asset {{asset.className}} {{isAssetAvailable ? 'asset-available': 'your'}}" (click)="onAssetClick()" #assetYour>
   <td>{{asset.name}}<br><span class="label">{{asset.tag}}</span></td>
-  <td><span class="value-supplied">{{this.toDollar2digitsString(this.persistenceService.getUserAssetReserve(asset.tag)?.currentOTokenBalanceUSD)}}</span><br>
-    <span class="value-supplied label">{{this.formatNumberToUSLocaleString(this.persistenceService.getUserSuppliedAssetBalance(asset.tag))}} {{asset.tag}}</span></td>
-  <td class="text-green">{{to2DecimalRoundedDownPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate)}}</td>
-  <td><span class="value-borrowed">{{this.toDollar2digitsString(this.persistenceService.getUserAssetReserve(asset.tag)?.principalBorrowBalanceUSD)}}</span><br>
-    <span class="value-borrowed label">{{this.formatNumberToUSLocaleString(this.persistenceService.getUserBorrowedAssetBalance(asset.tag))}} {{asset.tag}}</span></td>
-  <td class="text-purple">{{to2DecimalRoundedDownPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.borrowRate)}}</td>
-</tr>
 
+  <ng-container *ngIf="!isAssetAvailable">
+    <td><span class="value-supplied">{{this.toDollar2digitsString(this.persistenceService.getUserAssetReserve(asset.tag)?.currentOTokenBalanceUSD)}}</span><br>
+      <span class="value-supplied label">{{this.formatNumberToUSLocaleString(this.persistenceService.getUserSuppliedAssetBalance(asset.tag))}} {{asset.tag}}</span></td>
+    <td class="text-green">{{to2DecimalRoundedDownPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate)}}</td>
+    <td><span class="value-borrowed">{{this.toDollar2digitsString(this.persistenceService.getUserAssetReserve(asset.tag)?.principalBorrowBalanceUSD)}}</span><br>
+      <span class="value-borrowed label">{{this.formatNumberToUSLocaleString(this.persistenceService.getUserBorrowedAssetBalance(asset.tag))}} {{asset.tag}}</span></td>
+    <td class="text-purple">{{to2DecimalRoundedDownPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.borrowRate)}}</td>
+  </ng-container>
+
+  <ng-container *ngIf="isAssetAvailable">
+    <td colspan="2" class="text-right">{{this.toDollarUSLocaleString(this.persistenceService.getUserAssetBalance(asset.tag))}}
+      <br><span class="label">{{this.formatNumberToUSLocaleString(this.persistenceService.getUserAssetUSDBalance(asset.tag))}} {{asset.tag}}</span></td>
+    <td colspan="2" class="text-right"><span class="text-green">{{to2DecimalRoundedDownPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate)}} APY</span></td>
+  </ng-container>
+
+</tr>
 
 <!-- Asset Expanded -->
 <tr class="expanded">

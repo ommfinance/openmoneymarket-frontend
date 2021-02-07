@@ -24,12 +24,10 @@ import log from "loglevel";
 import {AssetUserComponent} from "../asset-user/asset-user.component";
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import {RiskData} from "../../models/RiskData";
-import {AssetUserAvailableComponent} from "../asset-user-available/asset-user-available.component";
 import {AssetMarketComponent} from "../asset-market/asset-market.component";
 import {ActiveMarketView} from "../../models/ActiveMarketView";
 import {UserReserveData} from "../../models/UserReserveData";
 import {ModalAction} from "../../models/ModalAction";
-import {ReloaderService} from "../../services/reloader/reloader.service";
 
 declare var $: any;
 
@@ -47,9 +45,9 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   @ViewChild(RiskComponent) private riskComponent!: RiskComponent;
 
   // Asset children components
-  @ViewChildren('userAssetAsset') userAssetComponents!: QueryList<AssetUserComponent>;
+  @ViewChildren('userAsset') userAssetComponents!: QueryList<AssetUserComponent>;
   // Asset children components
-  @ViewChildren('availAsset') userAvailableAssetComponents!: QueryList<AssetUserAvailableComponent>;
+  @ViewChildren('availAsset') userAvailableAssetComponents!: QueryList<AssetUserComponent>;
   // Asset children components
   @ViewChildren('marketAsset') marketAssetComponents!: QueryList<AssetMarketComponent>;
 
@@ -91,8 +89,8 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
         if (this.persistenceService.isAssetAvailableToSupply(asset.tag)) {
           this.availableAssets.push(asset);
         }
-        // make sure that asset is either supplied, borrowed or its balance > 0
-        else if (!this.persistenceService.isAssetSuppliedBorrowedBalanceZero(asset.tag)) {
+        // make sure that asset is active (either supplied or borrowed)
+        else if (this.persistenceService.isAssetActive(asset.tag)) {
           this.userAssets.push(asset);
         }
       }
@@ -104,14 +102,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   }
 
   ngOnInit(): void {
-    this.stateChangeService.loginChange.subscribe(wallet => {
-      if (wallet) { // TODO improve
-        log.debug(`${this.className} Login with wallet = ${wallet}`);
-        this.onToggleYourMarketsClick();
-      } else {
-        this.onToggleAllMarketsClick();
-      }
-    });
+    this.registerSubscriptions();
   }
 
   ngOnDestroy(): void {
@@ -121,14 +112,24 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     // call cd after to avoid ExpressionChangedAfterItHasBeenCheckedError
     this.loadAssetLists();
     this.cd.detectChanges();
-
-    this.registerSubscriptions();
   }
 
   private registerSubscriptions(): void {
+    this.subscribeToLoginChange();
     this.subscribeToUserModalActionChange();
     this.subscribeToUserAssetReserveChange();
     this.subscribeToUserAssetBalanceChange();
+  }
+
+  private subscribeToLoginChange(): void {
+    this.stateChangeService.loginChange.subscribe(wallet => {
+      if (wallet) { // TODO improve
+        log.debug(`${this.className} Login with wallet = ${wallet}`);
+        this.onToggleYourMarketsClick();
+      } else {
+        this.onToggleAllMarketsClick();
+      }
+    });
   }
 
   private subscribeToUserAssetReserveChange(): void {
@@ -325,6 +326,10 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   }
 
   collapseOtherAssetsTable(assetTag: any): void {
+    log.debug(`collapseOtherAssetsTable called from asset ${assetTag}`);
+    log.debug(this.userAssetComponents);
+    log.debug(this.userAvailableAssetComponents);
+
     this.userAssetComponents.forEach((userAssetComponent, index) => {
       if (userAssetComponent.asset.tag !== assetTag) {
         userAssetComponent.collapseAssetTableSlideUp();
@@ -379,11 +384,6 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
       this.riskComponent.showRiskData();
       this.riskComponent.hideRiskMessage();
     }
-  }
-
-  updateRiskData(riskData?: RiskData): void {
-    const riskTotal = riskData ? riskData.riskTotal : this.calculationService.calculateTotalRiskPercentage();
-    this.riskComponent?.updateViewRiskData(riskTotal);
   }
 
   userMarketViewActive(): boolean {

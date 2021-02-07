@@ -1,6 +1,12 @@
 import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {SlidersService} from "../../services/sliders/sliders.service";
-import {assetFormat, assetPrefixMinusFormat, assetPrefixPlusFormat, ommPrefixPlusFormat} from "../../common/formats";
+import {
+  assetFormat,
+  assetPrefixMinusFormat,
+  assetPrefixPlusFormat,
+  ommPrefixPlusFormat,
+  percentageFormat
+} from "../../common/formats";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {Asset, AssetTag} from "../../models/Asset";
 import log from "loglevel";
@@ -27,6 +33,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
 
   @Input() asset!: Asset;
   @Input() index!: number;
+  @Input() isAssetAvailable = false;
 
   /** Bind html elements to variables using template referencing */
   sliderSupply: any;
@@ -69,7 +76,8 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
   @Output() collOtherAssetTables = new EventEmitter<AssetTag>();
   @Output() disableAndResetSliders = new EventEmitter<undefined>();
   @Output() disableAssetsInputs = new EventEmitter<undefined>();
-  @Output() updateRiskData = new EventEmitter<RiskData | undefined>();
+
+  totalRisk = 0;
 
   constructor(private slidersService: SlidersService,
               private calculationService: CalculationsService,
@@ -88,6 +96,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     this.initSupplySliderlogic();
     this.initBorrowSliderLogic();
     this.initSubscribedValues();
+    this.subscribeToTotalRiskChange();
   }
 
   /**
@@ -111,7 +120,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     this.sliderBorrow.setAttribute("disabled", "");
 
     // Reset risk data
-    this.updateRiskData.emit();
+    this.updateRiskData();
 
     // Disable asset-user inputs
     this.disableInputs();
@@ -204,7 +213,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     this.disableAndResetSliders.emit(undefined);
 
     // Reset risk data
-    this.updateRiskData.emit();
+    this.updateRiskData();
 
     // Disable Asset inputs
     this.disableAssetsInputs.emit(undefined);
@@ -343,6 +352,14 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     this.subscribeToUserAccountDataChange();
   }
 
+  private subscribeToTotalRiskChange(): void {
+    // subscribe to total risk changes
+    this.stateChangeService.userTotalRiskChange.subscribe(totalRisk => {
+      log.debug("Total risk change = " + totalRisk);
+      this.totalRisk = totalRisk;
+    });
+  }
+
   public subscribeToUserAccountDataChange(): void {
     this.stateChangeService.userAccountDataChange.subscribe(userAccountData => {
       // set borrowed available value
@@ -432,7 +449,6 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       const value = +values[handle];
       // Update supplied text box
       this.inputSupply.value = value;
-      const supplyDiff = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag) - value;
 
       // Update asset-user available text box
       this.inputSupplyAvailable.value = assetFormat(this.asset.tag).to(this.supplySliderMaxValue() - value);
@@ -440,12 +456,11 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       // Update asset-user's supply interest
       $(this.suppInterestEl).text(assetPrefixPlusFormat(this.asset.tag).to(this.getDailySupplyInterest(value)));
 
-      // Update asset-user's supply omm rewards
-      $(this.suppRewardsEl).text(ommPrefixPlusFormat.to(0));
-    });
+      const supplyDiff = value - this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag);
 
-    this.sliderSupply.noUiSlider.on('change', (values: any, handle: any) => {
-      const supplyDiff = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag) - +values[handle];
+      // Update asset-user's supply omm rewards
+      $(this.suppRewardsEl).text(ommPrefixPlusFormat.to(this.calculationService.calculateUsersOmmRewardsForDeposit(
+        this.asset.tag, value)));
 
       // update risk data
       let riskCalculationData;
@@ -454,8 +469,27 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       } else if (supplyDiff < 0) {
         riskCalculationData = new RiskCalculationData(this.asset.tag, Math.abs(supplyDiff) , UserAction.REDEEM);
       }
-      const riskData = new RiskData(this.calculationService.calculateTotalRiskPercentage(riskCalculationData));
-      this.updateRiskData.emit(riskData);
+
+      const totalRisk = this.updateRiskData(riskCalculationData, false);
+
+      this.setTmpRiskAndColor(totalRisk);
+
+      // if total risk over 100%
+      if (totalRisk > 0.99) {
+        $(this.supplyAction2El).css("display", "none");
+        $('.value-risk-total').text("Max");
+        $('.supply-risk-warning').css("display", "flex");
+      } else {
+        if ($(this.supplyEl).hasClass("adjust")) {
+          $(this.supplyAction1El).css("display", "none");
+          $(this.supplyAction2El).css("display", "flex");
+          $('.supply-risk-warning').css("display", "none");
+        } else {
+          $(this.supplyAction1El).css("display", "flex");
+          $(this.supplyAction2El).css("display", "none");
+        }
+      }
+
     });
   }
 
@@ -468,7 +502,6 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       const value = +values[handle];
       // Update asset-user borrowed text box
       this.inputBorrow.value = value;
-      const borrowDiff = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag) - this.inputBorrow.value;
 
       // Update asset-user available text box
       this.inputBorrowAvailable.value = assetFormat(this.asset.tag).to(this.borrowSliderMaxValue() - value);
@@ -477,7 +510,8 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       $(this.borrInterestEl).text(assetPrefixMinusFormat(this.asset.tag).to(this.getDailyBorrowInterest(value)));
 
       // Update asset-user's borrow omm rewards
-      $(this.borrRewardsEl).text(ommPrefixPlusFormat.to(0));
+      $(this.borrRewardsEl).text(ommPrefixPlusFormat.to(this.calculationService.calculateUsersOmmRewardsForBorrow(
+        this.asset.tag, value)));
 
       if (this.inputBorrow.value > 0) {
         // show risk data
@@ -486,9 +520,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
         // Hide risk message
         $('.risk-message-noassets').css("display", "none");
       }
-    });
 
-    this.sliderBorrow.noUiSlider.on('change', (values: any, handle: any) => {
       const borrowDiff = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag) - +values[handle];
       // update risk data
       let riskCalculationData;
@@ -499,9 +531,53 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
         riskCalculationData = new RiskCalculationData(this.asset.tag, Math.abs(borrowDiff) , UserAction.BORROW);
       }
 
-      const riskData = new RiskData(this.calculationService.calculateTotalRiskPercentage(riskCalculationData));
-      this.updateRiskData.emit(riskData);
+      const totalRisk = this.updateRiskData(riskCalculationData, false);
+
+      this.setTmpRiskAndColor(totalRisk);
+
+      // if total risk over 100%
+      if (totalRisk > 0.99) {
+        $(this.borrowAction2El).css("display", "none");
+        $('.value-risk-total').text("Max");
+        $('.supply-risk-warning').css("display", "flex");
+      } else {
+        if ($(this.borrowEl).hasClass("adjust")) {
+          $(this.borrowAction1El).css("display", "none");
+          $(this.borrowAction2El).css("display", "flex");
+          $('.supply-risk-warning').css("display", "none");
+        } else {
+          $(this.borrowAction1El).css("display", "flex");
+          $(this.borrowAction2El).css("display", "none");
+        }
+      }
+
     });
+  }
+
+  setTmpRiskAndColor(totalRisk: number): void {
+    const valueRiskTotal = $('.value-risk-total');
+
+    valueRiskTotal.text(percentageFormat.to(totalRisk * 100));
+
+    // Change text to purple if over 50
+    if (totalRisk > 0.50) {
+      valueRiskTotal.addClass("alert-purple");
+    }
+
+    // Remove purple if below 50
+    if (totalRisk < 0.50) {
+      valueRiskTotal.removeClass("alert-purple");
+    }
+
+    // Change text to red if over 75
+    if (totalRisk > 0.75) {
+      valueRiskTotal.addClass("alert");
+    }
+
+    // Change text to normal if under 75
+    if (totalRisk < 0.75) {
+      valueRiskTotal.removeClass("alert");
+    }
   }
 
   private setSupplySliderValue(value: number): void {
@@ -547,6 +623,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
   }
 
   collapseAssetTable(): void {
+    log.debug(`${this.asset.tag} collapseAssetTable()`);
     // Collapse asset-user table`
     $(`.asset.${this.asset.tag}`).removeClass('active');
     $(this.marketExpandedEl).hide();
@@ -641,18 +718,8 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     this.inputBorrow.classList.remove("red-border");
   }
 
-  riskUnder100Reset(): void {
-    if ($(this.supplyEl).hasClass("adjust")) {
-      $(this.supplyAction1El).css("display", "none");
-      $(this.supplyAction2El).css("display", "flex");
-      $(this.borrowAction1El).css("display", "none");
-      $(this.borrowAction2El).css("display", "flex");
-    } else {
-      $(this.supplyAction1El).css("display", "flex");
-      $(this.supplyAction2El).css("display", "none");
-      $(this.borrowAction1El).css("display", "flex");
-      $(this.borrowAction2El).css("display", "none");
-    }
+  updateRiskData(riskCalculationData?: RiskCalculationData, updateState = true): number {
+    return this.calculationService.calculateTotalRisk(riskCalculationData, updateState);
   }
 
 }

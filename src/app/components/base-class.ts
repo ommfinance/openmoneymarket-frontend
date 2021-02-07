@@ -59,6 +59,15 @@ export class BaseClass {
     return res;
   }
 
+  public to0DecimalPercentString(num?: number | string): string {
+    if (!num || (+num) === 0) { return "-"; }
+
+    // convert in to percentage
+    num = +num * 100;
+    const res = `${(num.toFixed())}%`;
+    return res;
+  }
+
   public fromUSDbFormatToNumber(value: any): number {
     if (!value) {
       return 0;

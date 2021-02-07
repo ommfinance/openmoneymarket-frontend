@@ -220,11 +220,11 @@
                 <!-- Asset (USDb, ICX, ..) -->
                 <app-asset-user [asset]="a" #userAsset
                            [index]="i"
+                           [isAssetAvailable]="false"
                            [ngStyle]="hideElementOrDisplayContents(!userMarketViewActive())"
                            (collOtherAssetTables)="collapseOtherAssetsTable($event)"
                            (disableAndResetSliders)="disableAndResetAssetsSupplyAndBorrowSliders()"
-                           (disableAssetsInputs)="disableAssetsInputs()"
-                           (updateRiskData)="updateRiskData($event)">
+                           (disableAssetsInputs)="disableAssetsInputs()">
                 </app-asset-user>
                 <!-- Spacer -->
                 <tr *ngIf="!isLast || shouldShowAssetAvailable()" class="spacer"></tr>
@@ -244,14 +244,14 @@
               <!-- User available Assets (hide if user market view is not active) -->
               <ng-container *ngFor="let a of availableAssets; last as isLast; let i = index">
                 <!-- Asset available (USDb, ICX, ..) -->
-                <app-asset-available [asset]="a" #availAsset
+                <app-asset-user [asset]="a" #availAsset
                            [index]="i"
+                           [isAssetAvailable]="true"
                            [ngStyle]="hideElementOrDisplayContents(!userMarketViewActive())"
                            (collOtherAssetTables)="collapseOtherAssetsTable($event)"
                            (disableAndResetSliders)="disableAndResetAssetsSupplyAndBorrowSliders()"
-                           (disableAssetsInputs)="disableAssetsInputs()"
-                           (updateRiskData)="updateRiskData($event)">
-                </app-asset-available>
+                           (disableAssetsInputs)="disableAssetsInputs()">
+                </app-asset-user>
                 <!-- Spacer -->
                 <tr *ngIf="!isLast" class="spacer"></tr>
               </ng-container>
