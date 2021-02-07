@@ -47,11 +47,11 @@ export class PerformanceComponent extends BaseClass implements OnInit {
   }
 
   updateSupplyInterest(): void {
-    this.supplyInterest = this.calculationService.calculateUsersAverageDailySupplyInterest();
+    this.supplyInterest = this.calculationService.calculateUsersSupplyInterestPerDayUSD();
   }
 
   updateBorrowInterest(): void {
-    this.borrowInterest = this.calculationService.calculateUsersAverageDailyBorrowInterest();
+    this.borrowInterest = this.calculationService.calculateUsersBorrowInterestPerDayUSD();
   }
 
   onClaimOmmRewardsClick(): void {

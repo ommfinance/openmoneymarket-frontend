@@ -33,6 +33,10 @@ export class PersistenceService {
     return this.activeWallet != null;
   }
 
+  publicGetActiveIconAddress(): string | undefined {
+    return this.activeWallet?.address;
+  }
+
   public bridgeWalletActive(): boolean {
     return this.activeWallet instanceof BridgeWallet;
   }
@@ -57,6 +61,10 @@ export class PersistenceService {
 
   public getAssetExchangePrice(assetTag: AssetTag): number {
     return this.getAssetReserveData(assetTag)?.exchangePrice ?? 0;
+  }
+
+  public sIcxToIcxRate(): number {
+    return this.getAssetReserveData(AssetTag.ICX)?.sICXRate ?? 0;
   }
 
   public getUserSuppliedAssetBalance(assetTag: AssetTag): number {
@@ -204,6 +212,42 @@ export class PersistenceService {
       counter++;
     });
     return total / counter;
+  }
+
+  public getMySupplyApy(): number {
+    let supplyApySum = 0;
+    let supplySum = 0;
+    let supplied;
+    let supplyApy;
+
+    // Sum(My supply amount for each asset * Supply APY for each asset)
+    this.userReserves!.reserveMap.forEach(reserve => {
+      supplied = reserve?.currentOTokenBalance ?? 0;
+      supplyApy = reserve?.liquidityRate ?? 0;
+      supplyApySum += supplied * supplyApy;
+      supplySum += supplied;
+    });
+
+
+    return supplyApySum / supplySum;
+  }
+
+  public getMyBorrowApy(): number {
+    let borrowApySum = 0;
+    let borrowSum = 0;
+    let borrowed;
+    let borrowApy;
+
+    // Sum(My supply amount for each asset * Supply APY for each asset)
+    this.userReserves!.reserveMap.forEach(reserve => {
+      borrowed = reserve?.currentBorrowBalance ?? 0;
+      borrowApy = reserve?.borrowRate ?? 0;
+      borrowApySum += borrowed * borrowApy;
+      borrowSum += borrowed;
+    });
+
+
+    return borrowApySum / borrowSum;
   }
 
   public getAverageLiquidationThreshold(): number {

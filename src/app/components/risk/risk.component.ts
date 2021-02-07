@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Input, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
 import {RiskData} from "../../models/RiskData";
 import {percentageFormat} from "../../common/formats";
 import {Subject} from "rxjs";
@@ -10,6 +10,7 @@ import log from "loglevel";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {BaseClass} from "../base-class";
 import {UserAccountData} from "../../models/UserAccountData";
+import {AssetUserComponent} from "../asset-user/asset-user.component";
 
 declare var noUiSlider: any;
 declare var wNumb: any;
@@ -26,6 +27,9 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
 
   @ViewChild("totalRisk")set totalRiskSetter(totalRisk: ElementRef) {this.totalRiskEl = totalRisk.nativeElement; }
   totalRiskEl!: HTMLElement;
+
+  // users asset components
+  @Input() userAssetComponents!: QueryList<AssetUserComponent>;
 
   private sliderRisk?: any;
   // private totalRisk = 0;
@@ -92,9 +96,32 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
     // Update the risk slider
     this.sliderRisk.noUiSlider.set(riskTotal);
 
-    // Change text to red if over 100
-    if (riskTotal > 100) {
-      $(this.totalRiskEl).addClass("alert");
+    // If risk over 100
+    if (riskTotal > 99) {
+      // Hide supply actions
+      $('.actions-2').css("display", "none");
+      $('.value-risk-total').text("Max");
+      $('.supply-risk-warning').css("display", "flex");
+      $('.borrow-risk-warning').css("display", "flex");
+    }
+
+    // If risk under 100
+    if (riskTotal < 99) {
+      this.userAssetComponents.forEach(assetComponent => {
+        assetComponent.riskUnder100Reset();
+      });
+      $('.supply-risk-warning').css("display", "none");
+      $('.borrow-risk-warning').css("display", "none");
+    }
+
+    // Change text to purple if over 50
+    if (riskTotal > 50) {
+      $(this.totalRiskEl).addClass("alert-purple");
+    }
+
+    // Remove purple if below 50
+    if (riskTotal < 50) {
+      $(this.totalRiskEl).removeClass("alert-purple");
     }
 
     // Change text to red if over 75

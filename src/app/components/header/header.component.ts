@@ -111,7 +111,7 @@ export class HeaderComponent extends BaseClass implements OnInit {
 
     // Avoid flash of white box if rendered for any reason.
     textArea.style.background = 'transparent';
-    textArea.value = this.bridgeWidgetService.getUserBridgeAddress();
+    textArea.value = this.persistenceService.publicGetActiveIconAddress() ?? "";
 
     document.body.appendChild(textArea);
     textArea.focus();
@@ -120,11 +120,15 @@ export class HeaderComponent extends BaseClass implements OnInit {
     try {
       const successful = document.execCommand('copy');
       const msg = successful ? 'successful' : 'unsuccessful';
-      log.debug('Copying text command was ' + msg);
-      // show notification
-      this.notificationService.showNewNotification("Address copied!");
+
+      if (msg !== "successful" || !textArea.value) {
+        this.notificationService.showNewNotification('Oops, unable to copy');
+      } else {
+        // show notification
+        this.notificationService.showNewNotification("Address copied!");
+      }
     } catch (err) {
-      log.error('Oops, unable to copy');
+      this.notificationService.showNewNotification('Oops, unable to copy');
     }
 
     document.body.removeChild(textArea);

@@ -1,6 +1,8 @@
 import {Utils} from "../common/utils";
 import {AssetTag, supportedAssetsMap} from "../models/Asset";
 import {assetFormat} from "../common/formats";
+import log from "loglevel";
+import {BigNumber} from "bignumber.js";
 
 
 /*
@@ -25,6 +27,10 @@ export class BaseClass {
     return `$${this.formatNumberToNdigits(num)}`;
   }
 
+  public roundDownTo2Decimals(value: number | BigNumber | string): number {
+    return Utils.roundDownTo2Decimals(value);
+  }
+
   public toDollar2digitsStringOrZero(num?: number | string): string {
     if (!num || (+num) === 0) { return "$0"; }
     return `$${this.formatNumberToNdigits(num)}`;
@@ -44,13 +50,13 @@ export class BaseClass {
     return `$${this.formatNumberToUSLocaleString(num)}`;
   }
 
-  public to2DecimalPercentString(num?: number | string): string {
+  public to2DecimalRoundedDownPercentString(num?: number | string): string {
     if (!num || (+num) === 0) { return "-"; }
-    if (typeof num === 'string') {
-      return `${(+num).toFixed(2)}%`;
-    } else {
-      return `${(num).toFixed(2)}%`;
-    }
+
+    // convert in to percentage
+    num = +num * 100;
+    const res = `${(Utils.roundDownTo2Decimals(num))}%`;
+    return res;
   }
 
   public fromUSDbFormatToNumber(value: any): number {

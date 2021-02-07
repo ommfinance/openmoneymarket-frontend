@@ -25,7 +25,7 @@ export class DataLoaderService {
 
   }
 
-  public async walletLogin(wallet: IconexWallet | BridgeWallet, iconAddress: string): Promise<void> {
+  public async walletLogin(wallet: IconexWallet | BridgeWallet): Promise<void> {
     this.persistenceService.activeWallet = wallet;
 
     try {

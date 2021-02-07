@@ -3,10 +3,10 @@
   <td>{{asset.name}}<br><span class="label">{{asset.tag}}</span></td>
   <td><span class="value-supplied">{{this.toDollar2digitsString(this.persistenceService.getUserAssetReserve(asset.tag)?.currentOTokenBalanceUSD)}}</span><br>
     <span class="value-supplied label">{{this.formatNumberToUSLocaleString(this.persistenceService.getUserSuppliedAssetBalance(asset.tag))}} {{asset.tag}}</span></td>
-  <td class="text-green">{{to2DecimalPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate)}}</td>
+  <td class="text-green">{{to2DecimalRoundedDownPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate)}}</td>
   <td><span class="value-borrowed">{{this.toDollar2digitsString(this.persistenceService.getUserAssetReserve(asset.tag)?.principalBorrowBalanceUSD)}}</span><br>
     <span class="value-borrowed label">{{this.formatNumberToUSLocaleString(this.persistenceService.getUserBorrowedAssetBalance(asset.tag))}} {{asset.tag}}</span></td>
-  <td class="text-purple">{{to2DecimalPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.borrowRate)}}</td>
+  <td class="text-purple">{{to2DecimalRoundedDownPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.borrowRate)}}</td>
 </tr>
 
 
@@ -23,7 +23,7 @@
               <h2>Supply</h2>
             </div>
             <div class="grid-cell text-right">
-              <p class="supply-apy">{{to2DecimalPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate)}} APY</p>
+              <p class="supply-apy">{{to2DecimalRoundedDownPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate)}} APY</p>
             </div>
           </div>
 
@@ -51,7 +51,7 @@
               <div class="grid-cell">
                 <dl class="metadata">
                   <dt>Daily interest</dt>
-                  <dd class="value-supply-interest" #suppInterest>+ {{getDailySupplyInterest()}} {{asset.tag}}</dd>
+                  <dd class="value-supply-interest" #suppInterest>+ 0 </dd>
                 </dl>
               </div>
               <div class="grid-cell">
@@ -81,6 +81,13 @@
             </div>
           </div>
 
+          <!-- Risk warning -->
+          <div class="grid grid-center supply-risk-warning hide">
+            <div class="grid-cell">
+              <p class="label text-red text-center">Your risk is too high.</p>
+            </div>
+          </div>
+
           <!-- Supply deny (Show if user can't borrow) -->
           <div class="supply-deny {{asset.className}} hide" [ngStyle]="displayAsBlockOrHide(userAssetBalanceIsZero())">
             <p class="text-center label message">You have no {{asset.name}} available to supply.</p>
@@ -93,9 +100,13 @@
           <div class="grid grid-center title">
             <div class="grid-cell">
               <h2>Borrow</h2><span class="risk-outer" [ngStyle]="hideElement(this.persistenceService.userHasNotSuppliedAnyAsset())">Risk: <span class="value-risk-total">- %</span></span>
+              <span class="tooltip expanded-risk-tooltip">
+                <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+                <div class="tooltip-content"><p>While you borrow assets, your supply is at risk of liquidation. Keep it below 50% to reduce the impact of volatile markets.</p></div>
+              </span>
             </div>
             <div class="grid-cell text-right">
-              <p class="borrow-apy">{{to2DecimalPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.borrowRate)}} APY</p>
+              <p class="borrow-apy">{{to2DecimalRoundedDownPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.borrowRate)}} APY</p>
             </div>
           </div>
 
@@ -121,7 +132,7 @@
               <div class="grid-cell">
                 <dl class="metadata">
                   <dt>Daily interest</dt>
-                  <dd class="value-borrow-interest" #borrInterest>+ {{getDailyBorrowInterest().toFixed(2)}} {{asset.tag}}</dd>
+                  <dd class="value-borrow-interest" #borrInterest>+ {{roundDownTo2Decimals(getDailyBorrowInterest())}} {{asset.tag}}</dd>
                 </dl>
               </div>
               <div class="grid-cell">

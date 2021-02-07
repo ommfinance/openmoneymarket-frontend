@@ -27,7 +27,7 @@ export class BridgeWidgetService {
   handleBridgeLogin(e: any): void {
     const {publicAddress, email} = e.detail;
     log.debug("Bridge login with publicAddress=" + publicAddress);
-    this.dataLoaderService.walletLogin(new BridgeWallet(publicAddress, email, this.bridge), publicAddress);
+    this.dataLoaderService.walletLogin(new BridgeWallet(publicAddress, email, this.bridge));
   }
 
   sendTransaction(tx: any): void {

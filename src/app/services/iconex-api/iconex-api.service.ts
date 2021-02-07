@@ -8,6 +8,7 @@ import {ScoreService} from "../score/score.service";
 import {DataLoaderService} from "../data-loader/data-loader.service";
 import log from "loglevel";
 import {OmmError} from "../../core/errors/OmmError";
+import {NotificationService} from "../notification/notification.service";
 
 @Injectable({
   providedIn: "root"
@@ -22,7 +23,8 @@ export class IconexApiService {
               private persistenceService: PersistenceService,
               private transactionResultService: TransactionResultService,
               private scoreService: ScoreService,
-              private dataLoaderService: DataLoaderService) { }
+              private dataLoaderService: DataLoaderService,
+              private notificationService: NotificationService) { }
 
   public iconexEventHandler( e: any): void {
     const {type, payload} = e.detail;
@@ -32,12 +34,12 @@ export class IconexApiService {
       case "RESPONSE_HAS_ACCOUNT": {
         if (payload.hasAccount) { this.requestAddress(); }
         else {
-          throw new OmmError("Wallet does not exist. (Not logged in Iconex?)");
+          this.notificationService.showNewNotification("Wallet does not exist. Please log in to Iconex and try again.");
         }
         break;
       }
       case "RESPONSE_ADDRESS": {
-        this.dataLoaderService.walletLogin(new IconexWallet(payload), payload);
+        this.dataLoaderService.walletLogin(new IconexWallet(payload));
         log.debug("Successfully connected your Icon wallet!");
         break;
       }

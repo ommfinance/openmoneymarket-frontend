@@ -1,5 +1,6 @@
 import IconService from 'icon-sdk-js';
 import { BigNumber } from "bignumber.js";
+import log from "loglevel";
 
 export class Utils {
 
@@ -10,10 +11,10 @@ export class Utils {
     }
     if (typeof value === "string") {
       // return rounded down to 2 decimals places number
-      return +Utils.roundDownValueTo2Decimals(new BigNumber(value, 16).dividedBy(Math.pow(10, 18)));
+      return +Utils.roundDownTo2Decimals(new BigNumber(value, 16).dividedBy(Math.pow(10, 18)));
     } else {
       // return rounded down to 2 decimals places number
-      return +Utils.roundDownValueTo2Decimals(new BigNumber(value).dividedBy(Math.pow(10, 18)));
+      return +Utils.roundDownTo2Decimals(new BigNumber(value).dividedBy(Math.pow(10, 18)));
     }
   }
 
@@ -23,9 +24,9 @@ export class Utils {
       return 0;
     }
     if (typeof value === "string") {
-      return +new BigNumber(value, 16).dividedBy(Math.pow(10, 18));
+      return +(new BigNumber(value, 16).dividedBy(Math.pow(10, 18)));
     } else {
-      return +new BigNumber(value).dividedBy(Math.pow(10, 18));
+      return +(new BigNumber(value).dividedBy(Math.pow(10, 18)));
     }
   }
 
@@ -35,19 +36,7 @@ export class Utils {
     }
     if (typeof value === "string") {
       // return rounded down to 2 decimals places number
-      return +Utils.roundDownValueTo2Decimals(new BigNumber(value, 16));
-    }
-    else {
-      return value;
-    }
-  }
-
-  public static hexToPercent(value: string | number): number {
-    if (!value) {
-      return 0;
-    }
-    if (typeof value === "string") {
-      return +Utils.roundDownValueTo2Decimals(new BigNumber(value, 16).dividedBy(Math.pow(10, 16)));
+      return +Utils.roundDownTo2Decimals(new BigNumber(value, 16));
     }
     else {
       return value;
@@ -88,17 +77,17 @@ export class Utils {
     return new BigNumber(amount).multipliedBy(Math.pow(10, 18)).toFixed();
   }
 
-  public static roundDownValueTo2Decimals(value: number | BigNumber): number {
+  public static roundDownTo2Decimals(value: number | BigNumber | string): number {
     if (value instanceof BigNumber) {
-      return +value.toFixed(2, BigNumber.ROUND_DOWN);
+      return +(value.toFixed(2, BigNumber.ROUND_DOWN));
     } else {
-      return +new BigNumber(value).toFixed(2, BigNumber.ROUND_DOWN);
+      return +(new BigNumber(value).toFixed(2, BigNumber.ROUND_DOWN));
     }
   }
 
   // conversion used for redeeming ICX
   public static convertICXValueTosICX(value: number, todayRate: number): number {
-    return Utils.roundDownValueTo2Decimals(value / todayRate);
+    return Utils.roundDownTo2Decimals(value / todayRate);
   }
 
 }

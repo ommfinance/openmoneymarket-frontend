@@ -76,7 +76,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Your supply APY</dt>
-                  <dd class="text-green value-supplied-apy">{{to2DecimalPercentString(this.persistenceService.getUserAvgSupplyApy())}}</dd>
+                  <dd class="text-green value-supplied-apy">{{to2DecimalRoundedDownPercentString(this.persistenceService.getMySupplyApy())}}</dd>
                 </dl>
               </div>
             </div>
@@ -97,7 +97,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Your borrow APY</dt>
-                  <dd class="text-purple value-borrowed-apy">{{to2DecimalPercentString(this.persistenceService.getUserAvgBorrowApy())}}</dd>
+                  <dd class="text-purple value-borrowed-apy">{{to2DecimalRoundedDownPercentString(this.persistenceService.getMyBorrowApy())}}</dd>
                 </dl>
               </div>
             </div>
@@ -121,7 +121,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Total supply APY</dt>
-                  <dd class="text-green">{{to2DecimalPercentString(this.persistenceService.getAvgSupplyApy())}}</dd>
+                  <dd class="text-green">{{to2DecimalRoundedDownPercentString(this.persistenceService.getAvgSupplyApy())}}</dd>
                 </dl>
               </div>
             </div>
@@ -142,7 +142,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Total borrow APY</dt>
-                  <dd class="text-purple">{{to2DecimalPercentString(this.persistenceService.getAvgBorrowApy())}}</dd>
+                  <dd class="text-purple">{{to2DecimalRoundedDownPercentString(this.persistenceService.getAvgBorrowApy())}}</dd>
                 </dl>
               </div>
             </div>
@@ -163,7 +163,7 @@
         <!-- Risk -->
         <div class="grid-cell">
           <section id="risk">
-            <app-risk style="display: contents"></app-risk>
+            <app-risk style="display: contents" [userAssetComponents]="userAssetComponents"></app-risk>
           </section>
         </div>
       </div>

@@ -1,9 +1,6 @@
 import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {SlidersService} from "../../services/sliders/sliders.service";
-import {
-  assetFormat, assetPrefixMinusFormat, assetPrefixPlusFormat,
-  ommPrefixPlusFormat
-} from "../../common/formats";
+import {assetFormat, assetPrefixMinusFormat, assetPrefixPlusFormat, ommPrefixPlusFormat} from "../../common/formats";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {Asset, AssetTag} from "../../models/Asset";
 import log from "loglevel";
@@ -108,8 +105,8 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     this.removeInputRedBorderClass();
 
     // Reset user asset sliders
-    this.sliderSupply.noUiSlider.set(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
-    this.sliderBorrow.noUiSlider.set(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
+    this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
+    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
     this.sliderSupply.setAttribute("disabled", "");
     this.sliderBorrow.setAttribute("disabled", "");
 
@@ -163,7 +160,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     /** Enable Supply inputs of asset-user */
     $(this.inputSupply).removeAttr("disabled");
     $(this.sliderSupply).removeAttr("disabled");
-    this.sliderSupply.noUiSlider.set(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
+    this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
   }
 
 
@@ -226,7 +223,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
         this.inputSupply.classList.add("red-border");
       } else {
         // set slider to this value and reset border color if it passes the check
-        this.sliderSupply.noUiSlider.set(value);
+        this.setSupplySliderValue(value);
         this.inputSupply.classList.remove("red-border");
       }
     }
@@ -244,7 +241,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
         this.inputBorrow.classList.add("red-border");
       } else {
         // set slider to this value and reset border color if it passes the check
-        this.sliderBorrow.noUiSlider.set(value);
+        this.setBorrowSliderValue(value);
         this.inputBorrow.classList.remove("red-border");
       }
     }
@@ -261,7 +258,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     const max = this.supplySliderMaxValue();
     if (value > max) {
       value = max;
-      this.sliderSupply.noUiSlider.set(value);
+      this.setSupplySliderValue(value);
       throw new OmmError(`Supplied value greater than available ${this.asset.tag} balance.`);
     }
 
@@ -293,7 +290,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     const max = this.borrowSliderMaxValue();
     if (value > max) {
       value = max;
-      this.sliderBorrow.noUiSlider.set(value);
+      this.setBorrowSliderValue(value);
       throw new OmmError(`Borrowed value greater than ${this.asset.tag} max available.`);
     }
 
@@ -375,7 +372,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       this.inputSupplyAvailable.value = assetFormat(this.asset.tag).to(supplyAvailable);
 
       // update supply slider value
-      this.sliderSupply.noUiSlider.set(supplied);
+      this.setSupplySliderValue(supplied);
 
       // update asset supply slider max value to  -> supplied + supplied available
       let max = supplied + supplyAvailable;
@@ -396,7 +393,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       this.inputBorrowAvailable.value = assetFormat(this.asset.tag).to(borrowAvailable);
 
       // set borrow slider value
-      this.sliderBorrow.noUiSlider.set(borrowed);
+      this.setBorrowSliderValue(borrowed);
 
       // update asset borrow slider max value to  -> borrowed + borrow available
       max = borrowed + borrowAvailable;
@@ -441,7 +438,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       this.inputSupplyAvailable.value = assetFormat(this.asset.tag).to(this.supplySliderMaxValue() - value);
 
       // Update asset-user's supply interest
-      $(this.suppInterestEl).text(assetPrefixPlusFormat(this.asset.tag).to(this.getDailySupplyInterest(supplyDiff)));
+      $(this.suppInterestEl).text(assetPrefixPlusFormat(this.asset.tag).to(this.getDailySupplyInterest(value)));
 
       // Update asset-user's supply omm rewards
       $(this.suppRewardsEl).text(ommPrefixPlusFormat.to(0));
@@ -477,7 +474,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       this.inputBorrowAvailable.value = assetFormat(this.asset.tag).to(this.borrowSliderMaxValue() - value);
 
       // Update asset-user's borrow interest
-      $(this.borrInterestEl).text(assetPrefixMinusFormat(this.asset.tag).to(this.getDailyBorrowInterest(borrowDiff)));
+      $(this.borrInterestEl).text(assetPrefixMinusFormat(this.asset.tag).to(this.getDailyBorrowInterest(value)));
 
       // Update asset-user's borrow omm rewards
       $(this.borrRewardsEl).text(ommPrefixPlusFormat.to(0));
@@ -505,6 +502,22 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       const riskData = new RiskData(this.calculationService.calculateTotalRiskPercentage(riskCalculationData));
       this.updateRiskData.emit(riskData);
     });
+  }
+
+  private setSupplySliderValue(value: number): void {
+    // if asset is ICX, convert sICX -> ICX
+    if (this.asset.tag === AssetTag.ICX) {
+      value = value * this.persistenceService.sIcxToIcxRate();
+    }
+    this.sliderSupply.noUiSlider.set(value);
+  }
+
+  private setBorrowSliderValue(value: number): void {
+    // if asset is ICX, convert sICX -> ICX
+    if (this.asset.tag === AssetTag.ICX) {
+      value = value * this.persistenceService.sIcxToIcxRate();
+    }
+    this.sliderBorrow.noUiSlider.set(value);
   }
 
   getDailySupplyInterest(amountBeingSupplied?: number): number {
@@ -565,7 +578,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
   }
 
   resetBorrowSliders(): void {
-    this.sliderBorrow.noUiSlider.set(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
+    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
     this.sliderBorrow.setAttribute("disabled", "");
   }
 
@@ -581,13 +594,13 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
 
   disableAndResetSupplySlider(): void {
     // Disable asset-user supply sliders (Your markets)
-    this.sliderSupply.noUiSlider.set(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
+    this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
     this.sliderSupply.setAttribute("disabled", "");
   }
 
   disableAndResetBorrowSlider(): void {
     // Disable asset-user borrow sliders (Your markets)
-    this.sliderBorrow.noUiSlider.set(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
+    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
     this.sliderBorrow.setAttribute("disabled", "");
   }
 
@@ -603,7 +616,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
   enableAssetBorrow(): void {
     $(this.inputBorrow).removeAttr("disabled");
     $(this.sliderBorrow).removeAttr("disabled");
-    this.sliderBorrow.noUiSlider.set(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
+    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
   }
 
   hideAsset(): void {
@@ -626,6 +639,20 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     // Remove red border class on input
     this.inputSupply.classList.remove("red-border");
     this.inputBorrow.classList.remove("red-border");
+  }
+
+  riskUnder100Reset(): void {
+    if ($(this.supplyEl).hasClass("adjust")) {
+      $(this.supplyAction1El).css("display", "none");
+      $(this.supplyAction2El).css("display", "flex");
+      $(this.borrowAction1El).css("display", "none");
+      $(this.borrowAction2El).css("display", "flex");
+    } else {
+      $(this.supplyAction1El).css("display", "flex");
+      $(this.supplyAction2El).css("display", "none");
+      $(this.borrowAction1El).css("display", "flex");
+      $(this.borrowAction2El).css("display", "none");
+    }
   }
 
 }

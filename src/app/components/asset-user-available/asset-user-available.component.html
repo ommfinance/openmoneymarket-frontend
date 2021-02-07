@@ -5,7 +5,7 @@
   <td>{{asset.name}}<br><span class="label">{{asset.tag}}</span></td>
   <td colspan="2" class="text-right">{{this.toDollarUSLocaleString(this.persistenceService.getUserAssetBalance(asset.tag))}}
     <br><span class="label">{{this.formatNumberToUSLocaleString(this.persistenceService.getUserAssetUSDBalance(asset.tag))}} {{asset.tag}}</span></td>
-  <td colspan="2" class="text-right"><span class="text-green">{{to2DecimalPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate)}} APY</span></td>
+  <td colspan="2" class="text-right"><span class="text-green">{{to2DecimalRoundedDownPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate)}} APY</span></td>
 </tr>
 
 <!-- Asset Expanded -->
@@ -21,7 +21,7 @@
               <h2>Supply</h2>
             </div>
             <div class="grid-cell text-right">
-              <p class="supply-apy">{{to2DecimalPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate)}} APY</p>
+              <p class="supply-apy">{{to2DecimalRoundedDownPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate)}} APY</p>
             </div>
           </div>
 
@@ -49,7 +49,7 @@
               <div class="grid-cell">
                 <dl class="metadata">
                   <dt>Daily interest</dt>
-                  <dd class="value-supply-interest" #suppInterest>+ {{getDailySupplyInterest().toFixed(2)}} {{asset.tag}}</dd>
+                  <dd class="value-supply-interest" #suppInterest>+ {{roundDownTo2Decimals(getDailySupplyInterest())}} {{asset.tag}}</dd>
                 </dl>
               </div>
               <div class="grid-cell">
@@ -89,7 +89,7 @@
               <h2>Borrow</h2>
             </div>
             <div class="grid-cell text-right">
-              <p class="borrow-apy">{{to2DecimalPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.borrowRate)}} APY</p>
+              <p class="borrow-apy">{{to2DecimalRoundedDownPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.borrowRate)}} APY</p>
             </div>
           </div>
 

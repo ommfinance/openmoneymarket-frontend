@@ -12,16 +12,16 @@ export class UserReserveData {
   originationFee: number;
   principalBorrowBalance: number;
   principalBorrowBalanceUSD: number;
-  // principalOTokenBalance: number; not important for frontend atm
-  // principalOTokenBalanceUSD: number;
+  principalOTokenBalance: number;
+  principalOTokenBalanceUSD: number;
   useAsCollateral: number;
   userBorrowCumulativeIndex: number;
   userLiquidityIndex: number;
 
   constructor(borrowRate: number, currentBorrowBalance: number, currentBorrowBalanceUSD: number, currentOTokenBalance: number,
               currentOTokenBalanceUSD: number, exchangeRate: number, lastUpdateTimestamp: number, liquidityRate: number,
-              originationFee: number, principalBorrowBalance: number, principalBorrowBalanceUSD: number, useAsCollateral: number,
-              userBorrowCumulativeIndex: number, userLiquidityIndex: number) {
+              originationFee: number, principalBorrowBalance: number, principalBorrowBalanceUSD: number, principalOTokenBalance: number,
+              principalOTokenBalanceUSD: number, useAsCollateral: number, userBorrowCumulativeIndex: number, userLiquidityIndex: number) {
     this.borrowRate = borrowRate;
     this.currentBorrowBalance = currentBorrowBalance;
     this.currentBorrowBalanceUSD = currentBorrowBalanceUSD;
@@ -33,6 +33,8 @@ export class UserReserveData {
     this.originationFee = originationFee;
     this.principalBorrowBalance = principalBorrowBalance;
     this.principalBorrowBalanceUSD = principalBorrowBalanceUSD;
+    this.principalOTokenBalance = principalOTokenBalance;
+    this.principalOTokenBalanceUSD = principalOTokenBalanceUSD;
     this.useAsCollateral = useAsCollateral;
     this.userBorrowCumulativeIndex = userBorrowCumulativeIndex;
     this.userLiquidityIndex = userLiquidityIndex;

@@ -1,7 +1,11 @@
-
 <div class="grid">
   <div class="grid-cell">
-    <h2>Performance</h2><span id="time-selector" class="label animation-underline"><span class="dropdown">Per day</span></span>
+    <h2>Performance</h2>
+    <span id="tooltip-performance" class="tooltip">
+      <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+      <div class="tooltip-content"><p>How your position will perform if all variables stay the same. Your supply auto-adjusts for interest, and you can claim Omm rewards daily.</p></div>
+    </span>
+    <span id="time-selector" class="label animation-underline"><span class="dropdown">Per day</span></span>
     <div class="time-selector-content">
       <ul>
         <li>Week</li>
@@ -21,7 +25,7 @@
       <div class="grid-cell text-center">
         <dl class="metadata">
           <dt>Supply interest</dt>
-          <dd class="value-supply-interest-total" #suppInterest>+ ${{supplyInterest.toFixed(2)}}</dd>
+          <dd class="value-supply-interest-total" #suppInterest>+ ${{roundDownTo2Decimals(supplyInterest)}}</dd>
         </dl>
       </div>
 
@@ -29,7 +33,7 @@
       <div class="grid-cell text-center borrow-interest-container" [ngStyle]="hideElement(borrowInterest == 0)">
         <dl class="metadata">
           <dt>Borrow interest</dt>
-          <dd class="value-borrow-interest-total" #borrInterest>- ${{borrowInterest.toFixed(2)}}</dd>
+          <dd class="value-borrow-interest-total" #borrInterest>- ${{roundDownTo2Decimals(borrowInterest)}}</dd>
         </dl>
       </div>
 
@@ -41,6 +45,7 @@
         </dl>
       </div>
     </div>
+    <!-- TODO: hide if nothing to claim -->
     <p class="text-center"><a href="javascript:void(0);" (click)="onClaimOmmRewardsClick()" class="button modal-trigger" data-modal="modal-claim-rewards">Claim Omm rewards</a></p>
   </div>
 </div>
