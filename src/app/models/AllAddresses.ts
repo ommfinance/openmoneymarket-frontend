@@ -36,4 +36,5 @@ interface SystemContract {
   LendingPool: string;
   LendingPoolDataProvider: string;
   Staking: string;
+  Rewards: string;
 }

@@ -38,6 +38,25 @@ export class ScoreService {
   }
 
   /**
+   * @description Get Token Distribution per day
+   * @return  List os collateral, oTokens and System Contract addresses
+   */
+  public async getTokenDistributionPerDay(): Promise<number> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const params = {
+      _day: 1,
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
+      ScoreMethodNames.GET_TOKEN_DISTRIBUTION_PER_DAY, params, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    return Utils.hexE18ToNormalisedNumber(res);
+  }
+
+  /**
    * @description Get user reserve data for a specific reserve
    * @param reserve - Address using 1 a  for USDb and sICX
    * @return reserve data

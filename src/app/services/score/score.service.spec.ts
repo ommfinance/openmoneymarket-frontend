@@ -15,6 +15,6 @@ describe('ScoreService', () => {
   });
 
   it('should get all SCORE addresses', () => {
-    expect(service.getAllScoreAddresses()).toBeTruthy();
+    expect(service.getTokenDistributionPerDay()).toBeTruthy();
   });
 });
