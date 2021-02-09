@@ -77,6 +77,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
   @Output() disableAssetsInputs = new EventEmitter<undefined>();
 
   totalRisk = 0;
+  sliderRisk: any;
 
   constructor(private slidersService: SlidersService,
               private calculationService: CalculationsService,
@@ -96,6 +97,8 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     this.initBorrowSliderLogic();
     this.initSubscribedValues();
     this.subscribeToTotalRiskChange();
+
+    this.sliderRisk = document.getElementById('slider-risk');
   }
 
   /**
@@ -718,6 +721,12 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
   }
 
   updateRiskData(riskCalculationData?: RiskCalculationData, updateState = true): number {
+    const totalRisk = this.calculationService.calculateTotalRisk(riskCalculationData, updateState);
+    // Update the risk slider
+    if (this.sliderRisk) {
+      this.sliderRisk.noUiSlider.set(totalRisk * 100);
+    }
+
     return this.calculationService.calculateTotalRisk(riskCalculationData, updateState);
   }
 
