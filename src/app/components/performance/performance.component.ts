@@ -1,5 +1,5 @@
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {Modals} from "../../models/Modals";
+import {ModalType} from "../../models/ModalType";
 import {ModalService} from "../../services/modal/modal.service";
 import {UserReserveData} from "../../models/UserReserveData";
 import {StateChangeService} from "../../services/state-change/state-change.service";
@@ -62,7 +62,7 @@ export class PerformanceComponent extends BaseClass implements OnInit {
   }
 
   onClaimOmmRewardsClick(): void {
-    this.modalService.showNewModal(Modals.CLAIM_OMM_REWARDS);
+    this.modalService.showNewModal(ModalType.CLAIM_OMM_REWARDS);
   }
 
 }

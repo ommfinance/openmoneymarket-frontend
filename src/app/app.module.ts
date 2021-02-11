@@ -16,6 +16,7 @@ import { AssetUserComponent } from './components/asset-user/asset-user.component
 import {environment} from "../environments/environment";
 import log from "loglevel";
 import { AssetMarketComponent } from './components/asset-market/asset-market.component';
+import { VoteComponent } from './components/vote/vote.component';
 // set logging level
 log.setLevel(environment.production ? "error" : "debug");
 
@@ -29,7 +30,8 @@ log.setLevel(environment.production ? "error" : "debug");
     PerformanceComponent,
     RiskComponent,
     AssetUserComponent,
-    AssetMarketComponent
+    AssetMarketComponent,
+    VoteComponent
   ],
   imports: [
     BrowserModule,

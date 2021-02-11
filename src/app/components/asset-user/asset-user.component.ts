@@ -14,7 +14,7 @@ import {StateChangeService} from "../../services/state-change/state-change.servi
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {UserReserveData} from "../../models/UserReserveData";
 import {ModalService} from "../../services/modal/modal.service";
-import {Modals} from "../../models/Modals";
+import {ModalType} from "../../models/ModalType";
 import {OmmError} from "../../core/errors/OmmError";
 import {BaseClass} from "../base-class";
 import {AssetAction} from "../../models/AssetAction";
@@ -282,9 +282,9 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     const amount = Math.abs(supplyAmountDiff);
 
     if (supplyAmountDiff > 0) {
-      this.modalService.showNewModal(Modals.SUPPLY, new AssetAction(this.asset, before , value, amount));
+      this.modalService.showNewModal(ModalType.SUPPLY, new AssetAction(this.asset, before , value, amount));
     } else if (supplyAmountDiff < 0) {
-      this.modalService.showNewModal(Modals.WITHDRAW, new AssetAction(this.asset, before , value, amount));
+      this.modalService.showNewModal(ModalType.WITHDRAW, new AssetAction(this.asset, before , value, amount));
     } else {
       this.notificationService.showNewNotification("No change in supplied value.");
       return;
@@ -310,9 +310,9 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     const before = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag);
     const amount = Math.floor(Math.abs(borrowAmountDiff));
     if (borrowAmountDiff > 0) {
-      this.modalService.showNewModal(Modals.BORROW, new AssetAction(this.asset, before , value, amount));
+      this.modalService.showNewModal(ModalType.BORROW, new AssetAction(this.asset, before , value, amount));
     } else if (borrowAmountDiff < 0) {
-      this.modalService.showNewModal(Modals.REPAY, new AssetAction(this.asset, before , value, amount));
+      this.modalService.showNewModal(ModalType.REPAY, new AssetAction(this.asset, before , value, amount));
     }  else {
       this.notificationService.showNewNotification("No change in borrowed value.");
       return;

@@ -1,0 +1,281 @@
+<!-- Wrapper -->
+<div class="grid wrapper">
+  <!-- Navigation -->
+  <div class="grid-cell navigation-container">
+    <nav class="navigation">
+      <ul>
+        <li>
+          <a href="javascript:void(0);" routerLink="">
+            <div class="grid grid-center">
+              <div class="grid-cell">
+                <img src="assets/img/icon/home.svg" class="svg" alt="Home icon">
+              </div>
+              <div class="grid-cell">
+                Home
+              </div>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="javascript:void(0);" class="active">
+            <div class="grid grid-center">
+              <div class="grid-cell">
+                <img src="assets/img/icon/vote.svg" class="svg" alt="Vote icon">
+              </div>
+              <div class="grid-cell">
+                Vote
+              </div>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="javascript:void(0);">
+            <div class="grid grid-center">
+              <div class="grid-cell">
+                <img src="assets/img/icon/liquidate.svg" class="svg" alt="Liquidate icon">
+              </div>
+              <div class="grid-cell">
+                Liquidate
+              </div>
+            </div>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+  <!-- Content -->
+  <div class="grid-cell">
+    <main class="vote">
+      <!-- Vote overview -->
+      <section id="vote-overview">
+        <h2>Overview</h2>
+        <!-- Container -->
+        <div class="grid panel">
+          <!-- Omm stake -->
+          <div id="omm-stake" class="grid-cell">
+            <!-- Title -->
+            <h3>Omm stake</h3>
+
+            <!-- Stake slider -->
+            <div id="slider-stake" disabled #sliderStake></div>
+
+            <!-- Message (If staked but not voted) -->
+            <p class="label text-center hide">You have no Omm Tokens.<br>Supply or borrow to earn them.</p>
+
+            <!-- Stake actions -->
+            <div class="grid">
+              <div class="grid-cell text-center">
+                <!-- Actions to show by default -->
+                <div class="grid grid-center actions-default">
+                  <div class="grid-cell text-center">
+                    <a href="javascript:void(0);" class="button" id="stake-adjust" (click)="onStakeAdjustClick()">Stake Omm Tokens</a>
+                  </div>
+                </div>
+
+                <!-- Actions to show when adjust class is active -->
+                <div class="grid grid-center actions-adjust">
+                  <div class="grid-cell text-right">
+                    <a href="javascript:void(0);" id="stake-adjust-cancel" class="cancel" (click)="onStakeAdjustCancelClick()">Cancel</a>
+                  </div>
+                  <div class="grid-cell text-left">
+                    <a href="javascript:void(0);" class="button modal-trigger" data-modal="modal-confirm-stake" (click)="onConfirmStakeClick()">Confirm</a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Stake -->
+              <div class="grid-cell text-center">
+                <dl class="metadata">
+                  <dt>Your stake</dt>
+                  <dd><span class="value-omm-stake-amount">0</span> / 150 OMM</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+
+          <!-- Voting power -->
+          <div id="vote-power" class="grid-cell">
+            <div id="vote-conversion" class="grid-cell border-bottom text-center">
+              <dl class="metadata">
+                <dt>Voting power</dt>
+                <dd>1 OMM = 1.3 ICX</dd>
+              </dl>
+            </div>
+            <div class="grid">
+              <div class="grid-cell">
+                <dl class="metadata text-center">
+                  <dt>Your voting power</dt>
+                  <dd><span class="value-icx-stake-amount">0</span> ICX</dd>
+                </dl>
+              </div>
+              <div class="grid-cell">
+                <dl class="metadata text-center">
+                  <dt>Omm's voting power</dt>
+                  <dd>71,285 ICX</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Your votes -->
+      <section id="your-votes">
+        <!-- Title -->
+        <div class="grid grid-center">
+          <div class="grid-cell">
+            <h2>Your votes</h2><span class="value-risk-total">3/5</span>
+          </div>
+        </div>
+
+        <!-- Message (If staked but not voted) -->
+        <p class="label text-center hide">Your votes are spread across the top 100 public representatives (P-Reps).<br>To allocate your own votes, add up to 6 P-Reps from the list.</p>
+
+        <!-- Your votes list -->
+        <div class="grid">
+          <div class="grid-cell">
+            <table class="list vote">
+              <tbody>
+              <!-- ICON Foundation -->
+              <tr>
+                <td class="name">
+                  <div class="grid grid-center">
+                    <div class="grid-cell">
+                      <div class="minus">–</div>
+                      <img src="assets/img/icon/profile.svg">
+                    </div>
+                    <div class="grid-cell">
+                      ICON Foundation
+                    </div>
+                  </div>
+                </td>
+                <td></td>
+                <td>33.3%<br><span class="label">65 ICX</span></td>
+              </tr>
+
+              <!-- Spacer -->
+              <tr class="spacer"></tr>
+
+              <!-- ICX Station -->
+              <tr>
+                <td class="name">
+                  <div class="grid grid-center">
+                    <div class="grid-cell">
+                      <div class="minus">–</div>
+                      <img src="assets/img/icon/profile.svg">
+                    </div>
+                    <div class="grid-cell">
+                      ICX_Station
+                    </div>
+                  </div>
+                </td>
+                <td></td>
+                <td>33.3%<br><span class="label">65 ICX</span></td>
+              </tr>
+
+              <!-- Spacer -->
+              <tr class="spacer"></tr>
+
+              <!-- Velic -->
+              <tr>
+                <td class="name">
+                  <div class="grid grid-center">
+                    <div class="grid-cell">
+                      <div class="minus">–</div>
+                      <img src="assets/img/icon/profile.svg">
+                    </div>
+                    <div class="grid-cell">
+                      VELIC
+                    </div>
+                  </div>
+                </td>
+                <td></td>
+                <td>33.3%<br><span class="label">65 ICX</span></td>
+              </tr>
+              </tbody>
+            </table>
+
+            <!-- Actions to show by default -->
+            <div class="grid grid-center actions-default">
+              <div class="grid-cell text-center">
+                <a href="javascript:void(0);" id="vote-adjust" class="button" (click)="onAdjustVoteClick()">Adjust votes</a>
+              </div>
+            </div>
+
+            <!-- Actions to show when adjust class is active -->
+            <div class="grid grid-center actions-adjust">
+              <div class="grid-cell text-right">
+                <a href="javascript:void(0);" id="vote-adjust-cancel" class="cancel" (click)="onDiscardAdjustVotesClick()">Discard</a>
+              </div>
+              <div class="grid-cell text-left">
+                <a href="javascript:void(0);" class="button modal-trigger" data-modal="modal-add-preps" (click)="onConfirmAddPrepClick()">Save</a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+      <!-- /Your votes -->
+
+      <!-- P-Rep list -->
+      <section id="p-rep-list">
+        <!-- Title -->
+        <div class="grid grid-center title">
+          <div class="grid-cell">
+            <h2>P-Reps</h2>
+          </div>
+          <div class="grid-cell text-right">
+            <input type="text" name="" class="search" placeholder="Search P-Reps" [(ngModel)]="searchInput" (change)="onSearchInputChange()">
+          </div>
+        </div>
+
+        <!-- P-Rep list -->
+        <div class="grid">
+          <div class="grid-cell">
+            <table class="list p-reps">
+              <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Name</th>
+                <th class="text-right">
+                  Earnings
+                  <span id="tooltip-earnings" class="tooltip">
+													<span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+													<div class="tooltip-content"><p>The amount P-Reps earn each month, based on the number of votes.</p></div>
+												</span>
+                </th>
+                <th class="text-right">Votes</th>
+              </tr>
+              </thead>
+              <tbody>
+                <ng-container *ngFor="let prep of preps; last as isLast; let i = index">
+                  <!-- Prep -->
+                  <tr>
+                    <td>{{i + 1}}</td>
+                    <td class="name">
+                      <div class="grid grid-center">
+                        <div class="grid-cell">
+                          <div class="plus">+</div>
+                          <img src="assets/img/icon/profile.svg">
+                        </div>
+                        <div class="grid-cell">
+                          {{prep.name}}
+                        </div>
+                      </div>
+                    </td>
+                    <td>${{formatNumberToUSLocaleString(prep.earnings.USD)}}<br><span class="label">{{formatNumberToUSLocaleString(prep.earnings.ICX)}} ICX</span></td>
+                    <td>{{prep.votes.percent}}%<br><span class="label">{{formatNumberToUSLocaleString(prep.votes.amount)}}</span></td>
+                  </tr>
+                  <!-- Spacer -->
+                  <tr *ngIf="!isLast" class="spacer"></tr>
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      <!-- /P-Rep list -->
+    </main>
+  </div>
+</div>

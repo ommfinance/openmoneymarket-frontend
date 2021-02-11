@@ -27,6 +27,105 @@
   </div>
 </div>
 
+
+<!-- Modal: Confirm Omm Token stake -->
+<div class="modal" id="modal-confirm-stake" #stakeOmm>
+  <div class="modal-content">
+    <!-- Title -->
+    <h3 class="text-center label">Stake Omm Tokens?</h3>
+    <p class="text-center"><span class="value-omm-stake-amount">100</span> OMM</p>
+
+    <!-- Before vs after -->
+    <div class="grid before-after">
+      <div class="grid-cell text-center border-right">
+        <p class="label">Before</p>
+        <p class="text-dark">0 OMM</p>
+      </div>
+      <div class="grid-cell text-center">
+        <p class="label">After</p>
+        <p class="text-dark"><span class="value-omm-stake-amount">100</span> OMM</p>
+      </div>
+    </div>
+
+    <!-- Unstaking message -->
+    <p class="label text-center">It will take 3 days to unstake them.</p>
+
+    <!-- Modal actions -->
+    <div class="modal-actions">
+      <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Cancel</a>
+      <a href="javascript:void(0);" class="button">Stake</a>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Confirm Omm Token unstake -->
+<div class="modal" id="modal-confirm-unstake" #unstakeOmm>
+  <div class="modal-content">
+    <!-- Title -->
+    <h3 class="text-center label">Unstake Omm Tokens?</h3>
+    <p class="text-center"><span class="value-omm-stake-amount">-50</span> OMM</p>
+
+    <!-- Before vs after -->
+    <div class="grid before-after">
+      <div class="grid-cell text-center border-right">
+        <p class="label">Before</p>
+        <p class="text-dark">50 OMM</p>
+      </div>
+      <div class="grid-cell text-center">
+        <p class="label">After</p>
+        <p class="text-dark"><span class="value-omm-stake-amount">0</span> OMM</p>
+      </div>
+    </div>
+
+    <!-- Unstaking message -->
+    <p class="label text-center">You'll receive them in 3 days.</p>
+
+    <!-- Modal actions -->
+    <div class="modal-actions">
+      <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Cancel</a>
+      <a href="javascript:void(0);" class="button">Unstake</a>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add P-Rep selection -->
+<div class="modal" id="modal-add-preps" #addPrep>
+  <div class="modal-content">
+    <!-- Title -->
+    <h3 class="text-center label">Confirm P-Rep selection?</h3>
+
+    <!-- Your P-Rep list -->
+    <ul>
+      <li>ICON Foundation</li>
+      <li>ICX_Station</li>
+      <li>Velic</li>
+    </ul>
+
+    <!-- Modal actions -->
+    <div class="modal-actions">
+      <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Cancel</a>
+      <a href="javascript:void(0);" class="button">Confirm</a>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Remove P-Rep selection -->
+<div class="modal" id="modal-remove-preps" #rmvPrep>
+  <div class="modal-content">
+    <!-- Title -->
+    <h3 class="text-center label">Remove votes from all P-Reps?</h3>
+
+    <!-- Message -->
+    <p class="text-center">Your votes will be spread across the top 100 P-Reps.</p>
+
+    <!-- Modal actions -->
+    <div class="modal-actions">
+      <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Cancel</a>
+      <a href="javascript:void(0);" class="button">Remove</a>
+    </div>
+  </div>
+</div>
+
 <!-- Claim Omm rewards modal -->
 <div class="modal" id="modal-claim-rewards" #claimOmmRewardsModal>
   <div class="modal-content">

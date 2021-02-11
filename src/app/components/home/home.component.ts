@@ -23,7 +23,6 @@ import {Asset, AssetTag} from "../../models/Asset";
 import log from "loglevel";
 import {AssetUserComponent} from "../asset-user/asset-user.component";
 import {StateChangeService} from "../../services/state-change/state-change.service";
-import {RiskData} from "../../models/RiskData";
 import {AssetMarketComponent} from "../asset-market/asset-market.component";
 import {ActiveMarketView} from "../../models/ActiveMarketView";
 import {UserReserveData} from "../../models/UserReserveData";

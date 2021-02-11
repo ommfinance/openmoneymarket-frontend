@@ -12,7 +12,7 @@ import {environment} from "../../../environments/environment";
 import {OmmError} from "../../core/errors/OmmError";
 import {ModalAction} from "../../models/ModalAction";
 import {AssetAction} from "../../models/AssetAction";
-import {Modals} from "../../models/Modals";
+import {ModalType} from "../../models/ModalType";
 
 @Injectable({
   providedIn: 'root'
@@ -88,16 +88,16 @@ export class TransactionResultService {
 
   private showSuccessActionNotification(modalAction: ModalAction, assetAction: AssetAction): void {
     switch (modalAction.modalType) {
-      case Modals.SUPPLY:
+      case ModalType.SUPPLY:
         this.notificationService.showNewNotification(`${assetAction.amount} ${assetAction.asset.tag} supplied.`);
         break;
-      case Modals.WITHDRAW:
+      case ModalType.WITHDRAW:
         this.notificationService.showNewNotification(`${assetAction.amount} ${assetAction.asset.tag} withdrawn.`);
         break;
-      case Modals.BORROW:
+      case ModalType.BORROW:
         this.notificationService.showNewNotification(`${assetAction.amount} ${assetAction.asset.tag} borrowed.`);
         break;
-      case Modals.REPAY:
+      case ModalType.REPAY:
         this.notificationService.showNewNotification(`${assetAction.amount} ${assetAction.asset.tag} repaid.`);
         break;
     }
@@ -105,16 +105,16 @@ export class TransactionResultService {
 
   private showFailedActionNotification(modalAction: ModalAction, assetAction: AssetAction): void {
     switch (modalAction.modalType) {
-      case Modals.SUPPLY:
+      case ModalType.SUPPLY:
         this.notificationService.showNewNotification(`Couldn't supply ${assetAction.asset.tag}. Try again.`);
         break;
-      case Modals.WITHDRAW:
+      case ModalType.WITHDRAW:
         this.notificationService.showNewNotification(`Couldn't withdraw ${assetAction.asset.tag}. Try again.`);
         break;
-      case Modals.BORROW:
+      case ModalType.BORROW:
         this.notificationService.showNewNotification(`Couldn't borrow ${assetAction.asset.tag}. Try again.`);
         break;
-      case Modals.REPAY:
+      case ModalType.REPAY:
         this.notificationService.showNewNotification(`Couldn't repay ${assetAction.asset.tag}. Try again.`);
         break;
     }

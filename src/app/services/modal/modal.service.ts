@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {Subject} from "rxjs";
-import {Modals} from "../../models/Modals";
+import {ModalType} from "../../models/ModalType";
 import {ModalAction} from "../../models/ModalAction";
 import log from "loglevel";
 import {AssetAction} from "../../models/AssetAction";
@@ -20,7 +20,7 @@ export class ModalService {
 
   constructor() { }
 
-  showNewModal(modal: Modals, assetAction?: AssetAction): void {
+  showNewModal(modal: ModalType, assetAction?: AssetAction): void {
     this.activeModalChange.next(new ModalAction(modal, assetAction));
   }
 

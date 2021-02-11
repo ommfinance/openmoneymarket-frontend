@@ -3,16 +3,15 @@ import {IconexApiService} from "../../services/iconex-api/iconex-api.service";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {SupplyService} from "../../services/supply/supply.service";
 // @ts-ignore
-import BridgeService from "../../../../build/bridge.bundle";
 import {BaseClass} from "../base-class";
 import {IconexWallet} from "../../models/IconexWallet";
 import {BridgeWallet} from "../../models/BridgeWallet";
 import {ModalService} from "../../services/modal/modal.service";
-import {Modals} from "../../models/Modals";
-import log from "loglevel";
+import {ModalType} from "../../models/ModalType";
 import {BridgeWidgetService} from "../../services/bridge-widget/bridge-widget.service";
 import {DataLoaderService} from "../../services/data-loader/data-loader.service";
 import {NotificationService} from "../../services/notification/notification.service";
+import {NavigationEnd, Router} from "@angular/router";
 
 declare var $: any;
 
@@ -25,21 +24,33 @@ export class HeaderComponent extends BaseClass implements OnInit {
 
   @Input() walletValue!: string;
 
+  pageTitle = "Home";
+
   constructor(public persistenceService: PersistenceService,
               public depositService: SupplyService,
               public iconexApiService: IconexApiService,
               private modalService: ModalService,
               private bridgeWidgetService: BridgeWidgetService,
               private dataLoaderService: DataLoaderService,
-              private notificationService: NotificationService) {
+              private notificationService: NotificationService,
+              private router: Router) {
     super(persistenceService);
+    router.events.subscribe( (event) => ( event instanceof NavigationEnd ) && this.handleRouteChange() );
+  }
+
+  handleRouteChange(): void {
+    if (this.router.url.includes('vote')) {
+      this.pageTitle = "Vote";
+    } else {
+      this.pageTitle = "Home";
+    }
   }
 
   ngOnInit(): void {
   }
 
   onSignInClick(): void {
-    this.modalService.showNewModal(Modals.SIGN_IN);
+    this.modalService.showNewModal(ModalType.SIGN_IN);
   }
 
   onLoginIconexClick(): void {

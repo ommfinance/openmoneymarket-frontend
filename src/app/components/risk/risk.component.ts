@@ -45,17 +45,7 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // Risk slider
-    this.sliderRisk = document.getElementById('slider-risk');
-    noUiSlider.create(this.sliderRisk, {
-      start: [0],
-      connect: 'lower',
-      tooltips: [wNumb({decimals: 0, thousand: ',', suffix: '%'})],
-      range: {
-        min: [0],
-        max: [100]
-      },
-    });
+    this.initRiskSlider();
   }
 
   initSubscribedValues(): void {
@@ -76,6 +66,20 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
     this.stateChangeService.userAccountDataChange.subscribe((userAccountData: UserAccountData) => {
       // re-calculate total risk percentage
       this.calculationService.calculateTotalRisk();
+    });
+  }
+
+  initRiskSlider(): void {
+    // Risk slider
+    this.sliderRisk = document.getElementById('slider-risk');
+    noUiSlider.create(this.sliderRisk, {
+      start: [0],
+      connect: 'lower',
+      tooltips: [wNumb({decimals: 0, thousand: ',', suffix: '%'})],
+      range: {
+        min: [0],
+        max: [100]
+      },
     });
   }
 
