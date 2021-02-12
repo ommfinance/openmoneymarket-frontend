@@ -5,4 +5,4 @@ export declare class WebhookConfig {
     url: string;
     constructor(contactEmail: string, enabled: boolean, sharedSecret: string, url: string);
 }
-//# sourceMappingURL=WebhookConfig.d.ts.map
+// # sourceMappingURL=WebhookConfig.d.ts.map

@@ -11,4 +11,4 @@ export declare class RestApiUrls {
     static TOKENS_TRANSACTIONS_API_URL: string;
     static ICX_TRANSACTIONS_API_URL: string;
 }
-//# sourceMappingURL=rest-api-urls.d.ts.map
+// # sourceMappingURL=rest-api-urls.d.ts.map

@@ -6,4 +6,4 @@ export declare class BridgeError extends Error {
     userFriendlyMessage: string;
     constructor(userFriendlyMessage?: string, externalError?: any);
 }
-//# sourceMappingURL=bridgeError.d.ts.map
+// # sourceMappingURL=bridgeError.d.ts.map

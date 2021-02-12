@@ -19,4 +19,4 @@ export declare class CompanyContactUS {
     kycDocumentChecks: StandardKycDocumentCheck[] | StandardKycDocumentCheckOther[] | null;
     constructor(email: string, name: string, primaryAddress: PrimaryAddressUS, primaryPhoneNumber: PrimaryPhoneNumber, contactType: string, regionOfFormation: string, relatedContacts: RelatedNaturalPersonContact[] | RelatedCompanyContact[] | null, taxCountry: string, taxIdNumber: string, taxState: string, uploadedDocIds: string[], kycDocumentChecks: StandardKycDocumentCheck[] | StandardKycDocumentCheckOther[] | null);
 }
-//# sourceMappingURL=CompanyContactUS.d.ts.map
+// # sourceMappingURL=CompanyContactUS.d.ts.map

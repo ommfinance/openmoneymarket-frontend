@@ -16,4 +16,4 @@ export declare function getTransactionName(transaction: BridgeTransaction): stri
 export declare function getKycStatusTitle(userKycData: UserKycData | undefined, title?: string): "Not verified" | "Verifying" | "Verified";
 export declare function getKycStatusClass(title: string, userKycData: UserKycData | undefined): "not-verified" | "verifying" | "";
 export declare function getKycFailureMessage(errorMessage: string, country: string | undefined): string;
-//# sourceMappingURL=Mapping.d.ts.map
+// # sourceMappingURL=Mapping.d.ts.map

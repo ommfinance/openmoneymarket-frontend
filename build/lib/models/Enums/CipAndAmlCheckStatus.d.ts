@@ -3,4 +3,4 @@ export declare enum CipAndAmlCheckStatus {
     approved = "approved",
     rejected = "rejected"
 }
-//# sourceMappingURL=CipAndAmlCheckStatus.d.ts.map
+// # sourceMappingURL=CipAndAmlCheckStatus.d.ts.map

@@ -21,4 +21,4 @@ export declare class IconApiService {
      */
     getIcxTransactions(address: string, page?: number, count?: number): Promise<AxiosResponse>;
 }
-//# sourceMappingURL=icon-api-service.d.ts.map
+// # sourceMappingURL=icon-api-service.d.ts.map

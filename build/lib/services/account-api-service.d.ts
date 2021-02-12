@@ -87,4 +87,4 @@ export declare class AccountApiService {
      */
     postAccountAgreementPreview(owner: NaturalPersonContactUS | NaturalPersonContactNonUS): Promise<AxiosResponse>;
 }
-//# sourceMappingURL=account-api-service.d.ts.map
+// # sourceMappingURL=account-api-service.d.ts.map

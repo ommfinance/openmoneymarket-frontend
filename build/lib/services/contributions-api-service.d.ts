@@ -25,4 +25,4 @@ export declare class ContributionsApiService {
         "deposits": Deposit[];
     }>>;
 }
-//# sourceMappingURL=contributions-api-service.d.ts.map
+// # sourceMappingURL=contributions-api-service.d.ts.map

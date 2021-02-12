@@ -28,4 +28,4 @@ export interface Attributes {
     "created-at": string;
     "updated-at": string;
 }
-//# sourceMappingURL=Contact.d.ts.map
+// # sourceMappingURL=Contact.d.ts.map

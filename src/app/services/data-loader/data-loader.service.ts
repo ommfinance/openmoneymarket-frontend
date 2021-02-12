@@ -13,6 +13,7 @@ import {IconexWallet} from "../../models/IconexWallet";
 import {BridgeWallet} from "../../models/BridgeWallet";
 import {OmmError} from "../../core/errors/OmmError";
 import {AllReserveConfigData} from "../../models/AllReserveConfigData";
+import {LedgerWallet} from "../../models/LedgerWallet";
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +26,7 @@ export class DataLoaderService {
 
   }
 
-  public async walletLogin(wallet: IconexWallet | BridgeWallet): Promise<void> {
+  public async walletLogin(wallet: IconexWallet | BridgeWallet | LedgerWallet): Promise<void> {
     this.persistenceService.activeWallet = wallet;
 
     try {

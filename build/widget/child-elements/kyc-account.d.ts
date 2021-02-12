@@ -3,6 +3,8 @@ import { BridgeService } from "../../lib/BridgeService";
 import { User } from "../../lib/models/User/User";
 import "./kyc-documents";
 declare class KycAccount extends LitElement {
+    constructor();
+    static styles: any[];
     bridge: BridgeService | undefined;
     user: User | undefined;
     accountName: HTMLInputElement | null | undefined;
@@ -45,30 +47,28 @@ declare class KycAccount extends LitElement {
     errorView: HTMLElement | null | undefined;
     accountAgreement: HTMLElement | null | undefined;
     activeView: HTMLElement | null | undefined;
-    constructor();
-    static styles: any[];
-    protected firstUpdated(_changedProperties: any): void;
     private createAccountAgreementAndShowIt;
     private onCreateAccountSubmit;
     private uploadKycDocuments;
     private createPrimeTrustAccount;
-    initMockAccountValues(): void;
     private getAccountOwnerData;
     private handleError;
-    accountCreatedEvent(user: User): void;
-    backToHomeViewEvent(): void;
     private showModalView;
     private setActiveModalView;
     private validateIdentityInputFields;
     private validateAddressInputFields;
-    submitKycIdentityForm(event: Event): boolean;
-    submitKycAddressForm(event: Event): boolean;
     private documentIdTypeChange;
     private UScountrySelected;
     private UScountryAddressSelected;
     private addressCountryChange;
     private countryChange;
     private driverLicenseSelected;
+    protected firstUpdated(_changedProperties: any): void;
+    initMockAccountValues(): void;
+    accountCreatedEvent(user: User): void;
+    backToHomeViewEvent(): void;
+    submitKycIdentityForm(event: Event): boolean;
+    submitKycAddressForm(event: Event): boolean;
     render(): import("lit-element").TemplateResult;
 }
 declare global {
@@ -77,4 +77,4 @@ declare global {
     }
 }
 export {};
-//# sourceMappingURL=kyc-account.d.ts.map
+// # sourceMappingURL=kyc-account.d.ts.map

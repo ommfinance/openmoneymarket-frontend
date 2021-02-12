@@ -5,4 +5,4 @@ export declare class RequestsWrapper {
     magic: Magic;
     constructor(magic: Magic);
 }
-//# sourceMappingURL=requests-wrapper.d.ts.map
+// # sourceMappingURL=requests-wrapper.d.ts.map

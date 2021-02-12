@@ -7,6 +7,8 @@ import { UserKycData } from "../../lib/models/Account/UserKycData";
 import { Contact } from "../../lib/models/Interfaces/Contact";
 import { KycState } from "../../lib/models/Enums/KycState";
 declare class KycStatusElem extends LitElement {
+    constructor();
+    static styles: any[];
     bridge: BridgeService | undefined;
     user: User | undefined;
     userContact: Contact | undefined;
@@ -60,14 +62,8 @@ declare class KycStatusElem extends LitElement {
     activeView: HTMLElement | null | undefined;
     identityState: KycState;
     addressState: KycState;
-    constructor();
-    static styles: any[];
-    protected updated(_changedProperties: PropertyValues): void;
-    protected firstUpdated(_changedProperties: any): void;
     private uploadKycDocuments;
     private handleError;
-    contactUpdatedEvent(contact: Contact): void;
-    backToHomeViewEvent(): void;
     private resetFields;
     private showModalView;
     private setActiveModalView;
@@ -75,8 +71,6 @@ declare class KycStatusElem extends LitElement {
     private validateAddressInputFields;
     private identityFormChanged;
     private addressFormChanged;
-    submitKycIdentityForm(event: Event): Promise<boolean>;
-    submitKycAddressForm(event: Event): Promise<boolean>;
     private uploadProofOfAddress;
     private documentIdTypeChange;
     private UScountrySelected;
@@ -100,6 +94,12 @@ declare class KycStatusElem extends LitElement {
     private cipExceptionChange;
     private kycDocExceptionChange;
     private getUploadedFileLink;
+    protected updated(_changedProperties: PropertyValues): void;
+    protected firstUpdated(_changedProperties: any): void;
+    contactUpdatedEvent(contact: Contact): void;
+    backToHomeViewEvent(): void;
+    submitKycIdentityForm(event: Event): Promise<boolean>;
+    submitKycAddressForm(event: Event): Promise<boolean>;
     render(): import("lit-element").TemplateResult;
 }
 declare global {
@@ -108,4 +108,4 @@ declare global {
     }
 }
 export {};
-//# sourceMappingURL=kyc-status-elem.d.ts.map
+// # sourceMappingURL=kyc-status-elem.d.ts.map

@@ -35,4 +35,4 @@ export interface Links1 {
 export interface AssetTransfer {
     data?: any;
 }
-//# sourceMappingURL=AmlCheck.d.ts.map
+// # sourceMappingURL=AmlCheck.d.ts.map

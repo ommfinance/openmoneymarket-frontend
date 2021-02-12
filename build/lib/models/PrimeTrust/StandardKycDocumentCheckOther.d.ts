@@ -3,4 +3,4 @@ export declare class StandardKycDocumentCheckOther extends StandardKycDocumentCh
     kycDocumentOtherType: string;
     constructor(uploadedDocumentId: string, kycDocumentCountry: string, kycDocumentType: string, kycDocumentOtherType: string, identity: boolean, identityPhoto: boolean, proofOfAddress: boolean, backsideDocumentId?: string, expiresOn?: string);
 }
-//# sourceMappingURL=StandardKycDocumentCheckOther.d.ts.map
+// # sourceMappingURL=StandardKycDocumentCheckOther.d.ts.map

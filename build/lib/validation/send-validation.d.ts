@@ -7,4 +7,4 @@
  * @return {string[]} errors - List of error messages that occurred during the validation
  */
 export declare function validateSendBridgeTokens(transferAmount: number, transferToAddress: string, userBalance: number | undefined, iconWalletAddress: string): string[];
-//# sourceMappingURL=send-validation.d.ts.map
+// # sourceMappingURL=send-validation.d.ts.map

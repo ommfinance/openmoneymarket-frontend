@@ -13,4 +13,4 @@ export declare class PatchContact {
     taxState?: string;
     constructor(email?: string, name?: string, primaryAddress?: PrimaryAddressUS, primaryPhoneNumber?: PrimaryPhoneNumber, dateOfBirth?: string, sex?: string, taxCountry?: string, taxIdNumber?: string, taxState?: string);
 }
-//# sourceMappingURL=PatchContact.d.ts.map
+// # sourceMappingURL=PatchContact.d.ts.map

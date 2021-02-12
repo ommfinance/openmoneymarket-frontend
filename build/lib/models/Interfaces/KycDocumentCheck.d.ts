@@ -38,4 +38,4 @@ export interface ContactOrUploadedDocumentOrBacksideDocument {
 export interface Links1 {
     related: string;
 }
-//# sourceMappingURL=KycDocumentCheck.d.ts.map
+// # sourceMappingURL=KycDocumentCheck.d.ts.map

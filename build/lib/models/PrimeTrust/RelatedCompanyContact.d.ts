@@ -9,4 +9,4 @@ export declare class RelatedCompanyContact extends CompanyContactUS {
     primary: boolean;
     constructor(email: string, name: string, primaryAddress: PrimaryAddressUS, primaryPhoneNumber: PrimaryPhoneNumber, contactType: string, regionOfFormation: string, relatedContacts: RelatedNaturalPersonContact[] | RelatedCompanyContact[], taxCountry: string, taxIdNumber: string, taxState: string, uploadedDocIds: string[], kycDocumentChecks: StandardKycDocumentCheck[] | StandardKycDocumentCheckOther[], label: string, primary: boolean);
 }
-//# sourceMappingURL=RelatedCompanyContact.d.ts.map
+// # sourceMappingURL=RelatedCompanyContact.d.ts.map

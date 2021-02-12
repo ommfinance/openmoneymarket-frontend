@@ -3,6 +3,8 @@ import { BridgeService } from "../../lib/BridgeService";
 import { User } from "../../lib/models/User/User";
 import { Token } from "../../lib/models/Tokens/Tokens";
 declare class SendToken extends LitElement {
+    constructor();
+    static styles: any[];
     bridge: BridgeService | undefined;
     user: User | undefined;
     selectedToken: Token | undefined;
@@ -20,9 +22,6 @@ declare class SendToken extends LitElement {
     activeView: HTMLElement | null | undefined;
     amount: number;
     errors: string[];
-    protected firstUpdated(_changedProperties: any): void;
-    constructor();
-    static styles: any[];
     private showConfirmationView;
     private transferTokens;
     private amountChange;
@@ -32,9 +31,10 @@ declare class SendToken extends LitElement {
     private clearInputFields;
     private showModalView;
     private setActiveModalView;
-    tokenTransferEvent(amount: number, to: string): void;
     private backToHomeViewEvent;
     private updateBalanceEvent;
+    protected firstUpdated(_changedProperties: any): void;
+    tokenTransferEvent(amount: number, to: string): void;
     protected render(): unknown;
 }
 declare global {
@@ -43,4 +43,4 @@ declare global {
     }
 }
 export {};
-//# sourceMappingURL=send-token.d.ts.map
+// # sourceMappingURL=send-token.d.ts.map

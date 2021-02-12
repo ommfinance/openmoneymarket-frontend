@@ -11,6 +11,7 @@ import { MagicLoginResponse } from "./models/Interfaces/MagicLogin";
 import { UtilsApiService } from "./services/utils-api-service";
 declare const IconService: any;
 export declare class BridgeService {
+    constructor();
     private readonly magic;
     magicUserMetadata: MagicUserMetadata | undefined;
     readonly iconSdk: typeof IconService;
@@ -24,7 +25,14 @@ export declare class BridgeService {
     withdrawApiService: WithdrawApiService;
     utilsApiService: UtilsApiService;
     plaidLinkHandler: any;
-    constructor();
+    /**
+     * @description Polls for txResult until not pending and dispatches the result as event
+     * @param {string} txHash - The transaction hash.
+     * @param {number} retryAttempt - The number of attempts to get the transaction result
+     */
+    private dispatchTxResultEvent;
+    private checkMagicInitialized;
+    private checkUserMetadataInitialized;
     /**
      * @description Login user in to Magic using email and dispatch login event
      * @param {string} email - The email of user.
@@ -75,12 +83,6 @@ export declare class BridgeService {
      */
     sendIcxTokens(to: string, amount: number): Promise<string>;
     addSendTransactionEventListener(): void;
-    /**
-     * @description Polls for txResult until not pending and dispatches the result as event
-     * @param {string} txHash - The transaction hash.
-     * @param {number} retryAttempt - The number of attempts to get the transaction result
-     */
-    private dispatchTxResultEvent;
     /**
      * @description Event handler for sending stable coins initiated by Bridge integrator.
      * @throws {BridgeError} - contains user friendly message and external error (if present)
@@ -133,8 +135,6 @@ export declare class BridgeService {
      * @param {string} resourceTokenHash - Credit card resource token hash
      */
     dispatchCreditCardWidgetInitEvent(target: HTMLElement, resourceTokenHash: string): void;
-    private checkMagicInitialized;
-    private checkUserMetadataInitialized;
 }
 export {};
-//# sourceMappingURL=BridgeService.d.ts.map
+// # sourceMappingURL=BridgeService.d.ts.map

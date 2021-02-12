@@ -12,4 +12,4 @@ export declare class Consts {
     static BRIDGE_WIDGET_ACTION: string;
     static BRIDGE_WIDGET_ACTION_RESPONSE: string;
 }
-//# sourceMappingURL=consts.d.ts.map
+// # sourceMappingURL=consts.d.ts.map

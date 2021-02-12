@@ -17,6 +17,10 @@ import {StateChangeService} from "../../services/state-change/state-change.servi
 import {NotificationService} from "../../services/notification/notification.service";
 import {AssetTag} from "../../models/Asset";
 import {PersistenceService} from "../../services/persistence/persistence.service";
+import {LedgerService} from "../../services/ledger/ledger.service";
+import {DataLoaderService} from "../../services/data-loader/data-loader.service";
+import {BridgeWallet} from "../../models/BridgeWallet";
+import {LedgerWallet} from "../../models/LedgerWallet";
 
 
 @Component({
@@ -52,7 +56,9 @@ export class ModalComponent extends BaseClass implements OnInit {
               private localStorageService: LocalStorageService,
               private stateChangeService: StateChangeService,
               private notificationService: NotificationService,
-              public persistenceService: PersistenceService) {
+              public persistenceService: PersistenceService,
+              private ledgerService: LedgerService,
+              private dataLoaderService: DataLoaderService) {
     super(persistenceService);
 
     this.activeModalSubscription = this.modalService.activeModalChange$.subscribe((activeModalChange: ModalAction) => {
@@ -104,6 +110,15 @@ export class ModalComponent extends BaseClass implements OnInit {
   onSignInBridgeClick(): void {
     this.modalService.hideActiveModal();
     this.bridgeWidgetService.openBridgeWidget();
+  }
+
+  onSignInLedgerClick(): void {
+    this.modalService.hideActiveModal();
+    this.ledgerService.signIn().then(res => {
+      this.dataLoaderService.walletLogin(new LedgerWallet(res!.address));
+    }).catch(e => {
+      throw new OmmError(e.message);
+    });
   }
 
   onCancelClick(): void {

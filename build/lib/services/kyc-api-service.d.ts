@@ -37,4 +37,4 @@ export declare class KycApiService {
      */
     getKycCheck(kycCheck: KycCheckOption): Promise<AxiosResponse<KycChecks>>;
 }
-//# sourceMappingURL=kyc-api-service.d.ts.map
+// # sourceMappingURL=kyc-api-service.d.ts.map

@@ -17,4 +17,4 @@ export declare class CreditCardApiService {
      */
     getCreditCardVerificationCode(creditCardResourceId: string): Promise<AxiosResponse<VerificationCodeResponse>>;
 }
-//# sourceMappingURL=credit-card-api-service.d.ts.map
+// # sourceMappingURL=credit-card-api-service.d.ts.map

@@ -8,4 +8,4 @@ export declare class UserKycData {
     proofOfAddressDocumentsVerified: boolean;
     constructor(status: string, disbursementsFrozen: boolean, amlCleared: boolean, cipCleared: boolean, identityConfirmed: boolean, identityDocumentsVerified: boolean, proofOfAddressDocumentsVerified: boolean);
 }
-//# sourceMappingURL=UserKycData.d.ts.map
+// # sourceMappingURL=UserKycData.d.ts.map

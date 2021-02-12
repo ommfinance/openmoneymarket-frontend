@@ -4,4 +4,4 @@ export declare enum KycStatus {
     opened = "opened",
     closed = "closed"
 }
-//# sourceMappingURL=KycStatus.d.ts.map
+// # sourceMappingURL=KycStatus.d.ts.map

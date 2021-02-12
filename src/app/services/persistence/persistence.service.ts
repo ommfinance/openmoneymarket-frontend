@@ -7,6 +7,7 @@ import {UserAccountData} from "../../models/UserAccountData";
 import {BridgeWallet} from "../../models/BridgeWallet";
 import {AssetTag} from "../../models/Asset";
 import {AllReserveConfigData} from "../../models/AllReserveConfigData";
+import {LedgerWallet} from "../../models/LedgerWallet";
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,7 @@ import {AllReserveConfigData} from "../../models/AllReserveConfigData";
  */
 export class PersistenceService {
 
-  public activeWallet?: IconexWallet | BridgeWallet;
+  public activeWallet?: IconexWallet | BridgeWallet | LedgerWallet;
 
   public allAddresses?: AllAddresses;
   public allReserves?: AllReservesData;

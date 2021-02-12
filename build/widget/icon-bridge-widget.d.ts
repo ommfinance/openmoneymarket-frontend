@@ -5,6 +5,8 @@ import "./child-elements/withdraw-elem";
 import "./child-elements/payment-methods";
 import "./child-elements/kyc-status-elem";
 export declare class IconBridgeWidget extends LitElement {
+    constructor();
+    static styles: any[];
     private hideButton;
     private mainModalWrapper;
     private overlay;
@@ -51,11 +53,7 @@ export declare class IconBridgeWidget extends LitElement {
     private qrCodeContainer;
     private lastScrollPosition;
     private floatingHeaderActive;
-    constructor();
     private resetProperties;
-    static styles: any[];
-    protected firstUpdated(_changedProperties: any): void;
-    connectedCallback(): void;
     private handleBriWidgetEvent;
     private reloadBriBalanceAndPaymentMethods;
     private showModalView;
@@ -79,7 +77,6 @@ export declare class IconBridgeWidget extends LitElement {
     private handleError;
     private showChangeEmail;
     private hideEmailChangeShowMain;
-    backToHomeView(): void;
     private showPaymentMethods;
     private showWithdrawalPaymentMethods;
     private onBridgeButtonClick;
@@ -112,12 +109,15 @@ export declare class IconBridgeWidget extends LitElement {
     private getTransactionsHtml;
     private getTransactionDetailHtml;
     private getKycStatusTitleFromElem;
-    render(): import("lit-element").TemplateResult;
     private getTransactionNavHtml;
+    protected firstUpdated(_changedProperties: any): void;
+    connectedCallback(): void;
+    backToHomeView(): void;
+    render(): import("lit-element").TemplateResult;
 }
 declare global {
     interface HTMLElementTagNameMap {
         'icon-bridge-widget': IconBridgeWidget;
     }
 }
-//# sourceMappingURL=icon-bridge-widget.d.ts.map
+// # sourceMappingURL=icon-bridge-widget.d.ts.map

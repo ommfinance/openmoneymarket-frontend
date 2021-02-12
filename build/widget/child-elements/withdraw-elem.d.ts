@@ -2,6 +2,8 @@ import { LitElement } from "lit-element";
 import { BridgeService } from "../../lib/BridgeService";
 import { User } from "../../lib/models/User/User";
 declare class WithdrawElem extends LitElement {
+    constructor();
+    static styles: any[];
     bridge: BridgeService | undefined;
     user: User | undefined;
     userBalance: number;
@@ -17,17 +19,15 @@ declare class WithdrawElem extends LitElement {
     private selectedPaymentMethod;
     private amount;
     private errors;
-    constructor();
-    static styles: any[];
-    protected firstUpdated(_changedProperties: any): void;
     private showModalView;
     private setActiveModalView;
     private amountChange;
     private resetFields;
-    backToPaymentMethods(): void;
     private backToHomeView;
     private showConfirmWithdraw;
     private submitWithdrawal;
+    protected firstUpdated(_changedProperties: any): void;
+    backToPaymentMethods(): void;
     render(): import("lit-element").TemplateResult;
 }
 declare global {
@@ -36,4 +36,4 @@ declare global {
     }
 }
 export {};
-//# sourceMappingURL=withdraw-elem.d.ts.map
+// # sourceMappingURL=withdraw-elem.d.ts.map

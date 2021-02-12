@@ -22,4 +22,4 @@ export declare function validateKycOtherDocumentType(kycOtherDocumentType: strin
 export declare function validateKycDocumentCountry(kycDocumentCountry: string | undefined): boolean;
 export declare function validateCompanyContactType(contactType: string | undefined): boolean;
 export declare function validateAccount(account: Account | undefined, contactHasUSTaxInfo: boolean, hasUSAddress: boolean): string[];
-//# sourceMappingURL=account-validation.d.ts.map
+// # sourceMappingURL=account-validation.d.ts.map

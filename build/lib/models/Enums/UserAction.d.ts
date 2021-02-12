@@ -3,4 +3,4 @@ export declare enum UserAction {
     Withdraw = "W",
     Send = "S"
 }
-//# sourceMappingURL=UserAction.d.ts.map
+// # sourceMappingURL=UserAction.d.ts.map
