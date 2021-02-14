@@ -8,6 +8,7 @@ import {NotificationService} from "../notification/notification.service";
 import {environment} from "../../../environments/environment";
 import {PersistenceService} from "../persistence/persistence.service";
 import {IconConverter } from "icon-sdk-js";
+import {LedgerWallet} from "../../models/wallets/LedgerWallet";
 
 
 @Injectable({
@@ -16,6 +17,8 @@ import {IconConverter } from "icon-sdk-js";
 export class LedgerService {
 
   private icx?: TransportWebUSB;
+
+  private LIST_NUM = 5;
 
   constructor(
     private notificationService: NotificationService,
@@ -49,6 +52,28 @@ export class LedgerService {
     }
   }
 
+  async getLedgerWallets(index: number): Promise<LedgerWallet[]> {
+    try {
+      const walletList = [];
+
+      const transport = await TransportWebUSB.create();
+      transport.setDebugMode(true);
+      transport.setExchangeTimeout(60000); // 60 seconds
+      const icx = new Icx(transport);
+
+      for (let i = index * this.LIST_NUM; i < index * this.LIST_NUM + this.LIST_NUM; i++) {
+        const path = `${environment.ledgerBip32Path}/0'/${i}'`;
+        const { address } = await icx.getAddress(path, false, true);
+        walletList.push(new LedgerWallet(address, path));
+      }
+
+      return walletList;
+    } catch (e) {
+      log.error("getLedgerWallets error: ", e);
+      throw e;
+    }
+  }
+
   // sign raw transaction and return signed transaction object
   async signTransaction(rawTransaction: any): Promise<any> {
     try {
@@ -62,7 +87,10 @@ export class LedgerService {
       const { signedRawTxBase64 } = signedData;
       log.info("Ledger signTransaction result: ", signedData);
 
-      return signedRawTxBase64;
+      return {
+        ...rawTx,
+        signature: signedRawTxBase64,
+      };
     } catch (e) {
       this.notificationService.showNewNotification("Unable to sign the transaction with Ledger device." +
         " Make sure it is connected and try again in few moments.");

@@ -273,18 +273,22 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       throw new OmmError(`Supplied value greater than available ${this.asset.tag} balance.`);
     }
 
-    const currentSupply = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag);
-    log.debug(`currentSupply = ${currentSupply}`);
-    const supplyAmountDiff = value - currentSupply;
+    // get currently supplied sICX balance and convert to ICX
+    const currentSuppliedIcx = this.convertSICXToICX(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
+    log.debug(`currentSuppliedIcx = ${currentSuppliedIcx}`);
+
+    // calculate the difference and fix to 2 decimals
+    const supplyAmountDiff = +((value - currentSuppliedIcx).toFixed(2));
     log.debug(`supplyAmountDiff = ${supplyAmountDiff}`);
 
-    const before = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag);
+    const before = +(currentSuppliedIcx.toFixed(2));
+    const after = before + supplyAmountDiff;
     const amount = Math.abs(supplyAmountDiff);
 
     if (supplyAmountDiff > 0) {
-      this.modalService.showNewModal(ModalType.SUPPLY, new AssetAction(this.asset, before , value, amount));
+      this.modalService.showNewModal(ModalType.SUPPLY, new AssetAction(this.asset, before , after, amount));
     } else if (supplyAmountDiff < 0) {
-      this.modalService.showNewModal(ModalType.WITHDRAW, new AssetAction(this.asset, before , value, amount));
+      this.modalService.showNewModal(ModalType.WITHDRAW, new AssetAction(this.asset, before , after, amount));
     } else {
       this.notificationService.showNewNotification("No change in supplied value.");
       return;
@@ -305,14 +309,21 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       throw new OmmError(`Borrowed value greater than ${this.asset.tag} max available.`);
     }
 
-    const borrowAmountDiff = value - Math.floor(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
+    // get currently borrowed ICX
+    const currentBorrowedIcx = this.convertSICXToICX(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
+    log.debug(`currentBorrowedIcx = ${currentBorrowedIcx}`);
 
-    const before = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag);
-    const amount = Math.floor(Math.abs(borrowAmountDiff));
+    // calculate the difference and fix to 2 decimals
+    const borrowAmountDiff = +((value - currentBorrowedIcx).toFixed(2));
+
+    const before = +(currentBorrowedIcx.toFixed(2));
+    const after = before + borrowAmountDiff;
+    const amount = Math.abs(borrowAmountDiff);
+
     if (borrowAmountDiff > 0) {
-      this.modalService.showNewModal(ModalType.BORROW, new AssetAction(this.asset, before , value, amount));
+      this.modalService.showNewModal(ModalType.BORROW, new AssetAction(this.asset, before , after, amount));
     } else if (borrowAmountDiff < 0) {
-      this.modalService.showNewModal(ModalType.REPAY, new AssetAction(this.asset, before , value, amount));
+      this.modalService.showNewModal(ModalType.REPAY, new AssetAction(this.asset, before , after, amount));
     }  else {
       this.notificationService.showNewNotification("No change in borrowed value.");
       return;
@@ -333,9 +344,6 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     const borrowed = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag);
     const borrowAvailable = this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag);
     const borrowMax = borrowed + borrowAvailable;
-    log.debug("borrowed=" + borrowed);
-    log.debug("borrowAvailable=" + borrowAvailable);
-    log.debug("borrowMax=" + borrowMax);
     this.slidersService.createNoUiSlider(this.sliderBorrow, borrowed, undefined, undefined, undefined,
       {min: [0], max: [borrowMax]});
   }

@@ -92,7 +92,8 @@ export class IconexApiService {
         payload: {
           jsonrpc: "2.0",
           method: "icx_sendTransaction",
-          params: IconConverter.toRawTransaction(transaction)
+          params: IconConverter.toRawTransaction(transaction),
+          id: 1
         }
       }
     }));

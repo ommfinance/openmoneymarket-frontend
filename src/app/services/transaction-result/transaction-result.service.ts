@@ -28,12 +28,12 @@ export class TransactionResultService {
 
   public processIconexTransactionResult(payload: IconJsonRpcResponse): void {
     log.debug("processIconexTransactionResult -> payload: ", payload);
+
+    // get last modal action from localstorage
+    const modalAction: ModalAction = this.localStorageService.getLastModalAction();
+    const assetAction: AssetAction = modalAction.assetAction!;
     if (payload.result) {
-      this.iconApiService.getTxResult(payload.result).
-      then((res: any) => {
-        // get last modal action from localstorage
-        const modalAction: ModalAction = this.localStorageService.getLastModalAction();
-        const assetAction: AssetAction = modalAction.assetAction!;
+      this.iconApiService.getTxResult(payload.result).then((res: any) => {
         // success
         if (res.status === 1) {
           // show proper success notification
@@ -53,12 +53,43 @@ export class TransactionResultService {
           setTimeout(this.processIconexTransactionResult.bind(this, payload), 2000);
         } else {
           log.debug("Error in isTxConfirmed:", e);
-          throw new OmmError(e.message);
+          this.showFailedActionNotification(modalAction, assetAction);
         }
       });
     } else  {
-      throw new OmmError("ICON RPC ERROR: " + payload.error?.message);
+      log.error("ICON RPC ERROR: " + payload.error);
+      this.showFailedActionNotification(modalAction, assetAction);
     }
+  }
+
+  publicProcessIconTransactionResult(txHash: string): void {
+    // get last modal action from localstorage
+    const modalAction: ModalAction = this.localStorageService.getLastModalAction();
+    const assetAction: AssetAction = modalAction.assetAction!;
+
+    this.iconApiService.getTxResult(txHash).then((res: any) => {
+      // success
+      if (res.status === 1) {
+        // show proper success notification
+        this.showSuccessActionNotification(modalAction, assetAction);
+
+        // reload all reserves and user specific data (reserve, account data, ..)
+        this.dataLoaderService.loadAllReserveData();
+        this.dataLoaderService.loadUserSpecificData();
+      }
+      else {
+        // show proper failed notification
+        this.showFailedActionNotification(modalAction, assetAction);
+        log.debug("Transaction failed! Details: ", res);
+      }
+    }).catch(e => {
+      if (e.includes('Pending')) {
+        setTimeout(this.publicProcessIconTransactionResult.bind(this, txHash), 2000);
+      } else {
+        log.debug("Error in isTxConfirmed:", e);
+        this.showFailedActionNotification(modalAction, assetAction);
+      }
+    });
   }
 
   public processBridgeTransactionResult(event: any): void {

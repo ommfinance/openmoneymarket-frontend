@@ -89,6 +89,7 @@ export class IconApiService {
 
   public async sendTransaction(signedTx: any): Promise<string> {
     try {
+      log.debug("Sending transaction: ", signedTx);
       const txHash = await this.iconService.sendTransaction(signedTx).execute();
       log.debug("Tx hash ", txHash);
       return txHash;
