@@ -4,8 +4,8 @@ import {PersistenceService} from "../../services/persistence/persistence.service
 import {SupplyService} from "../../services/supply/supply.service";
 // @ts-ignore
 import {BaseClass} from "../base-class";
-import {IconexWallet} from "../../models/IconexWallet";
-import {BridgeWallet} from "../../models/BridgeWallet";
+import {IconexWallet} from "../../models/wallets/IconexWallet";
+import {BridgeWallet} from "../../models/wallets/BridgeWallet";
 import {ModalService} from "../../services/modal/modal.service";
 import {ModalType} from "../../models/ModalType";
 import {BridgeWidgetService} from "../../services/bridge-widget/bridge-widget.service";

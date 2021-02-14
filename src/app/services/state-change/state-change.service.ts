@@ -3,8 +3,8 @@ import {Subject} from "rxjs";
 import {UserReserveData} from "../../models/UserReserveData";
 import {PersistenceService} from "../persistence/persistence.service";
 import {AssetTag} from "../../models/Asset";
-import {IconexWallet} from "../../models/IconexWallet";
-import {BridgeWallet} from "../../models/BridgeWallet";
+import {IconexWallet} from "../../models/wallets/IconexWallet";
+import {BridgeWallet} from "../../models/wallets/BridgeWallet";
 import {UserAccountData} from "../../models/UserAccountData";
 import {ModalAction} from "../../models/ModalAction";
 

@@ -5,14 +5,11 @@ import {IconexApiService} from "../iconex-api/iconex-api.service";
 import {IconAmount, IconConverter} from "icon-sdk-js";
 import {ScoreMethodNames} from "../../common/score-method-names";
 import {IconTransactionType} from "../../models/IconTransactionType";
-import {IconexRequestsMap} from "../../common/iconex-requests-map";
 import {Utils} from "../../common/utils";
 import {CheckerService} from "../checker/checker.service";
 import log from "loglevel";
 import {AssetTag} from "../../models/Asset";
-import {IconexWallet} from "../../models/IconexWallet";
-import {BridgeWallet} from "../../models/BridgeWallet";
-import {BridgeWidgetService} from "../bridge-widget/bridge-widget.service";
+import {TransactionDispatcherService} from "../transaction-dispatcher/transaction-dispatcher.service";
 
 @Injectable({
   providedIn: 'root'
@@ -23,21 +20,26 @@ export class RepayService {
               private persistenceService: PersistenceService,
               private iconexApiService: IconexApiService,
               private checkerService: CheckerService,
-              private bridgeWidgetService: BridgeWidgetService) {
+              private transactionDispatcherService: TransactionDispatcherService) {
   }
 
-  public repayAsset(amount: number, assetTag: AssetTag): void {
+  public repayAsset(amount: number, assetTag: AssetTag, notificationMessage: string): void {
+    let tx;
+
     switch (assetTag) {
       case AssetTag.ICX:
-        this.repayIcx(amount);
+        tx = this.buildRepayIcxTx(amount);
         break;
       case AssetTag.USDb:
-        this.repayUSDb(amount);
+        tx = this.buildRepayUSDbTx(amount);
         break;
     }
+
+    log.debug(`repay ${assetTag} TX: `, tx);
+    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
-  private repayUSDb(amount: number): void {
+  private buildRepayUSDbTx(amount: number): any {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const amountString = Utils.amountToe18MultipliedString(amount);
@@ -52,19 +54,11 @@ export class RepayService {
       _data: IconConverter.fromUtf8(data)
     };
 
-    const tx = this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address, to,
+    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address, to,
       ScoreMethodNames.TRANSFER, params, IconTransactionType.WRITE);
-
-    log.debug("repayUSDb TX: ", tx);
-
-    if (this.persistenceService.activeWallet instanceof IconexWallet) {
-      this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.REPAY);
-    } else if (this.persistenceService.activeWallet instanceof BridgeWallet) {
-      this.bridgeWidgetService.sendTransaction(tx);
-    }
   }
 
-  private repayIcx(amount: number): void {
+  private buildRepayIcxTx(amount: number): any {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const amountString = Utils.amountToe18MultipliedString(amount);
@@ -79,15 +73,7 @@ export class RepayService {
       _data: IconConverter.fromUtf8(data)
     };
 
-    const tx = this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address, to,
+    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address, to,
       ScoreMethodNames.TRANSFER, params, IconTransactionType.WRITE);
-
-    log.debug("repayIcx TX: ", tx);
-
-    if (this.persistenceService.activeWallet instanceof IconexWallet) {
-      this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.REPAY);
-    } else if (this.persistenceService.activeWallet instanceof BridgeWallet) {
-      this.bridgeWidgetService.sendTransaction(tx);
-    }
   }
 }

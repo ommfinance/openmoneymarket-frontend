@@ -6,14 +6,11 @@ import {ScoreService} from "../score/score.service";
 import {IconAmount, IconConverter} from "icon-sdk-js";
 import {ScoreMethodNames} from "../../common/score-method-names";
 import {IconTransactionType} from "../../models/IconTransactionType";
-import {IconexRequestsMap} from "../../common/iconex-requests-map";
 import {CheckerService} from "../checker/checker.service";
 import log from "loglevel";
 import {AssetTag} from "../../models/Asset";
-import {IconexWallet} from "../../models/IconexWallet";
-import {BridgeWallet} from "../../models/BridgeWallet";
-import {BridgeWidgetService} from "../bridge-widget/bridge-widget.service";
 import {Utils} from "../../common/utils";
+import {TransactionDispatcherService} from "../transaction-dispatcher/transaction-dispatcher.service";
 
 @Injectable({
   providedIn: 'root'
@@ -25,43 +22,37 @@ export class WithdrawService {
               private iconexApiService: IconexApiService,
               private scoreService: ScoreService,
               private checkerService: CheckerService,
-              private bridgeWidgetService: BridgeWidgetService) {
+              private transactionDispatcherService: TransactionDispatcherService) {
   }
 
-  public withdrawAsset(amount: number, assetTag: AssetTag, waitForUnstaking = false): void {
+  public withdrawAsset(amount: number, assetTag: AssetTag, waitForUnstaking = false, notificationMessage: string): void {
+    let tx;
+
     switch (assetTag) {
       case AssetTag.ICX:
-        this.withdrawIcx(amount, waitForUnstaking);
+        tx = this.buildWithdrawIcxTx(amount, waitForUnstaking);
         break;
       case AssetTag.USDb:
-        this.withdrawUSDb(amount);
+        tx = this.buildWithdrawUSDbTx(amount);
         break;
     }
+
+    log.debug(`withdraw ${assetTag} TX: `, tx);
+    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
-  private withdrawUSDb(amount: number): void {
+  private buildWithdrawUSDbTx(amount: number): any {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const params = {
       _amount: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
     };
 
-    const tx = this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
+    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
       this.persistenceService.allAddresses!.oTokens.oUSDb, ScoreMethodNames.REDEEM, params, IconTransactionType.WRITE);
-
-    log.debug("withdrawUSDb TX: ", tx);
-    this.scoreService.getUserAssetBalance(AssetTag.USDb).then(res => {
-      log.debug("USDb balance before withdraw: ", res);
-    });
-
-    if (this.persistenceService.activeWallet instanceof IconexWallet) {
-      this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.WITHDRAW);
-    } else if (this.persistenceService.activeWallet instanceof BridgeWallet) {
-      this.bridgeWidgetService.sendTransaction(tx);
-    }
   }
 
-  private async withdrawIcx(amount: number, waitForUnstaking = false): Promise<void> {
+  private buildWithdrawIcxTx(amount: number, waitForUnstaking = false): any {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     // convert amount from ICX value to sICX
@@ -74,15 +65,7 @@ export class WithdrawService {
       _waitForUnstaking: waitForUnstaking ? "0x1" : "0x0"
     };
 
-    const tx = this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
+    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
       this.persistenceService.allAddresses!.oTokens.oICX, ScoreMethodNames.REDEEM, params, IconTransactionType.WRITE);
-
-    log.debug("withdrawIcx TX: ", tx);
-
-    if (this.persistenceService.activeWallet instanceof IconexWallet) {
-      this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.WITHDRAW);
-    } else if (this.persistenceService.activeWallet instanceof BridgeWallet) {
-      this.bridgeWidgetService.sendTransaction(tx);
-    }
   }
 }

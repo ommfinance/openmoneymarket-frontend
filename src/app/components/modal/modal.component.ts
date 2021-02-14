@@ -19,8 +19,8 @@ import {AssetTag} from "../../models/Asset";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {LedgerService} from "../../services/ledger/ledger.service";
 import {DataLoaderService} from "../../services/data-loader/data-loader.service";
-import {BridgeWallet} from "../../models/BridgeWallet";
-import {LedgerWallet} from "../../models/LedgerWallet";
+import {LedgerWallet} from "../../models/wallets/LedgerWallet";
+import log from "loglevel";
 
 
 @Component({
@@ -117,7 +117,8 @@ export class ModalComponent extends BaseClass implements OnInit {
     this.ledgerService.signIn().then(res => {
       this.dataLoaderService.walletLogin(new LedgerWallet(res!.address));
     }).catch(e => {
-      throw new OmmError(e.message);
+      log.error(e);
+      this.notificationService.showNewNotification("Can not connect to Ledger device. Make sure it is connected and try again.");
     });
   }
 
@@ -168,20 +169,17 @@ export class ModalComponent extends BaseClass implements OnInit {
     const assetTag = this.activeModalChange!.assetAction!.asset.tag;
     switch (this.activeModalChange?.modalType) {
       case ModalType.BORROW:
-        this.borrowService.borrowAsset(this.activeModalChange!.assetAction!.amount, assetTag);
-        this.notificationService.showNewNotification(`Borrowing ${assetTag}...`);
+        this.borrowService.borrowAsset(this.activeModalChange!.assetAction!.amount, assetTag, `Borrowing ${assetTag}...`);
         break;
       case ModalType.SUPPLY:
-        this.supplyService.supplyAsset(this.activeModalChange!.assetAction!.amount, assetTag);
-        this.notificationService.showNewNotification(`Supplying ${assetTag}...`);
+        this.supplyService.supplyAsset(this.activeModalChange!.assetAction!.amount, assetTag, `Supplying ${assetTag}...`);
         break;
       case ModalType.REPAY:
-        this.repayService.repayAsset(this.activeModalChange!.assetAction!.amount, assetTag);
-        this.notificationService.showNewNotification(`Repaying ${assetTag}...`);
+        this.repayService.repayAsset(this.activeModalChange!.assetAction!.amount, assetTag, `Repaying ${assetTag}...`);
         break;
       case ModalType.WITHDRAW:
-        this.withdrawService.withdrawAsset(this.activeModalChange!.assetAction!.amount, assetTag, this.withdrawOption === "unstake");
-        this.notificationService.showNewNotification(`Withdrawing ${assetTag}...`);
+        this.withdrawService.withdrawAsset(this.activeModalChange!.assetAction!.amount, assetTag, this.withdrawOption === "unstake",
+          `Withdrawing ${assetTag}...`);
         break;
       default:
         throw new OmmError(`Invalid modal type: ${this.activeModalChange?.modalType}`);

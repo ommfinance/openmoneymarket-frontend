@@ -1,7 +1,7 @@
 // @ts-ignore
 import {BridgeService} from "../../../../build/bridge.bundle";
 import {Wallet} from "./Wallet";
-import {AssetTag} from "./Asset";
+import {AssetTag} from "../Asset";
 
 export class BridgeWallet extends Wallet {
   email: string;
@@ -16,4 +16,5 @@ export class BridgeWallet extends Wallet {
       this.balances = balances;
     }
   }
+
 }

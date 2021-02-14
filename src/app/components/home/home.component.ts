@@ -27,6 +27,7 @@ import {AssetMarketComponent} from "../asset-market/asset-market.component";
 import {ActiveMarketView} from "../../models/ActiveMarketView";
 import {UserReserveData} from "../../models/UserReserveData";
 import {ModalAction} from "../../models/ModalAction";
+import {LedgerService} from "../../services/ledger/ledger.service";
 
 declare var $: any;
 
@@ -69,7 +70,8 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
               public slidersService: SlidersService,
               public calculationService: CalculationsService,
               private cd: ChangeDetectorRef,
-              private stateChangeService: StateChangeService) {
+              private stateChangeService: StateChangeService,
+              private ledgerService: LedgerService) {
     super(persistenceService);
   }
 

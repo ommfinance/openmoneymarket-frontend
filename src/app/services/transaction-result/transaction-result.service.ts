@@ -1,5 +1,4 @@
 import {Injectable} from '@angular/core';
-import {IconexRequestsMap} from '../../common/iconex-requests-map';
 import {IconApiService} from '../icon-api/icon-api.service';
 import {IconJsonRpcResponse} from '../../interfaces/icon-json-rpc-response';
 import {ScoreService} from '../score/score.service';
@@ -8,7 +7,6 @@ import {DataLoaderService} from "../data-loader/data-loader.service";
 import log from "loglevel";
 import {NotificationService} from "../notification/notification.service";
 import {LocalStorageService} from "../local-storage/local-storage.service";
-import {environment} from "../../../environments/environment";
 import {OmmError} from "../../core/errors/OmmError";
 import {ModalAction} from "../../models/ModalAction";
 import {AssetAction} from "../../models/AssetAction";

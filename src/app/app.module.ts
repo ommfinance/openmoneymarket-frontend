@@ -17,6 +17,9 @@ import {environment} from "../environments/environment";
 import log from "loglevel";
 import { AssetMarketComponent } from './components/asset-market/asset-market.component';
 import { VoteComponent } from './components/vote/vote.component';
+import {BridgeWallet} from "./models/wallets/BridgeWallet";
+import {LedgerWallet} from "./models/wallets/LedgerWallet";
+import {IconexWallet} from "./models/wallets/IconexWallet";
 // set logging level
 log.setLevel(environment.production ? "error" : "debug");
 

@@ -1,5 +1,5 @@
 import {Wallet} from "./Wallet";
-import {AssetTag} from "./Asset";
+import {AssetTag} from "../Asset";
 
 export class IconexWallet extends Wallet{
 

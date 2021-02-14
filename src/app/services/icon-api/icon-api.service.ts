@@ -4,6 +4,8 @@ import IconService, {IconBuilder, IconAmount, IconConverter} from 'icon-sdk-js';
 const { CallBuilder, CallTransactionBuilder, IcxTransactionBuilder,  } = IconBuilder;
 import {environment} from "../../../environments/environment";
 import {IconTransactionType} from "../../models/IconTransactionType";
+import log from "loglevel";
+
 
 @Injectable({
   providedIn: "root"
@@ -23,7 +25,7 @@ export class IconApiService {
       throw new Error("getIcxBalance -> address empty or null!");
     }
     const icxBalance = await this.iconService.getBalance(address).execute();
-    return Utils.hexE18To2DecimalRoundedDown(+icxBalance.c.join(""));
+    return Utils.hexE18ToNormalisedNumber(icxBalance);
   }
 
   public async getTxResult(txHash: string): Promise<any> {
@@ -83,5 +85,15 @@ export class IconApiService {
     }
 
     return tx;
+  }
+
+  public async sendTransaction(signedTx: any): Promise<string> {
+    try {
+      const txHash = await this.iconService.sendTransaction(signedTx).execute();
+      log.debug("Tx hash ", txHash);
+      return txHash;
+    } catch (e) {
+      throw e;
+    }
   }
 }

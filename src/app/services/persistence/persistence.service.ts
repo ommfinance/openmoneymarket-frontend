@@ -1,13 +1,13 @@
 import {Injectable} from '@angular/core';
-import {IconexWallet} from '../../models/IconexWallet';
+import {IconexWallet} from '../../models/wallets/IconexWallet';
 import {AllAddresses} from '../../models/AllAddresses';
 import {AllReservesData, ReserveData} from "../../models/AllReservesData";
 import {UserReserveData, UserReserves} from "../../models/UserReserveData";
 import {UserAccountData} from "../../models/UserAccountData";
-import {BridgeWallet} from "../../models/BridgeWallet";
+import {BridgeWallet} from "../../models/wallets/BridgeWallet";
 import {AssetTag} from "../../models/Asset";
 import {AllReserveConfigData} from "../../models/AllReserveConfigData";
-import {LedgerWallet} from "../../models/LedgerWallet";
+import {LedgerWallet} from "../../models/wallets/LedgerWallet";
 
 @Injectable({
   providedIn: 'root'

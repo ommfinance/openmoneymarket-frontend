@@ -116,8 +116,8 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     this.removeInputRedBorderClass();
 
     // Reset user asset sliders
-    this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
-    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
+    this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag), true);
+    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag), true);
     this.sliderSupply.setAttribute("disabled", "");
     this.sliderBorrow.setAttribute("disabled", "");
 
@@ -171,7 +171,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     /** Enable Supply inputs of asset-user */
     $(this.inputSupply).removeAttr("disabled");
     $(this.sliderSupply).removeAttr("disabled");
-    this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
+    this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag), true);
   }
 
 
@@ -234,7 +234,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
         this.inputSupply.classList.add("red-border");
       } else {
         // set slider to this value and reset border color if it passes the check
-        this.setSupplySliderValue(value);
+        this.sliderSupply.noUiSlider.set(value);
         this.inputSupply.classList.remove("red-border");
       }
     }
@@ -252,7 +252,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
         this.inputBorrow.classList.add("red-border");
       } else {
         // set slider to this value and reset border color if it passes the check
-        this.setBorrowSliderValue(value);
+        this.sliderSupply.noUiSlider.set(value);
         this.inputBorrow.classList.remove("red-border");
       }
     }
@@ -383,15 +383,12 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       // supplied asset balance
       const supplied = reserve.currentOTokenBalance ?? 0;
 
-      // update input supply value to new asset-user reserve balance
-      this.inputSupply.value = assetFormat(this.asset.tag).to(supplied);
-
       // update input supply available value to new users asset reserve balance
       const supplyAvailable = this.calculationService.calculateAssetSliderAvailableSupply(supplied, this.asset.tag);
       this.inputSupplyAvailable.value = assetFormat(this.asset.tag).to(supplyAvailable);
 
       // update supply slider value
-      this.setSupplySliderValue(supplied);
+      this.setSupplySliderValue(supplied, true);
 
       // update asset supply slider max value to  -> supplied + supplied available
       let max = supplied + supplyAvailable;
@@ -404,15 +401,12 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       // set borrow supplied and slider value
       const borrowed = reserve.principalBorrowBalance;
 
-      // set borrowed value
-      this.inputBorrow.value = assetFormat(this.asset.tag).to(borrowed);
-
       // set borrowed available value
       const borrowAvailable = this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag);
       this.inputBorrowAvailable.value = assetFormat(this.asset.tag).to(borrowAvailable);
 
       // set borrow slider value
-      this.setBorrowSliderValue(borrowed);
+      this.setBorrowSliderValue(borrowed, true);
 
       // update asset borrow slider max value to  -> borrowed + borrow available
       max = borrowed + borrowAvailable;
@@ -582,17 +576,17 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     }
   }
 
-  private setSupplySliderValue(value: number): void {
+  private setSupplySliderValue(value: number, convert = false): void {
     // if asset is ICX, convert sICX -> ICX
-    if (this.asset.tag === AssetTag.ICX) {
+    if (convert && this.asset.tag === AssetTag.ICX) {
       value = value * this.persistenceService.sIcxToIcxRate();
     }
     this.sliderSupply.noUiSlider.set(value);
   }
 
-  private setBorrowSliderValue(value: number): void {
+  private setBorrowSliderValue(value: number, convert = false): void {
     // if asset is ICX, convert sICX -> ICX
-    if (this.asset.tag === AssetTag.ICX) {
+    if (convert && this.asset.tag === AssetTag.ICX) {
       value = this.convertSICXToICX(value);
     }
     this.sliderBorrow.noUiSlider.set(value);
@@ -657,7 +651,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
   }
 
   resetBorrowSliders(): void {
-    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
+    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag), true);
     this.sliderBorrow.setAttribute("disabled", "");
   }
 
@@ -673,13 +667,13 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
 
   disableAndResetSupplySlider(): void {
     // Disable asset-user supply sliders (Your markets)
-    this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
+    this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag), true);
     this.sliderSupply.setAttribute("disabled", "");
   }
 
   disableAndResetBorrowSlider(): void {
     // Disable asset-user borrow sliders (Your markets)
-    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
+    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag), true);
     this.sliderBorrow.setAttribute("disabled", "");
   }
 
@@ -695,7 +689,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
   enableAssetBorrow(): void {
     $(this.inputBorrow).removeAttr("disabled");
     $(this.sliderBorrow).removeAttr("disabled");
-    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
+    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag), true);
   }
 
   hideAsset(): void {

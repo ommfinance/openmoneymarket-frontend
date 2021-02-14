@@ -1,4 +1,4 @@
-import {Asset, AssetTag, supportedAssetsMap} from "./Asset";
+import {Asset, AssetTag, supportedAssetsMap} from "../Asset";
 
 export abstract class Wallet {
   address = "";

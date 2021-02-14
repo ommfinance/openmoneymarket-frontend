@@ -9,11 +9,11 @@ import {UserAccountData} from "../../models/UserAccountData";
 import {StateChangeService} from "../state-change/state-change.service";
 import {AssetTag} from "../../models/Asset";
 import log from "loglevel";
-import {IconexWallet} from "../../models/IconexWallet";
-import {BridgeWallet} from "../../models/BridgeWallet";
+import {IconexWallet} from "../../models/wallets/IconexWallet";
+import {BridgeWallet} from "../../models/wallets/BridgeWallet";
 import {OmmError} from "../../core/errors/OmmError";
 import {AllReserveConfigData} from "../../models/AllReserveConfigData";
-import {LedgerWallet} from "../../models/LedgerWallet";
+import {LedgerWallet} from "../../models/wallets/LedgerWallet";
 
 @Injectable({
   providedIn: 'root'
@@ -28,6 +28,7 @@ export class DataLoaderService {
 
   public async walletLogin(wallet: IconexWallet | BridgeWallet | LedgerWallet): Promise<void> {
     this.persistenceService.activeWallet = wallet;
+    log.info("Login with wallet: ", wallet);
 
     try {
       // TODO optimise by saving and reading from localstorage

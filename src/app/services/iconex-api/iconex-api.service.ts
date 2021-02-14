@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import {IconexWallet} from "../../models/IconexWallet";
+import {IconexWallet} from "../../models/wallets/IconexWallet";
 import {IconApiService} from "../icon-api/icon-api.service";
 import {PersistenceService} from "../persistence/persistence.service";
 import {IconConverter } from "icon-sdk-js";
@@ -85,15 +85,14 @@ export class IconexApiService {
       }}));
   }
 
-  public dispatchSendTransactionEvent(transaction: any, transactionId: number): void {
+  public dispatchSendTransactionEvent(transaction: any): void {
     window.dispatchEvent(new CustomEvent("ICONEX_RELAY_REQUEST", {
       detail: {
         type: "REQUEST_JSON-RPC",
         payload: {
           jsonrpc: "2.0",
           method: "icx_sendTransaction",
-          params: IconConverter.toRawTransaction(transaction),
-          id: transactionId
+          params: IconConverter.toRawTransaction(transaction)
         }
       }
     }));

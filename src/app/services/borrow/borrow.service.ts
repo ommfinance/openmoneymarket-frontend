@@ -5,13 +5,11 @@ import {IconexApiService} from "../iconex-api/iconex-api.service";
 import {IconAmount, IconConverter} from "icon-sdk-js";
 import {ScoreMethodNames} from "../../common/score-method-names";
 import {IconTransactionType} from "../../models/IconTransactionType";
-import {IconexRequestsMap} from "../../common/iconex-requests-map";
 import {CheckerService} from "../checker/checker.service";
 import log from "loglevel";
 import {AssetTag} from "../../models/Asset";
-import {IconexWallet} from "../../models/IconexWallet";
-import {BridgeWallet} from "../../models/BridgeWallet";
 import {BridgeWidgetService} from "../bridge-widget/bridge-widget.service";
+import {TransactionDispatcherService} from "../transaction-dispatcher/transaction-dispatcher.service";
 
 @Injectable({
   providedIn: 'root'
@@ -22,21 +20,27 @@ export class BorrowService {
               private persistenceService: PersistenceService,
               private iconexApiService: IconexApiService,
               private checkerService: CheckerService,
-              private bridgeWidgetService: BridgeWidgetService) {
+              private bridgeWidgetService: BridgeWidgetService,
+              private transactionDispatcherService: TransactionDispatcherService) {
   }
 
-  public borrowAsset(amount: number, assetTag: AssetTag): void {
+  public borrowAsset(amount: number, assetTag: AssetTag, notificationMessage: string): void {
+    let tx;
+
     switch (assetTag) {
       case AssetTag.ICX:
-        this.borrowIcx(amount);
+        tx = this.buildBorrowIcxTx(amount);
         break;
       case AssetTag.USDb:
-        this.borrowUSDb(amount);
+        tx = this.buildBorrowUSDbTx(amount);
         break;
     }
+
+    log.debug(`borrow ${assetTag} TX: `, tx);
+    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
-  private borrowUSDb(amount: number): void {
+  private buildBorrowUSDbTx(amount: number): any {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const params = {
@@ -44,19 +48,11 @@ export class BorrowService {
       _reserve: this.persistenceService.allAddresses!.collateral.USDb
     };
 
-    const tx = this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
+    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
       this.persistenceService.allAddresses!.systemContract.LendingPool, ScoreMethodNames.BORROW, params, IconTransactionType.WRITE);
-
-    log.debug("borrowUSDb TX: ", tx);
-
-    if (this.persistenceService.activeWallet instanceof IconexWallet) {
-      this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.BORROW);
-    } else if (this.persistenceService.activeWallet instanceof BridgeWallet) {
-      this.bridgeWidgetService.sendTransaction(tx);
-    }
   }
 
-  private borrowIcx(amount: number): void {
+  private buildBorrowIcxTx(amount: number): any {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const params = {
@@ -64,16 +60,8 @@ export class BorrowService {
       _reserve: this.persistenceService.allAddresses!.collateral.sICX
     };
 
-    const tx = this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
+    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
       this.persistenceService.allAddresses!.systemContract.LendingPool, ScoreMethodNames.BORROW, params, IconTransactionType.WRITE);
-
-    log.debug("borrowIcx TX: ", tx);
-
-    if (this.persistenceService.activeWallet instanceof IconexWallet) {
-      this.iconexApiService.dispatchSendTransactionEvent(tx, IconexRequestsMap.BORROW);
-    } else if (this.persistenceService.activeWallet instanceof BridgeWallet) {
-      this.bridgeWidgetService.sendTransaction(tx);
-    }
   }
 
 }

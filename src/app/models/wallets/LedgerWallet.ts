@@ -5,4 +5,5 @@ export class LedgerWallet extends Wallet {
   constructor(address: string) {
     super(address);
   }
+
 }

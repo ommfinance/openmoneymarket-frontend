@@ -198,7 +198,7 @@ export class ScoreService {
     }
 
     // set asset balance
-    log.debug(`User ${assetTag} balance: ${balance}`);
+    log.debug(`User (${this.persistenceService.activeWallet!.address}) ${assetTag} balance: ${balance}`);
     this.persistenceService.activeWallet!.balances.set(assetTag, balance);
 
     // commit the change

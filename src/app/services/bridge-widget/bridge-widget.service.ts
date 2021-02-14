@@ -3,7 +3,7 @@ import {OmmError} from "../../core/errors/OmmError";
 
 // @ts-ignore
 import BridgeService from "../../../../build/bridge.bundle";
-import {BridgeWallet} from "../../models/BridgeWallet";
+import {BridgeWallet} from "../../models/wallets/BridgeWallet";
 import {DataLoaderService} from "../data-loader/data-loader.service";
 import log from "loglevel";
 import {BridgeWidgetAction} from "../../models/BridgeWidgetAction";
@@ -32,7 +32,6 @@ export class BridgeWidgetService {
 
   sendTransaction(tx: any): void {
     log.debug(`Bridge sendTransaction tx:`, tx);
-    log.debug(JSON.stringify(tx));
     window.dispatchEvent(new CustomEvent('bri.send.tx', {
       detail: {
         payload: tx
