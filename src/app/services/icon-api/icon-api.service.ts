@@ -32,13 +32,25 @@ export class IconApiService {
       return await this.iconService.getTransactionResult(txHash).execute();
   }
 
+  public async getDefaultStepCost(): Promise<any> {
+    // Get step costs by iconService.call
+    const callBuilder = new CallBuilder();
+    const call = callBuilder
+      .to(environment.GOVERNANCE_ADDRESS)
+      .method("getStepCosts")
+      .build();
+    const stepCosts = await this.iconService.call(call).execute();
+
+    return stepCosts.default * 10;
+  }
+
 
   public buildTransaction(from: string, to: string, method: string, params: any, transactionType: IconTransactionType,
                           value?: number): any {
     let tx = null;
     const timestamp = (new Date()).getTime() * 1000;
     const nonce = IconConverter.toHex(IconConverter.toBigNumber(1));
-    const stepLimit = IconConverter.toHex(IconConverter.toBigNumber(20000000));
+    const stepLimit = IconConverter.toHex((IconConverter.toBigNumber(this.getDefaultStepCost())));
     const version = IconConverter.toHex((IconConverter.toBigNumber(3)));
     const nid = IconConverter.toHex(IconConverter.toBigNumber(3));
     value = value ? IconConverter.toHex(IconAmount.of(value, IconAmount.Unit.ICX).toLoop()) : "0x0";
