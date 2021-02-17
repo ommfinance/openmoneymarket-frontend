@@ -207,7 +207,7 @@
     <!-- Withdraw options -->
     <div class="grid graphical-options">
       <div id="withdraw-wait" class="grid-cell text-center">
-        <input class="checkbox-tools" type="radio" name="tools" id="tool-2" checked>
+        <input class="checkbox-tools" type="radio" value="unstake" [(ngModel)]="withdrawOption" name="tools" id="tool-2" checked>
         <label class="for-checkbox-tools" for="tool-2">
           <img src="assets/img/icon/clock.svg" class="svg">
           <br>
@@ -218,7 +218,7 @@
       </div>
 
       <div id="withdraw-keep" class="grid-cell text-center">
-        <input class="checkbox-tools" type="radio" name="tools" id="tool-3">
+        <input class="checkbox-tools" type="radio" value="keep" [(ngModel)]="withdrawOption" name="tools" id="tool-3">
         <label class="for-checkbox-tools" for="tool-3">
           <img src="assets/img/icon/wallet.svg" class="svg">
           <br>

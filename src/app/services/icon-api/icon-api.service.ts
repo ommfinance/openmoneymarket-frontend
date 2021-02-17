@@ -38,7 +38,7 @@ export class IconApiService {
     let tx = null;
     const timestamp = (new Date()).getTime() * 1000;
     const nonce = IconConverter.toHex(IconConverter.toBigNumber(1));
-    const stepLimit = IconConverter.toHex(IconConverter.toBigNumber(2000000));
+    const stepLimit = IconConverter.toHex(IconConverter.toBigNumber(20000000));
     const version = IconConverter.toHex((IconConverter.toBigNumber(3)));
     const nid = IconConverter.toHex(IconConverter.toBigNumber(3));
     value = value ? IconConverter.toHex(IconAmount.of(value, IconAmount.Unit.ICX).toLoop()) : "0x0";

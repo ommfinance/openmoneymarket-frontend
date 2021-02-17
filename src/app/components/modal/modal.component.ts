@@ -178,7 +178,7 @@ export class ModalComponent extends BaseClass implements OnInit {
         this.repayService.repayAsset(this.activeModalChange!.assetAction!.amount, assetTag, `Repaying ${assetTag}...`);
         break;
       case ModalType.WITHDRAW:
-        this.withdrawService.withdrawAsset(this.activeModalChange!.assetAction!.amount, assetTag, this.withdrawOption === "unstake",
+        this.withdrawService.withdrawAsset(this.activeModalChange!.assetAction!.amount, assetTag, this.waitForUnstakingIcx(),
           `Withdrawing ${assetTag}...`);
         break;
       default:
@@ -191,4 +191,12 @@ export class ModalComponent extends BaseClass implements OnInit {
     // hide current modal
     this.modalService.hideActiveModal();
   }
+
+  private waitForUnstakingIcx(): boolean {
+    const waitForUnstaking = this.withdrawOption === "unstake";
+    log.debug(`waitForUnstaking = ${waitForUnstaking}`);
+
+    return waitForUnstaking;
+  }
+
 }

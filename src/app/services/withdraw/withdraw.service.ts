@@ -37,7 +37,7 @@ export class WithdrawService {
         break;
     }
 
-    log.debug(`withdraw ${assetTag} TX: `, tx);
+    log.debug(`Withdraw ${assetTag} TX: `, tx);
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
