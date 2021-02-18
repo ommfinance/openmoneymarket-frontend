@@ -35,7 +35,7 @@ export class BaseClass {
     if (!value) {
       return 0;
     }
-    return Utils.roundDownTo2Decimals(value);
+    return Utils.roundOffTo2Decimals(value);
   }
 
   public toDollar2digitsStringOrZero(num?: number | string): string {
@@ -62,7 +62,7 @@ export class BaseClass {
 
     // convert in to percentage
     num = +num * 100;
-    const res = `${(Utils.roundDownTo2Decimals(num))}%`;
+    const res = `${(Utils.roundOffTo2Decimals(num))}%`;
     return res;
   }
 

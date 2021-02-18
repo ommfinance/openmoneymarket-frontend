@@ -12,18 +12,18 @@ export class Mapper {
     log.debug("mapUserReserve before: ", reserve);
     const res = new UserReserveData(
       Utils.hexE18ToNormalisedNumber(reserve.borrowRate),
-      Utils.hexE18To2DecimalRoundedDown(reserve.currentBorrowBalance),
-      Utils.hexE18To2DecimalRoundedDown(reserve.currentBorrowBalanceUSD),
-      Utils.hexE18To2DecimalRoundedDown(reserve.currentOTokenBalance),
-      Utils.hexE18To2DecimalRoundedDown(reserve.currentOTokenBalanceUSD),
+      Utils.hexE18To2DecimalRoundedOff(reserve.currentBorrowBalance),
+      Utils.hexE18To2DecimalRoundedOff(reserve.currentBorrowBalanceUSD),
+      Utils.hexE18To2DecimalRoundedOff(reserve.currentOTokenBalance),
+      Utils.hexE18To2DecimalRoundedOff(reserve.currentOTokenBalanceUSD),
       Utils.hexE18ToNormalisedNumber(reserve.exchangeRate),
       Utils.hexToNumber(reserve.lastUpdateTimestamp),
       Utils.hexE18ToNormalisedNumber(reserve.liquidityRate),
       Utils.hexE18ToNormalisedNumber(reserve.originationFee),
-      Utils.hexE18To2DecimalRoundedDown(reserve.principalBorrowBalance),
-      Utils.hexE18To2DecimalRoundedDown(reserve.principalBorrowBalanceUSD),
-      Utils.hexE18To2DecimalRoundedDown(reserve.principalOTokenBalance),
-      Utils.hexE18To2DecimalRoundedDown(reserve.principalOTokenBalanceUSD),
+      Utils.hexE18To2DecimalRoundedOff(reserve.principalBorrowBalance),
+      Utils.hexE18To2DecimalRoundedOff(reserve.principalBorrowBalanceUSD),
+      Utils.hexE18To2DecimalRoundedOff(reserve.principalOTokenBalance),
+      Utils.hexE18To2DecimalRoundedOff(reserve.principalOTokenBalanceUSD),
       Utils.hexToNumber(reserve.useAsCollateral),
       Utils.hexToNumber(reserve.userBorrowCumulativeIndex),
       Utils.hexToNumber(reserve.userLiquidityIndex),
@@ -36,16 +36,16 @@ export class Mapper {
   public static mapUserAccountData(userAccountData: UserAccountData): UserAccountData {
     log.debug("mapUserAccountData before: ", userAccountData);
     const res = new UserAccountData(
-      Utils.hexE18To2DecimalRoundedDown(userAccountData.availableBorrowsUSD),
-      Utils.hexE18To2DecimalRoundedDown(userAccountData.borrowingPower),
+      Utils.hexE18To2DecimalRoundedOff(userAccountData.availableBorrowsUSD),
+      Utils.hexE18To2DecimalRoundedOff(userAccountData.borrowingPower),
       Utils.hexE18ToNormalisedNumber(userAccountData.currentLiquidationThreshold),
       Utils.hexE18ToNormalisedNumber(userAccountData.currentLtv),
       Utils.hexE18ToNormalisedNumber(userAccountData.healthFactor),
       Utils.hexE18ToNormalisedNumber(userAccountData.healthFactorBelowThreshold),
-      Utils.hexE18To2DecimalRoundedDown(userAccountData.totalBorrowBalanceUSD),
-      Utils.hexE18To2DecimalRoundedDown(userAccountData.totalCollateralBalanceUSD),
-      Utils.hexE18To2DecimalRoundedDown(userAccountData.totalFeesUSD),
-      Utils.hexE18To2DecimalRoundedDown(userAccountData.totalLiquidityBalanceUSD),
+      Utils.hexE18To2DecimalRoundedOff(userAccountData.totalBorrowBalanceUSD),
+      Utils.hexE18To2DecimalRoundedOff(userAccountData.totalCollateralBalanceUSD),
+      Utils.hexE18To2DecimalRoundedOff(userAccountData.totalFeesUSD),
+      Utils.hexE18To2DecimalRoundedOff(userAccountData.totalLiquidityBalanceUSD),
     );
     log.debug("mapUserAccountData after: ", res);
     return res;
@@ -53,12 +53,12 @@ export class Mapper {
 
   public static mapReserveData(reserveData: ReserveData): ReserveData {
     return new ReserveData(
-      Utils.hexE18To2DecimalRoundedDown(reserveData.totalLiquidity),
-      Utils.hexE18To2DecimalRoundedDown(reserveData.availableLiquidity),
-      Utils.hexE18To2DecimalRoundedDown(reserveData.totalLiquidityUSD),
-      Utils.hexE18To2DecimalRoundedDown(reserveData.availableLiquidityUSD),
-      Utils.hexE18To2DecimalRoundedDown(reserveData.totalBorrows),
-      Utils.hexE18To2DecimalRoundedDown(reserveData.totalBorrowsUSD),
+      Utils.hexE18To2DecimalRoundedOff(reserveData.totalLiquidity),
+      Utils.hexE18To2DecimalRoundedOff(reserveData.availableLiquidity),
+      Utils.hexE18To2DecimalRoundedOff(reserveData.totalLiquidityUSD),
+      Utils.hexE18To2DecimalRoundedOff(reserveData.availableLiquidityUSD),
+      Utils.hexE18To2DecimalRoundedOff(reserveData.totalBorrows),
+      Utils.hexE18To2DecimalRoundedOff(reserveData.totalBorrowsUSD),
       Utils.hexE18ToNormalisedNumber(reserveData.liquidityRate),
       Utils.hexE18ToNormalisedNumber(reserveData.borrowRate),
       reserveData.oTokenAddress,

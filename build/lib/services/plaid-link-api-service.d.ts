@@ -39,4 +39,4 @@ export declare class PlaidLinkApiService {
      */
     createLinkToken(): Promise<AxiosResponse>;
 }
-// # sourceMappingURL=plaid-link-api-service.d.ts.map
+//# sourceMappingURL=plaid-link-api-service.d.ts.map

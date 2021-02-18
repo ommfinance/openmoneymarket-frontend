@@ -3,4 +3,4 @@ export declare enum NotificationType {
     success = 1,
     normal = 2
 }
-// # sourceMappingURL=NotificationType.d.ts.map
+//# sourceMappingURL=NotificationType.d.ts.map

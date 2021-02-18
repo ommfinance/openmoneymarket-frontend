@@ -4,4 +4,4 @@ export declare function sendIcxTokens(magic: any, to: string, amount: number, Ic
 export declare function getIcxBalance(address: string | null, IconSDK: any): Promise<number>;
 export declare function getIrc2TokenBalance(address: string, scoreAddress: string, IconBuilder: any, IconSDK: any): Promise<number>;
 export declare function buildWithdrawalRequestTransaction(from: string, amount: number, IconBuilder: any, IconAmount: any, IconConverter: any): any;
-// # sourceMappingURL=icon-rpc-api-service.d.ts.map
+//# sourceMappingURL=icon-rpc-api-service.d.ts.map

@@ -2,8 +2,6 @@ import { LitElement } from "lit-element";
 import { BridgeService } from "../../lib/BridgeService";
 import { User } from "../../lib/models/User/User";
 declare class DepositElem extends LitElement {
-    constructor();
-    static styles: any[];
     bridge: BridgeService | undefined;
     user: User | undefined;
     userBalance: number;
@@ -20,9 +18,14 @@ declare class DepositElem extends LitElement {
     private amount;
     private feeAmount;
     private totalAmount;
+    threeDsWidgetLoaded: boolean;
     private errors;
+    constructor();
+    static styles: any[];
+    protected firstUpdated(_changedProperties: any): void;
     private showModalView;
     private setActiveModalView;
+    backToPaymentMethods(): void;
     private backToHomeView;
     private amountChange;
     private resetFields;
@@ -30,14 +33,14 @@ declare class DepositElem extends LitElement {
     private handleError;
     private submitDeposit;
     private showConfirmSubmit;
-    protected firstUpdated(_changedProperties: any): void;
-    backToPaymentMethods(): void;
+    insert3dsFrontendScript(): void;
     render(): import("lit-element").TemplateResult;
 }
 declare global {
+    var PurchaseProtection: any;
     interface HTMLElementTagNameMap {
         'deposit-elem': DepositElem;
     }
 }
 export {};
-// # sourceMappingURL=deposit-elem.d.ts.map
+//# sourceMappingURL=deposit-elem.d.ts.map

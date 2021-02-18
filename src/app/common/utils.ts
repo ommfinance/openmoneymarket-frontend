@@ -5,16 +5,16 @@ import log from "loglevel";
 export class Utils {
 
   // Returns number divided by the 10^18 and rounded down to 2 decimal places
-  public static hexE18To2DecimalRoundedDown(value: number | string): number {
+  public static hexE18To2DecimalRoundedOff(value: number | string): number {
     if (!value) {
       return 0;
     }
     if (typeof value === "string") {
       // return rounded down to 2 decimals places number
-      return +Utils.roundDownTo2Decimals(new BigNumber(value, 16).dividedBy(Math.pow(10, 18)));
+      return +Utils.roundOffTo2Decimals(new BigNumber(value, 16).dividedBy(Math.pow(10, 18)));
     } else {
       // return rounded down to 2 decimals places number
-      return +Utils.roundDownTo2Decimals(new BigNumber(value).dividedBy(Math.pow(10, 18)));
+      return +Utils.roundOffTo2Decimals(new BigNumber(value).dividedBy(Math.pow(10, 18)));
     }
   }
 
@@ -36,7 +36,7 @@ export class Utils {
     }
     if (typeof value === "string") {
       // return rounded down to 2 decimals places number
-      return +Utils.roundDownTo2Decimals(new BigNumber(value, 16));
+      return +Utils.roundOffTo2Decimals(new BigNumber(value, 16));
     }
     else {
       return value;
@@ -77,17 +77,17 @@ export class Utils {
     return new BigNumber(amount).multipliedBy(Math.pow(10, 18)).toFixed();
   }
 
-  public static roundDownTo2Decimals(value: number | BigNumber | string): number {
+  public static roundOffTo2Decimals(value: number | BigNumber | string): number {
     if (value instanceof BigNumber) {
-      return +(value.toFixed(2, BigNumber.ROUND_DOWN));
+      return +(value.toFixed(2, BigNumber.ROUND_HALF_CEIL));
     } else {
-      return +(new BigNumber(value).toFixed(2, BigNumber.ROUND_DOWN));
+      return +(new BigNumber(value).toFixed(2, BigNumber.ROUND_HALF_CEIL));
     }
   }
 
   // conversion used for redeeming ICX
   public static convertICXValueTosICX(value: number, todayRate: number): number {
-    return Utils.roundDownTo2Decimals(value / todayRate);
+    return Utils.roundOffTo2Decimals(value / todayRate);
   }
 
 }

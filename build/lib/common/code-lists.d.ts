@@ -12,4 +12,4 @@ export declare class CodeLists {
     static fundsTransferTypeToPretty: Map<string, string>;
     static getCreditCardPrettyName(creditCardType: string): string;
 }
-// # sourceMappingURL=code-lists.d.ts.map
+//# sourceMappingURL=code-lists.d.ts.map

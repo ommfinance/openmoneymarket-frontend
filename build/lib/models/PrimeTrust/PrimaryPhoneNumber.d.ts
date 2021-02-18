@@ -4,4 +4,4 @@ export declare class PrimaryPhoneNumber {
     sms: boolean;
     constructor(phoneCountry: string, phoneNumber: string, sms: boolean);
 }
-// # sourceMappingURL=PrimaryPhoneNumber.d.ts.map
+//# sourceMappingURL=PrimaryPhoneNumber.d.ts.map

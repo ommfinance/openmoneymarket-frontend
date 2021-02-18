@@ -21,6 +21,7 @@ import {AssetAction} from "../../models/AssetAction";
 import {NotificationService} from "../../services/notification/notification.service";
 import {RiskCalculationData} from "../../models/RiskCalculationData";
 import {UserAction} from "../../models/UserAction";
+import {Utils} from "../../common/utils";
 
 declare var $: any;
 
@@ -278,12 +279,12 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     log.debug(`currentSuppliedIcx = ${currentSuppliedIcx}`);
 
     // calculate the difference and fix to 2 decimals
-    const supplyAmountDiff = +((value - currentSuppliedIcx).toFixed(2));
+    const supplyAmountDiff = value - currentSuppliedIcx;
     log.debug(`supplyAmountDiff = ${supplyAmountDiff}`);
 
-    const before = +(currentSuppliedIcx.toFixed(2));
-    const after = before + supplyAmountDiff;
-    const amount = Math.abs(supplyAmountDiff);
+    const before = Utils.roundOffTo2Decimals(currentSuppliedIcx);
+    const after = Utils.roundOffTo2Decimals(before + supplyAmountDiff);
+    const amount = Math.abs(Utils.roundOffTo2Decimals(supplyAmountDiff));
 
     if (supplyAmountDiff > 0) {
       this.modalService.showNewModal(ModalType.SUPPLY, new AssetAction(this.asset, before , after, amount));
@@ -314,11 +315,11 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     log.debug(`currentBorrowedIcx = ${currentBorrowedIcx}`);
 
     // calculate the difference and fix to 2 decimals
-    const borrowAmountDiff = +((value - currentBorrowedIcx).toFixed(2));
+    const borrowAmountDiff = Utils.roundOffTo2Decimals(value - currentBorrowedIcx);
 
-    const before = +(currentBorrowedIcx.toFixed(2));
-    const after = before + borrowAmountDiff;
-    const amount = Math.abs(borrowAmountDiff);
+    const before = Utils.roundOffTo2Decimals(currentBorrowedIcx);
+    const after = Utils.roundOffTo2Decimals(before + borrowAmountDiff);
+    const amount = Math.abs(Utils.roundOffTo2Decimals(borrowAmountDiff));
 
     if (borrowAmountDiff > 0) {
       this.modalService.showNewModal(ModalType.BORROW, new AssetAction(this.asset, before , after, amount));

@@ -14,14 +14,26 @@ import {NotificationService} from "../notification/notification.service";
 })
 export class BridgeWidgetService {
 
-  bridge: BridgeService;
-
   constructor(private dataLoaderService: DataLoaderService,
               private notificationService: NotificationService) {
     this.bridge = new BridgeService();
     window.addEventListener("bri.login", (e) => this.handleBridgeLogin(e));
     window.addEventListener("bri.widget.res", (e) => this.handleWidgetRes(e));
     window.addEventListener("bri.logout.res", (e) => this.handleWidgetLogoutRes(e));
+    window.addEventListener("bri.deposit", () => this.handleBridgeUserBalanceAction());
+    window.addEventListener("bri.withdraw", () => this.handleBridgeUserBalanceAction());
+  }
+
+  bridge: BridgeService;
+
+  private static dispatchBridgeWidgetAction(action: BridgeWidgetAction): void {
+    const event = new CustomEvent('bri.widget', {
+      detail: {
+        action: action.valueOf()
+      }
+    });
+    log.debug("Dispatched Bridge event: ", event);
+    window.dispatchEvent(event);
   }
 
   handleBridgeLogin(e: any): void {
@@ -37,6 +49,11 @@ export class BridgeWidgetService {
         payload: tx
       }
     }));
+  }
+
+  // when user trigger balance changing action in Bridge (deposit, withdraw, send) update his balances
+  handleBridgeUserBalanceAction(): void {
+    this.dataLoaderService.loadAllUserAssetsBalances();
   }
 
   handleWidgetLogoutRes(e: any): void {
@@ -77,23 +94,15 @@ export class BridgeWidgetService {
   }
 
   openBridgeWidget(): void {
-    this.dispatchBridgeWidgetAction(BridgeWidgetAction.OPEN);
+    BridgeWidgetService.dispatchBridgeWidgetAction(BridgeWidgetAction.OPEN);
   }
 
   closeBridgeWidget(): void {
-    this.dispatchBridgeWidgetAction(BridgeWidgetAction.CLOSE);
+    BridgeWidgetService.dispatchBridgeWidgetAction(BridgeWidgetAction.CLOSE);
   }
 
   signOutUser(): void {
-    this.dispatchBridgeWidgetAction(BridgeWidgetAction.LOGOUT);
-  }
-
-  private dispatchBridgeWidgetAction(action: BridgeWidgetAction): void {
-    window.dispatchEvent(new CustomEvent('bri.widget', {
-      detail: {
-        action: action.valueOf()
-      }
-    }));
+    BridgeWidgetService.dispatchBridgeWidgetAction(BridgeWidgetAction.LOGOUT);
   }
 
 }

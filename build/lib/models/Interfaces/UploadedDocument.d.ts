@@ -17,4 +17,4 @@ export interface Attributes {
 export interface VersionUrls {
     original: string;
 }
-// # sourceMappingURL=UploadedDocument.d.ts.map
+//# sourceMappingURL=UploadedDocument.d.ts.map

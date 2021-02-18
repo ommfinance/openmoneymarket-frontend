@@ -3,4 +3,4 @@ export declare enum KycState {
     checked = 1,
     verifying = 2
 }
-// # sourceMappingURL=KycState.d.ts.map
+//# sourceMappingURL=KycState.d.ts.map

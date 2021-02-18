@@ -5,4 +5,4 @@ export declare enum KycCheckOption {
     identityKycDocumentCheck = "identity-kyc-document-check",
     kycDocumentCheck = "kyc-document-check"
 }
-// # sourceMappingURL=KycCheckOption.d.ts.map
+//# sourceMappingURL=KycCheckOption.d.ts.map

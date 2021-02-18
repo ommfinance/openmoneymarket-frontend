@@ -3,4 +3,4 @@ export declare class WithdrawalRequest {
     fundsTransferMethodId: string;
     constructor(tx: any, fundsTransferMethodId: string);
 }
-// # sourceMappingURL=withdrawal-request.d.ts.map
+//# sourceMappingURL=withdrawal-request.d.ts.map

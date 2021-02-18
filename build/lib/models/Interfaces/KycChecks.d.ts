@@ -7,4 +7,4 @@ export interface KycChecks {
     "latestIdentityKycDocumentCheck": KycDocumentCheck;
     "latestKycDocumentCheck": KycDocumentCheck;
 }
-// # sourceMappingURL=KycChecks.d.ts.map
+//# sourceMappingURL=KycChecks.d.ts.map

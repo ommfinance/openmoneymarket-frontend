@@ -13,4 +13,4 @@ export declare enum SupportedTokens {
 export declare class Tokens {
     static supportedTokensMap: Map<string, Token>;
 }
-// # sourceMappingURL=Tokens.d.ts.map
+//# sourceMappingURL=Tokens.d.ts.map

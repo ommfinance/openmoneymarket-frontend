@@ -8,4 +8,4 @@ export declare class CustodialAccountAttributes {
     accountType: string;
     constructor(name: string, owner: NaturalPersonContactUS | NaturalPersonContactNonUS | CompanyContactUS);
 }
-// # sourceMappingURL=CustodialAccountAttributes.d.ts.map
+//# sourceMappingURL=CustodialAccountAttributes.d.ts.map

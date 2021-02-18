@@ -25,4 +25,4 @@ export declare class UserApiService {
      */
     updateUserEmail(email: string): Promise<AxiosResponse<User>>;
 }
-// # sourceMappingURL=user-api-service.d.ts.map
+//# sourceMappingURL=user-api-service.d.ts.map

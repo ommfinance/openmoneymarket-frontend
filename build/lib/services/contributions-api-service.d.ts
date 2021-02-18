@@ -13,7 +13,7 @@ export declare class ContributionsApiService {
      * @return {Promise<AxiosResponse>} Promise with PrimeTrust response https://documentation.primetrust.com/#operation/POST__v2_contributions
      * @throws {BridgeError} - contains user friendly message from the API and external error
      */
-    createContribution(amount: number, fundsTransferMethodId: string, fundsTransferType: string, fee?: number): Promise<AxiosResponse>;
+    createContribution(amount: number, fundsTransferMethodId: string, fundsTransferType: string, fee?: number, challengeId?: string, forterToken?: string): Promise<AxiosResponse>;
     /**
      * @description Get all of the users successfull deposits
      * @param {number} pageNumber - Indicates the page number
@@ -25,4 +25,4 @@ export declare class ContributionsApiService {
         "deposits": Deposit[];
     }>>;
 }
-// # sourceMappingURL=contributions-api-service.d.ts.map
+//# sourceMappingURL=contributions-api-service.d.ts.map

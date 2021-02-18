@@ -7,4 +7,4 @@ export declare class KycDocument {
     mimeType: string | undefined;
     constructor(extension: string, allowDownload?: boolean, _public?: boolean, label?: string, description?: string, mimeType?: string);
 }
-// # sourceMappingURL=KycDocument.d.ts.map
+//# sourceMappingURL=KycDocument.d.ts.map

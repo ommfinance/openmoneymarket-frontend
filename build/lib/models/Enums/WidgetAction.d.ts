@@ -3,4 +3,4 @@ export declare enum WidgetAction {
     CLOSE = "close",
     LOGOUT = "logout"
 }
-// # sourceMappingURL=WidgetAction.d.ts.map
+//# sourceMappingURL=WidgetAction.d.ts.map

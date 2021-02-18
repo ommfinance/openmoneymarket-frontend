@@ -4,4 +4,4 @@ export declare class Account {
     attributes: CustodialAccountAttributes;
     constructor(attributes: CustodialAccountAttributes);
 }
-// # sourceMappingURL=Account.d.ts.map
+//# sourceMappingURL=Account.d.ts.map

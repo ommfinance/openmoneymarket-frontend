@@ -3,4 +3,4 @@ export declare class CreditCardResourceResponse {
     creditCardResourceId: string;
     constructor(resourceTokenHash: string, creditCardResourceId: string);
 }
-// # sourceMappingURL=CreditCardResourceResponse.d.ts.map
+//# sourceMappingURL=CreditCardResourceResponse.d.ts.map

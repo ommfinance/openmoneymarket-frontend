@@ -9,4 +9,4 @@ export declare class StandardKycDocumentCheck {
     kycDocumentType: string;
     constructor(uploadedDocumentId: string, kycDocumentCountry: string, kycDocumentType: string, identity: boolean, identityPhoto: boolean, proofOfAddress: boolean, backsideDocumentId?: string, expiresOn?: string);
 }
-// # sourceMappingURL=StandardKycDocumentCheck.d.ts.map
+//# sourceMappingURL=StandardKycDocumentCheck.d.ts.map

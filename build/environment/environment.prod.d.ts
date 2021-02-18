@@ -9,4 +9,4 @@ export declare const environment: {
     BASE_REST_API_URL: string;
     ICON_REST_API_URL: string;
 };
-// # sourceMappingURL=environment.prod.d.ts.map
+//# sourceMappingURL=environment.prod.d.ts.map

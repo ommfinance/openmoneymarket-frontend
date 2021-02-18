@@ -5,4 +5,4 @@ export declare class Transactions {
     icxTransactions: IcxTransaction[];
     constructor(bridgeTransactions: BridgeTransaction[], icxTransactions: IcxTransaction[]);
 }
-// # sourceMappingURL=Transactions.d.ts.map
+//# sourceMappingURL=Transactions.d.ts.map

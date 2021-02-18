@@ -9,4 +9,4 @@ export declare class BankAccount {
     fundsTransferType: string;
     constructor(id: string, contactName: string, bankName: string, name: string, type: string, routingNumber: string, last4Digits: string, fundsTransferType: string);
 }
-// # sourceMappingURL=BankAccount.d.ts.map
+//# sourceMappingURL=BankAccount.d.ts.map

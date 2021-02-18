@@ -7,4 +7,4 @@ export declare enum KycDocCheckExceptions {
     AddressAutoCheck = "address_auto_check_failed",
     WaitingForDocumentUploads = "waiting_for_document_uploads"
 }
-// # sourceMappingURL=KycDocCheckExceptions.d.ts.map
+//# sourceMappingURL=KycDocCheckExceptions.d.ts.map

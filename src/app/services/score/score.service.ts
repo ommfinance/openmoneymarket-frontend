@@ -180,7 +180,7 @@ export class ScoreService {
         _owner: address ?? this.persistenceService.activeWallet?.address
       }, IconTransactionType.READ);
     const res = await this.iconApiService.iconService.call(tx).execute();
-    const balance = Utils.hexE18To2DecimalRoundedDown(res);
+    const balance = Utils.hexE18To2DecimalRoundedOff(res);
     log.debug(`User USDb balance = ${balance}`);
     this.stateChangeService.updateUserAssetBalance(balance, AssetTag.USDb);
     return balance;

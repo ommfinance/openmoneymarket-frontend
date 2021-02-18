@@ -17,4 +17,4 @@ export declare enum TransactionType {
     DEPOSITED = "Deposited",
     WITHDRAW = "Withdrawn"
 }
-// # sourceMappingURL=BridgeTransaction.d.ts.map
+//# sourceMappingURL=BridgeTransaction.d.ts.map

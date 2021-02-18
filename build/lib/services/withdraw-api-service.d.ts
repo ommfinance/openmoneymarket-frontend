@@ -23,4 +23,4 @@ export declare class WithdrawApiService {
      */
     requestWithdrawal(withdrawalRequest: WithdrawalRequest): Promise<AxiosResponse>;
 }
-// # sourceMappingURL=withdraw-api-service.d.ts.map
+//# sourceMappingURL=withdraw-api-service.d.ts.map

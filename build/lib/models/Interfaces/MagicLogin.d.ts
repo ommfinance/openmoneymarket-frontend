@@ -4,4 +4,4 @@ export interface MagicLoginResponse {
     user: User;
     magicUserMetadata: MagicUserMetadata;
 }
-// # sourceMappingURL=MagicLogin.d.ts.map
+//# sourceMappingURL=MagicLogin.d.ts.map

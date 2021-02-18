@@ -3,4 +3,4 @@ export declare enum KycDocCheckStatus {
     verified = "verified",
     failed = "failed"
 }
-// # sourceMappingURL=KycDocCheckStatus.d.ts.map
+//# sourceMappingURL=KycDocCheckStatus.d.ts.map

@@ -8,5 +8,7 @@ export declare const environment: {
     BRIDGE_NID: number;
     BASE_REST_API_URL: string;
     ICON_REST_API_URL: string;
+    THREE_DS_WIDGET_URL: string;
+    THREE_DS_WIDGET_ID: string;
 };
-// # sourceMappingURL=environment.d.ts.map
+//# sourceMappingURL=environment.d.ts.map

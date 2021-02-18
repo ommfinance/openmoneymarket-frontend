@@ -8,4 +8,4 @@ export declare class CreditCard {
     fundsTransferType: string;
     constructor(id: string, name: string, postalCode: string, expirationDate: string, type: string, last4Digits: string, fundsTransferType: string);
 }
-// # sourceMappingURL=CreditCard.d.ts.map
+//# sourceMappingURL=CreditCard.d.ts.map

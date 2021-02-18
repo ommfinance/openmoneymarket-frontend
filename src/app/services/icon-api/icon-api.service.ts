@@ -15,9 +15,13 @@ export class IconApiService {
   public httpProvider;
   public iconService;
 
+  public stepCost = 2000000;
+
   constructor() {
     this.httpProvider = new IconService.HttpProvider(environment.iconRpcUrl);
     this.iconService = new IconService(this.httpProvider);
+
+    this.getDefaultStepCost().then(res => this.stepCost = res);
   }
 
   async getIcxBalance(address: string): Promise<number> {
@@ -32,7 +36,7 @@ export class IconApiService {
       return await this.iconService.getTransactionResult(txHash).execute();
   }
 
-  public async getDefaultStepCost(): Promise<any> {
+  public async getDefaultStepCost(): Promise<number> {
     // Get step costs by iconService.call
     const callBuilder = new CallBuilder();
     const call = callBuilder
@@ -41,7 +45,7 @@ export class IconApiService {
       .build();
     const stepCosts = await this.iconService.call(call).execute();
 
-    return stepCosts.default * 10;
+    return parseInt(stepCosts.default, 16) * 10;
   }
 
 
@@ -50,7 +54,7 @@ export class IconApiService {
     let tx = null;
     const timestamp = (new Date()).getTime() * 1000;
     const nonce = IconConverter.toHex(IconConverter.toBigNumber(1));
-    const stepLimit = IconConverter.toHex((IconConverter.toBigNumber(this.getDefaultStepCost())));
+    const stepLimit = IconConverter.toHex((IconConverter.toBigNumber(this.stepCost)));
     const version = IconConverter.toHex((IconConverter.toBigNumber(3)));
     const nid = IconConverter.toHex(IconConverter.toBigNumber(3));
     value = value ? IconConverter.toHex(IconAmount.of(value, IconAmount.Unit.ICX).toLoop()) : "0x0";

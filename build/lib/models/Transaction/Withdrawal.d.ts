@@ -5,4 +5,4 @@ export declare class Withdrawal {
     status: string;
     constructor(id: string, amount: string, createdAt: number, status: string);
 }
-// # sourceMappingURL=Withdrawal.d.ts.map
+//# sourceMappingURL=Withdrawal.d.ts.map
