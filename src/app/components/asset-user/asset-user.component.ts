@@ -33,7 +33,6 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
 
   @Input() asset!: Asset;
   @Input() index!: number;
-  @Input() isAssetAvailable = false;
 
   /** Bind html elements to variables using template referencing */
   sliderSupply: any;
@@ -408,7 +407,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
         }
       });
       // set borrow supplied and slider value
-      const borrowed = reserve.principalBorrowBalance;
+      const borrowed = reserve.currentBorrowBalance;
 
       // set borrowed available value
       const borrowAvailable = this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag);
@@ -601,6 +600,42 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     this.sliderBorrow.noUiSlider.set(value);
   }
 
+  getUserSuppliedAssetBalance(): number {
+    let res = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag);
+
+    if (this.asset.tag === AssetTag.ICX) {
+      res = this.convertSICXToICX(res);
+    }
+
+    return res;
+  }
+
+  getUserBorrowedAssetBalance(): number {
+    let res = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag);
+
+    if (this.asset.tag === AssetTag.ICX) {
+      res = this.convertSICXToICX(res);
+    }
+
+    return res;
+  }
+
+  getUserSuppliableBalanceUSD(): number {
+    return this.persistenceService.getUserAssetUSDBalance(this.asset.tag);
+  }
+
+  getUserSuppliableBalance(): number {
+    return this.persistenceService.getUserAssetBalance(this.asset.tag);
+  }
+
+  // show user asset if is either supplied, available to supply, borrowed or available to borrow
+  shouldBeShown(): boolean {
+    return !this.persistenceService.userAssetSuppliedIsZero(this.asset.tag)
+      || this.persistenceService.isAssetAvailableToSupply(this.asset.tag)
+      || !this.persistenceService.userAssetBorrowedIsZero(this.asset.tag)
+      || (this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag) > 0);
+  }
+
   getDailySupplyInterest(amountBeingSupplied?: number): number {
     return this.calculationService.calculateUsersDailySupplyInterestForAsset(this.asset.tag, amountBeingSupplied);
   }
@@ -731,6 +766,10 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     }
 
     return this.calculationService.calculateTotalRisk(riskCalculationData, updateState);
+  }
+
+  isAssetAvailable(): boolean {
+    return this.persistenceService.isAssetAvailableToSupply(this.asset.tag);
   }
 
 }

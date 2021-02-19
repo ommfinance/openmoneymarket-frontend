@@ -77,11 +77,11 @@ export class PersistenceService {
   }
 
   public getUserBorrowedAssetBalance(assetTag: AssetTag): number {
-    return this.userReserves?.reserveMap.get(assetTag)?.principalBorrowBalance ?? 0;
+    return this.userReserves?.reserveMap.get(assetTag)?.currentBorrowBalance ?? 0;
   }
 
   public getUserBorrowedAssetUSDBalance(assetTag: AssetTag): number {
-    return this.userReserves?.reserveMap.get(assetTag)?.principalBorrowBalanceUSD ?? 0;
+    return this.userReserves?.reserveMap.get(assetTag)?.currentBorrowBalanceUSD ?? 0;
   }
 
   public getUserIcxBalance(): number {
@@ -158,7 +158,7 @@ export class PersistenceService {
       return totalBorrowed;
     }
     this.userReserves.reserveMap.forEach((reserve: UserReserveData | undefined) => {
-      totalBorrowed += reserve?.principalBorrowBalance ?? 0;
+      totalBorrowed += reserve?.currentBorrowBalance ?? 0;
     });
     return totalBorrowed;
   }
@@ -268,7 +268,7 @@ export class PersistenceService {
 
   public userHasNotBorrowedAnyAsset(): boolean {
     for (const value of this.userReserves!.reserveMap.values()) {
-      if (value && value!.principalBorrowBalance > 0) {
+      if (value && value!.currentBorrowBalance > 0) {
         return false;
       }
     }

@@ -185,7 +185,7 @@
           <div class="grid-cell">
             <table class="list markets">
               <thead>
-                <tr id="your-markets-header" [ngStyle]="hideElement(this.userAssets.length == 0 || !userMarketViewActive())">
+                <tr id="your-markets-header" [ngStyle]="hideElement(!userMarketViewActive() || hideMarketHeader)">
                   <th>Asset</th>
                   <th>You've supplied</th>
                   <th>Supply APY</th>
@@ -204,56 +204,47 @@
               <tbody>
 
               <!-- Market Assets -->
-              <ng-container *ngFor="let a of marketAssets; last as isLast; let i = index">
-                <!-- Asset (USDb, ICX, ..) -->
-                <app-asset-market [asset]="a" #marketAsset
-                                  [index]="i"
-                                  [ngStyle]="hideElementOrDisplayContents(!allMarketViewActive())">
+              <ng-container *ngIf="allMarketViewActive()">
+                <ng-container *ngFor="let a of supportedAssets; last as isLast; let i = index">
+                  <!-- Asset (USDb, ICX, ..) -->
+                  <app-asset-market [asset]="a" #marketAsset
+                                    [index]="i"
+                                    [ngStyle]="hideElementOrDisplayContents(!allMarketViewActive())">
 
-                </app-asset-market>
-                <!-- Spacer -->
-                <tr *ngIf="!isLast" class="spacer"></tr>
+                  </app-asset-market>
+                  <!-- Spacer -->
+                  <tr *ngIf="!isLast" class="spacer"></tr>
+                </ng-container>
               </ng-container>
+
 
               <!-- User Assets (hide if user market view is not active) -->
-              <ng-container *ngFor="let a of userAssets; last as isLast; let i = index">
-                <!-- Asset (USDb, ICX, ..) -->
-                <app-asset-user [asset]="a" #userAsset
-                           [index]="i"
-                           [isAssetAvailable]="false"
-                           [ngStyle]="hideElementOrDisplayContents(!userMarketViewActive())"
-                           (collOtherAssetTables)="collapseOtherAssetsTable($event)"
-                           (disableAndResetSliders)="disableAndResetAssetsSupplyAndBorrowSliders()"
-                           (disableAssetsInputs)="disableAssetsInputs()">
-                </app-asset-user>
-                <!-- Spacer -->
-                <tr *ngIf="!isLast || shouldShowAssetAvailable()" class="spacer"></tr>
-              </ng-container>
+              <ng-container *ngIf="userMarketViewActive()">
+                <ng-container *ngFor="let asset of supportedAssets; last as isLast; let i = index">
 
-              <!-- Available to supply -->
-              <tr class="available-to-supply" [ngStyle]="displayAsTableRowOrHide(shouldShowAssetAvailable())">
-                <td colspan="5">
-                  <div class="grid">
-                    <div class="grid-cell">
-                      <p class="separator-full text-center"><span>Available to supply</span></p>
-                    </div>
-                  </div>
-                </td>
-              </tr>
+                    <!-- Available to supply -->
+                    <tr class="available-to-supply"
+                        *ngIf="!isAvailableSplitterShown() && this.persistenceService.isAssetAvailableToSupply(asset.tag)" #availSplitter>
+                      <td colspan="5">
+                        <div class="grid">
+                          <div class="grid-cell">
+                            <p class="separator-full text-center"><span>Available to supply</span></p>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
 
-              <!-- User available Assets (hide if user market view is not active) -->
-              <ng-container *ngFor="let a of availableAssets; last as isLast; let i = index">
-                <!-- Asset available (USDb, ICX, ..) -->
-                <app-asset-user [asset]="a" #availAsset
-                           [index]="i"
-                           [isAssetAvailable]="true"
-                           [ngStyle]="hideElementOrDisplayContents(!userMarketViewActive())"
-                           (collOtherAssetTables)="collapseOtherAssetsTable($event)"
-                           (disableAndResetSliders)="disableAndResetAssetsSupplyAndBorrowSliders()"
-                           (disableAssetsInputs)="disableAssetsInputs()">
-                </app-asset-user>
-                <!-- Spacer -->
-                <tr *ngIf="!isLast" class="spacer"></tr>
+                  <!-- Asset (USDb, ICX, ..) -->
+                  <app-asset-user [asset]="asset" #userAsset
+                                  [index]="i"
+                                  [ngStyle]="hideElementOrDisplayContents(!userMarketViewActive())"
+                                  (collOtherAssetTables)="collapseOtherAssetsTable($event)"
+                                  (disableAndResetSliders)="disableAndResetAssetsSupplyAndBorrowSliders()"
+                                  (disableAssetsInputs)="disableAssetsInputs()">
+                  </app-asset-user>
+                  <!-- Spacer -->
+                  <tr *ngIf="!isLast" class="spacer"></tr>
+                </ng-container>
               </ng-container>
 
               </tbody>

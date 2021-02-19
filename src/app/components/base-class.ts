@@ -1,5 +1,5 @@
 import {Utils} from "../common/utils";
-import {AssetTag, supportedAssetsMap} from "../models/Asset";
+import {Asset, AssetTag, supportedAssetsMap} from "../models/Asset";
 import {assetFormat} from "../common/formats";
 import log from "loglevel";
 import {BigNumber} from "bignumber.js";
@@ -16,6 +16,7 @@ export class BaseClass {
 
   public supportedAssetsMap = supportedAssetsMap;
   public AssetTag = AssetTag;
+  public supportedAssets: Asset[] = Array.from(supportedAssetsMap.values());
 
   public formatNumberToNdigits(num?: number | string, digits: number = 2): string {
     if (!num || (+num) === 0) { return "-"; }

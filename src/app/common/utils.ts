@@ -90,4 +90,8 @@ export class Utils {
     return Utils.roundOffTo2Decimals(value / todayRate);
   }
 
+  public static convertSICXToICX(sICXvalue: number, sIcxToIcxRate: number): number {
+    return sICXvalue * sIcxToIcxRate;
+  }
+
 }

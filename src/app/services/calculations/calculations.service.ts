@@ -6,6 +6,7 @@ import {RiskCalculationData} from "../../models/RiskCalculationData";
 import {UserAction} from "../../models/UserAction";
 import {ReserveData} from "../../models/AllReservesData";
 import {StateChangeService} from "../state-change/state-change.service";
+import {Utils} from "../../common/utils";
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +23,12 @@ export class CalculationsService {
   }
 
   public calculateAssetSupplySliderMax(assetTag: AssetTag): number {
-    return this.persistenceService.getUserSuppliedAssetBalance(assetTag) + this.persistenceService.getUserAssetBalance(assetTag);
+    let suppliedAssetBalance = this.persistenceService.getUserSuppliedAssetBalance(assetTag);
+
+    if (assetTag === AssetTag.ICX) {
+      suppliedAssetBalance = Utils.convertSICXToICX(suppliedAssetBalance, this.persistenceService.sIcxToIcxRate());
+    }
+    return suppliedAssetBalance + this.persistenceService.getUserAssetBalance(assetTag);
   }
 
   // calculate the total risk percentage based on the user health factor or user action
@@ -68,7 +74,7 @@ export class CalculationsService {
    * @return total user risk as a number (multiply by 100 to get percentage)
    */
   private calculateTotalRiskDynamic(riskCalculationData?: RiskCalculationData): number {
-    log.debug(riskCalculationData);
+    // log.debug(riskCalculationData);
 
     const userAccountData = this.persistenceService.userAccountData;
     // if user account data not yet initialised return 0
@@ -215,30 +221,36 @@ export class CalculationsService {
     const exchangePrice = this.persistenceService.getAssetExchangePrice(assetTag);
 
     if (borrowed) {
-      const originationFee = this.persistenceService.getUserAssetReserve(assetTag)?.originationFee ?? 0;
-      currentBorrowBalanceUSD = (borrowed * exchangePrice) * originationFee;
+      currentBorrowBalanceUSD = borrowed * exchangePrice;
     }
 
     const borrowRate = this.persistenceService.getUserAssetReserve(assetTag)?.borrowRate ?? 0;
 
     // log.debug("**********************************************");
-    // log.debug("Daily borrow interest for reserve calculation:");
+    // log.debug("Daily borrow interest for reserve calculation for :", assetTag);
     // log.debug(`currentBorrowBalanceUSD=${currentBorrowBalanceUSD}`);
     // log.debug(`borrowRate=${borrowRate}`);
     // "easy route" formula
     const res = currentBorrowBalanceUSD * borrowRate * (1 / 365);
 
     // convert to asset
-    return res / exchangePrice;
+    const valueInAsset = res / exchangePrice;
+    // log.debug(`Result = ${valueInAsset} ${assetTag}`);
+
+    return valueInAsset;
   }
 
   calculateUsersBorrowInterestPerDayUSD(): number {
     let total = 0;
     let exchangePrice = 0;
 
+    log.debug("******** calculateUsersBorrowInterestPerDayUSD ******");
     Object.values(AssetTag).forEach(assetTag => {
+      log.debug("assetTag = ", assetTag);
       exchangePrice = this.persistenceService.getAssetExchangePrice(assetTag);
+      log.debug("exchangePrice = ", exchangePrice);
       total += this.calculateUsersDailyBorrowInterestForAsset(assetTag) * exchangePrice;
+      log.debug("this.calculateUsersDailyBorrowInterestForAsset(assetTag) = ", this.calculateUsersDailyBorrowInterestForAsset(assetTag));
     });
 
     return total;
