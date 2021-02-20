@@ -45,7 +45,7 @@ export class IconApiService {
       .build();
     const stepCosts = await this.iconService.call(call).execute();
 
-    return Math.max((parseInt(stepCosts.default, 16) * 50), 3000000);
+    return Math.max((parseInt(stepCosts.default, 16) * 200), 20000000);
   }
 
 
