@@ -53,6 +53,7 @@ export class BridgeWidgetService {
 
   // when user trigger balance changing action in Bridge (deposit, withdraw, send) update his balances
   handleBridgeUserBalanceAction(): void {
+    log.debug("Handling bri.deposit event...");
     this.dataLoaderService.loadAllUserAssetsBalances();
   }
 

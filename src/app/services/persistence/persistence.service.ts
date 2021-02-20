@@ -62,7 +62,7 @@ export class PersistenceService {
 
   public getUserAssetUSDBalance(assetTag: AssetTag): number {
     const balance = this.activeWallet?.balances.get(assetTag) ?? 0;
-    const exchangePrice = this.activeWallet?.balances.get(assetTag) ?? 0;
+    const exchangePrice = this.getAssetExchangePrice(assetTag) ?? 0;
     return balance * exchangePrice;
   }
 
