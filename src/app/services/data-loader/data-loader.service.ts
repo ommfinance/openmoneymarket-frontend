@@ -14,6 +14,10 @@ import {BridgeWallet} from "../../models/wallets/BridgeWallet";
 import {OmmError} from "../../core/errors/OmmError";
 import {AllReserveConfigData} from "../../models/AllReserveConfigData";
 import {LedgerWallet} from "../../models/wallets/LedgerWallet";
+import {OmmService} from "../omm/omm.service";
+import {OmmRewards} from "../../models/OmmRewards";
+import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
+import {NotificationService} from "../notification/notification.service";
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +26,9 @@ export class DataLoaderService {
 
   constructor(private scoreService: ScoreService,
               private persistenceService: PersistenceService,
-              private stateChangeService: StateChangeService) {
+              private stateChangeService: StateChangeService,
+              private ommService: OmmService,
+              private notificationService: NotificationService) {
 
   }
 
@@ -32,16 +38,22 @@ export class DataLoaderService {
 
     try {
       // TODO optimise by saving and reading from localstorage
-      const [usdbReserveResponse, icxReserveResponse, icxBalResponse, usdbBalResponse, userAccountDataRes
+      const [usdbReserveResponse, icxReserveResponse, icxBalResponse, usdbBalResponse, userAccountDataRes, userOmmRewRes,
+        userOmmTokBalDet
       ] = await Promise.all([
         this.loadUserUSDbReserveData(),
         this.loadUserIcxReserveData(),
         this.scoreService.getUserAssetBalance(AssetTag.ICX),
         this.scoreService.getUserAssetBalance(AssetTag.USDb),
         this.loadUserAccountData(),
+        this.loadUserOmmRewards(),
+        this.loadUserOmmTokenBalanceDetails()
       ]);
 
     } catch (e) {
+      log.debug(e);
+      this.persistenceService.activeWallet = undefined;
+      this.notificationService.showNewNotification("Error occurred! Try again in a moment.");
       throw new OmmError("Error occurred! Try again in a moment.", e);
     }
 
@@ -114,6 +126,8 @@ export class DataLoaderService {
         return this.loadUserIcxReserveData();
       case AssetTag.USDb:
         return this.loadUserUSDbReserveData();
+      default:
+        return Promise.resolve();
     }
   }
 
@@ -154,9 +168,31 @@ export class DataLoaderService {
     });
   }
 
+  public loadUserOmmRewards(): Promise<void> {
+    return this.ommService.getOmmRewardsPerUser().then((ommRewards: OmmRewards) => {
+      this.persistenceService.userOmmRewards = Mapper.mapUserOmmRewards(ommRewards);
+      this.stateChangeService.updateUserOmmRewards(this.persistenceService.userOmmRewards);
+    });
+  }
+
+  public loadUserOmmTokenBalanceDetails(): Promise<void> {
+    return this.ommService.getOmmTokenBalanceDetails().then((res: OmmTokenBalanceDetails) => {
+      this.persistenceService.userOmmTokenBalanceDetails = Mapper.mapUserOmmTokenBalanceDetails(res);
+      this.stateChangeService.updateUserOmmTokenBalanceDetails(this.persistenceService.userOmmTokenBalanceDetails);
+    });
+  }
+
+  public loadTokenDistributionPerDay(): Promise<void> {
+    return this.scoreService.getTokenDistributionPerDay().then(res => {
+      this.persistenceService.tokenDistributionPerDay = res;
+    });
+  }
+
   public loadUserSpecificData(): void {
     this.loadAllUserAssetReserveData();
     this.loadAllUserAssetsBalances();
     this.loadUserAccountData();
+    this.loadUserOmmRewards();
+    this.loadUserOmmTokenBalanceDetails();
   }
 }

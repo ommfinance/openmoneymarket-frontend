@@ -32,7 +32,7 @@ export class BaseClass {
     return `$${this.formatNumberToNdigits(num)}`;
   }
 
-  public roundDownTo2Decimals(value: number | BigNumber | string | undefined): number {
+  public roundOffTo2Decimals(value: number | BigNumber | string | undefined): number {
     if (!value) {
       return 0;
     }

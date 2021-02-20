@@ -5,6 +5,8 @@ import {UserAccountData} from "../models/UserAccountData";
 import log from "loglevel";
 import {ReserveConfigData} from "../models/ReserveConfigData";
 import {AllReserveConfigData} from "../models/AllReserveConfigData";
+import {OmmRewards} from "../models/OmmRewards";
+import {OmmTokenBalanceDetails} from "../models/OmmTokenBalanceDetails";
 
 export class Mapper {
 
@@ -29,6 +31,36 @@ export class Mapper {
       Utils.hexToNumber(reserve.userLiquidityIndex),
     );
     log.debug("mapUserReserve after: ", res);
+
+    return res;
+  }
+
+  public static mapUserOmmRewards(ommRewards: OmmRewards): OmmRewards {
+    log.debug("mapUserOmmRewards before: ", ommRewards);
+    const res = new OmmRewards(
+      Utils.hexE18To2DecimalRoundedOff(ommRewards.deposit),
+      Utils.hexE18To2DecimalRoundedOff(ommRewards.borrow),
+      Utils.hexE18To2DecimalRoundedOff(ommRewards.ommICX),
+      Utils.hexE18To2DecimalRoundedOff(ommRewards.ommUSDb),
+      Utils.hexE18To2DecimalRoundedOff(ommRewards.worker),
+      Utils.hexE18To2DecimalRoundedOff(ommRewards.daoFund),
+      Utils.hexE18To2DecimalRoundedOff(ommRewards.total)
+    );
+    log.debug("mapUserOmmRewards after: ", res);
+
+    return res;
+  }
+
+  public static mapUserOmmTokenBalanceDetails(ommTokenBalanceDetails: OmmTokenBalanceDetails): OmmTokenBalanceDetails {
+    log.debug("mapUserOmmTokenBalanceDetails before: ", ommTokenBalanceDetails);
+    const res = new OmmTokenBalanceDetails(
+      Utils.hexE18To2DecimalRoundedOff(ommTokenBalanceDetails.totalBalance),
+      Utils.hexE18To2DecimalRoundedOff(ommTokenBalanceDetails.availableBalance),
+      Utils.hexE18To2DecimalRoundedOff(ommTokenBalanceDetails.stakedBalance),
+      Utils.hexE18To2DecimalRoundedOff(ommTokenBalanceDetails.unstakingBalance),
+      Utils.hexToNumber(ommTokenBalanceDetails.unstakingTimeInMills)
+    );
+    log.debug("mapUserOmmTokenBalanceDetails after: ", res);
 
     return res;
   }

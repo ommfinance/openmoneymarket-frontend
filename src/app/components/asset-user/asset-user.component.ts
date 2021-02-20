@@ -299,7 +299,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
    * Logic to trigger when user clicks confirm of asset-user borrow
    */
   onAssetBorrowConfirmClick(): void {
-    let value = this.roundDownTo2Decimals(+assetFormat(this.asset.tag).from(this.inputBorrow.value));
+    let value = this.roundOffTo2Decimals(+assetFormat(this.asset.tag).from(this.inputBorrow.value));
 
     // check that borrowed value is not greater than max
     const max = this.borrowSliderMaxValue();

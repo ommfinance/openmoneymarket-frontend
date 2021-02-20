@@ -8,6 +8,8 @@ import {BridgeWallet} from "../../models/wallets/BridgeWallet";
 import {AssetTag} from "../../models/Asset";
 import {AllReserveConfigData} from "../../models/AllReserveConfigData";
 import {LedgerWallet} from "../../models/wallets/LedgerWallet";
+import {OmmRewards} from "../../models/OmmRewards";
+import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
 
 @Injectable({
   providedIn: 'root'
@@ -27,6 +29,10 @@ export class PersistenceService {
   public userTotalRisk = 0;
 
   public userAccountData?: UserAccountData;
+  public userOmmRewards?: OmmRewards;
+  public userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
+
+  public tokenDistributionPerDay = 1;
 
   constructor() {}
 

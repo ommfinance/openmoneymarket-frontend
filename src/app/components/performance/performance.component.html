@@ -25,7 +25,7 @@
       <div class="grid-cell text-center">
         <dl class="metadata">
           <dt>Supply interest</dt>
-          <dd class="value-supply-interest-total" #suppInterest>+ ${{roundDownTo2Decimals(supplyInterest)}}</dd>
+          <dd class="value-supply-interest-total" #suppInterest>+ ${{roundOffTo2Decimals(supplyInterest)}}</dd>
         </dl>
       </div>
 
@@ -33,7 +33,7 @@
       <div class="grid-cell text-center borrow-interest-container" [ngStyle]="hideElement(borrowInterest == 0)">
         <dl class="metadata">
           <dt>Borrow interest</dt>
-          <dd class="value-borrow-interest-total" #borrInterest>- ${{roundDownTo2Decimals(borrowInterest)}}</dd>
+          <dd class="value-borrow-interest-total" #borrInterest>- ${{roundOffTo2Decimals(borrowInterest)}}</dd>
         </dl>
       </div>
 
@@ -41,7 +41,7 @@
       <div class="grid-cell text-center">
         <dl class="metadata">
           <dt>Omm rewards</dt>
-          <dd><span class="value-rewards-total">+ {{roundDownTo2Decimals(ommRewards)}}</span><span class="label" style="font-size: 12px;letter-spacing: 1px;margin-left: 5px;">OMM</span></dd>
+          <dd><span class="value-rewards-total">+ {{roundOffTo2Decimals(ommRewards)}}</span><span class="label" style="font-size: 12px;letter-spacing: 1px;margin-left: 5px;">OMM</span></dd>
         </dl>
       </div>
     </div>

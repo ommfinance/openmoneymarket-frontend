@@ -39,19 +39,21 @@ export class ScoreService {
 
   /**
    * @description Get Token Distribution per day
-   * @return  List os collateral, oTokens and System Contract addresses
+   * @return  Token distribution per day in number
    */
   public async getTokenDistributionPerDay(): Promise<number> {
     this.checkerService.checkAllAddressesLoaded();
 
     const params = {
-      _day: 1,
+      _day: "0x1",
     };
 
-    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Rewards,
       ScoreMethodNames.GET_TOKEN_DISTRIBUTION_PER_DAY, params, IconTransactionType.READ);
 
     const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getTokenDistributionPerDay: ", res);
 
     return Utils.hexE18ToNormalisedNumber(res);
   }
@@ -195,6 +197,8 @@ export class ScoreService {
       case AssetTag.USDb:
         balance = await this.getUserUSDbBalance(this.persistenceService.activeWallet!.address);
         break;
+      default:
+        return Promise.resolve(0);
     }
 
     // set asset balance

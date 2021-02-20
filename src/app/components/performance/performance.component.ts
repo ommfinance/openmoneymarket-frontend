@@ -3,10 +3,11 @@ import {ModalType} from "../../models/ModalType";
 import {ModalService} from "../../services/modal/modal.service";
 import {UserReserveData} from "../../models/UserReserveData";
 import {StateChangeService} from "../../services/state-change/state-change.service";
-import {AssetTag} from "../../models/Asset";
+import {Asset, AssetClass, AssetName, AssetTag} from "../../models/Asset";
 import {BaseClass} from "../base-class";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {PersistenceService} from "../../services/persistence/persistence.service";
+import {AssetAction} from "../../models/AssetAction";
 
 @Component({
   selector: 'app-performance',
@@ -58,11 +59,15 @@ export class PerformanceComponent extends BaseClass implements OnInit {
   }
 
   updateOmmRewards(): void {
-    this.ommRewards = this.calculationService.calculateUserTotalOmmRewards();
+    this.ommRewards = this.persistenceService.userOmmRewards?.total ?? 0;
   }
 
   onClaimOmmRewardsClick(): void {
-    this.modalService.showNewModal(ModalType.CLAIM_OMM_REWARDS);
+    const before = this.persistenceService.userOmmTokenBalanceDetails?.totalBalance ?? 0;
+    const rewards = this.persistenceService.userOmmRewards?.total ?? 0;
+    const after = this.roundOffTo2Decimals(before + rewards);
+    this.modalService.showNewModal(ModalType.CLAIM_OMM_REWARDS, new AssetAction(new Asset(AssetClass.USDb, AssetName.USDb, AssetTag.USDb),
+      before, after, rewards));
   }
 
 }

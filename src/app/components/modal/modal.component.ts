@@ -21,6 +21,8 @@ import {LedgerService} from "../../services/ledger/ledger.service";
 import {DataLoaderService} from "../../services/data-loader/data-loader.service";
 import {LedgerWallet} from "../../models/wallets/LedgerWallet";
 import log from "loglevel";
+import {TransactionDispatcherService} from "../../services/transaction-dispatcher/transaction-dispatcher.service";
+import {OmmService} from "../../services/omm/omm.service";
 
 
 @Component({
@@ -58,7 +60,9 @@ export class ModalComponent extends BaseClass implements OnInit {
               private notificationService: NotificationService,
               public persistenceService: PersistenceService,
               private ledgerService: LedgerService,
-              private dataLoaderService: DataLoaderService) {
+              private dataLoaderService: DataLoaderService,
+              private transactionDispatcherService: TransactionDispatcherService,
+              private ommService: OmmService) {
     super(persistenceService);
 
     this.activeModalSubscription = this.modalService.activeModalChange$.subscribe((activeModalChange: ModalAction) => {
@@ -120,6 +124,16 @@ export class ModalComponent extends BaseClass implements OnInit {
       log.error(e);
       this.notificationService.showNewNotification("Can not connect to Ledger device. Make sure it is connected and try again.");
     });
+  }
+
+  onClaimOmmRewardsClick(): void {
+    // store asset-user action in local storage
+    this.localStorageService.persistModalAction(this.activeModalChange!);
+
+    // hide current modal
+    this.modalService.hideActiveModal();
+
+    this.transactionDispatcherService.dispatchTransaction(this.ommService.BuildClaimOmmRewardsTx(), "Claiming Omm Tokens...");
   }
 
   onCancelClick(): void {

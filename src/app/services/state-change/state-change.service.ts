@@ -7,6 +7,8 @@ import {IconexWallet} from "../../models/wallets/IconexWallet";
 import {BridgeWallet} from "../../models/wallets/BridgeWallet";
 import {UserAccountData} from "../../models/UserAccountData";
 import {ModalAction} from "../../models/ModalAction";
+import {OmmRewards} from "../../models/OmmRewards";
+import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
 
 @Injectable({
   providedIn: 'root'
@@ -43,6 +45,16 @@ export class StateChangeService {
    * Subscribable subject for user account data change
    */
   public userAccountDataChange: Subject<UserAccountData> = new Subject<UserAccountData>();
+
+  /**
+   * Subscribable subject for user omm rewards change
+   */
+  public userOmmRewardsChange: Subject<OmmRewards> = new Subject<OmmRewards>();
+
+  /**
+   * Subscribable subject for user omm token balance detail change
+   */
+  public userOmmTokenBalanceDetailsChange: Subject<OmmTokenBalanceDetails> = new Subject<OmmTokenBalanceDetails>();
 
   /**
    * Subscribable subject for monitoring the user modal action changes (supply, withdraw, ..)
@@ -93,6 +105,14 @@ export class StateChangeService {
 
   public updateUserAccountData(userAccountData: UserAccountData): void {
     this.userAccountDataChange.next(userAccountData);
+  }
+
+  public updateUserOmmRewards(userOmmRewards: OmmRewards): void {
+    this.userOmmRewardsChange.next(userOmmRewards);
+  }
+
+  public updateUserOmmTokenBalanceDetails(userOmmTokenBalanceDetails: OmmTokenBalanceDetails): void {
+    this.userOmmTokenBalanceDetailsChange.next(userOmmTokenBalanceDetails);
   }
 
   public updateUserModalAction(modalAction: ModalAction): void {

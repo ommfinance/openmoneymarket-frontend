@@ -295,7 +295,7 @@ export class CalculationsService {
     // log.debug("userSum: ", userSum);
     // log.debug("allUsersSum: ", allUsersSum);
 
-    return (userSum / allUsersSum) * 0.25;  // TODO add * token distribution for that day
+    return (userSum / allUsersSum) * 0.25 * this.persistenceService.tokenDistributionPerDay;
   }
 
   /**
@@ -327,7 +327,7 @@ export class CalculationsService {
     });
 
 
-    return (userSum / allUsersSum) * 0.25; // TODO add * token distribution for that day
+    return (userSum / allUsersSum) * 0.25 * this.persistenceService.tokenDistributionPerDay;
   }
 
 }

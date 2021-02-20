@@ -44,7 +44,7 @@ export class TransactionDispatcherService {
         getSignature: () => signedRawTx.signature,
       });
 
-      this.transactionResultService.publicProcessIconTransactionResult(txHash);
+      this.transactionResultService.processIconTransactionResult(txHash);
     }
   }
 

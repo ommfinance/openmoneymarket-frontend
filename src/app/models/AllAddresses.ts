@@ -18,6 +18,8 @@ export class AllAddresses {
         return this.collateral.sICX;
       case AssetTag.USDb:
         return this.collateral.USDb;
+      default:
+        return "";
     }
   }
 }
@@ -37,4 +39,6 @@ interface SystemContract {
   LendingPoolDataProvider: string;
   Staking: string;
   Rewards: string;
+  OmmToken: string;
+  Delegation: string;
 }

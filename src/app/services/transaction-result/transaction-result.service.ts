@@ -7,7 +7,6 @@ import {DataLoaderService} from "../data-loader/data-loader.service";
 import log from "loglevel";
 import {NotificationService} from "../notification/notification.service";
 import {LocalStorageService} from "../local-storage/local-storage.service";
-import {OmmError} from "../../core/errors/OmmError";
 import {ModalAction} from "../../models/ModalAction";
 import {AssetAction} from "../../models/AssetAction";
 import {ModalType} from "../../models/ModalType";
@@ -62,7 +61,7 @@ export class TransactionResultService {
     }
   }
 
-  publicProcessIconTransactionResult(txHash: string): void {
+  processIconTransactionResult(txHash: string): void {
     // get last modal action from localstorage
     const modalAction: ModalAction = this.localStorageService.getLastModalAction();
     const assetAction: AssetAction = modalAction.assetAction!;
@@ -84,7 +83,7 @@ export class TransactionResultService {
       }
     }).catch(e => {
       if (e.includes('Pending')) {
-        setTimeout(this.publicProcessIconTransactionResult.bind(this, txHash), 2000);
+        setTimeout(this.processIconTransactionResult.bind(this, txHash), 2000);
       } else {
         log.debug("Error in isTxConfirmed:", e);
         this.showFailedActionNotification(modalAction, assetAction);
@@ -129,6 +128,8 @@ export class TransactionResultService {
       case ModalType.REPAY:
         this.notificationService.showNewNotification(`${assetAction.amount} ${assetAction.asset.tag} repaid.`);
         break;
+      case ModalType.CLAIM_OMM_REWARDS:
+        this.notificationService.showNewNotification(`${assetAction.amount} Omm Tokens claimed.`);
     }
   }
 
@@ -146,6 +147,8 @@ export class TransactionResultService {
       case ModalType.REPAY:
         this.notificationService.showNewNotification(`Couldn't repay ${assetAction.asset.tag}. Try again.`);
         break;
+      case ModalType.CLAIM_OMM_REWARDS:
+        this.notificationService.showNewNotification("Couldn't claim Omm Tokens. Try again.");
     }
   }
 }
