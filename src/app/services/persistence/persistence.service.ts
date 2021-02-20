@@ -114,24 +114,24 @@ export class PersistenceService {
     return this.allReserves?.getReserveData(assetTag);
   }
 
-  public getTotalSupplied(): number {
+  public getTotalSuppliedUSD(): number {
     let totalSupplied = 0;
     if (!this.allReserves) {
       return totalSupplied;
     }
     Object.values(this.allReserves).forEach((property: ReserveData) => {
-      totalSupplied += property.totalLiquidity;
+      totalSupplied += property.totalLiquidityUSD;
     });
     return totalSupplied;
   }
 
-  public getTotalBorrowed(): number {
+  public getTotalBorrowedUSD(): number {
     let totalBorrowed = 0;
     if (!this.allReserves) {
       return totalBorrowed;
     }
     Object.values(this.allReserves).forEach((property: ReserveData) => {
-      totalBorrowed += property.totalBorrows;
+      totalBorrowed += property.totalBorrowsUSD;
     });
     return totalBorrowed;
   }
@@ -158,13 +158,13 @@ export class PersistenceService {
     return totalSupplied;
   }
 
-  public getUserTotalBorrowed(): number {
+  public getUserTotalBorrowedUSD(): number {
     let totalBorrowed = 0;
     if (!this.userReserves) {
       return totalBorrowed;
     }
     this.userReserves.reserveMap.forEach((reserve: UserReserveData | undefined) => {
-      totalBorrowed += reserve?.currentBorrowBalance ?? 0;
+      totalBorrowed += reserve?.currentBorrowBalanceUSD ?? 0;
     });
     return totalBorrowed;
   }

@@ -108,7 +108,9 @@ export class CalculationsService {
         case UserAction.BORROW:
           // if user takes out the loan (borrow) update the origination fee and add amount to the total borrow balance
           const originationFee = this.persistenceService.getUserAssetReserve(riskCalculationData.assetTag)?.originationFee ?? 0;
-          totalFeeUSD += (amount * assetExchangePrice) * originationFee;
+          log.debug(`originationFee=${originationFee}`);
+          log.debug(`amount being borrowed=${amount}`);
+          totalFeeUSD += amount * assetExchangePrice * 0.001 + originationFee;
           totalBorrowBalanceUSD += amount * assetExchangePrice;
           break;
         case UserAction.REPAY:
@@ -116,12 +118,12 @@ export class CalculationsService {
           totalBorrowBalanceUSD -= amount * assetExchangePrice;
       }
     }
-    // log.debug("**********************************************");
-    // log.debug("Total risk percentage calculation:");
-    // log.debug(`totalBorrowBalanceUSD=${totalBorrowBalanceUSD}`);
-    // log.debug(`totalCollateralBalanceUSD=${totalCollateralBalanceUSD}`);
-    // log.debug(`totalFeeUSD=${totalFeeUSD}`);
-    // log.debug(`liquidationThreshold=${liquidationThreshold}`);
+    log.debug("**********************************************");
+    log.debug("Total risk percentage calculation:");
+    log.debug(`totalBorrowBalanceUSD=${totalBorrowBalanceUSD}`);
+    log.debug(`totalCollateralBalanceUSD=${totalCollateralBalanceUSD}`);
+    log.debug(`totalFeeUSD=${totalFeeUSD}`);
+    log.debug(`liquidationThreshold=${liquidationThreshold}`);
 
     const res = totalBorrowBalanceUSD / ((totalCollateralBalanceUSD - totalFeeUSD) * liquidationThreshold);
 
@@ -174,25 +176,25 @@ export class CalculationsService {
    * @return users asset supply interest (in USD) for a day
    */
   public calculateUsersDailySupplyInterestForAsset(assetTag: AssetTag, supplied?: number): number {
-    log.debug("**********************************************");
-    log.debug("Daily supply interest for reserve calculation:");
+    // log.debug("**********************************************");
+    // log.debug("Daily supply interest for reserve calculation:");
 
     let currentOTokenBalanceUSD = this.persistenceService.getUserSuppliedAssetUSDBalance(assetTag);
-    log.debug(`currentOTokenBalanceUSD=${currentOTokenBalanceUSD}`);
+    // log.debug(`currentOTokenBalanceUSD=${currentOTokenBalanceUSD}`);
 
     const exchangePrice = this.persistenceService.getAssetExchangePrice(assetTag);
     if (supplied) {
       currentOTokenBalanceUSD = supplied * exchangePrice;
-      log.debug(`amountBeingSupplied=${supplied}`);
-      log.debug(`exchangePrice=${exchangePrice}`);
-      log.debug(`after currentOTokenBalanceUSD=${currentOTokenBalanceUSD}`);
+      // log.debug(`amountBeingSupplied=${supplied}`);
+      // log.debug(`exchangePrice=${exchangePrice}`);
+      // log.debug(`after currentOTokenBalanceUSD=${currentOTokenBalanceUSD}`);
     }
 
     const liquidityRate = this.persistenceService.getUserAssetReserve(assetTag)?.liquidityRate ?? 0;
-    log.debug(`liquidityRate=${liquidityRate}`);
+    // log.debug(`liquidityRate=${liquidityRate}`);
     // "easy route" formula
     const res = currentOTokenBalanceUSD * liquidityRate * (1 / 365);
-    log.debug(`Users daily supply interest, currentOTokenBalanceUSD * liquidityRate * (1 / 365) = ${res}`);
+    // log.debug(`Users daily supply interest, currentOTokenBalanceUSD * liquidityRate * (1 / 365) = ${res}`);
 
     // convert to asset
     return res / exchangePrice;
