@@ -15,7 +15,7 @@ export class IconApiService {
   public httpProvider;
   public iconService;
 
-  public stepCost = 20000000;
+  public stepCost = 200000000;
 
   constructor() {
     this.httpProvider = new IconService.HttpProvider(environment.iconRpcUrl);
@@ -45,7 +45,7 @@ export class IconApiService {
       .build();
     const stepCosts = await this.iconService.call(call).execute();
 
-    return Math.max((parseInt(stepCosts.default, 16) * 200), 20000000);
+    return Math.max((parseInt(stepCosts.default, 16) * 200), 200000000);
   }
 
 
