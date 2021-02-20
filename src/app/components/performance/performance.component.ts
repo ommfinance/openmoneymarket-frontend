@@ -59,7 +59,7 @@ export class PerformanceComponent extends BaseClass implements OnInit {
   }
 
   updateOmmRewards(): void {
-    this.ommRewards = this.persistenceService.userOmmRewards?.total ?? 0;
+    this.ommRewards = this.calculationService.calculateUserTotalOmmRewards();
   }
 
   onClaimOmmRewardsClick(): void {
