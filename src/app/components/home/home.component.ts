@@ -27,6 +27,7 @@ import {AssetMarketComponent} from "../asset-market/asset-market.component";
 import {ActiveMarketView} from "../../models/ActiveMarketView";
 import {UserReserveData} from "../../models/UserReserveData";
 import {ModalAction} from "../../models/ModalAction";
+import {BridgeWidgetService} from "../../services/bridge-widget/bridge-widget.service";
 
 declare var $: any;
 
@@ -71,7 +72,8 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
               public slidersService: SlidersService,
               public calculationService: CalculationsService,
               private cd: ChangeDetectorRef,
-              private stateChangeService: StateChangeService) {
+              private stateChangeService: StateChangeService,
+              private bridgeWidgetService: BridgeWidgetService) {
     super(persistenceService);
   }
 
@@ -161,6 +163,10 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
       // collapse the opened tables of the user assets
       this.collapseTableUserAssets();
     });
+  }
+
+  onDepositUSDClick(): void {
+    this.bridgeWidgetService.openBridgeWidget();
   }
 
 

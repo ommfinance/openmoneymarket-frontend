@@ -271,7 +271,7 @@
                  [ngStyle]="hideElement(allMarketViewActive() || !this.persistenceService.userLoggedIn() || !noActiveOrAvailableAsset())">
               <div class="grid-cell">
                 <p class="label text-center">You have no assets available to supply.</p>
-                <p class="text-center" style="margin-top: 15px;"><a href="#" class="button">Deposit USD</a></p>
+                <p class="text-center" style="margin-top: 15px;"><a href="javascript:void(0);" class="button" (click)="onDepositUSDClick()">Deposit USD</a></p>
               </div>
             </div>
 

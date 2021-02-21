@@ -8,6 +8,7 @@ import {DataLoaderService} from "../data-loader/data-loader.service";
 import log from "loglevel";
 import {BridgeWidgetAction} from "../../models/BridgeWidgetAction";
 import {NotificationService} from "../notification/notification.service";
+import {PersistenceService} from "../persistence/persistence.service";
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +16,8 @@ import {NotificationService} from "../notification/notification.service";
 export class BridgeWidgetService {
 
   constructor(private dataLoaderService: DataLoaderService,
-              private notificationService: NotificationService) {
+              private notificationService: NotificationService,
+              private persistenceService: PersistenceService) {
     this.bridge = new BridgeService();
     window.addEventListener("bri.login", (e) => this.handleBridgeLogin(e));
     window.addEventListener("bri.widget.res", (e) => this.handleWidgetRes(e));
@@ -38,9 +40,12 @@ export class BridgeWidgetService {
   }
 
   handleBridgeLogin(e: any): void {
-    const {publicAddress, email} = e.detail;
-    log.debug("Bridge login with publicAddress=" + publicAddress);
-    this.dataLoaderService.walletLogin(new BridgeWallet(publicAddress, email, this.bridge));
+    // if user is not already logged in
+    if (!this.persistenceService.userLoggedIn()) {
+      const {publicAddress, email} = e.detail;
+      log.debug("Bridge login with publicAddress=" + publicAddress);
+      this.dataLoaderService.walletLogin(new BridgeWallet(publicAddress, email, this.bridge));
+    }
   }
 
   sendTransaction(tx: any): void {
