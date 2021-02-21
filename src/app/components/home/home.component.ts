@@ -391,8 +391,11 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
 
   // hide your market header if view is not active or active assets length == 0 and available is not
   shouldHideYourMarketHeader(): boolean {
-    return !this.userMarketViewActive() || (this.userAssets.length === 0
-      && this.availableAssets.length > 0);
+    return !this.userMarketViewActive() || this.userAssets.length === 0;
+  }
+
+  noActiveOrAvailableAsset(): boolean {
+    return this.userAssets.length === 0 && this.availableAssets.length === 0;
   }
 
   userMarketViewActive(): boolean {
