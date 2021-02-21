@@ -22,6 +22,7 @@ export class BridgeWidgetService {
     window.addEventListener("bri.logout.res", (e) => this.handleWidgetLogoutRes(e));
     window.addEventListener("bri.deposit", () => this.handleBridgeUserBalanceAction());
     window.addEventListener("bri.withdraw", () => this.handleBridgeUserBalanceAction());
+    window.addEventListener("bri.sendToken", () => this.handleBridgeUserBalanceAction());
   }
 
   bridge: BridgeService;
