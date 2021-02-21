@@ -18664,7 +18664,7 @@ let DepositElem = class DepositElem extends lit_element__WEBPACK_IMPORTED_MODULE
                 res = await this.bridge.contributionsApiService.createContribution(this.amount, this.selectedPaymentMethod.id, this.selectedPaymentMethod.fundsTransferType, this.feeAmount);
             }
             Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_7__["log"])("Contribution: ", res);
-            document.dispatchEvent(new CustomEvent('bri.deposit', {
+            window.dispatchEvent(new CustomEvent('bri.deposit', {
                 detail: {
                     amount: this.amount,
                     fundsTransferType: this.selectedPaymentMethod.fundsTransferType
@@ -22064,7 +22064,7 @@ let SendToken = class SendToken extends lit_element__WEBPACK_IMPORTED_MODULE_0__
             Object(_logic_utils__WEBPACK_IMPORTED_MODULE_10__["showSpanError"])("Max 2 decimal places allowed.", this.amountInputError, this.inputAmount);
             return false;
         }
-        else if (this.amount > this.tokenBalance) {
+        else if (this.amount > this.selectedToken.balance) {
             Object(_logic_utils__WEBPACK_IMPORTED_MODULE_10__["showSpanError"])("Must be equal or less than the balance.", this.amountInputError, this.inputAmount);
             return false;
         }
@@ -22072,9 +22072,13 @@ let SendToken = class SendToken extends lit_element__WEBPACK_IMPORTED_MODULE_0__
             Object(_logic_utils__WEBPACK_IMPORTED_MODULE_10__["hideSpanError"])(this.amountInputError, this.inputAmount);
         }
         let transferToAddress = this.sendAddress.value.trim();
-        const errors = Object(_lib_validation_send_validation__WEBPACK_IMPORTED_MODULE_7__["validateSendBridgeTokens"])(this.amount, transferToAddress, this.tokenBalance, this.user.iconWalletAddress);
-        if (!this.selectedToken)
+        const errors = [];
+        if (!this.selectedToken) {
             errors.push("No token selected");
+        }
+        else {
+            errors.concat(Object(_lib_validation_send_validation__WEBPACK_IMPORTED_MODULE_7__["validateSendBridgeTokens"])(this.amount, transferToAddress, this.selectedToken.balance, this.user.iconWalletAddress));
+        }
         if (errors.length > 0) {
             this.errors = errors;
             this.showModalView(this.sendErrorView);
@@ -22087,14 +22091,19 @@ let SendToken = class SendToken extends lit_element__WEBPACK_IMPORTED_MODULE_0__
         var _a;
         this.showModalView(this.processingModalView);
         let transferToAddress = this.sendAddress.value.trim();
-        const errors = Object(_lib_validation_send_validation__WEBPACK_IMPORTED_MODULE_7__["validateSendBridgeTokens"])(this.amount, transferToAddress, this.tokenBalance, this.user.iconWalletAddress);
-        if (!this.selectedToken)
+        const errors = [];
+        if (!this.selectedToken) {
             errors.push("No token selected");
+        }
+        else {
+            errors.concat(Object(_lib_validation_send_validation__WEBPACK_IMPORTED_MODULE_7__["validateSendBridgeTokens"])(this.amount, transferToAddress, this.selectedToken.balance, this.user.iconWalletAddress));
+        }
         if (errors.length > 0) {
             this.errors = errors;
             this.showModalView(this.sendErrorView);
         }
         else {
+            let tokenTag = this.selectedToken.tag;
             try {
                 let txHash;
                 if (((_a = this.selectedToken) === null || _a === void 0 ? void 0 : _a.tag) == _lib_models_Tokens_Tokens__WEBPACK_IMPORTED_MODULE_9__["SupportedTokens"].ICX) {
@@ -22103,7 +22112,7 @@ let SendToken = class SendToken extends lit_element__WEBPACK_IMPORTED_MODULE_0__
                 else {
                     txHash = await this.bridge.sendIrc2Tokens(transferToAddress, this.amount, this.selectedToken.scoreAddress);
                 }
-                setTimeout(this.checkTransferTxHashResult.bind(this, txHash, this.amount, transferToAddress), 3000);
+                setTimeout(this.checkTransferTxHashResult.bind(this, txHash, this.amount, transferToAddress, tokenTag), 3000);
             }
             catch (e) {
                 this.clearInputFields();
@@ -22122,7 +22131,7 @@ let SendToken = class SendToken extends lit_element__WEBPACK_IMPORTED_MODULE_0__
             this.clearInputFields();
             return;
         }
-        if (this.amount > this.tokenBalance) {
+        if (this.amount > this.selectedToken.balance) {
             this.inputAmount.classList.add("border-red");
         }
         else {
@@ -22131,7 +22140,7 @@ let SendToken = class SendToken extends lit_element__WEBPACK_IMPORTED_MODULE_0__
         if (!Object(_lib_validation_validation__WEBPACK_IMPORTED_MODULE_11__["amountContainsMaxOneDotFollowedBy2decimals"])(this.amount)) {
             Object(_logic_utils__WEBPACK_IMPORTED_MODULE_10__["showSpanError"])("Max 2 decimal places allowed.", this.amountInputError, this.inputAmount);
         }
-        else if (this.amount > this.tokenBalance) {
+        else if (this.amount > this.selectedToken.balance) {
             Object(_logic_utils__WEBPACK_IMPORTED_MODULE_10__["showSpanError"])("Must be equal or less than the balance.", this.amountInputError, this.inputAmount);
         }
         else {
@@ -22143,22 +22152,31 @@ let SendToken = class SendToken extends lit_element__WEBPACK_IMPORTED_MODULE_0__
         this.selectedToken = this.userTokensMap.get(this.selectToken.value);
         console.log("selectedTokenChange:", this.selectedToken);
     }
-    checkTransferTxHashResult(txHash, amount, to) {
+    checkTransferTxHashResult(txHash, amount, to, tokenTag) {
         this.bridge.getTxResult(txHash).then(result => {
             Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_5__["log"])("Transaction result :", result);
             if (Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_5__["parseHexToNumber"])(result.status) != 1) {
                 this.handleError(new _lib_models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_8__["BridgeError"]("Transaction failed"));
             }
             else {
+                const balanceNow = +(this.selectedToken.balance - this.amount).toFixed(2);
                 this.showModalView(this.sendSuccessView);
                 this.tokenTransferEvent(amount, to);
-                this.updateBalanceEvent(+(this.tokenBalance - this.amount).toFixed(2));
+                this.updateBalanceEvent(balanceNow);
+                window.dispatchEvent(new CustomEvent('bri.sendToken', {
+                    detail: {
+                        token: tokenTag,
+                        to,
+                        amount,
+                        txHash
+                    }
+                }));
             }
         }).catch((e) => {
             Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_5__["log"])("Error: ", e);
             if (e instanceof _lib_models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_8__["BridgeError"]) {
                 if (e.externalError.includes("Pending transaction")) {
-                    setTimeout(this.checkTransferTxHashResult.bind(this, txHash, amount, to), 2000);
+                    setTimeout(this.checkTransferTxHashResult.bind(this, txHash, amount, to, tokenTag), 2000);
                 }
             }
             else {
@@ -22215,7 +22233,7 @@ let SendToken = class SendToken extends lit_element__WEBPACK_IMPORTED_MODULE_0__
         }));
     }
     render() {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
         return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `
             <div class="widget" id="send-amount" hidden>
               <!-- Navigation -->
@@ -22240,7 +22258,7 @@ let SendToken = class SendToken extends lit_element__WEBPACK_IMPORTED_MODULE_0__
                         <label for="send-amount-input">Send amount</label><br>
                       </div>
                       <div class="grid-cell text-right">
-                        <p><span class="text-small opacity-75">Balance: ${this.tokenBalance} ${(_a = this.selectedToken) === null || _a === void 0 ? void 0 : _a.tag}</span></p>
+                        <p><span class="text-small opacity-75">Balance: ${(_a = this.selectedToken) === null || _a === void 0 ? void 0 : _a.balance} ${(_b = this.selectedToken) === null || _b === void 0 ? void 0 : _b.tag}</span></p>
                       </div>
                     </div>
                     <select name="currency-selector" class="input-currency-selector" @change=${() => this.selectedTokenChange()} id="select-token">
@@ -22264,11 +22282,11 @@ let SendToken = class SendToken extends lit_element__WEBPACK_IMPORTED_MODULE_0__
                       <tbody>
                         <tr class="opacity-75">
                           <td class="padding-bottom-5">Fee</td>
-                          <td class="text-right padding-bottom-5">0.00 ${(_b = this.selectedToken) === null || _b === void 0 ? void 0 : _b.tag}</td>
+                          <td class="text-right padding-bottom-5">0.00 ${(_c = this.selectedToken) === null || _c === void 0 ? void 0 : _c.tag}</td>
                         </tr>
                         <tr class="border-top">
                           <td>Total</td>
-                          <td class="text-right">${this.amount.toFixed(2)} ${(_c = this.selectedToken) === null || _c === void 0 ? void 0 : _c.tag}</td>
+                          <td class="text-right">${this.amount.toFixed(2)} ${(_d = this.selectedToken) === null || _d === void 0 ? void 0 : _d.tag}</td>
                         </tr>
                       </tbody>
                     </table>
@@ -22284,23 +22302,23 @@ let SendToken = class SendToken extends lit_element__WEBPACK_IMPORTED_MODULE_0__
               <div class="grid grid-center inherit-height">
                 <div class="grid-cell">
                   <img src=${_assets_img_icon_dollar_out_green_svg__WEBPACK_IMPORTED_MODULE_4__["default"]} class="feature-icon">
-                  <h2>Send ${this.amount.toFixed(2)} ${(_d = this.selectedToken) === null || _d === void 0 ? void 0 : _d.tag}?</h2>
+                  <h2>Send ${this.amount.toFixed(2)} ${(_e = this.selectedToken) === null || _e === void 0 ? void 0 : _e.tag}?</h2>
                   <div class="grid margin-top-15 padding-bottom-15 border-bottom">
                     <div class="grid-cell">
                       <p class="text-center label-small">Address</p>
                       <p class="text-center text-bold">
-                      <span class="blockchain-address">${(_e = this.user) === null || _e === void 0 ? void 0 : _e.iconWalletAddress}</span>
+                      <span class="blockchain-address">${(_f = this.user) === null || _f === void 0 ? void 0 : _f.iconWalletAddress}</span>
                       </p>
                     </div>
                   </div>
                   <div class="grid margin-top-25 margin-bottom-25">
                     <div class="grid-cell border-right">
                       <p class="text-center label-small">Before</p>
-                      <p class="text-center text-bold">${this.tokenBalance} ${(_f = this.selectedToken) === null || _f === void 0 ? void 0 : _f.tag}</p>
+                      <p class="text-center text-bold">${(_g = this.selectedToken) === null || _g === void 0 ? void 0 : _g.balance} ${(_h = this.selectedToken) === null || _h === void 0 ? void 0 : _h.tag}</p>
                     </div>
                     <div class="grid-cell">
                       <p class="text-center label-small">After</p>
-                      <p class="text-center text-bold">${(((_g = this.tokenBalance) !== null && _g !== void 0 ? _g : 0) - this.amount).toFixed(2)} ${(_h = this.selectedToken) === null || _h === void 0 ? void 0 : _h.tag}</p>
+                      <p class="text-center text-bold">${(((_k = (_j = this.selectedToken) === null || _j === void 0 ? void 0 : _j.balance) !== null && _k !== void 0 ? _k : 0) - this.amount).toFixed(2)} ${(_l = this.selectedToken) === null || _l === void 0 ? void 0 : _l.tag}</p>
                     </div>
                   </div>
                   <div class="grid grid-center">
@@ -22343,7 +22361,7 @@ let SendToken = class SendToken extends lit_element__WEBPACK_IMPORTED_MODULE_0__
                 <div class="grid-cell">
                   <img src=${_assets_img_icon_payment_successful_svg__WEBPACK_IMPORTED_MODULE_2__["default"]} class="feature-icon">
                   <h2>Payment sent</h2>
-                  <p class="text-center margin-top-5">${this.amount.toFixed(2)} ${(_j = this.selectedToken) === null || _j === void 0 ? void 0 : _j.tag} has been removed from your account.</p>
+                  <p class="text-center margin-top-5">${this.amount.toFixed(2)} ${(_m = this.selectedToken) === null || _m === void 0 ? void 0 : _m.tag} has been removed from your account.</p>
                   <p class="text-center margin-top-15 margin-bottom-15"><a @click="${this.backToHomeViewEvent}" class="button">Close</a></p>
                 </div>
               </div>
@@ -22584,7 +22602,7 @@ let WithdrawElem = class WithdrawElem extends lit_element__WEBPACK_IMPORTED_MODU
         await this.bridge.withdrawApiService.requestWithdrawal(withdrawalRequest)
             .then((res) => {
             Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_10__["log"])("Withdrawal: ", res);
-            document.dispatchEvent(new CustomEvent('bri.withdraw', {
+            window.dispatchEvent(new CustomEvent('bri.withdraw', {
                 detail: {
                     amount: this.amount,
                 }
@@ -22994,7 +23012,7 @@ let IconBridgeWidget = class IconBridgeWidget extends lit_element__WEBPACK_IMPOR
         this.kycAccountElemView = this.shadowRoot.getElementById("kyc-account-elem");
         this.sendTokenElemView = this.shadowRoot.getElementById("send-token-elem");
         this.kycStatusElemView = this.shadowRoot.getElementById("kyc-status-elem");
-        document.addEventListener('bri.deposit', (e) => {
+        window.addEventListener('bri.deposit', (e) => {
             var _a;
             Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_6__["log"])("Event bri.deposit FIRED!");
             Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_6__["log"])("Deposit of " + e.detail.amount + " USD");
@@ -23006,7 +23024,7 @@ let IconBridgeWidget = class IconBridgeWidget extends lit_element__WEBPACK_IMPOR
             this.handleDepositEvent(e.detail.amount, e.detail.fundsTransferType);
             this.reloadBriBalanceAndPaymentMethods();
         });
-        document.addEventListener('bri.withdraw', (e) => {
+        window.addEventListener('bri.withdraw', (e) => {
             var _a;
             Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_6__["log"])("Event bri.withdraw FIRED!");
             this.userTokensMap.get(_lib_models_Tokens_Tokens__WEBPACK_IMPORTED_MODULE_34__["SupportedTokens"].USDb).balance -= e.detail.amount;

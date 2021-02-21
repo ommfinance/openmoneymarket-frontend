@@ -50,7 +50,12 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   // Asset children components
   @ViewChildren('marketAsset') marketAssetComponents!: QueryList<AssetMarketComponent>;
 
-  @ViewChildren('availSplitter') availableAssetSplitterEl!: ElementRef;
+  // array of the user's assets (user's balance of asset, supplied > 0)
+  public userAssets: Asset[] = [];
+  // array of the user's available (user's balance of asset > 0 and supplied = 0)
+  public availableAssets: Asset[] = [];
+  // array of market assets
+  public marketAssets: Asset[] = [...this.supportedAssets];
 
   // keep track of current active market view in this variable
   public activeMarketView: ActiveMarketView = ActiveMarketView.ALL_MARKET;
@@ -70,6 +75,30 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     super(persistenceService);
   }
 
+  // load the asset lists
+  loadAssetLists(): void {
+    this.userAssets = [];
+    this.availableAssets = [];
+    this.marketAssets = [...this.supportedAssets];
+
+    Array.from(this.supportedAssetsMap.values()).forEach(asset => {
+      // if user is logged in, load his available and current assets
+      if (this.persistenceService.userLoggedIn()) {
+        if (this.persistenceService.isAssetAvailableToSupply(asset.tag)) {
+          this.availableAssets.push(asset);
+        }
+        // make sure that asset is active (either supplied or borrowed)
+        else if (this.persistenceService.isAssetActive(asset.tag) ||
+          this.calculationService.calculateAvailableBorrowForAsset(asset.tag) > 0) {
+          this.userAssets.push(asset);
+        }
+      }
+    });
+
+    log.debug("this.userAssets=", this.userAssets);
+    log.debug("this.availableAssets=", this.availableAssets);
+  }
+
   ngOnInit(): void {
     this.registerSubscriptions();
   }
@@ -79,6 +108,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
 
   ngAfterViewInit(): void {
     // call cd after to avoid ExpressionChangedAfterItHasBeenCheckedError
+    this.loadAssetLists();
     this.cd.detectChanges();
   }
 
@@ -100,17 +130,14 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     });
   }
 
-  reloadAssets(): void {
-    this.supportedAssets = [...this.supportedAssets];
-  }
-
   private subscribeToUserAssetReserveChange(): void {
     // for each user asset subscribe to its reserve data change
     Object.values(AssetTag).forEach(assetTag => {
       this.stateChangeService.userReserveChangeMap.get(assetTag)!.subscribe((reserve: UserReserveData) => {
         // when ever there is a change in user reserve data
-        this.reloadAssets();
-        this.shouldHideYourMarketHeader();
+
+        // reload the asset lists
+        this.loadAssetLists();
       });
     });
   }
@@ -120,8 +147,9 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     Object.values(AssetTag).forEach(assetTag => {
       this.stateChangeService.userBalanceChangeMap.get(assetTag)!.subscribe((newBalance: number) => {
         // when ever there is a change in user asset balance
-        this.reloadAssets();
-        this.shouldHideYourMarketHeader();
+
+        // reload the asset lists
+        this.loadAssetLists();
       });
     });
   }
@@ -193,6 +221,9 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     // set active market view
     this.activeMarketView = ActiveMarketView.USER_MARKET;
 
+    // re-load the asset lists
+    this.loadAssetLists();
+
     // if all borrowed assets are 0
     this.hideRiskIfNothingBorrowed();
 
@@ -234,21 +265,6 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
 
     // Disable asset-user inputs (Your markets)
     this.disableAssetsInputs();
-  }
-
-  isAvailableSplitterShown(): boolean {
-    return this.availableAssetSplitterEl.nativeElement != null;
-  }
-
-  shouldHideYourMarketHeader(): void {
-    for (const asset of this.supportedAssets) {
-      // if asset is not of type available to supply return false
-      if (!this.persistenceService.isAssetAvailableToSupply(asset.tag)) {
-        this.hideMarketHeader = !this.userMarketViewActive();
-      }
-    }
-
-    this.hideMarketHeader = true;
   }
 
   showDefaultActions(): void {
@@ -365,6 +381,12 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
       this.riskComponent.showRiskData();
       this.riskComponent.hideRiskMessage();
     }
+  }
+
+  // hide your market header if view is not active or active assets length == 0 and available is not
+  shouldHideYourMarketHeader(): boolean {
+    return !this.userMarketViewActive() || (this.userAssets.length === 0
+      && this.availableAssets.length > 0);
   }
 
   userMarketViewActive(): boolean {

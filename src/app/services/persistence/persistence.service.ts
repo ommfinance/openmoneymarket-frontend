@@ -336,9 +336,10 @@ export class PersistenceService {
       && !this.userAssetBalanceIsZero(assetTag);
   }
 
-  // check if user has supplied or borrowed asset
+  // asset is active if is either supplied, borrowed or available to borrow
   public isAssetActive(assetTag: AssetTag): boolean {
-    return !this.userAssetSuppliedIsZero(assetTag) || !this.userAssetBorrowedIsZero(assetTag);
+    return !this.userAssetSuppliedIsZero(assetTag)
+      || !this.userAssetBorrowedIsZero(assetTag);
   }
 
 }
