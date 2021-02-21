@@ -5,10 +5,10 @@
   <td>{{asset.name}}<br><span class="label">{{asset.tag}}</span></td>
 
   <ng-container *ngIf="!isAssetAvailable()">
-    <td><span class="value-supplied">{{this.toDollar2digitsString(this.persistenceService.getUserAssetReserve(asset.tag)?.currentOTokenBalanceUSD)}}</span><br>
+    <td><span class="value-supplied">{{this.toDollarUSLocaleString(this.persistenceService.getUserAssetReserve(asset.tag)?.currentOTokenBalanceUSD)}}</span><br>
       <span class="value-supplied label">{{this.formatNumberToUSLocaleString(getUserSuppliedAssetBalance())}} {{asset.tag}}</span></td>
     <td class="text-green">{{to2DecimalRoundedDownPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate)}}</td>
-    <td><span class="value-borrowed">{{this.toDollar2digitsString(this.persistenceService.getUserAssetReserve(asset.tag)?.currentBorrowBalanceUSD)}}</span><br>
+    <td><span class="value-borrowed">{{this.toDollarUSLocaleString(this.persistenceService.getUserAssetReserve(asset.tag)?.currentBorrowBalanceUSD)}}</span><br>
       <span class="value-borrowed label">{{this.formatNumberToUSLocaleString(getUserBorrowedAssetBalance())}} {{asset.tag}}</span></td>
     <td class="text-purple">{{to2DecimalRoundedDownPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.borrowRate)}}</td>
   </ng-container>

@@ -18,19 +18,19 @@ export class BaseClass {
   public AssetTag = AssetTag;
   public supportedAssets: Asset[] = Array.from(supportedAssetsMap.values());
 
-  public formatNumberToNdigits(num?: number | string, digits: number = 2): string {
-    if (!num || (+num) === 0) { return "-"; }
-    if (typeof num === 'string') {
-      return Utils.formatNumberToNdigits(+num, digits);
-    } else {
-      return Utils.formatNumberToNdigits(num, digits);
-    }
-  }
+  // public formatNumberToNdigits(num?: number | string, digits: number = 2): string {
+  //   if (!num || (+num) === 0) { return "-"; }
+  //   if (typeof num === 'string') {
+  //     return Utils.formatNumberToNdigits(+num, digits);
+  //   } else {
+  //     return Utils.formatNumberToNdigits(num, digits);
+  //   }
+  // }
 
-  public toDollar2digitsString(num?: number | string): string {
-    if (!num || (+num) === 0) { return "-"; }
-    return `$${this.formatNumberToNdigits(num)}`;
-  }
+  // public toDollar2digitsString(num?: number | string): string {
+  //   if (!num || (+num) === 0) { return "-"; }
+  //   return `$${this.formatNumberToNdigits(num)}`;
+  // }
 
   public roundOffTo2Decimals(value: number | BigNumber | string | undefined): number {
     if (!value) {
@@ -39,10 +39,10 @@ export class BaseClass {
     return Utils.roundOffTo2Decimals(value);
   }
 
-  public toDollar2digitsStringOrZero(num?: number | string): string {
-    if (!num || (+num) === 0) { return "$0"; }
-    return `$${this.formatNumberToNdigits(num)}`;
-  }
+  // public toDollar2digitsStringOrZero(num?: number | string): string {
+  //   if (!num || (+num) === 0) { return "$0"; }
+  //   return `$${this.formatNumberToNdigits(num)}`;
+  // }
 
   public formatNumberToUSLocaleString(num?: number | string): string {
     if (!num || (+num) === 0) { return "-"; }
