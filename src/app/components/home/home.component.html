@@ -209,6 +209,7 @@
                   <!-- Asset (USDb, ICX, ..) -->
                   <app-asset-market [asset]="a" #marketAsset
                                     [index]="i"
+                                    (collOtherAssetTables)="collapseOtherAssetsTable($event)"
                                     [ngStyle]="hideElementOrDisplayContents(!allMarketViewActive())">
 
                   </app-asset-market>

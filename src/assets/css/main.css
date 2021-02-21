@@ -1676,6 +1676,10 @@ input[type="text"].input-borrow-available {
   margin-bottom: -30px;
   min-width: 238px;
 }
+.market-expanded .sign-in-message {
+  margin-top: 100px;
+}
+
 /* ==========================================================================
 	Vote specific styles (Layout styles: sizing, spacing, etc.)
 ========================================================================== */
@@ -1701,6 +1705,12 @@ input[type="text"].input-borrow-available {
   margin-top: 0;
 }
 #vote-overview #omm-stake .actions-default .button {
+  margin-top: 10px;
+}
+
+/* Vote message for when logged out */
+
+#message-vote-logged-out {
   margin-top: 10px;
 }
 

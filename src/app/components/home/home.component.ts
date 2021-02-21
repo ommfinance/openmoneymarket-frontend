@@ -338,6 +338,12 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
         userAvailableAssetComponent.collapseAssetTableSlideUp();
       }
     });
+
+    this.marketAssetComponents.forEach((marketAssetComponent, index) => {
+      if (marketAssetComponent.asset.tag !== assetTag) {
+        marketAssetComponent.collapseAssetTableSlideUp();
+      }
+    });
   }
 
   collapseTableUserAssets(): void {
