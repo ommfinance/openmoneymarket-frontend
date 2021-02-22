@@ -38,16 +38,13 @@ export class DataLoaderService {
 
     try {
       // TODO optimise by saving and reading from localstorage
-      const [usdbReserveResponse, icxReserveResponse, icxBalResponse, usdbBalResponse, userAccountDataRes, userOmmRewRes,
-        userOmmTokBalDet
+      const [usdbReserveResponse, icxReserveResponse, icxBalResponse, usdbBalResponse, userAccountDataRes
       ] = await Promise.all([
         this.loadUserUSDbReserveData(),
         this.loadUserIcxReserveData(),
         this.scoreService.getUserAssetBalance(AssetTag.ICX),
         this.scoreService.getUserAssetBalance(AssetTag.USDb),
-        this.loadUserAccountData(),
-        this.loadUserOmmRewards(),
-        this.loadUserOmmTokenBalanceDetails()
+        this.loadUserAccountData()
       ]);
 
     } catch (e) {
@@ -55,6 +52,18 @@ export class DataLoaderService {
       this.persistenceService.activeWallet = undefined;
       this.notificationService.showNewNotification("Error occurred! Try again in a moment.");
       throw new OmmError("Error occurred! Try again in a moment.", e);
+    }
+
+    // gracefully fetch Omm part
+    try {
+      const [userOmmRewRes, userOmmTokBalDet
+      ] = await Promise.all([
+        this.loadUserOmmRewards(),
+        this.loadUserOmmTokenBalanceDetails()
+        //
+      ]);
+    } catch (e) {
+      log.error("Error in loadUserOmmRewards, loadUserOmmTokenBalanceDetails");
     }
 
     this.stateChangeService.updateLoginStatus(this.persistenceService.activeWallet);
