@@ -444,6 +444,14 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     });
   }
 
+  convertSliderValue(value: number): number {
+    if (this.asset.tag === AssetTag.ICX) {
+      return this.convertFromICXTosICX(value);
+    } else {
+      return value;
+    }
+  }
+
   /**
    * Supply slider logic
    */
@@ -457,10 +465,13 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       // Update asset-user available text box
       this.inputSupplyAvailable.value = assetFormat(this.asset.tag).to(this.supplySliderMaxValue() - value);
 
+      // TODO handle ICX -> sICX
+      const convertedValue = this.convertSliderValue(value);
+
       // Update asset-user's supply interest
       $(this.suppInterestEl).text(assetPrefixPlusFormat(this.asset.tag).to(this.getDailySupplyInterest(value)));
 
-      const supplyDiff = value - this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag);
+      const supplyDiff = convertedValue - this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag);
 
       // Update asset-user's supply omm rewards
       $(this.suppRewardsEl).text(ommPrefixPlusFormat.to(this.calculationService.calculateUsersOmmRewardsForDeposit(
@@ -506,6 +517,9 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       const value = +values[handle];
       // Update asset-user borrowed text box
       this.inputBorrow.value = value;
+
+      // TODO handle ICX -> sICX
+      const convertedValue = this.convertSliderValue(value);
 
       // Update asset-user available text box
       this.inputBorrowAvailable.value = assetFormat(this.asset.tag).to(this.borrowSliderMaxValue() - value);
@@ -587,9 +601,10 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
   private setSupplySliderValue(value: number, convert = false): void {
     // if asset is ICX, convert sICX -> ICX
     if (convert && this.asset.tag === AssetTag.ICX) {
-      value = value * this.persistenceService.sIcxToIcxRate();
+      this.sliderSupply.noUiSlider.set(this.convertSICXToICX(value));
+    } else {
+      this.sliderSupply.noUiSlider.set(value);
     }
-    this.sliderSupply.noUiSlider.set(value);
   }
 
   private setBorrowSliderValue(value: number, convert = false): void {
