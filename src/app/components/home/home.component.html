@@ -231,7 +231,7 @@
                                   (disableAssetsInputs)="disableAssetsInputs()">
                   </app-asset-user>
                   <!-- Spacer -->
-                  <tr *ngIf="!isLast" class="spacer"></tr>
+                  <tr *ngIf="!isLast || availableAssets.length > 0" class="spacer"></tr>
                 </ng-container>
               </ng-container>
 
