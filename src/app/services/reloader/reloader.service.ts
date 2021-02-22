@@ -22,8 +22,8 @@ export class ReloaderService {
   constructor(private dataLoaderService: DataLoaderService,
               private persistenceService: PersistenceService,
               private stateChangeService: StateChangeService) {
-    this.initLoginChangeListener();
-    this.registerBaseIntervals();
+    // this.initLoginChangeListener();
+    // this.registerBaseIntervals();
   }
 
   private initLoginChangeListener(): void {

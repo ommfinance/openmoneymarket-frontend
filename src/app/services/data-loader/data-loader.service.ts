@@ -18,6 +18,7 @@ import {OmmService} from "../omm/omm.service";
 import {OmmRewards} from "../../models/OmmRewards";
 import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
 import {NotificationService} from "../notification/notification.service";
+import {ErrorCode, ErrorService} from "../error/error.service";
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +29,8 @@ export class DataLoaderService {
               private persistenceService: PersistenceService,
               private stateChangeService: StateChangeService,
               private ommService: OmmService,
-              private notificationService: NotificationService) {
+              private notificationService: NotificationService,
+              private errorService: ErrorService) {
 
   }
 
@@ -60,10 +62,9 @@ export class DataLoaderService {
       ] = await Promise.all([
         this.loadUserOmmRewards(),
         this.loadUserOmmTokenBalanceDetails()
-        //
       ]);
     } catch (e) {
-      log.error("Error in loadUserOmmRewards, loadUserOmmTokenBalanceDetails");
+      log.error("Error in [loadUserOmmRewards, loadUserOmmTokenBalanceDetails]");
     }
 
     this.stateChangeService.updateLoginStatus(this.persistenceService.activeWallet);
@@ -179,15 +180,25 @@ export class DataLoaderService {
 
   public loadUserOmmRewards(): Promise<void> {
     return this.ommService.getOmmRewardsPerUser().then((ommRewards: OmmRewards) => {
+      this.errorService.deregisterError(ErrorCode.USER_OMM_REWARDS);
+
       this.persistenceService.userOmmRewards = Mapper.mapUserOmmRewards(ommRewards);
       this.stateChangeService.updateUserOmmRewards(this.persistenceService.userOmmRewards);
+    }).catch((e: any) => {
+      this.errorService.registerErrorForResolve(ErrorCode.USER_OMM_REWARDS, this.loadUserOmmRewards);
+      log.error(e);
     });
   }
 
   public loadUserOmmTokenBalanceDetails(): Promise<void> {
     return this.ommService.getOmmTokenBalanceDetails().then((res: OmmTokenBalanceDetails) => {
+      this.errorService.deregisterError(ErrorCode.USER_OMM_TOKEN_BALANCE_DETAILS);
+
       this.persistenceService.userOmmTokenBalanceDetails = Mapper.mapUserOmmTokenBalanceDetails(res);
       this.stateChangeService.updateUserOmmTokenBalanceDetails(this.persistenceService.userOmmTokenBalanceDetails);
+    }).catch((e: any) => {
+      this.errorService.registerErrorForResolve(ErrorCode.USER_OMM_TOKEN_BALANCE_DETAILS, this.loadUserOmmTokenBalanceDetails);
+      log.error(e);
     });
   }
 
