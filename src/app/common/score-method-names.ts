@@ -43,6 +43,12 @@ export class ScoreMethodNames {
    */
   public static UNSTAKE_OMM = "unstake";
   public static STAKE_OMM = "stake";
+  public static GET_MIN_STAKE = "getMinimumStake";
+
+  /**
+   * Delegation SCORE
+   */
+  public static GET_USER_DELEGATION_DETAILS = "getUserDelegationDetails";
 
   /**
    * Staking SCORE
