@@ -252,7 +252,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
         this.inputBorrow.classList.add("red-border");
       } else {
         // set slider to this value and reset border color if it passes the check
-        this.sliderSupply.noUiSlider.set(value);
+        this.sliderBorrow.noUiSlider.set(value);
         this.inputBorrow.classList.remove("red-border");
       }
     }
@@ -335,14 +335,14 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
    */
   initSliders(): void {
     // set supply slider values
-    const supplied = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag);
-    const suppliedMax = this.calculationService.calculateAssetSupplySliderMax(this.asset.tag);
+    const supplied = this.convertSICXToICX(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
+    const suppliedMax = this.convertSICXToICX(this.calculationService.calculateAssetSupplySliderMax(this.asset.tag));
     this.slidersService.createNoUiSlider(this.sliderSupply, supplied,
       undefined, undefined, undefined, {min: [0], max: [suppliedMax]});
 
     // set borrow slider values
-    const borrowed = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag);
-    const borrowAvailable = this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag);
+    const borrowed = this.convertSICXToICX(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
+    const borrowAvailable = this.convertSICXToICX(this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag));
     const borrowMax = borrowed + borrowAvailable;
     this.slidersService.createNoUiSlider(this.sliderBorrow, borrowed, undefined, undefined, undefined,
       {min: [0], max: [borrowMax]});
@@ -539,7 +539,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
         $('.risk-message-noassets').css("display", "none");
       }
 
-      const borrowDiff = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag) - +values[handle];
+      const borrowDiff = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag) - convertedValue;
       // update risk data
       let riskCalculationData;
 
@@ -610,9 +610,10 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
   private setBorrowSliderValue(value: number, convert = false): void {
     // if asset is ICX, convert sICX -> ICX
     if (convert && this.asset.tag === AssetTag.ICX) {
-      value = this.convertSICXToICX(value);
+      this.sliderBorrow.noUiSlider.set(this.convertSICXToICX(value));
+    } else {
+      this.sliderBorrow.noUiSlider.set(value);
     }
-    this.sliderBorrow.noUiSlider.set(value);
   }
 
   getUserSuppliedAssetBalance(): number {

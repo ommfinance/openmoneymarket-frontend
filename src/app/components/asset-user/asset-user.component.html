@@ -130,7 +130,8 @@
             <div class="grid legend">
               <div class="grid-cell">
                 <label class="label borrowed">Borrowed</label>
-                <input type="text" title="{{asset.tag}} borrowed" id="input-borrow" class="input-borrow" #inputBorrow disabled value="0">
+                <input type="text" title="{{asset.tag}} borrowed" id="input-borrow" class="input-borrow" #inputBorrow disabled value="0"
+                (keyup)="borrowAssetAmountChange()">
               </div>
               <div class="grid-cell">
                 <label class="label available">Available</label>
