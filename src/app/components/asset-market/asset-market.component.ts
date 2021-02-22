@@ -42,6 +42,24 @@ export class AssetMarketComponent extends BaseClass implements OnInit, AfterView
     this.modalService.showNewModal(ModalType.SIGN_IN);
   }
 
+  getTotalBorrows(): number {
+    const res = this.persistenceService.getAssetReserveData(this.asset.tag)?.totalBorrows ?? 0;
+    if (this.asset.tag === AssetTag.ICX) {
+      return this.convertSICXToICX(res);
+    } else {
+      return res;
+    }
+  }
+
+  getTotalLiquidity(): number {
+    const res = this.persistenceService.getAssetReserveData(this.asset.tag)?.totalLiquidity ?? 0;
+    if (this.asset.tag === AssetTag.ICX) {
+      return this.convertSICXToICX(res);
+    } else {
+      return res;
+    }
+  }
+
   /**
    * Asset expand logic
    */
