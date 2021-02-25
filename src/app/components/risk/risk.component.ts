@@ -56,7 +56,7 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
   private subscribeToTotalRiskChange(): void {
     // subscribe to total risk changes
     this.stateChangeService.userTotalRiskChange.subscribe(totalRisk => {
-      log.debug("Total risk change = " + totalRisk);
+      // log.debug("Total risk change = " + totalRisk);
       this.totalRisk = totalRisk;
       this.updateViewRiskData();
     });
@@ -84,7 +84,7 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   updateViewRiskData(): void {
-    log.debug("Updating total risk to: " + this.totalRisk * 100);
+    // log.debug("Updating total risk to: " + this.totalRisk * 100);
 
     // Update the risk slider
     this.sliderRisk.noUiSlider.set(this.totalRisk * 100);

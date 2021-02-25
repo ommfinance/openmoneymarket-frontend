@@ -154,8 +154,8 @@ export class DataLoaderService {
 
   public loadAllUserAssetReserveData(): void {
     if (this.persistenceService.activeWallet) {
-      this.loadUserUSDbReserveData();
-      this.loadUserIcxReserveData();
+      this.loadUserUSDbReserveData().then();
+      this.loadUserIcxReserveData().then();
     }
   }
 
@@ -211,8 +211,8 @@ export class DataLoaderService {
   public loadUserSpecificData(): void {
     this.loadAllUserAssetReserveData();
     this.loadAllUserAssetsBalances();
-    this.loadUserAccountData();
-    this.loadUserOmmRewards();
-    this.loadUserOmmTokenBalanceDetails();
+    this.loadUserAccountData().then();
+    this.loadUserOmmRewards().then();
+    this.loadUserOmmTokenBalanceDetails().then();
   }
 }

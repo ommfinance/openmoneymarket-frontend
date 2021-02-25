@@ -31,6 +31,7 @@ export class TransactionResultService {
     // get last modal action from localstorage
     const modalAction: ModalAction = this.localStorageService.getLastModalAction();
     const assetAction: AssetAction = modalAction.assetAction!;
+
     if (payload.result) {
       this.iconApiService.getTxResult(payload.result).then((res: any) => {
         // success
@@ -39,7 +40,7 @@ export class TransactionResultService {
           this.showSuccessActionNotification(modalAction, assetAction);
 
           // reload all reserves and user specific data (reserve, account data, ..)
-          this.dataLoaderService.loadAllReserveData();
+          this.dataLoaderService.loadAllReserveData().then();
           this.dataLoaderService.loadUserSpecificData();
         }
         else {
@@ -73,7 +74,7 @@ export class TransactionResultService {
         this.showSuccessActionNotification(modalAction, assetAction);
 
         // reload all reserves and user specific data (reserve, account data, ..)
-        this.dataLoaderService.loadAllReserveData();
+        this.dataLoaderService.loadAllReserveData().then();
         this.dataLoaderService.loadUserSpecificData();
       }
       else {
@@ -104,7 +105,7 @@ export class TransactionResultService {
       this.showSuccessActionNotification(modalAction, assetAction);
 
       // reload all reserves and user asset-user reserve data
-      this.dataLoaderService.loadAllReserveData();
+      this.dataLoaderService.loadAllReserveData().then();
       this.dataLoaderService.loadUserSpecificData();
     }
     else {

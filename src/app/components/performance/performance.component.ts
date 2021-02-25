@@ -71,7 +71,7 @@ export class PerformanceComponent extends BaseClass implements OnInit {
   }
 
   shouldHideClaimBtn(): boolean {
-    return this.ommRewards <= 0
+    return (this.persistenceService.userOmmRewards?.total ?? 0) <= 0
       || this.persistenceService.userOmmRewards == null
       || this.persistenceService.userOmmTokenBalanceDetails == null;
   }

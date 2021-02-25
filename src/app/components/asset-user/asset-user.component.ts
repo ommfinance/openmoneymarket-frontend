@@ -345,7 +345,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     const borrowAvailable = this.convertSICXToICX(this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag));
     const borrowMax = borrowed + borrowAvailable;
     this.slidersService.createNoUiSlider(this.sliderBorrow, borrowed, undefined, undefined, undefined,
-      {min: [0], max: [borrowMax]});
+      {min: [0], max: [this.getMaxBorrowAvailable(borrowMax)]});
   }
 
   /**
@@ -365,7 +365,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
   private subscribeToTotalRiskChange(): void {
     // subscribe to total risk changes
     this.stateChangeService.userTotalRiskChange.subscribe(totalRisk => {
-      log.debug("Total risk change = " + totalRisk);
+      // log.debug("Total risk change = " + totalRisk);
       this.totalRisk = totalRisk;
     });
   }
@@ -379,7 +379,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       // update asset borrow slider max value to  -> borrowed + borrow available
       const max = +this.inputBorrow.value + borrowAvailable;
       this.sliderBorrow.noUiSlider.updateOptions({
-        range: { min: 0, max: max === 0 ? 1 : max } // min and max must not equal
+        range: { min: 0, max: max === 0 ? 1 : this.getMaxBorrowAvailable(max) } // min and max must not equal
       });
     });
   }
@@ -421,7 +421,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       this.sliderBorrow.noUiSlider.updateOptions({
         range: {
           min: 0,
-          max: max === 0 ? 1 : max // min and max must not equal
+          max: max === 0 ? 1 : this.getMaxBorrowAvailable(max) // min and max must not equal
         }
       });
     });
@@ -670,6 +670,20 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
 
   userAssetBorrowedBalanceIsZero(): boolean {
     return this.persistenceService.userAssetBorrowedIsZero(this.asset.tag);
+  }
+
+  getMaxBorrowAvailable(suggestedMax: number): number {
+    // take either suggested on or asset totalSupplied - totalBorrowed
+    const totalSupplied = this.persistenceService.getAssetReserveData(this.asset.tag)?.totalLiquidity ?? 0;
+    const totalBorrowed = this.persistenceService.getAssetReserveData(this.asset.tag)?.totalBorrows ?? 0;
+    const availTotalBorrow = totalSupplied - totalBorrowed;
+
+    log.debug(`Total available borrow for asset ${this.asset.tag} = ${availTotalBorrow}`);
+    if (this.asset.tag === AssetTag.ICX) {
+      return this.convertSICXToICX(Math.min(suggestedMax, availTotalBorrow));
+    } else {
+      return Math.min(suggestedMax, availTotalBorrow);
+    }
   }
 
   collapseAssetTableSlideUp(): void {
