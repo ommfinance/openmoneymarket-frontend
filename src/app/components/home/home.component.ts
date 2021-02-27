@@ -413,5 +413,3 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   }
 
 }
-
-
