@@ -4,7 +4,10 @@ import {HomeComponent} from "./components/home/home.component";
 import {VoteComponent} from "./components/vote/vote.component";
 
 const routes: Routes = [
-  { path: '', component: HomeComponent},
+  {
+    path: '', pathMatch: 'full', redirectTo: 'home'
+  },
+  { path: 'home', component: HomeComponent},
   { path: 'vote', component: VoteComponent},
 ];
 

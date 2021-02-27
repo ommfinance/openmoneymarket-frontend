@@ -20,6 +20,7 @@ import { VoteComponent } from './components/vote/vote.component';
 import {BridgeWallet} from "./models/wallets/BridgeWallet";
 import {LedgerWallet} from "./models/wallets/LedgerWallet";
 import {IconexWallet} from "./models/wallets/IconexWallet";
+import { MainComponent } from './components/main/main.component';
 // set logging level
 log.setLevel(environment.production ? "error" : "debug");
 
@@ -34,7 +35,8 @@ log.setLevel(environment.production ? "error" : "debug");
     RiskComponent,
     AssetUserComponent,
     AssetMarketComponent,
-    VoteComponent
+    VoteComponent,
+    MainComponent
   ],
   imports: [
     BrowserModule,

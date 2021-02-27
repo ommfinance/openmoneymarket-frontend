@@ -5,6 +5,7 @@ import {PersistenceService} from "../../services/persistence/persistence.service
 import {normalFormat} from "../../common/formats";
 import {ModalType} from "../../models/ModalType";
 import {ModalService} from "../../services/modal/modal.service";
+import log from "loglevel";
 
 declare var noUiSlider: any;
 declare var wNumb: any;
@@ -23,6 +24,9 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   @ViewChild("sliderStake")set sliderStakeSetter(sliderStake: ElementRef) {this.sliderStake = sliderStake.nativeElement; }
   private sliderStake?: any;
+
+  @ViewChild("ommStk")set ommStakeAmountSetter(ommStake: ElementRef) {this.ommStakeAmount = ommStake.nativeElement; }
+  private ommStakeAmount?: any;
 
   constructor(public persistenceService: PersistenceService,
               private modalService: ModalService) {
@@ -61,9 +65,10 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     // On stake slider update
     this.sliderStake.noUiSlider.on('update', (values: any, handle: any) => {
       const value = +values[handle];
+      this.ommStakeAmount = value;
 
       // Update OMM stake values
-      $('.value-omm-stake-amount').text(normalFormat.to(value));
+      $(this.ommStakeAmount).text(normalFormat.to(value));
       // Update OMM stake values as ICX
       $('.value-icx-stake-amount').text(normalFormat.to(value * 1.3));
     });
@@ -101,6 +106,8 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   onConfirmStakeClick(): void {
+    log.debug(`onConfirmStakeClick Omm stake amount = ${this.ommStakeAmount}`);
+
     this.modalService.showNewModal(ModalType.STAKE_OMM_TOKENS);
   }
 
