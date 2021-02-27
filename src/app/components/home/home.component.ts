@@ -112,9 +112,14 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     // call cd after to avoid ExpressionChangedAfterItHasBeenCheckedError
     this.loadAssetLists();
     this.cd.detectChanges();
+
+    if (this.persistenceService.userLoggedIn()) {
+      this.onToggleYourMarketsClick();
+    }
   }
 
   private registerSubscriptions(): void {
+    log.debug("[HomeComponent] registering subscriptions...");
     this.subscribeToLoginChange();
     this.subscribeToUserModalActionChange();
     this.subscribeToUserAssetReserveChange();
