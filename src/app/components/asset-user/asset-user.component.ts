@@ -187,7 +187,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
 
     if (this.index === 0) {
       // Expand asset-user table
-      $(`.asset.${this.asset.tag}`).toggleClass('active');
+      this.assetYourEl.classList.toggle('active');
       $(this.marketExpandedEl).slideToggle();
     }
 
@@ -195,7 +195,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     this.collOtherAssetTables.emit(this.asset.tag);
 
     if (this.index !== 0) {
-      $(`.asset.${this.asset.tag}`).toggleClass('active');
+      this.assetYourEl.classList.toggle('active');
       $(this.marketExpandedEl).slideToggle();
     }
 
@@ -688,14 +688,14 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
 
   collapseAssetTableSlideUp(): void {
     // Collapse asset-user table`
-    $(`.asset.${this.asset.tag}`).removeClass('active');
+    this.assetYourEl.classList.remove('active');
     $(this.marketExpandedEl).slideUp();
   }
 
   collapseAssetTable(): void {
     log.debug(`${this.asset.tag} collapseAssetTable()`);
     // Collapse asset-user table`
-    $(`.asset.${this.asset.tag}`).removeClass('active');
+    this.assetYourEl.classList.remove('active');
     $(this.marketExpandedEl).hide();
   }
 
