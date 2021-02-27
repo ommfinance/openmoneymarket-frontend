@@ -46,6 +46,11 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.initRiskSlider();
+
+    if (this.persistenceService.userLoggedIn()) {
+      // re-calculate total risk percentage
+      this.calculationService.calculateTotalRisk();
+    }
   }
 
   initSubscribedValues(): void {

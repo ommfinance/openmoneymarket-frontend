@@ -1,292 +1,236 @@
-<!-- Wrapper -->
-<div class="grid wrapper">
-  <!-- Navigation -->
-  <div class="grid-cell navigation-container">
-    <nav class="navigation">
-      <ul>
-        <li>
-          <a href="javascript:void(0);" routerLink="" class="active">
-            <div class="grid grid-center">
-              <div class="grid-cell">
-                <img src="assets/img/icon/home.svg" class="svg" alt="Home icon">
-              </div>
-              <div class="grid-cell">
-                Home
-              </div>
-            </div>
-          </a>
-        </li>
-        <li>
-          <a href="javascript:void(0);">
-            <div class="grid grid-center">
-              <div class="grid-cell">
-                <img src="assets/img/icon/vote.svg" class="svg" alt="Vote icon">
-              </div>
-              <div class="grid-cell">
-                Vote
-              </div>
-            </div>
-          </a>
-        </li>
-        <li>
-          <a href="javascript:void(0);">
-            <div class="grid grid-center">
-              <div class="grid-cell">
-                <img src="assets/img/icon/liquidate.svg" class="svg" alt="Liquidate icon">
-              </div>
-              <div class="grid-cell">
-                Liquidate
-              </div>
-            </div>
-          </a>
-        </li>
-      </ul>
-    </nav>
-  </div>
 
-  <!-- Home content -->
-  <div class="grid-cell">
-    <main>
-      <!-- Overview -->
-      <section class="overview">
+<main>
+  <!-- Overview -->
+  <section class="overview">
+    <div class="grid">
+      <div class="grid-cell">
+        <h2>Overview</h2>
+        <ul class="toggle" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn())">
+          <li id="toggle-your-overview" class="active" (click)="onToggleYourOverviewClick()">Your overview</li>
+          <li id="toggle-market-overview" (click)="onToggleMarketOverviewClick()">Market overview</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Your overview content -->
+    <div id="your-overview-content" class="grid panel" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn())">
+      <!-- Supplied -->
+      <div class="grid-cell border-right">
         <div class="grid">
-          <div class="grid-cell">
-            <h2>Overview</h2>
-            <ul class="toggle" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn())">
-              <li id="toggle-your-overview" class="active" (click)="onToggleYourOverviewClick()">Your overview</li>
-              <li id="toggle-market-overview" (click)="onToggleMarketOverviewClick()">Market overview</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Your overview content -->
-        <div id="your-overview-content" class="grid panel" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn())">
-          <!-- Supplied -->
-          <div class="grid-cell border-right">
-            <div class="grid">
-              <!-- You've supplied -->
-              <div class="grid-cell text-center">
-                <dl class="metadata">
-                  <dt>You've supplied</dt>
-                  <dd class="value-supplied-total">{{this.toDollarUSLocaleString(this.persistenceService.getUserTotalSuppliedUSD())}}</dd>
-                </dl>
-              </div>
-
-              <!-- Your supply APY -->
-              <div class="grid-cell text-center">
-                <dl class="metadata">
-                  <dt>Your supply APY</dt>
-                  <dd class="text-green value-supplied-apy">{{to2DecimalRoundedDownPercentString(this.persistenceService.getMySupplyApy())}}</dd>
-                </dl>
-              </div>
-            </div>
+          <!-- You've supplied -->
+          <div class="grid-cell text-center">
+            <dl class="metadata">
+              <dt>You've supplied</dt>
+              <dd class="value-supplied-total">{{this.toDollarUSLocaleString(this.persistenceService.getUserTotalSuppliedUSD())}}</dd>
+            </dl>
           </div>
 
-          <!-- Borrowed -->
-          <div class="grid-cell">
-            <div class="grid">
-              <!-- You've borrowed -->
-              <div class="grid-cell text-center">
-                <dl class="metadata">
-                  <dt>You've borrowed</dt>
-                  <dd class="value-borrowed-total">{{this.toDollarUSLocaleString(this.persistenceService.getUserTotalBorrowedUSD())}}</dd>
-                </dl>
-              </div>
-
-              <!-- Your borrow APY -->
-              <div class="grid-cell text-center">
-                <dl class="metadata">
-                  <dt>Your borrow APY</dt>
-                  <dd class="text-purple value-borrowed-apy">{{to2DecimalRoundedDownPercentString(this.persistenceService.getMyBorrowApy())}}</dd>
-                </dl>
-              </div>
-            </div>
+          <!-- Your supply APY -->
+          <div class="grid-cell text-center">
+            <dl class="metadata">
+              <dt>Your supply APY</dt>
+              <dd class="text-green value-supplied-apy">{{to2DecimalRoundedDownPercentString(this.persistenceService.getMySupplyApy())}}</dd>
+            </dl>
           </div>
-        </div>
-
-        <!-- Market overview content -->
-        <div id="market-overview-content" class="grid panel" [ngStyle]="hideElement(this.persistenceService.userLoggedIn())">
-          <!-- Supplied -->
-          <div class="grid-cell border-right">
-            <div class="grid">
-              <!-- Total supplied -->
-              <div class="grid-cell text-center">
-                <dl class="metadata">
-                  <dt>Total supplied</dt>
-                  <dd>{{this.toDollarUSLocaleString(this.persistenceService.getTotalSuppliedUSD())}}</dd>
-                </dl>
-              </div>
-
-              <!-- Total supply APY -->
-              <div class="grid-cell text-center">
-                <dl class="metadata">
-                  <dt>Total supply APY</dt>
-                  <dd class="text-green">{{to2DecimalRoundedDownPercentString(this.persistenceService.getAvgSupplyApy())}}</dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-
-          <!-- Borrowed -->
-          <div class="grid-cell">
-            <div class="grid">
-              <!-- Total borrowed -->
-              <div class="grid-cell text-center">
-                <dl class="metadata">
-                  <dt>Total borrowed</dt>
-                  <dd>{{this.toDollarUSLocaleString(this.persistenceService.getTotalBorrowedUSD())}}</dd>
-                </dl>
-              </div>
-
-              <!-- Total borrow APY -->
-              <div class="grid-cell text-center">
-                <dl class="metadata">
-                  <dt>Total borrow APY</dt>
-                  <dd class="text-purple">{{to2DecimalRoundedDownPercentString(this.persistenceService.getAvgBorrowApy())}}</dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Performance / Risk , hide if user not logged in or he has not supplied any asset-user -->
-      <div class="grid side-by-side performance-risk" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn()
-                                                                 || this.persistenceService.userHasNotSuppliedAnyAsset())">
-        <!-- Performance -->
-        <div class="grid-cell">
-          <section id="performance">
-            <app-performance style="display: contents"></app-performance>
-          </section>
-        </div>
-
-        <!-- Risk -->
-        <div class="grid-cell">
-          <section id="risk">
-            <app-risk style="display: contents" [userAssetComponents]="userAssetComponents"></app-risk>
-          </section>
         </div>
       </div>
 
-      <!-- Markets -->
-      <section id="markets">
-        <div class="grid grid-center filters">
-          <div class="grid-cell">
-            <h2>Markets</h2>
-            <ul class="toggle" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn())">
-              <li id="toggle-your-markets" class="active" (click)="onToggleYourMarketsClick()">Your markets</li>
-              <li id="toggle-all-markets" (click)="onToggleAllMarketsClick()">All markets</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Markets list -->
+      <!-- Borrowed -->
+      <div class="grid-cell">
         <div class="grid">
-          <div class="grid-cell">
-            <table class="list markets">
-              <thead>
-                <tr id="your-markets-header" [ngStyle]="hideElement(shouldHideYourMarketHeader())">
-                  <th>Asset</th>
-                  <th>You've supplied</th>
-                  <th>Supply APY</th>
-                  <th>You've borrowed</th>
-                  <th>Borrow APY</th>
-                </tr>
+          <!-- You've borrowed -->
+          <div class="grid-cell text-center">
+            <dl class="metadata">
+              <dt>You've borrowed</dt>
+              <dd class="value-borrowed-total">{{this.toDollarUSLocaleString(this.persistenceService.getUserTotalBorrowedUSD())}}</dd>
+            </dl>
+          </div>
 
-                <tr id="all-markets-header" [ngStyle]="hideElement(!allMarketViewActive())">
-                  <th>Asset</th>
-                  <th>Total supplied</th>
-                  <th>Supply APY</th>
-                  <th>Total borrowed</th>
-                  <th>Borrow APY</th>
-                </tr>
-              </thead>
-              <tbody>
-
-              <!-- Market Assets -->
-              <ng-container *ngIf="allMarketViewActive()">
-                <ng-container *ngFor="let a of marketAssets; last as isLast; let i = index">
-                  <!-- Asset (USDb, ICX, ..) -->
-                  <app-asset-market [asset]="a" #marketAsset
-                                    [index]="i"
-                                    (collOtherAssetTables)="collapseOtherAssetsTable($event)"
-                                    [ngStyle]="hideElementOrDisplayContents(!allMarketViewActive())">
-
-                  </app-asset-market>
-                  <!-- Spacer -->
-                  <tr *ngIf="!isLast" class="spacer"></tr>
-                </ng-container>
-              </ng-container>
-
-
-              <!-- User Assets (hide if user market view is not active) -->
-              <ng-container *ngIf="userMarketViewActive()">
-                <ng-container *ngFor="let asset of userAssets; last as isLast; let i = index">
-                  <!-- Asset (USDb, ICX, ..) -->
-                  <app-asset-user [asset]="asset" #userAsset
-                                  [index]="i"
-                                  [ngStyle]="hideElementOrDisplayContents(!userMarketViewActive())"
-                                  (collOtherAssetTables)="collapseOtherAssetsTable($event)"
-                                  (disableAndResetSliders)="disableAndResetAssetsSupplyAndBorrowSliders()"
-                                  (disableAssetsInputs)="disableAssetsInputs()">
-                  </app-asset-user>
-                  <!-- Spacer -->
-                  <tr *ngIf="!isLast || availableAssets.length > 0" class="spacer"></tr>
-                </ng-container>
-              </ng-container>
-
-              <!-- User available Assets (hide if user market view is not active) -->
-              <ng-container *ngIf="userMarketViewActive() && availableAssets.length > 0">
-
-                <!-- Available to supply -->
-                <tr class="available-to-supply" #availSplitter>
-                  <td colspan="5">
-                    <div class="grid">
-                      <div class="grid-cell">
-                        <p class="separator-full text-center"><span>Available to supply</span></p>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-
-                <ng-container *ngFor="let asset of availableAssets; last as isLast; let i = index">
-                  <!-- Asset (USDb, ICX, ..) -->
-                  <app-asset-user [asset]="asset" #availAsset
-                                  [index]="i"
-                                  [ngStyle]="hideElementOrDisplayContents(!userMarketViewActive())"
-                                  (collOtherAssetTables)="collapseOtherAssetsTable($event)"
-                                  (disableAndResetSliders)="disableAndResetAssetsSupplyAndBorrowSliders()"
-                                  (disableAssetsInputs)="disableAssetsInputs()">
-                  </app-asset-user>
-                  <!-- Spacer -->
-                  <tr *ngIf="!isLast" class="spacer"></tr>
-                </ng-container>
-              </ng-container>
-
-              </tbody>
-            </table>
-
-            <!-- If no assets available message bridge wallet -->
-            <div id="message-no-asset-bridge" class="grid"
-                 [ngStyle]="hideElement(allMarketViewActive() || !this.persistenceService.userLoggedIn() || !noActiveOrAvailableAsset())">
-              <div class="grid-cell">
-                <p class="label text-center">You have no assets available to supply.</p>
-                <p class="text-center" style="margin-top: 15px;"><a href="javascript:void(0);" class="button" (click)="onDepositUSDClick()">Deposit USD</a></p>
-              </div>
-            </div>
-
+          <!-- Your borrow APY -->
+          <div class="grid-cell text-center">
+            <dl class="metadata">
+              <dt>Your borrow APY</dt>
+              <dd class="text-purple value-borrowed-apy">{{to2DecimalRoundedDownPercentString(this.persistenceService.getMyBorrowApy())}}</dd>
+            </dl>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Market overview content -->
+    <div id="market-overview-content" class="grid panel" [ngStyle]="hideElement(this.persistenceService.userLoggedIn())">
+      <!-- Supplied -->
+      <div class="grid-cell border-right">
+        <div class="grid">
+          <!-- Total supplied -->
+          <div class="grid-cell text-center">
+            <dl class="metadata">
+              <dt>Total supplied</dt>
+              <dd>{{this.toDollarUSLocaleString(this.persistenceService.getTotalSuppliedUSD())}}</dd>
+            </dl>
+          </div>
+
+          <!-- Total supply APY -->
+          <div class="grid-cell text-center">
+            <dl class="metadata">
+              <dt>Total supply APY</dt>
+              <dd class="text-green">{{to2DecimalRoundedDownPercentString(this.persistenceService.getAvgSupplyApy())}}</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+
+      <!-- Borrowed -->
+      <div class="grid-cell">
+        <div class="grid">
+          <!-- Total borrowed -->
+          <div class="grid-cell text-center">
+            <dl class="metadata">
+              <dt>Total borrowed</dt>
+              <dd>{{this.toDollarUSLocaleString(this.persistenceService.getTotalBorrowedUSD())}}</dd>
+            </dl>
+          </div>
+
+          <!-- Total borrow APY -->
+          <div class="grid-cell text-center">
+            <dl class="metadata">
+              <dt>Total borrow APY</dt>
+              <dd class="text-purple">{{to2DecimalRoundedDownPercentString(this.persistenceService.getAvgBorrowApy())}}</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Performance / Risk , hide if user not logged in or he has not supplied any asset-user -->
+  <div class="grid side-by-side performance-risk" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn()
+                                                             || this.persistenceService.userHasNotSuppliedAnyAsset())">
+    <!-- Performance -->
+    <div class="grid-cell">
+      <section id="performance">
+        <app-performance style="display: contents"></app-performance>
       </section>
+    </div>
 
-    </main>
+    <!-- Risk -->
+    <div class="grid-cell">
+      <section id="risk">
+        <app-risk style="display: contents" [userAssetComponents]="userAssetComponents"></app-risk>
+      </section>
+    </div>
   </div>
-</div>
 
-<script>
-  ( function( $ ) {
-    $( 'a[href="#"]' ).click( function(e) {
-      e.preventDefault();
-    } );
-  })( jQuery );
-</script>
+  <!-- Markets -->
+  <section id="markets">
+    <div class="grid grid-center filters">
+      <div class="grid-cell">
+        <h2>Markets</h2>
+        <ul class="toggle" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn())">
+          <li id="toggle-your-markets" class="active" (click)="onToggleYourMarketsClick()">Your markets</li>
+          <li id="toggle-all-markets" (click)="onToggleAllMarketsClick()">All markets</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Markets list -->
+    <div class="grid">
+      <div class="grid-cell">
+        <table class="list markets">
+          <thead>
+            <tr id="your-markets-header" [ngStyle]="hideElement(shouldHideYourMarketHeader())">
+              <th>Asset</th>
+              <th>You've supplied</th>
+              <th>Supply APY</th>
+              <th>You've borrowed</th>
+              <th>Borrow APY</th>
+            </tr>
+
+            <tr id="all-markets-header" [ngStyle]="hideElement(!allMarketViewActive())">
+              <th>Asset</th>
+              <th>Total supplied</th>
+              <th>Supply APY</th>
+              <th>Total borrowed</th>
+              <th>Borrow APY</th>
+            </tr>
+          </thead>
+          <tbody>
+
+          <!-- Market Assets -->
+          <ng-container *ngIf="allMarketViewActive()">
+            <ng-container *ngFor="let a of marketAssets; last as isLast; let i = index">
+              <!-- Asset (USDb, ICX, ..) -->
+              <app-asset-market [asset]="a" #marketAsset
+                                [index]="i"
+                                (collOtherAssetTables)="collapseOtherAssetsTable($event)"
+                                [ngStyle]="hideElementOrDisplayContents(!allMarketViewActive())">
+
+              </app-asset-market>
+              <!-- Spacer -->
+              <tr *ngIf="!isLast" class="spacer"></tr>
+            </ng-container>
+          </ng-container>
+
+
+          <!-- User Assets (hide if user market view is not active) -->
+          <ng-container *ngIf="userMarketViewActive()">
+            <ng-container *ngFor="let asset of userAssets; last as isLast; let i = index">
+              <!-- Asset (USDb, ICX, ..) -->
+              <app-asset-user [asset]="asset" #userAsset
+                              [index]="i"
+                              [ngStyle]="hideElementOrDisplayContents(!userMarketViewActive())"
+                              (collOtherAssetTables)="collapseOtherAssetsTable($event)"
+                              (disableAndResetSliders)="disableAndResetAssetsSupplyAndBorrowSliders()"
+                              (disableAssetsInputs)="disableAssetsInputs()">
+              </app-asset-user>
+              <!-- Spacer -->
+              <tr *ngIf="!isLast || availableAssets.length > 0" class="spacer"></tr>
+            </ng-container>
+          </ng-container>
+
+          <!-- User available Assets (hide if user market view is not active) -->
+          <ng-container *ngIf="userMarketViewActive() && availableAssets.length > 0">
+
+            <!-- Available to supply -->
+            <tr class="available-to-supply" #availSplitter>
+              <td colspan="5">
+                <div class="grid">
+                  <div class="grid-cell">
+                    <p class="separator-full text-center"><span>Available to supply</span></p>
+                  </div>
+                </div>
+              </td>
+            </tr>
+
+            <ng-container *ngFor="let asset of availableAssets; last as isLast; let i = index">
+              <!-- Asset (USDb, ICX, ..) -->
+              <app-asset-user [asset]="asset" #availAsset
+                              [index]="i"
+                              [ngStyle]="hideElementOrDisplayContents(!userMarketViewActive())"
+                              (collOtherAssetTables)="collapseOtherAssetsTable($event)"
+                              (disableAndResetSliders)="disableAndResetAssetsSupplyAndBorrowSliders()"
+                              (disableAssetsInputs)="disableAssetsInputs()">
+              </app-asset-user>
+              <!-- Spacer -->
+              <tr *ngIf="!isLast" class="spacer"></tr>
+            </ng-container>
+          </ng-container>
+
+          </tbody>
+        </table>
+
+        <!-- If no assets available message bridge wallet -->
+        <div id="message-no-asset-bridge" class="grid"
+             [ngStyle]="hideElement(allMarketViewActive() || !this.persistenceService.userLoggedIn() || !noActiveOrAvailableAsset())">
+          <div class="grid-cell">
+            <p class="label text-center">You have no assets available to supply.</p>
+            <p class="text-center" style="margin-top: 15px;"><a href="javascript:void(0);" class="button" (click)="onDepositUSDClick()">Deposit USD</a></p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+

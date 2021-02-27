@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {ModalType} from "../../models/ModalType";
 import {ModalService} from "../../services/modal/modal.service";
 import {UserReserveData} from "../../models/UserReserveData";
@@ -14,7 +14,7 @@ import {AssetAction} from "../../models/AssetAction";
   templateUrl: './performance.component.html',
   styleUrls: ['./performance.component.css']
 })
-export class PerformanceComponent extends BaseClass implements OnInit {
+export class PerformanceComponent extends BaseClass implements OnInit, AfterViewInit {
 
   @ViewChild('suppInterest', { static: true }) supplyInterestEl!: ElementRef;
   @ViewChild('borrInterest', { static: true }) borrowInterestEl!: ElementRef;
@@ -33,6 +33,12 @@ export class PerformanceComponent extends BaseClass implements OnInit {
   ngOnInit(): void {
     // handle users assets reserve changes
     this.subscribeToUserAssetReserveChange();
+  }
+
+  ngAfterViewInit(): void {
+    if (this.persistenceService.userLoggedIn()) {
+      this.updatePerformanceValues();
+    }
   }
 
   public subscribeToUserAssetReserveChange(): void {
