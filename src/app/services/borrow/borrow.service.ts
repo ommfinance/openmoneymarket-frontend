@@ -25,39 +25,20 @@ export class BorrowService {
   }
 
   public borrowAsset(amount: number, assetTag: AssetTag, notificationMessage: string): void {
-    let tx;
-
-    switch (assetTag) {
-      case AssetTag.ICX:
-        tx = this.buildBorrowIcxTx(amount);
-        break;
-      case AssetTag.USDb:
-        tx = this.buildBorrowUSDbTx(amount);
-        break;
-    }
+    const tx = this.buildBorrowAssetTx(amount, assetTag);
 
     log.debug(`borrow ${assetTag} TX: `, tx);
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
-  private buildBorrowUSDbTx(amount: number): any {
-    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+  private buildBorrowAssetTx(amount: number, assetTag: AssetTag): any {
+    this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
+
+    const decimals = this.persistenceService.allReserves!.getReserveData(assetTag).decimals;
 
     const params = {
-      _amount: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
-      _reserve: this.persistenceService.allAddresses!.collateral.USDb
-    };
-
-    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
-      this.persistenceService.allAddresses!.systemContract.LendingPool, ScoreMethodNames.BORROW, params, IconTransactionType.WRITE);
-  }
-
-  private buildBorrowIcxTx(amount: number): any {
-    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
-
-    const params = {
-      _amount: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
-      _reserve: this.persistenceService.allAddresses!.collateral.sICX
+      _amount: IconConverter.toHex(IconAmount.of(amount, decimals).toLoop()),
+      _reserve: this.persistenceService.allAddresses!.collateralAddress(assetTag)
     };
 
     return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,

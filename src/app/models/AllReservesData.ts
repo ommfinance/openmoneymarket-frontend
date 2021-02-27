@@ -4,10 +4,12 @@ import {OmmError} from "../core/errors/OmmError";
 export class AllReservesData {
   USDb: ReserveData;
   ICX: ReserveData;
+  USDC: ReserveData;
 
-  constructor(USDb: ReserveData, sICX: ReserveData) {
+  constructor(USDb: ReserveData, sICX: ReserveData, IUSDC: ReserveData) {
     this.USDb = USDb;
     this.ICX = sICX;
+    this.USDC = IUSDC;
   }
 
   public getReserveData(assetTag: AssetTag): ReserveData {
@@ -16,6 +18,8 @@ export class AllReservesData {
         return this.ICX;
       case AssetTag.USDb:
         return this.USDb;
+      case AssetTag.USDC:
+        return this.USDC;
       default:
         throw new OmmError(`AllReserves.getReserveData: Unsupported parameter = ${assetTag}`);
     }
@@ -28,6 +32,9 @@ export class AllReservesData {
         break;
       case AssetTag.USDb:
         this.USDb = reserveData;
+        break;
+      case AssetTag.USDC:
+        this.USDC = reserveData;
         break;
       default:
         throw new OmmError(`AllReserves.setReserveData: Unsupported parameter = ${assetTag}`);

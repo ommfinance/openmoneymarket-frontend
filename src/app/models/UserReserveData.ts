@@ -45,6 +45,7 @@ export class UserReserves {
   public reserveMap: Map<AssetTag, UserReserveData | undefined> = new Map([
     [AssetTag.USDb, undefined],
     [AssetTag.ICX, undefined],
+    [AssetTag.USDC, undefined],
   ]);
 }
 

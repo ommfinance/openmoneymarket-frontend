@@ -29,7 +29,7 @@ export class IconApiService {
       throw new Error("getIcxBalance -> address empty or null!");
     }
     const icxBalance = await this.iconService.getBalance(address).execute();
-    return Utils.hexE18ToNormalisedNumber(icxBalance);
+    return Utils.hexToNormalisedNumber(icxBalance);
   }
 
   public async getTxResult(txHash: string): Promise<any> {

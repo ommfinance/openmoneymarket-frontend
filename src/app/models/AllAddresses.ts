@@ -12,12 +12,27 @@ export class AllAddresses {
     this.systemContract = systemContract;
   }
 
-  getAssetAddress(assetTag: AssetTag): string {
+  collateralAddress(assetTag: AssetTag): string {
     switch (assetTag) {
       case AssetTag.ICX:
         return this.collateral.sICX;
       case AssetTag.USDb:
         return this.collateral.USDb;
+      case AssetTag.USDC:
+        return this.collateral.IUSDC;
+      default:
+        return "";
+    }
+  }
+
+  oTokenAddress(assetTag: AssetTag): string {
+    switch (assetTag) {
+      case AssetTag.ICX:
+        return this.oTokens.oICX;
+      case AssetTag.USDb:
+        return this.oTokens.oUSDb;
+      case AssetTag.USDC:
+        return this.oTokens.oIUSDC;
       default:
         return "";
     }
@@ -27,11 +42,13 @@ export class AllAddresses {
 interface Collateral {
   USDb: string;
   sICX: string;
+  IUSDC: string;
 }
 
 interface OTokens {
   oUSDb: string;
   oICX: string;
+  oIUSDC: string;
 }
 
 interface SystemContract {

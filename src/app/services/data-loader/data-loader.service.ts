@@ -4,7 +4,6 @@ import {PersistenceService} from '../persistence/persistence.service';
 import {AllAddresses} from '../../models/AllAddresses';
 import {AllReservesData, ReserveData} from "../../models/AllReservesData";
 import {Mapper} from "../../common/mapper";
-import {UserReserveData} from "../../models/UserReserveData";
 import {UserAccountData} from "../../models/UserAccountData";
 import {StateChangeService} from "../state-change/state-change.service";
 import {AssetTag} from "../../models/Asset";
@@ -19,6 +18,7 @@ import {OmmRewards} from "../../models/OmmRewards";
 import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
 import {NotificationService} from "../notification/notification.service";
 import {ErrorCode, ErrorService} from "../error/error.service";
+import {CheckerService} from "../checker/checker.service";
 
 @Injectable({
   providedIn: 'root'
@@ -30,7 +30,8 @@ export class DataLoaderService {
               private stateChangeService: StateChangeService,
               private ommService: OmmService,
               private notificationService: NotificationService,
-              private errorService: ErrorService) {
+              private errorService: ErrorService,
+              private checkerService: CheckerService) {
 
   }
 
@@ -39,13 +40,12 @@ export class DataLoaderService {
     log.info("Login with wallet: ", wallet);
 
     try {
-      // TODO optimise by saving and reading from localstorage
-      const [usdbReserveResponse, icxReserveResponse, icxBalResponse, usdbBalResponse, userAccountDataRes
+      const [userReserversRes, icxBalResponse, usdbBalResponse, iusdcBalResponse, userAccountDataRes
       ] = await Promise.all([
-        this.loadUserUSDbReserveData(),
-        this.loadUserIcxReserveData(),
+        this.loadAllUserAssetReserveData(),
         this.scoreService.getUserAssetBalance(AssetTag.ICX),
         this.scoreService.getUserAssetBalance(AssetTag.USDb),
+        this.scoreService.getUserAssetBalance(AssetTag.USDC),
         this.loadUserAccountData()
       ]);
 
@@ -80,13 +80,13 @@ export class DataLoaderService {
 
   public loadAllUserAssetsBalances(): void {
     Object.values(AssetTag).forEach(assetTag => {
-      this.scoreService.getUserAssetBalance(assetTag);
+      this.scoreService.getUserAssetBalance(assetTag).then();
     });
   }
 
   public loadAllScoreAddresses(): Promise<void> {
     return this.scoreService.getAllScoreAddresses().then((allAddresses: AllAddresses) => {
-      this.persistenceService.allAddresses = allAddresses;
+      this.persistenceService.allAddresses = new AllAddresses(allAddresses.collateral, allAddresses.oTokens, allAddresses.systemContract);
       log.debug("Loaded all addresses: ", allAddresses);
     });
   }
@@ -94,7 +94,7 @@ export class DataLoaderService {
   public loadAllReserveData(): Promise<void> {
     return this.scoreService.getAllReserveData().then((allReserves: AllReservesData) => {
       log.debug("loadAllReserves.allReserves: ", allReserves);
-      const newAllReserve = new AllReservesData(allReserves.USDb, allReserves.ICX);
+      const newAllReserve = new AllReservesData(allReserves.USDb, allReserves.ICX, allReserves.USDC);
       Object.entries(newAllReserve).forEach((value: [string, ReserveData]) => {
         // @ts-ignore
         newAllReserve[value[0]] = Mapper.mapReserveData(value[1]);
@@ -105,7 +105,7 @@ export class DataLoaderService {
   }
 
   public loadSpecificReserveData(assetTag: AssetTag): Promise<void> {
-    return this.scoreService.getsSpecificReserveData(this.persistenceService.allAddresses!.getAssetAddress(assetTag))
+    return this.scoreService.getsSpecificReserveData(this.persistenceService.allAddresses!.collateralAddress(assetTag))
       .then(reserveData => {
         const newReserveData = Mapper.mapReserveData(reserveData);
         this.persistenceService.allReserves?.setReserveData(assetTag, newReserveData);
@@ -118,7 +118,10 @@ export class DataLoaderService {
   public loadAllReservesConfigData(): Promise<void> {
     return this.scoreService.getAllReserveConfigurationData().then((allReservesConfigData: AllReserveConfigData) => {
       log.debug("loadAllReservesConfigData : ", allReservesConfigData);
-      const newAllReserveConfigData = new AllReserveConfigData(allReservesConfigData.USDb, allReservesConfigData.ICX);
+      const newAllReserveConfigData = new AllReserveConfigData(
+        allReservesConfigData.USDb,
+        allReservesConfigData.ICX,
+        allReservesConfigData.USDC);
       Object.entries(newAllReserveConfigData).forEach((value: [string, ReserveData]) => {
         // @ts-ignore
         newAllReserveConfigData[value[0]] = Mapper.mapReserveConfigurationData(value[1]);
@@ -130,44 +133,24 @@ export class DataLoaderService {
     });
   }
 
-  public loadUserAssetReserveData(assetTag: AssetTag): Promise<void> {
-    switch (assetTag) {
-      case AssetTag.ICX:
-        return this.loadUserIcxReserveData();
-      case AssetTag.USDb:
-        return this.loadUserUSDbReserveData();
-      default:
-        return Promise.resolve();
+  async loadAllUserAssetReserveData(): Promise<void> {
+    if (this.persistenceService.userLoggedIn()) {
+      for (const assetTag of Object.values(AssetTag)) {
+        await this.loadUserAssetReserveData(assetTag);
+      }
     }
   }
 
-  public loadUserUSDbReserveData(): Promise<void> {
-    let mappedReserve: any;
-    return this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses!.collateral.USDb)
-      .then((res: UserReserveData) => {
-        mappedReserve = Mapper.mapUserReserve(res);
-        this.persistenceService.userReserves!.reserveMap.set(AssetTag.USDb, mappedReserve);
-        log.debug("User USDb reserve data:", mappedReserve);
-        this.stateChangeService.updateUserAssetReserve(mappedReserve, AssetTag.USDb);
-      });
-  }
+  async loadUserAssetReserveData(assetTag: AssetTag): Promise<void> {
+    this.checkerService.checkAllAddressesLoaded();
 
-  public loadAllUserAssetReserveData(): void {
-    if (this.persistenceService.activeWallet) {
-      this.loadUserUSDbReserveData().then();
-      this.loadUserIcxReserveData().then();
-    }
-  }
+    const userReserveData = await this.scoreService.getUserReserveDataForSpecificReserve(
+      this.persistenceService.allAddresses!.collateralAddress(assetTag));
+    const mappedReserve = Mapper.mapUserReserve(userReserveData, this.persistenceService.getAssetReserveData(assetTag)!!.decimals);
 
-  public loadUserIcxReserveData(): Promise<void> {
-    let mappedReserve: any;
-    return this.scoreService.getUserReserveDataForSpecificReserve(this.persistenceService.allAddresses!.collateral.sICX)
-      .then((res: UserReserveData) => {
-        mappedReserve = Mapper.mapUserReserve(res);
-        this.persistenceService.userReserves!.reserveMap.set(AssetTag.ICX, mappedReserve);
-        log.debug("User ICX reserve data:", mappedReserve);
-        this.stateChangeService.updateUserAssetReserve(mappedReserve, AssetTag.ICX);
-      });
+    this.persistenceService.userReserves!.reserveMap.set(assetTag, mappedReserve);
+    log.debug(`User ${assetTag} reserve data:`, mappedReserve);
+    this.stateChangeService.updateUserAssetReserve(mappedReserve, assetTag);
   }
 
   public loadUserAccountData(): Promise<void> {
@@ -209,7 +192,7 @@ export class DataLoaderService {
   }
 
   public loadUserSpecificData(): void {
-    this.loadAllUserAssetReserveData();
+    this.loadAllUserAssetReserveData().then();
     this.loadAllUserAssetsBalances();
     this.loadUserAccountData().then();
     this.loadUserOmmRewards().then();

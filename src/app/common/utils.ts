@@ -1,32 +1,33 @@
 import IconService from 'icon-sdk-js';
 import { BigNumber } from "bignumber.js";
 import log from "loglevel";
+import {UserReserveData} from "../models/UserReserveData";
 
 export class Utils {
 
-  // Returns number divided by the 10^18 and rounded down to 2 decimal places
-  public static hexE18To2DecimalRoundedOff(value: number | string): number {
+  // Returns number divided by the 10^decimals and rounded down to 2 decimal places
+  public static hexTo2DecimalRoundedOff(value: number | string, decimals: number = 18): number {
     if (!value) {
       return 0;
     }
     if (typeof value === "string") {
       // return rounded down to 2 decimals places number
-      return +Utils.roundOffTo2Decimals(new BigNumber(value, 16).dividedBy(Math.pow(10, 18)));
+      return +Utils.roundOffTo2Decimals(new BigNumber(value, 16).dividedBy(Math.pow(10, decimals)));
     } else {
       // return rounded down to 2 decimals places number
-      return +Utils.roundOffTo2Decimals(new BigNumber(value).dividedBy(Math.pow(10, 18)));
+      return +Utils.roundOffTo2Decimals(new BigNumber(value).dividedBy(Math.pow(10, decimals)));
     }
   }
 
-  // Returns number divided by the 10^18
-  public static hexE18ToNormalisedNumber(value: number | string): number {
+  // Returns number divided by the 10^decimals
+  public static hexToNormalisedNumber(value: number | string, decimals: number = 18): number {
     if (!value) {
       return 0;
     }
     if (typeof value === "string") {
-      return +(new BigNumber(value, 16).dividedBy(Math.pow(10, 18)));
+      return +(new BigNumber(value, 16).dividedBy(Math.pow(10, decimals)));
     } else {
-      return +(new BigNumber(value).dividedBy(Math.pow(10, 18)));
+      return +(new BigNumber(value).dividedBy(Math.pow(10, decimals)));
     }
   }
 
@@ -73,8 +74,8 @@ export class Utils {
     return num.toLocaleString('en-US');
   }
 
-  public static amountToe18MultipliedString(amount: number): string {
-    return new BigNumber(amount).multipliedBy(Math.pow(10, 18)).toFixed();
+  public static normalisedAmountToBaseAmountString(amount: number, decimals: number = 18): string {
+    return new BigNumber(amount).multipliedBy(Math.pow(10, decimals)).toFixed();
   }
 
   public static roundOffTo2Decimals(value: number | BigNumber | string): number {

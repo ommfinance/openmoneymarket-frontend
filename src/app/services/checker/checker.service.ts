@@ -23,9 +23,21 @@ export class CheckerService {
     }
   }
 
+  public checkAllReservesLoaded(): void {
+    if (!this.persistenceService.allReserves) {
+      throw new OmmError("All reserves not loaded.");
+    }
+  }
+
   public checkUserLoggedInAndAllAddressesLoaded(): any {
     this.checkUserLoggedIn();
     this.checkAllAddressesLoaded();
+  }
+
+  public checkUserLoggedInAllAddressesAndReservesLoaded(): any {
+    this.checkUserLoggedIn();
+    this.checkAllAddressesLoaded();
+    this.checkAllReservesLoaded();
   }
 
 }

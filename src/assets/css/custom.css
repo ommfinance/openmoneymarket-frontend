@@ -1,3 +1,11 @@
 .red-border {
   border-color: red !important;
 }
+
+/* temporary logo for USDC temporary  TODO */
+.list tbody tr.usdc td:first-of-type {
+  background-image: url(../img/logos/usdc-logo.png);
+  background-repeat: no-repeat;
+  background-position: 33px center;
+  background-size: 35px;
+}

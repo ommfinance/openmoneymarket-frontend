@@ -12,22 +12,26 @@ export class Asset {
 
 export enum AssetClass {
   USDb = "usdb",
-  ICX = "icx"
+  ICX = "icx",
+  USDC = "usdc"
 }
 
 export enum AssetName {
   USDb = "Bridge Dollars",
-  ICX = "ICON"
+  ICX = "ICON",
+  USDC = "ICON USD Coin"
 }
 
 export enum AssetTag {
   USDb = "USDb",
-  ICX = "ICX"
+  ICX = "ICX",
+  USDC = "IUSDC"
 }
 
 export const supportedAssetsMap: Map<AssetTag, Asset> = new Map([
   [AssetTag.USDb, new Asset(AssetClass.USDb, AssetName.USDb, AssetTag.USDb)],
   [AssetTag.ICX, new Asset(AssetClass.ICX, AssetName.ICX , AssetTag.ICX)],
+  [AssetTag.USDC, new Asset(AssetClass.USDC, AssetName.USDC , AssetTag.USDC)],
 ]);
 
 

@@ -5,6 +5,7 @@ export abstract class Wallet {
   balances: Map<AssetTag, number> = new Map([
     [AssetTag.USDb, 0],
     [AssetTag.ICX, 0],
+    [AssetTag.USDC, 0],
   ]);
 
   protected constructor(address?: string) {

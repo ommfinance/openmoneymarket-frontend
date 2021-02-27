@@ -24,52 +24,25 @@ export class RepayService {
   }
 
   public repayAsset(amount: number, assetTag: AssetTag, notificationMessage: string): void {
-    let tx;
-
-    switch (assetTag) {
-      case AssetTag.ICX:
-        tx = this.buildRepayIcxTx(amount);
-        break;
-      case AssetTag.USDb:
-        tx = this.buildRepayUSDbTx(amount);
-        break;
-    }
+    const tx = this.buildRepayAssetTx(amount, assetTag);
 
     log.debug(`repay ${assetTag} TX: `, tx);
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
-  private buildRepayUSDbTx(amount: number): any {
-    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+  private buildRepayAssetTx(amount: number, assetTag: AssetTag): any {
+    this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
 
-    const amountString = Utils.amountToe18MultipliedString(amount);
-    log.debug("repayUSDb amount = " + amount, "repayUSDb params amount = " + amountString);
+    const decimals = this.persistenceService.allReserves!.getReserveData(assetTag).decimals;
+    const amountString = Utils.normalisedAmountToBaseAmountString(amount, decimals);
+    log.debug(`repay ${assetTag} amount = ${amount}, params amount = ${amountString}`);
 
-    const to = this.persistenceService.allAddresses!.collateral.USDb;
+    const to = this.persistenceService.allAddresses!.collateralAddress(assetTag);
     const data = `{"method": "repay", "params": {"_reserveAddress":"${to}" ,"amount":${amountString}}}`;
 
     const params = {
       _to: this.persistenceService.allAddresses!.systemContract.LendingPool,
-      _value: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
-      _data: IconConverter.fromUtf8(data)
-    };
-
-    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address, to,
-      ScoreMethodNames.TRANSFER, params, IconTransactionType.WRITE);
-  }
-
-  private buildRepayIcxTx(amount: number): any {
-    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
-
-    const amountString = Utils.amountToe18MultipliedString(amount);
-    log.debug("repayIcx amount = " + amount, "repayIcx params amount = " + amountString);
-
-    const to = this.persistenceService.allAddresses!.collateral.sICX;
-    const data = `{"method": "repay", "params": {"_reserveAddress":"${to}" ,"amount":${amountString}}}`;
-
-    const params = {
-      _to: this.persistenceService.allAddresses!.systemContract.LendingPool,
-      _value: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
+      _value: IconConverter.toHex(IconAmount.of(amount, decimals).toLoop()),
       _data: IconConverter.fromUtf8(data)
     };
 

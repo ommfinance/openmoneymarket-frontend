@@ -29,6 +29,7 @@ export class StateChangeService {
   public userBalanceChangeMap: Map<AssetTag, Subject<number>> = new Map([
     [AssetTag.USDb, new Subject<number>()],
     [AssetTag.ICX, new Subject<number>()],
+    [AssetTag.USDC, new Subject<number>()],
   ]);
 
   // public userTotalRiskChange: Subject<number> = new Subject<number>();
@@ -39,6 +40,7 @@ export class StateChangeService {
   public userReserveChangeMap: Map<AssetTag, Subject<UserReserveData>> = new Map([
     [AssetTag.USDb, new Subject<UserReserveData>()],
     [AssetTag.ICX, new Subject<UserReserveData>()],
+    [AssetTag.USDC, new Subject<UserReserveData>()],
   ]);
 
   /**

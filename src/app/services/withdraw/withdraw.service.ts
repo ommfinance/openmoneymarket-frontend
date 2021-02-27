@@ -32,24 +32,25 @@ export class WithdrawService {
       case AssetTag.ICX:
         tx = this.buildWithdrawIcxTx(amount, waitForUnstaking);
         break;
-      case AssetTag.USDb:
-        tx = this.buildWithdrawUSDbTx(amount);
-        break;
+      default:
+        tx = this.buildWithdrawIrc2AssetTx(amount, assetTag);
     }
 
     log.debug(`Withdraw ${assetTag} TX: `, tx);
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
-  private buildWithdrawUSDbTx(amount: number): any {
-    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+  private buildWithdrawIrc2AssetTx(amount: number, assetTag: AssetTag): any {
+    this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
+
+    const decimals = this.persistenceService.allReserves!.getReserveData(assetTag).decimals;
 
     const params = {
-      _amount: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
+      _amount: IconConverter.toHex(IconAmount.of(amount, decimals).toLoop()),
     };
 
     return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
-      this.persistenceService.allAddresses!.oTokens.oUSDb, ScoreMethodNames.REDEEM, params, IconTransactionType.WRITE);
+      this.persistenceService.allAddresses!.oTokenAddress(assetTag), ScoreMethodNames.REDEEM, params, IconTransactionType.WRITE);
   }
 
   private buildWithdrawIcxTx(amount: number, waitForUnstaking = false): any {

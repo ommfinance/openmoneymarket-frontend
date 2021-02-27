@@ -33,29 +33,30 @@ export class SupplyService {
       case AssetTag.ICX:
         tx = this.buildDepositIcxTx(amount);
         break;
-      case AssetTag.USDb:
-        tx = this.buildDepositUSDbTx(amount);
-        break;
+      default:
+        tx = this.buildDepositIRC2(amount, assetTag);
     }
 
-    log.debug(`supply ${assetTag} TX: `, tx);
+    log.debug(`Supply ${assetTag} TX: `, tx);
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
-  private buildDepositUSDbTx(amount: number): any {
-    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+  private buildDepositIRC2(amount: number, assetTag: AssetTag): any {
+    this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
 
-    log.debug("Deposit USDb amount = " + amount);
+    log.debug(`Deposit ${assetTag} amount = ` + amount);
+    const decimals = this.persistenceService.allReserves!.getReserveData(assetTag).decimals;
 
     const params = {
       _to: this.persistenceService.allAddresses!.systemContract.LendingPool,
-      _value: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
-      _data: IconConverter.fromUtf8('{ "method": "deposit", "params": { "amount":' + Utils.amountToe18MultipliedString(amount) + '}}')
+      _value: IconConverter.toHex(IconAmount.of(amount, decimals).toLoop()),
+      _data: IconConverter.fromUtf8('{ "method": "deposit", "params": { "amount":' +
+        Utils.normalisedAmountToBaseAmountString(amount, decimals) + '}}')
     };
-    log.debug("Deposit USDb params amount = " +  Utils.amountToe18MultipliedString(amount));
+    log.debug(`Deposit ${assetTag} params amount = ` +  Utils.normalisedAmountToBaseAmountString(amount, decimals));
 
     return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
-      this.persistenceService.allAddresses!.collateral.USDb, ScoreMethodNames.TRANSFER, params, IconTransactionType.WRITE);
+      this.persistenceService.allAddresses!.collateralAddress(assetTag), ScoreMethodNames.TRANSFER, params, IconTransactionType.WRITE);
   }
 
   private buildDepositIcxTx(amount: number): any {

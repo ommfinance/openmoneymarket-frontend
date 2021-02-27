@@ -55,7 +55,7 @@ export class ScoreService {
 
     log.debug("getTokenDistributionPerDay: ", res);
 
-    return Utils.hexE18ToNormalisedNumber(res);
+    return Utils.hexToNormalisedNumber(res);
   }
 
   /**
@@ -115,7 +115,7 @@ export class ScoreService {
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Staking,
       ScoreMethodNames.GET_TODAY_RATE, {}, IconTransactionType.READ);
 
-    const todayRate = Utils.hexE18ToNormalisedNumber(await this.iconApiService.iconService.call(tx).execute());
+    const todayRate = Utils.hexToNormalisedNumber(await this.iconApiService.iconService.call(tx).execute());
     log.debug(`getTodayRate: ${todayRate}`);
 
     return todayRate;
@@ -173,32 +173,15 @@ export class ScoreService {
     return await this.iconApiService.iconService.call(tx).execute();
   }
 
-
-  private async getUserUSDbBalance(address?: string): Promise<number> {
-    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
-
-    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.collateral.USDb,
-      ScoreMethodNames.BALANCE, {
-        _owner: address ?? this.persistenceService.activeWallet?.address
-      }, IconTransactionType.READ);
-    const res = await this.iconApiService.iconService.call(tx).execute();
-    const balance = Utils.hexE18To2DecimalRoundedOff(res);
-    log.debug(`User USDb balance = ${balance}`);
-    this.stateChangeService.updateUserAssetBalance(balance, AssetTag.USDb);
-    return balance;
-  }
-
   public async getUserAssetBalance(assetTag: AssetTag): Promise<number> {
     let balance = 0;
+
     switch (assetTag) {
       case AssetTag.ICX:
         balance = await this.iconApiService.getIcxBalance(this.persistenceService.activeWallet!.address);
         break;
-      case AssetTag.USDb:
-        balance = await this.getUserUSDbBalance(this.persistenceService.activeWallet!.address);
-        break;
       default:
-        return Promise.resolve(0);
+        balance = await this.getIRC2TokenBalance(assetTag);
     }
 
     // set asset balance
@@ -211,5 +194,21 @@ export class ScoreService {
     return balance;
   }
 
+  private async getIRC2TokenBalance(assetTag: AssetTag): Promise<number> {
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.collateralAddress(assetTag),
+      ScoreMethodNames.BALANCE, {
+        _owner: this.persistenceService.activeWallet!.address
+      }, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+    const balance = Utils.hexTo2DecimalRoundedOff(res);
+
+    log.debug(`User ${assetTag} balance = ${balance}`);
+    this.stateChangeService.updateUserAssetBalance(balance, assetTag);
+
+    return balance;
+  }
 
 }
