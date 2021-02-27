@@ -30,9 +30,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   @ViewChild("ommStk")set ommStakeAmountSetter(ommStake: ElementRef) {this.ommStakeAmount = ommStake.nativeElement; }
   private ommStakeAmount?: any;
 
-  staked = 0;
-  maxStake = 0;
-
   constructor(public persistenceService: PersistenceService,
               private modalService: ModalService,
               private stateChangeService: StateChangeService) {
