@@ -168,7 +168,7 @@ export class DataLoaderService {
       this.persistenceService.userOmmRewards = Mapper.mapUserOmmRewards(ommRewards);
       this.stateChangeService.updateUserOmmRewards(this.persistenceService.userOmmRewards);
     }).catch((e: any) => {
-      this.errorService.registerErrorForResolve(ErrorCode.USER_OMM_REWARDS, this.loadUserOmmRewards);
+      this.errorService.registerErrorForResolve(ErrorCode.USER_OMM_REWARDS, () => this.loadUserOmmRewards());
       log.error(e);
     });
   }
@@ -180,7 +180,7 @@ export class DataLoaderService {
       this.persistenceService.userOmmTokenBalanceDetails = Mapper.mapUserOmmTokenBalanceDetails(res);
       this.stateChangeService.updateUserOmmTokenBalanceDetails(this.persistenceService.userOmmTokenBalanceDetails);
     }).catch((e: any) => {
-      this.errorService.registerErrorForResolve(ErrorCode.USER_OMM_TOKEN_BALANCE_DETAILS, this.loadUserOmmTokenBalanceDetails);
+      this.errorService.registerErrorForResolve(ErrorCode.USER_OMM_TOKEN_BALANCE_DETAILS, () => this.loadUserOmmTokenBalanceDetails());
       log.error(e);
     });
   }
