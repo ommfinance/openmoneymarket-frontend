@@ -18,6 +18,8 @@ import log from "loglevel";
 import { AssetMarketComponent } from './components/asset-market/asset-market.component';
 import { VoteComponent } from './components/vote/vote.component';
 import {HttpClientModule} from "@angular/common/http";
+import { MainComponent } from './components/main/main.component';
+
 // set logging level
 log.setLevel(environment.production ? "error" : "debug");
 
@@ -32,7 +34,8 @@ log.setLevel(environment.production ? "error" : "debug");
     RiskComponent,
     AssetUserComponent,
     AssetMarketComponent,
-    VoteComponent
+    VoteComponent,
+    MainComponent
   ],
   imports: [
     BrowserModule,
