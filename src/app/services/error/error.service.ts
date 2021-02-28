@@ -20,7 +20,10 @@ export class ErrorService {
 
   registerErrorForResolve(code: ErrorCode, resolver: () => Promise<void>): void {
     log.debug(`Set error: ${code} for resolve with resolver = ${resolver.name}`);
-    this.errorMap.set(code, resolver);
+
+    if (this.errorMap.get(code) === undefined) {
+      this.errorMap.set(code, resolver);
+    }
 
     if (this.errorMap.size === 1) {
       this.resolveInterval = setInterval(() => this.triggerErrorResolve(), this.intervalTime);

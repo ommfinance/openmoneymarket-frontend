@@ -34,7 +34,7 @@ export const prefixPlusFormat = wNumb({
 
 export function assetFormat(assetTag: AssetTag): any {
     return wNumb({
-      decimals: 0,
+      decimals: 2,
       thousand: ',',
       suffix: ` ${assetTag.toString()}`
     });

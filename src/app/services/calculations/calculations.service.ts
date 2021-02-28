@@ -28,6 +28,7 @@ export class CalculationsService {
     if (assetTag === AssetTag.ICX) {
       suppliedAssetBalance = Utils.convertSICXToICX(suppliedAssetBalance, this.persistenceService.sIcxToIcxRate());
     }
+
     return suppliedAssetBalance + this.persistenceService.getUserAssetBalance(assetTag);
   }
 

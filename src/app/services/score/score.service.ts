@@ -174,6 +174,8 @@ export class ScoreService {
   }
 
   public async getUserAssetBalance(assetTag: AssetTag): Promise<number> {
+    log.debug(`Fetching user balance for ${assetTag}...`);
+
     let balance = 0;
 
     switch (assetTag) {
