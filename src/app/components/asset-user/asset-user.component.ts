@@ -676,7 +676,8 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     // take either suggested on or asset totalSupplied - totalBorrowed
     const totalSupplied = this.persistenceService.getAssetReserveData(this.asset.tag)?.totalLiquidity ?? 0;
     const totalBorrowed = this.persistenceService.getAssetReserveData(this.asset.tag)?.totalBorrows ?? 0;
-    const availTotalBorrow = totalSupplied - totalBorrowed;
+    const currentBorrow = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag) ?? 0;
+    const availTotalBorrow = totalSupplied - totalBorrowed + currentBorrow;
 
     log.debug(`Total available borrow for asset ${this.asset.tag} = ${availTotalBorrow}`);
     if (this.asset.tag === AssetTag.ICX) {
