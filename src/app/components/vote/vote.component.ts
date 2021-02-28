@@ -6,6 +6,8 @@ import {normalFormat} from "../../common/formats";
 import {ModalType} from "../../models/ModalType";
 import {ModalService} from "../../services/modal/modal.service";
 import log from "loglevel";
+import {StateChangeService} from "../../services/state-change/state-change.service";
+import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
 
 declare var noUiSlider: any;
 declare var wNumb: any;
@@ -28,8 +30,12 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   @ViewChild("ommStk")set ommStakeAmountSetter(ommStake: ElementRef) {this.ommStakeAmount = ommStake.nativeElement; }
   private ommStakeAmount?: any;
 
+  staked = 0;
+  maxStake = 0;
+
   constructor(public persistenceService: PersistenceService,
-              private modalService: ModalService) {
+              private modalService: ModalService,
+              private stateChangeService: StateChangeService) {
     super(persistenceService);
 
     // mock list TODO use real
@@ -39,11 +45,18 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-
+    this.subscribeToOmmTokenBalanceChange();
   }
 
   ngAfterViewInit(): void {
     this.initStakeSlider();
+  }
+
+  private subscribeToOmmTokenBalanceChange(): void {
+    this.stateChangeService.userOmmTokenBalanceDetailsChange.subscribe((res: OmmTokenBalanceDetails) => {
+      this.staked = res.stakedBalance;
+      this.maxStake = res.availableBalance;
+    });
   }
 
   onSearchInputChange(): void {
@@ -51,6 +64,8 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   initStakeSlider(): void {
+
+    const max = this.persistenceService.userOmmTokenBalanceDetails?.availableBalance ?? 0;
     // Stake slider
     noUiSlider.create(this.sliderStake, {
       start: [0],
@@ -58,7 +73,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       connect: 'lower',
       range: {
         min: [0],
-        max: [150]
+        max: [max === 0 ? 150 : max]
       },
     });
 
@@ -72,6 +87,10 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       // Update OMM stake values as ICX
       $('.value-icx-stake-amount').text(normalFormat.to(value * 1.3));
     });
+  }
+
+  onSignInClick(): void {
+    this.modalService.showNewModal(ModalType.SIGN_IN);
   }
 
   // On "Stake" click

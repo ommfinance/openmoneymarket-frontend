@@ -8,6 +8,7 @@ import {ScoreMethodNames} from "../../common/score-method-names";
 import {IconTransactionType} from "../../models/IconTransactionType";
 import log from "loglevel";
 import {Utils} from "../../common/utils";
+import {IconAmount, IconConverter} from "icon-sdk-js";
 
 @Injectable({
   providedIn: 'root'
@@ -34,7 +35,7 @@ export class VoteService {
 
     log.debug("getOmmTokenMinStakeAmount: ", res);
 
-    return Utils.hexE18ToNormalisedNumber(res);
+    return Utils.hexToNormalisedNumber(res);
   }
 
   /**
@@ -57,6 +58,43 @@ export class VoteService {
 
     // TODO mapping!
     return res;
+  }
+
+  /**
+   * @description Build Transaction for staking Omm Tokens
+   * **Note**: if the user tries to increase the stake, ”_value” should be previous staked balance + amount being additionally staked
+   * @return  Stake Omm Tokens transaction
+   */
+  private buildStakeOmmTx(amount: number): any {
+    this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
+
+    log.debug(`Stake Omm amount = ` + amount);
+    const decimals = 18;
+
+    const params = {
+      _value: IconConverter.toHex(IconAmount.of(amount, decimals).toLoop()),
+    };
+
+    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
+      this.persistenceService.allAddresses!.systemContract.OmmToken, ScoreMethodNames.STAKE_OMM, params, IconTransactionType.WRITE);
+  }
+
+  /**
+   * @description Build Transaction for un-staking Omm Tokens
+   * @return  Un-stake Omm Tokens transaction
+   */
+  private buildUnstakeOmmTx(amount: number): any {
+    this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
+
+    log.debug(`Un-stake Omm amount = ` + amount);
+    const decimals = 18;
+
+    const params = {
+      _value: IconConverter.toHex(IconAmount.of(amount, decimals).toLoop()),
+    };
+
+    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
+      this.persistenceService.allAddresses!.systemContract.OmmToken, ScoreMethodNames.UNSTAKE_OMM, params, IconTransactionType.WRITE);
   }
 
 
