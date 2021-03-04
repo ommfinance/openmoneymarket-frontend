@@ -17,10 +17,17 @@ export class CalculationsService {
   constructor(private persistenceService: PersistenceService,
               private stateChangeService: StateChangeService) { }
 
-  public calculateAssetSliderAvailableSupply(currentAssetSupplied: number, assetTag: AssetTag): number {
-    return (this.persistenceService.activeWallet?.balances.get(assetTag) ?? 0) +
-      ((this.persistenceService.getUserSuppliedAssetBalance(assetTag)) - currentAssetSupplied);
-  }
+  // public calculateAssetSliderAvailableSupply(assetTag: AssetTag, currentAssetSupplied?: number): number {
+  //   const assetBalance = this.persistenceService.activeWallet?.balances.get(assetTag) ?? 0;
+  //   let suppliedAssetBalance = this.persistenceService.getUserSuppliedAssetBalance(assetTag);
+  //
+  //   if (assetTag === AssetTag.ICX) {
+  //     suppliedAssetBalance = Utils.convertSICXToICX(suppliedAssetBalance, this.persistenceService.sIcxToIcxRate());
+  //   }
+  //
+  //   return assetBalance + suppliedAssetBalance - (currentAssetSupplied ? currentAssetSupplied : 0);
+  //
+  // }
 
   public calculateAssetSupplySliderMax(assetTag: AssetTag): number {
     let suppliedAssetBalance = this.persistenceService.getUserSuppliedAssetBalance(assetTag);
@@ -170,7 +177,13 @@ export class CalculationsService {
     // log.debug(`exchangePrice for ${assetTag} = ${exchangePrice}`);
 
     // return availableBorrowUSD / exchangePrice;
-    const res = availableBorrowUSD / exchangePrice;
+    let res = availableBorrowUSD / exchangePrice;
+
+    if (assetTag === AssetTag.ICX) {
+      // if asset is ICX converted calculated sICX max borrow in to ICX max borrow
+      res = Utils.convertSICXToICX(res, this.persistenceService.sIcxToIcxRate());
+    }
+
     // log.debug(`Available borrow for ${assetTag} is: availableBorrowUSD / exchangePrice = ${res}`);
     return res;
   }

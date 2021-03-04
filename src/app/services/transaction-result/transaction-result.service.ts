@@ -34,16 +34,15 @@ export class TransactionResultService {
 
     if (payload.result) {
       this.iconApiService.getTxResult(payload.result).then((res: any) => {
+        // reload all reserves and user specific data (reserve, account data, ..)
+        this.dataLoaderService.loadAllReserveData().then();
+        this.dataLoaderService.loadUserSpecificData();
+
         // success
         if (res.status === 1) {
           // show proper success notification
           this.showSuccessActionNotification(modalAction, assetAction);
-
-          // reload all reserves and user specific data (reserve, account data, ..)
-          this.dataLoaderService.loadAllReserveData().then();
-          this.dataLoaderService.loadUserSpecificData();
-        }
-        else {
+        } else {
           // show proper failed notification
           this.showFailedActionNotification(modalAction, assetAction);
           log.debug("Transaction failed! Details: ", res);
@@ -57,6 +56,10 @@ export class TransactionResultService {
         }
       });
     } else  {
+      // reload all reserves and user specific data (reserve, account data, ..)
+      this.dataLoaderService.loadAllReserveData().then();
+      this.dataLoaderService.loadUserSpecificData();
+
       log.error("ICON RPC ERROR: " + payload.error);
       this.showFailedActionNotification(modalAction, assetAction);
     }
@@ -68,14 +71,14 @@ export class TransactionResultService {
     const assetAction: AssetAction = modalAction.assetAction!;
 
     this.iconApiService.getTxResult(txHash).then((res: any) => {
+      // reload all reserves and user specific data (reserve, account data, ..)
+      this.dataLoaderService.loadAllReserveData().then();
+      this.dataLoaderService.loadUserSpecificData();
+
       // success
       if (res.status === 1) {
         // show proper success notification
         this.showSuccessActionNotification(modalAction, assetAction);
-
-        // reload all reserves and user specific data (reserve, account data, ..)
-        this.dataLoaderService.loadAllReserveData().then();
-        this.dataLoaderService.loadUserSpecificData();
       }
       else {
         // show proper failed notification
@@ -95,6 +98,10 @@ export class TransactionResultService {
   public processBridgeTransactionResult(event: any): void {
     const {txHash, error, status} = event.detail;
 
+    // reload all reserves and user asset-user reserve data
+    this.dataLoaderService.loadAllReserveData().then();
+    this.dataLoaderService.loadUserSpecificData();
+
     // get last modal action from localstorage
     const modalAction: ModalAction = this.localStorageService.getLastModalAction();
     const assetAction = modalAction.assetAction!;
@@ -103,10 +110,6 @@ export class TransactionResultService {
     if (status === 1) {
       // show proper success notification
       this.showSuccessActionNotification(modalAction, assetAction);
-
-      // reload all reserves and user asset-user reserve data
-      this.dataLoaderService.loadAllReserveData().then();
-      this.dataLoaderService.loadUserSpecificData();
     }
     else {
       log.debug("Bridge: transaction failed, details:", error);

@@ -197,7 +197,9 @@ export class ScoreService {
   }
 
   private async getIRC2TokenBalance(assetTag: AssetTag): Promise<number> {
-    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+    this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
+
+    const decimals = this.persistenceService.allReserves!.getReserveData(assetTag).decimals;
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.collateralAddress(assetTag),
       ScoreMethodNames.BALANCE, {
@@ -205,9 +207,9 @@ export class ScoreService {
       }, IconTransactionType.READ);
 
     const res = await this.iconApiService.iconService.call(tx).execute();
-    const balance = Utils.hexTo2DecimalRoundedOff(res);
+    const balance = Utils.hexToNormalisedNumber(res, decimals);
 
-    log.debug(`User ${assetTag} balance = ${balance}`);
+    log.debug(`User (${this.persistenceService.activeWallet!.address}) ${assetTag} balance = ${balance}`);
     this.stateChangeService.updateUserAssetBalance(balance, assetTag);
 
     return balance;

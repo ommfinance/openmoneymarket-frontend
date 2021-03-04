@@ -71,7 +71,7 @@ export class PersistenceService {
   }
 
   public sIcxToIcxRate(): number {
-    return this.getAssetReserveData(AssetTag.ICX)?.sICXRate ?? 0;
+    return this.getAssetReserveData(AssetTag.ICX)?.sICXRate ?? 1;
   }
 
   public getUserSuppliedAssetBalance(assetTag: AssetTag): number {

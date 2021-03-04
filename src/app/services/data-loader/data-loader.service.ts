@@ -101,6 +101,8 @@ export class DataLoaderService {
       });
       this.persistenceService.allReserves = newAllReserve;
       log.debug("loadAllReserves.allReserves after: ", this.persistenceService.allReserves);
+    }).catch(e => {
+      log.error("Error in loadAllReserveData: ", e);
     });
   }
 

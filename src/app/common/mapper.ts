@@ -13,18 +13,18 @@ export class Mapper {
     log.debug("mapUserReserve before: ", reserve);
     const res = new UserReserveData(
       Utils.hexToNormalisedNumber(reserve.borrowRate),
-      Utils.hexTo2DecimalRoundedOff(reserve.currentBorrowBalance, decimals),
-      Utils.hexTo2DecimalRoundedOff(reserve.currentBorrowBalanceUSD),
-      Utils.hexTo2DecimalRoundedOff(reserve.currentOTokenBalance, decimals),
-      Utils.hexTo2DecimalRoundedOff(reserve.currentOTokenBalanceUSD),
+      Utils.hexToNormalisedNumber(reserve.currentBorrowBalance, decimals),
+      Utils.hexToNormalisedNumber(reserve.currentBorrowBalanceUSD),
+      Utils.hexToNormalisedNumber(reserve.currentOTokenBalance, decimals),
+      Utils.hexToNormalisedNumber(reserve.currentOTokenBalanceUSD),
       Utils.hexToNormalisedNumber(reserve.exchangeRate),
       Utils.hexToNumber(reserve.lastUpdateTimestamp),
       Utils.hexToNormalisedNumber(reserve.liquidityRate),
       Utils.hexToNormalisedNumber(reserve.originationFee, decimals),
-      Utils.hexTo2DecimalRoundedOff(reserve.principalBorrowBalance, decimals),
-      Utils.hexTo2DecimalRoundedOff(reserve.principalBorrowBalanceUSD),
-      Utils.hexTo2DecimalRoundedOff(reserve.principalOTokenBalance, decimals),
-      Utils.hexTo2DecimalRoundedOff(reserve.principalOTokenBalanceUSD),
+      Utils.hexToNormalisedNumber(reserve.principalBorrowBalance, decimals),
+      Utils.hexToNormalisedNumber(reserve.principalBorrowBalanceUSD),
+      Utils.hexToNormalisedNumber(reserve.principalOTokenBalance, decimals),
+      Utils.hexToNormalisedNumber(reserve.principalOTokenBalanceUSD),
       Utils.hexToNumber(reserve.useAsCollateral),
       Utils.hexToNumber(reserve.userBorrowCumulativeIndex),
       Utils.hexToNumber(reserve.userLiquidityIndex),
@@ -37,13 +37,13 @@ export class Mapper {
   public static mapUserOmmRewards(ommRewards: OmmRewards): OmmRewards {
     log.debug("mapUserOmmRewards before: ", ommRewards);
     const res = new OmmRewards(
-      Utils.hexTo2DecimalRoundedOff(ommRewards.deposit),
-      Utils.hexTo2DecimalRoundedOff(ommRewards.borrow),
-      Utils.hexTo2DecimalRoundedOff(ommRewards.ommICX),
-      Utils.hexTo2DecimalRoundedOff(ommRewards.ommUSDb),
-      Utils.hexTo2DecimalRoundedOff(ommRewards.worker),
-      Utils.hexTo2DecimalRoundedOff(ommRewards.daoFund),
-      Utils.hexTo2DecimalRoundedOff(ommRewards.total)
+      Utils.hexToNormalisedNumber(ommRewards.deposit),
+      Utils.hexToNormalisedNumber(ommRewards.borrow),
+      Utils.hexToNormalisedNumber(ommRewards.ommICX),
+      Utils.hexToNormalisedNumber(ommRewards.ommUSDb),
+      Utils.hexToNormalisedNumber(ommRewards.worker),
+      Utils.hexToNormalisedNumber(ommRewards.daoFund),
+      Utils.hexToNormalisedNumber(ommRewards.total)
     );
     log.debug("mapUserOmmRewards after: ", res);
 
@@ -53,10 +53,10 @@ export class Mapper {
   public static mapUserOmmTokenBalanceDetails(ommTokenBalanceDetails: OmmTokenBalanceDetails): OmmTokenBalanceDetails {
     log.debug("mapUserOmmTokenBalanceDetails before: ", ommTokenBalanceDetails);
     const res = new OmmTokenBalanceDetails(
-      Utils.hexTo2DecimalRoundedOff(ommTokenBalanceDetails.totalBalance),
-      Utils.hexTo2DecimalRoundedOff(ommTokenBalanceDetails.availableBalance),
-      Utils.hexTo2DecimalRoundedOff(ommTokenBalanceDetails.stakedBalance),
-      Utils.hexTo2DecimalRoundedOff(ommTokenBalanceDetails.unstakingBalance),
+      Utils.hexToNormalisedNumber(ommTokenBalanceDetails.totalBalance),
+      Utils.hexToNormalisedNumber(ommTokenBalanceDetails.availableBalance),
+      Utils.hexToNormalisedNumber(ommTokenBalanceDetails.stakedBalance),
+      Utils.hexToNormalisedNumber(ommTokenBalanceDetails.unstakingBalance),
       Utils.hexToNumber(ommTokenBalanceDetails.unstakingTimeInMills)
     );
     log.debug("mapUserOmmTokenBalanceDetails after: ", res);
@@ -67,16 +67,16 @@ export class Mapper {
   public static mapUserAccountData(userAccountData: UserAccountData): UserAccountData {
     log.debug("mapUserAccountData before: ", userAccountData);
     const res = new UserAccountData(
-      Utils.hexTo2DecimalRoundedOff(userAccountData.availableBorrowsUSD),
-      Utils.hexTo2DecimalRoundedOff(userAccountData.borrowingPower),
+      Utils.hexToNormalisedNumber(userAccountData.availableBorrowsUSD),
+      Utils.hexToNormalisedNumber(userAccountData.borrowingPower),
       Utils.hexToNormalisedNumber(userAccountData.currentLiquidationThreshold),
       Utils.hexToNormalisedNumber(userAccountData.currentLtv),
       Utils.hexToNormalisedNumber(userAccountData.healthFactor),
       Utils.hexToNormalisedNumber(userAccountData.healthFactorBelowThreshold),
-      Utils.hexTo2DecimalRoundedOff(userAccountData.totalBorrowBalanceUSD),
-      Utils.hexTo2DecimalRoundedOff(userAccountData.totalCollateralBalanceUSD),
-      Utils.hexTo2DecimalRoundedOff(userAccountData.totalFeesUSD),
-      Utils.hexTo2DecimalRoundedOff(userAccountData.totalLiquidityBalanceUSD),
+      Utils.hexToNormalisedNumber(userAccountData.totalBorrowBalanceUSD),
+      Utils.hexToNormalisedNumber(userAccountData.totalCollateralBalanceUSD),
+      Utils.hexToNormalisedNumber(userAccountData.totalFeesUSD),
+      Utils.hexToNormalisedNumber(userAccountData.totalLiquidityBalanceUSD),
     );
     log.debug("mapUserAccountData after: ", res);
     return res;
@@ -86,12 +86,12 @@ export class Mapper {
     const decimals = Utils.hexToNumber(reserveData.decimals);
 
     return new ReserveData(
-      Utils.hexTo2DecimalRoundedOff(reserveData.totalLiquidity, decimals),
-      Utils.hexTo2DecimalRoundedOff(reserveData.availableLiquidity, decimals),
-      Utils.hexTo2DecimalRoundedOff(reserveData.totalLiquidityUSD),
-      Utils.hexTo2DecimalRoundedOff(reserveData.availableLiquidityUSD),
-      Utils.hexTo2DecimalRoundedOff(reserveData.totalBorrows, decimals),
-      Utils.hexTo2DecimalRoundedOff(reserveData.totalBorrowsUSD),
+      Utils.hexToNormalisedNumber(reserveData.totalLiquidity, decimals),
+      Utils.hexToNormalisedNumber(reserveData.availableLiquidity, decimals),
+      Utils.hexToNormalisedNumber(reserveData.totalLiquidityUSD),
+      Utils.hexToNormalisedNumber(reserveData.availableLiquidityUSD),
+      Utils.hexToNormalisedNumber(reserveData.totalBorrows, decimals),
+      Utils.hexToNormalisedNumber(reserveData.totalBorrowsUSD),
       Utils.hexToNormalisedNumber(reserveData.liquidityRate),
       Utils.hexToNormalisedNumber(reserveData.borrowRate),
       reserveData.oTokenAddress,

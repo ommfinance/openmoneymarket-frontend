@@ -86,6 +86,14 @@ export class Utils {
     }
   }
 
+  public static roundDownTo2Decimals(value: number | BigNumber | string): number {
+    if (value instanceof BigNumber) {
+      return +(value.toFixed(2, BigNumber.ROUND_DOWN));
+    } else {
+      return +(new BigNumber(value).toFixed(2, BigNumber.ROUND_DOWN));
+    }
+  }
+
   // conversion used for redeeming ICX
   public static convertICXValueTosICX(value: number, todayRate: number): number {
     return Utils.roundOffTo2Decimals(value / todayRate);
