@@ -351,4 +351,36 @@ export class CalculationsService {
     return (userSum / allUsersSum) * 0.25 * this.persistenceService.tokenDistributionPerDay;
   }
 
+  public getTotalAvgSupplyApy(): number {
+    let totalLiquidityUSDsum = 0;
+    let totalLiquidityUSDsupplyApySum = 0;
+
+    if (!this.persistenceService.allReserves) {
+      return 0;
+    }
+
+    Object.values(this.persistenceService.allReserves).forEach((property: ReserveData) => {
+      totalLiquidityUSDsum += property.totalLiquidityUSD;
+      totalLiquidityUSDsupplyApySum += property.totalLiquidityUSD * property.liquidityRate;
+    });
+
+    return totalLiquidityUSDsupplyApySum / totalLiquidityUSDsum;
+  }
+
+  public getTotalAvgBorrowApy(): number {
+    let totalBorrowUSDsum = 0;
+    let totalBorrowUSDsupplyApySum = 0;
+
+    if (!this.persistenceService.allReserves) {
+      return 0;
+    }
+
+    Object.values(this.persistenceService.allReserves).forEach((property: ReserveData) => {
+      totalBorrowUSDsum += property.totalBorrowsUSD;
+      totalBorrowUSDsupplyApySum += property.totalBorrowsUSD * property.borrowRate;
+    });
+
+    return totalBorrowUSDsupplyApySum / totalBorrowUSDsum;
+  }
+
 }

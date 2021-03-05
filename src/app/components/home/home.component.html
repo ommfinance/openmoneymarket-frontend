@@ -121,7 +121,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Total supply APY</dt>
-                  <dd class="text-green">{{to2DecimalRoundedDownPercentString(this.persistenceService.getAvgSupplyApy())}}</dd>
+                  <dd class="text-green">{{to2DecimalRoundedDownPercentString(this.calculationService.getTotalAvgSupplyApy())}}</dd>
                 </dl>
               </div>
             </div>
@@ -142,7 +142,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Total borrow APY</dt>
-                  <dd class="text-purple">{{to2DecimalRoundedDownPercentString(this.persistenceService.getAvgBorrowApy())}}</dd>
+                  <dd class="text-purple">{{to2DecimalRoundedDownPercentString(this.calculationService.getTotalAvgBorrowApy())}}</dd>
                 </dl>
               </div>
             </div>

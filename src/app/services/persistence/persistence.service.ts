@@ -193,34 +193,6 @@ export class PersistenceService {
     return counter === 0 || total === 0 ? 0 : total / counter;
   }
 
-  public getAvgSupplyApy(): number {
-    let counter = 0;
-    let total = 0;
-    if (!this.allReserves) {
-      return total;
-    }
-    Object.values(this.allReserves).forEach((property: ReserveData) => {
-      total += property.liquidityRate;
-      counter++;
-    });
-    return total / counter;
-  }
-
-  public getAvgBorrowApy(): number {
-    let counter = 0;
-    let total = 0;
-
-    if (!this.allReserves) {
-      return total;
-    }
-
-    Object.values(this.allReserves).forEach((property: ReserveData) => {
-      total += property.borrowRate;
-      counter++;
-    });
-    return total / counter;
-  }
-
   public getMySupplyApy(): number {
     let supplyApySum = 0;
     let supplySum = 0;
