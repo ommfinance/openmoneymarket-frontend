@@ -1,11 +1,11 @@
 <!-- All markets state -->
 <tr class="asset {{asset.className}} all" #assetEl (click)="onAssetClick()">
   <td>{{asset.name}}<br><span class="label">{{asset.tag}}</span></td>
-  <td><span>{{this.toDollarUSLocaleString(this.persistenceService.getAssetReserveData(asset.tag)?.totalLiquidityUSD)}}</span><br>
-    <span class="label">{{this.formatNumberToUSLocaleString(getTotalLiquidity())}} {{asset.tag}}</span></td>
+  <td><span>{{this.toDollarUSLocaleString(roundOffTo2Decimals(this.persistenceService.getAssetReserveData(asset.tag)?.totalLiquidityUSD))}}</span><br>
+    <span class="label">{{this.formatNumberToUSLocaleString(roundOffTo2Decimals(getTotalLiquidity()))}} {{asset.tag}}</span></td>
   <td class="text-green">{{to2DecimalRoundedDownPercentString(this.persistenceService.getAssetReserveData(asset.tag)?.liquidityRate)}}</td>
-  <td>{{this.toDollarUSLocaleString(this.persistenceService.getAssetReserveData(asset.tag)?.totalBorrowsUSD)}}<br>
-    <span class="label">{{this.formatNumberToUSLocaleString(getTotalBorrows())}} {{asset.tag}}</span></td>
+  <td>{{this.toDollarUSLocaleString(roundOffTo2Decimals(this.persistenceService.getAssetReserveData(asset.tag)?.totalBorrowsUSD))}}<br>
+    <span class="label">{{this.formatNumberToUSLocaleString(roundOffTo2Decimals(getTotalBorrows()))}} {{asset.tag}}</span></td>
   <td class="text-purple">{{to2DecimalRoundedDownPercentString(this.persistenceService.getAssetReserveData(asset.tag)?.borrowRate)}}</td>
 </tr>
 

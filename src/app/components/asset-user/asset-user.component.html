@@ -5,17 +5,17 @@
   <td>{{asset.name}}<br><span class="label">{{asset.tag}}</span></td>
 
   <ng-container *ngIf="!isAssetAvailable()">
-    <td><span class="value-supplied">{{this.toDollarUSLocaleString(this.persistenceService.getUserAssetReserve(asset.tag)?.currentOTokenBalanceUSD)}}</span><br>
+    <td><span class="value-supplied">{{this.toDollarUSLocaleString(roundOffTo2Decimals(this.persistenceService.getUserAssetReserve(asset.tag)?.currentOTokenBalanceUSD))}}</span><br>
       <span class="value-supplied label">{{this.formatNumberToUSLocaleString(getUserSuppliedAssetBalance())}} {{asset.tag}}</span></td>
     <td class="text-green">{{to2DecimalRoundedDownPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate)}}</td>
-    <td><span class="value-borrowed">{{this.toDollarUSLocaleString(this.persistenceService.getUserAssetReserve(asset.tag)?.currentBorrowBalanceUSD)}}</span><br>
+    <td><span class="value-borrowed">{{this.toDollarUSLocaleString(roundOffTo2Decimals(this.persistenceService.getUserAssetReserve(asset.tag)?.currentBorrowBalanceUSD))}}</span><br>
       <span class="value-borrowed label">{{this.formatNumberToUSLocaleString(getUserBorrowedAssetBalance())}} {{asset.tag}}</span></td>
     <td class="text-purple">{{to2DecimalRoundedDownPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.borrowRate)}}</td>
   </ng-container>
 
   <ng-container *ngIf="isAssetAvailable()">
-    <td colspan="2" class="text-right">{{this.toDollarUSLocaleString(getUserSuppliableBalanceUSD())}}
-      <br><span class="label">{{this.formatNumberToUSLocaleString(getUserSuppliableBalance())}} {{asset.tag}}</span></td>
+    <td colspan="2" class="text-right">{{this.toDollarUSLocaleString(roundOffTo2Decimals(getUserSuppliableBalanceUSD()))}}
+      <br><span class="label">{{this.formatNumberToUSLocaleString(roundOffTo2Decimals(getUserSuppliableBalance()))}} {{asset.tag}}</span></td>
     <td colspan="2" class="text-right"><span class="text-green">{{to2DecimalRoundedDownPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate)}} APY</span></td>
   </ng-container>
 
