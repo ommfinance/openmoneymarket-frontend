@@ -49,7 +49,7 @@ export class TransactionResultService {
         }
       }).catch(e => {
         if (e.includes('Pending')) {
-          setTimeout(this.processIconexTransactionResult.bind(this, payload), 2000);
+          setTimeout(() => this.processIconexTransactionResult(payload), 2000);
         } else {
           log.debug("Error in isTxConfirmed:", e);
           this.showFailedActionNotification(modalAction, assetAction);
@@ -88,7 +88,7 @@ export class TransactionResultService {
       }
     }).catch(e => {
       if (e.includes('Pending')) {
-        setTimeout(this.processIconTransactionResult.bind(this, txHash), 2000);
+        setTimeout(() => this.processIconTransactionResult(txHash), 2000);
       } else {
         log.debug("Error in isTxConfirmed:", e);
         this.showFailedActionNotification(modalAction, assetAction);
