@@ -329,10 +329,6 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   }
 
   collapseOtherAssetsTable(assetTag: any): void {
-    log.debug(`collapseOtherAssetsTable called from asset ${assetTag}`);
-    log.debug(this.userAssetComponents);
-    log.debug(this.userAvailableAssetComponents);
-
     this.userAssetComponents.forEach((userAssetComponent, index) => {
       if (userAssetComponent.asset.tag !== assetTag) {
         userAssetComponent.collapseAssetTableSlideUp();
