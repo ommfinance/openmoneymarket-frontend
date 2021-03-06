@@ -5,6 +5,7 @@ const { CallBuilder, CallTransactionBuilder, IcxTransactionBuilder,  } = IconBui
 import {environment} from "../../../environments/environment";
 import {IconTransactionType} from "../../models/IconTransactionType";
 import log from "loglevel";
+import {HttpClient} from "@angular/common/http";
 
 
 @Injectable({
@@ -15,13 +16,11 @@ export class IconApiService {
   public httpProvider;
   public iconService;
 
-  public stepCost = 200000000;
+  public stepCost = 20000000;
 
-  constructor() {
+  constructor(private http: HttpClient) {
     this.httpProvider = new IconService.HttpProvider(environment.iconRpcUrl);
     this.iconService = new IconService(this.httpProvider);
-
-    this.getDefaultStepCost().then(res => this.stepCost = res);
   }
 
   async getIcxBalance(address: string): Promise<number> {
@@ -36,16 +35,8 @@ export class IconApiService {
       return await this.iconService.getTransactionResult(txHash).execute();
   }
 
-  public async getDefaultStepCost(): Promise<number> {
-    // Get step costs by iconService.call
-    const callBuilder = new CallBuilder();
-    const call = callBuilder
-      .to(environment.GOVERNANCE_ADDRESS)
-      .method("getStepCosts")
-      .build();
-    const stepCosts = await this.iconService.call(call).execute();
-
-    return Math.max((parseInt(stepCosts.default, 16) * 200), 200000000);
+  public convertNumberToHex(value: number): string {
+    return IconConverter.toHex((IconConverter.toBigNumber(value)));
   }
 
 
@@ -56,7 +47,7 @@ export class IconApiService {
     const nonce = IconConverter.toHex(IconConverter.toBigNumber(1));
     const stepLimit = IconConverter.toHex((IconConverter.toBigNumber(this.stepCost)));
     const version = IconConverter.toHex((IconConverter.toBigNumber(3)));
-    const nid = IconConverter.toHex(IconConverter.toBigNumber(3));
+    const nid = IconConverter.toHex(IconConverter.toBigNumber(environment.NID));
     value = value ? IconConverter.toHex(IconAmount.of(value, IconAmount.Unit.ICX).toLoop()) : "0x0";
 
     switch (transactionType) {
@@ -101,6 +92,26 @@ export class IconApiService {
     }
 
     return tx;
+  }
+
+  public async estimateStepCost(tx: any): Promise<number | undefined> {
+    const estimateStepCostPromise =  this.http.post<number>(environment.iconDebugRpcUrl, {
+      jsonrpc: "2.0",
+      method: "debug_estimateStep",
+      id: 1234,
+      params: tx
+    }).toPromise();
+
+    try {
+      const res: any = await estimateStepCostPromise;
+      const estimatedStepCost = Utils.hexToNumber(res.result);
+      log.debug(`estimatedStepCost = ${estimatedStepCost}`);
+      return estimatedStepCost;
+    } catch (e) {
+      log.error("estimateStepCost error:");
+      log.error(e);
+      return undefined;
+    }
   }
 
   public async sendTransaction(signedTx: any): Promise<string> {

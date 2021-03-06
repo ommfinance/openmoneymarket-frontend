@@ -29,6 +29,12 @@ export class TransactionDispatcherService {
    * Method that dispatches the built tx to Icon network (through Iconex, Bridge or directly) and triggers the proper notification
    */
   async dispatchTransaction(tx: any, notificationMessage: string): Promise<void> {
+    const estimatedStepCost = await this.iconApiService.estimateStepCost(IconConverter.toRawTransaction(tx));
+
+    if (estimatedStepCost) {
+      tx.stepLimit = this.iconApiService.convertNumberToHex(estimatedStepCost * 2);
+    }
+
     if (this.persistenceService.activeWallet instanceof IconexWallet) {
       this.iconexApiService.dispatchSendTransactionEvent(tx);
       this.notificationService.showNewNotification(notificationMessage);

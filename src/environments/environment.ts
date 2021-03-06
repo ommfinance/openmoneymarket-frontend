@@ -5,10 +5,12 @@
 export const environment = {
   production: false,
   iconRpcUrl: "https://bicon.net.solidwallet.io/api/v3",
+  iconDebugRpcUrl: "https://bicon.net.solidwallet.io/api/debug/v3",
   ADDRESS_PROVIDER_SCORE: 'cx797bc63e7b27758816910cb35f0fa1f546b57c33',
   // testnet (1)
   ledgerBip32Path: "44'/4801368'/1'",
-  GOVERNANCE_ADDRESS: "cx0000000000000000000000000000000000000001"
+  GOVERNANCE_ADDRESS: "cx0000000000000000000000000000000000000001",
+  NID: 3
 };
 
 /*
