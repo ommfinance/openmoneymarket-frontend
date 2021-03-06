@@ -24,6 +24,7 @@ export class RepayService {
   }
 
   public repayAsset(amount: number, assetTag: AssetTag, notificationMessage: string): void {
+    amount = Utils.roundDownTo2Decimals(amount);
     const tx = this.buildRepayAssetTx(amount, assetTag);
 
     log.debug(`repay ${assetTag} TX: `, tx);

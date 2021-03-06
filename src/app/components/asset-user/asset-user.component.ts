@@ -283,14 +283,13 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     const supplyAmountDiff = Utils.roundDownTo2Decimals(value - currentlySupplied);
     log.debug(`supplyAmountDiff = ${supplyAmountDiff}`);
 
-    const before = currentlySupplied;
-    const after = before + supplyAmountDiff;
+    const after = Utils.roundDownTo2Decimals(currentlySupplied + supplyAmountDiff);
     const amount = Math.abs(supplyAmountDiff);
 
     if (supplyAmountDiff > 0) {
-      this.modalService.showNewModal(ModalType.SUPPLY, new AssetAction(this.asset, before , after, amount));
+      this.modalService.showNewModal(ModalType.SUPPLY, new AssetAction(this.asset, currentlySupplied, after, amount));
     } else if (supplyAmountDiff < 0) {
-      this.modalService.showNewModal(ModalType.WITHDRAW, new AssetAction(this.asset, before , after, amount));
+      this.modalService.showNewModal(ModalType.WITHDRAW, new AssetAction(this.asset, currentlySupplied, after, amount));
     } else {
       this.notificationService.showNewNotification("No change in supplied value.");
       return;
@@ -320,19 +319,18 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     const currentlyBorrowed = this.getUserBorrowedAssetBalance();
 
     // calculate the difference and fix to 2 decimals
-    const borrowAmountDiff = value - currentlyBorrowed;
+    const borrowAmountDiff = this.roundDownTo2Decimals(value - currentlyBorrowed);
     log.debug(`borrowAmountDiff: ${borrowAmountDiff}`);
 
-    const before = currentlyBorrowed;
-    const after = before + borrowAmountDiff;
+    const after = this.roundDownTo2Decimals(currentlyBorrowed + borrowAmountDiff);
     log.debug(`after: ${after}`);
 
     const amount = Math.abs(borrowAmountDiff);
 
     if (borrowAmountDiff > 0) {
-      this.modalService.showNewModal(ModalType.BORROW, new AssetAction(this.asset, before , after, amount));
+      this.modalService.showNewModal(ModalType.BORROW, new AssetAction(this.asset, currentlyBorrowed , after, amount));
     } else if (borrowAmountDiff < 0) {
-      this.modalService.showNewModal(ModalType.REPAY, new AssetAction(this.asset, before , after, amount));
+      this.modalService.showNewModal(ModalType.REPAY, new AssetAction(this.asset, currentlyBorrowed , after, amount));
     }  else {
       this.notificationService.showNewNotification("No change in borrowed value.");
       return;

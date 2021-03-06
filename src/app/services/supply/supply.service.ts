@@ -28,6 +28,7 @@ export class SupplyService {
 
   public supplyAsset(amount: number, assetTag: AssetTag, notificationMessage: string): void {
     let tx;
+    amount = Utils.roundDownTo2Decimals(amount);
 
     switch (assetTag) {
       case AssetTag.ICX:
@@ -60,8 +61,9 @@ export class SupplyService {
   }
 
   private buildDepositIcxTx(amount: number): any {
-    log.debug("Deposit ICX amount = " + amount);
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
+    log.debug("Deposit ICX amount = " + amount);
 
     const params = {
       _amount: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),

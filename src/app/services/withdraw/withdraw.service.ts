@@ -27,6 +27,7 @@ export class WithdrawService {
 
   public withdrawAsset(amount: number, assetTag: AssetTag, waitForUnstaking = false, notificationMessage: string): void {
     let tx;
+    amount = Utils.roundDownTo2Decimals(amount);
 
     switch (assetTag) {
       case AssetTag.ICX:
