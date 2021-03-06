@@ -175,6 +175,10 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
    * Asset expand logic
    */
   onAssetClick(): void {
+    // reset sliders
+    this.disableAndResetSupplySlider();
+    this.disableAndResetBorrowSlider();
+
     /** Layout */
 
     if (this.index === 0) {
@@ -203,15 +207,15 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     // Remove red border class on input
     this.removeInputRedBorderClass();
 
-    // reset sliders
-    this.disableAndResetSupplySlider();
-    this.disableAndResetBorrowSlider();
-
-    // Reset risk data
-    this.updateRiskData();
+    // Reset user asset sliders
+    this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag), true);
+    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag), true);
 
     // disable inputs
     this.disableInputs();
+
+    // Reset risk data
+    this.updateRiskData();
   }
 
   /**
@@ -496,8 +500,8 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
         $('.supply-risk-warning').css("display", "flex");
       } else {
         if ($(this.supplyEl).hasClass("adjust")) {
-          $(this.supplyAction1El).removeClass("hide");
-          $(this.supplyAction2El).addClass("hide");
+          $(this.supplyAction1El).addClass("hide");
+          $(this.supplyAction2El).removeClass("hide");
           $('.supply-risk-warning').css("display", "none");
         } else {
           $(this.supplyAction1El).removeClass("hide");
@@ -561,8 +565,8 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
         $('.borrow-risk-warning').css("display", "flex");
       } else {
         if ($(this.borrowEl).hasClass("adjust")) {
-          $(this.borrowAction1El).addClass("hide");
-          $(this.borrowAction2El).removeClass("hide");
+          $(this.borrowAction1El).removeClass("hide");
+          $(this.borrowAction2El).addClass("hide");
           $('.borrow-risk-warning').css("display", "none");
         } else {
           $(this.borrowAction1El).removeClass("hide");
@@ -618,6 +622,8 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       this.sliderSupply.noUiSlider.updateOptions({range: { min: 0, max: res }});
       this.sliderSupply.noUiSlider.set(res);
     }
+
+    this.sliderSupply.noUiSlider.set(res);
   }
 
   private setBorrowSliderValue(value: number, convert = false): void {
@@ -632,8 +638,9 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     // if value is greater than slider max, update the sliders max and set the value
     if (res > this.borrowSliderMaxValue()) {
       this.sliderBorrow.noUiSlider.updateOptions({range: { min: 0, max: res }});
-      this.sliderBorrow.noUiSlider.set(res);
     }
+
+    this.sliderBorrow.noUiSlider.set(res);
   }
 
   getUserSuppliedAssetBalance(): number {
