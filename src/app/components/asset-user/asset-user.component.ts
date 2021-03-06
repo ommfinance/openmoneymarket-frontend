@@ -233,7 +233,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
         this.inputSupply.classList.add("red-border");
       } else {
         // set slider to this value and reset border color if it passes the check
-        this.sliderSupply.noUiSlider.set(value);
+        this.setSupplySliderValue(value);
         this.inputSupply.classList.remove("red-border");
       }
     }
@@ -252,7 +252,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
         this.inputBorrow.classList.add("red-border");
       } else {
         // set slider to this value and reset border color if it passes the check
-        this.sliderBorrow.noUiSlider.set(value);
+        this.setBorrowSliderValue(value);
         this.inputBorrow.classList.remove("red-border");
       }
     }
@@ -264,6 +264,10 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
    */
   onAssetSupplyConfirmClick(): void {
     let value = +assetFormat(this.asset.tag).from(this.inputSupply.value);
+
+    log.debug("onAssetSupplyConfirmClick:");
+    log.debug(`Currently supplied (before): ${this.getUserSuppliedAssetBalance()}`);
+    log.debug(`Value: ${value}`);
 
     // check that supplied value is not greater than max
     const max = this.supplySliderMaxValue();
@@ -281,7 +285,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     const supplyAmountDiff = Utils.roundDownTo2Decimals(value - currentlySupplied);
     log.debug(`supplyAmountDiff = ${supplyAmountDiff}`);
 
-    const before = Utils.roundDownTo2Decimals(currentlySupplied);
+    const before = currentlySupplied;
     const after = Utils.roundDownTo2Decimals(before + supplyAmountDiff);
     const amount = Math.abs(supplyAmountDiff);
 
@@ -301,6 +305,10 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
   onAssetBorrowConfirmClick(): void {
     let value = +assetFormat(this.asset.tag).from(this.inputBorrow.value);
 
+    log.debug("onAssetBorrowConfirmClick:");
+    log.debug(`Currently borrowed (before): ${this.getUserBorrowedAssetBalance()}`);
+    log.debug(`Value: ${value}`);
+
     // check that borrowed value is not greater than max
     const max = this.borrowSliderMaxValue();
     if (value > max) {
@@ -315,9 +323,12 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
 
     // calculate the difference and fix to 2 decimals
     const borrowAmountDiff = Utils.roundDownTo2Decimals(value - currentlyBorrowed);
+    log.debug(`borrowAmountDiff: ${borrowAmountDiff}`);
 
-    const before = Utils.roundDownTo2Decimals(currentlyBorrowed);
+    const before = currentlyBorrowed;
     const after = Utils.roundDownTo2Decimals(before + borrowAmountDiff);
+    log.debug(`after: ${after}`);
+
     const amount = Math.abs(borrowAmountDiff);
 
     if (borrowAmountDiff > 0) {
@@ -375,7 +386,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     this.stateChangeService.userAccountDataChange.subscribe(userAccountData => {
       // set borrowed available value
       const borrowAvailable = this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag);
-      this.inputBorrowAvailable.value = assetFormat(this.asset.tag).to(borrowAvailable);
+      this.inputBorrowAvailable.value = assetFormat(this.asset.tag).to(this.roundDownTo2Decimals(borrowAvailable));
 
       // update asset borrow slider max value to  -> borrowed + borrow available
       const max = +assetFormat(this.asset.tag).from(this.inputBorrow.value) + borrowAvailable;
@@ -391,7 +402,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
 
       // update input supply available value to new users asset reserve balance
       const supplyAvailable = this.persistenceService.getUserAssetBalance(this.asset.tag);
-      this.inputSupplyAvailable.value = assetFormat(this.asset.tag).to(supplyAvailable);
+      this.inputSupplyAvailable.value = assetFormat(this.asset.tag).to(this.roundDownTo2Decimals(supplyAvailable));
 
       // update supply slider value
       this.setSupplySliderValue(reserve.currentOTokenBalance, true);
@@ -407,7 +418,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
 
       // set borrowed available value
       const borrowAvailable = this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag);
-      this.inputBorrowAvailable.value = assetFormat(this.asset.tag).to(borrowAvailable);
+      this.inputBorrowAvailable.value = assetFormat(this.asset.tag).to(this.roundDownTo2Decimals(borrowAvailable));
 
       // set borrow slider value
       this.setBorrowSliderValue(reserve.currentBorrowBalance, true);
@@ -429,7 +440,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       log.debug(`${this.asset.tag} balance changed to ${newBalance}`);
 
       if (this.sliderSupply) {
-        this.inputSupplyAvailable.value = assetFormat(this.asset.tag).to(newBalance);
+        this.inputSupplyAvailable.value = assetFormat(this.asset.tag).to(this.roundDownTo2Decimals(newBalance));
 
         const max = newBalance + this.getUserSuppliedAssetBalance();
         this.sliderSupply.noUiSlider.updateOptions({
@@ -456,9 +467,9 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
   initSupplySliderlogic(): void {
     // On asset-user supply slider update (Your markets)
     this.sliderSupply.noUiSlider.on('update', (values: any, handle: any) => {
-      const value = +values[handle];
+      const value = this.roundDownTo2Decimals(+values[handle]);
       // Update supplied text box
-      this.inputSupply.value = value;
+      this.inputSupply.value = this.roundDownTo2Decimals(value);
 
       // Update asset-user available text box
       this.inputSupplyAvailable.value = assetFormat(this.asset.tag).to(this.supplySliderMaxValue() - value);
@@ -509,9 +520,9 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
   initBorrowSliderLogic(): void {
     // On asset-user borrow slider update (Your markets)
     this.sliderBorrow.noUiSlider.on('update', (values: any, handle: any) => {
-      const value = +values[handle];
+      const value = this.roundDownTo2Decimals(+values[handle]);
       // Update asset-user borrowed text box
-      this.inputBorrow.value = value;
+      this.inputBorrow.value = this.roundDownTo2Decimals(value);
 
       // const convertedValue = this.convertSliderValue(value);
 
@@ -601,18 +612,20 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
   private setSupplySliderValue(value: number, convert = false): void {
     // if asset is ICX, convert sICX -> ICX
     if (convert && this.asset.tag === AssetTag.ICX) {
-      this.sliderSupply.noUiSlider.set(this.convertSICXToICX(value));
+      const icxValue = this.convertSICXToICX(value);
+      this.sliderSupply.noUiSlider.set(this.roundDownTo2Decimals(icxValue));
     } else {
-      this.sliderSupply.noUiSlider.set(value);
+      this.sliderSupply.noUiSlider.set(this.roundDownTo2Decimals(value));
     }
   }
 
   private setBorrowSliderValue(value: number, convert = false): void {
     // if asset is ICX, convert sICX -> ICX
     if (convert && this.asset.tag === AssetTag.ICX) {
-      this.sliderBorrow.noUiSlider.set(this.convertSICXToICX(value));
+      const icxValue = this.convertSICXToICX(value);
+      this.sliderBorrow.noUiSlider.set(this.roundDownTo2Decimals(icxValue));
     } else {
-      this.sliderBorrow.noUiSlider.set(value);
+      this.sliderBorrow.noUiSlider.set(this.roundDownTo2Decimals(value));
     }
   }
 
@@ -623,7 +636,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       res = this.convertSICXToICX(res);
     }
 
-    return res;
+    return this.roundDownTo2Decimals(res);
   }
 
   getUserBorrowedAssetBalance(): number {
@@ -633,7 +646,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       res = this.convertSICXToICX(res);
     }
 
-    return res;
+    return this.roundDownTo2Decimals(res);
   }
 
   getUserSuppliableBalanceUSD(): number {
@@ -673,18 +686,17 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
   }
 
   getMaxBorrowAvailable(suggestedMax: number): number {
-    // take either suggested on or asset totalSupplied - totalBorrowed
+    // take either suggested on or asset totalSupplied - totalBorrowed + currentBorrow
     const totalSupplied = this.persistenceService.getAssetReserveData(this.asset.tag)?.totalLiquidity ?? 0;
     const totalBorrowed = this.persistenceService.getAssetReserveData(this.asset.tag)?.totalBorrows ?? 0;
     const currentBorrow = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag) ?? 0;
-    const availTotalBorrow = totalSupplied - totalBorrowed + currentBorrow;
+    let availTotalBorrow = totalSupplied - totalBorrowed + currentBorrow;
 
-    log.debug(`Total available borrow for asset ${this.asset.tag} = ${availTotalBorrow}`);
     if (this.asset.tag === AssetTag.ICX) {
-      return this.convertSICXToICX(Math.min(suggestedMax, availTotalBorrow));
-    } else {
-      return Math.min(suggestedMax, availTotalBorrow);
+      availTotalBorrow = this.convertSICXToICX(availTotalBorrow);
     }
+
+    return Math.min(suggestedMax, availTotalBorrow);
   }
 
   collapseAssetTableSlideUp(): void {

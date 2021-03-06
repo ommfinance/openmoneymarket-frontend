@@ -39,6 +39,13 @@ export class BaseClass {
     return Utils.roundOffTo2Decimals(value);
   }
 
+  public roundDownTo2Decimals(value: number | BigNumber | string | undefined): number {
+    if (!value) {
+      return 0;
+    }
+    return Utils.roundDownTo2Decimals(value);
+  }
+
   // public toDollar2digitsStringOrZero(num?: number | string): string {
   //   if (!num || (+num) === 0) { return "$0"; }
   //   return `$${this.formatNumberToNdigits(num)}`;

@@ -60,7 +60,8 @@ export class TransactionResultService {
       this.dataLoaderService.loadAllReserveData().then();
       this.dataLoaderService.loadUserSpecificData();
 
-      log.error("ICON RPC ERROR: " + payload.error);
+      log.error(`ICON RPC ERROR details:`);
+      log.error(payload);
       this.showFailedActionNotification(modalAction, assetAction);
     }
   }

@@ -185,7 +185,7 @@ export class CalculationsService {
     }
 
     // log.debug(`Available borrow for ${assetTag} is: availableBorrowUSD / exchangePrice = ${res}`);
-    return res;
+    return Utils.roundDownTo2Decimals(res);
   }
 
   /**
