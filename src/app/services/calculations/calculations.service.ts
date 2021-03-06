@@ -36,7 +36,7 @@ export class CalculationsService {
       suppliedAssetBalance = Utils.convertSICXToICX(suppliedAssetBalance, this.persistenceService.sIcxToIcxRate());
     }
 
-    return suppliedAssetBalance + this.persistenceService.getUserAssetBalance(assetTag);
+    return Utils.roundDownTo2Decimals(suppliedAssetBalance + this.persistenceService.getUserAssetBalance(assetTag));
   }
 
   // calculate the total risk percentage based on the user health factor or user action

@@ -286,7 +286,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     log.debug(`supplyAmountDiff = ${supplyAmountDiff}`);
 
     const before = currentlySupplied;
-    const after = Utils.roundDownTo2Decimals(before + supplyAmountDiff);
+    const after = before + supplyAmountDiff;
     const amount = Math.abs(supplyAmountDiff);
 
     if (supplyAmountDiff > 0) {
@@ -322,11 +322,11 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     const currentlyBorrowed = this.getUserBorrowedAssetBalance();
 
     // calculate the difference and fix to 2 decimals
-    const borrowAmountDiff = Utils.roundDownTo2Decimals(value - currentlyBorrowed);
+    const borrowAmountDiff = value - currentlyBorrowed;
     log.debug(`borrowAmountDiff: ${borrowAmountDiff}`);
 
     const before = currentlyBorrowed;
-    const after = Utils.roundDownTo2Decimals(before + borrowAmountDiff);
+    const after = before + borrowAmountDiff;
     log.debug(`after: ${after}`);
 
     const amount = Math.abs(borrowAmountDiff);
