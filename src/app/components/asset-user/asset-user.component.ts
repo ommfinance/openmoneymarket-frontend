@@ -72,8 +72,6 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
   @ViewChild("borrRewards") set s(borrRewards: ElementRef) { this.borrRewardsEl = borrRewards.nativeElement; }
 
   @Output() collOtherAssetTables = new EventEmitter<AssetTag>();
-  @Output() disableAndResetSliders = new EventEmitter<undefined>();
-  @Output() disableAssetsInputs = new EventEmitter<undefined>();
 
   totalRisk = 0;
   sliderRisk: any;
@@ -105,8 +103,7 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
    */
   onAdjustCancelClick(): void {
     // Reset actions
-    $('.actions-2').addClass("hide");
-    $('.actions-1').removeClass("hide");
+    this.showDefaultActions();
 
     // Remove adjust
     this.removeAdjustClass();
@@ -201,23 +198,24 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
 
     /** Set everything to default */
 
+    // Show default actions
+    this.showDefaultActions();
+
     // Remove adjust class
     this.removeAdjustClass();
 
     // Remove red border class on input
     this.removeInputRedBorderClass();
 
-    // Show default actions
-    this.showDefaultActions();
+    // Reset user asset sliders
+    this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag), true);
+    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag), true);
 
-    // Disable and reset asset-user supply and borrow sliders (Your markets)
-    this.disableAndResetSliders.emit(undefined);
+    // disable inputs
+    this.disableInputs();
 
     // Reset risk data
     this.updateRiskData();
-
-    // Disable Asset inputs
-    this.disableAssetsInputs.emit(undefined);
   }
 
   /**

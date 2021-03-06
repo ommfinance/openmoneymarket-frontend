@@ -227,8 +227,7 @@
                                   [index]="i"
                                   [ngStyle]="hideElementOrDisplayContents(!userMarketViewActive())"
                                   (collOtherAssetTables)="collapseOtherAssetsTable($event)"
-                                  (disableAndResetSliders)="disableAndResetAssetsSupplyAndBorrowSliders()"
-                                  (disableAssetsInputs)="disableAssetsInputs()">
+                                  >
                   </app-asset-user>
                   <!-- Spacer -->
                   <tr *ngIf="!isLast || availableAssets.length > 0" class="spacer"></tr>
@@ -255,8 +254,7 @@
                                   [index]="i"
                                   [ngStyle]="hideElementOrDisplayContents(!userMarketViewActive())"
                                   (collOtherAssetTables)="collapseOtherAssetsTable($event)"
-                                  (disableAndResetSliders)="disableAndResetAssetsSupplyAndBorrowSliders()"
-                                  (disableAssetsInputs)="disableAssetsInputs()">
+                                  >
                   </app-asset-user>
                   <!-- Spacer -->
                   <tr *ngIf="!isLast" class="spacer"></tr>
