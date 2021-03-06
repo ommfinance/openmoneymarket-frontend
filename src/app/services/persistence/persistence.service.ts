@@ -33,6 +33,7 @@ export class PersistenceService {
   public userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
 
   public tokenDistributionPerDay = 1;
+  public loanOriginationFeePercentage = 0.001;
 
   constructor() {}
 

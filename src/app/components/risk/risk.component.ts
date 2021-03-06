@@ -92,7 +92,7 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
     // If risk over 100
     if (this.totalRisk > 0.99) {
       // Hide supply actions
-      $('.actions-2').addClass("display", "none");
+      $('.actions-2').addClass("hide");
       $('.value-risk-total').text("Max");
       $('.supply-risk-warning').css("display", "flex");
       $('.borrow-risk-warning').css("display", "flex");
@@ -101,7 +101,7 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
     }
 
     // If risk under 100
-    if (this.totalRisk < 0.99) {
+    if (this.totalRisk <= 0.99) {
 
       $('.supply-risk-warning').css("display", "none");
       $('.borrow-risk-warning').css("display", "none");

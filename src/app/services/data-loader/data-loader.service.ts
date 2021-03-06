@@ -187,6 +187,14 @@ export class DataLoaderService {
     });
   }
 
+  public loadLoanOriginationFeePercentage(): Promise<void> {
+    return this.scoreService.getLoanOriginationFeePercentage().then(res => {
+      this.persistenceService.loanOriginationFeePercentage = res;
+    }).catch(e => {
+      log.error("Error in loadLoanOriginationFeePercentage", e);
+    });
+  }
+
   public loadTokenDistributionPerDay(): Promise<void> {
     return this.scoreService.getTokenDistributionPerDay().then(res => {
       this.persistenceService.tokenDistributionPerDay = res;

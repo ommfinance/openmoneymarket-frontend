@@ -175,10 +175,6 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
    * Asset expand logic
    */
   onAssetClick(): void {
-    // reset sliders
-    this.disableAndResetSupplySlider();
-    this.disableAndResetBorrowSlider();
-
     /** Layout */
 
     if (this.index === 0) {
@@ -207,15 +203,15 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     // Remove red border class on input
     this.removeInputRedBorderClass();
 
-    // Reset user asset sliders
-    this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag), true);
-    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag), true);
-
-    // disable inputs
-    this.disableInputs();
+    // reset sliders
+    this.disableAndResetSupplySlider();
+    this.disableAndResetBorrowSlider();
 
     // Reset risk data
     this.updateRiskData();
+
+    // disable inputs
+    this.disableInputs();
   }
 
   /**
@@ -495,17 +491,18 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
 
       // if total risk over 100%
       if (totalRisk > 0.99) {
-        $(this.supplyAction2El).css("display", "none");
+        $(this.supplyAction2El).addClass("hide");
         $('.value-risk-total').text("Max");
         $('.supply-risk-warning').css("display", "flex");
       } else {
         if ($(this.supplyEl).hasClass("adjust")) {
-          $(this.supplyAction1El).css("display", "none");
-          $(this.supplyAction2El).css("display", "flex");
+          $(this.supplyAction1El).removeClass("hide");
+          $(this.supplyAction2El).addClass("hide");
           $('.supply-risk-warning').css("display", "none");
         } else {
-          $(this.supplyAction1El).css("display", "flex");
-          $(this.supplyAction2El).css("display", "none");
+          $(this.supplyAction1El).removeClass("hide");
+          $(this.supplyAction2El).addClass("hide");
+          $('.supply-risk-warning').css("display", "none");
         }
       }
 
@@ -521,7 +518,6 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
       const value = this.roundDownTo2Decimals(+values[handle]);
       // Update asset-user borrowed text box
       this.inputBorrow.value = this.roundDownTo2Decimals(value);
-
       // const convertedValue = this.convertSliderValue(value);
 
       // Update asset-user available text box
@@ -560,17 +556,18 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
 
       // if total risk over 100%
       if (totalRisk > 0.99) {
-        $(this.borrowAction2El).css("display", "none");
+        $(this.borrowAction2El).addClass("hide");
         $('.value-risk-total').text("Max");
-        $('.supply-risk-warning').css("display", "flex");
+        $('.borrow-risk-warning').css("display", "flex");
       } else {
         if ($(this.borrowEl).hasClass("adjust")) {
-          $(this.borrowAction1El).css("display", "none");
-          $(this.borrowAction2El).css("display", "flex");
-          $('.supply-risk-warning').css("display", "none");
+          $(this.borrowAction1El).addClass("hide");
+          $(this.borrowAction2El).removeClass("hide");
+          $('.borrow-risk-warning').css("display", "none");
         } else {
-          $(this.borrowAction1El).css("display", "flex");
-          $(this.borrowAction2El).css("display", "none");
+          $(this.borrowAction1El).removeClass("hide");
+          $(this.borrowAction2El).addClass("hide");
+          $('.borrow-risk-warning').css("display", "none");
         }
       }
 
@@ -608,22 +605,34 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
   }
 
   private setSupplySliderValue(value: number, convert = false): void {
+    let res: number;
     // if asset is ICX, convert sICX -> ICX
     if (convert && this.asset.tag === AssetTag.ICX) {
-      const icxValue = this.convertSICXToICX(value);
-      this.sliderSupply.noUiSlider.set(this.roundDownTo2Decimals(icxValue));
+      res = this.roundDownTo2Decimals(this.convertSICXToICX(value));
     } else {
-      this.sliderSupply.noUiSlider.set(this.roundDownTo2Decimals(value));
+      res = this.roundDownTo2Decimals(value);
+    }
+
+    // if value is greater than slider max, update the sliders max and set the value
+    if (res > this.supplySliderMaxValue()) {
+      this.sliderSupply.noUiSlider.updateOptions({range: { min: 0, max: res }});
+      this.sliderSupply.noUiSlider.set(res);
     }
   }
 
   private setBorrowSliderValue(value: number, convert = false): void {
+    let res: number;
     // if asset is ICX, convert sICX -> ICX
     if (convert && this.asset.tag === AssetTag.ICX) {
-      const icxValue = this.convertSICXToICX(value);
-      this.sliderBorrow.noUiSlider.set(this.roundDownTo2Decimals(icxValue));
+      res = this.roundDownTo2Decimals(this.convertSICXToICX(value));
     } else {
-      this.sliderBorrow.noUiSlider.set(this.roundDownTo2Decimals(value));
+      res = this.roundDownTo2Decimals(value);
+    }
+
+    // if value is greater than slider max, update the sliders max and set the value
+    if (res > this.borrowSliderMaxValue()) {
+      this.sliderBorrow.noUiSlider.updateOptions({range: { min: 0, max: res }});
+      this.sliderBorrow.noUiSlider.set(res);
     }
   }
 

@@ -122,6 +122,20 @@ export class ScoreService {
   }
 
   /**
+   * @description Get loan origination fee percentage
+   * @return number representing origination fee percentage
+   */
+  public async getLoanOriginationFeePercentage(): Promise<number> {
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
+      ScoreMethodNames.GET_LOAN_ORIGINATION_FEE_PERCENTAGE, {}, IconTransactionType.READ);
+
+    const loanOriginationFeePercentage = Utils.hexToNormalisedNumber(await this.iconApiService.iconService.call(tx).execute());
+    log.debug(`getLoanOriginationFeePercentage response: ${loanOriginationFeePercentage}`);
+
+    return loanOriginationFeePercentage;
+  }
+
+  /**
    * @description Get configuration data for the specific reserve
    * @param reserve - Address using 1 a  for USDb and sICX
    * @return reserve configuration data

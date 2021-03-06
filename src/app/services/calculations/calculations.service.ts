@@ -120,9 +120,10 @@ export class CalculationsService {
         case UserAction.BORROW:
           // if user takes out the loan (borrow) update the origination fee and add amount to the total borrow balance
           const originationFee = this.persistenceService.getUserAssetReserve(riskCalculationData.assetTag)?.originationFee ?? 0;
+          const originationFeePercentage = this.persistenceService.loanOriginationFeePercentage ?? 0.001;
           // log.debug(`originationFee=${originationFee}`);
           // log.debug(`amount being borrowed=${amount} ${riskCalculationData.assetTag}`);
-          totalFeeUSD += amount * assetExchangePrice * 0.001 + originationFee;
+          totalFeeUSD += amount * assetExchangePrice * originationFeePercentage + originationFee;
           totalBorrowBalanceUSD += amount * assetExchangePrice;
           break;
         case UserAction.REPAY:

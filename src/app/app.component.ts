@@ -47,6 +47,7 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
     this.dataLoaderService.loadAllReserveData();
     this.dataLoaderService.loadAllReservesConfigData();
     this.dataLoaderService.loadTokenDistributionPerDay();
+    this.dataLoaderService.loadLoanOriginationFeePercentage();
   }
 
   onBodyClick(e: any): void {
