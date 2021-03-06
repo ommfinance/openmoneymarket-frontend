@@ -565,8 +565,8 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
         $('.borrow-risk-warning').css("display", "flex");
       } else {
         if ($(this.borrowEl).hasClass("adjust")) {
-          $(this.borrowAction1El).removeClass("hide");
-          $(this.borrowAction2El).addClass("hide");
+          $(this.borrowAction1El).addClass("hide");
+          $(this.borrowAction2El).removeClass("hide");
           $('.borrow-risk-warning').css("display", "none");
         } else {
           $(this.borrowAction1El).removeClass("hide");
