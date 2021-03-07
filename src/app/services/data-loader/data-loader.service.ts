@@ -201,6 +201,12 @@ export class DataLoaderService {
     });
   }
 
+  public afterUserActionReload(): void {
+    // reload all reserves and user asset-user reserve data
+    this.loadAllReserveData().then();
+    this.loadUserSpecificData();
+  }
+
   public loadUserSpecificData(): void {
     this.loadAllUserAssetReserveData().then();
     this.loadAllUserAssetsBalances();

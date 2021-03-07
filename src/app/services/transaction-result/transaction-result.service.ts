@@ -25,18 +25,15 @@ export class TransactionResultService {
     window.addEventListener("bri.tx.result", (e) => this.processBridgeTransactionResult(e));
   }
 
-  public processIconexTransactionResult(payload: IconJsonRpcResponse): void {
-    log.debug("processIconexTransactionResult -> payload: ", payload);
-
+  public processIconexTransactionResult(payload: IconJsonRpcResponse, maxRetry: number = 5): void {
     // get last modal action from localstorage
     const modalAction: ModalAction = this.localStorageService.getLastModalAction();
     const assetAction: AssetAction = modalAction.assetAction!;
 
     if (payload.result) {
-      this.iconApiService.getTxResult(payload.result).then((res: any) => {
+      this.iconApiService.getTxResult(payload.result).then(res => {
         // reload all reserves and user specific data (reserve, account data, ..)
-        this.dataLoaderService.loadAllReserveData().then();
-        this.dataLoaderService.loadUserSpecificData();
+        this.dataLoaderService.afterUserActionReload();
 
         // success
         if (res.status === 1) {
@@ -48,17 +45,18 @@ export class TransactionResultService {
           log.debug("Transaction failed! Details: ", res);
         }
       }).catch(e => {
-        if (e.includes('Pending')) {
-          setTimeout(() => this.processIconexTransactionResult(payload), 2000);
+        if (maxRetry > 0) {
+          setTimeout( () => this.processIconexTransactionResult(payload, maxRetry - 1), 2200);
         } else {
           log.debug("Error in isTxConfirmed:", e);
           this.showFailedActionNotification(modalAction, assetAction);
+          // reload all reserves and user specific data (reserve, account data, ..)
+          this.dataLoaderService.afterUserActionReload();
         }
       });
     } else  {
       // reload all reserves and user specific data (reserve, account data, ..)
-      this.dataLoaderService.loadAllReserveData().then();
-      this.dataLoaderService.loadUserSpecificData();
+      this.dataLoaderService.afterUserActionReload();
 
       log.error(`ICON RPC ERROR details:`);
       log.error(payload);
@@ -66,30 +64,31 @@ export class TransactionResultService {
     }
   }
 
-  processIconTransactionResult(txHash: string): void {
+  processIconTransactionResult(txHash: string, maxRetry: number = 5): void {
     // get last modal action from localstorage
     const modalAction: ModalAction = this.localStorageService.getLastModalAction();
     const assetAction: AssetAction = modalAction.assetAction!;
 
     this.iconApiService.getTxResult(txHash).then((res: any) => {
       // reload all reserves and user specific data (reserve, account data, ..)
-      this.dataLoaderService.loadAllReserveData().then();
-      this.dataLoaderService.loadUserSpecificData();
+      this.dataLoaderService.afterUserActionReload();
 
       // success
       if (res.status === 1) {
         // show proper success notification
         this.showSuccessActionNotification(modalAction, assetAction);
-      }
-      else {
+      } else {
         // show proper failed notification
         this.showFailedActionNotification(modalAction, assetAction);
         log.debug("Transaction failed! Details: ", res);
       }
     }).catch(e => {
-      if (e.includes('Pending')) {
-        setTimeout(() => this.processIconTransactionResult(txHash), 2000);
+      if (maxRetry > 0) {
+        setTimeout(() => this.processIconTransactionResult(txHash, maxRetry - 1), 2200);
       } else {
+        // reload all reserves and user specific data (reserve, account data, ..)
+        this.dataLoaderService.afterUserActionReload();
+
         log.debug("Error in isTxConfirmed:", e);
         this.showFailedActionNotification(modalAction, assetAction);
       }
@@ -99,9 +98,8 @@ export class TransactionResultService {
   public processBridgeTransactionResult(event: any): void {
     const {txHash, error, status} = event.detail;
 
-    // reload all reserves and user asset-user reserve data
-    this.dataLoaderService.loadAllReserveData().then();
-    this.dataLoaderService.loadUserSpecificData();
+    // reload all reserves and user specific data (reserve, account data, ..)
+    this.dataLoaderService.afterUserActionReload();
 
     // get last modal action from localstorage
     const modalAction: ModalAction = this.localStorageService.getLastModalAction();

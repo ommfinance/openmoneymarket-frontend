@@ -32,7 +32,7 @@ export class TransactionDispatcherService {
     const estimatedStepCost = await this.iconApiService.estimateStepCost(IconConverter.toRawTransaction(tx));
 
     if (estimatedStepCost) {
-      tx.stepLimit = this.iconApiService.convertNumberToHex(estimatedStepCost * 2);
+      tx.stepLimit = this.iconApiService.convertNumberToHex(Math.round(estimatedStepCost * 1.1));
     }
 
     if (this.persistenceService.activeWallet instanceof IconexWallet) {
