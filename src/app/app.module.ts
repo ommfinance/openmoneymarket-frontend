@@ -17,10 +17,8 @@ import {environment} from "../environments/environment";
 import log from "loglevel";
 import { AssetMarketComponent } from './components/asset-market/asset-market.component';
 import { VoteComponent } from './components/vote/vote.component';
-import {BridgeWallet} from "./models/wallets/BridgeWallet";
-import {LedgerWallet} from "./models/wallets/LedgerWallet";
-import {IconexWallet} from "./models/wallets/IconexWallet";
 import { MainComponent } from './components/main/main.component';
+import {HttpClientModule} from "@angular/common/http";
 // set logging level
 log.setLevel(environment.production ? "error" : "debug");
 
@@ -43,7 +41,8 @@ log.setLevel(environment.production ? "error" : "debug");
     AppRoutingModule,
     FormsModule,
     CoreModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent],
