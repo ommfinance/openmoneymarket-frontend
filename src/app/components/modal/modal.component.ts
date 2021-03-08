@@ -140,8 +140,12 @@ export class ModalComponent extends BaseClass implements OnInit {
     this.modalService.hideActiveModal();
   }
 
-  isNotSupply(): boolean {
-    return this.activeModalChange?.modalType !== ModalType.SUPPLY;
+  riskGreaterThanZero(): boolean {
+    if (this.activeModalChange?.assetAction?.risk) {
+      return this.activeModalChange.assetAction.risk > 0
+    } else {
+      return false;
+    }
   }
 
   isIcxWithdraw(activeModalChange: ModalAction): boolean {
@@ -150,6 +154,10 @@ export class ModalComponent extends BaseClass implements OnInit {
 
   isBorrow(): boolean {
     return this.activeModalChange?.modalType === ModalType.BORROW;
+  }
+
+  isIconSupply(): boolean {
+    return this.activeModalChange?.modalType === ModalType.SUPPLY && this.activeModalChange.assetAction?.asset.tag === AssetTag.ICX;
   }
 
   isWithdrawIcxModal(): boolean {
@@ -197,6 +205,52 @@ export class ModalComponent extends BaseClass implements OnInit {
         break;
       default:
         throw new OmmError(`Invalid modal type: ${this.activeModalChange?.modalType}`);
+
+        // TODO!!!
+        // <!-- Notification: Votes processing -->
+      //   <div class="panel notification">
+      //     <p>Allocating votes...</p>
+      // </div>
+      //
+      // <!-- Notification: Votes succeded -->
+      // <div class="panel notification">
+      //   <p>Votes allocated.</p>
+      // </div>
+      //
+      // <!-- Notification: Votes failed -->
+      // <div class="panel notification">
+      //   <p>Couldn't allocate your votes. Try again.</p>
+      // </div>
+      //
+      // <!-- Notification: Stake processing -->
+      // <div class="panel notification">
+      //   <p>Staking Omm Tokens...</p>
+      // </div>
+      //
+      // <!-- Notification: Stake succeded -->
+      // <div class="panel notification">
+      //   <p>50 OMM staked.</p>
+      // </div>
+      //
+      // <!-- Notification: Stake failed -->
+      // <div class="panel notification">
+      //   <p>Couldn't stake Omm Tokens. Try again.</p>
+      // </div>
+      //
+      // <!-- Notification: Unstaking processing -->
+      // <div class="panel notification">
+      //   <p>Starting unstaking process...</p>
+      // </div>
+      //
+      // <!-- Notification: Unstaking succeded -->
+      // <div class="panel notification">
+      //   <p>50 OMM unstaking.</p>
+      // </div>
+      //
+      // <!-- Notification: Unstaking failed -->
+      // <div class="panel notification">
+      //   <p>Couldn't unstake Omm Tokens. Try again.</p>
+      // </div>
     }
 
     // commit modal action change

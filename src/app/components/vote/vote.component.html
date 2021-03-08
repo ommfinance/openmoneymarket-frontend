@@ -73,6 +73,20 @@
                   </div>
                 </div>
 
+                <!-- Actions to show if already staked -->
+                <div class="grid grid-center actions-default hide">
+                  <div class="grid-cell text-center">
+                    <a href="#" class="button">Adjust stake</a>
+                  </div>
+                </div>
+
+                <!-- Actions to show if max staked -->
+                <div class="grid grid-center actions-default hide">
+                  <div class="grid-cell text-center">
+                    <a href="#" class="button">Unstake Omm Tokens</a>
+                  </div>
+                </div>
+
                 <!-- Actions to show when adjust class is active -->
                 <div class="grid grid-center actions-adjust">
                   <div class="grid-cell text-right">
@@ -90,6 +104,9 @@
                   <dt>Your stake</dt>
                   <dd><span class="value-omm-stake-amount">0</span> / 150 OMM</dd>
                 </dl>
+
+                <!-- Message (If unstaking) -->
+                <p class="label hide" style="margin-top: 5px;">43 OMM unstaking</p>
               </div>
             </div>
           </div>
@@ -199,14 +216,14 @@
             <!-- Actions to show by default -->
             <div class="grid grid-center actions-default">
               <div class="grid-cell text-center">
-                <a href="javascript:void(0);" id="vote-adjust" class="button" (click)="onAdjustVoteClick()">Adjust votes</a>
+                <a href="javascript:void(0);" id="vote-adjust" class="button" (click)="onAdjustVoteClick()">Adjust P-Reps</a>
               </div>
             </div>
 
             <!-- Actions to show when adjust class is active -->
             <div class="grid grid-center actions-adjust">
               <div class="grid-cell text-right">
-                <a href="javascript:void(0);" id="vote-adjust-cancel" class="cancel" (click)="onDiscardAdjustVotesClick()">Discard</a>
+                <a href="javascript:void(0);" id="vote-adjust-cancel" class="cancel" (click)="onDiscardAdjustVotesClick()">Cancel</a>
               </div>
               <div class="grid-cell text-left">
                 <a href="javascript:void(0);" class="button modal-trigger" data-modal="modal-add-preps" (click)="onConfirmAddPrepClick()">Save</a>
@@ -224,6 +241,10 @@
         <div class="grid grid-center title">
           <div class="grid-cell">
             <h2>P-Reps</h2>
+            <span id="p-rep-tooltip" class="tooltip">
+									<span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+									<div class="tooltip-content"><p>Public representatives operate nodes that keep the ICON Network – Omm's foundation – online. Many also contribute time and resources to build products and utilities, much like this one.</p></div>
+								</span>
           </div>
           <div class="grid-cell text-right">
             <input type="text" name="" class="search" placeholder="Search P-Reps" [(ngModel)]="searchInput" (change)="onSearchInputChange()">

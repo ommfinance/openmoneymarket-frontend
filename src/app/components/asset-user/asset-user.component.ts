@@ -285,11 +285,12 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
 
     const after = Utils.roundDownTo2Decimals(currentlySupplied + supplyAmountDiff);
     const amount = Math.abs(supplyAmountDiff);
+    const risk = this.getCurrentDynamicRisk();
 
     if (supplyAmountDiff > 0) {
-      this.modalService.showNewModal(ModalType.SUPPLY, new AssetAction(this.asset, currentlySupplied, after, amount));
+      this.modalService.showNewModal(ModalType.SUPPLY, new AssetAction(this.asset, currentlySupplied, after, amount, risk));
     } else if (supplyAmountDiff < 0) {
-      this.modalService.showNewModal(ModalType.WITHDRAW, new AssetAction(this.asset, currentlySupplied, after, amount));
+      this.modalService.showNewModal(ModalType.WITHDRAW, new AssetAction(this.asset, currentlySupplied, after, amount, risk));
     } else {
       this.notificationService.showNewNotification("No change in supplied value.");
       return;
@@ -326,11 +327,12 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     log.debug(`after: ${after}`);
 
     const amount = Math.abs(borrowAmountDiff);
+    const risk = this.getCurrentDynamicRisk();
 
     if (borrowAmountDiff > 0) {
-      this.modalService.showNewModal(ModalType.BORROW, new AssetAction(this.asset, currentlyBorrowed , after, amount));
+      this.modalService.showNewModal(ModalType.BORROW, new AssetAction(this.asset, currentlyBorrowed , after, amount, risk));
     } else if (borrowAmountDiff < 0) {
-      this.modalService.showNewModal(ModalType.REPAY, new AssetAction(this.asset, currentlyBorrowed , after, amount));
+      this.modalService.showNewModal(ModalType.REPAY, new AssetAction(this.asset, currentlyBorrowed , after, amount, risk));
     }  else {
       this.notificationService.showNewNotification("No change in borrowed value.");
       return;
@@ -600,6 +602,10 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     if (totalRisk < 0.75) {
       valueRiskTotal.removeClass("alert");
     }
+  }
+
+  getCurrentDynamicRisk(): number {
+    return +percentageFormat.from($('.value-risk-total').text());
   }
 
   private convertSICXToICXIfAssetIsICX(value: number): number {

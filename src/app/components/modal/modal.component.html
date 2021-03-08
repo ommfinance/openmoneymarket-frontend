@@ -92,7 +92,7 @@
 <div class="modal" id="modal-add-preps" #addPrep>
   <div class="modal-content">
     <!-- Title -->
-    <h3 class="text-center label">Confirm P-Rep selection?</h3>
+    <h3 class="text-center label">Vote for these P-Reps ?</h3>
 
     <!-- Your P-Rep list -->
     <ul>
@@ -104,7 +104,7 @@
     <!-- Modal actions -->
     <div class="modal-actions">
       <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Cancel</a>
-      <a href="javascript:void(0);" class="button">Confirm</a>
+      <a href="javascript:void(0);" class="button">Vote</a>
     </div>
   </div>
 </div>
@@ -116,12 +116,12 @@
     <h3 class="text-center label">Remove votes from all P-Reps?</h3>
 
     <!-- Message -->
-    <p class="text-center">Your votes will be spread across the top 100 P-Reps.</p>
+    <p class="text-center" style="font-size: 16px;">Your votes will be spread across the top 100 P-Reps.</p>
 
     <!-- Modal actions -->
     <div class="modal-actions">
       <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Cancel</a>
-      <a href="javascript:void(0);" class="button">Remove</a>
+      <a href="javascript:void(0);" class="button">Remove votes</a>
     </div>
   </div>
 </div>
@@ -166,10 +166,10 @@
       </div>
     </div>
 
+    <p class="label text-center {{isIconSupply() ? '': 'hide'}}" style="margin-top: 15px;">Your icx will be staked as sICX.</p>
 
-    <p class="label text-center {{isNotSupply() ? '': 'hide'}}" style="margin-top: 25px;">Risk: <span class="value-risk-total" style="font-size: 14px !important;"
+    <p class="label text-center {{riskGreaterThanZero() ? '': 'hide'}}" style="margin-top: 25px;">Risk: <span class="value-risk-total" style="font-size: 14px !important;"
     >{{this.activeModalChange?.assetAction?.risk}}%</span></p>
-
 
     <!-- Modal actions -->
     <div class="modal-actions">
@@ -212,7 +212,7 @@
         <label class="for-checkbox-tools" for="tool-2">
           <img src="assets/img/icon/clock.svg" class="svg">
           <br>
-          <span class="text-bold">Wait 9 days</span>
+          <span class="text-bold">Wait ~9 days</span>
           <br>
           <span>{{roundOffTo2Decimals(getBeforeAfterDiff())}} ICX</span>
         </label>
@@ -235,5 +235,63 @@
       <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Cancel</a>
       <a href="javascript:void(0);" class="button" (click)="onAssetModalActionClick()">Withdraw</a>
     </div>
+  </div>
+</div>
+
+<!-- Modal: Ledger wallet -->
+<div class="modal" id="modal-sign-in-ledger">
+  <div class="modal-content">
+    <!-- Title -->
+    <h3 class="text-center label">Choose a Ledger wallet:</h3>
+
+    <!-- Ledger wallets -->
+    <table>
+      <tbody>
+      <tr>
+        <td>hx28c08b2...2240bc3</td>
+        <td class="text-right">100,200 ICX</td>
+      </tr>
+      <tr>
+        <td>hx37y28k6...7659ds1</td>
+        <td class="text-right">1,200 ICX</td>
+      </tr>
+      <tr>
+        <td>hx28c08b2...2240bc3</td>
+        <td class="text-right">500 ICX</td>
+      </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <ul class="pagination">
+      <li class="active">1</li>
+      <li>2</li>
+      <li>3</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Modal: Liquidated -->
+<div class="modal" id="modal-liquidated">
+  <div class="modal-content">
+    <!-- Title -->
+    <h3 class="text-center label">Your position was liquidated</h3>
+    <p class="text-bold text-center">-1,984 ICX</p>
+
+    <!-- When / Value -->
+    <div class="grid before-after">
+      <div class="grid-cell text-center border-right">
+        <p class="label">When</p>
+        <p class="text-dark">March 1<br><span class="label">09:48</span></p>
+      </div>
+
+      <div class="grid-cell text-center">
+        <p class="label">Value</p>
+        <p class="text-dark">$2,500</p>
+      </div>
+    </div>
+
+    <!-- Modal actions -->
+    <p class="text-center"><a href="#" class="button">Close</a></p>
   </div>
 </div>

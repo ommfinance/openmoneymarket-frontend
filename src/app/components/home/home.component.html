@@ -188,17 +188,29 @@
                 <tr id="your-markets-header" [ngStyle]="hideElement(shouldHideYourMarketHeader())">
                   <th>Asset</th>
                   <th>You've supplied</th>
-                  <th>Supply APY</th>
+                  <th>Supply APY <span class="supply-apy-tooltip tooltip">
+													<span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+													<div class="tooltip-content"><p>The amount of interest you’ll earn if you supply an asset for 1 year. Rates vary based on supply and demand.</p></div>
+												</span></th>
                   <th>You've borrowed</th>
-                  <th>Borrow APY</th>
+                  <th>Borrow APY <span class="borrow-apy-tooltip tooltip">
+													<span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+													<div class="tooltip-content"><p>The amount of interest you’ll lose from your supply if you borrow an asset for 1 year. Rates vary based on supply and demand.</p></div>
+												</span></th>
                 </tr>
 
                 <tr id="all-markets-header" [ngStyle]="hideElement(!allMarketViewActive())">
                   <th>Asset</th>
                   <th>Total supplied</th>
-                  <th>Supply APY</th>
+                  <th>Supply APY <span class="supply-apy-tooltip tooltip">
+													<span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+													<div class="tooltip-content"><p>The amount of interest you’ll earn if you supply an asset for 1 year. Rates vary based on supply and demand.</p></div>
+												</span></th>
                   <th>Total borrowed</th>
-                  <th>Borrow APY</th>
+                  <th>Borrow APY <span class="borrow-apy-tooltip tooltip">
+													<span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+													<div class="tooltip-content"><p>The amount of interest you’ll lose from your supply if you borrow an asset for 1 year. Rates vary based on supply and demand.</p></div>
+												</span></th>
                 </tr>
               </thead>
               <tbody>
