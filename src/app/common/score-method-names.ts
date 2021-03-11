@@ -55,4 +55,8 @@ export class ScoreMethodNames {
    */
   public static GET_TODAY_RATE = "getTodayRate";
 
+  /**
+   * IISS APIs
+   */
+  public static GET_PREPS = "getPReps";
 }

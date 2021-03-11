@@ -9,6 +9,9 @@ import {IconTransactionType} from "../../models/IconTransactionType";
 import log from "loglevel";
 import {Utils} from "../../common/utils";
 import {IconAmount, IconConverter} from "icon-sdk-js";
+import {environment} from "../../../environments/environment";
+import {Mapper} from "../../common/mapper";
+import {PrepList} from "../../models/Preps";
 
 @Injectable({
   providedIn: 'root'
@@ -58,6 +61,24 @@ export class VoteService {
 
     // TODO mapping!
     return res;
+  }
+
+  /**
+   * @description Get list of PReps
+   * @return  Returns the status of all registered P-Rep candidates in descending order by delegated ICX amount
+   */
+  public async getListOfPreps(startRanking: number = 1, endRanking: number = 22): Promise<PrepList> {
+    const params = {
+      startRanking: IconConverter.toHex(startRanking),
+      endRanking: IconConverter.toHex(endRanking)
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  environment.IISS_API,
+      ScoreMethodNames.GET_PREPS, params, IconTransactionType.READ);
+
+    const prepList = await this.iconApiService.iconService.call(tx).execute();
+
+    return Mapper.mapPrepList(prepList);
   }
 
   /**

@@ -180,6 +180,7 @@ export class DataLoaderService {
       this.errorService.deregisterError(ErrorCode.USER_OMM_TOKEN_BALANCE_DETAILS);
 
       this.persistenceService.userOmmTokenBalanceDetails = Mapper.mapUserOmmTokenBalanceDetails(res);
+      log.debug("User Omm Token Balance Details: ", this.persistenceService.userOmmTokenBalanceDetails);
       this.stateChangeService.updateUserOmmTokenBalanceDetails(this.persistenceService.userOmmTokenBalanceDetails);
     }).catch((e: any) => {
       this.errorService.registerErrorForResolve(ErrorCode.USER_OMM_TOKEN_BALANCE_DETAILS, () => this.loadUserOmmTokenBalanceDetails());

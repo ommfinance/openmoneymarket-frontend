@@ -1,5 +1,4 @@
 import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {Earnings, Prep, Votes} from "../../models/Prep";
 import {BaseClass} from "../base-class";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {normalFormat} from "../../common/formats";
@@ -8,6 +7,9 @@ import {ModalService} from "../../services/modal/modal.service";
 import log from "loglevel";
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
+import {VoteService} from "../../services/vote/vote.service";
+import {Prep, PrepList} from "../../models/Preps";
+import {CalculationsService} from "../../services/calculations/calculations.service";
 
 declare var noUiSlider: any;
 declare var wNumb: any;
@@ -20,8 +22,9 @@ declare var $: any;
 })
 export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
-  preps: Prep[] = [];
+  prepList?: PrepList;
 
+  searchedPrepList?: PrepList;
   searchInput = "";
 
   @ViewChild("sliderStake")set sliderStakeSetter(sliderStake: ElementRef) {this.sliderStake = sliderStake.nativeElement; }
@@ -30,37 +33,68 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   @ViewChild("ommStk")set ommStakeAmountSetter(ommStake: ElementRef) {this.ommStakeAmount = ommStake.nativeElement; }
   private ommStakeAmount?: any;
 
-  staked = 0;
-  maxStake = 0;
+  userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
 
   constructor(public persistenceService: PersistenceService,
               private modalService: ModalService,
-              private stateChangeService: StateChangeService) {
+              private stateChangeService: StateChangeService,
+              private voteService: VoteService,
+              public calculationsService: CalculationsService) {
     super(persistenceService);
-
-    // mock list TODO use real
-    for (let i = 0; i < 22; i++) {
-      this.preps.push(new Prep("ICX_Station", new Earnings(19145, 47555), new Votes(5.77, 19132308)));
-    }
+    this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails;
   }
 
   ngOnInit(): void {
+    this.loadPrepList();
     this.subscribeToOmmTokenBalanceChange();
   }
 
   ngAfterViewInit(): void {
+    this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails;
     this.initStakeSlider();
   }
 
   private subscribeToOmmTokenBalanceChange(): void {
     this.stateChangeService.userOmmTokenBalanceDetailsChange.subscribe((res: OmmTokenBalanceDetails) => {
-      this.staked = res.stakedBalance;
-      this.maxStake = res.availableBalance;
+      this.userOmmTokenBalanceDetails = res;
+
+      // sliders max is sum of staked + available balance
+      const sliderMax = res.stakedBalance + res.availableBalance;
+      this.sliderStake.noUiSlider.updateOptions({
+        range: { min: 0, max: sliderMax > 0 ? sliderMax : 1 }
+      });
+
+      // assign staked balance to the current slider value
+      this.sliderStake.noUiSlider.set(res.stakedBalance);
     });
   }
 
-  onSearchInputChange(): void {
-    // TODO
+  onSearchInputChange(searchInput: string): void {
+    log.debug("this.searchInput = ", searchInput);
+    this.searchInput = searchInput;
+
+    if (this.searchInput.trim() === "") {
+      log.debug("this.searchInput.trim() === ");
+      this.searchedPrepList = this.prepList;
+
+      log.debug(`searchedPrepList:`);
+      log.debug(this.searchedPrepList);
+    } else {
+      if (this.prepList) {
+        this.searchedPrepList = new PrepList(this.prepList.totalDelegated, this.prepList.totalStake, []);
+        const searchedPreps: Prep[] = [];
+
+        this.prepList?.preps.forEach(prep => {
+          if (prep.name.toLowerCase().includes(this.searchInput)) {
+            searchedPreps.push(prep);
+          }
+        });
+
+        if (this.searchedPrepList) {
+          this.searchedPrepList.preps = searchedPreps;
+        }
+      }
+    }
   }
 
   initStakeSlider(): void {
@@ -140,6 +174,16 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   onConfirmRemovePrepClick(): void {
     this.modalService.showNewModal(ModalType.REMOVE_PREP_SELECTION);
+  }
+
+  private loadPrepList(): void {
+    this.voteService.getListOfPreps().then(prepList => {
+      this.prepList = prepList;
+      this.searchedPrepList = prepList;
+    }).catch(e => {
+      log.error("Failed to load prep list... Details:");
+      log.error(e);
+    });
   }
 
 }

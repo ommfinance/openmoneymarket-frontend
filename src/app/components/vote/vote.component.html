@@ -49,7 +49,7 @@
           <div class="grid-cell text-center">
             <dl class="metadata">
               <dt>Your stake</dt>
-              <dd><span class="value-omm-stake-amount" #ommStk>{{staked}}</span> / {{maxStake}} OMM</dd>
+              <dd><span class="value-omm-stake-amount" #ommStk>{{userOmmTokenBalanceDetails?.stakedBalance}}</span> / {{userOmmTokenBalanceDetails?.availableBalance}} OMM</dd>
             </dl>
           </div>
         </div>
@@ -185,14 +185,18 @@
     <div class="grid grid-center title">
       <div class="grid-cell">
         <h2>P-Reps</h2>
+        <span id="p-rep-tooltip" class="tooltip">
+          <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+          <div class="tooltip-content"><p>Public representatives operate nodes that keep the ICON Network – Omm's foundation – online. Many also contribute time and resources to build products and utilities, much like this one.</p></div>
+        </span>
       </div>
       <div class="grid-cell text-right">
-        <input type="text" name="" class="search" placeholder="Search P-Reps" [(ngModel)]="searchInput" (change)="onSearchInputChange()">
+        <input type="text" name="" class="search" placeholder="Search P-Reps" [ngModel]="searchInput" (ngModelChange)="onSearchInputChange($event)">
       </div>
     </div>
 
     <!-- P-Rep list -->
-    <div class="grid">
+    <div class="grid" *ngIf="searchedPrepList">
       <div class="grid-cell">
         <table class="list p-reps">
           <thead>
@@ -210,7 +214,7 @@
           </tr>
           </thead>
           <tbody>
-            <ng-container *ngFor="let prep of preps; last as isLast; let i = index">
+            <ng-container *ngFor="let prep of searchedPrepList.preps; last as isLast; let i = index">
               <!-- Prep -->
               <tr>
                 <td>{{i + 1}}</td>
@@ -225,8 +229,9 @@
                     </div>
                   </div>
                 </td>
-                <td>${{formatNumberToUSLocaleString(prep.earnings.USD)}}<br><span class="label">{{formatNumberToUSLocaleString(prep.earnings.ICX)}} ICX</span></td>
-                <td>{{prep.votes.percent}}%<br><span class="label">{{formatNumberToUSLocaleString(prep.votes.amount)}}</span></td>
+                <td>${{formatNumberToUSLocaleString(calculationsService.calculatePrepsIcxReward(prep, searchedPrepList) * persistenceService.getAssetExchangePrice(AssetTag.ICX))}}<br>
+                  <span class="label">{{formatNumberToUSLocaleString(calculationsService.calculatePrepsIcxReward(prep, searchedPrepList))}} ICX</span></td>
+                <td>{{to2DecimalRoundedDownPercentString(prep!.delegated / searchedPrepList!.totalDelegated)}}<br><span class="label">{{formatNumberToUSLocaleString(prep!.delegated)}}</span></td>
               </tr>
               <!-- Spacer -->
               <tr *ngIf="!isLast" class="spacer"></tr>
