@@ -46,12 +46,23 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.loadPrepList();
+    this.subscribeToLoginChange();
     this.subscribeToOmmTokenBalanceChange();
   }
 
   ngAfterViewInit(): void {
     this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails;
     this.initStakeSlider();
+  }
+
+  private subscribeToLoginChange(): void {
+    this.stateChangeService.loginChange.subscribe(wallet => {
+      if (wallet) { // user logged in
+        this.loadUserDelegationDetails();
+      } else {
+        // user logged out
+      }
+    });
   }
 
   private subscribeToOmmTokenBalanceChange(): void {
@@ -150,12 +161,14 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   onAdjustVoteClick(): void {
     // Add "adjust" class
     $("#your-votes").addClass('adjust');
+    $(".list.p-reps").addClass('adjust');
   }
 
   // On "Discard adjust votes" click
   onDiscardAdjustVotesClick(): void {
     // Remove "adjust" class
     $("#your-votes").removeClass('adjust');
+    $(".list.p-reps").removeClass('adjust');
   }
 
   onConfirmStakeClick(): void {
@@ -184,6 +197,15 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       log.error("Failed to load prep list... Details:");
       log.error(e);
     });
+  }
+
+  private loadUserDelegationDetails(): void {
+    this.voteService.getUserDelegationDetails().then(delegationDetails => {
+
+    }).catch(e => {
+      log.error("Failed to load user delegation details:");
+      log.error(e);
+    })
   }
 
 }

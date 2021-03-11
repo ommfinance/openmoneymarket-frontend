@@ -49,6 +49,7 @@ export class ScoreMethodNames {
    * Delegation SCORE
    */
   public static GET_USER_DELEGATION_DETAILS = "getUserDelegationDetails";
+  public static UPDATE_DELEGATIONS = "updateDelegations";
 
   /**
    * Staking SCORE
