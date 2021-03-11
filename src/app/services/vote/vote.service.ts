@@ -12,6 +12,7 @@ import {IconAmount, IconConverter} from "icon-sdk-js";
 import {environment} from "../../../environments/environment";
 import {Mapper} from "../../common/mapper";
 import {PrepList} from "../../models/Preps";
+import {DelegationPreference} from "../../models/DelegationPreference";
 
 @Injectable({
   providedIn: 'root'
@@ -49,7 +50,7 @@ export class VoteService {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const params = {
-      _user: this.persistenceService.activeWallet!
+      _user: this.persistenceService.activeWallet!.address
     };
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Delegation,
@@ -58,6 +59,37 @@ export class VoteService {
     const res = await this.iconApiService.iconService.call(tx).execute();
 
     log.debug("getUserDelegationDetails: ", res);
+
+    // TODO mapping!
+    return res;
+  }
+
+  /**
+   * @description Update user delegation preferences
+   * @return  TODO
+   */
+  public async updateUserDelegationPreferences(delegationPreferences: DelegationPreference[]): Promise<number> {
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
+    const delegations: {_address: string, _votes_in_per: string}[] = [];
+
+    delegationPreferences.forEach(delegationPreference => {
+      delegations.push({
+        _address: delegationPreference._address,
+        _votes_in_per: IconConverter.toHex(IconAmount.of(delegationPreference._votes_in_per, 18).toLoop())});
+    });
+
+    const params = {
+      _delegations: delegations
+    };
+
+    const tx = this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
+      this.persistenceService.allAddresses!.systemContract.Delegation,
+      ScoreMethodNames.UPDATE_DELEGATIONS, params, IconTransactionType.WRITE);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("updateUserDelegationPreferences: ", res);
 
     // TODO mapping!
     return res;
