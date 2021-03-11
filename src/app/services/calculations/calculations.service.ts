@@ -7,6 +7,7 @@ import {UserAction} from "../../models/UserAction";
 import {ReserveData} from "../../models/AllReservesData";
 import {StateChangeService} from "../state-change/state-change.service";
 import {Utils} from "../../common/utils";
+import {Prep, PrepList} from "../../models/Preps";
 
 @Injectable({
   providedIn: 'root'
@@ -382,6 +383,16 @@ export class CalculationsService {
     });
 
     return totalBorrowUSDsupplyApySum / totalBorrowUSDsum;
+  }
+
+  public calculatePrepsIcxReward(prep: Prep, prepList: PrepList): number {
+    const blockValidationRewards = prep.irep / 2;
+
+    const delegationRate = prep.delegated / prepList.totalDelegated;
+
+    const representativeRewards = prep.irep / 2 * 100 * delegationRate;
+
+    return blockValidationRewards + representativeRewards;
   }
 
 }

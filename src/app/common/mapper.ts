@@ -6,6 +6,7 @@ import log from "loglevel";
 import {ReserveConfigData} from "../models/ReserveConfigData";
 import {OmmRewards} from "../models/OmmRewards";
 import {OmmTokenBalanceDetails} from "../models/OmmTokenBalanceDetails";
+import {Prep, PrepList} from "../models/Preps";
 
 export class Mapper {
 
@@ -122,5 +123,31 @@ export class Mapper {
       Utils.hexToNumber(reserveConfigData.borrowingEnabled),
       Utils.hexToNumber(reserveConfigData.isActive)
     );
+  }
+
+  public static mapPrepList(prepList: PrepList): PrepList {
+    log.debug("prepList before: ", prepList);
+
+    const preps: Prep[] = [];
+
+    prepList.preps.forEach(prep => {
+      preps.push(new Prep(
+        prep.address,
+        prep.name,
+        Utils.hexToNormalisedNumber(prep.stake),
+        Utils.hexToNormalisedNumber(prep.delegated),
+        Utils.hexToNormalisedNumber(prep.irep),
+      ));
+    });
+
+    const res = new PrepList(
+      Utils.hexToNormalisedNumber(prepList.totalDelegated),
+      Utils.hexToNormalisedNumber(prepList.totalStake),
+      preps
+    );
+
+    log.debug("prepList after: ", res);
+
+    return res;
   }
 }
