@@ -239,7 +239,7 @@
 </div>
 
 <!-- Modal: Ledger wallet -->
-<div class="modal" id="modal-sign-in-ledger">
+<div class="modal" id="modal-sign-in-ledger" #ledgerAddressList>
   <div class="modal-content">
     <!-- Title -->
     <h3 class="text-center label">Choose a Ledger wallet:</h3>
@@ -247,26 +247,20 @@
     <!-- Ledger wallets -->
     <table>
       <tbody>
-      <tr>
-        <td>hx28c08b2...2240bc3</td>
-        <td class="text-right">100,200 ICX</td>
-      </tr>
-      <tr>
-        <td>hx37y28k6...7659ds1</td>
-        <td class="text-right">1,200 ICX</td>
-      </tr>
-      <tr>
-        <td>hx28c08b2...2240bc3</td>
-        <td class="text-right">500 ICX</td>
-      </tr>
+      <ng-container *ngFor="let wallet of ledgerWallets; let i = index">
+        <tr (click)="onSelectLedgerAddressClick(wallet)">
+          <td>{{formatIconAddressToShort(wallet.address)}}</td>
+          <td class="text-right">{{this.toDollarUSLocaleString(wallet.balances.get(AssetTag.ICX), true)}} ICX</td>
+        </tr>
+      </ng-container>
       </tbody>
     </table>
 
     <!-- Pagination -->
     <ul class="pagination">
-      <li class="active">1</li>
-      <li>2</li>
-      <li>3</li>
+      <ng-container *ngFor="let i of [1,2,3,4,5]">
+        <li class="{{i === ledgerAddressPage ? 'active' : ''}}">{{i}}</li>
+      </ng-container>
     </ul>
   </div>
 </div>

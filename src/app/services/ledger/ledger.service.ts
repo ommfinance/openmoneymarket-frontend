@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 // @ts-ignore
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import log from "loglevel";
@@ -7,8 +7,9 @@ import {Icx} from "../../libs/hw-app-icx/Icx";
 import {NotificationService} from "../notification/notification.service";
 import {environment} from "../../../environments/environment";
 import {PersistenceService} from "../persistence/persistence.service";
-import {IconConverter } from "icon-sdk-js";
 import {LedgerWallet} from "../../models/wallets/LedgerWallet";
+import {AssetTag} from "../../models/Asset";
+import {IconApiService} from "../icon-api/icon-api.service";
 
 
 @Injectable({
@@ -22,7 +23,8 @@ export class LedgerService {
 
   constructor(
     private notificationService: NotificationService,
-    private persistenceService: PersistenceService
+    private persistenceService: PersistenceService,
+    private iconApiService: IconApiService
     ) { }
 
   async signIn(): Promise<LedgerIcxBaseData | undefined> {
@@ -64,7 +66,12 @@ export class LedgerService {
       for (let i = index * this.LIST_NUM; i < index * this.LIST_NUM + this.LIST_NUM; i++) {
         const path = `${environment.ledgerBip32Path}/0'/${i}'`;
         const { address } = await icx.getAddress(path, false, true);
-        walletList.push(new LedgerWallet(address, path));
+
+        const wallet = new LedgerWallet(address, path);
+        const icxBalance = await this.iconApiService.getIcxBalance(address);
+        wallet.balances.set(AssetTag.ICX, icxBalance);
+
+        walletList.push(wallet);
       }
 
       return walletList;

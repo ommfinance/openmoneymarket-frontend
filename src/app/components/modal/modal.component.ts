@@ -40,6 +40,7 @@ export class ModalComponent extends BaseClass implements OnInit {
   @ViewChild('assetActionModal', { static: true }) assetActionModal!: ElementRef;
   @ViewChild('iconWithdrawModal', { static: true }) iconWithdrawModal!: ElementRef;
   @ViewChild('claimOmmRewardsModal', { static: true }) claimOmmRewardsModal!: ElementRef;
+  @ViewChild('ledgerAddressList', { static: true }) LedgerAddressListModal!: ElementRef;
 
 
   activeModalSubscription: Subscription;
@@ -47,6 +48,9 @@ export class ModalComponent extends BaseClass implements OnInit {
   activeModalChange?: ModalAction;
 
   withdrawOption = "unstake";
+
+  ledgerAddressPage = 1;
+  ledgerWallets: LedgerWallet[] = [];
 
   constructor(private modalService: ModalService,
               private iconexApiService: IconexApiService,
@@ -101,7 +105,7 @@ export class ModalComponent extends BaseClass implements OnInit {
   ngOnInit(): void {
   }
 
-  private setActiveModal(htmlElement: any, activeModalChange: ModalAction): void {
+  private setActiveModal(htmlElement: any, activeModalChange?: ModalAction): void {
     this.activeModal = htmlElement;
     this.activeModalChange = activeModalChange;
   }
@@ -118,12 +122,35 @@ export class ModalComponent extends BaseClass implements OnInit {
 
   onSignInLedgerClick(): void {
     this.modalService.hideActiveModal();
-    this.ledgerService.signIn().then(res => {
-      this.dataLoaderService.walletLogin(new LedgerWallet(res!.address));
+    this.ledgerAddressPage = 1;
+
+    this.fetchLedgerWallets()
+  }
+
+  onSelectLedgerAddressClick(wallet: LedgerWallet): void {
+    this.modalService.hideActiveModal();
+    this.dataLoaderService.walletLogin(wallet);
+  }
+
+  onLedgerAddressNextPageClick(page: number): void {
+    this.ledgerAddressPage = page;
+    this.fetchLedgerWallets()
+  }
+
+  fetchLedgerWallets(): void {
+    this.ledgerService.getLedgerWallets(this.ledgerAddressPage).then(wallets => {
+      this.ledgerWallets = wallets;
+      this.setActiveModal(this.LedgerAddressListModal.nativeElement, undefined);
+      this.modalService.showModal(this.activeModal);
     }).catch(e => {
       log.error(e);
-      this.notificationService.showNewNotification("Can not connect to Ledger device. Make sure it is connected and try again.");
+      this.notificationService.showNewNotification("Can not get Icon addresses from Ledger device. Make sure it is connected and try again.");
     });
+  }
+
+  formatIconAddressToShort(address: string): string {
+    const length = address.length
+    return address.substring(0, 9) + "..." + address.substring(length - 7, length);
   }
 
   onClaimOmmRewardsClick(): void {

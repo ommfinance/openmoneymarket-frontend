@@ -60,8 +60,8 @@ export class BaseClass {
     }
   }
 
-  public toDollarUSLocaleString(num?: number | string): string {
-    if (!num || (+num) === 0) { return "-"; }
+  public toDollarUSLocaleString(num?: number | string, defaultZero = false): string {
+    if (!num || (+num) === 0) { return defaultZero ? "0" : "-"; }
     return `$${this.formatNumberToUSLocaleString(num)}`;
   }
 
