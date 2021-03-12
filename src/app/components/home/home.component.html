@@ -133,55 +133,43 @@
       </div>
     </div>
 
-        <!-- Markets list -->
-        <div class="grid">
-          <div class="grid-cell">
-            <table class="list markets">
-              <thead>
-                <tr id="your-markets-header" [ngStyle]="hideElement(shouldHideYourMarketHeader())">
-                  <th>Asset</th>
-                  <th>You've supplied</th>
-                  <th>Supply APY <span class="supply-apy-tooltip tooltip">
-													<span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
-													<div class="tooltip-content"><p>The amount of interest you’ll earn if you supply an asset for 1 year. Rates vary based on supply and demand.</p></div>
-												</span></th>
-                  <th>You've borrowed</th>
-                  <th>Borrow APY <span class="borrow-apy-tooltip tooltip">
-													<span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
-													<div class="tooltip-content"><p>The amount of interest you’ll lose from your supply if you borrow an asset for 1 year. Rates vary based on supply and demand.</p></div>
-												</span></th>
-                </tr>
+    <!-- Markets list -->
+    <div class="grid">
+      <div class="grid-cell">
+        <table class="list markets">
+          <thead>
+            <tr id="your-markets-header" [ngStyle]="hideElement(shouldHideYourMarketHeader())">
+              <th>Asset</th>
+              <th>You've supplied</th>
+              <th>Supply APY</th>
+              <th>You've borrowed</th>
+              <th>Borrow APY</th>
+            </tr>
 
-                <tr id="all-markets-header" [ngStyle]="hideElement(!allMarketViewActive())">
-                  <th>Asset</th>
-                  <th>Total supplied</th>
-                  <th>Supply APY <span class="supply-apy-tooltip tooltip">
-													<span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
-													<div class="tooltip-content"><p>The amount of interest you’ll earn if you supply an asset for 1 year. Rates vary based on supply and demand.</p></div>
-												</span></th>
-                  <th>Total borrowed</th>
-                  <th>Borrow APY <span class="borrow-apy-tooltip tooltip">
-													<span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
-													<div class="tooltip-content"><p>The amount of interest you’ll lose from your supply if you borrow an asset for 1 year. Rates vary based on supply and demand.</p></div>
-												</span></th>
-                </tr>
-              </thead>
-              <tbody>
+            <tr id="all-markets-header" [ngStyle]="hideElement(!allMarketViewActive())">
+              <th>Asset</th>
+              <th>Total supplied</th>
+              <th>Supply APY</th>
+              <th>Total borrowed</th>
+              <th>Borrow APY</th>
+            </tr>
+          </thead>
+          <tbody>
 
-              <!-- Market Assets -->
-              <ng-container *ngIf="allMarketViewActive()">
-                <ng-container *ngFor="let a of marketAssets; last as isLast; let i = index">
-                  <!-- Asset (USDb, ICX, ..) -->
-                  <app-asset-market [asset]="a" #marketAsset
-                                    [index]="i"
-                                    (collOtherAssetTables)="collapseOtherAssetsTable($event)"
-                                    [ngStyle]="hideElementOrDisplayContents(!allMarketViewActive())">
+          <!-- Market Assets -->
+          <ng-container *ngIf="allMarketViewActive()">
+            <ng-container *ngFor="let a of marketAssets; last as isLast; let i = index">
+              <!-- Asset (USDb, ICX, ..) -->
+              <app-asset-market [asset]="a" #marketAsset
+                                [index]="i"
+                                (collOtherAssetTables)="collapseOtherAssetsTable($event)"
+                                [ngStyle]="hideElementOrDisplayContents(!allMarketViewActive())">
 
-                  </app-asset-market>
-                  <!-- Spacer -->
-                  <tr *ngIf="!isLast" class="spacer"></tr>
-                </ng-container>
-              </ng-container>
+              </app-asset-market>
+              <!-- Spacer -->
+              <tr *ngIf="!isLast" class="spacer"></tr>
+            </ng-container>
+          </ng-container>
 
 
               <!-- User Assets (hide if user market view is not active) -->
@@ -199,19 +187,19 @@
                 </ng-container>
               </ng-container>
 
-              <!-- User available Assets (hide if user market view is not active) -->
-              <ng-container *ngIf="userMarketViewActive() && availableAssets.length > 0">
+          <!-- User available Assets (hide if user market view is not active) -->
+          <ng-container *ngIf="userMarketViewActive() && availableAssets.length > 0">
 
-                <!-- Available to supply -->
-                <tr class="available-to-supply" #availSplitter>
-                  <td colspan="5">
-                    <div class="grid">
-                      <div class="grid-cell">
-                        <p class="separator-full text-center"><span>Available to supply</span></p>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
+            <!-- Available to supply -->
+            <tr class="available-to-supply" #availSplitter>
+              <td colspan="5">
+                <div class="grid">
+                  <div class="grid-cell">
+                    <p class="separator-full text-center"><span>Available to supply</span></p>
+                  </div>
+                </div>
+              </td>
+            </tr>
 
                 <ng-container *ngFor="let asset of availableAssets; last as isLast; let i = index">
                   <!-- Asset (USDb, ICX, ..) -->
@@ -226,17 +214,17 @@
                 </ng-container>
               </ng-container>
 
-              </tbody>
-            </table>
+          </tbody>
+        </table>
 
-            <!-- If no assets available message bridge wallet -->
-            <div id="message-no-asset-bridge" class="grid"
-                 [ngStyle]="hideElement(allMarketViewActive() || !this.persistenceService.userLoggedIn() || !noActiveOrAvailableAsset())">
-              <div class="grid-cell">
-                <p class="label text-center">You have no assets available to supply.</p>
-                <p class="text-center" style="margin-top: 15px;"><a href="javascript:void(0);" class="button" (click)="onDepositUSDClick()">Deposit USD</a></p>
-              </div>
-            </div>
+        <!-- If no assets available message bridge wallet -->
+        <div id="message-no-asset-bridge" class="grid"
+             [ngStyle]="hideElement(allMarketViewActive() || !this.persistenceService.userLoggedIn() || !noActiveOrAvailableAsset())">
+          <div class="grid-cell">
+            <p class="label text-center">You have no assets available to supply.</p>
+            <p class="text-center" style="margin-top: 15px;"><a href="javascript:void(0);" class="button" (click)="onDepositUSDClick()">Deposit USD</a></p>
+          </div>
+        </div>
 
       </div>
     </div>
