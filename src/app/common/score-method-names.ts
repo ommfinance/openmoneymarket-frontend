@@ -55,6 +55,7 @@ export class ScoreMethodNames {
    * Staking SCORE
    */
   public static GET_TODAY_RATE = "getTodayRate";
+  public static GET_PREP_TOP_LIST = "getTopList";
 
   /**
    * IISS APIs

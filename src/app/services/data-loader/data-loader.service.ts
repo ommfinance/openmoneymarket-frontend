@@ -196,6 +196,15 @@ export class DataLoaderService {
     });
   }
 
+  public loadPrepList(): void {
+    this.scoreService.getListOfPreps().then(prepList => {
+      this.persistenceService.prepList = prepList;
+    }).catch(e => {
+      log.error("Error in loadPrepList()");
+      throw e;
+    });
+  }
+
   public loadTokenDistributionPerDay(): Promise<void> {
     return this.scoreService.getTokenDistributionPerDay().then(res => {
       this.persistenceService.tokenDistributionPerDay = res;
@@ -215,6 +224,7 @@ export class DataLoaderService {
       this.loadAllReservesConfigData(),
       this.loadTokenDistributionPerDay(),
       this.loadLoanOriginationFeePercentage(),
+      // this.loadPrepList() TODO FIXME
     ]);
   }
 

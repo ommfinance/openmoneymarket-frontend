@@ -99,14 +99,9 @@ export class VoteService {
    * @description Get list of PReps
    * @return  Returns the status of all registered P-Rep candidates in descending order by delegated ICX amount
    */
-  public async getListOfPreps(startRanking: number = 1, endRanking: number = 22): Promise<PrepList> {
-    const params = {
-      startRanking: IconConverter.toHex(startRanking),
-      endRanking: IconConverter.toHex(endRanking)
-    };
-
+  public async getListOfPreps(): Promise<PrepList> {
     const tx = this.iconApiService.buildTransaction("",  environment.IISS_API,
-      ScoreMethodNames.GET_PREPS, params, IconTransactionType.READ);
+      ScoreMethodNames.GET_PREPS, {}, IconTransactionType.READ);
 
     const prepList = await this.iconApiService.iconService.call(tx).execute();
 

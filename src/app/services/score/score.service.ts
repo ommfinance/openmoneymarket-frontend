@@ -14,6 +14,8 @@ import {ReserveConfigData} from "../../models/ReserveConfigData";
 import {StateChangeService} from "../state-change/state-change.service";
 import {AssetTag} from "../../models/Asset";
 import log from "loglevel";
+import {PrepList} from "../../models/Preps";
+import {Mapper} from "../../common/mapper";
 
 
 @Injectable({
@@ -105,6 +107,21 @@ export class ScoreService {
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
       ScoreMethodNames.GET_USER_ACCOUNT_DATA, params, IconTransactionType.READ);
     return await this.iconApiService.iconService.call(tx).execute();
+  }
+
+  /**
+   * @description Get list of PReps
+   * @return  Returns the status of all registered P-Rep candidates in descending order by delegated ICX amount
+   */
+  public async getListOfPreps(): Promise<PrepList> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Staking,
+      ScoreMethodNames.GET_PREP_TOP_LIST, {}, IconTransactionType.READ);
+
+    const prepList = await this.iconApiService.iconService.call(tx).execute();
+
+    return Mapper.mapPrepList(prepList);
   }
 
   /**

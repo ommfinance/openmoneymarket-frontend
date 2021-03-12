@@ -50,10 +50,11 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       new YourPrepVote("", "ICX_Station",  65),
       new YourPrepVote("", "VELIC",  65),
       );
+
+    this.loadPrepList();
   }
 
   ngOnInit(): void {
-    this.loadPrepList();
     this.subscribeToLoginChange();
     this.subscribeToOmmTokenBalanceChange();
   }

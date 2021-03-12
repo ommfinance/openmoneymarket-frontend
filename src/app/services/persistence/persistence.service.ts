@@ -10,6 +10,7 @@ import {AllReserveConfigData} from "../../models/AllReserveConfigData";
 import {LedgerWallet} from "../../models/wallets/LedgerWallet";
 import {OmmRewards} from "../../models/OmmRewards";
 import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
+import {PrepList} from "../../models/Preps";
 
 @Injectable({
   providedIn: 'root'
@@ -34,6 +35,8 @@ export class PersistenceService {
 
   public tokenDistributionPerDay = 1;
   public loanOriginationFeePercentage = 0.001;
+
+  public prepList?: PrepList;
 
   constructor() {}
 
