@@ -125,66 +125,30 @@
     <p class="label text-center hide">Your votes are spread across the top 100 public representatives (P-Reps).<br>To allocate your own votes, add up to 6 P-Reps from the list.</p>
 
     <!-- Your votes list -->
-    <div class="grid">
+    <div class="grid" *ngIf="yourVotesPrepList">
       <div class="grid-cell">
         <table class="list vote">
           <tbody>
-          <!-- ICON Foundation -->
-          <tr>
-            <td class="name">
-              <div class="grid grid-center">
-                <div class="grid-cell">
-                  <div class="minus">–</div>
-                  <img src="assets/img/icon/profile.svg">
+          <ng-container *ngFor="let yourPrepVote of yourVotesPrepList; last as isLast; let i = index">
+            <tr>
+              <td class="name">
+                <div class="grid grid-center">
+                  <div class="grid-cell">
+                    <div class="minus">–</div>
+                    <img src="assets/img/icon/profile.svg">
+                  </div>
+                  <div class="grid-cell">
+                    {{yourPrepVote.name}}
+                  </div>
                 </div>
-                <div class="grid-cell">
-                  ICON Foundation
-                </div>
-              </div>
-            </td>
-            <td></td>
-            <td>33.3%<br><span class="label">65 ICX</span></td>
-          </tr>
+              </td>
+              <td></td>
+              <td>33.3%<br><span class="label">{{yourPrepVote.delegated}} ICX</span></td>
+            </tr>
 
-          <!-- Spacer -->
-          <tr class="spacer"></tr>
-
-          <!-- ICX Station -->
-          <tr>
-            <td class="name">
-              <div class="grid grid-center">
-                <div class="grid-cell">
-                  <div class="minus">–</div>
-                  <img src="assets/img/icon/profile.svg">
-                </div>
-                <div class="grid-cell">
-                  ICX_Station
-                </div>
-              </div>
-            </td>
-            <td></td>
-            <td>33.3%<br><span class="label">65 ICX</span></td>
-          </tr>
-
-          <!-- Spacer -->
-          <tr class="spacer"></tr>
-
-          <!-- Velic -->
-          <tr>
-            <td class="name">
-              <div class="grid grid-center">
-                <div class="grid-cell">
-                  <div class="minus">–</div>
-                  <img src="assets/img/icon/profile.svg">
-                </div>
-                <div class="grid-cell">
-                  VELIC
-                </div>
-              </div>
-            </td>
-            <td></td>
-            <td>33.3%<br><span class="label">65 ICX</span></td>
-          </tr>
+            <!-- Spacer -->
+            <tr *ngIf="!isLast" class="spacer"></tr>
+          </ng-container>
           </tbody>
         </table>
 

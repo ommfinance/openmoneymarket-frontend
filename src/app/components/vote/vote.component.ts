@@ -10,6 +10,7 @@ import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
 import {VoteService} from "../../services/vote/vote.service";
 import {Prep, PrepList} from "../../models/Preps";
 import {CalculationsService} from "../../services/calculations/calculations.service";
+import {YourPrepVote} from "../../models/YourPrepVote";
 
 declare var noUiSlider: any;
 declare var wNumb: any;
@@ -23,6 +24,7 @@ declare var $: any;
 export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   prepList?: PrepList;
+  yourVotesPrepList: YourPrepVote[] = [];
 
   searchedPrepList?: PrepList;
   searchInput = "";
@@ -42,6 +44,12 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
               public calculationsService: CalculationsService) {
     super(persistenceService);
     this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails;
+
+    this.yourVotesPrepList.push(
+      new YourPrepVote("", "Icon Foundation",  65),
+      new YourPrepVote("", "ICX_Station",  65),
+      new YourPrepVote("", "VELIC",  65),
+      );
   }
 
   ngOnInit(): void {
@@ -205,7 +213,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     }).catch(e => {
       log.error("Failed to load user delegation details:");
       log.error(e);
-    })
+    });
   }
 
 }
