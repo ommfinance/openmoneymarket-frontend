@@ -49,7 +49,15 @@ export class ModalComponent extends BaseClass implements OnInit {
 
   withdrawOption = "unstake";
 
-  ledgerAddressPage = 1;
+  // window on which user is on (e.g. 1st = [1, 2, 3, 4, 5])
+  activeLedgerAddressWindow = 1;
+  activeLedgerAddressPageList = [1, 2, 3, 4, 5];
+  // page that the user has selected
+  selectedLedgerAddressPage = 1;
+  // default window and page size
+  ledgerAddressPageSize = 5;
+
+
   ledgerWallets: LedgerWallet[] = [];
 
   constructor(private modalService: ModalService,
@@ -122,9 +130,13 @@ export class ModalComponent extends BaseClass implements OnInit {
 
   onSignInLedgerClick(): void {
     this.modalService.hideActiveModal();
-    this.ledgerAddressPage = 1;
 
-    this.fetchLedgerWallets()
+    // set default pagination values
+    this.activeLedgerAddressWindow = 1;
+    this.selectedLedgerAddressPage = 1;
+    this.activeLedgerAddressPageList = [1, 2, 3, 4, 5];
+
+    this.fetchLedgerWallets();
   }
 
   onSelectLedgerAddressClick(wallet: LedgerWallet): void {
@@ -132,24 +144,61 @@ export class ModalComponent extends BaseClass implements OnInit {
     this.dataLoaderService.walletLogin(wallet);
   }
 
-  onLedgerAddressNextPageClick(page: number): void {
-    this.ledgerAddressPage = page;
-    this.fetchLedgerWallets()
+  onLedgerAddressPageClick(page: number): void {
+    this.selectedLedgerAddressPage = page;
+    this.fetchLedgerWallets();
+  }
+
+  onLedgerPageNextClick(): void {
+    this.activeLedgerAddressWindow += 1;
+    this.activeLedgerAddressPageList = [];
+
+    const start = this.activeLedgerAddressWindow * this.ledgerAddressPageSize - this.ledgerAddressPageSize + 1;
+    const end = this.activeLedgerAddressWindow * this.ledgerAddressPageSize;
+
+    for (let i = start; i <= end; i++) {
+      this.activeLedgerAddressPageList.push(i);
+    }
+
+    this.fetchLedgerWallets();
+    this.selectedLedgerAddressPage = this.activeLedgerAddressPageList[0];
+  }
+
+  onLedgerPageBackClick(): void {
+    if (this.activeLedgerAddressWindow === 1 && this.selectedLedgerAddressPage === 1) {
+      return;
+    }
+
+    this.activeLedgerAddressWindow -= 1;
+    this.activeLedgerAddressPageList = [];
+
+    const start = this.activeLedgerAddressWindow * this.ledgerAddressPageSize - this.ledgerAddressPageSize + 1;
+    const end = this.activeLedgerAddressWindow * this.ledgerAddressPageSize;
+
+    for (let i = start; i <= end; i++) {
+      this.activeLedgerAddressPageList.push(i);
+    }
+
+    this.fetchLedgerWallets();
+    this.selectedLedgerAddressPage = this.activeLedgerAddressPageList[0];
   }
 
   fetchLedgerWallets(): void {
-    this.ledgerService.getLedgerWallets(this.ledgerAddressPage).then(wallets => {
+    this.modalService.hideActiveModal();
+
+    this.ledgerService.getLedgerWallets(this.selectedLedgerAddressPage).then(wallets => {
       this.ledgerWallets = wallets;
       this.setActiveModal(this.LedgerAddressListModal.nativeElement, undefined);
       this.modalService.showModal(this.activeModal);
     }).catch(e => {
       log.error(e);
-      this.notificationService.showNewNotification("Can not get Icon addresses from Ledger device. Make sure it is connected and try again.");
+      this.notificationService.showNewNotification("Can not get Icon addresses from Ledger device." +
+        " Make sure it is connected and try again.");
     });
   }
 
   formatIconAddressToShort(address: string): string {
-    const length = address.length
+    const length = address.length;
     return address.substring(0, 9) + "..." + address.substring(length - 7, length);
   }
 
@@ -169,7 +218,7 @@ export class ModalComponent extends BaseClass implements OnInit {
 
   riskGreaterThanZero(): boolean {
     if (this.activeModalChange?.assetAction?.risk) {
-      return this.activeModalChange.assetAction.risk > 0
+      return this.activeModalChange.assetAction.risk > 0;
     } else {
       return false;
     }

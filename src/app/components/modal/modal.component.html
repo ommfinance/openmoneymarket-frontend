@@ -242,7 +242,7 @@
 <div class="modal" id="modal-sign-in-ledger" #ledgerAddressList>
   <div class="modal-content">
     <!-- Title -->
-    <h3 class="text-center label">Choose a Ledger wallet:</h3>
+    <h3 class="text-center label">Choose a wallet from your Ledger:</h3>
 
     <!-- Ledger wallets -->
     <table>
@@ -258,9 +258,11 @@
 
     <!-- Pagination -->
     <ul class="pagination">
-      <ng-container *ngFor="let i of [1,2,3,4,5]">
-        <li class="{{i === ledgerAddressPage ? 'active' : ''}}">{{i}}</li>
+      <li (click)="onLedgerPageBackClick()"><</li>
+      <ng-container *ngFor="let i of activeLedgerAddressPageList">
+        <li class="{{i === selectedLedgerAddressPage ? 'active' : ''}}" (click)="onLedgerAddressPageClick(i)">{{i}}</li>
       </ng-container>
+      <li (click)="onLedgerPageNextClick()">></li>
     </ul>
   </div>
 </div>

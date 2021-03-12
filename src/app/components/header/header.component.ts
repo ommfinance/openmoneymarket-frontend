@@ -53,6 +53,22 @@ export class HeaderComponent extends BaseClass implements OnInit {
     this.modalService.showNewModal(ModalType.SIGN_IN);
   }
 
+  onRefreshClick(): void {
+    if (this.persistenceService.activeWallet) {
+      this.dataLoaderService.walletLogin(this.persistenceService.activeWallet).then(() => {
+        this.notificationService.showNewNotification("Successfully refreshed the data.");
+      }).catch(() => {
+        this.notificationService.showNewNotification("Failed to refreshed the data.");
+      });
+    } else {
+      this.dataLoaderService.loadCoreData().then(() => {
+        this.notificationService.showNewNotification("Successfully refreshed the data.");
+      }).catch(() => {
+        this.notificationService.showNewNotification("Failed to refreshed the data.");
+      });
+    }
+  }
+
   onLoginIconexClick(): void {
     this.iconexApiService.hasAccount();
   }

@@ -31,7 +31,7 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
     this.attachedListener = true;
 
     // load all SCORE addresses
-    dataLoaderService.loadAllScoreAddresses().then(() => this.loadCoreData());
+    dataLoaderService.loadAllScoreAddresses().then(() => this.dataLoaderService.loadCoreData());
 
 
     // register on document click handler
@@ -41,13 +41,6 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
 
       }
     });
-  }
-
-  loadCoreData(): void {
-    this.dataLoaderService.loadAllReserveData();
-    this.dataLoaderService.loadAllReservesConfigData();
-    this.dataLoaderService.loadTokenDistributionPerDay();
-    this.dataLoaderService.loadLoanOriginationFeePercentage();
   }
 
   onBodyClick(e: any): void {

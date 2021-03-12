@@ -208,6 +208,16 @@ export class DataLoaderService {
     this.loadUserSpecificData();
   }
 
+  public async loadCoreData(): Promise<void> {
+    const [res1, res2, res3, res4
+    ] = await Promise.all([
+      this.loadAllReserveData(),
+      this.loadAllReservesConfigData(),
+      this.loadTokenDistributionPerDay(),
+      this.loadLoanOriginationFeePercentage(),
+    ]);
+  }
+
   public loadUserSpecificData(): void {
     this.loadAllUserAssetReserveData().then();
     this.loadAllUserAssetsBalances();
