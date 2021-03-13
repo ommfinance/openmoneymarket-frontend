@@ -24,6 +24,7 @@ export class RepayService {
   }
 
   public repayAsset(amount: number, assetTag: AssetTag, notificationMessage: string): void {
+    amount = Utils.convertIfICXTosICX(amount, this.persistenceService.getAssetReserveData(AssetTag.ICX)!.sICXRate, assetTag);
     amount = Utils.roundDownTo2Decimals(amount);
     const tx = this.buildRepayAssetTx(amount, assetTag);
 

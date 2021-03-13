@@ -59,7 +59,7 @@ export class WithdrawService {
 
     // convert amount from ICX value to sICX
     log.debug("Withdraw amount before conversion to sICX = " + amount);
-    amount = Utils.convertICXValueTosICX(amount, this.persistenceService.getAssetReserveData(AssetTag.ICX)!.sICXRate);
+    amount = Utils.convertICXTosICX(amount, this.persistenceService.getAssetReserveData(AssetTag.ICX)!.sICXRate);
     log.debug("Withdraw amount after conversion to sICX = " + amount);
 
     const params = {

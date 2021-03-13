@@ -36,6 +36,8 @@ export class BorrowService {
   private buildBorrowAssetTx(amount: number, assetTag: AssetTag): any {
     this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
 
+    amount = Utils.convertIfICXTosICX(amount, this.persistenceService.getAssetReserveData(AssetTag.ICX)!.sICXRate, assetTag);
+
     const decimals = this.persistenceService.allReserves!.getReserveData(assetTag).decimals;
 
     const params = {

@@ -1,7 +1,6 @@
 import IconService from 'icon-sdk-js';
-import { BigNumber } from "bignumber.js";
-import log from "loglevel";
-import {UserReserveData} from "../models/UserReserveData";
+import {BigNumber} from "bignumber.js";
+import {AssetTag} from "../models/Asset";
 
 export class Utils {
 
@@ -94,13 +93,28 @@ export class Utils {
     }
   }
 
-  // conversion used for redeeming ICX
-  public static convertICXValueTosICX(value: number, todayRate: number): number {
+  public static convertICXTosICX(value: number, todayRate: number): number {
     return Utils.roundOffTo2Decimals(value / todayRate);
   }
 
   public static convertSICXToICX(sICXvalue: number, sIcxToIcxRate: number): number {
     return sICXvalue * sIcxToIcxRate;
+  }
+
+  public static convertIfICXTosICX(value: number, todayRate: number, assetTag: AssetTag): number {
+    if (assetTag === AssetTag.ICX) {
+      return Utils.roundOffTo2Decimals(value / todayRate);
+    } else {
+      return value;
+    }
+  }
+
+  public static convertIfSICXToICX(value: number, sIcxToIcxRate: number, assetTag: AssetTag): number {
+    if (assetTag === AssetTag.ICX) {
+      return value * sIcxToIcxRate;
+    } else {
+      return value;
+    }
   }
 
 }

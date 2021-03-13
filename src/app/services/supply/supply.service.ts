@@ -63,6 +63,8 @@ export class SupplyService {
   private buildDepositIcxTx(amount: number): any {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
+    amount = Utils.convertICXTosICX(amount, this.persistenceService.getAssetReserveData(AssetTag.ICX)!.sICXRate);
+
     log.debug("Deposit ICX amount = " + amount);
 
     const params = {
