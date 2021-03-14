@@ -19,6 +19,7 @@ import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
 import {NotificationService} from "../notification/notification.service";
 import {ErrorCode, ErrorService} from "../error/error.service";
 import {CheckerService} from "../checker/checker.service";
+import {LocalStorageService} from "../local-storage/local-storage.service";
 
 @Injectable({
   providedIn: 'root'
@@ -31,12 +32,14 @@ export class DataLoaderService {
               private ommService: OmmService,
               private notificationService: NotificationService,
               private errorService: ErrorService,
-              private checkerService: CheckerService) {
+              private checkerService: CheckerService,
+              private localStorageService: LocalStorageService) {
 
   }
 
   public async walletLogin(wallet: IconexWallet | BridgeWallet | LedgerWallet): Promise<void> {
     this.persistenceService.activeWallet = wallet;
+    this.localStorageService.persistWalletLogin(wallet);
     log.info("Login with wallet: ", wallet);
 
     try {

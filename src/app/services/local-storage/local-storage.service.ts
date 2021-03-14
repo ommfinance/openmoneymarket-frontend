@@ -2,6 +2,9 @@ import { Injectable } from '@angular/core';
 import {Subject} from "rxjs";
 import {AssetAction} from "../../models/AssetAction";
 import {ModalAction} from "../../models/ModalAction";
+import {BridgeWallet} from "../../models/wallets/BridgeWallet";
+import {IconexWallet} from "../../models/wallets/IconexWallet";
+import {LedgerWallet} from "../../models/wallets/LedgerWallet";
 
 @Injectable({
   providedIn: 'root'
@@ -23,11 +26,19 @@ export class LocalStorageService {
     return this.get("modal.action");
   }
 
+  persistWalletLogin(wallet: BridgeWallet | IconexWallet | LedgerWallet): void {
+    this.set("wallet", wallet);
+  }
+
+  getLastWalletLogin(): BridgeWallet | IconexWallet | LedgerWallet {
+    return this.get("wallet");
+  }
+
   get(key: string): any {
     if (this.isLocalStorageSupported) {
       return JSON.parse(this.localStorage.getItem(key) ?? "");
     }
-    return null;
+    return undefined;
   }
 
   set(key: string, value: any): boolean {

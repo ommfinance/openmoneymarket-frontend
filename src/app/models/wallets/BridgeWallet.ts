@@ -1,6 +1,6 @@
 // @ts-ignore
 import {BridgeService} from "../../../../build/bridge.bundle";
-import {Wallet} from "./Wallet";
+import {Wallet, WalletType} from "./Wallet";
 import {AssetTag} from "../Asset";
 
 export class BridgeWallet extends Wallet {
@@ -8,7 +8,7 @@ export class BridgeWallet extends Wallet {
   bridgeInstance: BridgeService;
 
   constructor(address: string, email: string, bridgeInstance: BridgeService, balances?: Map<AssetTag, number>) {
-    super();
+    super(WalletType.BRIDGE);
     this.address = address;
     this.email = email;
     this.bridgeInstance = bridgeInstance;

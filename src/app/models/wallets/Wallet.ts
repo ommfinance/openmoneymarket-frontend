@@ -7,12 +7,20 @@ export abstract class Wallet {
     [AssetTag.ICX, 0],
     [AssetTag.USDC, 0],
   ]);
+  type: WalletType;
 
-  protected constructor(address?: string) {
+  protected constructor(type: WalletType, address?: string) {
     this.address = address ?? "";
+    this.type = type;
     this.balances = new Map<AssetTag, number>();
     supportedAssetsMap.forEach((value: Asset, key: AssetTag) => {
       this.balances.set(key, 0);
     });
   }
+}
+
+export enum WalletType {
+  ICONEX,
+  BRIDGE,
+  LEDGER
 }

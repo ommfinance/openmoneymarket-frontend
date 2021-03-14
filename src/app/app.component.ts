@@ -5,6 +5,10 @@ import {ModalService} from "./services/modal/modal.service";
 import {PersistenceService} from "./services/persistence/persistence.service";
 import {BaseClass} from "./components/base-class";
 import {ReloaderService} from "./services/reloader/reloader.service";
+import {WalletType} from "./models/wallets/Wallet";
+import {LocalStorageService} from "./services/local-storage/local-storage.service";
+import {IconexWallet} from "./models/wallets/IconexWallet";
+import {LedgerWallet} from "./models/wallets/LedgerWallet";
 
 declare var $: any;
 
@@ -24,23 +28,45 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
               private dataLoaderService: DataLoaderService,
               private modalService: ModalService,
               public persistenceService: PersistenceService,
-              private reloaderService: ReloaderService) {
+              private reloaderService: ReloaderService,
+              private localStorageService: LocalStorageService) {
     super(persistenceService);
     // register Iconex handler
     window.addEventListener("ICONEX_RELAY_RESPONSE", (e: any) => this.iconexApiService.iconexEventHandler(e));
     this.attachedListener = true;
 
     // load all SCORE addresses
-    dataLoaderService.loadAllScoreAddresses().then(() => this.dataLoaderService.loadCoreData());
+    dataLoaderService.loadAllScoreAddresses().then(() => {
+      // load core data
+      this.dataLoaderService.loadCoreData().then(() => {
+        // after core data is logged try to re-login
+        this.reLogin();
+      });
+    });
 
 
     // register on document click handler
     $(document).on("click", (e: any) => {
       if ($(e.target).is(".wallet.bridge") === false) {
         this.onBodyClick(e);
-
       }
     });
+  }
+
+  reLogin(): void {
+    const activeWallet: any = this.localStorageService.getLastWalletLogin();
+    const activeWalletType = activeWallet?.type;
+
+    if (activeWallet &&  activeWalletType === WalletType.ICONEX || activeWalletType === WalletType.LEDGER) {
+      switch (activeWalletType) {
+        case WalletType.ICONEX:
+          this.dataLoaderService.walletLogin(new IconexWallet(activeWallet.address));
+          break;
+        case WalletType.LEDGER:
+          this.dataLoaderService.walletLogin(new LedgerWallet(activeWallet.address, activeWallet.path));
+          break;
+      }
+    }
   }
 
   onBodyClick(e: any): void {
