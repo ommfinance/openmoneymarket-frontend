@@ -116,7 +116,7 @@
     <!-- Risk -->
     <div class="grid-cell">
       <section id="risk">
-        <app-risk style="display: contents" [userAssetComponents]="userAssetComponents"></app-risk>
+        <app-risk style="display: contents" [userAssetComponents]="assetComponents"></app-risk>
       </section>
     </div>
   </div>
@@ -127,8 +127,8 @@
       <div class="grid-cell">
         <h2>Markets</h2>
         <ul class="toggle" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn())">
-          <li id="toggle-your-markets" class="active" (click)="onToggleYourMarketsClick()">Your markets</li>
-          <li id="toggle-all-markets" (click)="onToggleAllMarketsClick()">All markets</li>
+          <li id="toggle-your-markets" class="active" (click)="onYourMarketsClick()">Your markets</li>
+          <li id="toggle-all-markets" (click)="onAllMarketsClick()">All markets</li>
         </ul>
       </div>
     </div>
@@ -156,36 +156,21 @@
           </thead>
           <tbody>
 
-          <!-- Market Assets -->
-          <ng-container *ngIf="allMarketViewActive()">
-            <ng-container *ngFor="let a of marketAssets; last as isLast; let i = index">
+          <!-- Assets -->
+          <ng-container>
+            <ng-container *ngFor="let asset of userAssets; last as isLast; let i = index">
               <!-- Asset (USDb, ICX, ..) -->
-              <app-asset-market [asset]="a" #marketAsset
-                                [index]="i"
-                                (collOtherAssetTables)="collapseOtherAssetsTable($event)"
-                                [ngStyle]="hideElementOrDisplayContents(!allMarketViewActive())">
-
-              </app-asset-market>
+              <app-asset [asset]="asset" #assetEl
+                         [index]="i"
+                         [activeMarketView]="activeMarketView"
+                         [ngStyle]="{display: 'contents'}"
+                         (collOtherAssetTables)="collapseOtherAssetsTable($event)"
+                              >
+              </app-asset>
               <!-- Spacer -->
-              <tr *ngIf="!isLast" class="spacer"></tr>
+              <tr *ngIf="!isLast || availableAssets.length > 0" class="spacer"></tr>
             </ng-container>
           </ng-container>
-
-
-              <!-- User Assets (hide if user market view is not active) -->
-              <ng-container *ngIf="userMarketViewActive()">
-                <ng-container *ngFor="let asset of userAssets; last as isLast; let i = index">
-                  <!-- Asset (USDb, ICX, ..) -->
-                  <app-asset-user [asset]="asset" #userAsset
-                                  [index]="i"
-                                  [ngStyle]="hideElementOrDisplayContents(!userMarketViewActive())"
-                                  (collOtherAssetTables)="collapseOtherAssetsTable($event)"
-                                  >
-                  </app-asset-user>
-                  <!-- Spacer -->
-                  <tr *ngIf="!isLast || availableAssets.length > 0" class="spacer"></tr>
-                </ng-container>
-              </ng-container>
 
           <!-- User available Assets (hide if user market view is not active) -->
           <ng-container *ngIf="userMarketViewActive() && availableAssets.length > 0">
@@ -203,12 +188,12 @@
 
                 <ng-container *ngFor="let asset of availableAssets; last as isLast; let i = index">
                   <!-- Asset (USDb, ICX, ..) -->
-                  <app-asset-user [asset]="asset" #availAsset
-                                  [index]="i"
-                                  [ngStyle]="hideElementOrDisplayContents(!userMarketViewActive())"
-                                  (collOtherAssetTables)="collapseOtherAssetsTable($event)"
+                  <app-asset [asset]="asset" #availAsset
+                             [index]="i"
+                             [ngStyle]="hideElementOrDisplayContents(!userMarketViewActive())"
+                             (collOtherAssetTables)="collapseOtherAssetsTable($event)"
                                   >
-                  </app-asset-user>
+                  </app-asset>
                   <!-- Spacer -->
                   <tr *ngIf="!isLast" class="spacer"></tr>
                 </ng-container>

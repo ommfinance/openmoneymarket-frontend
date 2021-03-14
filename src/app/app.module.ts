@@ -12,10 +12,9 @@ import { NotificationComponent } from './components/notification/notification.co
 import { ModalComponent } from './components/modal/modal.component';
 import { PerformanceComponent } from './components/performance/performance.component';
 import { RiskComponent } from './components/risk/risk.component';
-import { AssetUserComponent } from './components/asset-user/asset-user.component';
+import { AssetComponent } from './components/asset/asset.component';
 import {environment} from "../environments/environment";
 import log from "loglevel";
-import { AssetMarketComponent } from './components/asset-market/asset-market.component';
 import { VoteComponent } from './components/vote/vote.component';
 import { MainComponent } from './components/main/main.component';
 import {HttpClientModule} from "@angular/common/http";
@@ -31,8 +30,7 @@ log.setLevel(environment.production ? "error" : "debug");
     ModalComponent,
     PerformanceComponent,
     RiskComponent,
-    AssetUserComponent,
-    AssetMarketComponent,
+    AssetComponent,
     VoteComponent,
     MainComponent
   ],

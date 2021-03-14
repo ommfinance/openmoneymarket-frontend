@@ -18,18 +18,6 @@ export class CalculationsService {
   constructor(private persistenceService: PersistenceService,
               private stateChangeService: StateChangeService) { }
 
-  // public calculateAssetSliderAvailableSupply(assetTag: AssetTag, currentAssetSupplied?: number): number {
-  //   const assetBalance = this.persistenceService.activeWallet?.balances.get(assetTag) ?? 0;
-  //   let suppliedAssetBalance = this.persistenceService.getUserSuppliedAssetBalance(assetTag);
-  //
-  //   if (assetTag === AssetTag.ICX) {
-  //     suppliedAssetBalance = Utils.convertSICXToICX(suppliedAssetBalance, this.persistenceService.sIcxToIcxRate());
-  //   }
-  //
-  //   return assetBalance + suppliedAssetBalance - (currentAssetSupplied ? currentAssetSupplied : 0);
-  //
-  // }
-
   public calculateAssetSupplySliderMax(assetTag: AssetTag): number {
     let suppliedAssetBalance = this.persistenceService.getUserSuppliedAssetBalance(assetTag);
 
@@ -71,8 +59,7 @@ export class CalculationsService {
 
       const totalRiskPercentage = 1 / healthFactor;
       // log.debug("**********************************************");
-      // log.debug(`${this.className} calculateTotalRiskPercentage-> healthFactor = ${this.persistenceService.userAccountData?.healthFactor}`);
-      // log.debug(`${this.className} calculateTotalRiskPercentage-> totalRiskPercentage = ${totalRiskPercentage}`);
+      // log.debug(`${this.className} calculateTotalRiskBasedOnHF = ${totalRiskPercentage}`);
       return totalRiskPercentage;
     }
   }
@@ -83,6 +70,7 @@ export class CalculationsService {
    * @return total user risk as a number (multiply by 100 to get percentage)
    */
   private calculateTotalRiskDynamic(riskCalculationData?: RiskCalculationData): number {
+    // log.debug("*******************  calculateTotalRiskDynamic  ***************************");
     // log.debug(riskCalculationData);
 
     const userAccountData = this.persistenceService.userAccountData;
@@ -133,7 +121,7 @@ export class CalculationsService {
           totalBorrowBalanceUSD -= amount * assetExchangePrice;
       }
     }
-    // log.debug("**********************************************");
+
     // log.debug("Total risk percentage calculation:");
     // log.debug(`totalBorrowBalanceUSD=${totalBorrowBalanceUSD}`);
     // log.debug(`totalCollateralBalanceUSD=${totalCollateralBalanceUSD}`);
@@ -142,7 +130,7 @@ export class CalculationsService {
 
     const res = totalBorrowBalanceUSD / ((totalCollateralBalanceUSD - totalFeeUSD) * liquidationThreshold);
 
-    // log.debug("Total risk = " + res);
+    log.debug("Total dynamic risk = " + res);
 
     return res;
   }
@@ -267,13 +255,13 @@ export class CalculationsService {
     let total = 0;
     let exchangePrice = 0;
 
-    log.debug("******** calculateUsersBorrowInterestPerDayUSD ******");
+    // log.debug("******** calculateUsersBorrowInterestPerDayUSD ******");
     Object.values(AssetTag).forEach(assetTag => {
-      log.debug("assetTag = ", assetTag);
+      // log.debug("assetTag = ", assetTag);
       exchangePrice = this.persistenceService.getAssetExchangePrice(assetTag);
-      log.debug("exchangePrice = ", exchangePrice);
+      // log.debug("exchangePrice = ", exchangePrice);
       total += this.calculateUsersDailyBorrowInterestForAsset(assetTag) * exchangePrice;
-      log.debug("this.calculateUsersDailyBorrowInterestForAsset(assetTag) = ", this.calculateUsersDailyBorrowInterestForAsset(assetTag));
+      // log.debug("this.calculateUsersDailyBorrowInterestForAsset(assetTag) = ", this.calculateUsersDailyBorrowInterestForAsset(assetTag));
     });
 
     return total;

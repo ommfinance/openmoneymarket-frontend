@@ -1,10 +1,10 @@
 <!-- Your markets (users asset) or Available to supply state -->
-<tr class="asset {{asset.className}} {{isAssetAvailable() ? 'asset-available': 'your'}}" (click)="onAssetClick()" #assetYour
-    [ngStyle]="hideElement(!shouldBeShown())">
+<tr class="asset {{asset.className}} {{getAssetClass()}}" (click)="onAssetClick()" #assetYour [ngStyle]="hideElement(!shouldBeShown())">
 
   <td>{{asset.name}}<br><span class="label">{{asset.tag}}</span></td>
 
-  <ng-container *ngIf="!isAssetAvailable()">
+  <!-- Your asset state -->
+  <ng-container *ngIf="!isAllMarketViewActive() && !isAssetAvailable()">
     <td><span class="value-supplied">{{this.toDollarUSLocaleString(roundOffTo2Decimals(this.persistenceService.getUserAssetReserve(asset.tag)?.currentOTokenBalanceUSD))}}</span><br>
       <span class="value-supplied label">{{this.formatNumberToUSLocaleString(getUserSuppliedAssetBalance())}} {{asset.tag}}</span></td>
     <td class="text-green">{{to2DecimalRoundedDownPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate)}}</td>
@@ -13,10 +13,21 @@
     <td class="text-purple">{{to2DecimalRoundedDownPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.borrowRate)}}</td>
   </ng-container>
 
-  <ng-container *ngIf="isAssetAvailable()">
+  <!-- Asset available state -->
+  <ng-container *ngIf="!isAllMarketViewActive() && isAssetAvailable()">
     <td colspan="2" class="text-right">{{this.toDollarUSLocaleString(roundOffTo2Decimals(getUserSuppliableBalanceUSD()))}}
       <br><span class="label">{{this.formatNumberToUSLocaleString(roundOffTo2Decimals(getUserSuppliableBalance()))}} {{asset.tag}}</span></td>
     <td colspan="2" class="text-right"><span class="text-green">{{to2DecimalRoundedDownPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate)}} APY</span></td>
+  </ng-container>
+
+  <!-- All markets state -->
+  <ng-container *ngIf="isAllMarketViewActive()">
+    <td><span>{{this.toDollarUSLocaleString(roundOffTo2Decimals(this.persistenceService.getAssetReserveData(asset.tag)?.totalLiquidityUSD))}}</span><br>
+      <span class="label">{{this.formatNumberToUSLocaleString(roundOffTo2Decimals(getTotalLiquidity()))}} {{asset.tag}}</span></td>
+    <td class="text-green">{{to2DecimalRoundedDownPercentString(this.persistenceService.getAssetReserveData(asset.tag)?.liquidityRate)}}</td>
+    <td>{{this.toDollarUSLocaleString(roundOffTo2Decimals(this.persistenceService.getAssetReserveData(asset.tag)?.totalBorrowsUSD))}}<br>
+      <span class="label">{{this.formatNumberToUSLocaleString(roundOffTo2Decimals(getTotalBorrows()))}} {{asset.tag}}</span></td>
+    <td class="text-purple">{{to2DecimalRoundedDownPercentString(this.persistenceService.getAssetReserveData(asset.tag)?.borrowRate)}}</td>
   </ng-container>
 
 </tr>
@@ -38,8 +49,15 @@
             </div>
           </div>
 
+          <!-- If logged out show sign in button -->
+          <div class="grid grid-center sign-in-message" [ngStyle]="hideElement(this.persistenceService.userLoggedIn())">
+            <div class="grid-cell">
+              <p class="text-center"><a href="javascript:void(0);" class="button" (click)="onSignInClick()">Sign in to supply</a></p>
+            </div>
+          </div>
+
           <!-- Supply allow (Show if user can supply) -->
-          <div class="supply-allow" #supplyAllow [ngStyle]="hideElement(userAssetBalanceIsZero())">
+          <div class="supply-allow" #supplyAllow [ngStyle]="hideElement(userAssetBalanceIsZero() || !this.persistenceService.userLoggedIn())">
             <!-- Supply slider -->
             <div id="slider-supply" #sliderSupply disabled></div>
 
@@ -172,6 +190,13 @@
               <div class="grid-cell text-left">
                 <a href="javascript:void(0);" class="button purple modal-trigger" data-modal="modal-borrow" (click)="onAssetBorrowConfirmClick()">Confirm</a>
               </div>
+            </div>
+          </div>
+
+          <!-- Risk warning -->
+          <div class="grid grid-center borrow-risk-warning {{asset.className}} hide">
+            <div class="grid-cell">
+              <p class="label text-red text-center">Reduce your risk to borrow {{asset.name}}.</p>
             </div>
           </div>
 

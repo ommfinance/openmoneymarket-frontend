@@ -21,17 +21,19 @@ import {NotificationService} from "../../services/notification/notification.serv
 import {RiskCalculationData} from "../../models/RiskCalculationData";
 import {UserAction} from "../../models/UserAction";
 import {Utils} from "../../common/utils";
+import {ActiveMarketView} from "../../models/ActiveMarketView";
 
 declare var $: any;
 
 @Component({
-  selector: 'app-asset-user',
-  templateUrl: './asset-user.component.html',
+  selector: 'app-asset',
+  templateUrl: './asset.component.html',
 })
-export class AssetUserComponent extends BaseClass implements OnInit, AfterViewInit {
+export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   @Input() asset!: Asset;
   @Input() index!: number;
+  @Input() activeMarketView!: ActiveMarketView;
 
   /** Bind html elements to variables using template referencing */
   sliderSupply: any;
@@ -96,6 +98,11 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     this.subscribeToTotalRiskChange();
 
     this.sliderRisk = document.getElementById('slider-risk');
+  }
+
+  onSignInClick(): void {
+    this.collapseAssetTableSlideUp();
+    this.modalService.showNewModal(ModalType.SIGN_IN);
   }
 
   /**
@@ -353,7 +360,8 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
     const borrowed = this.getUserBorrowedAssetBalance();
     const borrowAvailable = this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag);
 
-    const borrowMax = borrowed + borrowAvailable;
+    // borrow max is either borrowed + available OR borrowed in case borrowAvailable is negative (risk > 76)
+    const borrowMax = borrowAvailable > 0 ? borrowed + borrowAvailable : borrowed;
     this.slidersService.createNoUiSlider(this.sliderBorrow, borrowed, undefined, undefined, undefined,
       {min: [0], max: [this.getMaxBorrowAvailable(borrowMax)]});
   }
@@ -563,6 +571,10 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
         $(this.borrowAction2El).addClass("hide");
         $('.value-risk-total').text("Max");
         $('.borrow-risk-warning').css("display", "flex");
+      } else if (totalRisk > 0.75) {
+        $(this.borrowAction2El).addClass("hide");
+        $('.borrow-risk-warning').css("display", "flex");
+        $('.value-risk-total').text(percentageFormat.to(totalRisk * 100));
       } else {
         if ($(this.borrowEl).hasClass("adjust")) {
           $(this.borrowAction1El).addClass("hide");
@@ -573,6 +585,8 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
           $(this.borrowAction2El).addClass("hide");
           $('.borrow-risk-warning').css("display", "none");
         }
+
+        $('.value-risk-total').text(percentageFormat.to(totalRisk * 100));
       }
 
     });
@@ -677,10 +691,14 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
 
   // show user asset if is either supplied, available to supply, borrowed or available to borrow
   shouldBeShown(): boolean {
-    return !this.persistenceService.userAssetSuppliedIsZero(this.asset.tag)
-      || this.persistenceService.isAssetAvailableToSupply(this.asset.tag)
-      || !this.persistenceService.userAssetBorrowedIsZero(this.asset.tag)
-      || (this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag) > 0);
+    if (this.isAllMarketViewActive()) {
+      return true;
+    } else {
+      return !this.persistenceService.userAssetSuppliedIsZero(this.asset.tag)
+        || this.persistenceService.isAssetAvailableToSupply(this.asset.tag)
+        || !this.persistenceService.userAssetBorrowedIsZero(this.asset.tag)
+        || (this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag) > 0);
+    }
   }
 
   getDailySupplyInterest(amountBeingSupplied?: number): number {
@@ -831,6 +849,36 @@ export class AssetUserComponent extends BaseClass implements OnInit, AfterViewIn
 
   isAssetAvailable(): boolean {
     return this.persistenceService.isAssetAvailableToSupply(this.asset.tag);
+  }
+
+  getAssetClass(): string {
+    if (this.activeMarketView === ActiveMarketView.USER_MARKET) {
+      return this.isAssetAvailable() ? 'asset-available' : 'your';
+    } else {
+      return "all";
+    }
+  }
+
+  getTotalBorrows(): number {
+    const res = this.persistenceService.getAssetReserveData(this.asset.tag)?.totalBorrows ?? 0;
+    if (this.asset.tag === AssetTag.ICX) {
+      return this.convertSICXToICX(res);
+    } else {
+      return res;
+    }
+  }
+
+  getTotalLiquidity(): number {
+    const res = this.persistenceService.getAssetReserveData(this.asset.tag)?.totalLiquidity ?? 0;
+    if (this.asset.tag === AssetTag.ICX) {
+      return this.convertSICXToICX(res);
+    } else {
+      return res;
+    }
+  }
+
+  isAllMarketViewActive(): boolean {
+    return this.activeMarketView === ActiveMarketView.ALL_MARKET;
   }
 
 }

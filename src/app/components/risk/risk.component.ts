@@ -10,7 +10,7 @@ import log from "loglevel";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {BaseClass} from "../base-class";
 import {UserAccountData} from "../../models/UserAccountData";
-import {AssetUserComponent} from "../asset-user/asset-user.component";
+import {AssetComponent} from "../asset/asset.component";
 
 declare var noUiSlider: any;
 declare var wNumb: any;
@@ -29,7 +29,7 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
   totalRiskEl!: HTMLElement;
 
   // users asset components
-  @Input() userAssetComponents!: QueryList<AssetUserComponent>;
+  @Input() userAssetComponents!: QueryList<AssetComponent>;
 
   private sliderRisk?: any;
   totalRisk = 0;
@@ -42,11 +42,10 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.initSubscribedValues();
+    this.initRiskSlider();
   }
 
   ngAfterViewInit(): void {
-    this.initRiskSlider();
-
     if (this.persistenceService.userLoggedIn()) {
       // re-calculate total risk percentage
       this.calculationService.calculateTotalRisk();
@@ -94,43 +93,42 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
     // Update the risk slider
     this.sliderRisk.noUiSlider.set(this.totalRisk * 100);
 
-    // If risk over 100
-    if (this.totalRisk > 0.99) {
-      // Hide supply actions
-      $('.actions-2').addClass("hide");
-      $('.value-risk-total').text("Max");
-      $('.supply-risk-warning').css("display", "flex");
-      $('.borrow-risk-warning').css("display", "flex");
-    } else {
-      $('.value-risk-total').text(percentageFormat.to(this.totalRisk * 100));
-    }
-
-    // If risk under 100
-    if (this.totalRisk <= 0.99) {
-
-      $('.supply-risk-warning').css("display", "none");
-      $('.borrow-risk-warning').css("display", "none");
-    }
-
-    // Change text to purple if over 50
-    if (this.totalRisk > 0.50) {
-      $('.value-risk-total').addClass("alert-purple");
-    }
-
-    // Remove purple if below 50
-    if (this.totalRisk < 0.50) {
-      $('.value-risk-total').removeClass("alert-purple");
-    }
-
-    // Change text to red if over 75
-    if (this.totalRisk > 0.75) {
-      $('.value-risk-total').addClass("alert");
-    }
-
-    // Change text to normal if under 75
-    if (this.totalRisk < 0.75) {
-      $('.value-risk-total').removeClass("alert");
-    }
+    // // If risk over 100
+    // if (this.totalRisk > 0.99) {
+    //   // Hide supply actions
+    //   $('.actions-2').addClass("hide");
+    //   $('.value-risk-total').text("Max");
+    //   $('.supply-risk-warning').css("display", "flex");
+    //   $('.borrow-risk-warning').css("display", "flex");
+    // } else {
+    //   $('.value-risk-total').text(percentageFormat.to(this.totalRisk * 100));
+    // }
+    //
+    // // If risk under 100
+    // if (this.totalRisk <= 0.99) {
+    //   $('.supply-risk-warning').css("display", "none");
+    //   $('.borrow-risk-warning').css("display", "none");
+    // }
+    //
+    // // Change text to purple if over 50
+    // if (this.totalRisk > 0.50) {
+    //   $('.value-risk-total').addClass("alert-purple");
+    // }
+    //
+    // // Remove purple if below 50
+    // if (this.totalRisk < 0.50) {
+    //   $('.value-risk-total').removeClass("alert-purple");
+    // }
+    //
+    // // Change text to red if over 75
+    // if (this.totalRisk > 0.75) {
+    //   $('.value-risk-total').addClass("alert");
+    // }
+    //
+    // // Change text to normal if under 75
+    // if (this.totalRisk < 0.75) {
+    //   $('.value-risk-total').removeClass("alert");
+    // }
 
   }
 

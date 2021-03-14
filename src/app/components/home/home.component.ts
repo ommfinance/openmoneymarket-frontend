@@ -1,7 +1,7 @@
 import {
   AfterViewInit,
   ChangeDetectorRef,
-  Component, ElementRef,
+  Component,
   OnDestroy,
   OnInit,
   QueryList,
@@ -21,9 +21,8 @@ import {HeaderComponent} from "../header/header.component";
 import {RiskComponent} from "../risk/risk.component";
 import {Asset, AssetTag} from "../../models/Asset";
 import log from "loglevel";
-import {AssetUserComponent} from "../asset-user/asset-user.component";
+import {AssetComponent} from "../asset/asset.component";
 import {StateChangeService} from "../../services/state-change/state-change.service";
-import {AssetMarketComponent} from "../asset-market/asset-market.component";
 import {ActiveMarketView} from "../../models/ActiveMarketView";
 import {UserReserveData} from "../../models/UserReserveData";
 import {ModalAction} from "../../models/ModalAction";
@@ -45,18 +44,14 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   @ViewChild(RiskComponent) private riskComponent!: RiskComponent;
 
   // Asset children components
-  @ViewChildren('userAsset') userAssetComponents!: QueryList<AssetUserComponent>;
+  @ViewChildren('assetEl') assetComponents!: QueryList<AssetComponent>;
   // Asset children components
-  @ViewChildren('availAsset') userAvailableAssetComponents!: QueryList<AssetUserComponent>;
-  // Asset children components
-  @ViewChildren('marketAsset') marketAssetComponents!: QueryList<AssetMarketComponent>;
+  @ViewChildren('availAsset') userAvailableAssetComponents!: QueryList<AssetComponent>;
 
   // array of the user's assets (user's balance of asset, supplied > 0)
   public userAssets: Asset[] = [];
   // array of the user's available (user's balance of asset > 0 and supplied = 0)
   public availableAssets: Asset[] = [];
-  // array of market assets
-  public marketAssets: Asset[] = [...this.supportedAssets];
 
   // keep track of current active market view in this variable
   public activeMarketView: ActiveMarketView = ActiveMarketView.ALL_MARKET;
@@ -79,27 +74,30 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
 
   // load the asset lists
   loadAssetLists(): void {
-    this.userAssets = [];
-    this.availableAssets = [];
-    this.marketAssets = [...this.supportedAssets];
+    if (this.activeMarketView === ActiveMarketView.ALL_MARKET) {
+      this.userAssets = [...this.supportedAssets];
+    } else {
+      this.userAssets = [];
+      this.availableAssets = [];
 
-    Array.from(this.supportedAssetsMap.values()).forEach(asset => {
-      // if user is logged in, load his available and current assets
-      if (this.persistenceService.userLoggedIn()) {
-        // check if asset is active (either supplied, borrowed)
-        if (this.persistenceService.isAssetActive(asset.tag)) {
+      Array.from(this.supportedAssetsMap.values()).forEach(asset => {
+        // if user is logged in, load his available and current assets
+        if (this.persistenceService.userLoggedIn()) {
+          // check if asset is active (either supplied, borrowed)
+          if (this.persistenceService.isAssetActive(asset.tag)) {
             this.userAssets.push(asset);
-        }
-        // check if it is available to supply or available to borrow
-        else if (this.persistenceService.isAssetAvailableToSupply(asset.tag)
-          || this.calculationService.calculateAvailableBorrowForAsset(asset.tag) > 0) {
+          }
+          // check if it is available to supply or available to borrow
+          else if (this.persistenceService.isAssetAvailableToSupply(asset.tag)
+            || this.calculationService.calculateAvailableBorrowForAsset(asset.tag) > 0) {
             this.availableAssets.push(asset);
+          }
         }
-      }
-    });
+      });
 
-    log.debug("this.userAssets=", this.userAssets);
-    log.debug("this.availableAssets=", this.availableAssets);
+      log.debug("this.userAssets=", this.userAssets);
+      log.debug("this.availableAssets=", this.availableAssets);
+    }
   }
 
   ngOnInit(): void {
@@ -110,13 +108,14 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   }
 
   ngAfterViewInit(): void {
-    // call cd after to avoid ExpressionChangedAfterItHasBeenCheckedError
     this.loadAssetLists();
-    this.cd.detectChanges();
 
     if (this.persistenceService.userLoggedIn()) {
-      this.onToggleYourMarketsClick();
+      this.onYourMarketsClick();
     }
+
+    // call cd after to avoid ExpressionChangedAfterItHasBeenCheckedError
+    this.cd.detectChanges();
   }
 
   private registerSubscriptions(): void {
@@ -131,9 +130,9 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     this.stateChangeService.loginChange.subscribe(wallet => {
       if (wallet) { // TODO improve
         log.debug(`${this.className} Login with wallet = ${wallet}`);
-        this.onToggleYourMarketsClick();
+        this.onYourMarketsClick();
       } else {
-        this.onToggleAllMarketsClick();
+        this.onAllMarketsClick();
       }
     });
   }
@@ -193,9 +192,12 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   }
 
   // On "All markets tab" click
-  onToggleAllMarketsClick(): void {
+  onAllMarketsClick(): void {
     // set active market view
     this.activeMarketView = ActiveMarketView.ALL_MARKET;
+
+    // re-load the asset lists
+    this.loadAssetLists();
 
     // if all borrowed assets are 0
     this.hideRiskIfNothingBorrowed();
@@ -212,14 +214,6 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     // collapse assets tables
     this.collapseTableUserAssets();
 
-    /** Asset logic */
-
-    // Hide user current and available assets data
-    this.hideUserAssets();
-
-    // Show "All market" table data (assets)
-    this.showMarketAssets();
-
     /** Set everything to default */
 
     // Remove adjust class in user assets
@@ -229,7 +223,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     this.disableAndResetAssetsSupplyAndBorrowSliders();
   }
 
-  onToggleYourMarketsClick(): void {
+  onYourMarketsClick(): void {
     // set active market view
     this.activeMarketView = ActiveMarketView.USER_MARKET;
 
@@ -256,14 +250,6 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     // collapse assets tables
     this.collapseTableUserAssets();
 
-    /** Asset logic */
-
-    // Hide "All market" table data
-    this.hideMarketAssets();
-
-    // Show user current and available assets
-    this.showUserAssets();
-
     /** Set everything to default */
 
     // Remove adjust class
@@ -280,7 +266,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   }
 
   showDefaultActions(): void {
-    this.userAssetComponents.forEach(userAssetComponent => {
+    this.assetComponents.forEach(userAssetComponent => {
       userAssetComponent.showDefaultActions();
     });
 
@@ -289,44 +275,8 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     });
   }
 
-  // hides market assets
-  hideMarketAssets(): void {
-    this.marketAssetComponents.forEach(marketAssetComponent => {
-      marketAssetComponent.hideAsset();
-    });
-
-  }
-
-  // show user current and available assets
-  showUserAssets(): void {
-    this.userAvailableAssetComponents.forEach(userAvailableAssetComponent => {
-      userAvailableAssetComponent.showAsset();
-    });
-
-    this.userAssetComponents.forEach(userAssetComponent => {
-      userAssetComponent.showAsset();
-    });
-  }
-
-  // hides user current and available assets
-  hideUserAssets(): void {
-    this.userAvailableAssetComponents.forEach(userAvailableAssetComponent => {
-      userAvailableAssetComponent.hideAsset();
-    });
-
-    this.userAssetComponents.forEach(userAssetComponent => {
-      userAssetComponent.hideAsset();
-    });
-  }
-
-  showMarketAssets(): void {
-    this.marketAssetComponents.forEach(marketAssetComponent => {
-      marketAssetComponent.showAsset();
-    });
-  }
-
   removeAdjustClass(): void {
-    this.userAssetComponents.forEach(userAssetComponent => {
+    this.assetComponents.forEach(userAssetComponent => {
       userAssetComponent.removeAdjustClass();
     });
     this.userAvailableAssetComponents.forEach(userAvailableAssetComponent => {
@@ -335,7 +285,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   }
 
   collapseOtherAssetsTable(assetTag: any): void {
-    this.userAssetComponents.forEach((userAssetComponent, index) => {
+    this.assetComponents.forEach((userAssetComponent, index) => {
       if (userAssetComponent.asset.tag !== assetTag) {
         userAssetComponent.collapseAssetTableSlideUp();
       }
@@ -346,16 +296,10 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
         userAvailableAssetComponent.collapseAssetTableSlideUp();
       }
     });
-
-    this.marketAssetComponents.forEach((marketAssetComponent, index) => {
-      if (marketAssetComponent.asset.tag !== assetTag) {
-        marketAssetComponent.collapseAssetTableSlideUp();
-      }
-    });
   }
 
   collapseTableUserAssets(): void {
-    this.userAssetComponents.forEach(userAssetComponent => {
+    this.assetComponents.forEach(userAssetComponent => {
       userAssetComponent.collapseAssetTable();
     });
 
@@ -366,7 +310,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
 
   disableAndResetAssetsSupplyAndBorrowSliders(): void {
     // disable and reset supply and borrow sliders
-    this.userAssetComponents.forEach(userAssetComponent => {
+    this.assetComponents.forEach(userAssetComponent => {
       userAssetComponent.disableAndResetSupplySlider();
       userAssetComponent.disableAndResetBorrowSlider();
     });
@@ -377,7 +321,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   }
 
   disableAssetsInputs(): void {
-    this.userAssetComponents.forEach(userAssetComponent => {
+    this.assetComponents.forEach(userAssetComponent => {
       userAssetComponent.disableInputs();
     });
 
