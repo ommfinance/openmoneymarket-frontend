@@ -24,6 +24,12 @@ export declare class KycApiService {
      */
     postAccountDocument(kycDocument: KycDocument, file: File): Promise<AxiosResponse>;
     /**
+     * @description Get list of documents that are uploaded to Prime Trust
+     * @return {Promise<any>} Promise with Prime Trust response https://documentation.primetrust.com/#operation/GET__v2_kyc_document_checks
+     * @throws {BridgeError} - contains user friendly message from the API and external error
+     */
+    getAccountDocument(pageNumber?: number, pageSize?: number): Promise<AxiosResponse>;
+    /**
      * @description Create KYC document check on uploaded KYC document
      * @param {StandardKycDocumentCheck} kycDocumentCheck - Request model for creation of KYC document check
      * @return {Promise<any>} Promise with Prime Trust response https://docs.primetrust.com/?version=latest#6d2f9ae9-c588-40ba-a939-e49ba2ca68b5

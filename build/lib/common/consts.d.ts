@@ -11,5 +11,6 @@ export declare class Consts {
     static BRIDGE_TRANSACTION_RESULT: string;
     static BRIDGE_WIDGET_ACTION: string;
     static BRIDGE_WIDGET_ACTION_RESPONSE: string;
+    static MAX_DOC_SIZE_MB: number;
 }
 //# sourceMappingURL=consts.d.ts.map

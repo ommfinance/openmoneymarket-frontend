@@ -15762,12 +15762,9 @@ function extractPaymentMethodName(selectedPaymentMethod) {
 }
 // format number so that thousands are separated by commas
 function numberWithCommas(amount) {
-    if (amount !== '' || amount !== undefined || amount !== 0 || amount !== '0' || amount !== null) {
-        return amount.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
-    }
-    else {
-        return amount;
-    }
+    return parseFloat(amount).toString() === amount ?
+        Number(amount).toLocaleString('en') :
+        amount;
 }
 
 
@@ -16097,6 +16094,8 @@ Consts.SEND_TRANSACTION_EVENT = "bri.send.tx";
 Consts.BRIDGE_TRANSACTION_RESULT = "bri.tx.result";
 Consts.BRIDGE_WIDGET_ACTION = "bri.widget";
 Consts.BRIDGE_WIDGET_ACTION_RESPONSE = "bri.widget.res";
+// MAX FILE SIZE ON DOCS UPLOAD
+Consts.MAX_DOC_SIZE_MB = 1;
 
 
 /***/ }),
@@ -17706,6 +17705,20 @@ class KycApiService {
         });
     }
     /**
+     * @description Get list of documents that are uploaded to Prime Trust
+     * @return {Promise<any>} Promise with Prime Trust response https://documentation.primetrust.com/#operation/GET__v2_kyc_document_checks
+     * @throws {BridgeError} - contains user friendly message from the API and external error
+     */
+    getAccountDocument(pageNumber, pageSize) {
+        return this.requestsWrapper.axios.get(_common_rest_api_urls__WEBPACK_IMPORTED_MODULE_0__["RestApiUrls"].KYC_UPLOAD_DOCUMENTS_API_URL, {
+            params: {
+                "page[number]": pageNumber !== null && pageNumber !== void 0 ? pageNumber : 1,
+                "page[size]": pageSize !== null && pageSize !== void 0 ? pageSize : 25,
+            },
+            responseType: 'json'
+        });
+    }
+    /**
      * @description Create KYC document check on uploaded KYC document
      * @param {StandardKycDocumentCheck} kycDocumentCheck - Request model for creation of KYC document check
      * @return {Promise<any>} Promise with Prime Trust response https://docs.primetrust.com/?version=latest#6d2f9ae9-c588-40ba-a939-e49ba2ca68b5
@@ -18000,7 +18013,7 @@ function validateFileExtension(filename) {
     Object(_common_Utils__WEBPACK_IMPORTED_MODULE_0__["log"])("validating extension for name: ", filename);
     if (!filename || !filename.includes("."))
         return false;
-    return /^\.?[a-z]{2,5}$/.test(filename.split(".").pop());
+    return /^\.?[a-zA-Z]{2,5}$/.test(filename.split(".").pop());
 }
 function validateName(name) {
     if (!name)
@@ -18970,6 +18983,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _lib_models_PrimeTrust_StandardKycDocumentCheckOther__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../../lib/models/PrimeTrust/StandardKycDocumentCheckOther */ "./src/lib/models/PrimeTrust/StandardKycDocumentCheckOther.ts");
 /* harmony import */ var _logic_utils__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../logic/utils */ "./src/widget/logic/utils.ts");
 /* harmony import */ var _environment_environment__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../../environment/environment */ "./src/environment/environment.ts");
+/* harmony import */ var _lib_common_consts__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../../lib/common/consts */ "./src/lib/common/consts.ts");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -18997,6 +19011,7 @@ var __decorate = (undefined && undefined.__decorate) || function (decorators, ta
 
 
 // child elements
+
 
 
 
@@ -19100,22 +19115,24 @@ let KycAccount = class KycAccount extends lit_element__WEBPACK_IMPORTED_MODULE_0
             throw new _lib_models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_16__["BridgeError"]("No documents to upload. Please select documents to upload and try again.");
         }
         let kycDocument;
+        let documentIdList = [];
         for (const [, file] of documentsToUpload.entries()) {
             kycDocument = new _lib_models_PrimeTrust_KycDocument__WEBPACK_IMPORTED_MODULE_17__["KycDocument"](Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_15__["extractFileExtension"])(file));
             let res = await this.bridge.kycApiService.postAccountDocument(kycDocument, file);
             Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_15__["log"])("Document uploaded:", file.name);
             const documentId = res.data.data.id;
-            let kycDocumentCheck;
-            const docCountry = this.accountAddressCountry.value;
-            if (this.selectedDocumentType == "other") {
-                kycDocumentCheck = new _lib_models_PrimeTrust_StandardKycDocumentCheckOther__WEBPACK_IMPORTED_MODULE_19__["StandardKycDocumentCheckOther"](documentId, docCountry, this.documentType.value, this.documentOther.value, true, true, false);
-            }
-            else {
-                kycDocumentCheck = new _lib_models_PrimeTrust_StandardKycDocumentCheck__WEBPACK_IMPORTED_MODULE_18__["StandardKycDocumentCheck"](documentId, docCountry, this.documentType.value, true, true, false);
-            }
-            res = await this.bridge.kycApiService.postKycDocumentChecks(kycDocumentCheck);
-            Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_15__["log"])("Kyc document check result:", res);
+            documentIdList.push(documentId);
         }
+        let kycDocumentCheck;
+        const docCountry = this.accountAddressCountry.value;
+        if (this.selectedDocumentType == "other") {
+            kycDocumentCheck = new _lib_models_PrimeTrust_StandardKycDocumentCheckOther__WEBPACK_IMPORTED_MODULE_19__["StandardKycDocumentCheckOther"](documentIdList[0], docCountry, this.documentType.value, this.documentOther.value, true, true, false);
+        }
+        else {
+            kycDocumentCheck = new _lib_models_PrimeTrust_StandardKycDocumentCheck__WEBPACK_IMPORTED_MODULE_18__["StandardKycDocumentCheck"](documentIdList[0], docCountry, this.documentType.value, true, true, false, documentIdList.length > 1 ? documentIdList[1] : undefined);
+        }
+        let res = await this.bridge.kycApiService.postKycDocumentChecks(kycDocumentCheck);
+        Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_15__["log"])("Kyc document check result:", res);
     }
     async createPrimeTrustAccount() {
         var _a, _b;
@@ -19264,6 +19281,10 @@ let KycAccount = class KycAccount extends lit_element__WEBPACK_IMPORTED_MODULE_0
             Object(_logic_utils__WEBPACK_IMPORTED_MODULE_20__["showSpanError"])("Invalid file extension", this.photoIdFrontErrorSpan, this.documentFrontSide);
             errorOccurred = true;
         }
+        else if (this.documentFrontSide.files[0].size >= (_lib_common_consts__WEBPACK_IMPORTED_MODULE_22__["Consts"].MAX_DOC_SIZE_MB * 1000 * 1000)) {
+            Object(_logic_utils__WEBPACK_IMPORTED_MODULE_20__["showSpanError"])(`File Size Should be less than ${_lib_common_consts__WEBPACK_IMPORTED_MODULE_22__["Consts"].MAX_DOC_SIZE_MB} MB`, this.photoIdFrontErrorSpan, this.documentFrontSide);
+            errorOccurred = true;
+        }
         else {
             Object(_logic_utils__WEBPACK_IMPORTED_MODULE_20__["hideSpanError"])(this.photoIdFrontErrorSpan, this.documentFrontSide);
         }
@@ -19275,6 +19296,10 @@ let KycAccount = class KycAccount extends lit_element__WEBPACK_IMPORTED_MODULE_0
             }
             else if (!Object(_lib_validation_account_validation__WEBPACK_IMPORTED_MODULE_7__["validateFileExtension"])(this.documentBackSide.files[0].name)) {
                 Object(_logic_utils__WEBPACK_IMPORTED_MODULE_20__["showSpanError"])("Invalid file extension", this.photoIdBackErrorSpan, this.documentBackSide);
+                errorOccurred = true;
+            }
+            else if (this.documentBackSide.files[0].size >= (_lib_common_consts__WEBPACK_IMPORTED_MODULE_22__["Consts"].MAX_DOC_SIZE_MB * 1000 * 1000)) {
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_20__["showSpanError"])(`File Size Should be less than ${_lib_common_consts__WEBPACK_IMPORTED_MODULE_22__["Consts"].MAX_DOC_SIZE_MB} MB`, this.photoIdBackErrorSpan, this.documentBackSide);
                 errorOccurred = true;
             }
             else {
@@ -19363,13 +19388,23 @@ let KycAccount = class KycAccount extends lit_element__WEBPACK_IMPORTED_MODULE_0
         return this.selectedCountry == "US";
     }
     UScountryAddressSelected() {
-        return this.selectedAddressCountry == "US";
+        var _a, _b;
+        if (this.selectedAddressCountry == "US") {
+            this.accountRegionOrState = (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.getElementById('verify-region-us');
+            return true;
+        }
+        else {
+            this.accountRegionOrState = (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.getElementById('verify-region');
+            return false;
+        }
     }
     addressCountryChange() {
         this.selectedAddressCountry = this.accountAddressCountry.value;
     }
     countryChange() {
         this.selectedCountry = this.accountCountry.value;
+        this.selectedAddressCountry = this.selectedCountry;
+        this.selectedDocumentType = this.selectedCountry == "US" ? 'drivers_license' : 'passport';
     }
     driverLicenseSelected() {
         return this.selectedDocumentType == "drivers_license";
@@ -19451,10 +19486,7 @@ let KycAccount = class KycAccount extends lit_element__WEBPACK_IMPORTED_MODULE_0
                         <select @change=${() => this.documentIdTypeChange()} name="verify-photo-id" class="margin-top-10 margin-bottom-20" id="verify-photo-id" required>
                             <optgroup>
                             ${Array.from(_lib_common_code_lists__WEBPACK_IMPORTED_MODULE_8__["CodeLists"].kycDocumentsTypesPrettyMap).map(([key, value]) => {
-            if (this.UScountrySelected() && "drivers_license" == key)
-                return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<option value="${key}" label="${value}" selected>${value}</option>`;
-            else
-                return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<option value="${key}" label="${value}">${value}</option>`;
+            return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<option value="${key}" label="${value}" ?selected=${key == this.selectedDocumentType}>${value}</option>`;
         })}
                             </optgroup>
                         </select>
@@ -19472,7 +19504,7 @@ let KycAccount = class KycAccount extends lit_element__WEBPACK_IMPORTED_MODULE_0
                     
                     <div class="grid margin-bottom-20">
                         <div class="grid-cell">
-                            <label ?hidden="${!this.driverLicenseSelected()}" for="verify-photo-id-front">Front of ID</label><br ?hidden="${!this.driverLicenseSelected()}">
+                            <label ?hidden="${!this.driverLicenseSelected()}" for="verify-photo-id-front">Front of ID (${_lib_common_consts__WEBPACK_IMPORTED_MODULE_22__["Consts"].MAX_DOC_SIZE_MB}MB or less)</label><br ?hidden="${!this.driverLicenseSelected()}">
                             <input class="margin-top-10 text-center" type="file" id="verify-photo-id-front" name="verify-photo-id-front" required>
                             <span class="error-span margin-top-0" id="photo-id-front-error" hidden></span>
                         </div>
@@ -19480,7 +19512,7 @@ let KycAccount = class KycAccount extends lit_element__WEBPACK_IMPORTED_MODULE_0
                     
                     <div class="grid">
                         <div class="grid-cell" ?hidden="${!this.driverLicenseSelected()}">
-                        <label for="verify-photo-id-back">Back of ID</label><br>
+                        <label for="verify-photo-id-back">Back of ID  (${_lib_common_consts__WEBPACK_IMPORTED_MODULE_22__["Consts"].MAX_DOC_SIZE_MB}MB or less)</label><br>
                         <input class="margin-top-10 text-center" type="file" id="verify-photo-id-back" name="verify-photo-id-back" 
                         ?required=${this.driverLicenseSelected()}>
                         <span class="error-span margin-top-0" id="photo-id-back-error" hidden></span>
@@ -19519,11 +19551,10 @@ let KycAccount = class KycAccount extends lit_element__WEBPACK_IMPORTED_MODULE_0
                       </div>
                       <div class="grid-cell">
                         <label for="verify-region">State/Region</label><br>
-                        ${(this.UScountryAddressSelected()) ?
-            lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<select name="verify-region" class="margin-top-10 margin-bottom-20" id="verify-region" required>
+                        <select name="verify-region" class="margin-top-10 margin-bottom-20" id="verify-region-us" ?hidden="${!this.UScountryAddressSelected()}">
                             ${_lib_common_code_lists__WEBPACK_IMPORTED_MODULE_8__["CodeLists"].stateCodesUS.map(code => lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<option value="${code}">${code}</option>`)}
-                        </select>` :
-            lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<input class="margin-top-10 margin-bottom-20" type="text" id="verify-region" name="verify-region" required autocomplete="on">`}
+                        </select>
+                        <input class="margin-top-10 margin-bottom-20" type="text" id="verify-region" name="verify-region" ?hidden="${this.UScountryAddressSelected()}">
                         <span class="error-span" id="state-or-region-error" hidden></span>
                       </div>
                     </div>
@@ -19538,8 +19569,7 @@ let KycAccount = class KycAccount extends lit_element__WEBPACK_IMPORTED_MODULE_0
                         <label for="verify-address-country">Country</label><br>
                         <select name="verify-address-country" @change=${() => this.addressCountryChange()} class="margin-top-10 margin-bottom-20" id="verify-address-country">
                           ${_lib_common_code_lists__WEBPACK_IMPORTED_MODULE_8__["CodeLists"].countryCodes.map(code => {
-            var _a;
-            if (((_a = this.accountCountry) === null || _a === void 0 ? void 0 : _a.value) == code.code)
+            if (this.selectedAddressCountry == code.code)
                 return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<option value="${code.code}" label="${code.name}" selected>${code.name}</option>`;
             else
                 return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<option value="${code.code}" label="${code.name}">${code.name}</option>`;
@@ -20070,35 +20100,36 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _logic_view_transitions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../logic/view-transitions */ "./src/widget/logic/view-transitions.ts");
 /* harmony import */ var _lib_validation_account_validation__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../lib/validation/account-validation */ "./src/lib/validation/account-validation.ts");
 /* harmony import */ var _lib_common_code_lists__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../lib/common/code-lists */ "./src/lib/common/code-lists.ts");
-/* harmony import */ var _assets_css_main_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../assets/css/main.css */ "./src/assets/css/main.css");
-/* harmony import */ var _assets_img_icon_kyc_user_wait_svg__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../assets/img/icon/kyc-user-wait.svg */ "./src/assets/img/icon/kyc-user-wait.svg");
-/* harmony import */ var _assets_img_icon_kyc_user_svg__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../assets/img/icon/kyc-user.svg */ "./src/assets/img/icon/kyc-user.svg");
-/* harmony import */ var _assets_img_icon_kyc_user_error_svg__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../assets/img/icon/kyc-user-error.svg */ "./src/assets/img/icon/kyc-user-error.svg");
-/* harmony import */ var _assets_img_icon_error_svg__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../assets/img/icon/error.svg */ "./src/assets/img/icon/error.svg");
-/* harmony import */ var _assets_img_icon_clock_svg__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../../assets/img/icon/clock.svg */ "./src/assets/img/icon/clock.svg");
-/* harmony import */ var _assets_img_icon_check_cross_svg__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../../assets/img/icon/check-cross.svg */ "./src/assets/img/icon/check-cross.svg");
-/* harmony import */ var _assets_img_icon_check_tick_svg__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../../assets/img/icon/check-tick.svg */ "./src/assets/img/icon/check-tick.svg");
-/* harmony import */ var _kyc_documents__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./kyc-documents */ "./src/widget/child-elements/kyc-documents.ts");
-/* harmony import */ var _lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../../lib/common/Utils */ "./src/lib/common/Utils.ts");
-/* harmony import */ var _lib_models_Enums_KycStatus__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../../lib/models/Enums/KycStatus */ "./src/lib/models/Enums/KycStatus.ts");
-/* harmony import */ var _lib_models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../../lib/models/KycExceptions/CipExceptions */ "./src/lib/models/KycExceptions/CipExceptions.ts");
-/* harmony import */ var _lib_models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../../lib/models/KycExceptions/KycDocCheckExceptions */ "./src/lib/models/KycExceptions/KycDocCheckExceptions.ts");
-/* harmony import */ var _lib_models_PrimeTrust_PatchContact__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../../lib/models/PrimeTrust/PatchContact */ "./src/lib/models/PrimeTrust/PatchContact.ts");
-/* harmony import */ var _lib_models_PrimeTrust_PrimaryAddressUS__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../../lib/models/PrimeTrust/PrimaryAddressUS */ "./src/lib/models/PrimeTrust/PrimaryAddressUS.ts");
-/* harmony import */ var _lib_models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../../lib/models/errors/bridgeError */ "./src/lib/models/errors/bridgeError.ts");
-/* harmony import */ var _lib_common_Mapping__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../../lib/common/Mapping */ "./src/lib/common/Mapping.ts");
-/* harmony import */ var _lib_models_PrimeTrust_KycDocument__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../../lib/models/PrimeTrust/KycDocument */ "./src/lib/models/PrimeTrust/KycDocument.ts");
-/* harmony import */ var _lib_models_PrimeTrust_StandardKycDocumentCheck__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../../lib/models/PrimeTrust/StandardKycDocumentCheck */ "./src/lib/models/PrimeTrust/StandardKycDocumentCheck.ts");
-/* harmony import */ var _lib_models_PrimeTrust_StandardKycDocumentCheckOther__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ../../lib/models/PrimeTrust/StandardKycDocumentCheckOther */ "./src/lib/models/PrimeTrust/StandardKycDocumentCheckOther.ts");
-/* harmony import */ var _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../../lib/models/Enums/KycState */ "./src/lib/models/Enums/KycState.ts");
-/* harmony import */ var _logic_utils__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../logic/utils */ "./src/widget/logic/utils.ts");
-/* harmony import */ var _lib_models_Enums_ContactInclude__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../../lib/models/Enums/ContactInclude */ "./src/lib/models/Enums/ContactInclude.ts");
+/* harmony import */ var _lib_common_consts__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../lib/common/consts */ "./src/lib/common/consts.ts");
+/* harmony import */ var _assets_css_main_css__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../assets/css/main.css */ "./src/assets/css/main.css");
+/* harmony import */ var _assets_img_icon_kyc_user_wait_svg__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../assets/img/icon/kyc-user-wait.svg */ "./src/assets/img/icon/kyc-user-wait.svg");
+/* harmony import */ var _assets_img_icon_kyc_user_svg__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../assets/img/icon/kyc-user.svg */ "./src/assets/img/icon/kyc-user.svg");
+/* harmony import */ var _assets_img_icon_kyc_user_error_svg__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../assets/img/icon/kyc-user-error.svg */ "./src/assets/img/icon/kyc-user-error.svg");
+/* harmony import */ var _assets_img_icon_error_svg__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../../assets/img/icon/error.svg */ "./src/assets/img/icon/error.svg");
+/* harmony import */ var _assets_img_icon_clock_svg__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../../assets/img/icon/clock.svg */ "./src/assets/img/icon/clock.svg");
+/* harmony import */ var _assets_img_icon_check_cross_svg__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../../assets/img/icon/check-cross.svg */ "./src/assets/img/icon/check-cross.svg");
+/* harmony import */ var _assets_img_icon_check_tick_svg__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../../assets/img/icon/check-tick.svg */ "./src/assets/img/icon/check-tick.svg");
+/* harmony import */ var _kyc_documents__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./kyc-documents */ "./src/widget/child-elements/kyc-documents.ts");
+/* harmony import */ var _lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../../lib/common/Utils */ "./src/lib/common/Utils.ts");
+/* harmony import */ var _lib_models_Enums_KycStatus__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../../lib/models/Enums/KycStatus */ "./src/lib/models/Enums/KycStatus.ts");
+/* harmony import */ var _lib_models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../../lib/models/KycExceptions/CipExceptions */ "./src/lib/models/KycExceptions/CipExceptions.ts");
+/* harmony import */ var _lib_models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../../lib/models/KycExceptions/KycDocCheckExceptions */ "./src/lib/models/KycExceptions/KycDocCheckExceptions.ts");
+/* harmony import */ var _lib_models_PrimeTrust_PatchContact__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../../lib/models/PrimeTrust/PatchContact */ "./src/lib/models/PrimeTrust/PatchContact.ts");
+/* harmony import */ var _lib_models_PrimeTrust_PrimaryAddressUS__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../../lib/models/PrimeTrust/PrimaryAddressUS */ "./src/lib/models/PrimeTrust/PrimaryAddressUS.ts");
+/* harmony import */ var _lib_models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../../lib/models/errors/bridgeError */ "./src/lib/models/errors/bridgeError.ts");
+/* harmony import */ var _lib_common_Mapping__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../../lib/common/Mapping */ "./src/lib/common/Mapping.ts");
+/* harmony import */ var _lib_models_PrimeTrust_KycDocument__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../../lib/models/PrimeTrust/KycDocument */ "./src/lib/models/PrimeTrust/KycDocument.ts");
+/* harmony import */ var _lib_models_PrimeTrust_StandardKycDocumentCheck__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ../../lib/models/PrimeTrust/StandardKycDocumentCheck */ "./src/lib/models/PrimeTrust/StandardKycDocumentCheck.ts");
+/* harmony import */ var _lib_models_PrimeTrust_StandardKycDocumentCheckOther__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../../lib/models/PrimeTrust/StandardKycDocumentCheckOther */ "./src/lib/models/PrimeTrust/StandardKycDocumentCheckOther.ts");
+/* harmony import */ var _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../../lib/models/Enums/KycState */ "./src/lib/models/Enums/KycState.ts");
+/* harmony import */ var _logic_utils__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../logic/utils */ "./src/widget/logic/utils.ts");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+
 
 
 
@@ -20136,10 +20167,10 @@ var __decorate = (undefined && undefined.__decorate) || function (decorators, ta
 
 
 
-
 let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MODULE_0__["LitElement"] {
     constructor() {
         super();
+        this.uploadedDocuments = [];
         this.accountPhoneNumber = "1231231231"; // mocked phone number as we do not require it
         this.errors = [];
         this.kycCipErrors = [];
@@ -20149,14 +20180,16 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
         this.selectedCountry = "US";
         this.selectedCipException = "";
         this.selectedKycDocException = "";
-        this.identityState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].verifying;
-        this.addressState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].verifying;
+        this.identityState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].verifying;
+        this.addressState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].verifying;
     }
     updated(_changedProperties) {
         super.updated(_changedProperties);
         _changedProperties.forEach((_oldValue, propName) => {
+            var _a, _b, _c;
             // if kycChecks property changed then refresh exceptions and other
             if (propName == "kycChecks") {
+                this.selectedDocumentType = (_c = (_b = (_a = this.kycChecks) === null || _a === void 0 ? void 0 : _a.latestIdentityKycDocumentCheck.data) === null || _b === void 0 ? void 0 : _b.attributes["kyc-document-type"]) !== null && _c !== void 0 ? _c : 'drivers_license';
                 this.getKycExceptions();
                 this.getIdentityState();
                 this.getAddressState();
@@ -20206,31 +20239,33 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
         this.showModalView(this.kycStatusView);
     }
     async uploadKycDocuments() {
-        Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["log"])("Uploading docs...");
+        Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])("Uploading docs...");
         const documentsToUpload = [this.documentFrontSide.files[0]];
         if (this.driverLicenseSelected())
             documentsToUpload.push(this.documentBackSide.files[0]);
-        Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["log"])("documentsToUpload:", documentsToUpload);
+        Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])("documentsToUpload:", documentsToUpload);
         let kycDocument;
+        let documentIdList = [];
         for (const [, file] of documentsToUpload.entries()) {
-            kycDocument = new _lib_models_PrimeTrust_KycDocument__WEBPACK_IMPORTED_MODULE_21__["KycDocument"](Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["extractFileExtension"])(file));
+            kycDocument = new _lib_models_PrimeTrust_KycDocument__WEBPACK_IMPORTED_MODULE_22__["KycDocument"](Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["extractFileExtension"])(file));
             let res = await this.bridge.kycApiService.postAccountDocument(kycDocument, file);
-            Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["log"])("Document uploaded:", file.name);
+            Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])("Document uploaded:", file.name);
             const documentId = res.data.data.id;
-            let kycDocumentCheck;
-            const docCountry = this.accountAddressCountry.value;
-            if (this.selectedDocumentType == "other") {
-                kycDocumentCheck = new _lib_models_PrimeTrust_StandardKycDocumentCheckOther__WEBPACK_IMPORTED_MODULE_23__["StandardKycDocumentCheckOther"](documentId, docCountry, this.documentType.value, this.documentOther.value, true, true, false);
-            }
-            else {
-                kycDocumentCheck = new _lib_models_PrimeTrust_StandardKycDocumentCheck__WEBPACK_IMPORTED_MODULE_22__["StandardKycDocumentCheck"](documentId, docCountry, this.documentType.value, true, true, false);
-            }
-            res = await this.bridge.kycApiService.postKycDocumentChecks(kycDocumentCheck);
-            Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["log"])("Kyc document check result:", res);
+            documentIdList.push(documentId);
         }
+        let kycDocumentCheck;
+        const docCountry = this.accountAddressCountry.value;
+        if (this.selectedDocumentType == "other") {
+            kycDocumentCheck = new _lib_models_PrimeTrust_StandardKycDocumentCheckOther__WEBPACK_IMPORTED_MODULE_24__["StandardKycDocumentCheckOther"](documentIdList[0], docCountry, this.documentType.value, this.documentOther.value, true, true, false);
+        }
+        else {
+            kycDocumentCheck = new _lib_models_PrimeTrust_StandardKycDocumentCheck__WEBPACK_IMPORTED_MODULE_23__["StandardKycDocumentCheck"](documentIdList[0], docCountry, this.documentType.value, true, true, false, documentIdList.length > 1 ? documentIdList[1] : undefined);
+        }
+        let res = await this.bridge.kycApiService.postKycDocumentChecks(kycDocumentCheck);
+        Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])("Kyc document check result:", res);
     }
     handleError(e) {
-        if (e instanceof _lib_models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_19__["BridgeError"]) {
+        if (e instanceof _lib_models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_20__["BridgeError"]) {
             this.errors = [e.userFriendlyMessage];
         }
         else {
@@ -20263,96 +20298,106 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
     }
     setActiveModalView(newActiveModal) {
         this.activeView = newActiveModal;
-        Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["log"])("New kyc active modal:", newActiveModal);
+        Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])("New kyc active modal:", newActiveModal);
     }
     validateIdentityInputFields() {
-        var _a, _b, _c, _d;
+        var _a, _b, _c, _d, _e, _f;
         let errorOccurred = false;
         // Validate and color border red if invalid
         if (this.identityFormChanged()) {
             // *name
             if (!this.accountName.value && this.accountName.required) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Enter your name", this.nameErrorSpan, this.accountName);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Enter your name", this.nameErrorSpan, this.accountName);
                 errorOccurred = true;
             }
             else if (!Object(_lib_validation_account_validation__WEBPACK_IMPORTED_MODULE_2__["validateName"])(this.accountName.value) && this.accountName.required) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Enter a valid name", this.nameErrorSpan, this.accountName);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Enter a valid name", this.nameErrorSpan, this.accountName);
                 errorOccurred = true;
             }
             else {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["hideSpanError"])(this.nameErrorSpan, this.accountName);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["hideSpanError"])(this.nameErrorSpan, this.accountName);
             }
             // *date-of-birth
             if (!this.accountBirthDate.value && this.accountBirthDate.required) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Enter your date of birth", this.dobErrorSpan, this.accountBirthDate);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Enter your date of birth", this.dobErrorSpan, this.accountBirthDate);
                 errorOccurred = true;
             }
             else if (this.accountBirthDate.required && !Object(_lib_validation_account_validation__WEBPACK_IMPORTED_MODULE_2__["validateDateString"])(this.accountBirthDate.value)) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Enter a valid date of birth", this.dobErrorSpan, this.accountBirthDate);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Enter a valid date of birth", this.dobErrorSpan, this.accountBirthDate);
                 errorOccurred = true;
             }
             else {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["hideSpanError"])(this.dobErrorSpan, this.accountBirthDate);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["hideSpanError"])(this.dobErrorSpan, this.accountBirthDate);
             }
             // *tax-id-number
             if (this.accountIdNumber.required && this.UScountrySelected() && !this.accountIdNumber.value) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Enter your tax ID number", this.idErrorSpan, this.accountIdNumber);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Enter your tax ID number", this.idErrorSpan, this.accountIdNumber);
                 errorOccurred = true;
             }
             else if (this.accountIdNumber.required && this.UScountrySelected() && !Object(_lib_validation_account_validation__WEBPACK_IMPORTED_MODULE_2__["validateTaxIdNumber"])(this.accountIdNumber.value)) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Enter a valid tax ID number", this.idErrorSpan, this.accountIdNumber);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Enter a valid tax ID number", this.idErrorSpan, this.accountIdNumber);
                 errorOccurred = true;
             }
             else if (this.accountIdNumber.required && !this.accountIdNumber.value) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Enter your ID number", this.idErrorSpan, this.accountIdNumber);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Enter your ID number", this.idErrorSpan, this.accountIdNumber);
                 errorOccurred = true;
             }
             else {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["hideSpanError"])(this.idErrorSpan, this.accountIdNumber);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["hideSpanError"])(this.idErrorSpan, this.accountIdNumber);
             }
             // *country
             if (this.accountCountry.required && !this.accountCountry.value) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Choose your country from the list", this.countryErrorSpan, this.accountCountry);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Choose your country from the list", this.countryErrorSpan, this.accountCountry);
                 errorOccurred = true;
             }
             else {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["hideSpanError"])(this.countryErrorSpan, this.accountCountry);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["hideSpanError"])(this.countryErrorSpan, this.accountCountry);
             }
         }
         if ((_b = (_a = this.documentFrontSide) === null || _a === void 0 ? void 0 : _a.files) === null || _b === void 0 ? void 0 : _b.length) {
             // *photo ID
             if (this.documentType.required && !this.documentType.value) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Choose an ID type from the list", this.photoIdErrorSpan, this.documentType);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Choose an ID type from the list", this.photoIdErrorSpan, this.documentType);
                 errorOccurred = true;
             }
             else {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["hideSpanError"])(this.photoIdErrorSpan, this.documentType);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["hideSpanError"])(this.photoIdErrorSpan, this.documentType);
             }
             // *photo ID front
-            if (this.documentFrontSide.required || !((_c = this.documentFrontSide.files) === null || _c === void 0 ? void 0 : _c.length)) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])(this.selectedDocumentType == "drivers_license" ? "Upload the front of your ID" :
+            if (this.documentFrontSide.required && !((_c = this.documentFrontSide.files) === null || _c === void 0 ? void 0 : _c.length)) {
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])(this.selectedDocumentType == "drivers_license" ? "Upload the front of your ID" :
                     "Upload your photo ID", this.photoIdFrontErrorSpan, this.documentFrontSide);
                 errorOccurred = true;
             }
             else if (this.documentFrontSide.required && !Object(_lib_validation_account_validation__WEBPACK_IMPORTED_MODULE_2__["validateFileExtension"])(this.documentFrontSide.files[0].name)) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Invalid file extension", this.photoIdFrontErrorSpan, this.documentFrontSide);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Invalid file extension", this.photoIdFrontErrorSpan, this.documentFrontSide);
+                errorOccurred = true;
+            }
+            else if (((_d = this.documentFrontSide.files) === null || _d === void 0 ? void 0 : _d.length) &&
+                this.documentFrontSide.files[0].size >= (_lib_common_consts__WEBPACK_IMPORTED_MODULE_4__["Consts"].MAX_DOC_SIZE_MB * 1000 * 1000)) {
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])(`File Size Should be less than ${_lib_common_consts__WEBPACK_IMPORTED_MODULE_4__["Consts"].MAX_DOC_SIZE_MB} MB`, this.photoIdFrontErrorSpan, this.documentFrontSide);
                 errorOccurred = true;
             }
             else {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["hideSpanError"])(this.photoIdFrontErrorSpan, this.documentFrontSide);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["hideSpanError"])(this.photoIdFrontErrorSpan, this.documentFrontSide);
             }
             // *photo ID back
             if (this.selectedDocumentType == "drivers_license") {
-                if (this.documentBackSide.required || !((_d = this.documentBackSide.files) === null || _d === void 0 ? void 0 : _d.length)) {
-                    Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Upload the back of your ID", this.photoIdBackErrorSpan, this.documentBackSide);
+                if (this.documentBackSide.required && !((_e = this.documentBackSide.files) === null || _e === void 0 ? void 0 : _e.length)) {
+                    Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Upload the back of your ID", this.photoIdBackErrorSpan, this.documentBackSide);
                     errorOccurred = true;
                 }
                 else if (this.documentBackSide.required && !Object(_lib_validation_account_validation__WEBPACK_IMPORTED_MODULE_2__["validateFileExtension"])(this.documentBackSide.files[0].name)) {
-                    Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Invalid file extension", this.photoIdBackErrorSpan, this.documentBackSide);
+                    Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Invalid file extension", this.photoIdBackErrorSpan, this.documentBackSide);
+                    errorOccurred = true;
+                }
+                else if (((_f = this.documentBackSide.files) === null || _f === void 0 ? void 0 : _f.length) &&
+                    this.documentBackSide.files[0].size >= (_lib_common_consts__WEBPACK_IMPORTED_MODULE_4__["Consts"].MAX_DOC_SIZE_MB * 1000 * 1000)) {
+                    Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])(`File Size Should be less than ${_lib_common_consts__WEBPACK_IMPORTED_MODULE_4__["Consts"].MAX_DOC_SIZE_MB} MB`, this.photoIdBackErrorSpan, this.documentBackSide);
                     errorOccurred = true;
                 }
                 else {
-                    Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["hideSpanError"])(this.photoIdBackErrorSpan, this.documentBackSide);
+                    Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["hideSpanError"])(this.photoIdBackErrorSpan, this.documentBackSide);
                 }
             }
         }
@@ -20364,69 +20409,73 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
         if (this.addressFormChanged()) {
             // *street
             if (!this.accountStreet.value) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Enter your street address", this.streetErrorSpan, this.accountStreet);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Enter your street address", this.streetErrorSpan, this.accountStreet);
                 errorOccurred = true;
             }
             else if (!Object(_lib_validation_account_validation__WEBPACK_IMPORTED_MODULE_2__["validateStreet"])(this.accountStreet.value)) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Enter a valid street address", this.streetErrorSpan, this.accountStreet);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Enter a valid street address", this.streetErrorSpan, this.accountStreet);
                 errorOccurred = true;
             }
             else {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["hideSpanError"])(this.streetErrorSpan, this.accountStreet);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["hideSpanError"])(this.streetErrorSpan, this.accountStreet);
             }
             // *city
             if (!this.accountCity.value) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Enter your city", this.cityErrorSpan, this.accountCity);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Enter your city", this.cityErrorSpan, this.accountCity);
                 errorOccurred = true;
             }
             else {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["hideSpanError"])(this.cityErrorSpan, this.accountCity);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["hideSpanError"])(this.cityErrorSpan, this.accountCity);
             }
             // *state/region
             if (!this.accountRegionOrState.value) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Enter your state/region", this.stateOrRegionErrorSpan, this.accountRegionOrState);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Enter your state/region", this.stateOrRegionErrorSpan, this.accountRegionOrState);
                 errorOccurred = true;
             }
             else if (this.UScountryAddressSelected() && !Object(_lib_validation_account_validation__WEBPACK_IMPORTED_MODULE_2__["validatePrimaryAddressRegionUS"])(this.accountRegionOrState.value)) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Enter a valid state/region", this.stateOrRegionErrorSpan, this.accountRegionOrState);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Enter a valid state/region", this.stateOrRegionErrorSpan, this.accountRegionOrState);
                 errorOccurred = true;
             }
             else {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["hideSpanError"])(this.stateOrRegionErrorSpan, this.accountRegionOrState);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["hideSpanError"])(this.stateOrRegionErrorSpan, this.accountRegionOrState);
             }
             // *postcode
             if (!this.accountPostalCode.value) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Enter your postcode", this.postcodeErrorSpan, this.accountPostalCode);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Enter your postcode", this.postcodeErrorSpan, this.accountPostalCode);
                 errorOccurred = true;
             }
             else if (this.UScountryAddressSelected() && !Object(_lib_validation_account_validation__WEBPACK_IMPORTED_MODULE_2__["validateUsPostalCode"])(this.accountPostalCode.value)) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Enter a valid postcode", this.postcodeErrorSpan, this.accountPostalCode);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Enter a valid postcode", this.postcodeErrorSpan, this.accountPostalCode);
                 errorOccurred = true;
             }
             else {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["hideSpanError"])(this.postcodeErrorSpan, this.accountPostalCode);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["hideSpanError"])(this.postcodeErrorSpan, this.accountPostalCode);
             }
             // *country
             if (!this.accountAddressCountry.value) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Choose your country from the list", this.addressCountryErrorSpan, this.accountAddressCountry);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Choose your country from the list", this.addressCountryErrorSpan, this.accountAddressCountry);
                 errorOccurred = true;
             }
             else {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["hideSpanError"])(this.addressCountryErrorSpan, this.accountAddressCountry);
+                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["hideSpanError"])(this.addressCountryErrorSpan, this.accountAddressCountry);
             }
         }
         if ((_a = this.proofOfAddress.files) === null || _a === void 0 ? void 0 : _a.length) {
             // proof of address document
-            Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["log"])("Proof of document");
-            Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["log"])(this.proofOfAddress.files[0]);
+            Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])("Proof of document");
+            Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])(this.proofOfAddress.files[0]);
             const proofOfAddressFile = this.proofOfAddress.files[0];
             if (proofOfAddressFile) {
                 if (!Object(_lib_validation_account_validation__WEBPACK_IMPORTED_MODULE_2__["validateFileExtension"])(proofOfAddressFile.name)) {
-                    Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Invalid file extension", this.proofOfAddressErrorSpan, this.proofOfAddress);
+                    Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Invalid file extension", this.proofOfAddressErrorSpan, this.proofOfAddress);
+                    errorOccurred = true;
+                }
+                else if (proofOfAddressFile.size >= (_lib_common_consts__WEBPACK_IMPORTED_MODULE_4__["Consts"].MAX_DOC_SIZE_MB * 1000 * 1000)) {
+                    Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])(`File Size Should be less than ${_lib_common_consts__WEBPACK_IMPORTED_MODULE_4__["Consts"].MAX_DOC_SIZE_MB} MB`, this.proofOfAddressErrorSpan, this.proofOfAddress);
                     errorOccurred = true;
                 }
                 else {
-                    Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["hideSpanError"])(this.proofOfAddressErrorSpan, this.proofOfAddress);
+                    Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["hideSpanError"])(this.proofOfAddressErrorSpan, this.proofOfAddress);
                 }
             }
         }
@@ -20453,16 +20502,16 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
         // if invalid fields than return back to the same view with red colored invalid fields and messages
         if (this.validateIdentityInputFields()) {
             this.showModalView(this.kycProcessingModalView);
-            const patchContact = new _lib_models_PrimeTrust_PatchContact__WEBPACK_IMPORTED_MODULE_17__["PatchContact"](undefined, (_a = this.accountName) === null || _a === void 0 ? void 0 : _a.value, undefined, undefined, (_b = this.accountBirthDate) === null || _b === void 0 ? void 0 : _b.value, undefined, (_c = this.accountCountry) === null || _c === void 0 ? void 0 : _c.value, (_d = this.accountIdNumber) === null || _d === void 0 ? void 0 : _d.value, undefined);
+            const patchContact = new _lib_models_PrimeTrust_PatchContact__WEBPACK_IMPORTED_MODULE_18__["PatchContact"](undefined, (_a = this.accountName) === null || _a === void 0 ? void 0 : _a.value, undefined, undefined, (_b = this.accountBirthDate) === null || _b === void 0 ? void 0 : _b.value, undefined, (_c = this.accountCountry) === null || _c === void 0 ? void 0 : _c.value, (_d = this.accountIdNumber) === null || _d === void 0 ? void 0 : _d.value, undefined);
             try {
                 let updated = false;
                 // if any of the contact fields was change then update it
                 if (this.identityFormChanged()) {
-                    Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["log"])("Updating contact");
-                    Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["log"])("patchContact:", patchContact);
-                    Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["log"])("userContact.attributes:", (_e = this.userContact) === null || _e === void 0 ? void 0 : _e.data.attributes);
+                    Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])("Updating contact");
+                    Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])("patchContact:", patchContact);
+                    Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])("userContact.attributes:", (_e = this.userContact) === null || _e === void 0 ? void 0 : _e.data.attributes);
                     // update contact/user info
-                    const res = await this.bridge.accountApiService.updateContact(patchContact, _lib_models_Enums_ContactInclude__WEBPACK_IMPORTED_MODULE_26__["ContactInclude"]["primary-address"]);
+                    const res = await this.bridge.accountApiService.updateContact(patchContact);
                     res.data.included = [this.userContact.included[0]];
                     this.contactUpdatedEvent(res.data);
                     updated = true;
@@ -20495,9 +20544,9 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
             try {
                 let updated = false;
                 if (this.addressFormChanged()) {
-                    const primaryAddress = new _lib_models_PrimeTrust_PrimaryAddressUS__WEBPACK_IMPORTED_MODULE_18__["PrimaryAddressUS"](this.accountCity.value, this.accountAddressCountry.value, this.accountPostalCode.value, this.accountRegionOrState.value, this.accountStreet.value);
-                    const patchContact = new _lib_models_PrimeTrust_PatchContact__WEBPACK_IMPORTED_MODULE_17__["PatchContact"](undefined, undefined, primaryAddress);
-                    const res = await this.bridge.accountApiService.updateContact(patchContact, _lib_models_Enums_ContactInclude__WEBPACK_IMPORTED_MODULE_26__["ContactInclude"]["primary-address"]);
+                    const primaryAddress = new _lib_models_PrimeTrust_PrimaryAddressUS__WEBPACK_IMPORTED_MODULE_19__["PrimaryAddressUS"](this.accountCity.value, this.accountAddressCountry.value, this.accountPostalCode.value, this.accountRegionOrState.value, this.accountStreet.value);
+                    const patchContact = new _lib_models_PrimeTrust_PatchContact__WEBPACK_IMPORTED_MODULE_18__["PatchContact"](undefined, undefined, primaryAddress);
+                    const res = await this.bridge.accountApiService.updateContact(patchContact);
                     res.data.included = [{
                             type: this.userContact.included[0].type,
                             id: this.userContact.included[0].id,
@@ -20533,23 +20582,31 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
     }
     async uploadProofOfAddress() {
         const file = this.proofOfAddress.files[0];
-        const kycDocument = new _lib_models_PrimeTrust_KycDocument__WEBPACK_IMPORTED_MODULE_21__["KycDocument"](Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["extractFileExtension"])(file));
+        const kycDocument = new _lib_models_PrimeTrust_KycDocument__WEBPACK_IMPORTED_MODULE_22__["KycDocument"](Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["extractFileExtension"])(file));
         let res = await this.bridge.kycApiService.postAccountDocument(kycDocument, file);
-        Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["log"])("Document uploaded:", file.name);
+        Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])("Document uploaded:", file.name);
         const documentId = res.data.data.id;
-        const kycDocumentCheck = new _lib_models_PrimeTrust_StandardKycDocumentCheck__WEBPACK_IMPORTED_MODULE_22__["StandardKycDocumentCheck"](documentId, this.userContact.included[0].attributes.country, _lib_common_code_lists__WEBPACK_IMPORTED_MODULE_3__["CodeLists"].kycProofOfAddressDocumentType, false, false, true);
+        const kycDocumentCheck = new _lib_models_PrimeTrust_StandardKycDocumentCheck__WEBPACK_IMPORTED_MODULE_23__["StandardKycDocumentCheck"](documentId, this.userContact.included[0].attributes.country, _lib_common_code_lists__WEBPACK_IMPORTED_MODULE_3__["CodeLists"].kycProofOfAddressDocumentType, false, false, true);
         res = await this.bridge.kycApiService.postKycDocumentChecks(kycDocumentCheck);
-        Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["log"])("Kyc document check result:", res);
+        Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])("Kyc document check result:", res);
     }
     documentIdTypeChange() {
         this.selectedDocumentType = this.documentType.value;
-        Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["log"])("Changed document type to: ", this.selectedDocumentType);
+        Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])("Changed document type to: ", this.selectedDocumentType);
     }
     UScountrySelected() {
         return this.selectedCountry == "US";
     }
     UScountryAddressSelected() {
-        return this.selectedAddressCountry == "US";
+        var _a, _b;
+        if (this.selectedAddressCountry == "US") {
+            this.accountRegionOrState = (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.getElementById('verify-region-us');
+            return true;
+        }
+        else {
+            this.accountRegionOrState = (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.getElementById('verify-region');
+            return false;
+        }
     }
     addressCountryChange() {
         this.selectedAddressCountry = this.accountAddressCountry.value;
@@ -20562,33 +20619,33 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
     }
     getKycStatusImg() {
         // if identity or address failed show not verified
-        if (this.identityState == _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].failed || this.addressState == _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].failed) {
-            return _assets_img_icon_kyc_user_error_svg__WEBPACK_IMPORTED_MODULE_7__["default"];
+        if (this.identityState == _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].failed || this.addressState == _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].failed) {
+            return _assets_img_icon_kyc_user_error_svg__WEBPACK_IMPORTED_MODULE_8__["default"];
         }
         // if both checked then show verified
-        else if (this.identityState == _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].checked && this.addressState == _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].checked) {
-            return _assets_img_icon_kyc_user_svg__WEBPACK_IMPORTED_MODULE_6__["default"];
+        else if (this.identityState == _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].checked && this.addressState == _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].checked) {
+            return _assets_img_icon_kyc_user_svg__WEBPACK_IMPORTED_MODULE_7__["default"];
         }
         else {
-            return _assets_img_icon_kyc_user_wait_svg__WEBPACK_IMPORTED_MODULE_5__["default"];
+            return _assets_img_icon_kyc_user_wait_svg__WEBPACK_IMPORTED_MODULE_6__["default"];
         }
     }
     getKycStatusText() {
         var _a;
-        if (!(((_a = this.userKycData) === null || _a === void 0 ? void 0 : _a.status) == _lib_models_Enums_KycStatus__WEBPACK_IMPORTED_MODULE_14__["KycStatus"].opened.valueOf() && this.userKycData.cipCleared)) {
+        if (!(((_a = this.userKycData) === null || _a === void 0 ? void 0 : _a.status) == _lib_models_Enums_KycStatus__WEBPACK_IMPORTED_MODULE_15__["KycStatus"].opened.valueOf() && this.userKycData.cipCleared)) {
             return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<p class="label-small text-center">You can't deposit or withdraw USD until</br>your account has been verified.</p>`;
         }
         if (!this.userKycData.amlCleared) {
             return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<p class="label-small text-center">You can't deposit or withdraw USD until</br>your account has been verified.</p>`;
         }
         switch (this.userKycData.status) {
-            case _lib_models_Enums_KycStatus__WEBPACK_IMPORTED_MODULE_14__["KycStatus"].opened.valueOf():
+            case _lib_models_Enums_KycStatus__WEBPACK_IMPORTED_MODULE_15__["KycStatus"].opened.valueOf():
                 return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<p class="label-small text-center">You can deposit and withdraw USD.</p>`;
-            case _lib_models_Enums_KycStatus__WEBPACK_IMPORTED_MODULE_14__["KycStatus"].closed.valueOf():
+            case _lib_models_Enums_KycStatus__WEBPACK_IMPORTED_MODULE_15__["KycStatus"].closed.valueOf():
                 return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<p class="label-small text-center">You can't deposit or withdraw USD until</br>your account has been verified.</p>`;
-            case _lib_models_Enums_KycStatus__WEBPACK_IMPORTED_MODULE_14__["KycStatus"].incomplete.valueOf():
+            case _lib_models_Enums_KycStatus__WEBPACK_IMPORTED_MODULE_15__["KycStatus"].incomplete.valueOf():
                 return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<p class="label-small text-center">You can't deposit or withdraw USD until</br>your account has been verified.</p>`;
-            case _lib_models_Enums_KycStatus__WEBPACK_IMPORTED_MODULE_14__["KycStatus"].pending.valueOf():
+            case _lib_models_Enums_KycStatus__WEBPACK_IMPORTED_MODULE_15__["KycStatus"].pending.valueOf():
                 return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<p class="label-small text-center">You can't deposit or withdraw USD until</br>your account has been verified.</p>`;
             default:
                 return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<p class="label-small text-center">You can't deposit or withdraw USD until</br>your account has been verified.</p>`;
@@ -20596,11 +20653,11 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
     }
     getKycStatusTitle() {
         // if identity or address failed show not verified
-        if (this.identityState == _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].failed || this.addressState == _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].failed) {
+        if (this.identityState == _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].failed || this.addressState == _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].failed) {
             return "Not verified";
         }
         // if both checked then show verified
-        else if (this.identityState == _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].checked && this.addressState == _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].checked) {
+        else if (this.identityState == _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].checked && this.addressState == _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].checked) {
             return "Verified";
         }
         else {
@@ -20609,7 +20666,7 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
     }
     handleOnIdentityFailClick() {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
-        Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["log"])("Handling failed identity");
+        Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])("Handling failed identity");
         this.accountName.value = (_b = (_a = this.userContact) === null || _a === void 0 ? void 0 : _a.data.attributes.name) !== null && _b !== void 0 ? _b : "";
         this.accountBirthDate.value = (_d = (_c = this.userContact) === null || _c === void 0 ? void 0 : _c.data.attributes["date-of-birth"]) !== null && _d !== void 0 ? _d : "";
         this.accountCountry.value = (_f = (_e = this.userContact) === null || _e === void 0 ? void 0 : _e.data.attributes["tax-country"]) !== null && _f !== void 0 ? _f : "";
@@ -20621,52 +20678,62 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
             this.documentType.value = this.kycChecks.latestIdentityKycDocumentCheck.data.attributes["kyc-document-other-type"];
             this.selectedDocumentType = this.documentType.value;
         }
-        this.kycCipErrors.forEach(kycError => {
-            if (kycError == _lib_models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_15__["CipExceptions"].NameAutoCheck) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Must match the rest of your details", this.nameErrorSpan, this.accountName);
-                this.requireAndRemoveDisable(this.accountName);
-            }
-            else if (kycError == _lib_models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_15__["CipExceptions"].DateOfBirthAutoCheck) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Couldn't verify. Make sure it's correct and try again", this.dobErrorSpan, this.accountBirthDate);
-                this.requireAndRemoveDisable(this.accountBirthDate);
-            }
-            else if (kycError == _lib_models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_15__["CipExceptions"].TaxIdAutoCheck || kycError == _lib_models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_15__["CipExceptions"].TaxIdManualCheck) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Couldn't verify. Make sure it's correct and try again", this.idErrorSpan, this.accountIdNumber);
-                this.requireAndRemoveDisable(this.accountIdNumber);
-            }
-        });
-        this.kycDocErrors.forEach(kycDocError => {
-            if (kycDocError == _lib_models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_16__["KycDocCheckExceptions"].DateOfBirth) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Must match your photo ID", this.dobErrorSpan, this.accountBirthDate);
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Must match your date of birth", this.photoIdErrorSpan, this.documentType);
-                this.requireAndRemoveDisable(this.accountBirthDate);
-                this.removeDisable(this.documentFrontSide);
-                this.removeDisable(this.documentBackSide);
-                this.removeDisable(this.documentType);
-            }
-            else if (kycDocError == _lib_models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_16__["KycDocCheckExceptions"].DocumentInvalid) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Your photo ID is not valid. Upload a current ID and try again", this.photoIdFrontErrorSpan, this.documentFrontSide);
-                this.requireAndRemoveDisable(this.documentFrontSide);
-                this.requireAndRemoveDisable(this.documentType);
-            }
-            else if (kycDocError == _lib_models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_16__["KycDocCheckExceptions"].WaitingForDocumentUploads) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Your documents did not get uploaded. Upload a current ID and try again", this.photoIdFrontErrorSpan, this.documentFrontSide);
-                this.requireAndRemoveDisable(this.documentFrontSide);
-                this.requireAndRemoveDisable(this.documentType);
-            }
-            else if (kycDocError == _lib_models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_16__["KycDocCheckExceptions"].TaxCountry) {
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Must match your photo ID", this.countryErrorSpan, this.accountCountry);
-                Object(_logic_utils__WEBPACK_IMPORTED_MODULE_25__["showSpanError"])("Must match your country", this.photoIdFrontErrorSpan, this.documentFrontSide);
-                this.requireAndRemoveDisable(this.accountCountry);
-                this.removeDisable(this.documentFrontSide);
-                this.removeDisable(this.documentBackSide);
-                this.removeDisable(this.documentType);
-            }
-        });
+        if (this.uploadedDocuments.length <= 0) {
+            Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Your documents did not get uploaded. Upload a current ID and try again", this.photoIdFrontErrorSpan, this.documentFrontSide);
+            this.requireAndRemoveDisable(this.documentFrontSide);
+            this.removeDisable(this.documentBackSide);
+            this.requireAndRemoveDisable(this.documentType);
+        }
+        else {
+            this.kycCipErrors.forEach(kycError => {
+                if (kycError == _lib_models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_16__["CipExceptions"].NameAutoCheck) {
+                    Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Must match the rest of your details", this.nameErrorSpan, this.accountName);
+                    this.requireAndRemoveDisable(this.accountName);
+                }
+                else if (kycError == _lib_models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_16__["CipExceptions"].DateOfBirthAutoCheck) {
+                    Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Couldn't verify. Make sure it's correct and try again", this.dobErrorSpan, this.accountBirthDate);
+                    this.requireAndRemoveDisable(this.accountBirthDate);
+                }
+                else if (kycError == _lib_models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_16__["CipExceptions"].TaxIdAutoCheck || kycError == _lib_models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_16__["CipExceptions"].TaxIdManualCheck) {
+                    Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Couldn't verify. Make sure it's correct and try again", this.idErrorSpan, this.accountIdNumber);
+                    this.requireAndRemoveDisable(this.accountIdNumber);
+                }
+            });
+            this.kycDocErrors.forEach(kycDocError => {
+                if (kycDocError == _lib_models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_17__["KycDocCheckExceptions"].DateOfBirth) {
+                    Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Must match your photo ID", this.dobErrorSpan, this.accountBirthDate);
+                    Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Must match your date of birth", this.photoIdErrorSpan, this.documentType);
+                    this.requireAndRemoveDisable(this.accountBirthDate);
+                    this.removeDisable(this.documentFrontSide);
+                    this.removeDisable(this.documentBackSide);
+                    this.removeDisable(this.documentType);
+                }
+                else if (kycDocError == _lib_models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_17__["KycDocCheckExceptions"].DocumentInvalid) {
+                    Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Your photo ID is not valid. Upload a current ID and try again", this.photoIdFrontErrorSpan, this.documentFrontSide);
+                    this.requireAndRemoveDisable(this.documentFrontSide);
+                    this.removeDisable(this.documentBackSide);
+                    this.requireAndRemoveDisable(this.documentType);
+                }
+                else if (kycDocError == _lib_models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_17__["KycDocCheckExceptions"].WaitingForDocumentUploads) {
+                    Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Your documents did not get uploaded. Upload a current ID and try again", this.photoIdFrontErrorSpan, this.documentFrontSide);
+                    this.requireAndRemoveDisable(this.documentFrontSide);
+                    this.removeDisable(this.documentBackSide);
+                    this.requireAndRemoveDisable(this.documentType);
+                }
+                else if (kycDocError == _lib_models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_17__["KycDocCheckExceptions"].TaxCountry) {
+                    Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Must match your photo ID", this.countryErrorSpan, this.accountCountry);
+                    Object(_logic_utils__WEBPACK_IMPORTED_MODULE_26__["showSpanError"])("Must match your country", this.photoIdFrontErrorSpan, this.documentFrontSide);
+                    this.requireAndRemoveDisable(this.accountCountry);
+                    this.removeDisable(this.documentFrontSide);
+                    this.removeDisable(this.documentBackSide);
+                    this.removeDisable(this.documentType);
+                }
+            });
+        }
         this.showModalView(this.kycIdentityModalView);
     }
     requireAndRemoveDisable(htmlElement) {
-        Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["log"])("requireAndRemoveDisable:", htmlElement.id);
+        Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])("requireAndRemoveDisable:", htmlElement.id);
         this.removeDisable(htmlElement);
         htmlElement.required = true;
     }
@@ -20675,7 +20742,7 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
     }
     handleOnAddressFailClick() {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
-        Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["log"])("Handling failed address");
+        Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])("Handling failed address");
         // fill address fields with fields from contact data
         this.accountStreet.value = (_b = (_a = this.userContact) === null || _a === void 0 ? void 0 : _a.included[0].attributes["street-1"]) !== null && _b !== void 0 ? _b : "";
         this.accountCity.value = (_d = (_c = this.userContact) === null || _c === void 0 ? void 0 : _c.included[0].attributes.city) !== null && _d !== void 0 ? _d : "";
@@ -20687,7 +20754,7 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
     // check if CIP, AML and KYC doc check for identity are cleared/approved as well as account open
     isKycCleared() {
         var _a, _b, _c, _d;
-        return ((_a = this.userKycData) === null || _a === void 0 ? void 0 : _a.status) == _lib_models_Enums_KycStatus__WEBPACK_IMPORTED_MODULE_14__["KycStatus"].opened
+        return ((_a = this.userKycData) === null || _a === void 0 ? void 0 : _a.status) == _lib_models_Enums_KycStatus__WEBPACK_IMPORTED_MODULE_15__["KycStatus"].opened
             && ((_b = this.userKycData) === null || _b === void 0 ? void 0 : _b.amlCleared)
             && ((_c = this.userKycData) === null || _c === void 0 ? void 0 : _c.cipCleared)
             && ((_d = this.userKycData) === null || _d === void 0 ? void 0 : _d.identityConfirmed);
@@ -20717,72 +20784,78 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
     getIdentityStateHtml() {
         this.getIdentityState();
         switch (this.identityState) {
-            case _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].verifying:
-                return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<img src=${_assets_img_icon_clock_svg__WEBPACK_IMPORTED_MODULE_9__["default"]}><p class="text-center">Identity</p>`;
-            case _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].checked:
-                return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<img src=${_assets_img_icon_check_tick_svg__WEBPACK_IMPORTED_MODULE_11__["default"]}><p class="text-center">Identity</p>`;
-            case _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].failed:
-                return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<a @click="${this.handleOnIdentityFailClick}" class="kyc-fail-state animation-underline"><img src=${_assets_img_icon_check_cross_svg__WEBPACK_IMPORTED_MODULE_10__["default"]}><p class="text-center">Identity</p></a>`;
+            case _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].verifying:
+                return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<img src=${_assets_img_icon_clock_svg__WEBPACK_IMPORTED_MODULE_10__["default"]}><p class="text-center">Identity</p>`;
+            case _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].checked:
+                return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<img src=${_assets_img_icon_check_tick_svg__WEBPACK_IMPORTED_MODULE_12__["default"]}><p class="text-center">Identity</p>`;
+            case _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].failed:
+                return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<a @click="${this.handleOnIdentityFailClick}" class="kyc-fail-state animation-underline"><img src=${_assets_img_icon_check_cross_svg__WEBPACK_IMPORTED_MODULE_11__["default"]}><p class="text-center">Identity</p></a>`;
         }
     }
     // returns lit html for kyc identity status (checked, clock, fail)
     getIdentityState() {
         var _a;
         if (this.isKycCleared()) {
-            this.identityState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].checked;
-            Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["log"])("this.identityState = KycState.checked;");
+            this.identityState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].checked;
+            Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])("this.identityState = KycState.checked;");
             return;
         }
         else {
             if (this.kycChecks) {
                 // if there is no CIP check show clock
                 if (!this.kycChecks.latestCipCheck.data) {
-                    this.identityState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].verifying;
-                    Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["log"])("this.identityState = KycState.verifying;");
+                    this.identityState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].verifying;
+                    Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])("this.identityState = KycState.verifying;");
                     return;
                 }
                 else {
                     // check if there are cip exceptions that are not address related
                     if (this.kycChecks.latestCipCheck.data.attributes.exceptions.length > 0) {
                         for (let value of this.kycChecks.latestCipCheck.data.attributes.exceptions) {
-                            if (!(value == _lib_models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_15__["CipExceptions"].AddressCheck || value == _lib_models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_15__["CipExceptions"].AddressManualCheck
-                                || value == _lib_models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_15__["CipExceptions"].AutoCheck || _lib_models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_15__["CipExceptions"].ManualReviewRequired)) {
-                                this.identityState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].failed;
+                            if (!(value == _lib_models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_16__["CipExceptions"].AddressCheck || value == _lib_models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_16__["CipExceptions"].AddressManualCheck
+                                || value == _lib_models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_16__["CipExceptions"].AutoCheck || value == _lib_models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_16__["CipExceptions"].ManualReviewRequired)) {
+                                this.identityState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].failed;
                                 return;
                             }
                         }
                     } // check if there is CIP exception details instead of exception
                     else if ((_a = this.kycChecks.latestCipCheck) === null || _a === void 0 ? void 0 : _a.data.attributes["exception-details"]) {
-                        this.identityState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].failed;
+                        this.identityState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].failed;
                         return;
                     }
                 }
+                // if there are no uploaded docs, show not verified and allow re-upload
+                if (this.uploadedDocuments.length <= 0) {
+                    this.identityState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].failed;
+                    Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])("No documents have been uploaded for this account");
+                    return;
+                }
                 // if there is no KYC document check show clock
                 if (!this.kycChecks.latestIdentityKycDocumentCheck.data) {
-                    this.identityState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].verifying;
-                    Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["log"])("!this.kycChecks.latestIdentityKycDocumentCheck.data->", "this.identityState = KycState.verifying;");
+                    this.identityState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].verifying;
+                    Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])("!this.kycChecks.latestIdentityKycDocumentCheck.data->", "this.identityState = KycState.verifying;");
                     return;
                 }
                 else {
                     if (this.kycChecks.latestIdentityKycDocumentCheck.data.attributes.exceptions.length > 0) {
                         for (let value of this.kycChecks.latestIdentityKycDocumentCheck.data.attributes.exceptions) {
-                            if (value != _lib_models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_16__["KycDocCheckExceptions"].AddressAutoCheck && value != _lib_models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_16__["KycDocCheckExceptions"].AutoCheck
-                                && value != _lib_models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_16__["KycDocCheckExceptions"].ManualCheck) {
-                                Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["log"])("kyc doc check exception found: ", value, " -> this.identityState = KycState.failed");
-                                this.identityState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].failed;
+                            if (value != _lib_models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_17__["KycDocCheckExceptions"].AddressAutoCheck && value != _lib_models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_17__["KycDocCheckExceptions"].AutoCheck
+                                && value != _lib_models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_17__["KycDocCheckExceptions"].ManualCheck) {
+                                Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])("kyc doc check exception found: ", value, " -> this.identityState = KycState.failed");
+                                this.identityState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].failed;
                                 return;
                             }
                         }
                     }
                 }
                 // default show clock, also covers AML exceptions which are handled manually
-                this.identityState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].verifying;
-                Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["log"])("this.identityState = KycState.verifying;");
+                this.identityState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].verifying;
+                Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])("this.identityState = KycState.verifying;");
                 return;
             }
             else {
-                Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["log"])("this.identityState = KycState.verifying;");
-                this.identityState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].verifying;
+                Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])("this.identityState = KycState.verifying;");
+                this.identityState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].verifying;
                 return;
             }
         }
@@ -20791,12 +20864,12 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
     getAddressStateHtml() {
         this.getAddressState();
         switch (this.addressState) {
-            case _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].verifying:
-                return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<img src=${_assets_img_icon_clock_svg__WEBPACK_IMPORTED_MODULE_9__["default"]}><p class="text-center">Address</p>`;
-            case _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].checked:
-                return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<img src=${_assets_img_icon_check_tick_svg__WEBPACK_IMPORTED_MODULE_11__["default"]}><p class="text-center">Address</p>`;
-            case _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].failed:
-                return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] ` <a @click="${this.handleOnAddressFailClick}" class="kyc-fail-state animation-underline"><img src=${_assets_img_icon_check_cross_svg__WEBPACK_IMPORTED_MODULE_10__["default"]}>
+            case _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].verifying:
+                return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<img src=${_assets_img_icon_clock_svg__WEBPACK_IMPORTED_MODULE_10__["default"]}><p class="text-center">Address</p>`;
+            case _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].checked:
+                return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<img src=${_assets_img_icon_check_tick_svg__WEBPACK_IMPORTED_MODULE_12__["default"]}><p class="text-center">Address</p>`;
+            case _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].failed:
+                return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] ` <a @click="${this.handleOnAddressFailClick}" class="kyc-fail-state animation-underline"><img src=${_assets_img_icon_check_cross_svg__WEBPACK_IMPORTED_MODULE_11__["default"]}>
                                           <p class="text-center">Address</p></a>`;
         }
     }
@@ -20805,22 +20878,22 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
         var _a, _b, _c, _d;
         // if kyc is valid just return checked
         if (this.isKycCleared()) {
-            this.addressState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].checked;
+            this.addressState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].checked;
             return;
         }
         else {
             if (this.kycChecks) {
                 // if there is no CIP check show verifying
                 if (!this.kycChecks.latestCipCheck.data) {
-                    this.addressState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].verifying;
+                    this.addressState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].verifying;
                     return;
                 }
                 else {
                     // check if there are cip exceptions that are address related
                     if (this.kycChecks.latestCipCheck.data.attributes.exceptions.length > 0) {
                         for (let value of (_b = (_a = this.kycChecks.latestCipCheck.data) === null || _a === void 0 ? void 0 : _a.attributes.exceptions) !== null && _b !== void 0 ? _b : []) {
-                            if (value == _lib_models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_15__["CipExceptions"].AddressCheck || value == _lib_models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_15__["CipExceptions"].AddressManualCheck) {
-                                this.addressState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].failed;
+                            if (value == _lib_models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_16__["CipExceptions"].AddressCheck || value == _lib_models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_16__["CipExceptions"].AddressManualCheck) {
+                                this.addressState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].failed;
                                 return;
                             }
                         }
@@ -20828,25 +20901,25 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
                 }
                 // check if latest kyc document contains address exception
                 if (!this.kycChecks.latestIdentityKycDocumentCheck.data) {
-                    this.addressState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].verifying;
+                    this.addressState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].verifying;
                     return;
                 }
                 else {
                     if (this.kycChecks.latestIdentityKycDocumentCheck.data.attributes.exceptions.length > 0) {
                         for (let value of (_d = (_c = this.kycChecks.latestIdentityKycDocumentCheck.data) === null || _c === void 0 ? void 0 : _c.attributes.exceptions) !== null && _d !== void 0 ? _d : []) {
-                            if (value == _lib_models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_16__["KycDocCheckExceptions"].AddressAutoCheck) {
-                                this.addressState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].failed;
+                            if (value == _lib_models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_17__["KycDocCheckExceptions"].AddressAutoCheck) {
+                                this.addressState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].failed;
                                 return;
                             }
                         }
                     }
                 }
                 // if CIP and KYC document check exists and no address related exception was found then return checked
-                this.addressState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].checked;
+                this.addressState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].checked;
                 return;
             }
             else {
-                this.addressState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_24__["KycState"].verifying;
+                this.addressState = _lib_models_Enums_KycState__WEBPACK_IMPORTED_MODULE_25__["KycState"].verifying;
                 return;
             }
         }
@@ -20861,7 +20934,7 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
             this.kycChecks.latestCipCheck.data.attributes.exceptions = [this.selectedCipException];
             this.userKycData.cipCleared = false;
         }
-        Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["log"])("cipExceptionChange", this.cipExceptionInput.value);
+        Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])("cipExceptionChange", this.cipExceptionInput.value);
         this.getIdentityState();
         this.getAddressState();
         this.getKycExceptions();
@@ -20878,7 +20951,7 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
             this.selectedKycDocException = this.kycDocExceptionInput.value;
             this.kycChecks.latestIdentityKycDocumentCheck.data.attributes.exceptions = [this.selectedKycDocException];
         }
-        Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_13__["log"])("kycDocExceptionChange", this.kycDocExceptionInput.value);
+        Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_14__["log"])("kycDocExceptionChange", this.kycDocExceptionInput.value);
         this.getIdentityState();
         this.getAddressState();
         this.getKycExceptions();
@@ -20930,14 +21003,14 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
                   <ul ?hidden="${this.kycCipErrors.length == 0 && this.kycDocErrors.length == 0}" class="error-list">
                         ${this.kycCipErrors.map((error) => {
             var _a, _b;
-            if (Object(_lib_common_Mapping__WEBPACK_IMPORTED_MODULE_20__["getKycFailureMessage"])(error, (_a = this.userContact) === null || _a === void 0 ? void 0 : _a.data.attributes["tax-country"])) {
-                return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<li>${Object(_lib_common_Mapping__WEBPACK_IMPORTED_MODULE_20__["getKycFailureMessage"])(error, (_b = this.userContact) === null || _b === void 0 ? void 0 : _b.data.attributes["tax-country"])}</li>`;
+            if (Object(_lib_common_Mapping__WEBPACK_IMPORTED_MODULE_21__["getKycFailureMessage"])(error, (_a = this.userContact) === null || _a === void 0 ? void 0 : _a.data.attributes["tax-country"])) {
+                return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<li>${Object(_lib_common_Mapping__WEBPACK_IMPORTED_MODULE_21__["getKycFailureMessage"])(error, (_b = this.userContact) === null || _b === void 0 ? void 0 : _b.data.attributes["tax-country"])}</li>`;
             }
         })}
                         ${this.kycDocErrors.map((error) => {
             var _a, _b;
-            if (Object(_lib_common_Mapping__WEBPACK_IMPORTED_MODULE_20__["getKycFailureMessage"])(error, (_a = this.userContact) === null || _a === void 0 ? void 0 : _a.data.attributes["tax-country"])) {
-                return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<li>${Object(_lib_common_Mapping__WEBPACK_IMPORTED_MODULE_20__["getKycFailureMessage"])(error, (_b = this.userContact) === null || _b === void 0 ? void 0 : _b.data.attributes["tax-country"])}</li>`;
+            if (Object(_lib_common_Mapping__WEBPACK_IMPORTED_MODULE_21__["getKycFailureMessage"])(error, (_a = this.userContact) === null || _a === void 0 ? void 0 : _a.data.attributes["tax-country"])) {
+                return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<li>${Object(_lib_common_Mapping__WEBPACK_IMPORTED_MODULE_21__["getKycFailureMessage"])(error, (_b = this.userContact) === null || _b === void 0 ? void 0 : _b.data.attributes["tax-country"])}</li>`;
             }
         })}
                   </ul>
@@ -20948,14 +21021,14 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
                         <label for="cip-exception">CIP exception</label><br>
                         <select name="cip-exception" @change=${() => this.cipExceptionChange()} class="margin-top-10 margin-bottom-20" id="cip-exception">
                           <option value="" label="None">None</option>
-                          ${Object.values(_lib_models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_15__["CipExceptions"]).map(value => lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<option value="${value}" label="${value}">${value}</option>`)}
+                          ${Object.values(_lib_models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_16__["CipExceptions"]).map(value => lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<option value="${value}" label="${value}">${value}</option>`)}
                         </select>
                     </div>
                     <div class="grid-cell">
                         <label for="kyc-doc-exception">KYC doc exception</label><br>
                         <select name="kyc-doc-exception" @change=${() => this.kycDocExceptionChange()} class="margin-top-10 margin-bottom-20" id="kyc-doc-exception">
                            <option value="" label="None">None</option>
-                          ${Object.values(_lib_models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_16__["KycDocCheckExceptions"]).map(value => lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<option value="${value}" label="${value}">${value}</option>`)}
+                          ${Object.values(_lib_models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_17__["KycDocCheckExceptions"]).map(value => lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<option value="${value}" label="${value}">${value}</option>`)}
                         </select>
                     </div>
                   </div>
@@ -21015,10 +21088,7 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
                         <select @change=${() => this.documentIdTypeChange()} name="verify-photo-id" class="margin-top-10 margin-bottom-20" id="verify-photo-id" disabled>
                             <optgroup>
                             ${Array.from(_lib_common_code_lists__WEBPACK_IMPORTED_MODULE_3__["CodeLists"].kycDocumentsTypesPrettyMap).map(([key, value]) => {
-            if (this.UScountrySelected() && "drivers_license" == key)
-                return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<option value="${key}" label="${value}" selected>${value}</option>`;
-            else
-                return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<option value="${key}" label="${value}">${value}</option>`;
+            return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<option value="${key}" label="${value}" ?selected=${key === this.selectedDocumentType}>${value}</option>`;
         })}
                             </optgroup>
                         </select>
@@ -21040,7 +21110,7 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
                     
                     <div class="grid margin-bottom-20">
                       <div class="grid-cell">
-                        <label for="verify-photo-id-front">Front of ID</label><br>
+                        <label for="verify-photo-id-front">Front of ID (${_lib_common_consts__WEBPACK_IMPORTED_MODULE_4__["Consts"].MAX_DOC_SIZE_MB}MB or less)</label><br>
                         <input class="margin-top-10" type="file" id="verify-photo-id-front" name="verify-photo-id-front" disabled>
                         <span class="error-span margin-top-0" id="photo-id-front-error" hidden></span>
                       </div>
@@ -21048,7 +21118,7 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
                     
                     <div class="grid">
                       <div class="grid-cell" ?hidden="${!this.driverLicenseSelected()}">
-                        <label for="verify-photo-id-back">Back of ID</label><br>
+                        <label for="verify-photo-id-back">Back of ID  (${_lib_common_consts__WEBPACK_IMPORTED_MODULE_4__["Consts"].MAX_DOC_SIZE_MB}MB or less)</label><br>
                         <input class="margin-top-10" type="file" id="verify-photo-id-back" name="verify-photo-id-back" 
                         ?required=${this.driverLicenseSelected() && ((_b = (_a = this.documentFrontSide) === null || _a === void 0 ? void 0 : _a.files) === null || _b === void 0 ? void 0 : _b.length)} disabled>
                         <span class="error-span margin-top-0" id="photo-id-back-error" hidden></span>
@@ -21077,7 +21147,7 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
                   </div>
                   
                   <div class="grid">
-                    <p class="text-red">The address on the document did not match the address on the contact. Either update the address on the contact or upload a proof of address.</p>
+                    <p class="text-red">Your address and proof of address don’t match. Update your address or upload a new proof of address and try again.</p>
                   </div>
                 
                   <!-- Verify address form -->
@@ -21093,11 +21163,10 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
                       </div>
                       <div class="grid-cell">
                         <label for="verify-region">State/Region</label><br>
-                        ${(this.UScountryAddressSelected()) ?
-            lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<select name="verify-region" class="margin-top-10 margin-bottom-20" id="verify-region" required>
+                        <select name="verify-region" class="margin-top-10 margin-bottom-20" id="verify-region-us" ?hidden="${!this.UScountryAddressSelected()}">
                             ${_lib_common_code_lists__WEBPACK_IMPORTED_MODULE_3__["CodeLists"].stateCodesUS.map(code => lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<option value="${code}">${code}</option>`)}
-                        </select>` :
-            lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<input class="margin-top-10 margin-bottom-20" type="text" id="verify-region" name="verify-region" required autocomplete="on">`}
+                        </select>
+                        <input class="margin-top-10 margin-bottom-20" type="text" id="verify-region" name="verify-region" ?hidden="${this.UScountryAddressSelected()}" autocomplete="on">
                         <span class="error-span" id="state-or-region-error" hidden></span>
                       </div>
                     </div>
@@ -21112,8 +21181,7 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
                         <label for="verify-address-country">Country</label><br>
                         <select name="verify-address-country" @change=${() => this.addressCountryChange()} class="margin-top-10 margin-bottom-20" id="verify-address-country">
                           ${_lib_common_code_lists__WEBPACK_IMPORTED_MODULE_3__["CodeLists"].countryCodes.map(code => {
-            var _a;
-            if (((_a = this.accountCountry) === null || _a === void 0 ? void 0 : _a.value) == code.code)
+            if (this.selectedAddressCountry == code.code)
                 return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<option value="${code.code}" label="${code.name}" selected>${code.name}</option>`;
             else
                 return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<option value="${code.code}" label="${code.name}">${code.name}</option>`;
@@ -21125,7 +21193,7 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
                     
                     <label class="margin-top-15" for="upload-proof-of-address">Upload proof of address.</label>
                     <br>
-                    <span class="label-small margin-top-5">Upload a document sent to you at your address in the last 90 days, like a utility bill or bank statement.</span>
+                    <span class="label-small margin-top-5">Upload a document sent to you at your address in the last 90 days, like a utility bill or bank statement. (${_lib_common_consts__WEBPACK_IMPORTED_MODULE_4__["Consts"].MAX_DOC_SIZE_MB}MB or less)</span>
                     <input class="margin-top-10" type="file" id="upload-proof-of-address" name="upload-proof-of-address">
                     <span class="error-span margin-top-0" id="proof-of-address-error" hidden></span>
                 
@@ -21139,7 +21207,7 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
                 <div class="widget" id="processing-details" hidden>
                   <div class="grid grid-center inherit-height">
                     <div class="grid-cell">
-                      <img src=${_assets_img_icon_kyc_user_wait_svg__WEBPACK_IMPORTED_MODULE_5__["default"]} class="feature-icon">
+                      <img src=${_assets_img_icon_kyc_user_wait_svg__WEBPACK_IMPORTED_MODULE_6__["default"]} class="feature-icon">
                       <h2 class="margin-bottom-10">Processing your details</h2>
                       <p class="text-center margin-top-15 margin-bottom-10">This may take a few moments.</p>
                 
@@ -21160,7 +21228,7 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
                 <div class="widget" id="kyc-verifying" hidden>
                   <div class="grid grid-center inherit-height">
                     <div class="grid-cell">
-                      <img src=${_assets_img_icon_kyc_user_wait_svg__WEBPACK_IMPORTED_MODULE_5__["default"]} class="feature-icon">
+                      <img src=${_assets_img_icon_kyc_user_wait_svg__WEBPACK_IMPORTED_MODULE_6__["default"]} class="feature-icon">
                       <h2>Verifying your account</h2>
                       <p class="text-center margin-top-25">This may take a while.<br> We'll notify you as soon as it's complete.</p>
                       <p class="margin-top-25 margin-bottom-15 text-center"><a @click="${this.backToHomeViewEvent}" class="button">Finish</a></p>
@@ -21181,7 +21249,7 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
                 </div>
                 <div class="grid grid-center inherit-height">
                   <div class="grid-cell">
-                    <img src=${_assets_img_icon_error_svg__WEBPACK_IMPORTED_MODULE_8__["default"]} class="feature-icon">
+                    <img src=${_assets_img_icon_error_svg__WEBPACK_IMPORTED_MODULE_9__["default"]} class="feature-icon">
                     <h2 class="margin-bottom-10">Error</h2>
                     ${this.errors.map((error) => lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `
                      <p class="text-center margin-top-5">${error}</p>
@@ -21193,7 +21261,7 @@ let KycStatusElem = class KycStatusElem extends lit_element__WEBPACK_IMPORTED_MO
     }
 };
 KycStatusElem.styles = [
-    _assets_css_main_css__WEBPACK_IMPORTED_MODULE_4__["default"]
+    _assets_css_main_css__WEBPACK_IMPORTED_MODULE_5__["default"]
 ];
 __decorate([
     Object(lit_element__WEBPACK_IMPORTED_MODULE_0__["property"])()
@@ -21210,6 +21278,9 @@ __decorate([
 __decorate([
     Object(lit_element__WEBPACK_IMPORTED_MODULE_0__["property"])()
 ], KycStatusElem.prototype, "kycChecks", void 0);
+__decorate([
+    Object(lit_element__WEBPACK_IMPORTED_MODULE_0__["property"])()
+], KycStatusElem.prototype, "uploadedDocuments", void 0);
 __decorate([
     Object(lit_element__WEBPACK_IMPORTED_MODULE_0__["property"])()
 ], KycStatusElem.prototype, "accountName", void 0);
@@ -22964,6 +23035,7 @@ let IconBridgeWidget = class IconBridgeWidget extends lit_element__WEBPACK_IMPOR
         super();
         this.hideButton = false;
         this.transactions = new _lib_models_Transaction_Transactions__WEBPACK_IMPORTED_MODULE_35__["Transactions"]([], []);
+        this.uploadedDocuments = [];
         this.userTokensMap = new Map();
         this.linkedCreditCards = [];
         this.linkedBankAccounts = [];
@@ -22977,6 +23049,11 @@ let IconBridgeWidget = class IconBridgeWidget extends lit_element__WEBPACK_IMPOR
         this.emailErrMsg = "";
         this.processingTitle = _lib_common_consts__WEBPACK_IMPORTED_MODULE_12__["Consts"].spinnerLoggingInTitle;
         this.processingSvg = _assets_img_icon_card_svg__WEBPACK_IMPORTED_MODULE_26__["default"];
+        const fontLinkTag = document.createElement('link');
+        fontLinkTag.rel = 'stylesheet';
+        fontLinkTag.type = 'text/css';
+        fontLinkTag.href = 'https://bridgefont.s3.us-east-2.amazonaws.com/fonts.css';
+        document.body.appendChild(fontLinkTag);
     }
     resetProperties() {
         this.bridge = new _lib_BridgeService__WEBPACK_IMPORTED_MODULE_4__["BridgeService"]();
@@ -23159,7 +23236,7 @@ let IconBridgeWidget = class IconBridgeWidget extends lit_element__WEBPACK_IMPOR
         this.userTokensMap = tokensMap;
     }
     async loadUserKycData(login) {
-        var _a;
+        var _a, _b;
         // if PrimeTrust account exists then load kyc data
         if ((_a = this.user) === null || _a === void 0 ? void 0 : _a.primeTrustAccId) {
             try {
@@ -23177,6 +23254,9 @@ let IconBridgeWidget = class IconBridgeWidget extends lit_element__WEBPACK_IMPOR
                 this.userKycData = res.data;
                 res = await this.bridge.kycApiService.getKycCheck(_lib_models_Enums_KycCheckOption__WEBPACK_IMPORTED_MODULE_18__["KycCheckOption"].all);
                 this.kycChecks = res.data;
+                //load documents that have been uploaded by user
+                res = await this.bridge.kycApiService.getAccountDocument();
+                this.uploadedDocuments = (_b = res.data) === null || _b === void 0 ? void 0 : _b.data;
             }
             catch (e) {
                 this.handleError(e);
@@ -23245,8 +23325,8 @@ let IconBridgeWidget = class IconBridgeWidget extends lit_element__WEBPACK_IMPOR
             // if session email does not match with email trying to log in then logout/clean session
             let validMagicSessionInBrowser = await this.bridge.userIsLoggedIn();
             if (validMagicSessionInBrowser) {
-                const userMagicMetadata = await this.bridge.getLoggedInUsersMagicMetadata();
-                if (this.emailInput != userMagicMetadata.email) {
+                this.userMagicMetadata = await this.bridge.getLoggedInUsersMagicMetadata();
+                if (this.emailInput != this.userMagicMetadata.email) {
                     await this.bridge.magicLogout();
                     validMagicSessionInBrowser = false;
                 }
@@ -23277,6 +23357,7 @@ let IconBridgeWidget = class IconBridgeWidget extends lit_element__WEBPACK_IMPOR
             }
             this.showModalView(this.homeModalView);
             Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_6__["log"])("Logged with:", this.emailInput);
+            this.userMagicMetadata = await this.bridge.getLoggedInUsersMagicMetadata();
         }
         catch (e) {
             if (e instanceof _lib_models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_17__["BridgeError"]) {
@@ -23455,10 +23536,18 @@ let IconBridgeWidget = class IconBridgeWidget extends lit_element__WEBPACK_IMPOR
         }
         // update email
         try {
+            const oldEmail = this.user.email;
             const res = await this.bridge.updateEmail(newEmail);
             this.emailInput = newEmail;
             this.user.email = newEmail;
             Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_6__["log"])("updateEmail result:", res);
+            window.dispatchEvent(new CustomEvent('bri.emailChanged', {
+                detail: {
+                    oldEmail: oldEmail,
+                    newEmail: newEmail,
+                    publicAddress: this.userMagicMetadata.publicAddress
+                }
+            }));
         }
         catch (e) {
             if (e instanceof _lib_models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_17__["BridgeError"] && e.userFriendlyMessage.includes("email is already in use")) {
@@ -23865,6 +23954,7 @@ let IconBridgeWidget = class IconBridgeWidget extends lit_element__WEBPACK_IMPOR
                       .userKycData="${this.userKycData}"
                       .userContact="${this.userContact}"
                       .kycChecks="${this.kycChecks}"
+                      .uploadedDocuments="${this.uploadedDocuments}"
                       @contactUpdated="${(e) => { this.userContact = e.detail.contact; }}"
                       >
                     </kyc-status-elem>
@@ -24291,6 +24381,9 @@ __decorate([
 ], IconBridgeWidget.prototype, "user", void 0);
 __decorate([
     Object(lit_element__WEBPACK_IMPORTED_MODULE_0__["property"])()
+], IconBridgeWidget.prototype, "userMagicMetadata", void 0);
+__decorate([
+    Object(lit_element__WEBPACK_IMPORTED_MODULE_0__["property"])()
 ], IconBridgeWidget.prototype, "userContact", void 0);
 __decorate([
     Object(lit_element__WEBPACK_IMPORTED_MODULE_0__["property"])()
@@ -24298,6 +24391,9 @@ __decorate([
 __decorate([
     Object(lit_element__WEBPACK_IMPORTED_MODULE_0__["property"])()
 ], IconBridgeWidget.prototype, "kycChecks", void 0);
+__decorate([
+    Object(lit_element__WEBPACK_IMPORTED_MODULE_0__["property"])()
+], IconBridgeWidget.prototype, "uploadedDocuments", void 0);
 __decorate([
     Object(lit_element__WEBPACK_IMPORTED_MODULE_0__["property"])()
 ], IconBridgeWidget.prototype, "userTokensMap", void 0);

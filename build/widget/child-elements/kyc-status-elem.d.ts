@@ -6,12 +6,14 @@ import { KycChecks } from "../../lib/models/Interfaces/KycChecks";
 import { UserKycData } from "../../lib/models/Account/UserKycData";
 import { Contact } from "../../lib/models/Interfaces/Contact";
 import { KycState } from "../../lib/models/Enums/KycState";
+import { UploadedDocument } from '../../lib/models/Interfaces/UploadedDocument';
 declare class KycStatusElem extends LitElement {
     bridge: BridgeService | undefined;
     user: User | undefined;
     userContact: Contact | undefined;
     userKycData: UserKycData | undefined;
     kycChecks: KycChecks | undefined;
+    uploadedDocuments: UploadedDocument[];
     accountName: HTMLInputElement | null | undefined;
     accountBirthDate: HTMLInputElement | null | undefined;
     accountIdNumber: HTMLInputElement | null | undefined;

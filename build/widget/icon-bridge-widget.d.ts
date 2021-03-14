@@ -34,9 +34,11 @@ export declare class IconBridgeWidget extends LitElement {
     private transactions;
     private selectedTransaction;
     private user;
+    private userMagicMetadata;
     private userContact;
     private userKycData;
     private kycChecks;
+    private uploadedDocuments;
     private userTokensMap;
     private selectedToken;
     private linkedCreditCards;
