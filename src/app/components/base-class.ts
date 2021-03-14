@@ -121,4 +121,8 @@ export class BaseClass {
     return sICXvalue * this.persistenceService.sIcxToIcxRate();
   }
 
+  public listIsNotNullOrEmpty(list?: any[]): boolean {
+    return (list != null && list.length > 0);
+  }
+
 }

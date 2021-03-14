@@ -11,7 +11,7 @@ import {Utils} from "../../common/utils";
 import {IconAmount, IconConverter} from "icon-sdk-js";
 import {environment} from "../../../environments/environment";
 import {Mapper} from "../../common/mapper";
-import {PrepList} from "../../models/Preps";
+import {Prep, PrepList} from "../../models/Preps";
 import {DelegationPreference} from "../../models/DelegationPreference";
 
 @Injectable({
@@ -99,13 +99,38 @@ export class VoteService {
    * @description Get list of PReps
    * @return  Returns the status of all registered P-Rep candidates in descending order by delegated ICX amount
    */
-  public async getListOfPreps(): Promise<PrepList> {
+  public async getListOfPreps(startRanking: number = 1, endRanking: number = 100): Promise<PrepList> {
+    const params = {
+      startRanking: IconConverter.toHex(startRanking),
+      endRanking: IconConverter.toHex(endRanking)
+    };
+
     const tx = this.iconApiService.buildTransaction("",  environment.IISS_API,
-      ScoreMethodNames.GET_PREPS, {}, IconTransactionType.READ);
+      ScoreMethodNames.GET_PREPS, params, IconTransactionType.READ);
 
     const prepList = await this.iconApiService.iconService.call(tx).execute();
 
+
     return Mapper.mapPrepList(prepList);
+  }
+
+  /**
+   * @description Get Prep
+   * @param prepAddress - Address of the Prep we want to fetch data for
+   * @return  Returns the mapped Prep data
+   */
+  public async getPrep(prepAddress: string): Promise<Prep> {
+    const params = {
+      address : prepAddress
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  environment.IISS_API,
+      ScoreMethodNames.GET_PREP, params, IconTransactionType.READ);
+
+    const prepList = await this.iconApiService.iconService.call(tx).execute();
+
+
+    return Mapper.mapPrep(prepList);
   }
 
   /**

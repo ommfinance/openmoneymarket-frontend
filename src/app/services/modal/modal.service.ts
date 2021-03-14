@@ -4,6 +4,7 @@ import {ModalType} from "../../models/ModalType";
 import {ModalAction} from "../../models/ModalAction";
 import log from "loglevel";
 import {AssetAction} from "../../models/AssetAction";
+import {VoteAction} from "../../models/VoteAction";
 
 declare var classie: any;
 declare var $: any;
@@ -20,8 +21,8 @@ export class ModalService {
 
   constructor() { }
 
-  showNewModal(modal: ModalType, assetAction?: AssetAction): void {
-    this.activeModalChange.next(new ModalAction(modal, assetAction));
+  showNewModal(modal: ModalType, assetAction?: AssetAction, voteAction?: VoteAction): void {
+    this.activeModalChange.next(new ModalAction(modal, assetAction, voteAction));
   }
 
   hideActiveModal(): void {

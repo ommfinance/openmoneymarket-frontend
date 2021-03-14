@@ -150,4 +150,14 @@ export class Mapper {
 
     return res;
   }
+
+  public static mapPrep(prep: Prep): Prep {
+    return new Prep(
+      prep.address,
+      prep.name,
+      Utils.hexToNormalisedNumber(prep.stake),
+      Utils.hexToNormalisedNumber(prep.delegated),
+      Utils.hexToNormalisedNumber(prep.irep),
+    );
+  }
 }

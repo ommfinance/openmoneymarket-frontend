@@ -94,7 +94,7 @@ export class ModalComponent extends BaseClass implements OnInit {
         case ModalType.ADD_PREP_SELECTION:
           this.setActiveModal(this.addPrepModal.nativeElement, activeModalChange);
           break;
-        case ModalType.REMOVE_PREP_SELECTION:
+        case ModalType.REMOVE_ALL_VOTES:
           this.setActiveModal(this.removePrepModal.nativeElement, activeModalChange);
           break;
         default:

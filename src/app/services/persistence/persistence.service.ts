@@ -11,6 +11,7 @@ import {LedgerWallet} from "../../models/wallets/LedgerWallet";
 import {OmmRewards} from "../../models/OmmRewards";
 import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
 import {PrepList} from "../../models/Preps";
+import {YourPrepVote} from "../../models/YourPrepVote";
 
 @Injectable({
   providedIn: 'root'
@@ -37,6 +38,7 @@ export class PersistenceService {
   public loanOriginationFeePercentage = 0.001;
 
   public prepList?: PrepList;
+  public yourVotesPrepList: YourPrepVote[] = [];
 
   constructor() {}
 

@@ -114,6 +114,7 @@ export class ScoreService {
    * @return  Returns the status of all registered P-Rep candidates in descending order by delegated ICX amount
    */
   public async getListOfPreps(): Promise<PrepList> {
+    log.debug("***** getListOfPreps ******");
     this.checkerService.checkAllAddressesLoaded();
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Staking,

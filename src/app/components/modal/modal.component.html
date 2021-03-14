@@ -33,17 +33,17 @@
   <div class="modal-content">
     <!-- Title -->
     <h3 class="text-center label">Stake Omm Tokens?</h3>
-    <p class="text-center"><span class="value-omm-stake-amount">100</span> OMM</p>
+    <p class="text-center"><span class="value-omm-stake-amount">{{this.activeModalChange?.voteAction?.amount}}</span> OMM</p>
 
     <!-- Before vs after -->
     <div class="grid before-after">
       <div class="grid-cell text-center border-right">
         <p class="label">Before</p>
-        <p class="text-dark">0 OMM</p>
+        <p class="text-dark">{{this.activeModalChange?.voteAction?.before}} OMM</p>
       </div>
       <div class="grid-cell text-center">
         <p class="label">After</p>
-        <p class="text-dark"><span class="value-omm-stake-amount">100</span> OMM</p>
+        <p class="text-dark"><span class="value-omm-stake-amount">{{this.activeModalChange?.voteAction?.after}}</span> OMM</p>
       </div>
     </div>
 
@@ -63,17 +63,17 @@
   <div class="modal-content">
     <!-- Title -->
     <h3 class="text-center label">Unstake Omm Tokens?</h3>
-    <p class="text-center"><span class="value-omm-stake-amount">-50</span> OMM</p>
+    <p class="text-center"><span class="value-omm-stake-amount">{{this.activeModalChange?.voteAction?.amount}}</span> OMM</p>
 
     <!-- Before vs after -->
     <div class="grid before-after">
       <div class="grid-cell text-center border-right">
         <p class="label">Before</p>
-        <p class="text-dark">50 OMM</p>
+        <p class="text-dark">{{this.activeModalChange?.voteAction?.before}} OMM</p>
       </div>
       <div class="grid-cell text-center">
         <p class="label">After</p>
-        <p class="text-dark"><span class="value-omm-stake-amount">0</span> OMM</p>
+        <p class="text-dark"><span class="value-omm-stake-amount">{{this.activeModalChange?.voteAction?.after}}</span> OMM</p>
       </div>
     </div>
 
@@ -109,7 +109,7 @@
   </div>
 </div>
 
-<!-- Modal: Remove P-Rep selection -->
+<!-- Modal: Remove all P-Rep selection -->
 <div class="modal" id="modal-remove-preps" #rmvPrep>
   <div class="modal-content">
     <!-- Title -->

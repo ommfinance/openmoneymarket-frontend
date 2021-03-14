@@ -10,10 +10,10 @@
         <h3>Omm stake</h3>
 
         <!-- Stake slider -->
-        <div id="slider-stake" disabled #sliderStake [ngStyle]="hideElement(!this.persistenceService.userLoggedIn())"></div>
+        <div id="slider-stake" disabled #sliderStake [ngStyle]="hideElement(!this.persistenceService.userLoggedIn() || !userHasOmmTokens())"></div>
 
-        <!-- Message (If staked but not voted) -->
-        <p class="label text-center hide">You have no Omm Tokens.<br>Supply or borrow to earn them.</p>
+        <!-- Message (If user has no Omm tokens) -->
+        <p class="label text-center" [ngStyle]="hideElement(userHasOmmTokens())">You have no Omm Tokens.<br>Supply or borrow to earn them.</p>
 
         <!-- Message (If not logged in) -->
         <div id="message-vote-logged-out" class="grid" [ngStyle]="hideElement(this.persistenceService.userLoggedIn())">
@@ -24,7 +24,7 @@
         </div>
 
         <!-- Stake actions -->
-        <div class="grid" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn())">
+        <div class="grid" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn() || !userHasOmmTokens())">
           <div class="grid-cell text-center">
             <!-- Actions to show by default -->
             <div class="grid grid-center actions-default">
@@ -36,28 +36,14 @@
             <!-- Actions to show if already staked -->
             <div class="grid grid-center actions-default hide">
               <div class="grid-cell text-center">
-                <a href="#" class="button">Adjust stake</a>
+                <a href="javascript:void(0);" class="button">Adjust stake</a>
               </div>
             </div>
 
             <!-- Actions to show if max staked -->
             <div class="grid grid-center actions-default hide">
               <div class="grid-cell text-center">
-                <a href="#" class="button">Unstake Omm Tokens</a>
-              </div>
-            </div>
-
-            <!-- Actions to show if already staked -->
-            <div class="grid grid-center actions-default hide">
-              <div class="grid-cell text-center">
-                <a href="#" class="button">Adjust stake</a>
-              </div>
-            </div>
-
-            <!-- Actions to show if max staked -->
-            <div class="grid grid-center actions-default hide">
-              <div class="grid-cell text-center">
-                <a href="#" class="button">Unstake Omm Tokens</a>
+                <a href="javascript:void(0);" class="button">Unstake Omm Tokens</a>
               </div>
             </div>
 
@@ -76,11 +62,12 @@
           <div class="grid-cell text-center">
             <dl class="metadata">
               <dt>Your stake</dt>
-              <dd><span class="value-omm-stake-amount" #ommStk>{{userOmmTokenBalanceDetails?.stakedBalance}}</span> / {{userOmmTokenBalanceDetails?.availableBalance}} OMM</dd>
+              <dd><span class="value-omm-stake-amount" #ommStk>{{userOmmTokenBalanceDetails?.stakedBalance}}</span> / {{userOmmTokenBalanceDetails?.totalBalance}} OMM</dd>
             </dl>
 
-            <!-- Message (If unstaking) -->
+            <!-- Message (If un-staking) -->
             <p class="label hide" style="margin-top: 5px;">43 OMM unstaking</p>
+
           </div>
         </div>
       </div>
@@ -97,7 +84,7 @@
           <div class="grid-cell">
             <dl class="metadata text-center">
               <dt>Your voting power</dt>
-              <dd><span class="value-icx-stake-amount">0</span> ICX</dd>
+              <dd><span class="value-icx-stake-amount">{{userVotingPower()}}</span> ICX</dd>
             </dl>
           </div>
           <div class="grid-cell">
@@ -112,28 +99,29 @@
   </section>
 
   <!-- Your votes -->
-  <section id="your-votes" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn())">
+  <section id="your-votes" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn() || !userHasStaked())">
     <!-- Title -->
     <div class="grid grid-center">
       <div class="grid-cell">
-        <h2>Your votes</h2><span class="value-risk-total">3/5</span>
+        <h2>Your votes</h2><span class="value-risk-total">{{this.yourVotesPrepList?.length ? this.yourVotesPrepList?.length : 0}}/5</span>
       </div>
     </div>
 
     <!-- Message (If staked but not voted) -->
-    <p class="label text-center hide">Your votes are spread across the top 100 public representatives (P-Reps).<br>To allocate your own votes, add up to 6 P-Reps from the list.</p>
+    <p class="label text-center" [ngStyle]="hideElement(userHasVotedForPrep())">Your votes are spread across the top 100 public representatives (P-Reps).
+      <br>To allocate your own votes, add up to 5 P-Reps from the list.</p>
 
     <!-- Your votes list -->
-    <div class="grid" *ngIf="yourVotesPrepList">
+    <div class="grid">
       <div class="grid-cell">
-        <table class="list vote">
+        <table class="list vote" [ngStyle]="hideElement(!userHasVotedForPrep())">
           <tbody>
           <ng-container *ngFor="let yourPrepVote of yourVotesPrepList; last as isLast; let i = index">
             <tr>
               <td class="name">
                 <div class="grid grid-center">
                   <div class="grid-cell">
-                    <div class="minus">–</div>
+                    <div class="minus" (click)="removeYourVotePrep(i)">–</div>
                     <img src="assets/img/icon/profile.svg">
                   </div>
                   <div class="grid-cell">
@@ -151,48 +139,48 @@
           </tbody>
         </table>
 
-            <!-- Actions to show by default -->
-            <div class="grid grid-center actions-default">
-              <div class="grid-cell text-center">
-                <a href="javascript:void(0);" id="vote-adjust" class="button" (click)="onAdjustVoteClick()">Adjust P-Reps</a>
-              </div>
+          <!-- Actions to show by default -->
+          <div class="grid grid-center actions-default" [ngStyle]="hideElement(!userHasVotedForPrep())">
+            <div class="grid-cell text-center">
+              <a href="javascript:void(0);" id="vote-adjust" class="button" (click)="onAdjustVoteClick()">Adjust P-Reps</a>
             </div>
+          </div>
 
-            <!-- Actions to show when adjust class is active -->
-            <div class="grid grid-center actions-adjust">
-              <div class="grid-cell text-right">
-                <a href="javascript:void(0);" id="vote-adjust-cancel" class="cancel" (click)="onDiscardAdjustVotesClick()">Cancel</a>
-              </div>
-              <div class="grid-cell text-left">
-                <a href="javascript:void(0);" class="button modal-trigger" data-modal="modal-add-preps" (click)="onConfirmAddPrepClick()">Save</a>
-              </div>
+          <!-- Actions to show when adjust class is active -->
+          <div class="grid grid-center actions-adjust" [ngStyle]="hideElement(!userHasVotedForPrep() && !yourVotesEditMode)">
+            <div class="grid-cell text-right">
+              <a href="javascript:void(0);" id="vote-adjust-cancel" class="cancel" (click)="onCancelAdjustVotesClick()">Cancel</a>
             </div>
+            <div class="grid-cell text-left">
+              <a href="javascript:void(0);" class="button modal-trigger" data-modal="modal-add-preps" (click)="onConfirmSavePrepClick()">Save</a>
+            </div>
+          </div>
 
       </div>
     </div>
   </section>
   <!-- /Your votes -->
 
-      <!-- P-Rep list -->
-      <section id="p-rep-list">
-        <!-- Title -->
-        <div class="grid grid-center title">
-          <div class="grid-cell">
-            <h2>P-Reps</h2>
-            <span id="p-rep-tooltip" class="tooltip">
-									<span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
-									<div class="tooltip-content"><p>Public representatives operate nodes that keep the ICON Network – Omm's foundation – online. Many also contribute time and resources to build products and utilities, much like this one.</p></div>
-								</span>
-          </div>
-          <div class="grid-cell text-right">
-            <input type="text" name="" class="search" placeholder="Search P-Reps" [ngModel]="searchInput" (ngModelChange)="onSearchInputChange($event)">
-          </div>
-        </div>
+  <!-- P-Rep list -->
+  <section id="p-rep-list">
+    <!-- Title -->
+    <div class="grid grid-center title">
+      <div class="grid-cell">
+        <h2>P-Reps</h2>
+        <span id="p-rep-tooltip" class="tooltip">
+              <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+              <div class="tooltip-content"><p>Public representatives operate nodes that keep the ICON Network – Omm's foundation – online. Many also contribute time and resources to build products and utilities, much like this one.</p></div>
+            </span>
+      </div>
+      <div class="grid-cell text-right">
+        <input type="text" name="" class="search" placeholder="Search P-Reps" [ngModel]="searchInput" (ngModelChange)="onSearchInputChange($event)">
+      </div>
+    </div>
 
     <!-- P-Rep list -->
     <div class="grid" *ngIf="searchedPrepList">
       <div class="grid-cell">
-        <table class="list p-reps">
+        <table class="list p-reps {{yourVotesEditMode || (userHasStaked() && !listIsNotNullOrEmpty(yourVotesPrepList)) ? 'adjust' : ''}}">
           <thead>
           <tr>
             <th>Rank</th>
@@ -215,7 +203,7 @@
                 <td class="name">
                   <div class="grid grid-center">
                     <div class="grid-cell">
-                      <div class="plus" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn())">+</div>
+                      <div class="plus" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn())" (click)="addYourVotePrep(prep)">+</div>
                       <img src="assets/img/icon/profile.svg">
                     </div>
                     <div class="grid-cell">

@@ -221,13 +221,12 @@ export class DataLoaderService {
   }
 
   public async loadCoreData(): Promise<void> {
-    const [res1, res2, res3, res4
-    ] = await Promise.all([
+    await Promise.all([
       this.loadAllReserveData(),
       this.loadAllReservesConfigData(),
       this.loadTokenDistributionPerDay(),
       this.loadLoanOriginationFeePercentage(),
-      // this.loadPrepList() TODO FIXME
+      // this.loadPrepList() TODO use intead of IISS getPReps?
     ]);
   }
 
