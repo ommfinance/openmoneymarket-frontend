@@ -20,6 +20,7 @@ import {NotificationService} from "../notification/notification.service";
 import {ErrorCode, ErrorService} from "../error/error.service";
 import {CheckerService} from "../checker/checker.service";
 import {LocalStorageService} from "../local-storage/local-storage.service";
+import {WalletType} from "../../models/wallets/Wallet";
 
 @Injectable({
   providedIn: 'root'
@@ -39,7 +40,12 @@ export class DataLoaderService {
 
   public async walletLogin(wallet: IconexWallet | BridgeWallet | LedgerWallet): Promise<void> {
     this.persistenceService.activeWallet = wallet;
-    this.localStorageService.persistWalletLogin(wallet);
+
+    if (wallet.type !== WalletType.BRIDGE) {
+      this.localStorageService.persistWalletLogin(wallet);
+    } else {
+      this.localStorageService.clearWalletLogin();
+    }
     log.info("Login with wallet: ", wallet);
 
     try {
