@@ -137,6 +137,7 @@ export class Mapper {
         Utils.hexToNormalisedNumber(prep.stake),
         Utils.hexToNormalisedNumber(prep.delegated),
         Utils.hexToNormalisedNumber(prep.irep),
+        prep.details
       ));
     });
 
@@ -158,6 +159,7 @@ export class Mapper {
       Utils.hexToNormalisedNumber(prep.stake),
       Utils.hexToNormalisedNumber(prep.delegated),
       Utils.hexToNormalisedNumber(prep.irep),
+      prep.details
     );
   }
 }

@@ -33,6 +33,7 @@ export class PersistenceService {
   public userAccountData?: UserAccountData;
   public userOmmRewards?: OmmRewards;
   public userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
+  public minOmmStakeAmount = 1;
 
   public tokenDistributionPerDay = 1;
   public loanOriginationFeePercentage = 0.001;

@@ -208,6 +208,16 @@ export class DataLoaderService {
     });
   }
 
+  public loadMinOmmStakeAmount(): void {
+    this.scoreService.getOmmTokenMinStakeAmount().then(minStakeAmount => {
+      this.persistenceService.minOmmStakeAmount = minStakeAmount;
+    }).catch(e => {
+      log.error("Error in loadMinOmmStakeAmount()");
+      log.error(e);
+    });
+
+  }
+
   public loadTokenDistributionPerDay(): Promise<void> {
     return this.scoreService.getTokenDistributionPerDay().then(res => {
       this.persistenceService.tokenDistributionPerDay = res;

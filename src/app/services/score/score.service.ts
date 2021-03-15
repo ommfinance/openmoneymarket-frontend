@@ -205,6 +205,23 @@ export class ScoreService {
     return await this.iconApiService.iconService.call(tx).execute();
   }
 
+  /**
+   * @description Get OMM token minimum stake amount
+   * @return  Minimum OMM token stake amount
+   */
+  public async getOmmTokenMinStakeAmount(): Promise<number> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.OmmToken,
+      ScoreMethodNames.GET_MIN_STAKE, {}, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getOmmTokenMinStakeAmount: ", res);
+
+    return Utils.hexToNormalisedNumber(res);
+  }
+
   public async getUserAssetBalance(assetTag: AssetTag): Promise<number> {
     log.debug(`Fetching user balance for ${assetTag}...`);
 

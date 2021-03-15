@@ -26,23 +26,6 @@ export class VoteService {
               private transactionDispatcherService: TransactionDispatcherService) { }
 
   /**
-   * @description Get OMM token minimum stake amount
-   * @return  Minimum OMM token stake amount
-   */
-  public async getOmmTokenMinStakeAmount(): Promise<number> {
-    this.checkerService.checkAllAddressesLoaded();
-
-    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.OmmToken,
-      ScoreMethodNames.GET_MIN_STAKE, {}, IconTransactionType.READ);
-
-    const res = await this.iconApiService.iconService.call(tx).execute();
-
-    log.debug("getOmmTokenMinStakeAmount: ", res);
-
-    return Utils.hexToNormalisedNumber(res);
-  }
-
-  /**
    * @description Get user delegation details
    * @return  list of addresses and corresponding delegation detail
    */

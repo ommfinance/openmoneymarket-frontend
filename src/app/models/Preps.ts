@@ -17,13 +17,15 @@ export class Prep {
   stake: number;
   delegated: number;
   irep: number;
+  details: string;
 
 
-  constructor(address: string, name: string, stake: number, delegated: number, irep: number) {
+  constructor(address: string, name: string, stake: number, delegated: number, irep: number, details: string) {
     this.address = address;
     this.name = name;
     this.stake = stake;
     this.delegated = delegated;
     this.irep = irep;
+    this.details = details
   }
 }
