@@ -282,6 +282,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
       value = max;
       this.setSupplySliderValue(value);
+      return;
     }
 
     const currentlySupplied = this.getUserSuppliedAssetBalance();
@@ -322,6 +323,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
       value = max;
       this.setBorrowSliderValue(value);
+      return;
     }
 
     const currentlyBorrowed = this.getUserBorrowedAssetBalance();
