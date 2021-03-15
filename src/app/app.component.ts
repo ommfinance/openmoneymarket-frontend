@@ -54,17 +54,19 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
   }
 
   reLogin(): void {
-    const activeWallet: any = this.localStorageService.getLastWalletLogin();
-    const activeWalletType = activeWallet?.type;
+    if (!this.persistenceService.userLoggedIn()) {
+      const activeWallet: any = this.localStorageService.getLastWalletLogin();
+      const activeWalletType = activeWallet?.type;
 
-    if (activeWallet &&  activeWalletType === WalletType.ICONEX || activeWalletType === WalletType.LEDGER) {
-      switch (activeWalletType) {
-        case WalletType.ICONEX:
-          this.dataLoaderService.walletLogin(new IconexWallet(activeWallet.address));
-          break;
-        case WalletType.LEDGER:
-          this.dataLoaderService.walletLogin(new LedgerWallet(activeWallet.address, activeWallet.path));
-          break;
+      if (activeWallet &&  activeWalletType === WalletType.ICONEX || activeWalletType === WalletType.LEDGER) {
+        switch (activeWalletType) {
+          case WalletType.ICONEX:
+            this.dataLoaderService.walletLogin(new IconexWallet(activeWallet.address));
+            break;
+          case WalletType.LEDGER:
+            this.dataLoaderService.walletLogin(new LedgerWallet(activeWallet.address, activeWallet.path));
+            break;
+        }
       }
     }
   }

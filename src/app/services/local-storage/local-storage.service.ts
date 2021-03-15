@@ -34,6 +34,10 @@ export class LocalStorageService {
     return this.get("wallet");
   }
 
+  clearWalletLogin(): void {
+    this.remove("wallet");
+  }
+
   get(key: string): any {
     if (this.isLocalStorageSupported) {
       return JSON.parse(this.localStorage.getItem(key) ?? "");
