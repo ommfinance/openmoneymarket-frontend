@@ -38,14 +38,17 @@ export class DataLoaderService {
 
   }
 
-  public async walletLogin(wallet: IconexWallet | BridgeWallet | LedgerWallet): Promise<void> {
+  public async walletLogin(wallet: IconexWallet | BridgeWallet | LedgerWallet, relogin: boolean = false): Promise<void> {
     this.persistenceService.activeWallet = wallet;
 
-    if (wallet.type !== WalletType.BRIDGE) {
-      this.localStorageService.persistWalletLogin(wallet);
-    } else {
-      this.localStorageService.clearWalletLogin();
+    if (!relogin) {
+      if (wallet.type !== WalletType.BRIDGE) {
+        this.localStorageService.persistWalletLogin(wallet);
+      } else {
+        this.localStorageService.clearWalletLogin();
+      }
     }
+
     log.info("Login with wallet: ", wallet);
 
     try {

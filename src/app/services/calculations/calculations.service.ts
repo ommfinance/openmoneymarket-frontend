@@ -54,7 +54,7 @@ export class CalculationsService {
       suppliedAssetBalance = Utils.convertSICXToICX(suppliedAssetBalance, this.persistenceService.sIcxToIcxRate());
     }
 
-    return Utils.roundDownTo2Decimals(suppliedAssetBalance + this.persistenceService.getUserAssetBalance(assetTag));
+    return Utils.addDecimalsPrecision(suppliedAssetBalance, this.persistenceService.getUserAssetBalance(assetTag));
   }
 
   // calculate the total risk percentage based on the user health factor or user action
@@ -159,7 +159,7 @@ export class CalculationsService {
 
     const res = totalBorrowBalanceUSD / ((totalCollateralBalanceUSD - totalFeeUSD) * liquidationThreshold);
 
-    log.debug("Total dynamic risk = " + res);
+    // log.debug("Total dynamic risk = " + res);
 
     return res;
   }

@@ -1,6 +1,8 @@
 import IconService from 'icon-sdk-js';
 import {BigNumber} from "bignumber.js";
+import bigDecimal from "js-big-decimal";
 import {AssetTag} from "../models/Asset";
+import {RoundingModes} from "js-big-decimal/dist/node/roundingModes";
 
 export class Utils {
 
@@ -115,6 +117,16 @@ export class Utils {
     } else {
       return value;
     }
+  }
+
+  public static subtractDecimalsWithPrecision(val1: number, val2: number, precision: number = 2): number {
+    return +(new bigDecimal(val1.toString()).subtract(new bigDecimal(val2.toString()))).round(precision,
+      bigDecimal.RoundingModes.DOWN).getValue();
+  }
+
+  public static addDecimalsPrecision(val1: number, val2: number, precision: number = 2): number {
+    return +(new bigDecimal(val1.toString()).add(new bigDecimal(val2.toString()))).round(precision,
+      bigDecimal.RoundingModes.DOWN).getValue();
   }
 
 }

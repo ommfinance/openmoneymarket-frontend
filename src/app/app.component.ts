@@ -70,10 +70,10 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
         if (activeWallet &&  activeWalletType === WalletType.ICONEX || activeWalletType === WalletType.LEDGER) {
           switch (activeWalletType) {
             case WalletType.ICONEX:
-              this.dataLoaderService.walletLogin(new IconexWallet(activeWallet.address));
+              this.dataLoaderService.walletLogin(new IconexWallet(activeWallet.address), true);
               break;
             case WalletType.LEDGER:
-              this.dataLoaderService.walletLogin(new LedgerWallet(activeWallet.address, activeWallet.path));
+              this.dataLoaderService.walletLogin(new LedgerWallet(activeWallet.address, activeWallet.path), true);
               break;
           }
         }
