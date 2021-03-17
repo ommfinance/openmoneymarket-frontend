@@ -13,6 +13,7 @@ import {environment} from "../../../environments/environment";
 import {Mapper} from "../../common/mapper";
 import {Prep, PrepList} from "../../models/Preps";
 import {DelegationPreference} from "../../models/DelegationPreference";
+import {AssetTag} from "../../models/Asset";
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +25,59 @@ export class VoteService {
               private iconexApiService: IconexApiService,
               private checkerService: CheckerService,
               private transactionDispatcherService: TransactionDispatcherService) { }
+
+  public stakeOmm(amount: number, notificationMessage: string): void {
+    amount = Utils.roundDownTo2Decimals(amount);
+    const tx = this.buildStakeOmmTx(amount);
+
+    log.debug(`Stake OMM TX: `, tx);
+    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
+  }
+
+  public unstakeOmm(amount: number, notificationMessage: string): void {
+    amount = Utils.roundDownTo2Decimals(amount);
+    const tx = this.buildUnstakeOmmTx(amount);
+
+    log.debug(`Unstake OMM TX: `, tx);
+    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
+  }
+
+  /**
+   * @description Build Transaction for staking Omm Tokens
+   * **Note**: if the user tries to increase the stake, ”_value” should be previous staked balance + amount being additionally staked
+   * @return  Stake Omm Tokens transaction
+   */
+  private buildStakeOmmTx(amount: number): any {
+    this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
+
+    log.debug(`Stake Omm amount = ` + amount);
+    const decimals = 18;
+
+    const params = {
+      _value: IconConverter.toHex(IconAmount.of(amount, decimals).toLoop()),
+    };
+
+    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
+      this.persistenceService.allAddresses!.systemContract.OmmToken, ScoreMethodNames.STAKE_OMM, params, IconTransactionType.WRITE);
+  }
+
+  /**
+   * @description Build Transaction for un-staking Omm Tokens
+   * @return  Un-stake Omm Tokens transaction
+   */
+  private buildUnstakeOmmTx(amount: number): any {
+    this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
+
+    log.debug(`Un-stake Omm amount = ` + amount);
+    const decimals = 18;
+
+    const params = {
+      _value: IconConverter.toHex(IconAmount.of(amount, decimals).toLoop()),
+    };
+
+    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
+      this.persistenceService.allAddresses!.systemContract.OmmToken, ScoreMethodNames.UNSTAKE_OMM, params, IconTransactionType.WRITE);
+  }
 
   /**
    * @description Get user delegation details
@@ -115,45 +169,6 @@ export class VoteService {
 
     return Mapper.mapPrep(prepList);
   }
-
-  /**
-   * @description Build Transaction for staking Omm Tokens
-   * **Note**: if the user tries to increase the stake, ”_value” should be previous staked balance + amount being additionally staked
-   * @return  Stake Omm Tokens transaction
-   */
-  private buildStakeOmmTx(amount: number): any {
-    this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
-
-    log.debug(`Stake Omm amount = ` + amount);
-    const decimals = 18;
-
-    const params = {
-      _value: IconConverter.toHex(IconAmount.of(amount, decimals).toLoop()),
-    };
-
-    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
-      this.persistenceService.allAddresses!.systemContract.OmmToken, ScoreMethodNames.STAKE_OMM, params, IconTransactionType.WRITE);
-  }
-
-  /**
-   * @description Build Transaction for un-staking Omm Tokens
-   * @return  Un-stake Omm Tokens transaction
-   */
-  private buildUnstakeOmmTx(amount: number): any {
-    this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
-
-    log.debug(`Un-stake Omm amount = ` + amount);
-    const decimals = 18;
-
-    const params = {
-      _value: IconConverter.toHex(IconAmount.of(amount, decimals).toLoop()),
-    };
-
-    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
-      this.persistenceService.allAddresses!.systemContract.OmmToken, ScoreMethodNames.UNSTAKE_OMM, params, IconTransactionType.WRITE);
-  }
-
-
 
 //   Get user delegation details
 // { “to” :  from response in 1a for delegation,

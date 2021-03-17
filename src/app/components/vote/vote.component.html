@@ -1,6 +1,6 @@
 <main class="vote">
   <!-- Vote overview -->
-  <section id="vote-overview">
+  <section id="vote-overview" class="{{voteOverviewEditMode ? 'adjust' : ''}}">
     <h2>Overview</h2>
     <!-- Container -->
     <div class="grid panel">
@@ -26,22 +26,23 @@
         <!-- Stake actions -->
         <div class="grid" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn() || !userHasOmmTokens())">
           <div class="grid-cell text-center">
+
             <!-- Actions to show by default -->
-            <div class="grid grid-center actions-default">
+            <div *ngIf="!userHasStaked()" class="grid grid-center actions-default">
               <div class="grid-cell text-center">
                 <a href="javascript:void(0);" class="button" id="stake-adjust" (click)="onStakeAdjustClick()">Stake Omm Tokens</a>
               </div>
             </div>
 
             <!-- Actions to show if already staked -->
-            <div class="grid grid-center actions-default hide">
+            <div *ngIf="userHasStaked() && !isMaxStaked()" class="grid grid-center actions-default">
               <div class="grid-cell text-center">
                 <a href="javascript:void(0);" class="button">Adjust stake</a>
               </div>
             </div>
 
             <!-- Actions to show if max staked -->
-            <div class="grid grid-center actions-default hide">
+            <div *ngIf="userHasStaked() && isMaxStaked()" class="grid grid-center actions-default">
               <div class="grid-cell text-center">
                 <a href="javascript:void(0);" class="button">Unstake Omm Tokens</a>
               </div>
@@ -66,7 +67,7 @@
             </dl>
 
             <!-- Message (If un-staking) -->
-            <p class="label hide" style="margin-top: 5px;">43 OMM unstaking</p>
+            <p *ngIf="isUnstaking()" class="label" style="margin-top: 5px;">{{this.persistenceService.getUserUnstakingOmmBalance()}} OMM unstaking</p>
 
           </div>
         </div>
@@ -99,7 +100,7 @@
   </section>
 
   <!-- Your votes -->
-  <section id="your-votes" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn() || !userHasStaked())">
+  <section id="your-votes {{this.yourVotesEditMode ? 'adjust' : ''}}" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn() || !userHasStaked())">
     <!-- Title -->
     <div class="grid grid-center">
       <div class="grid-cell">

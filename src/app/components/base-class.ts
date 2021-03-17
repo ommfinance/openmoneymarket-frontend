@@ -113,7 +113,8 @@ export class BaseClass {
     return {display: show ? 'block' : 'none'};
   }
 
-  public convertFromICXTosICX(ICXvalue: number): number {
+  public convertFromICXTosICX(ICXvalue: number | undefined): number {
+    if (!ICXvalue) { return 0; }
     return ICXvalue / this.persistenceService.sIcxToIcxRate();
   }
 

@@ -49,7 +49,11 @@ export class PersistenceService {
   }
 
   public getUsersStakedOmmBalance(): number {
-    return this.userOmmTokenBalanceDetails?.stakedBalance ?? 0
+    return this.userOmmTokenBalanceDetails?.stakedBalance ?? 0;
+  }
+
+  public getUserUnstakingOmmBalance(): number {
+    return this.userOmmTokenBalanceDetails?.unstakingBalance ?? 0;
   }
 
   publicGetActiveIconAddress(): string | undefined {

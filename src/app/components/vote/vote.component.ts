@@ -13,6 +13,7 @@ import {CalculationsService} from "../../services/calculations/calculations.serv
 import {YourPrepVote} from "../../models/YourPrepVote";
 import {NotificationService} from "../../services/notification/notification.service";
 import {VoteAction} from "../../models/VoteAction";
+import {ModalAction} from "../../models/ModalAction";
 
 declare var noUiSlider: any;
 declare var wNumb: any;
@@ -39,10 +40,9 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
 
-  testUserOmmTokenBalanceDetails = new OmmTokenBalanceDetails(110, 100, 10, 0, 0);
-
   // current state variables
   yourVotesEditMode = false;
+  voteOverviewEditMode = false;
   prepListIsLoading = false;
 
   constructor(public persistenceService: PersistenceService,
@@ -53,16 +53,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
               private notificationService: NotificationService) {
     super(persistenceService);
 
-    // TODO change when not testing!
-    this.userOmmTokenBalanceDetails = this.testUserOmmTokenBalanceDetails;
-    this.persistenceService.userOmmTokenBalanceDetails = new OmmTokenBalanceDetails(
-      this.testUserOmmTokenBalanceDetails.totalBalance,
-      this.testUserOmmTokenBalanceDetails.availableBalance,
-      this.testUserOmmTokenBalanceDetails.stakedBalance,
-      this.testUserOmmTokenBalanceDetails.unstakingBalance,
-      0);
-    // this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails;
-
     this.loadPrepList();
     this.initYourVotePrepList();
   }
@@ -70,12 +60,11 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.subscribeToLoginChange();
     this.subscribeToOmmTokenBalanceChange();
+    this.subscribeToUserModalActionChange();
   }
 
   ngAfterViewInit(): void {
-    // TODO change when not testing!
-    this.userOmmTokenBalanceDetails = this.testUserOmmTokenBalanceDetails;
-    // this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails;
+    this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails?.getClone();
 
     this.initStakeSlider();
 
@@ -91,14 +80,20 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   initYourVotePrepList(): void {
     // TODO: fetch and load real values
     this.persistenceService.yourVotesPrepList = [];
-    // this.persistenceService.yourVotesPrepList.push(
-    //   new YourPrepVote("", "Icon Foundation",  65),
-    //   new YourPrepVote("", "ICX_Station",  65),
-    //   new YourPrepVote("", "VELIC",  65),
-    // );
 
     // initialize this components dynamic yourVotesPrepList
     this.yourVotesPrepList = [...this.persistenceService.yourVotesPrepList];
+  }
+
+  private subscribeToUserModalActionChange(): void {
+    // User confirmed the modal action
+    this.stateChangeService.userModalActionChange.subscribe((modalAction?: ModalAction) => {
+      // set edit mode to false, disable slider and reset search
+      this.yourVotesEditMode = false;
+      this.voteOverviewEditMode = false;
+      this.sliderStake.setAttribute("disabled", "");
+      this.onSearchInputChange("");
+    });
   }
 
   private subscribeToLoginChange(): void {
@@ -113,38 +108,18 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   private subscribeToOmmTokenBalanceChange(): void {
     this.stateChangeService.userOmmTokenBalanceDetailsChange.subscribe((res: OmmTokenBalanceDetails) => {
-      // TODO change when not testing!
-      res = this.testUserOmmTokenBalanceDetails;
-      this.persistenceService.userOmmTokenBalanceDetails = new OmmTokenBalanceDetails(
-        this.testUserOmmTokenBalanceDetails.totalBalance,
-        this.testUserOmmTokenBalanceDetails.availableBalance,
-        this.testUserOmmTokenBalanceDetails.stakedBalance,
-        this.testUserOmmTokenBalanceDetails.unstakingBalance,
-        0);
-
-      this.userOmmTokenBalanceDetails = res;
+      this.userOmmTokenBalanceDetails = res.getClone();
 
       // sliders max is sum of staked + available balance
-      const sliderMax = res.stakedBalance + res.availableBalance;
+      const sliderMax = this.userOmmTokenBalanceDetails.stakedBalance + this.userOmmTokenBalanceDetails.availableBalance;
       this.sliderStake.noUiSlider.updateOptions({
         range: { min: 0, max: sliderMax > 0 ? sliderMax : 1 }
       });
 
       // assign staked balance to the current slider value
-      this.sliderStake.noUiSlider.set(res.stakedBalance);
+      this.sliderStake.noUiSlider.set(this.userOmmTokenBalanceDetails.stakedBalance);
     });
   }
-
-  // TODO: incase we want infinity scrolling for preps list
-  // @HostListener("window:scroll", [])
-  // onScroll(): void {
-  //   if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
-  //     // Load Your Data Here
-  //     log.debug("Load more Preps");
-  //     const currentPrepListLength = this.persistenceService.prepList?.preps.length ?? 1;
-  //     this.loadPrepList(currentPrepListLength, currentPrepListLength + 21);
-  //   }
-  // }
 
   onSearchInputChange(searchInput: string): void {
     log.debug("this.searchInput = ", searchInput);
@@ -175,8 +150,9 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   initStakeSlider(): void {
-    const max = (this.userOmmTokenBalanceDetails?.stakedBalance ?? 0) +
-      (this.persistenceService.userOmmTokenBalanceDetails?.availableBalance ?? 0);
+    const currentUserOmmStakedBalance = this.userOmmTokenBalanceDetails?.stakedBalance ?? 0;
+    const userOmmAvailableBalance = this.roundDownTo2Decimals(this.persistenceService.userOmmTokenBalanceDetails?.availableBalance ?? 0);
+    const max = currentUserOmmStakedBalance + userOmmAvailableBalance;
 
     // Stake slider
     noUiSlider.create(this.sliderStake, {
@@ -185,7 +161,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       connect: 'lower',
       range: {
         min: [0],
-        max: [max === 0 ? 150 : max]
+        max: [max === 0 ? 0.1 : max]
       },
     });
 
@@ -198,7 +174,9 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     this.sliderStake.noUiSlider.on('update', (values: any, handle: any) => {
       const value = +values[handle];
 
-      this.userOmmTokenBalanceDetails!.stakedBalance = value;
+      if (this.userOmmTokenBalanceDetails) {
+        this.userOmmTokenBalanceDetails.stakedBalance = value;
+      }
 
       // Update OMM stake values as ICX
       $('.value-icx-stake-amount').text(normalFormat.to(value * 1.3));
@@ -212,7 +190,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   // On "Stake" click
   onStakeAdjustClick(): void {
     // Add "adjust" class
-    $("#vote-overview").addClass('adjust');
+    this.voteOverviewEditMode = true;
 
     // Set your P-Rep sliders to initial values
     $('#slider-stake').removeAttr("disabled");
@@ -221,19 +199,16 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   // On "Cancel Stake" click
   onStakeAdjustCancelClick(): void {
     // Remove "adjust" class
-    $("#vote-overview").removeClass('adjust');
+    this.voteOverviewEditMode = false;
 
     // Set your stake slider to the initial value
     this.sliderStake.setAttribute("disabled", "");
-    this.sliderStake.noUiSlider.set(this.persistenceService.userOmmTokenBalanceDetails?.stakedBalance ?? 0);
+    this.sliderStake.noUiSlider.set(this.persistenceService.getUsersStakedOmmBalance());
   }
 
   // On "Adjust votes" click
   onAdjustVoteClick(): void {
     this.yourVotesEditMode = true;
-
-    // Add "adjust" class
-    $("#your-votes").addClass('adjust');
   }
 
   // On "Cancel adjust votes" click
@@ -242,14 +217,11 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
     // reset the your prep votes list
     this.resetYourVotePreps();
-
-    // Remove "adjust" class
-    $("#your-votes").removeClass('adjust');
   }
 
   onConfirmStakeClick(): void {
     log.debug(`onConfirmStakeClick Omm stake amount = ${this.userOmmTokenBalanceDetails?.stakedBalance}`);
-    const before = this.persistenceService.userOmmTokenBalanceDetails?.stakedBalance ?? 0;
+    const before = this.roundDownTo2Decimals(this.persistenceService.getUsersStakedOmmBalance());
     const after = this.userOmmTokenBalanceDetails?.stakedBalance ?? 0;
 
     // if before and after equal show notification
@@ -260,17 +232,13 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
     const diff = after - before;
 
-    const voteAction = new VoteAction(before, after, diff);
+    const voteAction = new VoteAction(before, after, Math.abs(diff));
 
     if (diff > 0) {
       this.modalService.showNewModal(ModalType.STAKE_OMM_TOKENS, undefined, voteAction);
     } else {
       this.modalService.showNewModal(ModalType.UNSTAKE_OMM_TOKENS, undefined, voteAction);
     }
-  }
-
-  onConfirmUnstakeClick(): void {
-    this.modalService.showNewModal(ModalType.UNSTAKE_OMM_TOKENS);
   }
 
   onConfirmSavePrepClick(): void {
@@ -304,7 +272,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   private loadUserDelegationDetails(): void {
     this.voteService.getUserDelegationDetails().then(delegationDetails => {
-
+      // TODO!!!
     }).catch(e => {
       log.error("Failed to load user delegation details:");
       log.error(e);
@@ -329,23 +297,26 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   userHasOmmTokens(): boolean {
-    // TODO: change when not testing
-    return true;
-    // const userOmmTokenBalance = this.persistenceService.userOmmTokenBalanceDetails?.totalBalance ?? 0;
-    // return userOmmTokenBalance > 0;
+    const userOmmTokenBalance = this.persistenceService.userOmmTokenBalanceDetails?.totalBalance ?? 0;
+    return userOmmTokenBalance > 0;
   }
 
   userHasStaked(): boolean {
-    // TODO: change when not testing
-    return true;
-    // const stakedBalance = this.persistenceService.userOmmTokenBalanceDetails?.stakedBalance ?? 0;
-    // return stakedBalance > 0;
+    return this.persistenceService.getUsersStakedOmmBalance() > 0;
   }
 
   userVotingPower(): number {
     const userStakedBalance = this.userOmmTokenBalanceDetails?.stakedBalance ?? 0;
     return this.calculationsService.yourVotingPower(userStakedBalance);
 
+  }
+
+  isMaxStaked(): boolean {
+    return this.sliderStake.noUiSlider.options.range.max === this.userOmmTokenBalanceDetails?.stakedBalance;
+  }
+
+  isUnstaking(): boolean {
+    return this.persistenceService.getUserUnstakingOmmBalance() > 0;
   }
 
   userHasVotedForPrep(): boolean {
@@ -369,4 +340,15 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       return false;
     }
   }
+
+  // TODO: in case we want infinity scrolling for preps list
+  // @HostListener("window:scroll", [])
+  // onScroll(): void {
+  //   if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+  //     // Load Your Data Here
+  //     log.debug("Load more Preps");
+  //     const currentPrepListLength = this.persistenceService.prepList?.preps.length ?? 1;
+  //     this.loadPrepList(currentPrepListLength, currentPrepListLength + 21);
+  //   }
+  // }
 }

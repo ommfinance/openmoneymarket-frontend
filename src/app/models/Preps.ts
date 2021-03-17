@@ -26,6 +26,6 @@ export class Prep {
     this.stake = stake;
     this.delegated = delegated;
     this.irep = irep;
-    this.details = details
+    this.details = details;
   }
 }

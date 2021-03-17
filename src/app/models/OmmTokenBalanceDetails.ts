@@ -1,3 +1,5 @@
+import {Utils} from "../common/utils";
+
 export class OmmTokenBalanceDetails {
   totalBalance: number;
   availableBalance: number;
@@ -14,6 +16,17 @@ export class OmmTokenBalanceDetails {
     this.unstakingBalance = unstakingBalance;
     this.unstakingTimeInMills = unstakingTimeInMills;
   }
+
+  public getClone(): OmmTokenBalanceDetails {
+    return new OmmTokenBalanceDetails(
+      Utils.roundDownTo2Decimals(this.totalBalance),
+      Utils.roundDownTo2Decimals(this.availableBalance),
+      Utils.roundDownTo2Decimals(this.stakedBalance),
+      Utils.roundDownTo2Decimals(this.unstakingBalance),
+      this.unstakingTimeInMills
+    );
+  }
+
 }
 
 // Example response

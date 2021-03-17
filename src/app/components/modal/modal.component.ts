@@ -23,6 +23,7 @@ import {LedgerWallet} from "../../models/wallets/LedgerWallet";
 import log from "loglevel";
 import {TransactionDispatcherService} from "../../services/transaction-dispatcher/transaction-dispatcher.service";
 import {OmmService} from "../../services/omm/omm.service";
+import {VoteService} from "../../services/vote/vote.service";
 
 
 @Component({
@@ -74,7 +75,8 @@ export class ModalComponent extends BaseClass implements OnInit {
               private ledgerService: LedgerService,
               private dataLoaderService: DataLoaderService,
               private transactionDispatcherService: TransactionDispatcherService,
-              private ommService: OmmService) {
+              private ommService: OmmService,
+              private voteService: VoteService) {
     super(persistenceService);
 
     this.activeModalSubscription = this.modalService.activeModalChange$.subscribe((activeModalChange: ModalAction) => {
@@ -255,13 +257,47 @@ export class ModalComponent extends BaseClass implements OnInit {
     }
   }
 
-  getBeforeAfterDiff(): number {
-    return Math.abs((this.activeModalChange?.assetAction?.before ?? 0) -
-      (this.activeModalChange?.assetAction?.after ?? 0));
+  onGovernanceModalConfirmClick(): void {
+    // store activeModalChange in local storage
+    this.localStorageService.persistModalAction(this.activeModalChange!);
+
+    switch (this.activeModalChange?.modalType) {
+      case ModalType.STAKE_OMM_TOKENS:
+        this.voteService.stakeOmm(this.activeModalChange!.voteAction!.after, "Staking Omm Tokens...");
+        break;
+      case ModalType.UNSTAKE_OMM_TOKENS:
+        this.voteService.unstakeOmm(this.activeModalChange!.voteAction!.after, "Starting unstaking process...");
+        break;
+      default:
+        throw new OmmError(` onGovernanceModalConfirmClick() -> Invalid modal type: ${this.activeModalChange?.modalType}`);
+    }
+
+    // TODO!!!
+    // <!-- Notification: Votes processing -->
+    //   <div class="panel notification">
+    //     <p>Allocating votes...</p>
+    // </div>
+    //
+    // <!-- Notification: Votes succeded -->
+    // <div class="panel notification">
+    //   <p>Votes allocated.</p>
+    // </div>
+    //
+    // <!-- Notification: Votes failed -->
+    // <div class="panel notification">
+    //   <p>Couldn't allocate your votes. Try again.</p>
+    // </div>
+    //
+
+    // commit modal action change
+    this.stateChangeService.updateUserModalAction(this.activeModalChange);
+
+    // hide current modal
+    this.modalService.hideActiveModal();
   }
 
-  onAssetModalActionClick(): void {
-    // store asset-user action in local storage
+  onAssetModalActionConfirmClick(): void {
+    // store activeModalChange in local storage
     this.localStorageService.persistModalAction(this.activeModalChange!);
 
     const assetTag = this.activeModalChange!.assetAction!.asset.tag;
@@ -280,53 +316,7 @@ export class ModalComponent extends BaseClass implements OnInit {
           `Withdrawing ${assetTag}...`);
         break;
       default:
-        throw new OmmError(`Invalid modal type: ${this.activeModalChange?.modalType}`);
-
-        // TODO!!!
-        // <!-- Notification: Votes processing -->
-      //   <div class="panel notification">
-      //     <p>Allocating votes...</p>
-      // </div>
-      //
-      // <!-- Notification: Votes succeded -->
-      // <div class="panel notification">
-      //   <p>Votes allocated.</p>
-      // </div>
-      //
-      // <!-- Notification: Votes failed -->
-      // <div class="panel notification">
-      //   <p>Couldn't allocate your votes. Try again.</p>
-      // </div>
-      //
-      // <!-- Notification: Stake processing -->
-      // <div class="panel notification">
-      //   <p>Staking Omm Tokens...</p>
-      // </div>
-      //
-      // <!-- Notification: Stake succeded -->
-      // <div class="panel notification">
-      //   <p>50 OMM staked.</p>
-      // </div>
-      //
-      // <!-- Notification: Stake failed -->
-      // <div class="panel notification">
-      //   <p>Couldn't stake Omm Tokens. Try again.</p>
-      // </div>
-      //
-      // <!-- Notification: Unstaking processing -->
-      // <div class="panel notification">
-      //   <p>Starting unstaking process...</p>
-      // </div>
-      //
-      // <!-- Notification: Unstaking succeded -->
-      // <div class="panel notification">
-      //   <p>50 OMM unstaking.</p>
-      // </div>
-      //
-      // <!-- Notification: Unstaking failed -->
-      // <div class="panel notification">
-      //   <p>Couldn't unstake Omm Tokens. Try again.</p>
-      // </div>
+        throw new OmmError(`onAssetModalActionConfirmClick() -> Invalid modal type: ${this.activeModalChange?.modalType}`);
     }
 
     // commit modal action change
