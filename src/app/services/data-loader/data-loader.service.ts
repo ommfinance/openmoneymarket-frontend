@@ -238,7 +238,7 @@ export class DataLoaderService {
     }).catch(e => {
       log.error("Error in loadTotalStakedOmm:");
       log.error(e);
-    })
+    });
   }
 
   public afterUserActionReload(): void {

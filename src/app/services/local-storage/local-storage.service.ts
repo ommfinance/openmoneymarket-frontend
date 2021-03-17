@@ -27,10 +27,10 @@ export class LocalStorageService {
   }
 
   persistWalletLogin(wallet: BridgeWallet | IconexWallet | LedgerWallet): void {
-    this.set("wallet", wallet);
+    this.set("wallet", new WalletLogin(wallet, + new Date()));
   }
 
-  getLastWalletLogin(): BridgeWallet | IconexWallet | LedgerWallet {
+  getLastWalletLogin(): WalletLogin {
     return this.get("wallet");
   }
 
@@ -74,4 +74,15 @@ export class LocalStorageService {
     return !!this.localStorage;
   }
 
+}
+
+export class WalletLogin {
+  wallet: BridgeWallet | IconexWallet | LedgerWallet;
+  timestamp: number;
+
+
+  constructor(wallet: BridgeWallet | IconexWallet | LedgerWallet, timestamp: number) {
+    this.wallet = wallet;
+    this.timestamp = timestamp;
+  }
 }

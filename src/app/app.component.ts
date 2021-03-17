@@ -9,6 +9,7 @@ import {WalletType} from "./models/wallets/Wallet";
 import {LocalStorageService} from "./services/local-storage/local-storage.service";
 import {IconexWallet} from "./models/wallets/IconexWallet";
 import {LedgerWallet} from "./models/wallets/LedgerWallet";
+import log from "loglevel";
 
 declare var $: any;
 
@@ -55,17 +56,26 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
 
   reLogin(): void {
     if (!this.persistenceService.userLoggedIn()) {
-      const activeWallet: any = this.localStorageService.getLastWalletLogin();
-      const activeWalletType = activeWallet?.type;
+      const walletLogin: any = this.localStorageService.getLastWalletLogin();
+      const timestamp = walletLogin.timestamp;
 
-      if (activeWallet &&  activeWalletType === WalletType.ICONEX || activeWalletType === WalletType.LEDGER) {
-        switch (activeWalletType) {
-          case WalletType.ICONEX:
-            this.dataLoaderService.walletLogin(new IconexWallet(activeWallet.address));
-            break;
-          case WalletType.LEDGER:
-            this.dataLoaderService.walletLogin(new LedgerWallet(activeWallet.address, activeWallet.path));
-            break;
+      log.debug(`reLogin walletLogin: ${walletLogin}`);
+
+      // if last login was less than 1 hour ago 3600 do re-login
+      const currentTimestamp = + new Date();
+      if (timestamp > currentTimestamp - 3600000) {
+        const activeWallet = walletLogin.wallet;
+        const activeWalletType = activeWallet?.type;
+
+        if (activeWallet &&  activeWalletType === WalletType.ICONEX || activeWalletType === WalletType.LEDGER) {
+          switch (activeWalletType) {
+            case WalletType.ICONEX:
+              this.dataLoaderService.walletLogin(new IconexWallet(activeWallet.address));
+              break;
+            case WalletType.LEDGER:
+              this.dataLoaderService.walletLogin(new LedgerWallet(activeWallet.address, activeWallet.path));
+              break;
+          }
         }
       }
     }

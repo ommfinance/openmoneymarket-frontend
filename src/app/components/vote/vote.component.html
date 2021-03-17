@@ -13,7 +13,7 @@
         <div id="slider-stake" disabled #sliderStake [ngStyle]="hideElement(!this.persistenceService.userLoggedIn() || !userHasOmmTokens())"></div>
 
         <!-- Message (If user has no Omm tokens) -->
-        <p class="label text-center" [ngStyle]="hideElement(userHasOmmTokens())">You have no Omm Tokens.<br>Supply or borrow to earn them.</p>
+        <p class="label text-center" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn() || userHasOmmTokens())">You have no Omm Tokens.<br>Supply or borrow to earn them.</p>
 
         <!-- Message (If not logged in) -->
         <div id="message-vote-logged-out" class="grid" [ngStyle]="hideElement(this.persistenceService.userLoggedIn())">
