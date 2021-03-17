@@ -61,6 +61,23 @@ export class ScoreService {
   }
 
   /**
+   * @description Get total staked Omm
+   * @return  total staked Omm normalised number
+   */
+  public async getTotalStakedOmm(): Promise<number> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.OmmToken,
+      ScoreMethodNames.GET_TOTAL_STAKED_OMM, {}, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getTotalStakedOmm (not mapped): ", res);
+
+    return Utils.hexToNormalisedNumber(res);
+  }
+
+  /**
    * @description Get user reserve data for a specific reserve
    * @param reserve - Address using 1 a  for USDb and sICX
    * @return reserve data

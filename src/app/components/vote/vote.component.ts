@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {BaseClass} from "../base-class";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {normalFormat} from "../../common/formats";
@@ -344,7 +344,8 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   userVotingPower(): number {
     const userStakedBalance = this.userOmmTokenBalanceDetails?.stakedBalance ?? 0;
-    return userStakedBalance * 1.3;
+    return this.calculationsService.yourVotingPower(userStakedBalance);
+
   }
 
   userHasVotedForPrep(): boolean {

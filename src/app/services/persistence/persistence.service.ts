@@ -34,6 +34,7 @@ export class PersistenceService {
   public userOmmRewards?: OmmRewards;
   public userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
   public minOmmStakeAmount = 1;
+  public totalStakedOmm = 0;
 
   public tokenDistributionPerDay = 1;
   public loanOriginationFeePercentage = 0.001;
@@ -45,6 +46,10 @@ export class PersistenceService {
 
   public userLoggedIn(): boolean {
     return this.activeWallet != null;
+  }
+
+  public getUsersStakedOmmBalance(): number {
+    return this.userOmmTokenBalanceDetails?.stakedBalance ?? 0
   }
 
   publicGetActiveIconAddress(): string | undefined {

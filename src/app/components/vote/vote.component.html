@@ -84,13 +84,13 @@
           <div class="grid-cell">
             <dl class="metadata text-center">
               <dt>Your voting power</dt>
-              <dd><span class="value-icx-stake-amount">{{userVotingPower()}}</span> ICX</dd>
+              <dd><span class="value-icx-stake-amount">{{userVotingPower() > 0 ? userVotingPower() : "-"}}</span>{{userVotingPower() > 0 ? " ICX" : ""}}</dd>
             </dl>
           </div>
           <div class="grid-cell">
             <dl class="metadata text-center">
               <dt>Omm's voting power</dt>
-              <dd>71,285 ICX</dd>
+              <dd>{{calculationsService.totalVotingPower()}} ICX</dd>
             </dl>
           </div>
         </div>

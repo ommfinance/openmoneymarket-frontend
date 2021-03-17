@@ -224,6 +224,17 @@ export class DataLoaderService {
     });
   }
 
+  public loadTotalStakedOmm(): Promise<void> {
+    return this.scoreService.getTotalStakedOmm().then(res => {
+      this.persistenceService.totalStakedOmm = res;
+
+      // TODO: state change and error handling
+    }).catch(e => {
+      log.error("Error in loadTotalStakedOmm:");
+      log.error(e);
+    })
+  }
+
   public afterUserActionReload(): void {
     // reload all reserves and user asset-user reserve data
     this.loadAllReserveData().then();
@@ -236,6 +247,7 @@ export class DataLoaderService {
       this.loadAllReservesConfigData(),
       this.loadTokenDistributionPerDay(),
       this.loadLoanOriginationFeePercentage(),
+      this.loadTotalStakedOmm()
       // this.loadPrepList() TODO use intead of IISS getPReps?
     ]);
   }

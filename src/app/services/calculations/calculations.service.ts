@@ -18,6 +18,35 @@ export class CalculationsService {
   constructor(private persistenceService: PersistenceService,
               private stateChangeService: StateChangeService) { }
 
+
+  public totalVotingPower(): number {
+    const totalLiquidity = this.persistenceService.getAssetReserveData(AssetTag.ICX)?.totalLiquidity ?? 0;
+    const sICXRate = this.persistenceService.sIcxToIcxRate();
+
+    const totalIcxStakedByOMM = totalLiquidity * sICXRate;
+    const totalStakedOmm = this.persistenceService.totalStakedOmm;
+
+    if (totalIcxStakedByOMM === 0 || totalStakedOmm === 0) {
+      return 0;
+    }
+
+    return totalIcxStakedByOMM / totalStakedOmm;
+  }
+
+  public yourVotingPower(userStakedOmm: number = this.persistenceService.getUsersStakedOmmBalance()): number {
+    const totalLiquidity = this.persistenceService.getAssetReserveData(AssetTag.ICX)?.totalLiquidity ?? 0;
+    const sICXRate = this.persistenceService.sIcxToIcxRate();
+
+    const totalIcxStakedByOMM = totalLiquidity * sICXRate;
+    const totalStakedOmm = this.persistenceService.totalStakedOmm;
+
+    if (totalIcxStakedByOMM === 0 || totalStakedOmm === 0 || userStakedOmm === 0) {
+      return 0;
+    }
+
+    return totalIcxStakedByOMM * userStakedOmm / totalStakedOmm;
+  }
+
   public calculateAssetSupplySliderMax(assetTag: AssetTag): number {
     let suppliedAssetBalance = this.persistenceService.getUserSuppliedAssetBalance(assetTag);
 
