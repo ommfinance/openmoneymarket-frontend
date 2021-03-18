@@ -10,7 +10,7 @@
         <h3>Omm stake</h3>
 
         <!-- Stake slider -->
-        <div id="slider-stake" disabled #sliderStake [ngStyle]="hideElement(!this.persistenceService.userLoggedIn() || !userHasOmmTokens())"></div>
+        <div id="slider-stake" disabled #stkSlider [ngStyle]="hideElement(!this.persistenceService.userLoggedIn() || !userHasOmmTokens())"></div>
 
         <!-- Message (If user has no Omm tokens) -->
         <p class="label text-center" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn() || userHasOmmTokens())">You have no Omm Tokens.<br>Supply or borrow to earn them.</p>
@@ -37,14 +37,14 @@
             <!-- Actions to show if already staked -->
             <div *ngIf="userHasStaked() && !isMaxStaked()" class="grid grid-center actions-default">
               <div class="grid-cell text-center">
-                <a href="javascript:void(0);" class="button">Adjust stake</a>
+                <a href="javascript:void(0);" class="button" (click)="onStakeAdjustClick()">Adjust stake</a>
               </div>
             </div>
 
             <!-- Actions to show if max staked -->
             <div *ngIf="userHasStaked() && isMaxStaked()" class="grid grid-center actions-default">
               <div class="grid-cell text-center">
-                <a href="javascript:void(0);" class="button">Unstake Omm Tokens</a>
+                <a href="javascript:void(0);" class="button" (click)="onStakeAdjustClick()">Unstake Omm Tokens</a>
               </div>
             </div>
 

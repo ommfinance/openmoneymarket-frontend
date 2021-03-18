@@ -265,7 +265,13 @@ export class DataLoaderService {
     this.loadAllUserAssetReserveData().then();
     this.loadAllUserAssetsBalances();
     this.loadUserAccountData().then();
-    this.loadUserOmmRewards().then();
-    this.loadUserOmmTokenBalanceDetails().then();
+    this.loadGovernanceData();
+  }
+
+  public async loadGovernanceData(): Promise<void> {
+    await Promise.all([
+      this.loadUserOmmRewards(),
+      this.loadUserOmmTokenBalanceDetails(),
+    ]);
   }
 }

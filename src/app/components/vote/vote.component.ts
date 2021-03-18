@@ -14,6 +14,9 @@ import {YourPrepVote} from "../../models/YourPrepVote";
 import {NotificationService} from "../../services/notification/notification.service";
 import {VoteAction} from "../../models/VoteAction";
 import {ModalAction} from "../../models/ModalAction";
+import {SlidersService} from "../../services/sliders/sliders.service";
+import {Utils} from "../../common/utils";
+import {DataLoaderService} from "../../services/data-loader/data-loader.service";
 
 declare var noUiSlider: any;
 declare var wNumb: any;
@@ -32,8 +35,8 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   searchedPrepList?: PrepList;
   searchInput = "";
 
-  @ViewChild("sliderStake")set sliderStakeSetter(sliderStake: ElementRef) {this.sliderStake = sliderStake.nativeElement; }
-  private sliderStake?: any;
+  @ViewChild("stkSlider")set sliderStakeSetter(sliderStake: ElementRef) {this.sliderStake = sliderStake.nativeElement; }
+  private sliderStake!: any;
 
   @ViewChild("ommStk")set ommStakeAmountSetter(ommStake: ElementRef) {this.ommStakeAmount = ommStake.nativeElement; }
   private ommStakeAmount?: any;
@@ -50,7 +53,9 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
               private stateChangeService: StateChangeService,
               private voteService: VoteService,
               public calculationsService: CalculationsService,
-              private notificationService: NotificationService) {
+              private notificationService: NotificationService,
+              private sliderService: SlidersService,
+              private dataLoaderService: DataLoaderService) {
     super(persistenceService);
 
     this.loadPrepList();
@@ -58,17 +63,16 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.subscribeToLoginChange();
-    this.subscribeToOmmTokenBalanceChange();
-    this.subscribeToUserModalActionChange();
   }
 
   ngAfterViewInit(): void {
-    this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails?.getClone();
-
     this.initStakeSlider();
-
+    this.subscribeToLoginChange();
+    this.subscribeToOmmTokenBalanceChange();
+    this.subscribeToUserModalActionChange();
     this.resetStateValues();
+
+    this.dataLoaderService.loadGovernanceData();
   }
 
   // values that should be reset on re-init
@@ -108,62 +112,35 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   private subscribeToOmmTokenBalanceChange(): void {
     this.stateChangeService.userOmmTokenBalanceDetailsChange.subscribe((res: OmmTokenBalanceDetails) => {
+      log.debug(`subscribeToOmmTokenBalanceChange res:`, res);
       this.userOmmTokenBalanceDetails = res.getClone();
+      log.debug(`this.userOmmTokenBalanceDetails:`, this.userOmmTokenBalanceDetails);
 
       // sliders max is sum of staked + available balance
-      const sliderMax = this.userOmmTokenBalanceDetails.stakedBalance + this.userOmmTokenBalanceDetails.availableBalance;
+      const sliderMax = Utils.addDecimalsPrecision(this.userOmmTokenBalanceDetails.stakedBalance,
+        this.userOmmTokenBalanceDetails.availableBalance);
+
       this.sliderStake.noUiSlider.updateOptions({
+        start: [this.userOmmTokenBalanceDetails.stakedBalance],
         range: { min: 0, max: sliderMax > 0 ? sliderMax : 1 }
       });
 
       // assign staked balance to the current slider value
+      log.debug(`subscribeToOmmTokenBalanceChange setting this.sliderStake to value :`, this.userOmmTokenBalanceDetails.stakedBalance);
       this.sliderStake.noUiSlider.set(this.userOmmTokenBalanceDetails.stakedBalance);
     });
-  }
-
-  onSearchInputChange(searchInput: string): void {
-    log.debug("this.searchInput = ", searchInput);
-    this.searchInput = searchInput;
-
-    if (this.searchInput.trim() === "") {
-      log.debug("this.searchInput.trim() === ");
-      this.searchedPrepList = this.prepList;
-
-      log.debug(`searchedPrepList:`);
-      log.debug(this.searchedPrepList);
-    } else {
-      if (this.prepList) {
-        this.searchedPrepList = new PrepList(this.prepList.totalDelegated, this.prepList.totalStake, []);
-        const searchedPreps: Prep[] = [];
-
-        this.prepList?.preps.forEach(prep => {
-          if (prep.name.toLowerCase().includes(this.searchInput)) {
-            searchedPreps.push(prep);
-          }
-        });
-
-        if (this.searchedPrepList) {
-          this.searchedPrepList.preps = searchedPreps;
-        }
-      }
-    }
   }
 
   initStakeSlider(): void {
     const currentUserOmmStakedBalance = this.userOmmTokenBalanceDetails?.stakedBalance ?? 0;
     const userOmmAvailableBalance = this.roundDownTo2Decimals(this.persistenceService.userOmmTokenBalanceDetails?.availableBalance ?? 0);
-    const max = currentUserOmmStakedBalance + userOmmAvailableBalance;
+    const max = Utils.addDecimalsPrecision(currentUserOmmStakedBalance, userOmmAvailableBalance);
 
     // Stake slider
-    noUiSlider.create(this.sliderStake, {
-      start: [0],
-      padding: [0],
-      connect: 'lower',
-      range: {
+    this.sliderService.createNoUiSlider(this.sliderStake, 0, 0, 'lower', undefined, {
         min: [0],
         max: [max === 0 ? 0.1 : max]
-      },
-    });
+      });
 
     // slider slider value if user Omm token balances are already loaded
     if (this.userOmmTokenBalanceDetails) {
@@ -173,6 +150,8 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     // On stake slider update
     this.sliderStake.noUiSlider.on('update', (values: any, handle: any) => {
       const value = +values[handle];
+
+      log.debug("update this.sliderStake value to:", value);
 
       if (this.userOmmTokenBalanceDetails) {
         this.userOmmTokenBalanceDetails.stakedBalance = value;
@@ -193,7 +172,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     this.voteOverviewEditMode = true;
 
     // Set your P-Rep sliders to initial values
-    $('#slider-stake').removeAttr("disabled");
+    $(this.sliderStake).removeAttr("disabled");
   }
 
   // On "Cancel Stake" click
@@ -222,7 +201,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   onConfirmStakeClick(): void {
     log.debug(`onConfirmStakeClick Omm stake amount = ${this.userOmmTokenBalanceDetails?.stakedBalance}`);
     const before = this.roundDownTo2Decimals(this.persistenceService.getUsersStakedOmmBalance());
-    const after = this.userOmmTokenBalanceDetails?.stakedBalance ?? 0;
+    const after = this.roundDownTo2Decimals(this.userOmmTokenBalanceDetails?.stakedBalance ?? 0);
 
     // if before and after equal show notification
     if (before === after) {
@@ -230,7 +209,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       return;
     }
 
-    const diff = after - before;
+    const diff = Utils.subtractDecimalsWithPrecision(after, before);
 
     const voteAction = new VoteAction(before, after, Math.abs(diff));
 
@@ -312,7 +291,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   isMaxStaked(): boolean {
-    return this.sliderStake.noUiSlider.options.range.max === this.userOmmTokenBalanceDetails?.stakedBalance;
+    return this.sliderStake?.noUiSlider?.options.range.max === this.userOmmTokenBalanceDetails?.stakedBalance;
   }
 
   isUnstaking(): boolean {
@@ -338,6 +317,34 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       }
     } else {
       return false;
+    }
+  }
+
+  onSearchInputChange(searchInput: string): void {
+    log.debug("this.searchInput = ", searchInput);
+    this.searchInput = searchInput;
+
+    if (this.searchInput.trim() === "") {
+      log.debug("this.searchInput.trim() === ");
+      this.searchedPrepList = this.prepList;
+
+      log.debug(`searchedPrepList:`);
+      log.debug(this.searchedPrepList);
+    } else {
+      if (this.prepList) {
+        this.searchedPrepList = new PrepList(this.prepList.totalDelegated, this.prepList.totalStake, []);
+        const searchedPreps: Prep[] = [];
+
+        this.prepList?.preps.forEach(prep => {
+          if (prep.name.toLowerCase().includes(this.searchInput)) {
+            searchedPreps.push(prep);
+          }
+        });
+
+        if (this.searchedPrepList) {
+          this.searchedPrepList.preps = searchedPreps;
+        }
+      }
     }
   }
 
