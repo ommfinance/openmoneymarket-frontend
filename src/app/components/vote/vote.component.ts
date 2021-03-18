@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {BaseClass} from "../base-class";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {normalFormat} from "../../common/formats";
@@ -55,7 +55,8 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
               public calculationsService: CalculationsService,
               private notificationService: NotificationService,
               private sliderService: SlidersService,
-              private dataLoaderService: DataLoaderService) {
+              private dataLoaderService: DataLoaderService,
+              private cd: ChangeDetectorRef,) {
     super(persistenceService);
 
     this.loadPrepList();
@@ -72,7 +73,8 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     this.subscribeToUserModalActionChange();
     this.resetStateValues();
 
-    this.dataLoaderService.loadGovernanceData();
+    // call cd after to avoid ExpressionChangedAfterItHasBeenCheckedError
+    this.cd.detectChanges();
   }
 
   // values that should be reset on re-init
@@ -132,7 +134,8 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   initStakeSlider(): void {
-    const currentUserOmmStakedBalance = this.userOmmTokenBalanceDetails?.stakedBalance ?? 0;
+    this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails?.getClone();
+    const currentUserOmmStakedBalance = this.roundDownTo2Decimals(this.persistenceService.getUsersStakedOmmBalance());
     const userOmmAvailableBalance = this.roundDownTo2Decimals(this.persistenceService.userOmmTokenBalanceDetails?.availableBalance ?? 0);
     const max = Utils.addDecimalsPrecision(currentUserOmmStakedBalance, userOmmAvailableBalance);
 
@@ -150,8 +153,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     // On stake slider update
     this.sliderStake.noUiSlider.on('update', (values: any, handle: any) => {
       const value = +values[handle];
-
-      log.debug("update this.sliderStake value to:", value);
 
       if (this.userOmmTokenBalanceDetails) {
         this.userOmmTokenBalanceDetails.stakedBalance = value;
