@@ -141,7 +141,7 @@
         </table>
 
           <!-- Actions to show by default -->
-          <div class="grid grid-center actions-default" [ngStyle]="hideElement(!userHasVotedForPrep())">
+          <div class="grid grid-center actions-default" [ngStyle]="hideElement(!userHasVotedForPrep() || yourVotesEditMode)">
             <div class="grid-cell text-center">
               <a href="javascript:void(0);" id="vote-adjust" class="button" (click)="onAdjustVoteClick()">Adjust P-Reps</a>
             </div>

@@ -81,6 +81,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   // values that should be reset on re-init
   resetStateValues(): void {
     this.yourVotesEditMode = false;
+    this.voteOverviewEditMode = false;
   }
 
   initYourVotePrepList(): void {
@@ -266,6 +267,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     if (this.yourVotesPrepList.length >= 5) {
       this.notificationService.showNewNotification("You can only vote for 5 preps.");
     } else {
+      this.yourVotesEditMode = true;
       this.yourVotesPrepList.push(new YourPrepVote(prep.address, prep.name, 65));
     }
   }
