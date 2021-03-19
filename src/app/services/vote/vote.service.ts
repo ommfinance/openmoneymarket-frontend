@@ -133,25 +133,6 @@ export class VoteService {
   }
 
   /**
-   * @description Get list of PReps
-   * @return  Returns the status of all registered P-Rep candidates in descending order by delegated ICX amount
-   */
-  public async getListOfPreps(startRanking: number = 1, endRanking: number = 100): Promise<PrepList> {
-    const params = {
-      startRanking: IconConverter.toHex(startRanking),
-      endRanking: IconConverter.toHex(endRanking)
-    };
-
-    const tx = this.iconApiService.buildTransaction("",  environment.IISS_API,
-      ScoreMethodNames.GET_PREPS, params, IconTransactionType.READ);
-
-    const prepList = await this.iconApiService.iconService.call(tx).execute();
-
-
-    return Mapper.mapPrepList(prepList);
-  }
-
-  /**
    * @description Get Prep
    * @param prepAddress - Address of the Prep we want to fetch data for
    * @return  Returns the mapped Prep data
@@ -165,7 +146,6 @@ export class VoteService {
       ScoreMethodNames.GET_PREP, params, IconTransactionType.READ);
 
     const prepList = await this.iconApiService.iconService.call(tx).execute();
-
 
     return Mapper.mapPrep(prepList);
   }

@@ -9,6 +9,7 @@ import {UserAccountData} from "../../models/UserAccountData";
 import {ModalAction} from "../../models/ModalAction";
 import {OmmRewards} from "../../models/OmmRewards";
 import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
+import {PrepList} from "../../models/Preps";
 
 @Injectable({
   providedIn: 'root'
@@ -48,15 +49,11 @@ export class StateChangeService {
    */
   public userAccountDataChange: Subject<UserAccountData> = new Subject<UserAccountData>();
 
-  /**
-   * Subscribable subject for user omm rewards change
-   */
   public userOmmRewardsChange: Subject<OmmRewards> = new Subject<OmmRewards>();
-
-  /**
-   * Subscribable subject for user omm token balance detail change
-   */
   public userOmmTokenBalanceDetailsChange: Subject<OmmTokenBalanceDetails> = new Subject<OmmTokenBalanceDetails>();
+  public totalOmmStakedChange: Subject<number> = new Subject<number>();
+
+  public prepListChange: Subject<PrepList> = new Subject<PrepList>();
 
   /**
    * Subscribable subject for monitoring the user modal action changes (supply, withdraw, ..)
@@ -115,6 +112,14 @@ export class StateChangeService {
 
   public updateUserOmmTokenBalanceDetails(userOmmTokenBalanceDetails: OmmTokenBalanceDetails): void {
     this.userOmmTokenBalanceDetailsChange.next(userOmmTokenBalanceDetails);
+  }
+
+  public updatePrepList(prepList: PrepList): void {
+    this.prepListChange.next(prepList);
+  }
+
+  public updateTotalStakedOmm(totalStakedOmm: number): void {
+    this.totalOmmStakedChange.next(totalStakedOmm);
   }
 
   public updateUserModalAction(modalAction: ModalAction): void {

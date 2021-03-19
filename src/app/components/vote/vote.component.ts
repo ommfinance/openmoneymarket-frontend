@@ -46,7 +46,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   // current state variables
   yourVotesEditMode = false;
   voteOverviewEditMode = false;
-  prepListIsLoading = false;
 
   constructor(public persistenceService: PersistenceService,
               private modalService: ModalService,
@@ -56,21 +55,23 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
               private notificationService: NotificationService,
               private sliderService: SlidersService,
               private dataLoaderService: DataLoaderService,
-              private cd: ChangeDetectorRef,) {
+              private cd: ChangeDetectorRef) {
     super(persistenceService);
 
-    this.loadPrepList();
-    this.initYourVotePrepList();
+    this.subscribeToPrepListChange();
+    this.subscribeToLoginChange();
+    this.subscribeToOmmTokenBalanceChange();
+    this.subscribeToUserModalActionChange();
+    this.initYourVotePrepList(); // TODO!!!
   }
 
   ngOnInit(): void {
+    this.prepList = this.persistenceService.prepList;
+    this.searchedPrepList = this.persistenceService.prepList;
   }
 
   ngAfterViewInit(): void {
     this.initStakeSlider();
-    this.subscribeToLoginChange();
-    this.subscribeToOmmTokenBalanceChange();
-    this.subscribeToUserModalActionChange();
     this.resetStateValues();
 
     // call cd after to avoid ExpressionChangedAfterItHasBeenCheckedError
@@ -80,7 +81,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   // values that should be reset on re-init
   resetStateValues(): void {
     this.yourVotesEditMode = false;
-    this.prepListIsLoading = false;
   }
 
   initYourVotePrepList(): void {
@@ -89,6 +89,14 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
     // initialize this components dynamic yourVotesPrepList
     this.yourVotesPrepList = [...this.persistenceService.yourVotesPrepList];
+  }
+
+  private subscribeToPrepListChange(): void {
+    // top 100 prep list has changed
+    this.stateChangeService.prepListChange.subscribe((prepList: PrepList) => {
+      this.prepList = prepList;
+      this.onSearchInputChange("");
+    });
   }
 
   private subscribeToUserModalActionChange(): void {
@@ -203,6 +211,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     log.debug(`onConfirmStakeClick Omm stake amount = ${this.userOmmTokenBalanceDetails?.stakedBalance}`);
     const before = this.roundDownTo2Decimals(this.persistenceService.getUsersStakedOmmBalance());
     const after = this.roundDownTo2Decimals(this.userOmmTokenBalanceDetails?.stakedBalance ?? 0);
+    const diff = Utils.subtractDecimalsWithPrecision(after, before);
 
     // if before and after equal show notification
     if (before === after) {
@@ -210,12 +219,14 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       return;
     }
 
-    const diff = Utils.subtractDecimalsWithPrecision(after, before);
-
     const voteAction = new VoteAction(before, after, Math.abs(diff));
 
     if (diff > 0) {
-      this.modalService.showNewModal(ModalType.STAKE_OMM_TOKENS, undefined, voteAction);
+      if (this.persistenceService.minOmmStakeAmount > diff) {
+        this.notificationService.showNewNotification(`Stake amount must be greater than ${this.persistenceService.minOmmStakeAmount}`);
+      } else {
+        this.modalService.showNewModal(ModalType.STAKE_OMM_TOKENS, undefined, voteAction);
+      }
     } else {
       this.modalService.showNewModal(ModalType.UNSTAKE_OMM_TOKENS, undefined, voteAction);
     }
@@ -235,19 +246,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   onConfirmRemovePrepClick(): void {
     this.modalService.showNewModal(ModalType.REMOVE_PREP_SELECTION);
-  }
-
-  private loadPrepList(start: number = 1, end: number = 100): void {
-    this.voteService.getListOfPreps(start, end).then(prepList => {
-      this.persistenceService.prepList = prepList;
-      this.prepList = prepList;
-      this.searchedPrepList = prepList;
-      this.prepListIsLoading = false;
-    }).catch(e => {
-      this.prepListIsLoading = false;
-      log.error("Failed to load prep list... Details:");
-      log.error(e);
-    });
   }
 
   private loadUserDelegationDetails(): void {
@@ -286,9 +284,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   userVotingPower(): number {
-    const userStakedBalance = this.userOmmTokenBalanceDetails?.stakedBalance ?? 0;
-    return this.calculationsService.yourVotingPower(userStakedBalance);
-
+    return this.calculationsService.yourVotingPower(this.persistenceService.getUsersStakedOmmBalance());
   }
 
   isMaxStaked(): boolean {

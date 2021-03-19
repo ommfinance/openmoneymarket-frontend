@@ -30,6 +30,10 @@ export class CalculationsService {
       return 0;
     }
 
+    // log.debug("********* totalVotingPower() ************");
+    // log.debug("totalIcxStakedByOMM:", totalIcxStakedByOMM);
+    // log.debug("totalStakedOmm:", totalStakedOmm);
+
     return totalIcxStakedByOMM / totalStakedOmm;
   }
 
@@ -43,6 +47,11 @@ export class CalculationsService {
     if (totalIcxStakedByOMM === 0 || totalStakedOmm === 0 || userStakedOmm === 0) {
       return 0;
     }
+
+    // log.debug("********* totalVotingPower() ************");
+    // log.debug("totalIcxStakedByOMM:", totalIcxStakedByOMM);
+    // log.debug("totalStakedOmm:", totalStakedOmm);
+    // log.debug("userStakedOmm:", totalStakedOmm);
 
     return totalIcxStakedByOMM * userStakedOmm / totalStakedOmm;
   }

@@ -208,15 +208,6 @@ export class DataLoaderService {
     });
   }
 
-  public loadPrepList(): void {
-    this.scoreService.getListOfPreps().then(prepList => {
-      this.persistenceService.prepList = prepList;
-    }).catch(e => {
-      log.error("Error in loadPrepList()");
-      throw e;
-    });
-  }
-
   public loadMinOmmStakeAmount(): void {
     this.scoreService.getOmmTokenMinStakeAmount().then(minStakeAmount => {
       this.persistenceService.minOmmStakeAmount = minStakeAmount;
@@ -237,9 +228,20 @@ export class DataLoaderService {
     return this.scoreService.getTotalStakedOmm().then(res => {
       this.persistenceService.totalStakedOmm = res;
 
-      // TODO: state change and error handling
+      log.debug("getTotalStakedOmm (mapped): ", res);
+      this.stateChangeService.updateTotalStakedOmm(res);
     }).catch(e => {
       log.error("Error in loadTotalStakedOmm:");
+      log.error(e);
+    });
+  }
+
+  public async loadPrepList(start: number = 1, end: number = 100): Promise<void> {
+    this.scoreService.getListOfPreps(start, end).then(prepList => {
+      this.persistenceService.prepList = prepList;
+      this.stateChangeService.updatePrepList(prepList);
+    }).catch(e => {
+      log.error("Failed to load prep list... Details:");
       log.error(e);
     });
   }
@@ -256,19 +258,22 @@ export class DataLoaderService {
       this.loadAllReservesConfigData(),
       this.loadTokenDistributionPerDay(),
       this.loadLoanOriginationFeePercentage(),
-      this.loadTotalStakedOmm()
-      // this.loadPrepList() TODO use intead of IISS getPReps?
+      this.loadTotalStakedOmm(),
+      this.loadPrepList(),
+      this.loadMinOmmStakeAmount()
     ]);
   }
 
-  public loadUserSpecificData(): void {
-    this.loadAllUserAssetReserveData().then();
-    this.loadAllUserAssetsBalances();
-    this.loadUserAccountData().then();
-    this.loadGovernanceData();
+  public async loadUserSpecificData(): Promise<void> {
+    await Promise.all([
+      this.loadAllUserAssetReserveData(),
+      this.loadAllUserAssetsBalances(),
+      this.loadUserAccountData(),
+      this.loadUserGovernanceData()
+    ]);
   }
 
-  public async loadGovernanceData(): Promise<void> {
+  public async loadUserGovernanceData(): Promise<void> {
     await Promise.all([
       this.loadUserOmmRewards(),
       this.loadUserOmmTokenBalanceDetails(),

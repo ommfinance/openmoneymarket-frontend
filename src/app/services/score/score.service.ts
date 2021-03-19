@@ -16,6 +16,7 @@ import {AssetTag} from "../../models/Asset";
 import log from "loglevel";
 import {PrepList} from "../../models/Preps";
 import {Mapper} from "../../common/mapper";
+import {IconConverter} from "icon-sdk-js";
 
 
 @Injectable({
@@ -130,17 +131,17 @@ export class ScoreService {
    * @description Get list of PReps
    * @return  Returns the status of all registered P-Rep candidates in descending order by delegated ICX amount
    */
-  public async getListOfPreps(): Promise<PrepList> {
-    log.debug("***** getListOfPreps ******");
-    this.checkerService.checkAllAddressesLoaded();
-
-    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Staking,
-      ScoreMethodNames.GET_PREP_TOP_LIST, {}, IconTransactionType.READ);
-
-    const prepList = await this.iconApiService.iconService.call(tx).execute();
-
-    return Mapper.mapPrepList(prepList);
-  }
+  // public async getListOfPreps(): Promise<PrepList> {
+  //   log.debug("***** getListOfPreps ******");
+  //   this.checkerService.checkAllAddressesLoaded();
+  //
+  //   const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Staking,
+  //     ScoreMethodNames.GET_PREP_TOP_LIST, {}, IconTransactionType.READ);
+  //
+  //   const prepList = await this.iconApiService.iconService.call(tx).execute();
+  //
+  //   return Mapper.mapPrepList(prepList);
+  // }
 
   /**
    * @description Get today sicx to icx conversion rate
@@ -279,6 +280,26 @@ export class ScoreService {
     this.stateChangeService.updateUserAssetBalance(balance, assetTag);
 
     return balance;
+  }
+
+
+  /**
+   * @description Get list of PReps
+   * @return  Returns the status of all registered P-Rep candidates in descending order by delegated ICX amount
+   */
+  public async getListOfPreps(startRanking: number = 1, endRanking: number = 100): Promise<PrepList> {
+    const params = {
+      startRanking: IconConverter.toHex(startRanking),
+      endRanking: IconConverter.toHex(endRanking)
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  environment.IISS_API,
+      ScoreMethodNames.GET_PREPS, params, IconTransactionType.READ);
+
+    const prepList = await this.iconApiService.iconService.call(tx).execute();
+
+
+    return Mapper.mapPrepList(prepList);
   }
 
 }

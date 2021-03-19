@@ -266,7 +266,7 @@ export class ModalComponent extends BaseClass implements OnInit {
         this.voteService.stakeOmm(this.activeModalChange!.voteAction!.after, "Staking Omm Tokens...");
         break;
       case ModalType.UNSTAKE_OMM_TOKENS:
-        this.voteService.unstakeOmm(this.activeModalChange!.voteAction!.after, "Starting unstaking process...");
+        this.voteService.unstakeOmm(this.activeModalChange!.voteAction!.amount, "Starting unstaking process...");
         break;
       default:
         throw new OmmError(` onGovernanceModalConfirmClick() -> Invalid modal type: ${this.activeModalChange?.modalType}`);
