@@ -100,7 +100,7 @@
   </section>
 
   <!-- Your votes -->
-  <section id="your-votes {{this.yourVotesEditMode ? 'adjust' : ''}}" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn() || !userHasStaked())">
+  <section id="your-votes" class="{{this.yourVotesEditMode ? 'adjust' : ''}}" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn() || !userHasStaked())">
     <!-- Title -->
     <div class="grid grid-center">
       <div class="grid-cell">
