@@ -22,8 +22,9 @@ export class CalculationsService {
   public totalRepaymentFormula(assetTag: AssetTag): number {
     const currentBorrowBalanceUSD = this.persistenceService.getUserBorrowedAssetUSDBalance(assetTag);
     const borrowRate = this.persistenceService.getUserAssetReserve(assetTag)!.borrowRate;
-    const res = Utils.convertSICXToICX(currentBorrowBalanceUSD * (1 + borrowRate * (1 / (365 * 24 * 6))),
-      this.persistenceService.sIcxToIcxRate());
+    let res = currentBorrowBalanceUSD * (1 + borrowRate * (1 / (365 * 24 * 6)));
+
+    res = Utils.convertIfSICXToICX(res, this.persistenceService.sIcxToIcxRate(), assetTag);
 
     log.debug("Total repayment formula res = ", res / this.persistenceService.getAssetExchangePrice(assetTag));
     return res / this.persistenceService.getAssetExchangePrice(assetTag);
