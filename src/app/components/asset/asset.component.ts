@@ -336,12 +336,18 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
     const after = value;
     log.debug(`after: ${after}`);
-    const amount = Math.abs(borrowAmountDiff);
+    let amount = Math.abs(borrowAmountDiff);
     const risk = this.getCurrentDynamicRisk();
 
     if (borrowAmountDiff > 0) {
       this.modalService.showNewModal(ModalType.BORROW, new AssetAction(this.asset, currentlyBorrowed , after, amount, risk));
     } else if (borrowAmountDiff < 0) {
+
+      // if full repayment
+      if (after === 0) {
+        amount = this.calculationService.totalRepaymentFormula(this.asset.tag);
+      }
+
       this.modalService.showNewModal(ModalType.REPAY, new AssetAction(this.asset, currentlyBorrowed , after, amount, risk));
     }  else {
       this.notificationService.showNewNotification("No change in borrowed value.");

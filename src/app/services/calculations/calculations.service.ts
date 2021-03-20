@@ -19,6 +19,14 @@ export class CalculationsService {
               private stateChangeService: StateChangeService) { }
 
 
+  public totalRepaymentFormula(assetTag: AssetTag): number {
+    const currentBorrowBalanceUSD = this.persistenceService.getUserBorrowedAssetUSDBalance(assetTag);
+    const borrowRate = this.persistenceService.getUserAssetReserve(assetTag)!.borrowRate;
+    const res = currentBorrowBalanceUSD * (1 + borrowRate * (1 / (365 * 24 * 6)));
+    log.debug("Total repayment formula res = ", res / this.persistenceService.getAssetExchangePrice(assetTag));
+    return res / this.persistenceService.getAssetExchangePrice(assetTag);
+  }
+
   public totalVotingPower(): number {
     const totalLiquidity = this.persistenceService.getAssetReserveData(AssetTag.ICX)?.totalLiquidity ?? 0;
     const sICXRate = this.persistenceService.sIcxToIcxRate();

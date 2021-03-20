@@ -130,16 +130,16 @@
 <div class="modal" id="modal-claim-rewards" #claimOmmRewardsModal>
   <div class="modal-content">
     <h3 class="text-center label">Claim Omm rewards?</h3>
-    <p class="text-bold text-center value-rewards-modal">{{roundOffTo2Decimals(this.activeModalChange?.assetAction?.amount)}} OMM</p>
+    <p class="text-bold text-center value-rewards-modal">{{roundDownTo2Decimals(this.activeModalChange?.assetAction?.amount)}} OMM</p>
     <div class="grid">
       <div class="grid-cell text-center border-right">
         <p class="label">Before</p>
-        <p class="text-dark">{{roundOffTo2Decimals(this.activeModalChange?.assetAction?.before)}} OMM</p>
+        <p class="text-dark">{{roundDownTo2Decimals(this.activeModalChange?.assetAction?.before)}} OMM</p>
       </div>
 
       <div class="grid-cell text-center">
         <p class="label">After</p>
-        <p class="text-dark value-rewards-mdoal">{{roundOffTo2Decimals(this.activeModalChange?.assetAction?.after)}} OMM</p>
+        <p class="text-dark value-rewards-mdoal">{{roundDownTo2Decimals(this.activeModalChange?.assetAction?.after)}} OMM</p>
       </div>
     </div>
     <div class="modal-actions">
@@ -153,16 +153,16 @@
 <div class="modal" #assetActionModal>
   <div class="modal-content">
     <h3 class="text-center label">{{getModalActionName()}} {{this.activeModalChange?.assetAction?.asset?.name}}?</h3>
-    <p class="text-bold text-center value-borrow-difference">{{this.activeModalChange?.assetAction?.amount}} {{this.activeModalChange?.assetAction?.asset?.tag}}</p>
+    <p class="text-bold text-center value-borrow-difference">{{roundDownTo2Decimals(this.activeModalChange?.assetAction?.amount)}} {{this.activeModalChange?.assetAction?.asset?.tag}}</p>
     <div class="grid">
       <div class="grid-cell text-center border-right">
         <p class="label">Before</p>
-        <p class="text-dark value-borrowed">{{roundOffTo2Decimals(this.activeModalChange?.assetAction?.before)}} {{this.activeModalChange?.assetAction?.asset?.tag}}</p>
+        <p class="text-dark value-borrowed">{{roundDownTo2Decimals(this.activeModalChange?.assetAction?.before)}} {{this.activeModalChange?.assetAction?.asset?.tag}}</p>
       </div>
 
       <div class="grid-cell text-center">
         <p class="label">After</p>
-        <p class="text-dark value-borrow-after">{{roundOffTo2Decimals(this.activeModalChange?.assetAction?.after)}} {{this.activeModalChange?.assetAction?.asset?.tag}}</p>
+        <p class="text-dark value-borrow-after">{{roundDownTo2Decimals(this.activeModalChange?.assetAction?.after)}} {{this.activeModalChange?.assetAction?.asset?.tag}}</p>
       </div>
     </div>
 
@@ -190,12 +190,12 @@
     <div class="grid before-after">
       <div class="grid-cell text-center border-right">
         <p class="label">Before</p>
-        <p class="text-dark">{{roundOffTo2Decimals(this.activeModalChange?.assetAction?.before)}} ICX</p>
+        <p class="text-dark">{{roundDownTo2Decimals(this.activeModalChange?.assetAction?.before)}} ICX</p>
       </div>
 
       <div class="grid-cell text-center">
         <p class="label">After</p>
-        <p class="text-dark">{{roundOffTo2Decimals(this.activeModalChange?.assetAction?.after)}} ICX</p>
+        <p class="text-dark">{{roundDownTo2Decimals(this.activeModalChange?.assetAction?.after)}} ICX</p>
       </div>
     </div>
 
