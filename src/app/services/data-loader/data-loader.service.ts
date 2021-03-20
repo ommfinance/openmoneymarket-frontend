@@ -21,6 +21,7 @@ import {ErrorCode, ErrorService} from "../error/error.service";
 import {CheckerService} from "../checker/checker.service";
 import {LocalStorageService} from "../local-storage/local-storage.service";
 import {WalletType} from "../../models/wallets/Wallet";
+import {HttpClient} from "@angular/common/http";
 
 @Injectable({
   providedIn: 'root'
@@ -34,7 +35,8 @@ export class DataLoaderService {
               private notificationService: NotificationService,
               private errorService: ErrorService,
               private checkerService: CheckerService,
-              private localStorageService: LocalStorageService) {
+              private localStorageService: LocalStorageService,
+              private http: HttpClient) {
 
   }
 
@@ -237,13 +239,49 @@ export class DataLoaderService {
   }
 
   public async loadPrepList(start: number = 1, end: number = 100): Promise<void> {
-    this.scoreService.getListOfPreps(start, end).then(prepList => {
+    try {
+      const prepList = await this.scoreService.getListOfPreps(start, end);
+
+      // fetch logos
+      try {
+        Promise.all(prepList.preps?.map(async (prep) => {
+          prep.setLogoUrl(await this.getLogoUrl(prep.details));
+        }));
+      } catch (e) {
+        log.debug("Failed to fetch all logos");
+      }
+
       this.persistenceService.prepList = prepList;
       this.stateChangeService.updatePrepList(prepList);
-    }).catch(e => {
+    } catch (e) {
       log.error("Failed to load prep list... Details:");
       log.error(e);
-    });
+    }
+  }
+
+  private async getLogoUrl(jsonUrl: string | undefined): Promise<string | undefined> {
+    if (!jsonUrl) { return undefined; }
+
+    try {
+      const logoUrlPromise = this.http.get<any>(jsonUrl).toPromise();
+      const resJson: any = await logoUrlPromise;
+      const logoSvgUrl = resJson?.representative?.logo?.logo_svg;
+      const logo256PngUrl = resJson?.representative?.logo?.logo_256;
+      const logo1024PngUrl = resJson?.representative?.logo?.logo_1024;
+
+      if (logoSvgUrl) {
+        return logoSvgUrl;
+      } else if (logo256PngUrl) {
+        return logo256PngUrl;
+      } else if (logo1024PngUrl) {
+        return logo1024PngUrl;
+      } else {
+        return undefined;
+      }
+    } catch (e) {
+      log.error("Error occurred in API call to " + jsonUrl);
+      return undefined;
+    }
   }
 
   public afterUserActionReload(): void {

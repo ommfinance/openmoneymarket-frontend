@@ -205,7 +205,7 @@
                   <div class="grid grid-center">
                     <div class="grid-cell">
                       <div class="plus" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn())" (click)="addYourVotePrep(prep)">+</div>
-                      <img src="assets/img/icon/profile.svg">
+                      <img [src]="prep.logoUrl">
                     </div>
                     <div class="grid-cell">
                       {{prep.name}}
