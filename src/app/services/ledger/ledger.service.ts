@@ -10,6 +10,7 @@ import {PersistenceService} from "../persistence/persistence.service";
 import {LedgerWallet} from "../../models/wallets/LedgerWallet";
 import {AssetTag} from "../../models/Asset";
 import {IconApiService} from "../icon-api/icon-api.service";
+import {OmmError} from "../../core/errors/OmmError";
 
 
 @Injectable({
@@ -35,11 +36,7 @@ export class LedgerService {
     }
 
     try {
-      const transport = await TransportWebUSB.create();
-      transport.setDebugMode(true);
-      transport.setExchangeTimeout(60000); // 60 seconds
-
-      this.icx = new Icx(transport);
+      await this.initialiseTransport();
 
       this.notificationService.showNewNotification("Waiting for the confirmation of address on Ledger device.. (60 seconds timeout)");
 
@@ -58,14 +55,11 @@ export class LedgerService {
     try {
       const walletList = [];
 
-      const transport = await TransportWebUSB.create();
-      transport.setDebugMode(true);
-      transport.setExchangeTimeout(60000); // 60 seconds
-      const icx = new Icx(transport);
+      await this.initialiseTransport();
 
       for (let i = index * this.LIST_NUM; i < index * this.LIST_NUM + this.LIST_NUM; i++) {
         const path = `${environment.ledgerBip32Path}/0'/${i}'`;
-        const { address } = await icx.getAddress(path, false, true);
+        const { address } = await this.icx.getAddress(path, false, true);
 
         const wallet = new LedgerWallet(address, path);
         const icxBalance = await this.iconApiService.getIcxBalance(address);
@@ -83,14 +77,19 @@ export class LedgerService {
 
   // sign raw transaction and return signed transaction object
   async signTransaction(rawTransaction: any): Promise<any> {
+    if (!(this.persistenceService.activeWallet instanceof LedgerWallet)) {
+      throw new OmmError("Can not sign transaction with Ledger because Ledger wallet is not active!");
+    }
     try {
+      await this.initialiseTransport();
+
       this.notificationService.showNewNotification("Please confirm the transaction on your Ledger device.");
 
       const rawTx = { ...rawTransaction };
       const phraseToSign = this._generateHashKey(rawTx);
       log.debug("phraseToSign: ", phraseToSign);
 
-      const signedData = await this.icx.signTransaction(environment.ledgerBip32Path, phraseToSign);
+      const signedData = await this.icx.signTransaction(this.persistenceService.activeWallet.path, phraseToSign);
       const { signedRawTxBase64 } = signedData;
       log.info("Ledger signTransaction result: ", signedData);
 
@@ -104,6 +103,14 @@ export class LedgerService {
       log.error(e);
       throw e;
     }
+  }
+
+  async initialiseTransport(): Promise<void> {
+    const transport = await TransportWebUSB.create();
+    transport.setDebugMode(true);
+    transport.setExchangeTimeout(60000); // 60 seconds
+
+    this.icx = new Icx(transport);
   }
 
   _generateHashKey(obj: any): any {
