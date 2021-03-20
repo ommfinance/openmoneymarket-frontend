@@ -250,7 +250,7 @@
       <ng-container *ngFor="let wallet of ledgerWallets; let i = index">
         <tr (click)="onSelectLedgerAddressClick(wallet)">
           <td>{{formatIconAddressToShort(wallet.address)}}</td>
-          <td class="text-right">{{this.toDollarUSLocaleString(wallet.balances.get(AssetTag.ICX), true)}} ICX</td>
+          <td class="text-right">{{this.toDollarUSLocaleString(ledgerIcxUSDvalue(wallet), true)}} ICX</td>
         </tr>
       </ng-container>
       </tbody>

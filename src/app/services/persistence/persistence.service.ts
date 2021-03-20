@@ -83,7 +83,7 @@ export class PersistenceService {
   }
 
   public getAssetExchangePrice(assetTag: AssetTag): number {
-    return this.getAssetReserveData(assetTag)?.exchangePrice ?? 0;
+    return this.getAssetReserveData(assetTag)?.exchangePrice ?? 1;
   }
 
   public sIcxToIcxRate(): number {
