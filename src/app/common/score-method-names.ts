@@ -45,6 +45,7 @@ export class ScoreMethodNames {
   public static STAKE_OMM = "stake";
   public static GET_MIN_STAKE = "getMinimumStake";
   public static GET_TOTAL_STAKED_OMM = "total_staked_balance";
+  public static TEST_MINT = "testMint";
 
   /**
    * Delegation SCORE

@@ -51,8 +51,8 @@ export class BaseClass {
   //   return `$${this.formatNumberToNdigits(num)}`;
   // }
 
-  public formatNumberToUSLocaleString(num?: number | string): string {
-    if (!num || (+num) === 0) { return "-"; }
+  public formatNumberToUSLocaleString(num?: number | string, defaultZero = false): string {
+    if (!num || (+num) === 0) { return defaultZero ? "0" : "-"; }
     if (typeof num === 'string') {
       return Utils.formatNumberToUSLocaleString(+num);
     } else {

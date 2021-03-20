@@ -242,9 +242,8 @@ export class ModalComponent extends BaseClass implements OnInit {
     return this.activeModalChange?.modalType === ModalType.WITHDRAW && this.activeModalChange.assetAction?.asset.tag === AssetTag.ICX;
   }
 
-  ledgerIcxUSDvalue(wallet: LedgerWallet): number {
-    const ICXbalance = wallet.balances.get(AssetTag.ICX) ?? 0;
-    return ICXbalance * this.persistenceService.getAssetExchangePrice(AssetTag.ICX);
+  ledgerIcxBalance(wallet: LedgerWallet): number {
+    return wallet.balances.get(AssetTag.ICX) ?? 0;
   }
 
   getModalActionName(): string {
