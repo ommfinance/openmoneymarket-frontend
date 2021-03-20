@@ -260,7 +260,7 @@
     <ul class="pagination">
       <li (click)="onLedgerPageBackClick()"><</li>
       <ng-container *ngFor="let i of activeLedgerAddressPageList">
-        <li class="{{i === selectedLedgerAddressPage ? 'active' : ''}}" (click)="onLedgerAddressPageClick(i)">{{i}}</li>
+        <li class="{{i === selectedLedgerAddressPage ? 'active' : ''}}" (click)="onLedgerAddressPageClick(i)">{{i + 1}}</li>
       </ng-container>
       <li (click)="onLedgerPageNextClick()">></li>
     </ul>

@@ -50,11 +50,11 @@ export class ModalComponent extends BaseClass implements OnInit {
 
   withdrawOption = "unstake";
 
-  // window on which user is on (e.g. 1st = [1, 2, 3, 4, 5])
-  activeLedgerAddressWindow = 1;
-  activeLedgerAddressPageList = [1, 2, 3, 4, 5];
+  // window on which user is on (e.g. 1st = [0, 1, 2, 3, 4])
+  activeLedgerAddressWindow = 0;
+  activeLedgerAddressPageList = [0, 1, 2, 3, 4];
   // page that the user has selected
-  selectedLedgerAddressPage = 1;
+  selectedLedgerAddressPage = 0;
   // default window and page size
   ledgerAddressPageSize = 5;
 
@@ -134,9 +134,9 @@ export class ModalComponent extends BaseClass implements OnInit {
     this.modalService.hideActiveModal();
 
     // set default pagination values
-    this.activeLedgerAddressWindow = 1;
-    this.selectedLedgerAddressPage = 1;
-    this.activeLedgerAddressPageList = [1, 2, 3, 4, 5];
+    this.activeLedgerAddressWindow = 0;
+    this.selectedLedgerAddressPage = 0;
+    this.activeLedgerAddressPageList = [0, 1, 2, 3, 4];
 
     this.fetchLedgerWallets();
   }
@@ -155,34 +155,41 @@ export class ModalComponent extends BaseClass implements OnInit {
     this.activeLedgerAddressWindow += 1;
     this.activeLedgerAddressPageList = [];
 
-    const start = this.activeLedgerAddressWindow * this.ledgerAddressPageSize - this.ledgerAddressPageSize + 1;
-    const end = this.activeLedgerAddressWindow * this.ledgerAddressPageSize;
+    const start = this.activeLedgerAddressWindow * this.ledgerAddressPageSize;
+    const end = this.activeLedgerAddressWindow * this.ledgerAddressPageSize + this.ledgerAddressPageSize;
 
     for (let i = start; i <= end; i++) {
       this.activeLedgerAddressPageList.push(i);
     }
 
-    this.fetchLedgerWallets();
+    log.debug("******** onLedgerPageNextClick ********");
+    log.debug(`activeLedgerAddressWindow = ${this.activeLedgerAddressWindow}`);
+    log.debug(`activeLedgerAddressPageList = ${this.activeLedgerAddressPageList}`);
+    log.debug(`selectedLedgerAddressPage = ${this.activeLedgerAddressPageList[0]}`);
+
     this.selectedLedgerAddressPage = this.activeLedgerAddressPageList[0];
+
+    this.fetchLedgerWallets();
   }
 
   onLedgerPageBackClick(): void {
-    if (this.activeLedgerAddressWindow === 1 && this.selectedLedgerAddressPage === 1) {
+    if (this.activeLedgerAddressWindow === 0 && this.selectedLedgerAddressPage === 0) {
       return;
     }
 
     this.activeLedgerAddressWindow -= 1;
     this.activeLedgerAddressPageList = [];
 
-    const start = this.activeLedgerAddressWindow * this.ledgerAddressPageSize - this.ledgerAddressPageSize + 1;
-    const end = this.activeLedgerAddressWindow * this.ledgerAddressPageSize;
+    const start = this.activeLedgerAddressWindow * this.ledgerAddressPageSize;
+    const end = this.activeLedgerAddressWindow * this.ledgerAddressPageSize + this.ledgerAddressPageSize;
 
     for (let i = start; i <= end; i++) {
       this.activeLedgerAddressPageList.push(i);
     }
 
-    this.fetchLedgerWallets();
     this.selectedLedgerAddressPage = this.activeLedgerAddressPageList[0];
+
+    this.fetchLedgerWallets();
   }
 
   fetchLedgerWallets(): void {

@@ -58,7 +58,7 @@ export class LedgerService {
       await this.initialiseTransport();
 
       for (let i = index * this.LIST_NUM; i < index * this.LIST_NUM + this.LIST_NUM; i++) {
-        const path = `${environment.ledgerBip32Path}/0'/${i}'`;
+        const path = `${environment.ledgerBip32Path}/${i}'`;
         const { address } = await this.icx.getAddress(path, false, true);
 
         const wallet = new LedgerWallet(address, path);
@@ -107,7 +107,7 @@ export class LedgerService {
 
   async initialiseTransport(): Promise<void> {
     const transport = await TransportWebUSB.create();
-    transport.setDebugMode(true);
+    transport.setDebugMode(false);
     transport.setExchangeTimeout(60000); // 60 seconds
 
     this.icx = new Icx(transport);
