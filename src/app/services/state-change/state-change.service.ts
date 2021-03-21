@@ -6,7 +6,7 @@ import {AssetTag} from "../../models/Asset";
 import {IconexWallet} from "../../models/wallets/IconexWallet";
 import {BridgeWallet} from "../../models/wallets/BridgeWallet";
 import {UserAccountData} from "../../models/UserAccountData";
-import {ModalAction} from "../../models/ModalAction";
+import {ModalAction, ModalActionsResult} from "../../models/ModalAction";
 import {OmmRewards} from "../../models/OmmRewards";
 import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
 import {PrepList} from "../../models/Preps";
@@ -60,6 +60,7 @@ export class StateChangeService {
    * Example: when user confirms the modal action, this Subject should get updated
    */
   public userModalActionChange: Subject<ModalAction> = new Subject<ModalAction>();
+  public userModalActionResult: Subject<ModalActionsResult> = new Subject<ModalActionsResult>();
 
   /**
    * Subscribable subject for monitoring the user total risk changes

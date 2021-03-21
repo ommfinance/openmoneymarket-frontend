@@ -124,27 +124,14 @@ export class VoteService {
   prepareDelegations(yourVotesPrepList: YourPrepVote[]): {_address: string, _votes_in_per: string}[] {
     const delegations: {_address: string, _votes_in_per: string}[] = [];
 
-    let percentage = Utils.divideDecimalsPrecision(1, yourVotesPrepList.length);
-
-    const percentageSumIs100 = this.percentageSumIs100(percentage, yourVotesPrepList.length);
-
-    for (let i = 0; i < yourVotesPrepList.length; i++) {
-      if (i === yourVotesPrepList.length - 1 && !percentageSumIs100) {
-        percentage = Utils.addDecimalsPrecision(percentage, Utils.subtractDecimalsWithPrecision(1,
-          Utils.multiplyDecimalsPrecision(percentage, yourVotesPrepList.length)));
-      }
+    yourVotesPrepList.forEach(yourVote  => {
       delegations.push({
-        _address: yourVotesPrepList[i].address,
-        _votes_in_per: IconConverter.toHex(IconAmount.of(percentage, 18).toLoop())
+        _address: yourVote.address,
+        _votes_in_per: IconConverter.toHex(IconAmount.of(yourVote.percentage, 16).toLoop())
       });
-    }
-
+    });
 
     return delegations;
-  }
-
-  percentageSumIs100(percentage: number, count: number): boolean {
-    return Utils.multiplyDecimalsPrecision(percentage, count) === 1;
   }
 
   /**

@@ -7,8 +7,9 @@ import {DataLoaderService} from "../data-loader/data-loader.service";
 import log from "loglevel";
 import {NotificationService} from "../notification/notification.service";
 import {LocalStorageService} from "../local-storage/local-storage.service";
-import {ModalAction} from "../../models/ModalAction";
+import {ModalAction, ModalActionsResult} from "../../models/ModalAction";
 import {ModalType} from "../../models/ModalType";
+import {StateChangeService} from "../state-change/state-change.service";
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,8 @@ export class TransactionResultService {
               private persistenceService: PersistenceService,
               private dataLoaderService: DataLoaderService,
               private notificationService: NotificationService,
-              private localStorageService: LocalStorageService) {
+              private localStorageService: LocalStorageService,
+              private stateChangeService: StateChangeService) {
     window.addEventListener("bri.tx.result", (e) => this.processBridgeTransactionResult(e));
   }
 
@@ -114,6 +116,8 @@ export class TransactionResultService {
   }
 
   public showSuccessActionNotification(modalAction: ModalAction): void {
+    this.stateChangeService.userModalActionResult.next(new ModalActionsResult(modalAction, false));
+
     if (modalAction.assetAction) {
       const assetAction = modalAction.assetAction;
       switch (modalAction.modalType) {
@@ -142,10 +146,21 @@ export class TransactionResultService {
           this.notificationService.showNewNotification(`${voteAction.amount} OMM unstaking.`);
           break;
       }
+    } else if (modalAction.voteAction) {
+      switch (modalAction.modalType) {
+        case ModalType.UPDATE_PREP_SELECTION:
+          this.notificationService.showNewNotification(`Votes allocated.`);
+          break;
+        case ModalType.REMOVE_ALL_VOTES:
+          this.notificationService.showNewNotification(`Votes removed.`);
+          break;
+      }
     }
   }
 
   public showFailedActionNotification(modalAction: ModalAction): void {
+    this.stateChangeService.userModalActionResult.next(new ModalActionsResult(modalAction, false));
+
     if (modalAction.assetAction) {
       const assetAction = modalAction.assetAction;
       switch (modalAction.modalType) {
@@ -171,6 +186,15 @@ export class TransactionResultService {
           break;
         case ModalType.UNSTAKE_OMM_TOKENS:
           this.notificationService.showNewNotification(`Couldn't unstake Omm Tokens. Try again.`);
+          break;
+      }
+    } else if (modalAction.voteAction) {
+      switch (modalAction.modalType) {
+        case ModalType.UPDATE_PREP_SELECTION:
+          this.notificationService.showNewNotification(`Couldn't allocate your votes. Try again.`);
+          break;
+        case ModalType.REMOVE_ALL_VOTES:
+          this.notificationService.showNewNotification(`Couldn't remove your votes. Try again.`);
           break;
       }
     }

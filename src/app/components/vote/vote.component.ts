@@ -17,6 +17,7 @@ import {SlidersService} from "../../services/sliders/sliders.service";
 import {Utils} from "../../common/utils";
 import {DataLoaderService} from "../../services/data-loader/data-loader.service";
 import {VoteAction} from "../../models/VoteAction";
+import {IconAmount, IconConverter} from "icon-sdk-js";
 
 declare var noUiSlider: any;
 declare var wNumb: any;
@@ -63,6 +64,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     this.subscribeToLoginChange();
     this.subscribeToOmmTokenBalanceChange();
     this.subscribeToUserModalActionChange();
+    this.subscribeToModalActionResult();
     this.initYourVotePrepList(); // TODO!!!
   }
 
@@ -91,6 +93,15 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
     // initialize this components dynamic yourVotesPrepList
     this.yourVotesPrepList = [...this.persistenceService.yourVotesPrepList];
+    this.fillYourVotePercentages(this.yourVotesPrepList);
+  }
+
+  private subscribeToModalActionResult(): void {
+    this.stateChangeService.userModalActionResult.subscribe(res => {
+      if (res.modalAction.voteAction && !res.success) {
+        this.yourVotesPrepList = [];
+      }
+    });
   }
 
   private subscribeToPrepListChange(): void {
@@ -244,9 +255,11 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       return;
     }
     else if (this.listIsNotNullOrEmpty(this.yourVotesPrepList)) {
+      this.yourVotesEditMode = false;
       const voteAction = new VoteAction(this.yourVotesPrepList);
       this.modalService.showNewModal(ModalType.UPDATE_PREP_SELECTION, undefined, undefined, voteAction);
     } else {
+      this.yourVotesEditMode = false;
       this.modalService.showNewModal(ModalType.REMOVE_ALL_VOTES);
     }
   }
@@ -272,8 +285,9 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       this.notificationService.showNewNotification("Prep already in your votes.");
     } else {
       this.yourVotesEditMode = true;
-      const newPrepVote = new YourPrepVote(prep.address, prep.name);
+      const newPrepVote = new YourPrepVote(prep.address, prep.name, 0);
       this.yourVotesPrepList.push(newPrepVote);
+      this.fillYourVotePercentages(this.yourVotesPrepList);
     }
   }
 
@@ -286,6 +300,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   resetYourVotePreps(): void {
     this.yourVotesPrepList = [...this.persistenceService.yourVotesPrepList];
+    this.fillYourVotePercentages(this.yourVotesPrepList);
   }
 
   userHasOmmTokens(): boolean {
@@ -361,6 +376,31 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
         }
       }
     }
+  }
+
+  private fillYourVotePercentages(yourVotesPrepList: YourPrepVote[]): void {
+    if (yourVotesPrepList.length === 0) { return; }
+
+    let percentage = Utils.divideDecimalsPrecision(1, yourVotesPrepList.length);
+
+    const percentageSumIs100 = this.percentageSumIs100(percentage, yourVotesPrepList.length);
+
+    for (let i = 0; i < yourVotesPrepList.length; i++) {
+      if (i === yourVotesPrepList.length - 1 && !percentageSumIs100) {
+        percentage = Utils.addDecimalsPrecision(percentage, Utils.subtractDecimalsWithPrecision(1,
+          Utils.multiplyDecimalsPrecision(percentage, yourVotesPrepList.length)));
+      }
+
+      yourVotesPrepList[i].percentage = Utils.multiplyDecimalsPrecision(percentage, 100);
+    }
+  }
+
+  private percentageSumIs100(percentage: number, count: number): boolean {
+    return Utils.multiplyDecimalsPrecision(percentage, count) === 1;
+  }
+
+  getDelegationAmount(): number {
+    return this.roundOffTo2Decimals(this.persistenceService.getUsersStakedOmmBalance() / this.yourVotesPrepList.length * 1.3);
   }
 
   // TODO: in case we want infinity scrolling for preps list

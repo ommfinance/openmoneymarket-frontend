@@ -221,32 +221,6 @@ export class ModalComponent extends BaseClass implements OnInit {
     this.transactionDispatcherService.dispatchTransaction(this.ommService.BuildClaimOmmRewardsTx(), "Claiming Omm Tokens...");
   }
 
-  onConfirmUpdateVotesClick(): void {
-    // store user action in local storage
-    this.localStorageService.persistModalAction(this.activeModalChange!);
-
-    // hide current modal
-    this.modalService.hideActiveModal();
-    const tx = this.voteService.buildUpdateUserDelegationPreferencesTx(
-      this.activeModalChange!.voteAction!.yourVotesPrepList);
-
-    // this.transactionDispatcherService.dispatchTransaction(this.voteService.buildUpdateUserDelegationPreferencesTx(
-    //   this.activeModalChange!.voteAction!.yourVotesPrepList), "Allocating votes...");
-
-    // TODO!!!
-    //
-    // <!-- Notification: Votes succeded -->
-    // <div class="panel notification">
-    //   <p>Votes allocated.</p>
-    // </div>
-    //
-    // <!-- Notification: Votes failed -->
-    // <div class="panel notification">
-    //   <p>Couldn't allocate your votes. Try again.</p>
-    // </div>
-    //
-  }
-
   onCancelClick(): void {
     this.modalService.hideActiveModal();
   }
@@ -292,6 +266,20 @@ export class ModalComponent extends BaseClass implements OnInit {
       default:
         return "";
     }
+  }
+
+  onConfirmUpdateVotesClick(): void {
+    // store user action in local storage
+    this.localStorageService.persistModalAction(this.activeModalChange!);
+
+    this.transactionDispatcherService.dispatchTransaction(this.voteService.buildUpdateUserDelegationPreferencesTx(
+      this.activeModalChange!.voteAction!.yourVotesPrepList), "Allocating votes...");
+
+    // commit modal action change
+    this.stateChangeService.updateUserModalAction(this.activeModalChange!);
+
+    // hide current modal
+    this.modalService.hideActiveModal();
   }
 
   onGovernanceModalConfirmClick(): void {

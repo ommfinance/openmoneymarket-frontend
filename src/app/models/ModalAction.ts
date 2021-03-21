@@ -16,3 +16,13 @@ export class ModalAction {
     this.voteAction = voteAction;
   }
 }
+
+export class ModalActionsResult {
+  modalAction: ModalAction;
+  success: boolean;
+
+  constructor(modalAction: ModalAction, success: boolean) {
+    this.modalAction = modalAction;
+    this.success = success;
+  }
+}
