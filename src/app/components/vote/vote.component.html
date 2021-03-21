@@ -214,7 +214,7 @@
                 </td>
                 <td>${{formatNumberToUSLocaleString(calculationsService.calculatePrepsIcxReward(prep, searchedPrepList) * persistenceService.getAssetExchangePrice(AssetTag.ICX))}}<br>
                   <span class="label">{{formatNumberToUSLocaleString(calculationsService.calculatePrepsIcxReward(prep, searchedPrepList))}} ICX</span></td>
-                <td>{{to2DecimalRoundedDownPercentString(prep!.delegated / searchedPrepList!.totalDelegated)}}<br><span class="label">{{formatNumberToUSLocaleString(prep!.delegated)}}</span></td>
+                <td>{{to2DecimalRoundedOffPercentString(prep!.delegated / searchedPrepList!.totalDelegated)}}<br><span class="label">{{formatNumberToUSLocaleString(prep!.delegated)}}</span></td>
               </tr>
               <!-- Spacer -->
               <tr *ngIf="!isLast" class="spacer"></tr>

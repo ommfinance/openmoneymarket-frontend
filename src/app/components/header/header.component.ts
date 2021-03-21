@@ -12,6 +12,8 @@ import {BridgeWidgetService} from "../../services/bridge-widget/bridge-widget.se
 import {DataLoaderService} from "../../services/data-loader/data-loader.service";
 import {NotificationService} from "../../services/notification/notification.service";
 import {NavigationEnd, Router} from "@angular/router";
+import {ScoreService} from "../../services/score/score.service";
+import log from "loglevel";
 
 declare var $: any;
 
@@ -33,7 +35,8 @@ export class HeaderComponent extends BaseClass implements OnInit {
               private bridgeWidgetService: BridgeWidgetService,
               private dataLoaderService: DataLoaderService,
               private notificationService: NotificationService,
-              private router: Router) {
+              private router: Router,
+              private scoreService: ScoreService) {
     super(persistenceService);
     router.events.subscribe( (event) => ( event instanceof NavigationEnd ) && this.handleRouteChange() );
   }
@@ -160,5 +163,15 @@ export class HeaderComponent extends BaseClass implements OnInit {
     }
 
     document.body.removeChild(textArea);
+  }
+
+  // TODO remove after testing
+  onMintOmmTokensClick(): void {
+  this.scoreService.testMint().then(() => {
+    this.notificationService.showNewNotification("Successfully minted Omm tokens!");
+  }).catch(e => {
+    log.error(e);
+    this.notificationService.showNewNotification("Failed to mint Omm tokens!");
+  });
   }
 }

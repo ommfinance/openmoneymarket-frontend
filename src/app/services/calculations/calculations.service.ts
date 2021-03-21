@@ -334,8 +334,7 @@ export class CalculationsService {
 
       // dynamic calculation
       if (assetTag && supplied && assetTag === tag) {
-        const exchangePrice = this.persistenceService.getAssetExchangePrice(assetTag);
-        collateralBalanceUSD =  supplied * exchangePrice;
+        collateralBalanceUSD =  supplied * this.persistenceService.getAssetExchangePrice(assetTag);
       }
 
       const liquidityRate = reserve?.liquidityRate ?? 0;
@@ -354,6 +353,8 @@ export class CalculationsService {
     // log.debug("calculateUsersOmmRewardsForDeposit:");
     // log.debug("userSum: ", userSum);
     // log.debug("allUsersSum: ", allUsersSum);
+
+    if (userSum === 0 || allUsersSum === 0) { return 0; }
 
     return (userSum / allUsersSum) * 0.25 * this.persistenceService.tokenDistributionPerDay;
   }
@@ -386,6 +387,7 @@ export class CalculationsService {
       allUsersSum += reserve.totalBorrowsUSD * reserve.borrowRate;
     });
 
+    if (userSum === 0 || allUsersSum === 0) { return 0; }
 
     return (userSum / allUsersSum) * 0.25 * this.persistenceService.tokenDistributionPerDay;
   }

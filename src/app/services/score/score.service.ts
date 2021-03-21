@@ -16,7 +16,7 @@ import {AssetTag} from "../../models/Asset";
 import log from "loglevel";
 import {PrepList} from "../../models/Preps";
 import {Mapper} from "../../common/mapper";
-import {IconConverter} from "icon-sdk-js";
+import {IconAmount, IconConverter} from "icon-sdk-js";
 
 
 @Injectable({
@@ -302,6 +302,21 @@ export class ScoreService {
     return Mapper.mapPrepList(prepList);
   }
 
+  /**
+   * @description Test mint of OMM tokens
+   */
+  public async testMint(amount: number = 10000): Promise<void> {
+    const params = {
+      _amount: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
+    };
 
+    const tx = this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
+      this.persistenceService.allAddresses!.systemContract.OmmToken,
+      ScoreMethodNames.TEST_MINT, params, IconTransactionType.WRITE);
+
+    log.debug("testMint tx:", tx);
+
+    await this.iconApiService.iconService.call(tx).execute();
+  }
 
 }

@@ -404,9 +404,10 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       this.inputBorrowAvailable.value = assetFormat(this.asset.tag).to(borrowAvailable);
 
       // update asset borrow slider max value to  -> borrowed + borrow available
-      const max = Utils.addDecimalsPrecision(+this.inputBorrow.value, borrowAvailable);
+      let max = Utils.addDecimalsPrecision(+this.inputBorrow.value, borrowAvailable);
+      max = this.getMaxBorrowAvailable(max);
       this.sliderBorrow.noUiSlider.updateOptions({
-        range: { min: 0, max: max === 0 ? 1 : this.getMaxBorrowAvailable(max) } // min and max must not equal
+        range: { min: 0, max: max === 0 ? 1 : max } // min and max must not equal
       });
     });
   }
@@ -440,10 +441,11 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
       // update asset borrow slider max value to  -> borrowed + borrow available
       max = Utils.addDecimalsPrecision(this.convertSICXToICXIfAssetIsICX(reserve.currentBorrowBalance), borrowAvailable);
+      max = this.getMaxBorrowAvailable(max);
       this.sliderBorrow.noUiSlider.updateOptions({
         range: {
           min: 0,
-          max: max === 0 ? 1 : this.getMaxBorrowAvailable(max) // min and max must not equal
+          max: max === 0 ? 1 : max // min and max must not equal
         }
       });
     });

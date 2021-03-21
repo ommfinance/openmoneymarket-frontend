@@ -65,7 +65,7 @@ export class BaseClass {
     return `$${this.formatNumberToUSLocaleString(num)}`;
   }
 
-  public to2DecimalRoundedDownPercentString(num?: number | string): string {
+  public to2DecimalRoundedOffPercentString(num?: number | string): string {
     if (!num || (+num) === 0) { return "-"; }
 
     // convert in to percentage
