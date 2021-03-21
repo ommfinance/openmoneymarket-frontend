@@ -1,11 +1,9 @@
-export class VoteAction{
-  before: number;
-  after: number;
-  amount: number;
+import {YourPrepVote} from "./YourPrepVote";
 
-  constructor(before: number, after: number, amount: number) {
-    this.before = before;
-    this.after = after;
-    this.amount = amount;
+export class VoteAction{
+  yourVotesPrepList: YourPrepVote[];
+
+  constructor(yourVotesPrepList: YourPrepVote[]) {
+    this.yourVotesPrepList = yourVotesPrepList;
   }
 }

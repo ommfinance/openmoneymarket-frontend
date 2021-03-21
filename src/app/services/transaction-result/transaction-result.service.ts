@@ -132,8 +132,8 @@ export class TransactionResultService {
         case ModalType.CLAIM_OMM_REWARDS:
           this.notificationService.showNewNotification(`${assetAction.amount} Omm Tokens claimed.`);
       }
-    } else if (modalAction.voteAction) {
-      const voteAction = modalAction.voteAction;
+    } else if (modalAction.stakingAction) {
+      const voteAction = modalAction.stakingAction;
       switch (modalAction.modalType) {
         case ModalType.STAKE_OMM_TOKENS:
           this.notificationService.showNewNotification(`${voteAction.amount} OMM staked.`);
@@ -164,7 +164,7 @@ export class TransactionResultService {
         case ModalType.CLAIM_OMM_REWARDS:
           this.notificationService.showNewNotification("Couldn't claim Omm Tokens. Try again.");
       }
-    } else if (modalAction.voteAction) {
+    } else if (modalAction.stakingAction) {
       switch (modalAction.modalType) {
         case ModalType.STAKE_OMM_TOKENS:
           this.notificationService.showNewNotification(`Couldn't stake Omm Tokens. Try again.`);

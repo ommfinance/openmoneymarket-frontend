@@ -305,7 +305,7 @@ export class ScoreService {
   /**
    * @description Test mint of OMM tokens
    */
-  public async testMint(amount: number = 10000): Promise<void> {
+  public buildTestMintTx(amount: number = 1000): any {
     const params = {
       _amount: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
     };
@@ -316,7 +316,7 @@ export class ScoreService {
 
     log.debug("testMint tx:", tx);
 
-    await this.iconApiService.iconService.call(tx).execute();
+    return tx;
   }
 
 }

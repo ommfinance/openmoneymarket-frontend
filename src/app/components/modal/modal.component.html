@@ -33,17 +33,17 @@
   <div class="modal-content">
     <!-- Title -->
     <h3 class="text-center label">Stake Omm Tokens?</h3>
-    <p class="text-center"><span class="value-omm-stake-amount">{{this.activeModalChange?.voteAction?.amount}}</span> OMM</p>
+    <p class="text-center"><span class="value-omm-stake-amount">{{this.activeModalChange?.stakingAction?.amount}}</span> OMM</p>
 
     <!-- Before vs after -->
     <div class="grid before-after">
       <div class="grid-cell text-center border-right">
         <p class="label">Before</p>
-        <p class="text-dark">{{this.activeModalChange?.voteAction?.before}} OMM</p>
+        <p class="text-dark">{{this.activeModalChange?.stakingAction?.before}} OMM</p>
       </div>
       <div class="grid-cell text-center">
         <p class="label">After</p>
-        <p class="text-dark"><span class="value-omm-stake-amount">{{this.activeModalChange?.voteAction?.after}}</span> OMM</p>
+        <p class="text-dark"><span class="value-omm-stake-amount">{{this.activeModalChange?.stakingAction?.after}}</span> OMM</p>
       </div>
     </div>
 
@@ -63,17 +63,17 @@
   <div class="modal-content">
     <!-- Title -->
     <h3 class="text-center label">Unstake Omm Tokens?</h3>
-    <p class="text-center"><span class="value-omm-stake-amount">{{this.activeModalChange?.voteAction?.amount}}</span> OMM</p>
+    <p class="text-center"><span class="value-omm-stake-amount">{{this.activeModalChange?.stakingAction?.amount}}</span> OMM</p>
 
     <!-- Before vs after -->
     <div class="grid before-after">
       <div class="grid-cell text-center border-right">
         <p class="label">Before</p>
-        <p class="text-dark">{{this.activeModalChange?.voteAction?.before}} OMM</p>
+        <p class="text-dark">{{this.activeModalChange?.stakingAction?.before}} OMM</p>
       </div>
       <div class="grid-cell text-center">
         <p class="label">After</p>
-        <p class="text-dark"><span class="value-omm-stake-amount">{{this.activeModalChange?.voteAction?.after}}</span> OMM</p>
+        <p class="text-dark"><span class="value-omm-stake-amount">{{this.activeModalChange?.stakingAction?.after}}</span> OMM</p>
       </div>
     </div>
 
@@ -89,22 +89,22 @@
 </div>
 
 <!-- Modal: Add P-Rep selection -->
-<div class="modal" id="modal-add-preps" #addPrep>
+<div class="modal" id="modal-add-preps" #updateVotes>
   <div class="modal-content">
     <!-- Title -->
     <h3 class="text-center label">Vote for these P-Reps ?</h3>
 
     <!-- Your P-Rep list -->
     <ul>
-      <li>ICON Foundation</li>
-      <li>ICX_Station</li>
-      <li>Velic</li>
+      <ng-container *ngFor="let yourVote of activeModalChange?.voteAction?.yourVotesPrepList">
+        <li>{{yourVote.name}}</li>
+      </ng-container>
     </ul>
 
     <!-- Modal actions -->
     <div class="modal-actions">
       <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Cancel</a>
-      <a href="javascript:void(0);" class="button">Vote</a>
+      <a href="javascript:void(0);" class="button" (click)="onConfirmUpdateVotesClick()">Vote</a>
     </div>
   </div>
 </div>

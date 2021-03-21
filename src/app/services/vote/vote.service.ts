@@ -14,6 +14,7 @@ import {Mapper} from "../../common/mapper";
 import {Prep, PrepList} from "../../models/Preps";
 import {DelegationPreference} from "../../models/DelegationPreference";
 import {AssetTag} from "../../models/Asset";
+import {YourPrepVote} from "../../models/YourPrepVote";
 
 @Injectable({
   providedIn: 'root'
@@ -105,31 +106,45 @@ export class VoteService {
    * @description Update user delegation preferences
    * @return  TODO
    */
-  public async updateUserDelegationPreferences(delegationPreferences: DelegationPreference[]): Promise<number> {
+  public buildUpdateUserDelegationPreferencesTx(yourVotesPrepList: YourPrepVote[]): Promise<number> {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
-    const delegations: {_address: string, _votes_in_per: string}[] = [];
-
-    delegationPreferences.forEach(delegationPreference => {
-      delegations.push({
-        _address: delegationPreference._address,
-        _votes_in_per: IconConverter.toHex(IconAmount.of(delegationPreference._votes_in_per, 18).toLoop())});
-    });
+    const delegations: {_address: string, _votes_in_per: string}[] = this.prepareDelegations(yourVotesPrepList);
+    log.debug("delegations:", delegations);
 
     const params = {
       _delegations: delegations
     };
 
-    const tx = this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
+    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
       this.persistenceService.allAddresses!.systemContract.Delegation,
       ScoreMethodNames.UPDATE_DELEGATIONS, params, IconTransactionType.WRITE);
+  }
 
-    const res = await this.iconApiService.iconService.call(tx).execute();
+  prepareDelegations(yourVotesPrepList: YourPrepVote[]): {_address: string, _votes_in_per: string}[] {
+    const delegations: {_address: string, _votes_in_per: string}[] = [];
 
-    log.debug("updateUserDelegationPreferences: ", res);
+    let percentage = Utils.divideDecimalsPrecision(1, yourVotesPrepList.length);
 
-    // TODO mapping!
-    return res;
+    const percentageSumIs100 = this.percentageSumIs100(percentage, yourVotesPrepList.length);
+
+    for (let i = 0; i < yourVotesPrepList.length; i++) {
+      if (i === yourVotesPrepList.length - 1 && !percentageSumIs100) {
+        percentage = Utils.addDecimalsPrecision(percentage, Utils.subtractDecimalsWithPrecision(1,
+          Utils.multiplyDecimalsPrecision(percentage, yourVotesPrepList.length)));
+      }
+      delegations.push({
+        _address: yourVotesPrepList[i].address,
+        _votes_in_per: IconConverter.toHex(IconAmount.of(percentage, 18).toLoop())
+      });
+    }
+
+
+    return delegations;
+  }
+
+  percentageSumIs100(percentage: number, count: number): boolean {
+    return Utils.multiplyDecimalsPrecision(percentage, count) === 1;
   }
 
   /**

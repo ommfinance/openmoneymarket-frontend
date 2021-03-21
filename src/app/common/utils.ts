@@ -129,4 +129,14 @@ export class Utils {
       bigDecimal.RoundingModes.DOWN).getValue();
   }
 
+  public static divideDecimalsPrecision(val1: number, val2: number, precision: number = 2): number {
+    return +(new bigDecimal(val1.toString()).divide(new bigDecimal(val2.toString()), precision))
+      .round(precision, bigDecimal.RoundingModes.DOWN).getValue();
+  }
+
+  public static multiplyDecimalsPrecision(val1: number, val2: number, precision: number = 2): number {
+    return +(new bigDecimal(val1.toString()).multiply(new bigDecimal(val2.toString())))
+      .round(precision, bigDecimal.RoundingModes.DOWN).getValue();
+  }
+
 }

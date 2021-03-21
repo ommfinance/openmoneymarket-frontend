@@ -1,7 +1,6 @@
 import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {BaseClass} from "../base-class";
 import {PersistenceService} from "../../services/persistence/persistence.service";
-import {normalFormat} from "../../common/formats";
 import {ModalType} from "../../models/ModalType";
 import {ModalService} from "../../services/modal/modal.service";
 import log from "loglevel";
@@ -12,11 +11,12 @@ import {Prep, PrepList} from "../../models/Preps";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {YourPrepVote} from "../../models/YourPrepVote";
 import {NotificationService} from "../../services/notification/notification.service";
-import {VoteAction} from "../../models/VoteAction";
+import {StakingAction} from "../../models/StakingAction";
 import {ModalAction} from "../../models/ModalAction";
 import {SlidersService} from "../../services/sliders/sliders.service";
 import {Utils} from "../../common/utils";
 import {DataLoaderService} from "../../services/data-loader/data-loader.service";
+import {VoteAction} from "../../models/VoteAction";
 
 declare var noUiSlider: any;
 declare var wNumb: any;
@@ -225,7 +225,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       return;
     }
 
-    const voteAction = new VoteAction(before, after, Math.abs(diff));
+    const voteAction = new StakingAction(before, after, Math.abs(diff));
 
     if (diff > 0) {
       if (this.persistenceService.minOmmStakeAmount > diff) {
@@ -244,14 +244,11 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       return;
     }
     else if (this.listIsNotNullOrEmpty(this.yourVotesPrepList)) {
-      this.modalService.showNewModal(ModalType.ADD_PREP_SELECTION);
+      const voteAction = new VoteAction(this.yourVotesPrepList);
+      this.modalService.showNewModal(ModalType.UPDATE_PREP_SELECTION, undefined, undefined, voteAction);
     } else {
       this.modalService.showNewModal(ModalType.REMOVE_ALL_VOTES);
     }
-  }
-
-  onConfirmRemovePrepClick(): void {
-    this.modalService.showNewModal(ModalType.REMOVE_PREP_SELECTION);
   }
 
   private loadUserDelegationDetails(): void {
@@ -271,10 +268,20 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   addYourVotePrep(prep: Prep): void {
     if (this.yourVotesPrepList.length >= 5) {
       this.notificationService.showNewNotification("You can only vote for 5 preps.");
+    } else if (this.prepAlreadyInYourVotes(prep)) {
+      this.notificationService.showNewNotification("Prep already in your votes.");
     } else {
       this.yourVotesEditMode = true;
-      this.yourVotesPrepList.push(new YourPrepVote(prep.address, prep.name, 65));
+      const newPrepVote = new YourPrepVote(prep.address, prep.name);
+      this.yourVotesPrepList.push(newPrepVote);
     }
+  }
+
+  prepAlreadyInYourVotes(prep: Prep): boolean {
+    for (const yourVote of this.yourVotesPrepList) {
+      if (prep.address === yourVote.address) { return true; }
+    }
+    return false;
   }
 
   resetYourVotePreps(): void {

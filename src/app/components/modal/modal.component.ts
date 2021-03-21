@@ -36,7 +36,7 @@ export class ModalComponent extends BaseClass implements OnInit {
   @ViewChild('signInModal', { static: true }) signInModal!: ElementRef;
   @ViewChild('stakeOmm', { static: true }) stakeOmmTokensModal!: ElementRef;
   @ViewChild('unstakeOmm', { static: true }) unstakeOmmTokensModal!: ElementRef;
-  @ViewChild('addPrep', { static: true }) addPrepModal!: ElementRef;
+  @ViewChild('updateVotes', { static: true }) updatePrepModal!: ElementRef;
   @ViewChild('rmvPrep', { static: true }) removePrepModal!: ElementRef;
   @ViewChild('assetActionModal', { static: true }) assetActionModal!: ElementRef;
   @ViewChild('iconWithdrawModal', { static: true }) iconWithdrawModal!: ElementRef;
@@ -93,8 +93,8 @@ export class ModalComponent extends BaseClass implements OnInit {
         case ModalType.UNSTAKE_OMM_TOKENS:
           this.setActiveModal(this.unstakeOmmTokensModal.nativeElement, activeModalChange);
           break;
-        case ModalType.ADD_PREP_SELECTION:
-          this.setActiveModal(this.addPrepModal.nativeElement, activeModalChange);
+        case ModalType.UPDATE_PREP_SELECTION:
+          this.setActiveModal(this.updatePrepModal.nativeElement, activeModalChange);
           break;
         case ModalType.REMOVE_ALL_VOTES:
           this.setActiveModal(this.removePrepModal.nativeElement, activeModalChange);
@@ -212,13 +212,39 @@ export class ModalComponent extends BaseClass implements OnInit {
   }
 
   onClaimOmmRewardsClick(): void {
-    // store asset-user action in local storage
+    // store user action in local storage
     this.localStorageService.persistModalAction(this.activeModalChange!);
 
     // hide current modal
     this.modalService.hideActiveModal();
 
     this.transactionDispatcherService.dispatchTransaction(this.ommService.BuildClaimOmmRewardsTx(), "Claiming Omm Tokens...");
+  }
+
+  onConfirmUpdateVotesClick(): void {
+    // store user action in local storage
+    this.localStorageService.persistModalAction(this.activeModalChange!);
+
+    // hide current modal
+    this.modalService.hideActiveModal();
+    const tx = this.voteService.buildUpdateUserDelegationPreferencesTx(
+      this.activeModalChange!.voteAction!.yourVotesPrepList);
+
+    // this.transactionDispatcherService.dispatchTransaction(this.voteService.buildUpdateUserDelegationPreferencesTx(
+    //   this.activeModalChange!.voteAction!.yourVotesPrepList), "Allocating votes...");
+
+    // TODO!!!
+    //
+    // <!-- Notification: Votes succeded -->
+    // <div class="panel notification">
+    //   <p>Votes allocated.</p>
+    // </div>
+    //
+    // <!-- Notification: Votes failed -->
+    // <div class="panel notification">
+    //   <p>Couldn't allocate your votes. Try again.</p>
+    // </div>
+    //
   }
 
   onCancelClick(): void {
@@ -274,31 +300,14 @@ export class ModalComponent extends BaseClass implements OnInit {
 
     switch (this.activeModalChange?.modalType) {
       case ModalType.STAKE_OMM_TOKENS:
-        this.voteService.stakeOmm(this.activeModalChange!.voteAction!.after, "Staking Omm Tokens...");
+        this.voteService.stakeOmm(this.activeModalChange!.stakingAction!.after, "Staking Omm Tokens...");
         break;
       case ModalType.UNSTAKE_OMM_TOKENS:
-        this.voteService.unstakeOmm(this.activeModalChange!.voteAction!.amount, "Starting unstaking process...");
+        this.voteService.unstakeOmm(this.activeModalChange!.stakingAction!.amount, "Starting unstaking process...");
         break;
       default:
         throw new OmmError(` onGovernanceModalConfirmClick() -> Invalid modal type: ${this.activeModalChange?.modalType}`);
     }
-
-    // TODO!!!
-    // <!-- Notification: Votes processing -->
-    //   <div class="panel notification">
-    //     <p>Allocating votes...</p>
-    // </div>
-    //
-    // <!-- Notification: Votes succeded -->
-    // <div class="panel notification">
-    //   <p>Votes allocated.</p>
-    // </div>
-    //
-    // <!-- Notification: Votes failed -->
-    // <div class="panel notification">
-    //   <p>Couldn't allocate your votes. Try again.</p>
-    // </div>
-    //
 
     // commit modal action change
     this.stateChangeService.updateUserModalAction(this.activeModalChange);

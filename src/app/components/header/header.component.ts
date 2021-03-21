@@ -14,6 +14,7 @@ import {NotificationService} from "../../services/notification/notification.serv
 import {NavigationEnd, Router} from "@angular/router";
 import {ScoreService} from "../../services/score/score.service";
 import log from "loglevel";
+import {TransactionDispatcherService} from "../../services/transaction-dispatcher/transaction-dispatcher.service";
 
 declare var $: any;
 
@@ -36,7 +37,8 @@ export class HeaderComponent extends BaseClass implements OnInit {
               private dataLoaderService: DataLoaderService,
               private notificationService: NotificationService,
               private router: Router,
-              private scoreService: ScoreService) {
+              private scoreService: ScoreService,
+              private dispatcherService: TransactionDispatcherService) {
     super(persistenceService);
     router.events.subscribe( (event) => ( event instanceof NavigationEnd ) && this.handleRouteChange() );
   }
@@ -167,11 +169,7 @@ export class HeaderComponent extends BaseClass implements OnInit {
 
   // TODO remove after testing
   onMintOmmTokensClick(): void {
-  this.scoreService.testMint().then(() => {
-    this.notificationService.showNewNotification("Successfully minted Omm tokens!");
-  }).catch(e => {
-    log.error(e);
-    this.notificationService.showNewNotification("Failed to mint Omm tokens!");
-  });
+    const mintOmmTx = this.scoreService.buildTestMintTx();
+    this.dispatcherService.dispatchTransaction(mintOmmTx, "Test Omm token mint.");
   }
 }
