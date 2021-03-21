@@ -82,7 +82,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
 
       Array.from(this.supportedAssetsMap.values()).forEach(asset => {
         // if user is logged in, load his available and current assets
-        if (this.persistenceService.userLoggedIn()) {
+        if (this.userLoggedIn()) {
           // check if asset is active (either supplied, borrowed)
           if (this.persistenceService.isAssetActive(asset.tag)) {
             this.userAssets.push(asset);
@@ -110,7 +110,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   ngAfterViewInit(): void {
     this.loadAssetLists();
 
-    if (this.persistenceService.userLoggedIn()) {
+    if (this.userLoggedIn()) {
       this.onYourMarketsClick();
     }
 

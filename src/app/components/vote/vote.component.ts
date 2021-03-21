@@ -42,6 +42,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   private ommStakeAmount?: any;
 
   userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
+  yourVotingPower = this.userVotingPower();
 
   // current state variables
   yourVotesEditMode = false;
@@ -117,6 +118,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
         this.loadUserDelegationDetails();
       } else {
         // user logged out
+        this.yourVotingPower = 0;
       }
     });
   }
@@ -139,6 +141,9 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       // assign staked balance to the current slider value
       log.debug(`subscribeToOmmTokenBalanceChange setting this.sliderStake to value :`, this.userOmmTokenBalanceDetails.stakedBalance);
       this.sliderStake.noUiSlider.set(this.userOmmTokenBalanceDetails.stakedBalance);
+
+      // set your voting power
+      this.yourVotingPower = this.userVotingPower();
     });
   }
 
@@ -168,7 +173,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       }
 
       // Update OMM stake values as ICX
-      $('.value-icx-stake-amount').text(normalFormat.to(value * 1.3));
+      // $('.value-icx-stake-amount').text(normalFormat.to(value * 1.3));
     });
   }
 
@@ -286,7 +291,11 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   userVotingPower(): number {
-    return this.calculationsService.yourVotingPower(this.persistenceService.getUsersStakedOmmBalance());
+    if (this.persistenceService.activeWallet) {
+      return this.calculationsService.yourVotingPower();
+    } else {
+      return 0;
+    }
   }
 
   isMaxStaked(): boolean {

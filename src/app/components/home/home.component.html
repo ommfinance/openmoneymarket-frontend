@@ -5,7 +5,7 @@
     <div class="grid">
       <div class="grid-cell">
         <h2>Overview</h2>
-        <ul class="toggle" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn())">
+        <ul class="toggle" [ngStyle]="hideElement(!userLoggedIn())">
           <li id="toggle-your-overview" class="active" (click)="onToggleYourOverviewClick()">Your overview</li>
           <li id="toggle-market-overview" (click)="onToggleMarketOverviewClick()">Market overview</li>
         </ul>
@@ -13,7 +13,7 @@
     </div>
 
         <!-- Your overview content -->
-        <div id="your-overview-content" class="grid panel" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn())">
+        <div id="your-overview-content" class="grid panel" [ngStyle]="hideElement(!userLoggedIn())">
           <!-- Supplied -->
           <div class="grid-cell border-right">
             <div class="grid">
@@ -58,7 +58,7 @@
     </div>
 
         <!-- Market overview content -->
-        <div id="market-overview-content" class="grid panel" [ngStyle]="hideElement(this.persistenceService.userLoggedIn())">
+        <div id="market-overview-content" class="grid panel" [ngStyle]="hideElement(userLoggedIn())">
           <!-- Supplied -->
           <div class="grid-cell border-right">
             <div class="grid">
@@ -104,7 +104,7 @@
       </section>
 
   <!-- Performance / Risk , hide if user not logged in or he has not supplied any asset-user -->
-  <div class="grid side-by-side performance-risk" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn()
+  <div class="grid side-by-side performance-risk" [ngStyle]="hideElement(!userLoggedIn()
                                                              || this.persistenceService.userHasNotSuppliedAnyAsset())">
     <!-- Performance -->
     <div class="grid-cell">
@@ -126,7 +126,7 @@
     <div class="grid grid-center filters">
       <div class="grid-cell">
         <h2>Markets</h2>
-        <ul class="toggle" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn())">
+        <ul class="toggle" [ngStyle]="hideElement(!userLoggedIn())">
           <li id="toggle-your-markets" class="active" (click)="onYourMarketsClick()">Your markets</li>
           <li id="toggle-all-markets" (click)="onAllMarketsClick()">All markets</li>
         </ul>
@@ -204,7 +204,7 @@
 
         <!-- If no assets available message bridge wallet -->
         <div id="message-no-asset-bridge" class="grid"
-             [ngStyle]="hideElement(allMarketViewActive() || !this.persistenceService.userLoggedIn() || !noActiveOrAvailableAsset())">
+             [ngStyle]="hideElement(allMarketViewActive() || !userLoggedIn() || !noActiveOrAvailableAsset())">
           <div class="grid-cell">
             <p class="label text-center">You have no assets available to supply.</p>
             <p class="text-center" style="margin-top: 15px;"><a href="javascript:void(0);" class="button" (click)="onDepositUSDClick()">Deposit USD</a></p>

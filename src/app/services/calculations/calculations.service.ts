@@ -37,13 +37,13 @@ export class CalculationsService {
     const totalIcxStakedByOMM = totalLiquidity * sICXRate;
     const totalStakedOmm = this.persistenceService.totalStakedOmm;
 
-    if (totalIcxStakedByOMM === 0 || totalStakedOmm === 0) {
-      return 0;
-    }
-
     // log.debug("********* totalVotingPower() ************");
     // log.debug("totalIcxStakedByOMM:", totalIcxStakedByOMM);
     // log.debug("totalStakedOmm:", totalStakedOmm);
+
+    if (totalIcxStakedByOMM === 0 || totalStakedOmm === 0) {
+      return 0;
+    }
 
     return totalIcxStakedByOMM / totalStakedOmm;
   }
@@ -59,10 +59,11 @@ export class CalculationsService {
       return 0;
     }
 
-    // log.debug("********* totalVotingPower() ************");
-    // log.debug("totalIcxStakedByOMM:", totalIcxStakedByOMM);
-    // log.debug("totalStakedOmm:", totalStakedOmm);
-    // log.debug("userStakedOmm:", totalStakedOmm);
+    log.debug("********* totalVotingPower() ************");
+    log.debug("totalIcxStakedByOMM:", totalIcxStakedByOMM);
+    log.debug("totalStakedOmm:", totalStakedOmm);
+    log.debug("userStakedOmm:", userStakedOmm);
+    log.debug("result = ", totalIcxStakedByOMM * userStakedOmm / totalStakedOmm);
 
     return totalIcxStakedByOMM * userStakedOmm / totalStakedOmm;
   }

@@ -10,13 +10,13 @@
         <h3>Omm stake</h3>
 
         <!-- Stake slider -->
-        <div id="slider-stake" disabled #stkSlider [ngStyle]="hideElement(!this.persistenceService.userLoggedIn() || !userHasOmmTokens())"></div>
+        <div id="slider-stake" disabled #stkSlider [ngStyle]="hideElement(!userLoggedIn() || !userHasOmmTokens())"></div>
 
         <!-- Message (If user has no Omm tokens) -->
-        <p class="label text-center" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn() || userHasOmmTokens())">You have no Omm Tokens.<br>Supply or borrow to earn them.</p>
+        <p class="label text-center" [ngStyle]="hideElement(!userLoggedIn() || userHasOmmTokens())">You have no Omm Tokens.<br>Supply or borrow to earn them.</p>
 
         <!-- Message (If not logged in) -->
-        <div id="message-vote-logged-out" class="grid" [ngStyle]="hideElement(this.persistenceService.userLoggedIn())">
+        <div id="message-vote-logged-out" class="grid" [ngStyle]="hideElement(userLoggedIn())">
           <div class="grid-cell">
             <p>Sign in to stake Omm Tokens.</p>
             <a href="javascript:void(0);" class="button" (click)="onSignInClick()">Sign in</a>
@@ -24,7 +24,7 @@
         </div>
 
         <!-- Stake actions -->
-        <div class="grid" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn() || !userHasOmmTokens())">
+        <div class="grid" [ngStyle]="hideElement(!userLoggedIn() || !userHasOmmTokens())">
           <div class="grid-cell text-center">
 
             <!-- Actions to show by default -->
@@ -85,7 +85,7 @@
           <div class="grid-cell">
             <dl class="metadata text-center">
               <dt>Your voting power</dt>
-              <dd><span class="value-icx-stake-amount">{{userVotingPower() > 0 ? userVotingPower() : "-"}}</span>{{userVotingPower() > 0 ? " ICX" : ""}}</dd>
+              <dd><span class="value-icx-stake-amount">{{userLoggedIn() && yourVotingPower> 0 ? roundOffTo2Decimals(yourVotingPower) : "-"}}</span>{{yourVotingPower > 0 ? " ICX" : ""}}</dd>
             </dl>
           </div>
           <div class="grid-cell">
@@ -100,7 +100,7 @@
   </section>
 
   <!-- Your votes -->
-  <section id="your-votes" class="{{this.yourVotesEditMode ? 'adjust' : ''}}" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn() || !userHasStaked())">
+  <section id="your-votes" class="{{this.yourVotesEditMode ? 'adjust' : ''}}" [ngStyle]="hideElement(!userLoggedIn() || !userHasStaked())">
     <!-- Title -->
     <div class="grid grid-center">
       <div class="grid-cell">
@@ -204,7 +204,7 @@
                 <td class="name">
                   <div class="grid grid-center">
                     <div class="grid-cell">
-                      <div class="plus" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn())" (click)="addYourVotePrep(prep)">+</div>
+                      <div class="plus" [ngStyle]="hideElement(!userLoggedIn())" (click)="addYourVotePrep(prep)">+</div>
                       <img [src]="prep.logoUrl">
                     </div>
                     <div class="grid-cell">

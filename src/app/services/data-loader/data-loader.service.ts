@@ -86,7 +86,7 @@ export class DataLoaderService {
 
   public walletLogout(): void {
     // clear active wallet
-    this.persistenceService.activeWallet = undefined;
+    this.persistenceService.logoutUser();
 
     // commit change to the state change service
     this.stateChangeService.updateLoginStatus(this.persistenceService.activeWallet);

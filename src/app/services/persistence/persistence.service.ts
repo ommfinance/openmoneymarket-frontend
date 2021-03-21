@@ -48,6 +48,18 @@ export class PersistenceService {
     return this.activeWallet != null;
   }
 
+  public logoutUser(): void {
+    this.activeWallet = undefined;
+
+    // reset values
+    this.yourVotesPrepList = [];
+    this.userOmmTokenBalanceDetails = undefined;
+    this.userOmmRewards = undefined;
+    this.userAccountData = undefined;
+    this.userTotalRisk = 0;
+    this.userReserves = new UserReserves();
+  }
+
   public getUsersStakedOmmBalance(): number {
     return this.userOmmTokenBalanceDetails?.stakedBalance ?? 0;
   }

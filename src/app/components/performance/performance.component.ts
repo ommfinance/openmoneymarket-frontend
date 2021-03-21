@@ -36,7 +36,7 @@ export class PerformanceComponent extends BaseClass implements OnInit, AfterView
   }
 
   ngAfterViewInit(): void {
-    if (this.persistenceService.userLoggedIn()) {
+    if (this.userLoggedIn()) {
       this.updatePerformanceValues();
     }
   }

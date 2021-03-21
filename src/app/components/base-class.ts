@@ -126,4 +126,8 @@ export class BaseClass {
     return (list != null && list.length > 0);
   }
 
+  public userLoggedIn(): boolean {
+    return this.persistenceService.userLoggedIn();
+  }
+
 }

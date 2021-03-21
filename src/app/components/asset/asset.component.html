@@ -50,14 +50,14 @@
           </div>
 
           <!-- If logged out show sign in button -->
-          <div class="grid grid-center sign-in-message" [ngStyle]="hideElement(this.persistenceService.userLoggedIn())">
+          <div class="grid grid-center sign-in-message" [ngStyle]="hideElement(userLoggedIn())">
             <div class="grid-cell">
               <p class="text-center"><a href="javascript:void(0);" class="button" (click)="onSignInClick()">Sign in to supply</a></p>
             </div>
           </div>
 
           <!-- Supply allow (Show if user can supply) -->
-          <div class="supply-allow" #supplyAllow [ngStyle]="hideElement(userAssetBalanceIsZero() || !this.persistenceService.userLoggedIn())">
+          <div class="supply-allow" #supplyAllow [ngStyle]="hideElement(userAssetBalanceIsZero() || !userLoggedIn())">
             <!-- Supply slider -->
             <div id="slider-supply" #sliderSupply disabled></div>
 
