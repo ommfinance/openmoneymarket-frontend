@@ -54,13 +54,8 @@ export class DataLoaderService {
     log.info("Login with wallet: ", wallet);
 
     try {
-      const [userReserversRes, icxBalResponse, usdbBalResponse, iusdcBalResponse, userAccountDataRes
-      ] = await Promise.all([
-        this.loadAllUserAssetReserveData(),
-        this.scoreService.getUserAssetBalance(AssetTag.ICX),
-        this.scoreService.getUserAssetBalance(AssetTag.USDb),
-        this.scoreService.getUserAssetBalance(AssetTag.USDC),
-        this.loadUserAccountData()
+      await Promise.all([
+        this.loadUserSpecificData()
       ]);
 
     } catch (e) {
@@ -202,6 +197,16 @@ export class DataLoaderService {
     });
   }
 
+  public loadUserDelegations(): Promise<void> {
+    return this.scoreService.getUserDelegationDetails().then(yourVotesPrep => {
+      this.persistenceService.yourVotesPrepList = yourVotesPrep;
+      this.stateChangeService.yourVotesPrepChange.next(yourVotesPrep);
+    }).catch(e => {
+      log.error("Error occurred in loadUserDelegations:");
+      log.error(e);
+    });
+  }
+
   public loadLoanOriginationFeePercentage(): Promise<void> {
     return this.scoreService.getLoanOriginationFeePercentage().then(res => {
       this.persistenceService.loanOriginationFeePercentage = res;
@@ -307,7 +312,8 @@ export class DataLoaderService {
       this.loadAllUserAssetReserveData(),
       this.loadAllUserAssetsBalances(),
       this.loadUserAccountData(),
-      this.loadUserGovernanceData()
+      this.loadUserGovernanceData(),
+      this.loadUserDelegations()
     ]);
   }
 

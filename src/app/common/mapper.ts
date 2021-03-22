@@ -7,6 +7,8 @@ import {ReserveConfigData} from "../models/ReserveConfigData";
 import {OmmRewards} from "../models/OmmRewards";
 import {OmmTokenBalanceDetails} from "../models/OmmTokenBalanceDetails";
 import {Prep, PrepList} from "../models/Preps";
+import {DelegationPreference} from "../models/DelegationPreference";
+import {YourPrepVote} from "../models/YourPrepVote";
 
 export class Mapper {
 
@@ -161,5 +163,18 @@ export class Mapper {
       Utils.hexToNormalisedNumber(prep.irep),
       prep.details
     );
+  }
+
+  static mapUserDelegations(delegations: DelegationPreference[], prepAddressToNameMap?: Map<string, string>): YourPrepVote[] {
+    const res: YourPrepVote[] = [];
+
+    delegations.forEach(delegation => {
+      res.push(new YourPrepVote(
+        delegation._address,
+        prepAddressToNameMap?.get(delegation._address) ?? "Unknown",
+        Utils.multiplyDecimalsPrecision(Utils.hexToNormalisedNumber(delegation._votes_in_per), 100)));
+    });
+
+    return res;
   }
 }

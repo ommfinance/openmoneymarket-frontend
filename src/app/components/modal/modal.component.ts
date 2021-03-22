@@ -4,7 +4,7 @@ import {Subscription} from "rxjs";
 import {ModalType} from "../../models/ModalType";
 import {IconexApiService} from "../../services/iconex-api/iconex-api.service";
 import {BridgeWidgetService} from "../../services/bridge-widget/bridge-widget.service";
-import {ModalAction} from "../../models/ModalAction";
+import {ModalAction, ModalActionsResult} from "../../models/ModalAction";
 import {BaseClass} from "../base-class";
 import {BORROW, REPAY, SUPPLY, WITHDRAW} from "../../common/constants";
 import {SupplyService} from "../../services/supply/supply.service";
@@ -222,6 +222,7 @@ export class ModalComponent extends BaseClass implements OnInit {
   }
 
   onCancelClick(): void {
+    this.stateChangeService.userModalActionResult.next(new ModalActionsResult(this.activeModalChange!, false));
     this.modalService.hideActiveModal();
   }
 
@@ -272,8 +273,18 @@ export class ModalComponent extends BaseClass implements OnInit {
     // store user action in local storage
     this.localStorageService.persistModalAction(this.activeModalChange!);
 
-    this.transactionDispatcherService.dispatchTransaction(this.voteService.buildUpdateUserDelegationPreferencesTx(
-      this.activeModalChange!.voteAction!.yourVotesPrepList), "Allocating votes...");
+    switch (this.activeModalChange?.modalType) {
+      case ModalType.UPDATE_PREP_SELECTION:
+        this.transactionDispatcherService.dispatchTransaction(this.voteService.buildUpdateUserDelegationPreferencesTx(
+          this.activeModalChange!.voteAction!.yourVotesPrepList), "Allocating votes...");
+        break;
+      case ModalType.REMOVE_ALL_VOTES:
+        this.transactionDispatcherService.dispatchTransaction(this.voteService.buildRemoveAllVotes(),
+          "Removing all votes...");
+        break;
+      default:
+        throw new OmmError(`onConfirmUpdateVotesClick() -> Invalid modal type: ${this.activeModalChange?.modalType}`);
+    }
 
     // commit modal action change
     this.stateChangeService.updateUserModalAction(this.activeModalChange!);

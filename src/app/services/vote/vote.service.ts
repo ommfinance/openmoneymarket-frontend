@@ -81,32 +81,26 @@ export class VoteService {
   }
 
   /**
-   * @description Get user delegation details
-   * @return  list of addresses and corresponding delegation detail
+   * @description Build Icon transaction to remove all of the users votes
+   * @return Icon tx
    */
-  public async getUserDelegationDetails(): Promise<number> {
+  public buildRemoveAllVotes(): Promise<number> {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const params = {
-      _user: this.persistenceService.activeWallet!.address
+      _delegations: []
     };
 
-    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Delegation,
-      ScoreMethodNames.GET_USER_DELEGATION_DETAILS, params, IconTransactionType.READ);
-
-    const res = await this.iconApiService.iconService.call(tx).execute();
-
-    log.debug("getUserDelegationDetails: ", res);
-
-    // TODO mapping!
-    return res;
+    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
+      this.persistenceService.allAddresses!.systemContract.Delegation,
+      ScoreMethodNames.UPDATE_DELEGATIONS, params, IconTransactionType.WRITE);
   }
 
   /**
-   * @description Update user delegation preferences
-   * @return  TODO
+   * @description Build Icon transaction to update user delegation preferences
+   * @return  Icon tx
    */
-  public buildUpdateUserDelegationPreferencesTx(yourVotesPrepList: YourPrepVote[]): Promise<number> {
+  public buildUpdateUserDelegationPreferencesTx(yourVotesPrepList: YourPrepVote[]): Promise<any> {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const delegations: {_address: string, _votes_in_per: string}[] = this.prepareDelegations(yourVotesPrepList);

@@ -17,10 +17,7 @@ import {SlidersService} from "../../services/sliders/sliders.service";
 import {Utils} from "../../common/utils";
 import {DataLoaderService} from "../../services/data-loader/data-loader.service";
 import {VoteAction} from "../../models/VoteAction";
-import {IconAmount, IconConverter} from "icon-sdk-js";
 
-declare var noUiSlider: any;
-declare var wNumb: any;
 declare var $: any;
 
 @Component({
@@ -30,10 +27,10 @@ declare var $: any;
 })
 export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
-  prepList?: PrepList;
-  yourVotesPrepList: YourPrepVote[] = [];
+  prepList?: PrepList = this.persistenceService.prepList;
+  yourVotesPrepList: YourPrepVote[] = this.persistenceService.yourVotesPrepList;
 
-  searchedPrepList?: PrepList;
+  searchedPrepList?: PrepList = this.persistenceService.prepList;
   searchInput = "";
 
   @ViewChild("stkSlider")set sliderStakeSetter(sliderStake: ElementRef) {this.sliderStake = sliderStake.nativeElement; }
@@ -60,17 +57,10 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
               private cd: ChangeDetectorRef) {
     super(persistenceService);
 
-    this.subscribeToPrepListChange();
-    this.subscribeToLoginChange();
-    this.subscribeToOmmTokenBalanceChange();
-    this.subscribeToUserModalActionChange();
-    this.subscribeToModalActionResult();
-    this.initYourVotePrepList(); // TODO!!!
+    this.initSubscriptions();
   }
 
   ngOnInit(): void {
-    this.prepList = this.persistenceService.prepList;
-    this.searchedPrepList = this.persistenceService.prepList;
   }
 
   ngAfterViewInit(): void {
@@ -81,26 +71,35 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     this.cd.detectChanges();
   }
 
+  private initSubscriptions(): void {
+    this.subscribeToPrepListChange();
+    this.subscribeToOmmTokenBalanceChange();
+    this.subscribeToUserModalActionChange();
+    this.subscribeToModalActionResult();
+    this.subscribeToYourVotesPrepChange();
+  }
+
   // values that should be reset on re-init
   resetStateValues(): void {
     this.yourVotesEditMode = false;
     this.voteOverviewEditMode = false;
   }
 
-  initYourVotePrepList(): void {
-    // TODO: fetch and load real values
-    this.persistenceService.yourVotesPrepList = [];
-
-    // initialize this components dynamic yourVotesPrepList
-    this.yourVotesPrepList = [...this.persistenceService.yourVotesPrepList];
-    this.fillYourVotePercentages(this.yourVotesPrepList);
-  }
-
   private subscribeToModalActionResult(): void {
     this.stateChangeService.userModalActionResult.subscribe(res => {
-      if (res.modalAction.voteAction && !res.success) {
-        this.yourVotesPrepList = [];
+      if (res.modalAction.modalType === ModalType.UPDATE_PREP_SELECTION
+        || res.modalAction.modalType === ModalType.REMOVE_ALL_VOTES) {
+        // if it failed
+        if (!res.success) {
+          this.yourVotesPrepList = this.persistenceService.yourVotesPrepList;
+        }
       }
+    });
+  }
+
+  private subscribeToYourVotesPrepChange(): void {
+    this.stateChangeService.yourVotesPrepChange.subscribe(res => {
+      this.yourVotesPrepList = [...res];
     });
   }
 
@@ -120,17 +119,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       this.voteOverviewEditMode = false;
       this.sliderStake.setAttribute("disabled", "");
       this.onSearchInputChange("");
-    });
-  }
-
-  private subscribeToLoginChange(): void {
-    this.stateChangeService.loginChange.subscribe(wallet => {
-      if (wallet) { // user logged in
-        this.loadUserDelegationDetails();
-      } else {
-        // user logged out
-        this.yourVotingPower = 0;
-      }
     });
   }
 
@@ -264,18 +252,10 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     }
   }
 
-  private loadUserDelegationDetails(): void {
-    this.voteService.getUserDelegationDetails().then(delegationDetails => {
-      // TODO!!!
-    }).catch(e => {
-      log.error("Failed to load user delegation details:");
-      log.error(e);
-    });
-  }
-
   removeYourVotePrep(index: number): void {
     // remove prep from list
     this.yourVotesPrepList.splice(index, 1);
+    this.fillYourVotePercentages(this.yourVotesPrepList);
   }
 
   addYourVotePrep(prep: Prep): void {
@@ -399,8 +379,8 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     return Utils.multiplyDecimalsPrecision(percentage, count) === 1;
   }
 
-  getDelegationAmount(): number {
-    return this.roundOffTo2Decimals(this.persistenceService.getUsersStakedOmmBalance() / this.yourVotesPrepList.length * 1.3);
+  getDelegationAmount(yourPrepVote: YourPrepVote): number {
+    return this.roundOffTo2Decimals(this.persistenceService.getUsersStakedOmmBalance() * (yourPrepVote.percentage / 100) * 1.3);
   }
 
   // TODO: in case we want infinity scrolling for preps list

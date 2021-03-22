@@ -104,7 +104,7 @@
     <!-- Title -->
     <div class="grid grid-center">
       <div class="grid-cell">
-        <h2>Your votes</h2><span class="value-risk-total">{{this.yourVotesPrepList?.length ? this.yourVotesPrepList?.length : 0}}/5</span>
+        <h2>Your votes</h2><span class="value-your-votes">{{this.yourVotesPrepList?.length ? this.yourVotesPrepList?.length : 0}}/5</span>
       </div>
     </div>
 
@@ -131,7 +131,7 @@
                 </div>
               </td>
               <td></td>
-              <td>{{yourPrepVote.percentage}}%<br><span class="label">{{getDelegationAmount()}} ICX</span></td>
+              <td>{{yourPrepVote.percentage}}%<br><span class="label">{{getDelegationAmount(yourPrepVote)}} ICX</span></td>
             </tr>
 
             <!-- Spacer -->

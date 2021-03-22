@@ -1,6 +1,7 @@
 import log from "loglevel";
 
 export class PrepList {
+  prepAddressToNameMap: Map<string, string>;
   totalDelegated: number;
   totalStake: number;
   preps: Prep[];
@@ -10,6 +11,10 @@ export class PrepList {
     this.totalDelegated = totalDelegated;
     this.totalStake = totalStake;
     this.preps = preps;
+    this.prepAddressToNameMap = new Map<string, string>();
+    preps.forEach(prep => {
+      this.prepAddressToNameMap.set(prep.address, prep.name);
+    });
   }
 }
 

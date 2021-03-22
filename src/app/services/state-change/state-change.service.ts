@@ -10,6 +10,7 @@ import {ModalAction, ModalActionsResult} from "../../models/ModalAction";
 import {OmmRewards} from "../../models/OmmRewards";
 import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
 import {PrepList} from "../../models/Preps";
+import {YourPrepVote} from "../../models/YourPrepVote";
 
 @Injectable({
   providedIn: 'root'
@@ -53,6 +54,7 @@ export class StateChangeService {
   public userOmmTokenBalanceDetailsChange: Subject<OmmTokenBalanceDetails> = new Subject<OmmTokenBalanceDetails>();
   public totalOmmStakedChange: Subject<number> = new Subject<number>();
 
+  public yourVotesPrepChange: Subject<YourPrepVote[]> = new Subject<YourPrepVote[]>();
   public prepListChange: Subject<PrepList> = new Subject<PrepList>();
 
   /**
@@ -113,6 +115,10 @@ export class StateChangeService {
 
   public updateUserOmmTokenBalanceDetails(userOmmTokenBalanceDetails: OmmTokenBalanceDetails): void {
     this.userOmmTokenBalanceDetailsChange.next(userOmmTokenBalanceDetails);
+  }
+
+  public updateUserDelegations(yourVotesPrep: YourPrepVote[]): void {
+    this.yourVotesPrepChange.next(yourVotesPrep);
   }
 
   public updatePrepList(prepList: PrepList): void {

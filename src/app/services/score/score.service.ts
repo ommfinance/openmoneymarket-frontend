@@ -17,6 +17,8 @@ import log from "loglevel";
 import {PrepList} from "../../models/Preps";
 import {Mapper} from "../../common/mapper";
 import {IconAmount, IconConverter} from "icon-sdk-js";
+import {YourPrepVote} from "../../models/YourPrepVote";
+import {DelegationPreference} from "../../models/DelegationPreference";
 
 
 @Injectable({
@@ -301,6 +303,27 @@ export class ScoreService {
     log.debug("testMint tx:", tx);
 
     return tx;
+  }
+
+  /**
+   * @description Get user delegation details
+   * @return  list of addresses and corresponding delegation detail
+   */
+  public async getUserDelegationDetails(): Promise<YourPrepVote[]> {
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
+    const params = {
+      _user: this.persistenceService.activeWallet!.address
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Delegation,
+      ScoreMethodNames.GET_USER_DELEGATION_DETAILS, params, IconTransactionType.READ);
+
+    const res: DelegationPreference[] = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getUserDelegationDetails: ", res);
+
+    return Mapper.mapUserDelegations(res, this.persistenceService.prepList?.prepAddressToNameMap);
   }
 
 }
