@@ -78,20 +78,21 @@
         <div id="vote-conversion" class="grid-cell border-bottom text-center">
           <dl class="metadata">
             <dt>Voting power</dt>
-            <dd>1 OMM = 1.3 ICX</dd>
+            <dd>1 OMM = {{roundOffTo2Decimals(votingPower)}} ICX</dd>
           </dl>
         </div>
         <div class="grid">
           <div class="grid-cell">
             <dl class="metadata text-center">
               <dt>Your voting power</dt>
-              <dd><span class="value-icx-stake-amount">{{userLoggedIn() && yourVotingPower> 0 ? roundOffTo2Decimals(yourVotingPower) : "-"}}</span>{{yourVotingPower > 0 ? " ICX" : ""}}</dd>
+              <dd><span class="value-icx-stake-amount">{{userLoggedIn() && userVotingPower() > 0 ?
+                roundOffTo2Decimals(userVotingPower()) : "-"}}</span>{{userVotingPower() > 0 ? " ICX" : ""}}</dd>
             </dl>
           </div>
           <div class="grid-cell">
             <dl class="metadata text-center">
               <dt>Omm's voting power</dt>
-              <dd>{{roundOffTo2Decimals(calculationsService.totalVotingPower())}} ICX</dd>
+              <dd>{{roundOffTo2Decimals(ommVotingPower())}} ICX</dd>
             </dl>
           </div>
         </div>

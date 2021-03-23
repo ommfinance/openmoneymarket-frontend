@@ -17,6 +17,7 @@ import {SlidersService} from "../../services/sliders/sliders.service";
 import {Utils} from "../../common/utils";
 import {DataLoaderService} from "../../services/data-loader/data-loader.service";
 import {VoteAction} from "../../models/VoteAction";
+import {AssetTag} from "../../models/Asset";
 
 declare var $: any;
 
@@ -40,7 +41,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   private ommStakeAmount?: any;
 
   userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
-  yourVotingPower = this.userVotingPower();
+  votingPower = this.calculationsService.votingPower();
 
   // current state variables
   yourVotesEditMode = false;
@@ -141,8 +142,8 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       log.debug(`subscribeToOmmTokenBalanceChange setting this.sliderStake to value :`, this.userOmmTokenBalanceDetails.stakedBalance);
       this.sliderStake.noUiSlider.set(this.userOmmTokenBalanceDetails.stakedBalance);
 
-      // set your voting power
-      this.yourVotingPower = this.userVotingPower();
+      // calculate voting power
+      this.votingPower = this.calculationsService.votingPower();
     });
   }
 
@@ -293,11 +294,16 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   userVotingPower(): number {
-    if (this.persistenceService.activeWallet) {
-      return this.calculationsService.yourVotingPower();
+    if (this.userLoggedIn()) {
+      return this.votingPower * (this.userOmmTokenBalanceDetails?.stakedBalance ?? 0);
     } else {
       return 0;
     }
+  }
+
+  ommVotingPower(): number {
+    const totalIcxStaked = this.persistenceService.getAssetReserveData(AssetTag.ICX)?.totalLiquidity ?? 0;
+    return totalIcxStaked * this.votingPower;
   }
 
   isMaxStaked(): boolean {

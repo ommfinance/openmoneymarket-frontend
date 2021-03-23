@@ -30,11 +30,8 @@ export class CalculationsService {
     return res / this.persistenceService.getAssetExchangePrice(assetTag);
   }
 
-  public totalVotingPower(): number {
-    const totalLiquidity = this.persistenceService.getAssetReserveData(AssetTag.ICX)?.totalLiquidity ?? 0;
-    const sICXRate = this.persistenceService.sIcxToIcxRate();
-
-    const totalIcxStakedByOMM = totalLiquidity * sICXRate;
+  public votingPower(): number {
+    const totalIcxStakedByOMM = this.persistenceService.getAssetReserveData(AssetTag.ICX)?.totalLiquidity ?? 0;
     const totalStakedOmm = this.persistenceService.totalStakedOmm;
 
     // log.debug("********* totalVotingPower() ************");
@@ -46,26 +43,6 @@ export class CalculationsService {
     }
 
     return totalIcxStakedByOMM / totalStakedOmm;
-  }
-
-  public yourVotingPower(userStakedOmm: number = this.persistenceService.getUsersStakedOmmBalance()): number {
-    const totalLiquidity = this.persistenceService.getAssetReserveData(AssetTag.ICX)?.totalLiquidity ?? 0;
-    const sICXRate = this.persistenceService.sIcxToIcxRate();
-
-    const totalIcxStakedByOMM = totalLiquidity * sICXRate;
-    const totalStakedOmm = this.persistenceService.totalStakedOmm;
-
-    if (totalIcxStakedByOMM === 0 || totalStakedOmm === 0 || userStakedOmm === 0) {
-      return 0;
-    }
-
-    log.debug("********* totalVotingPower() ************");
-    log.debug("totalIcxStakedByOMM:", totalIcxStakedByOMM);
-    log.debug("totalStakedOmm:", totalStakedOmm);
-    log.debug("userStakedOmm:", userStakedOmm);
-    log.debug("result = ", totalIcxStakedByOMM * userStakedOmm / totalStakedOmm);
-
-    return totalIcxStakedByOMM * userStakedOmm / totalStakedOmm;
   }
 
   public calculateAssetSupplySliderMax(assetTag: AssetTag): number {
