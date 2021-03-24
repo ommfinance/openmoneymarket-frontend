@@ -88,12 +88,12 @@ export class VoteService {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const params = {
-      _delegations: []
+      _user: this.persistenceService.activeWallet!.address
     };
 
     return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
       this.persistenceService.allAddresses!.systemContract.Delegation,
-      ScoreMethodNames.UPDATE_DELEGATIONS, params, IconTransactionType.WRITE);
+      ScoreMethodNames.CLEAR_PREVIOUS_DELEGATIONS, params, IconTransactionType.WRITE);
   }
 
   /**
