@@ -51,7 +51,7 @@
 
           <!-- If logged out show sign in button -->
           <div class="grid grid-center sign-in-message" [ngStyle]="hideElement(userLoggedIn())">
-            <div class="grid-cell">
+            <div class="grid-cell" [ngStyle]="hideElement(userLoggedIn())">
               <p class="text-center"><a href="javascript:void(0);" class="button" (click)="onSignInClick()">Sign in to supply</a></p>
             </div>
           </div>
@@ -118,7 +118,7 @@
           </div>
 
           <!-- Supply deny (Show if user can't borrow) -->
-          <div class="supply-deny {{asset.className}} hide" [ngStyle]="displayAsBlockOrHide(userAssetBalanceIsZero())">
+          <div class="supply-deny {{asset.className}} hide" [ngStyle]="displayAsBlockOrHide(userAssetBalanceIsZero() && userLoggedIn())">
             <p class="text-center label message">You have no {{asset.name}} available to supply.</p>
           </div>
         </div>
