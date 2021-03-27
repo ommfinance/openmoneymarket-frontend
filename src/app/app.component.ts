@@ -49,7 +49,14 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
     // register on document click handler
     $(document).on("click", (e: any) => {
       if ($(e.target).is(".wallet.bridge") === false) {
-        this.onBodyClick(e);
+        $(".wallet.bridge").removeClass("active");
+        $(".wallet-content.bridge").removeClass("active");
+        e.stopPropagation();
+      }
+
+      if ($(e.target).is("#time-selector") === false && $(e.target).is("#time-selector-dropdown") === false) {
+        $("#time-selector").removeClass("active");
+        $(".time-selector-content").removeClass("active");
       }
     });
   }
@@ -79,12 +86,6 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
         }
       }
     }
-  }
-
-  onBodyClick(e: any): void {
-    $(".wallet.bridge").removeClass("active");
-    $(".wallet-content.bridge").removeClass("active");
-    e.stopPropagation();
   }
 
   ngOnInit(): void {

@@ -144,4 +144,9 @@ export class Utils {
     return address.substring(0, 7) + "..." + address.substring(length - 7, length);
   }
 
+  public static getNumberOfDaysInCurrentMonth(): number {
+    const tmp = new Date();
+    const d = new Date(tmp.getFullYear(), tmp.getMonth() + 1, 0);
+    return d.getDate();
+  }
 }

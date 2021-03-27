@@ -5,12 +5,12 @@
       <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
       <div class="tooltip-content"><p>How your position will perform if all variables stay the same. Your supply auto-adjusts for interest, and you can claim Omm rewards daily.</p></div>
     </span>
-    <span id="time-selector" class="label animation-underline"><span class="dropdown">Per day</span></span>
+    <span id="time-selector" class="label animation-underline" (click)="onTimeSelectorClick()"><span id="time-selector-dropdown" class="dropdown">Per {{selectedDropDownOption}}</span></span>
     <div class="time-selector-content">
       <ul>
-        <li>Week</li>
-        <li>Month</li>
-        <li>Year</li>
+        <ng-container *ngFor="let option of dropDownOptions">
+          <li *ngIf="option.toLowerCase() !== selectedDropDownOption" (click)="onDropDownOptionClick(option)">{{option}}</li>
+        </ng-container>
       </ul>
     </div>
   </div>
@@ -25,7 +25,7 @@
       <div class="grid-cell text-center">
         <dl class="metadata">
           <dt>Supply interest</dt>
-          <dd class="value-supply-interest-total" #suppInterest>+ ${{roundOffTo2Decimals(supplyInterest)}}</dd>
+          <dd class="value-supply-interest-total" #suppInterest>+ ${{roundOffTo2Decimals(supplyInterest * getDropDownOptionMultiplier())}}</dd>
         </dl>
       </div>
 
@@ -33,7 +33,7 @@
       <div class="grid-cell text-center borrow-interest-container" [ngStyle]="hideElement(borrowInterest == 0)">
         <dl class="metadata">
           <dt>Borrow interest</dt>
-          <dd class="value-borrow-interest-total" #borrInterest>- ${{roundOffTo2Decimals(borrowInterest)}}</dd>
+          <dd class="value-borrow-interest-total" #borrInterest>- ${{roundOffTo2Decimals(borrowInterest * getDropDownOptionMultiplier())}}</dd>
         </dl>
       </div>
 
@@ -41,7 +41,7 @@
       <div class="grid-cell text-center">
         <dl class="metadata">
           <dt>Omm rewards</dt>
-          <dd><span class="value-rewards-total">+ {{roundOffTo2Decimals(ommRewards)}}</span><span class="label" style="font-size: 12px;letter-spacing: 1px;margin-left: 5px;">OMM</span></dd>
+          <dd><span class="value-rewards-total">+ {{roundOffTo2Decimals(ommRewards * getDropDownOptionMultiplier())}}</span><span class="label" style="font-size: 12px;letter-spacing: 1px;margin-left: 5px;">OMM</span></dd>
         </dl>
       </div>
     </div>
