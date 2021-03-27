@@ -139,4 +139,9 @@ export class Utils {
       .round(precision, bigDecimal.RoundingModes.DOWN).getValue();
   }
 
+  public static formatIconAddressToShort(address: string): string {
+    const length = address.length;
+    return address.substring(0, 7) + "..." + address.substring(length - 7, length);
+  }
+
 }

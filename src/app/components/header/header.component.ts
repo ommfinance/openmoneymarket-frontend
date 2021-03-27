@@ -15,6 +15,7 @@ import {NavigationEnd, Router} from "@angular/router";
 import {ScoreService} from "../../services/score/score.service";
 import log from "loglevel";
 import {TransactionDispatcherService} from "../../services/transaction-dispatcher/transaction-dispatcher.service";
+import {LedgerWallet} from "../../models/wallets/LedgerWallet";
 
 declare var $: any;
 
@@ -99,10 +100,13 @@ export class HeaderComponent extends BaseClass implements OnInit {
   // get Iconex wallet address or Bridge email
   getWalletId(): string {
     if (this.persistenceService.activeWallet instanceof IconexWallet) {
-      return this.persistenceService.activeWallet.address;
+      return this.formatIconAddressToShort(this.persistenceService.activeWallet.address);
     }
     else if (this.persistenceService.activeWallet instanceof BridgeWallet) {
       return this.persistenceService.activeWallet.email;
+    }
+    else if (this.persistenceService.activeWallet instanceof LedgerWallet) {
+      return this.formatIconAddressToShort(this.persistenceService.activeWallet.address);
     }
     else {
       return "";
@@ -111,10 +115,13 @@ export class HeaderComponent extends BaseClass implements OnInit {
 
   getWalletName(): string {
     if (this.persistenceService.activeWallet instanceof IconexWallet) {
-      return "Iconex wallet";
+      return "ICONex wallet";
     }
     else if (this.persistenceService.activeWallet instanceof BridgeWallet) {
       return "Bridge wallet";
+    }
+    else if (this.persistenceService.activeWallet instanceof LedgerWallet) {
+      return "Ledger wallet";
     }
     else {
       return "";

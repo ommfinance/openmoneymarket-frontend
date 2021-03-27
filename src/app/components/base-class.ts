@@ -130,4 +130,8 @@ export class BaseClass {
     return this.persistenceService.userLoggedIn();
   }
 
+  formatIconAddressToShort(address: string): string {
+    return Utils.formatIconAddressToShort(address);
+  }
+
 }

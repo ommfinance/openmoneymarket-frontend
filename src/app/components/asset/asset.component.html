@@ -129,7 +129,7 @@
           <div class="grid grid-center title">
             <div class="grid-cell">
               <h2>Borrow</h2><span class="risk-outer" [ngStyle]="hideElement(this.persistenceService.userHasNotSuppliedAnyAsset())">Risk: <span class="value-risk-total">- %</span></span>
-              <span class="tooltip expanded-risk-tooltip">
+              <span class="tooltip expanded-risk-tooltip" style="padding-left: 5px" [ngStyle]="hideElement(this.persistenceService.userHasNotSuppliedAnyAsset())">
                 <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
                 <div class="tooltip-content"><p>While you borrow assets, your supply is at risk of liquidation. Keep it below 50% to reduce the impact of volatile markets.</p></div>
               </span>

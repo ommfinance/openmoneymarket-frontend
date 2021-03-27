@@ -206,11 +206,6 @@ export class ModalComponent extends BaseClass implements OnInit {
     });
   }
 
-  formatIconAddressToShort(address: string): string {
-    const length = address.length;
-    return address.substring(0, 9) + "..." + address.substring(length - 7, length);
-  }
-
   onClaimOmmRewardsClick(): void {
     // store user action in local storage
     this.localStorageService.persistModalAction(this.activeModalChange!);
