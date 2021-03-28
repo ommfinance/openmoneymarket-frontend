@@ -31,7 +31,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   prepList?: PrepList = this.persistenceService.prepList;
   yourVotesPrepList: YourPrepVote[] = this.persistenceService.yourVotesPrepList;
 
-  searchedPrepList?: PrepList = this.persistenceService.prepList;
+  searchedPrepList: PrepList = this.persistenceService.prepList ?? new PrepList(0, 0, []);
   searchInput = "";
 
   @ViewChild("stkSlider")set sliderStakeSetter(sliderStake: ElementRef) {this.sliderStake = sliderStake.nativeElement; }
@@ -342,7 +342,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
     if (this.searchInput.trim() === "") {
       log.debug("this.searchInput.trim() === ");
-      this.searchedPrepList = this.prepList;
+      this.searchedPrepList = this.prepList ?? new PrepList(0, 0, []);
 
       log.debug(`searchedPrepList:`);
       log.debug(this.searchedPrepList);
@@ -399,4 +399,15 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   //     this.loadPrepList(currentPrepListLength, currentPrepListLength + 21);
   //   }
   // }
+
+  getPrepsUSDReward(prep: Prep): string {
+    const prepsIcxReward = this.calculationsService.calculatePrepsIcxReward(prep, this.searchedPrepList);
+    const icxExchangePrice = this.persistenceService.getAssetExchangePrice(AssetTag.ICX);
+    return this.formatNumberToUSLocaleString((prepsIcxReward * icxExchangePrice).toFixed(0));
+  }
+
+  getPrepsIcxReward(prep: Prep): string {
+    const prepsIcxReward = this.calculationsService.calculatePrepsIcxReward(prep, this.searchedPrepList).toFixed(0);
+    return this.formatNumberToUSLocaleString(prepsIcxReward);
+  }
 }
