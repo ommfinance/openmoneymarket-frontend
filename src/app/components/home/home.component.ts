@@ -83,13 +83,12 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
       Array.from(this.supportedAssetsMap.values()).forEach(asset => {
         // if user is logged in, load his available and current assets
         if (this.userLoggedIn()) {
-          // check if asset is active (either supplied, borrowed)
-          if (this.persistenceService.isAssetActive(asset.tag)) {
+          // Asset that is supplied or borrowed should be in userAssets
+          if (this.persistenceService.assetSuppliedOrBorrowed(asset.tag)) {
             this.userAssets.push(asset);
           }
-          // check if it is available to supply or available to borrow
-          else if (this.persistenceService.isAssetAvailableToSupply(asset.tag)
-            || this.calculationService.calculateAvailableBorrowForAsset(asset.tag) > 0) {
+          // check if asset is available to supply
+          else if (this.persistenceService.isAssetAvailableToSupply(asset.tag)) {
             this.availableAssets.push(asset);
           }
         }

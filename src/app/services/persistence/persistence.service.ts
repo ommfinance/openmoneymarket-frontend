@@ -336,7 +336,7 @@ export class PersistenceService {
   }
 
   // asset is active if is either supplied or borrowed (available to borrow should be also considered using calc service)
-  public isAssetActive(assetTag: AssetTag): boolean {
+  public assetSuppliedOrBorrowed(assetTag: AssetTag): boolean {
     return !this.userAssetSuppliedIsZero(assetTag) || !this.userAssetBorrowedIsZero(assetTag) ;
   }
 
