@@ -18,6 +18,7 @@ import {Utils} from "../../common/utils";
 import {DataLoaderService} from "../../services/data-loader/data-loader.service";
 import {VoteAction} from "../../models/VoteAction";
 import {AssetTag} from "../../models/Asset";
+import {contributorsMap} from "../../common/constants";
 
 declare var $: any;
 
@@ -409,5 +410,9 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   getPrepsIcxReward(prep: Prep): string {
     const prepsIcxReward = this.calculationsService.calculatePrepsIcxReward(prep, this.searchedPrepList).toFixed(0);
     return this.formatNumberToUSLocaleString(prepsIcxReward);
+  }
+
+  isPrepOmmContributor(address: string): boolean {
+    return contributorsMap.get(address) ?? false;
   }
 }

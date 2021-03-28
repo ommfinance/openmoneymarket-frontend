@@ -211,6 +211,9 @@
                     </div>
                     <div class="grid-cell">
                       {{prep.name}}
+                      <ng-container *ngIf="isPrepOmmContributor(prep.address)">
+                        <br><span class="label contributor">Omm contributor</span>
+                      </ng-container>
                     </div>
                   </div>
                 </td>
