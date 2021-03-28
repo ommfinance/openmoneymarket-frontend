@@ -41,7 +41,8 @@
       <div class="grid-cell text-center">
         <dl class="metadata">
           <dt>Omm rewards</dt>
-          <dd><span class="value-rewards-total">+ {{roundOffTo2Decimals(ommRewards * getDropDownOptionMultiplier())}}</span><span class="label" style="font-size: 12px;letter-spacing: 1px;margin-left: 5px;">OMM</span></dd>
+          <dd><span class="value-rewards-total">+ {{formatNumberToUSLocaleString(roundOffTo2Decimals(ommRewards * getDropDownOptionMultiplier()))}}</span>
+            <span class="label" style="font-size: 12px;letter-spacing: 1px;margin-left: 5px;">OMM</span></dd>
         </dl>
       </div>
     </div>
