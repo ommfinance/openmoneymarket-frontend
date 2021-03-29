@@ -65,7 +65,7 @@
             <dl class="metadata">
               <dt>Your stake</dt>
               <dd><span class="value-omm-stake-amount" #ommStk>{{formatNumberToUSLocaleString(userOmmTokenBalanceDetails?.stakedBalance)
-                }}</span> / {{formatNumberToUSLocaleString(userOmmTokenBalanceDetails?.totalBalance)}} OMM</dd>
+                }}</span> / {{formatNumberToUSLocaleString(getYourVoteMax())}} OMM</dd>
             </dl>
 
             <!-- Message (If un-staking) -->

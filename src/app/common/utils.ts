@@ -95,6 +95,14 @@ export class Utils {
     }
   }
 
+  public static roundDownToZeroDecimals(value: number | BigNumber | string): number {
+    if (value instanceof BigNumber) {
+      return +(value.toFixed(0, BigNumber.ROUND_DOWN));
+    } else {
+      return +(new BigNumber(value).toFixed(0, BigNumber.ROUND_DOWN));
+    }
+  }
+
   public static convertICXTosICX(value: number, todayRate: number): number {
     return Utils.roundOffTo2Decimals(value / todayRate);
   }
@@ -124,7 +132,7 @@ export class Utils {
       bigDecimal.RoundingModes.DOWN).getValue();
   }
 
-  public static addDecimalsPrecision(val1: number, val2: number, precision: number = 2): number {
+  public static addDecimalsPrecision(val1: number = 0, val2: number = 0, precision: number = 2): number {
     return +(new bigDecimal(val1.toString()).add(new bigDecimal(val2.toString()))).round(precision,
       bigDecimal.RoundingModes.DOWN).getValue();
   }

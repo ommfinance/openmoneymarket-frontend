@@ -12,6 +12,7 @@ import {OmmRewards} from "../../models/OmmRewards";
 import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
 import {PrepList} from "../../models/Preps";
 import {YourPrepVote} from "../../models/YourPrepVote";
+import {Utils} from "../../common/utils";
 
 @Injectable({
   providedIn: 'root'
@@ -61,11 +62,15 @@ export class PersistenceService {
   }
 
   public getUsersStakedOmmBalance(): number {
-    return this.userOmmTokenBalanceDetails?.stakedBalance ?? 0;
+    return Utils.roundDownToZeroDecimals(this.userOmmTokenBalanceDetails?.stakedBalance ?? 0);
+  }
+
+  public getUsersAvailableOmmBalance(): number {
+    return Utils.roundDownToZeroDecimals(this.userOmmTokenBalanceDetails?.availableBalance ?? 0);
   }
 
   public getUserUnstakingOmmBalance(): number {
-    return this.userOmmTokenBalanceDetails?.unstakingBalance ?? 0;
+    return Utils.roundDownToZeroDecimals(this.userOmmTokenBalanceDetails?.unstakingBalance ?? 0);
   }
 
   publicGetActiveIconAddress(): string | undefined {

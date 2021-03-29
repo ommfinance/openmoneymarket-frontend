@@ -21,6 +21,7 @@ import {AssetTag} from "../../models/Asset";
 import {contributorsMap} from "../../common/constants";
 
 declare var $: any;
+declare var noUiSlider: any;
 
 @Component({
   selector: 'app-vote',
@@ -131,8 +132,8 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       log.debug(`this.userOmmTokenBalanceDetails:`, this.userOmmTokenBalanceDetails);
 
       // sliders max is sum of staked + available balance
-      const sliderMax = Utils.addDecimalsPrecision(this.userOmmTokenBalanceDetails.stakedBalance,
-        this.userOmmTokenBalanceDetails.availableBalance);
+      const sliderMax = Utils.addDecimalsPrecision(this.persistenceService.getUsersStakedOmmBalance(),
+        this.persistenceService.getUsersAvailableOmmBalance());
 
       this.sliderStake.noUiSlider.updateOptions({
         start: [this.userOmmTokenBalanceDetails.stakedBalance],
@@ -150,19 +151,27 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   initStakeSlider(): void {
     this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails?.getClone();
-    const currentUserOmmStakedBalance = this.roundDownTo2Decimals(this.persistenceService.getUsersStakedOmmBalance());
-    const userOmmAvailableBalance = this.roundDownTo2Decimals(this.persistenceService.userOmmTokenBalanceDetails?.availableBalance ?? 0);
+    const currentUserOmmStakedBalance = this.persistenceService.getUsersStakedOmmBalance();
+    const userOmmAvailableBalance = this.persistenceService.getUsersAvailableOmmBalance();
     const max = Utils.addDecimalsPrecision(currentUserOmmStakedBalance, userOmmAvailableBalance);
 
-    // Stake slider
-    this.sliderService.createNoUiSlider(this.sliderStake, 0, 0, 'lower', undefined, {
-        min: [0],
-        max: [max === 0 ? 0.1 : max]
+    // create Stake slider
+    if (this.sliderStake) {
+      noUiSlider.create(this.sliderStake, {
+        start: 0,
+        padding: 0,
+        connect: 'lower',
+        range: {
+          min: [0],
+          max: [max === 0 ? 1 : max]
+        },
+        step: 1,
       });
+    }
 
     // slider slider value if user Omm token balances are already loaded
     if (this.userOmmTokenBalanceDetails) {
-      this.sliderStake.noUiSlider.set(this.userOmmTokenBalanceDetails.stakedBalance);
+      this.sliderStake.noUiSlider.set(this.roundDownToZeroDecimals(this.userOmmTokenBalanceDetails.stakedBalance));
     }
 
     // On stake slider update
@@ -216,9 +225,12 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   onConfirmStakeClick(): void {
     log.debug(`onConfirmStakeClick Omm stake amount = ${this.userOmmTokenBalanceDetails?.stakedBalance}`);
-    const before = this.roundDownTo2Decimals(this.persistenceService.getUsersStakedOmmBalance());
-    const after = this.roundDownTo2Decimals(this.userOmmTokenBalanceDetails?.stakedBalance ?? 0);
-    const diff = Utils.subtractDecimalsWithPrecision(after, before);
+    const before = this.roundDownToZeroDecimals(this.persistenceService.getUsersStakedOmmBalance());
+    log.debug("before = ", before);
+    const after = this.roundDownToZeroDecimals(this.userOmmTokenBalanceDetails?.stakedBalance ?? 0);
+    log.debug("after = ", after);
+    const diff = Utils.subtractDecimalsWithPrecision(after, before, 0);
+    log.debug("Diff = ", diff);
 
     // if before and after equal show notification
     if (before === after) {
@@ -414,5 +426,11 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   isPrepOmmContributor(address: string): boolean {
     return contributorsMap.get(address) ?? false;
+  }
+
+  getYourVoteMax(): number {
+    // sliders max is sum of staked + available balance
+    return Utils.addDecimalsPrecision(this.persistenceService.getUsersStakedOmmBalance(),
+        this.persistenceService.getUsersAvailableOmmBalance());
   }
 }

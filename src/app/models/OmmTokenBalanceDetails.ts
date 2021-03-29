@@ -19,10 +19,10 @@ export class OmmTokenBalanceDetails {
 
   public getClone(): OmmTokenBalanceDetails {
     return new OmmTokenBalanceDetails(
-      Utils.roundDownTo2Decimals(this.totalBalance),
-      Utils.roundDownTo2Decimals(this.availableBalance),
-      Utils.roundDownTo2Decimals(this.stakedBalance),
-      Utils.roundDownTo2Decimals(this.unstakingBalance),
+      Utils.roundDownToZeroDecimals(this.totalBalance),
+      Utils.roundDownToZeroDecimals(this.availableBalance),
+      Utils.roundDownToZeroDecimals(this.stakedBalance),
+      Utils.roundDownToZeroDecimals(this.unstakingBalance),
       this.unstakingTimeInMills
     );
   }
