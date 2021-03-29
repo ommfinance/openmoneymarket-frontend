@@ -1,7 +1,6 @@
 import {Utils} from "../common/utils";
 import {Asset, AssetTag, supportedAssetsMap} from "../models/Asset";
 import {assetFormat} from "../common/formats";
-import log from "loglevel";
 import {BigNumber} from "bignumber.js";
 import {PersistenceService} from "../services/persistence/persistence.service";
 
@@ -17,6 +16,14 @@ export class BaseClass {
   public supportedAssetsMap = supportedAssetsMap;
   public AssetTag = AssetTag;
   public supportedAssets: Asset[] = Array.from(supportedAssetsMap.values());
+
+  public delay = (() => {
+    let timer: any;
+    return (callback: any, ms: any) => {
+      clearTimeout (timer);
+      timer = setTimeout(callback, ms);
+    };
+  })();
 
   // public formatNumberToNdigits(num?: number | string, digits: number = 2): string {
   //   if (!num || (+num) === 0) { return "-"; }

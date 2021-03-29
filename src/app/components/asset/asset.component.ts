@@ -229,26 +229,32 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * Logic to trigger on supply amount change
    */
   supplyAssetAmountChange(): void {
-    const value = +this.inputSupply.value;
+    const value = +assetFormat(this.asset.tag).from(this.roundDownTo2Decimals(this.inputSupply.value));
 
     if (this.persistenceService.activeWallet) {
       // check that supplied value is not greater than max
       if (value > this.supplySliderMaxValue()) {
-        log.debug(`Supplied value=${value}  > max= ${this.supplySliderMaxValue()}`);
         this.inputSupply.classList.add("red-border");
       } else {
         // set slider to this value and reset border color if it passes the check
-        this.setSupplySliderValue(value);
+        // this.setSupplySliderValue(value);
         this.inputSupply.classList.remove("red-border");
       }
     }
+  }
+
+  onInputSupplyLostFocus(): void {
+    this.delay(() => {
+      const value = +assetFormat(this.asset.tag).from(this.inputSupply.value);
+      this.setSupplySliderValue(value);
+    }, 1000 );
   }
 
   /**
    * Logic to trigger on borrow amount change
    */
   public borrowAssetAmountChange(): void {
-    const value = +this.inputBorrow.value;
+    const value = this.getInputBorrowValue();
 
     if (this.persistenceService.activeWallet) {
       // check that borrowed value is not greater than max
@@ -263,12 +269,19 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     }
   }
 
+  onInputBorrowLostFocus(): void {
+    this.delay(() => {
+      const value = +assetFormat(this.asset.tag).from(this.inputBorrow.value);
+      this.setBorrowSliderValue(value);
+    }, 1000 );
+  }
+
 
   /**
    * Logic to trigger when user clicks confirm of asset-user supply
    */
   onAssetSupplyConfirmClick(): void {
-    let value = +this.inputSupply.value;
+    let value = +assetFormat(this.asset.tag).from(this.roundDownTo2Decimals(this.inputSupply.value));
 
     log.debug("onAssetSupplyConfirmClick:");
     log.debug(`Value: ${value}`);
@@ -311,7 +324,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * Logic to trigger when user clicks confirm of asset-user borrow
    */
   onAssetBorrowConfirmClick(): void {
-    let value = +this.inputBorrow.value;
+    let value = this.getInputBorrowValue();
 
     log.debug("onAssetBorrowConfirmClick:");
     log.debug(`Currently borrowed (before): ${this.getUserBorrowedAssetBalance()}`);
@@ -404,7 +417,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       this.inputBorrowAvailable.value = assetFormat(this.asset.tag).to(borrowAvailable);
 
       // update asset borrow slider max value to  -> borrowed + borrow available
-      let max = Utils.addDecimalsPrecision(+this.inputBorrow.value, borrowAvailable);
+      let max = Utils.addDecimalsPrecision(this.getInputBorrowValue(), borrowAvailable);
       max = this.getMaxBorrowAvailable(max);
       this.sliderBorrow.noUiSlider.updateOptions({
         range: { min: 0, max: max === 0 ? 1 : max } // min and max must not equal
@@ -477,9 +490,9 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   initSupplySliderlogic(): void {
     // On asset-user supply slider update (Your markets)
     this.sliderSupply.noUiSlider.on('update', (values: any, handle: any) => {
-      const value = this.roundDownTo2Decimals(+values[handle]);
+      const value = this.roundDownTo2Decimals(this.deformatAssetValue(values[handle]));
       // Update supplied text box
-      this.inputSupply.value = this.roundDownTo2Decimals(value);
+      this.inputSupply.value = assetFormat(this.asset.tag).to(value);
 
       // Update asset-user available text box
       this.inputSupplyAvailable.value = assetFormat(this.asset.tag).to(Utils.subtractDecimalsWithPrecision(
@@ -532,7 +545,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   initBorrowSliderLogic(): void {
     // On asset-user borrow slider update (Your markets)
     this.sliderBorrow.noUiSlider.on('update', (values: any, handle: any) => {
-      const value = this.roundDownTo2Decimals(+values[handle]);
+      const value = this.roundDownTo2Decimals(this.deformatAssetValue(values[handle]));
       // Update asset-user borrowed text box
       this.inputBorrow.value = this.roundDownTo2Decimals(value);
       // const convertedValue = this.convertSliderValue(value);
@@ -893,6 +906,18 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   isAllMarketViewActive(): boolean {
     return this.activeMarketView === ActiveMarketView.ALL_MARKET;
+  }
+
+  getInputBorrowValue(): number {
+    return +assetFormat(this.asset.tag).from(this.inputBorrow.value);
+  }
+
+  getInputSupplyValue(): number {
+    return +assetFormat(this.asset.tag).from(this.inputSupply.value);
+  }
+
+  deformatAssetValue(value: any): number {
+    return +assetFormat(this.asset.tag).from(value);
   }
 
 }
