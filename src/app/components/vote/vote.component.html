@@ -64,7 +64,8 @@
           <div class="grid-cell text-center">
             <dl class="metadata">
               <dt>Your stake</dt>
-              <dd><span class="value-omm-stake-amount" #ommStk>{{userOmmTokenBalanceDetails?.stakedBalance}}</span> / {{userOmmTokenBalanceDetails?.totalBalance}} OMM</dd>
+              <dd><span class="value-omm-stake-amount" #ommStk>{{formatNumberToUSLocaleString(userOmmTokenBalanceDetails?.stakedBalance)
+                }}</span> / {{formatNumberToUSLocaleString(userOmmTokenBalanceDetails?.totalBalance)}} OMM</dd>
             </dl>
 
             <!-- Message (If un-staking) -->
