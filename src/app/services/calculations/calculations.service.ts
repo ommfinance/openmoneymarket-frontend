@@ -334,7 +334,7 @@ export class CalculationsService {
 
     if (userSum === 0 || allUsersSum === 0) { return 0; }
 
-    return (userSum / allUsersSum) * 0.25 * this.persistenceService.tokenDistributionPerDay;
+    return (userSum / allUsersSum) * 0.2 * this.persistenceService.tokenDistributionPerDay;
   }
 
   /**
@@ -367,7 +367,7 @@ export class CalculationsService {
 
     if (userSum === 0 || allUsersSum === 0) { return 0; }
 
-    return (userSum / allUsersSum) * 0.25 * this.persistenceService.tokenDistributionPerDay;
+    return (userSum / allUsersSum) * 0.2 * this.persistenceService.tokenDistributionPerDay;
   }
 
   public getTotalAvgSupplyApy(): number {

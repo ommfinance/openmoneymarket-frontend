@@ -49,9 +49,6 @@
               <a href="javascript:void(0);" (click)="onOpenBridgeClick()" class="animation-underline">Open Bridge</a>
             </li>
             <li><a href="javascript:void(0);" class="animation-underline" (click)="onCopyIconAddressClick()">Copy ICON address</a></li>
-
-            <!--  TODO remove after testing -->
-            <li *ngIf="persistenceService.userLoggedIn()"><a href="javascript:void(0);" class="animation-underline" (click)="onMintOmmTokensClick()">Mint OMM tokens</a></li>
           </ul>
           <p class="text-center"><a href="javascript:void(0);" class="button" (click)="onSignOutClick()">Sign out</a></p>
         </div>

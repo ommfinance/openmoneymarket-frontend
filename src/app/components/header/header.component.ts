@@ -12,9 +12,6 @@ import {BridgeWidgetService} from "../../services/bridge-widget/bridge-widget.se
 import {DataLoaderService} from "../../services/data-loader/data-loader.service";
 import {NotificationService} from "../../services/notification/notification.service";
 import {NavigationEnd, Router} from "@angular/router";
-import {ScoreService} from "../../services/score/score.service";
-import log from "loglevel";
-import {TransactionDispatcherService} from "../../services/transaction-dispatcher/transaction-dispatcher.service";
 import {LedgerWallet} from "../../models/wallets/LedgerWallet";
 
 declare var $: any;
@@ -37,9 +34,7 @@ export class HeaderComponent extends BaseClass implements OnInit {
               private bridgeWidgetService: BridgeWidgetService,
               private dataLoaderService: DataLoaderService,
               private notificationService: NotificationService,
-              private router: Router,
-              private scoreService: ScoreService,
-              private dispatcherService: TransactionDispatcherService) {
+              private router: Router) {
     super(persistenceService);
     router.events.subscribe( (event) => ( event instanceof NavigationEnd ) && this.handleRouteChange() );
   }
@@ -174,9 +169,4 @@ export class HeaderComponent extends BaseClass implements OnInit {
     document.body.removeChild(textArea);
   }
 
-  // TODO remove after testing
-  onMintOmmTokensClick(): void {
-    const mintOmmTx = this.scoreService.buildTestMintTx();
-    this.dispatcherService.dispatchTransaction(mintOmmTx, "Test Omm token mint.");
-  }
 }
