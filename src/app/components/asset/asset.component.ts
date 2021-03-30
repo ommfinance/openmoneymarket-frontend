@@ -229,7 +229,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * Logic to trigger on supply amount change
    */
   supplyAssetAmountChange(): void {
-    const value = +assetFormat(this.asset.tag).from(this.roundDownTo2Decimals(this.inputSupply.value));
+    const value = this.getInputSupplyValue();
 
     if (this.persistenceService.activeWallet) {
       // check that supplied value is not greater than max
@@ -245,7 +245,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   onInputSupplyLostFocus(): void {
     this.delay(() => {
-      const value = +assetFormat(this.asset.tag).from(this.inputSupply.value);
+      const value = this.getInputSupplyValue();
       this.setSupplySliderValue(value);
     }, 1000 );
   }
@@ -271,7 +271,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   onInputBorrowLostFocus(): void {
     this.delay(() => {
-      const value = +assetFormat(this.asset.tag).from(this.inputBorrow.value);
+      const value = this.getInputBorrowValue();
       this.setBorrowSliderValue(value);
     }, 1000 );
   }
@@ -281,7 +281,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * Logic to trigger when user clicks confirm of asset-user supply
    */
   onAssetSupplyConfirmClick(): void {
-    let value = +assetFormat(this.asset.tag).from(this.roundDownTo2Decimals(this.inputSupply.value));
+    let value = this.roundDownTo2Decimals(this.getInputSupplyValue());
 
     log.debug("onAssetSupplyConfirmClick:");
     log.debug(`Value: ${value}`);
@@ -324,7 +324,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * Logic to trigger when user clicks confirm of asset-user borrow
    */
   onAssetBorrowConfirmClick(): void {
-    let value = this.getInputBorrowValue();
+    let value = this.roundDownTo2Decimals(this.getInputBorrowValue());
 
     log.debug("onAssetBorrowConfirmClick:");
     log.debug(`Currently borrowed (before): ${this.getUserBorrowedAssetBalance()}`);
