@@ -197,7 +197,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     this.voteOverviewEditMode = true;
 
     // Set your P-Rep sliders to initial values
-    $(this.sliderStake).removeAttr("disabled");
+    this.sliderStake.removeAttribute("disabled");
   }
 
   // On "Cancel Stake" click

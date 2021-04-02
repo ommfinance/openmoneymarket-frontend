@@ -148,4 +148,12 @@ export class BaseClass {
     return Utils.formatIconAddressToShort(address);
   }
 
+  addClass(htmlElement: any, className: string): void {
+    htmlElement.classList.add(className);
+  }
+
+  removeClass(htmlElement: any, className: string): void {
+    htmlElement.classList.remove(className);
+  }
+
 }

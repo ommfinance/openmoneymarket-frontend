@@ -136,12 +136,12 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    */
   onBorrowAdjustClick(): void {
     /** Setup actions */
-    $(this.borrowEl).addClass("adjust");
-    $(this.supplyEl).removeClass("adjust");
-    $(this.supplyAction1El).removeClass("hide");
-    $(this.supplyAction2El).addClass("hide");
-    $(this.borrowAction1El).addClass("hide");
-    $(this.borrowAction2El).removeClass("hide");
+    this.addClass(this.borrowEl, "adjust");
+    this.removeClass(this.supplyEl, "adjust");
+    this.removeClass(this.supplyAction1El, "hide");
+    this.addClass(this.supplyAction2El, "hide");
+    this.addClass(this.borrowAction1El, "hide");
+    this.removeClass(this.borrowAction2El, "hide");
 
     /** Reset Supply sliders */
     this.disableAndResetSupplySlider();
@@ -158,12 +158,12 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    */
   onSupplyAdjustClick(): void {
     /** Setup actions */
-    $(this.supplyEl).addClass("adjust");
-    $(this.borrowEl).removeClass("adjust");
-    $(this.supplyAction1El).addClass("hide");
-    $(this.supplyAction2El).removeClass("hide");
-    $(this.borrowAction1El).removeClass("hide");
-    $(this.borrowAction2El).addClass("hide");
+    this.addClass(this.supplyEl, "adjust");
+    this.removeClass(this.borrowEl, "adjust");
+    this.addClass(this.supplyAction1El, "hide");
+    this.removeClass(this.supplyAction2El, "hide");
+    this.removeClass(this.borrowAction1El, "hide");
+    this.addClass(this.borrowAction2El, "hide");
 
     /** Reset Borrow sliders */
     this.resetBorrowSliders();
@@ -172,8 +172,8 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.resetBorrowInputs();
 
     /** Enable Supply inputs of asset-user */
-    $(this.inputSupply).removeAttr("disabled");
-    $(this.sliderSupply).removeAttr("disabled");
+    this.inputSupply.removeAttribute("disabled");
+    this.sliderSupply.removeAttribute("disabled");
     this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag), true);
   }
 
@@ -521,17 +521,17 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
       // if total risk over 100%
       if (totalRisk > 0.99) {
-        $(this.supplyAction2El).addClass("hide");
+        this.addClass(this.supplyAction2El, "hide");
         $('.value-risk-total').text("Max");
         $('.supply-risk-warning').css("display", "flex");
       } else {
         if ($(this.supplyEl).hasClass("adjust")) {
-          $(this.supplyAction1El).addClass("hide");
-          $(this.supplyAction2El).removeClass("hide");
+          this.addClass(this.supplyAction1El, "hide");
+          this.removeClass(this.supplyAction2El, "hide");
           $('.supply-risk-warning').css("display", "none");
         } else {
-          $(this.supplyAction1El).removeClass("hide");
-          $(this.supplyAction2El).addClass("hide");
+          this.removeClass(this.supplyAction1El, "hide");
+          this.addClass(this.supplyAction2El, "hide");
           $('.supply-risk-warning').css("display", "none");
         }
       }
@@ -587,21 +587,21 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
       // if total risk over 100%
       if (totalRisk > 0.99) {
-        $(this.borrowAction2El).addClass("hide");
+        this.addClass(this.borrowAction2El, "hide");
         $('.value-risk-total').text("Max");
         $('.borrow-risk-warning').css("display", "flex");
       } else if (totalRisk > 0.75) {
-        $(this.borrowAction2El).addClass("hide");
+        this.addClass(this.borrowAction2El, "hide");
         $('.borrow-risk-warning').css("display", "flex");
         $('.value-risk-total').text(percentageFormat.to(totalRisk * 100));
       } else {
         if ($(this.borrowEl).hasClass("adjust")) {
-          $(this.borrowAction1El).addClass("hide");
-          $(this.borrowAction2El).removeClass("hide");
+          this.addClass(this.borrowAction1El, "hide");
+          this.removeClass(this.borrowAction2El, "hide");
           $('.borrow-risk-warning').css("display", "none");
         } else {
-          $(this.borrowAction1El).removeClass("hide");
-          $(this.borrowAction2El).addClass("hide");
+          this.removeClass(this.borrowAction1El, "hide");
+          this.addClass(this.borrowAction2El, "hide");
           $('.borrow-risk-warning').css("display", "none");
         }
 
@@ -787,17 +787,17 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   removeAdjustClass(): void {
     // Remove adjust class
-    $(this.supplyEl).removeClass("adjust");
-    $(this.borrowEl).removeClass("adjust");
+    this.removeClass(this.supplyEl, "adjust");
+    this.removeClass(this.borrowEl, "adjust");
   }
 
   showDefaultActions(): void {
     // Show default actions
-    $(this.supplyAction1El).removeClass("hide");
-    $(this.borrowAction1El).removeClass("hide");
+    this.removeClass(this.supplyAction1El, "hide");
+    this.removeClass(this.borrowAction1El, "hide");
 
-    $(this.supplyAction2El).addClass("hide");
-    $(this.borrowAction2El).addClass("hide");
+    this.addClass(this.supplyAction2El, "hide");
+    this.addClass(this.borrowAction2El, "hide");
   }
 
   resetBorrowSliders(): void {
@@ -837,8 +837,8 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   enableAssetBorrow(): void {
-    $(this.inputBorrow).removeAttr("disabled");
-    $(this.sliderBorrow).removeAttr("disabled");
+    this.inputBorrow.removeAttribute("disabled");
+    this.sliderBorrow.removeAttribute("disabled");
     this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag), true);
   }
 
@@ -860,8 +860,8 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   removeInputRedBorderClass(): void {
     // Remove red border class on input
-    this.inputSupply.classList.remove("red-border");
-    this.inputBorrow.classList.remove("red-border");
+    this.removeClass(this.inputSupply, "red-border");
+    this.removeClass(this.inputBorrow, "red-border");
   }
 
   updateRiskData(riskCalculationData?: RiskCalculationData, updateState = true): number {
