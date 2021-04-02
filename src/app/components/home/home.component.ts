@@ -28,8 +28,6 @@ import {UserReserveData} from "../../models/UserReserveData";
 import {ModalAction} from "../../models/ModalAction";
 import {BridgeWidgetService} from "../../services/bridge-widget/bridge-widget.service";
 
-declare var $: any;
-
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -55,7 +53,8 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
 
   // keep track of current active market view in this variable
   public activeMarketView: ActiveMarketView = ActiveMarketView.ALL_MARKET;
-  public activeMarketOverview: ActiveMarketOverview = ActiveMarketOverview.YOUR_OVERVIEW;
+  public activeMarketOverview: ActiveMarketOverview = this.userLoggedIn() ? ActiveMarketOverview.YOUR_OVERVIEW :
+    ActiveMarketOverview.MARKET_OVERVIEW;
 
   public hideMarketHeader = false;
 
@@ -127,7 +126,9 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
       if (wallet) {
         // user login
         this.onYourMarketsClick();
+        this.onToggleYourOverviewClick();
       } else {
+        // user logout
         this.onAllMarketsClick();
       }
     });
@@ -169,15 +170,11 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   // On "Market overview" click
   onToggleMarketOverviewClick(): void {
     this.activeMarketOverview = ActiveMarketOverview.MARKET_OVERVIEW;
-    $("#your-overview-content").hide();
-    $("#market-overview-content").show();
   }
 
   // On "Your overview" click
   onToggleYourOverviewClick(): void {
     this.activeMarketOverview = ActiveMarketOverview.YOUR_OVERVIEW;
-    $("#your-overview-content").show();
-    $("#market-overview-content").hide();
   }
 
   // On "All markets tab" click
@@ -187,9 +184,6 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
 
     // re-load the asset lists
     this.loadAssetLists();
-
-    // if all borrowed assets are 0
-    this.hideRiskIfNothingBorrowed();
 
     // collapse assets tables
     this.collapseTableUserAssets();
@@ -209,9 +203,6 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
 
     // re-load the asset lists
     this.loadAssetLists();
-
-    // if all borrowed assets are 0
-    this.hideRiskIfNothingBorrowed();
 
     // collapse assets tables
     this.collapseTableUserAssets();
@@ -294,17 +285,6 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     this.userAvailableAssetComponents.forEach(userAvailableAssetComponent => {
       userAvailableAssetComponent.disableInputs();
     });
-  }
-
-  hideRiskIfNothingBorrowed(): void {
-    // if all borrowed assets are 0
-    if (this.persistenceService.userHasNotBorrowedAnyAsset()) {
-      this.riskComponent.hideRiskData();
-      this.riskComponent.showRiskMessage();
-    } else {
-      this.riskComponent.showRiskData();
-      this.riskComponent.hideRiskMessage();
-    }
   }
 
   // hide your market header if view is not active or active assets length == 0 and available is not

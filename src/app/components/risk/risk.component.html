@@ -12,7 +12,7 @@
 <!-- Risk content -->
 <div class="grid panel">
   <div class="grid-cell">
-    <div class="risk-container" [ngStyle]="hideElement(this.persistenceService.userHasNotBorrowedAnyAsset())">
+    <div class="risk-container" [ngStyle]="hideElement(this.persistenceService.userHasNotBorrowedAnyAsset())" #riskContainer>
       <p class="label risk-message-liquidated"><span>Your supply will be liquidated at 100%.</span></p>
       <div id="slider-risk" disabled></div>
     </div>

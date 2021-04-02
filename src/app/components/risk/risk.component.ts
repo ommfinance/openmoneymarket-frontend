@@ -28,6 +28,7 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
   @ViewChild("risk")set totalRiskSetter(totalRisk: ElementRef) {this.totalRiskEl = totalRisk.nativeElement; }
   totalRiskEl!: HTMLElement;
 
+
   // users asset components
   @Input() userAssetComponents!: QueryList<AssetComponent>;
 
@@ -88,69 +89,8 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   updateViewRiskData(): void {
-    // log.debug("Updating total risk to: " + this.totalRisk * 100);
-
     // Update the risk slider
     this.sliderRisk.noUiSlider.set(this.totalRisk * 100);
 
-    // // If risk over 100
-    // if (this.totalRisk > 0.99) {
-    //   // Hide supply actions
-    //   $('.actions-2').addClass("hide");
-    //   $('.value-risk-total').text("Max");
-    //   $('.supply-risk-warning').css("display", "flex");
-    //   $('.borrow-risk-warning').css("display", "flex");
-    // } else {
-    //   $('.value-risk-total').text(percentageFormat.to(this.totalRisk * 100));
-    // }
-    //
-    // // If risk under 100
-    // if (this.totalRisk <= 0.99) {
-    //   $('.supply-risk-warning').css("display", "none");
-    //   $('.borrow-risk-warning').css("display", "none");
-    // }
-    //
-    // // Change text to purple if over 50
-    // if (this.totalRisk > 0.50) {
-    //   $('.value-risk-total').addClass("alert-purple");
-    // }
-    //
-    // // Remove purple if below 50
-    // if (this.totalRisk < 0.50) {
-    //   $('.value-risk-total').removeClass("alert-purple");
-    // }
-    //
-    // // Change text to red if over 75
-    // if (this.totalRisk > 0.75) {
-    //   $('.value-risk-total').addClass("alert");
-    // }
-    //
-    // // Change text to normal if under 75
-    // if (this.totalRisk < 0.75) {
-    //   $('.value-risk-total').removeClass("alert");
-    // }
-
   }
-
-  hideRiskData(): void {
-    // show risk data
-    $('.risk-container').css("display", "none");
-  }
-
-  showRiskData(): void {
-    // show risk data
-    $('.risk-container').css("display", "block");
-  }
-
-  showRiskMessage(): void {
-    // Hide risk message
-    $('.risk-message-noassets').css("display", "block");
-  }
-
-  hideRiskMessage(): void {
-    // Hide risk message
-    $('.risk-message-noassets').css("display", "none");
-  }
-
-
 }

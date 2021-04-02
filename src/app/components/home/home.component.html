@@ -13,7 +13,7 @@
     </div>
 
         <!-- Your overview content -->
-        <div id="your-overview-content" class="grid panel" [ngStyle]="hideElement(!userLoggedIn())">
+        <div id="your-overview-content" class="grid panel" [ngStyle]="hideElement(isMarketOverviewActive() || !userLoggedIn())">
           <!-- Supplied -->
           <div class="grid-cell border-right">
             <div class="grid">
@@ -58,7 +58,7 @@
     </div>
 
         <!-- Market overview content -->
-        <div id="market-overview-content" class="grid panel" [ngStyle]="hideElement(userLoggedIn())">
+        <div id="market-overview-content" class="grid panel" [ngStyle]="hideElement(!isMarketOverviewActive())">
           <!-- Supplied -->
           <div class="grid-cell border-right">
             <div class="grid">
