@@ -23,7 +23,7 @@ import {Asset, AssetTag} from "../../models/Asset";
 import log from "loglevel";
 import {AssetComponent} from "../asset/asset.component";
 import {StateChangeService} from "../../services/state-change/state-change.service";
-import {ActiveMarketView} from "../../models/ActiveMarketView";
+import {ActiveMarketOverview, ActiveMarketView} from "../../models/ActiveMarketView";
 import {UserReserveData} from "../../models/UserReserveData";
 import {ModalAction} from "../../models/ModalAction";
 import {BridgeWidgetService} from "../../services/bridge-widget/bridge-widget.service";
@@ -55,6 +55,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
 
   // keep track of current active market view in this variable
   public activeMarketView: ActiveMarketView = ActiveMarketView.ALL_MARKET;
+  public activeMarketOverview: ActiveMarketOverview = ActiveMarketOverview.YOUR_OVERVIEW;
 
   public hideMarketHeader = false;
 
@@ -70,6 +71,24 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
               private stateChangeService: StateChangeService,
               private bridgeWidgetService: BridgeWidgetService) {
     super(persistenceService);
+  }
+
+  ngOnInit(): void {
+    this.registerSubscriptions();
+  }
+
+  ngOnDestroy(): void {
+  }
+
+  ngAfterViewInit(): void {
+    this.loadAssetLists();
+
+    if (this.userLoggedIn()) {
+      this.onYourMarketsClick();
+    }
+
+    // call cd after to avoid ExpressionChangedAfterItHasBeenCheckedError
+    this.cd.detectChanges();
   }
 
   // load the asset lists
@@ -93,32 +112,10 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
           }
         }
       });
-
-      log.debug("this.userAssets=", this.userAssets);
-      log.debug("this.availableAssets=", this.availableAssets);
     }
-  }
-
-  ngOnInit(): void {
-    this.registerSubscriptions();
-  }
-
-  ngOnDestroy(): void {
-  }
-
-  ngAfterViewInit(): void {
-    this.loadAssetLists();
-
-    if (this.userLoggedIn()) {
-      this.onYourMarketsClick();
-    }
-
-    // call cd after to avoid ExpressionChangedAfterItHasBeenCheckedError
-    this.cd.detectChanges();
   }
 
   private registerSubscriptions(): void {
-    log.debug("[HomeComponent] registering subscriptions...");
     this.subscribeToLoginChange();
     this.subscribeToUserModalActionChange();
     this.subscribeToUserAssetReserveChange();
@@ -127,8 +124,8 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
 
   private subscribeToLoginChange(): void {
     this.stateChangeService.loginChange.subscribe(wallet => {
-      if (wallet) { // TODO improve
-        log.debug(`${this.className} Login with wallet = ${wallet}`);
+      if (wallet) {
+        // user login
         this.onYourMarketsClick();
       } else {
         this.onAllMarketsClick();
@@ -140,8 +137,6 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     // for each user asset subscribe to its reserve data change
     Object.values(AssetTag).forEach(assetTag => {
       this.stateChangeService.userReserveChangeMap.get(assetTag)!.subscribe((reserve: UserReserveData) => {
-        // when ever there is a change in user reserve data
-
         // reload the asset lists
         this.loadAssetLists();
       });
@@ -152,8 +147,6 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     // for each user asset subscribe to its balance change
     Object.values(AssetTag).forEach(assetTag => {
       this.stateChangeService.userBalanceChangeMap.get(assetTag)!.subscribe((newBalance: number) => {
-        // when ever there is a change in user asset balance
-
         // reload the asset lists
         this.loadAssetLists();
       });
@@ -173,19 +166,16 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     this.bridgeWidgetService.openBridgeWidget();
   }
 
-
   // On "Market overview" click
   onToggleMarketOverviewClick(): void {
-    $("#toggle-your-overview").removeClass('active');
-    $("#toggle-market-overview").addClass('active');
+    this.activeMarketOverview = ActiveMarketOverview.MARKET_OVERVIEW;
     $("#your-overview-content").hide();
     $("#market-overview-content").show();
   }
 
   // On "Your overview" click
   onToggleYourOverviewClick(): void {
-    $("#toggle-your-overview").addClass('active');
-    $("#toggle-market-overview").removeClass('active');
+    this.activeMarketOverview = ActiveMarketOverview.YOUR_OVERVIEW;
     $("#your-overview-content").show();
     $("#market-overview-content").hide();
   }
@@ -200,15 +190,6 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
 
     // if all borrowed assets are 0
     this.hideRiskIfNothingBorrowed();
-
-    /** Toggles */
-
-    // Show "All markets" view
-    $("#toggle-all-markets").addClass('active');
-    // Hide "Your markets" view
-    $("#toggle-your-markets").removeClass('active');
-    $("#your-markets-header").css("display", "none");
-    $("#all-markets-header").css("display", "table-row");
 
     // collapse assets tables
     this.collapseTableUserAssets();
@@ -231,20 +212,6 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
 
     // if all borrowed assets are 0
     this.hideRiskIfNothingBorrowed();
-
-    /** Toggles */
-
-    // Show "Your markets" view
-    $("#toggle-your-markets").addClass('active');
-    // Hide "All markets" view
-    $("#toggle-all-markets").removeClass('active');
-    $("#all-markets-header").css("display", "none");
-    $("#your-markets-header").css("display", "table-row");
-
-    // hide your markets header if no asset-user is supplied
-    if (this.persistenceService.userHasNotSuppliedAnyAsset()) {
-      $("#your-markets-header").css("display", "none");
-    }
 
     // collapse assets tables
     this.collapseTableUserAssets();
@@ -355,6 +322,10 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
 
   allMarketViewActive(): boolean {
     return this.activeMarketView === ActiveMarketView.ALL_MARKET;
+  }
+
+  isMarketOverviewActive(): boolean {
+    return this.activeMarketOverview === ActiveMarketOverview.MARKET_OVERVIEW;
   }
 
 }

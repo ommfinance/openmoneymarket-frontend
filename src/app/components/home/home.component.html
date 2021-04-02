@@ -6,8 +6,8 @@
       <div class="grid-cell">
         <h2>Overview</h2>
         <ul class="toggle" [ngStyle]="hideElement(!userLoggedIn())">
-          <li id="toggle-your-overview" class="active" (click)="onToggleYourOverviewClick()">Your overview</li>
-          <li id="toggle-market-overview" (click)="onToggleMarketOverviewClick()">Market overview</li>
+          <li id="toggle-your-overview" class="{{!isMarketOverviewActive() ? 'active': ''}}" (click)="onToggleYourOverviewClick()">Your overview</li>
+          <li id="toggle-market-overview" class="{{isMarketOverviewActive() ? 'active': ''}}" (click)="onToggleMarketOverviewClick()">Market overview</li>
         </ul>
       </div>
     </div>
@@ -127,8 +127,8 @@
       <div class="grid-cell">
         <h2>Markets</h2>
         <ul class="toggle" [ngStyle]="hideElement(!userLoggedIn())">
-          <li id="toggle-your-markets" class="active" (click)="onYourMarketsClick()">Your markets</li>
-          <li id="toggle-all-markets" (click)="onAllMarketsClick()">All markets</li>
+          <li id="toggle-your-markets" class="{{userMarketViewActive() ? 'active': ''}}" (click)="onYourMarketsClick()">Your markets</li>
+          <li id="toggle-all-markets"  class="{{allMarketViewActive() ? 'active': ''}}" (click)="onAllMarketsClick()">All markets</li>
         </ul>
       </div>
     </div>
