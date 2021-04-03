@@ -42,6 +42,7 @@ export class ModalComponent extends BaseClass implements OnInit {
   @ViewChild('iconWithdrawModal', { static: true }) iconWithdrawModal!: ElementRef;
   @ViewChild('claimOmmRewardsModal', { static: true }) claimOmmRewardsModal!: ElementRef;
   @ViewChild('ledgerAddressList', { static: true }) LedgerAddressListModal!: ElementRef;
+  @ViewChild('modalLoading', { static: true }) modalLoading!: ElementRef;
 
 
   activeModalSubscription: Subscription;
@@ -131,8 +132,6 @@ export class ModalComponent extends BaseClass implements OnInit {
   }
 
   onSignInLedgerClick(): void {
-    this.modalService.hideActiveModal();
-
     // set default pagination values
     this.activeLedgerAddressWindow = 0;
     this.selectedLedgerAddressPage = 0;
@@ -194,12 +193,16 @@ export class ModalComponent extends BaseClass implements OnInit {
 
   fetchLedgerWallets(): void {
     this.modalService.hideActiveModal();
+    this.showLoadingModal();
 
     this.ledgerService.getLedgerWallets(this.selectedLedgerAddressPage).then(wallets => {
       this.ledgerWallets = wallets;
+
+      this.modalService.hideActiveModal();
       this.setActiveModal(this.LedgerAddressListModal.nativeElement, undefined);
       this.modalService.showModal(this.activeModal);
     }).catch(e => {
+      this.modalService.hideActiveModal();
       log.error(e);
       this.notificationService.showNewNotification("Can not get Icon addresses from Ledger device." +
         " Make sure it is connected and try again.");
@@ -326,7 +329,8 @@ export class ModalComponent extends BaseClass implements OnInit {
         this.repayService.repayAsset(this.activeModalChange!.assetAction!.amount, assetTag, `Repaying ${assetTag}...`);
         break;
       case ModalType.WITHDRAW:
-        this.withdrawService.withdrawAsset(this.activeModalChange!.assetAction!.amount, assetTag, this.waitForUnstakingIcx(),
+        const amount = this.activeModalChange!.assetAction!.after === 0 ? -1 : this.activeModalChange!.assetAction!.amount;
+        this.withdrawService.withdrawAsset(amount, assetTag, this.waitForUnstakingIcx(),
           `Withdrawing ${assetTag}...`);
         break;
       default:
@@ -345,6 +349,10 @@ export class ModalComponent extends BaseClass implements OnInit {
     log.debug(`waitForUnstaking = ${waitForUnstaking}`);
 
     return waitForUnstaking;
+  }
+
+  showLoadingModal(): void {
+    this.modalService.showModal(this.modalLoading.nativeElement);
   }
 
 }

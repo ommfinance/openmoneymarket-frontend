@@ -27,7 +27,9 @@ export class WithdrawService {
 
   public withdrawAsset(amount: number, assetTag: AssetTag, waitForUnstaking = false, notificationMessage: string): void {
     let tx;
-    amount = Utils.roundDownTo2Decimals(amount);
+    if (amount !== -1) {
+      amount = Utils.roundDownTo2Decimals(amount);
+    }
 
     switch (assetTag) {
       case AssetTag.ICX:
@@ -47,7 +49,7 @@ export class WithdrawService {
     const decimals = this.persistenceService.allReserves!.getReserveData(assetTag).decimals;
 
     const params = {
-      _amount: IconConverter.toHex(IconAmount.of(amount, decimals).toLoop()),
+      _amount: amount !== -1 ? IconConverter.toHex(IconAmount.of(amount, decimals).toLoop()) : "-0x1",
     };
 
     return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
@@ -63,7 +65,7 @@ export class WithdrawService {
     log.debug("Withdraw amount after conversion to sICX = " + amount);
 
     const params = {
-      _amount: IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()),
+      _amount: amount !== -1 ? IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()) : "-0x1",
       _waitForUnstaking: waitForUnstaking ? "0x1" : "0x0"
     };
 
