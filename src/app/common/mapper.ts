@@ -46,6 +46,8 @@ export class Mapper {
       Utils.hexToNormalisedNumber(ommRewards.ommUSDb),
       Utils.hexToNormalisedNumber(ommRewards.worker),
       Utils.hexToNormalisedNumber(ommRewards.daoFund),
+      Utils.hexToNormalisedNumber(ommRewards.ommRewards),
+      Utils.hexToNormalisedNumber(ommRewards.liquidityRewards),
       Utils.hexToNormalisedNumber(ommRewards.total)
     );
     log.debug("mapUserOmmRewards after: ", res);

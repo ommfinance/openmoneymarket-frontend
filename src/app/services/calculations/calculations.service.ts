@@ -56,10 +56,10 @@ export class CalculationsService {
   }
 
   // calculate the total risk percentage based on the user health factor or user action
-  public calculateTotalRisk(riskCalculationData?: RiskCalculationData, updateState = true): number {
+  public calculateTotalRisk(assetTag?: AssetTag, diff?: number, userAction?: UserAction, updateState = true): number {
     let res: number;
-    if (riskCalculationData) {
-      res = this.calculateTotalRiskDynamic(riskCalculationData);
+    if (assetTag && diff && userAction) {
+      res = this.calculateTotalRiskDynamic(assetTag, diff, userAction);
     } else {
       res = this.calculateTotalRiskBasedOnHF();
     }
@@ -93,10 +93,12 @@ export class CalculationsService {
 
   /**
    * @description Calculate the total risk based on the user action (supply, redeem, ..)
-   * @param riskCalculationData - Optional data containing the values needed to dynamically calculate total risk
+   * @param assetTag - Asset based on which we are calculating the risk
+   * @param amount - Amount being considered in dynamic risk calculation
+   * @param userAction - Action that user is making
    * @return total user risk as a number (multiply by 100 to get percentage)
    */
-  private calculateTotalRiskDynamic(riskCalculationData?: RiskCalculationData): number {
+  private calculateTotalRiskDynamic(assetTag: AssetTag, amount: number, userAction: UserAction): number {
     // log.debug("*******************  calculateTotalRiskDynamic  ***************************");
     // log.debug(riskCalculationData);
 
@@ -113,41 +115,38 @@ export class CalculationsService {
     let totalCollateralBalanceUSD = userAccountData.totalCollateralBalanceUSD;
     const liquidationThreshold = this.persistenceService.getAverageLiquidationThreshold();
 
-    // if the user action trigger re-calculation of the risk, dynamically adjust the base values based on action
-    if (riskCalculationData && riskCalculationData.amount > 0.01) {
-      // log.debug("Dynamic risk calculation....");
-      const amount = riskCalculationData.amount;
-      const assetTag = riskCalculationData.assetTag;
-      const assetReserve = this.persistenceService.getAssetReserveData(assetTag);
-      const assetExchangePrice = assetReserve?.exchangePrice ?? 0;
 
-      switch (riskCalculationData.action) {
-        case UserAction.SUPPLY:
-          // log.debug(`amount being supplied=${amount} ${riskCalculationData.assetTag}`);
+    // log.debug("Dynamic risk calculation....");
+    const assetReserve = this.persistenceService.getAssetReserveData(assetTag);
+    const assetExchangePrice = assetReserve?.exchangePrice ?? 0;
 
-          // if user add more collateral, add USD value of amount to the total collateral balance USD
-          totalCollateralBalanceUSD += amount * assetExchangePrice;
-          break;
-        case UserAction.REDEEM:
-          // log.debug(`amount being redeemed=${amount} ${riskCalculationData.assetTag}`);
-          // if user takes out collateral, subtract USD value of amount from the total collateral balance USD
-          totalCollateralBalanceUSD -= amount * assetExchangePrice;
-          break;
-        case UserAction.BORROW:
-          // if user takes out the loan (borrow) update the origination fee and add amount to the total borrow balance
-          const originationFee = this.persistenceService.getUserAssetReserve(riskCalculationData.assetTag)?.originationFee ?? 0;
-          const originationFeePercentage = this.persistenceService.loanOriginationFeePercentage ?? 0.001;
-          // log.debug(`originationFee=${originationFee}`);
-          // log.debug(`amount being borrowed=${amount} ${riskCalculationData.assetTag}`);
-          totalFeeUSD += amount * assetExchangePrice * originationFeePercentage + originationFee;
-          totalBorrowBalanceUSD += amount * assetExchangePrice;
-          break;
-        case UserAction.REPAY:
-          // log.debug(`amount being repaid=${amount} ${riskCalculationData.assetTag}`);
-          // if user repays the loan, subtract the USD value of amount from the total borrow balance USD
-          totalBorrowBalanceUSD -= amount * assetExchangePrice;
-      }
+    switch (userAction) {
+      case UserAction.SUPPLY:
+        // log.debug(`amount being supplied=${amount} ${riskCalculationData.assetTag}`);
+
+        // if user add more collateral, add USD value of amount to the total collateral balance USD
+        totalCollateralBalanceUSD += amount * assetExchangePrice;
+        break;
+      case UserAction.REDEEM:
+        // log.debug(`amount being redeemed=${amount} ${riskCalculationData.assetTag}`);
+        // if user takes out collateral, subtract USD value of amount from the total collateral balance USD
+        totalCollateralBalanceUSD -= amount * assetExchangePrice;
+        break;
+      case UserAction.BORROW:
+        // if user takes out the loan (borrow) update the origination fee and add amount to the total borrow balance
+        const originationFee = this.persistenceService.getUserAssetReserve(assetTag)?.originationFee ?? 0;
+        const originationFeePercentage = this.persistenceService.loanOriginationFeePercentage ?? 0.001;
+        // log.debug(`originationFee=${originationFee}`);
+        // log.debug(`amount being borrowed=${amount} ${riskCalculationData.assetTag}`);
+        totalFeeUSD += amount * assetExchangePrice * originationFeePercentage + originationFee;
+        totalBorrowBalanceUSD += amount * assetExchangePrice;
+        break;
+      case UserAction.REPAY:
+        // log.debug(`amount being repaid=${amount} ${riskCalculationData.assetTag}`);
+        // if user repays the loan, subtract the USD value of amount from the total borrow balance USD
+        totalBorrowBalanceUSD -= amount * assetExchangePrice;
     }
+
 
     // log.debug("Total risk percentage calculation:");
     // log.debug(`totalBorrowBalanceUSD=${totalBorrowBalanceUSD}`);

@@ -32,7 +32,7 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
   // users asset components
   @Input() userAssetComponents!: QueryList<AssetComponent>;
 
-  private sliderRisk?: any;
+  sliderRisk?: any;
   totalRisk = 0;
 
   constructor(private stateChangeService: StateChangeService,
@@ -43,10 +43,11 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.initSubscribedValues();
-    this.initRiskSlider();
   }
 
   ngAfterViewInit(): void {
+    this.initRiskSlider();
+
     if (this.persistenceService.userLoggedIn()) {
       // re-calculate total risk percentage
       this.calculationService.calculateTotalRisk();
@@ -91,6 +92,5 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
   updateViewRiskData(): void {
     // Update the risk slider
     this.sliderRisk.noUiSlider.set(this.totalRisk * 100);
-
   }
 }

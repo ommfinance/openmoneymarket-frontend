@@ -18,7 +18,6 @@ import {ModalType} from "../../models/ModalType";
 import {BaseClass} from "../base-class";
 import {AssetAction} from "../../models/AssetAction";
 import {NotificationService} from "../../services/notification/notification.service";
-import {RiskCalculationData} from "../../models/RiskCalculationData";
 import {UserAction} from "../../models/UserAction";
 import {Utils} from "../../common/utils";
 import {ActiveMarketView} from "../../models/ActiveMarketView";
@@ -32,6 +31,7 @@ declare var $: any;
 export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   @Input() asset!: Asset;
+  @Input() riskSlider!: any;
   @Input() index!: number;
   @Input() activeMarketView!: ActiveMarketView;
 
@@ -76,7 +76,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   @Output() collOtherAssetTables = new EventEmitter<AssetTag>();
 
   totalRisk = 0;
-  sliderRisk: any;
 
   constructor(private slidersService: SlidersService,
               private calculationService: CalculationsService,
@@ -96,10 +95,11 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.initBorrowSliderLogic();
     this.initSubscribedValues();
     this.subscribeToTotalRiskChange();
-
-    this.sliderRisk = document.getElementById('slider-risk');
   }
 
+  /**
+   * On sign in to supply click
+   */
   onSignInClick(): void {
     this.collapseAssetTableSlideUp();
     this.modalService.showNewModal(ModalType.SIGN_IN);
@@ -202,7 +202,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       $(this.marketExpandedEl).slideToggle();
     }
 
-
     /** Set everything to default */
 
     // Show default actions
@@ -229,20 +228,20 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * Logic to trigger on supply amount change
    */
   supplyAssetAmountChange(): void {
-    const value = this.getInputSupplyValue();
-
-    if (this.persistenceService.activeWallet) {
+    if (this.userLoggedIn()) {
       // check that supplied value is not greater than max
-      if (value > this.supplySliderMaxValue()) {
+      if (this.getInputSupplyValue() > this.supplySliderMaxValue()) {
         this.inputSupply.classList.add("red-border");
       } else {
-        // set slider to this value and reset border color if it passes the check
-        // this.setSupplySliderValue(value);
+        // reset border color if it passes the check
         this.inputSupply.classList.remove("red-border");
       }
     }
   }
 
+  /**
+   * Set supply slider to input value after 1 sec of user keyup
+   */
   onInputSupplyLostFocus(): void {
     this.delay(() => {
       const value = this.getInputSupplyValue();
@@ -254,21 +253,20 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * Logic to trigger on borrow amount change
    */
   public borrowAssetAmountChange(): void {
-    const value = this.getInputBorrowValue();
-
-    if (this.persistenceService.activeWallet) {
+    if (this.userLoggedIn()) {
       // check that borrowed value is not greater than max
-      if (value > this.borrowSliderMaxValue()) {
-        log.debug(`Borrowed value=${value}  > max= ${this.borrowSliderMaxValue()}`);
+      if (this.getInputBorrowValue() > this.borrowSliderMaxValue()) {
         this.inputBorrow.classList.add("red-border");
       } else {
-        // set slider to this value and reset border color if it passes the check
-        this.setBorrowSliderValue(value);
+        // reset border color if it passes the check
         this.inputBorrow.classList.remove("red-border");
       }
     }
   }
 
+  /**
+   * Set borrow slider to input value after 1 sec of user keyup
+   */
   onInputBorrowLostFocus(): void {
     this.delay(() => {
       const value = this.getInputBorrowValue();
@@ -282,16 +280,11 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    */
   onAssetSupplyConfirmClick(): void {
     let value = this.roundDownTo2Decimals(this.getInputSupplyValue());
-
-    log.debug("onAssetSupplyConfirmClick:");
     log.debug(`Value: ${value}`);
 
     // check that supplied value is not greater than max
     const max = this.supplySliderMaxValue();
     if (value > max) {
-      log.error("Supply value = ", value);
-      log.error("Max value = ", max);
-
       value = max;
       this.setSupplySliderValue(value);
       return;
@@ -326,7 +319,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   onAssetBorrowConfirmClick(): void {
     let value = this.roundDownTo2Decimals(this.getInputBorrowValue());
 
-    log.debug("onAssetBorrowConfirmClick:");
     log.debug(`Currently borrowed (before): ${this.getUserBorrowedAssetBalance()}`);
     log.debug(`Value: ${value}`);
 
@@ -372,13 +364,13 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * Supply / Borrow sliders
    */
   initSliders(): void {
-    // set supply slider values
+    // create and set supply slider
     const supplied = this.getUserSuppliedAssetBalance();
     const suppliedMax = this.calculationService.calculateAssetSupplySliderMax(this.asset.tag);
     this.slidersService.createNoUiSlider(this.sliderSupply, supplied,
       undefined, undefined, undefined, {min: [0], max: [suppliedMax]});
 
-    // set borrow slider values
+    // create and set borrow slider
     const borrowed = this.getUserBorrowedAssetBalance();
     const borrowAvailable = this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag);
 
@@ -499,23 +491,23 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         this.supplySliderMaxValue(), value));
 
       // Update asset-user's supply interest
-      $(this.suppInterestEl).text(assetPrefixPlusFormat(this.asset.tag).to(this.getDailySupplyInterest(value)));
+      this.setText(this.suppInterestEl, assetPrefixPlusFormat(this.asset.tag).to(this.getDailySupplyInterest(value)));
 
       const supplyDiff = Utils.subtractDecimalsWithPrecision(value, this.getUserSuppliedAssetBalance());
 
       // Update asset-user's supply omm rewards
-      $(this.suppRewardsEl).text(ommPrefixPlusFormat.to(this.calculationService.calculateUsersOmmRewardsForDeposit(
+      this.setText(this.suppRewardsEl, ommPrefixPlusFormat.to(this.calculationService.calculateUsersOmmRewardsForDeposit(
         this.asset.tag, value)));
 
       // update risk data
-      let riskCalculationData;
+      let totalRisk;
       if (supplyDiff > 0) {
-        riskCalculationData = new RiskCalculationData(this.asset.tag, supplyDiff , UserAction.SUPPLY);
+        totalRisk = this.updateRiskData(this.asset.tag, supplyDiff , UserAction.SUPPLY, false);
       } else if (supplyDiff < 0) {
-        riskCalculationData = new RiskCalculationData(this.asset.tag, Math.abs(supplyDiff) , UserAction.REDEEM);
+        totalRisk = this.updateRiskData(this.asset.tag, Math.abs(supplyDiff) , UserAction.REDEEM, false);
+      } else {
+        totalRisk = this.updateRiskData();
       }
-
-      const totalRisk = this.updateRiskData(riskCalculationData, false);
 
       this.setTmpRiskAndColor(totalRisk);
 
@@ -555,10 +547,10 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         this.borrowSliderMaxValue(), value));
 
       // Update asset-user's borrow interest
-      $(this.borrInterestEl).text(assetPrefixMinusFormat(this.asset.tag).to(this.getDailyBorrowInterest(value)));
+      this.setText(this.borrInterestEl, assetPrefixMinusFormat(this.asset.tag).to(this.getDailyBorrowInterest(value)));
 
       // Update asset-user's borrow omm rewards
-      $(this.borrRewardsEl).text(ommPrefixPlusFormat.to(this.calculationService.calculateUsersOmmRewardsForBorrow(
+      this.setText(this.borrRewardsEl, ommPrefixPlusFormat.to(this.calculationService.calculateUsersOmmRewardsForBorrow(
         this.asset.tag, value)));
 
       if (this.inputBorrow.value > 0) {
@@ -573,15 +565,14 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       const borrowDiff = Utils.subtractDecimalsWithPrecision(this.getUserBorrowedAssetBalance(), value);
 
       // update risk data
-      let riskCalculationData;
-
+      let totalRisk;
       if (borrowDiff > 0) {
-        riskCalculationData = new RiskCalculationData(this.asset.tag, borrowDiff , UserAction.REPAY);
+        totalRisk = this.updateRiskData(this.asset.tag, borrowDiff , UserAction.REPAY, false);
       } else if (borrowDiff < 0) {
-        riskCalculationData = new RiskCalculationData(this.asset.tag, Math.abs(borrowDiff) , UserAction.BORROW);
+        totalRisk = this.updateRiskData(this.asset.tag, Math.abs(borrowDiff) , UserAction.BORROW, false);
+      } else {
+        totalRisk = this.updateRiskData();
       }
-
-      const totalRisk = this.updateRiskData(riskCalculationData, false);
 
       this.setTmpRiskAndColor(totalRisk);
 
@@ -864,14 +855,12 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.removeClass(this.inputBorrow, "red-border");
   }
 
-  updateRiskData(riskCalculationData?: RiskCalculationData, updateState = true): number {
-    const totalRisk = this.calculationService.calculateTotalRisk(riskCalculationData, updateState);
+  updateRiskData(assetTag?: AssetTag, diff?: number, userAction?: UserAction, updateState = true): number {
+    const totalRisk = this.calculationService.calculateTotalRisk(assetTag, diff, userAction, updateState);
     // Update the risk slider
-    if (this.sliderRisk) {
-      this.sliderRisk.noUiSlider.set(totalRisk * 100);
-    }
+    this.riskSlider?.noUiSlider.set(totalRisk * 100);
 
-    return this.calculationService.calculateTotalRisk(riskCalculationData, updateState);
+    return totalRisk;
   }
 
   isAssetAvailable(): boolean {

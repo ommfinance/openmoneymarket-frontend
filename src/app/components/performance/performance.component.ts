@@ -7,7 +7,7 @@ import {Asset, AssetClass, AssetName, AssetTag} from "../../models/Asset";
 import {BaseClass} from "../base-class";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {PersistenceService} from "../../services/persistence/persistence.service";
-import {AssetAction} from "../../models/AssetAction";
+import {AssetAction, ClaimOmmDetails} from "../../models/AssetAction";
 import {PerformanceDropDownOption} from "../../models/PerformanceDropDownOption";
 import {Utils} from "../../common/utils";
 
@@ -76,11 +76,11 @@ export class PerformanceComponent extends BaseClass implements OnInit, AfterView
   }
 
   onClaimOmmRewardsClick(): void {
-    const before = this.persistenceService.userOmmTokenBalanceDetails?.totalBalance ?? 0;
-    const rewards = this.persistenceService.userOmmRewards?.total ?? 0;
-    const after = this.roundOffTo2Decimals(before + rewards);
+    const before = this.roundDownTo2Decimals(this.persistenceService.userOmmTokenBalanceDetails?.totalBalance ?? 0);
+    const rewards = this.roundDownTo2Decimals(this.persistenceService.userOmmRewards?.total ?? 0);
+    const after = Utils.addDecimalsPrecision(before, rewards);
     this.modalService.showNewModal(ModalType.CLAIM_OMM_REWARDS, new AssetAction(new Asset(AssetClass.USDb, AssetName.USDb, AssetTag.USDb),
-      before, after, rewards));
+      before, after, rewards, undefined, new ClaimOmmDetails(this.persistenceService.userOmmRewards)));
   }
 
   shouldHideClaimBtn(): boolean {

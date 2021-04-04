@@ -39,7 +39,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
 
   // Child components
   @ViewChild(HeaderComponent) private headerComponent!: HeaderComponent;
-  @ViewChild(RiskComponent) private riskComponent!: RiskComponent;
+  @ViewChild(RiskComponent) riskComponent!: RiskComponent;
 
   // Asset children components
   @ViewChildren('assetEl') assetComponents!: QueryList<AssetComponent>;

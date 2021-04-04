@@ -156,4 +156,12 @@ export class BaseClass {
     htmlElement.classList.remove(className);
   }
 
+  setText(htmlElement: any, text: string): void {
+    htmlElement.textContent = text;
+  }
+
+  getText(htmlElement: any): string {
+    return htmlElement.textContent ?? "";
+  }
+
 }

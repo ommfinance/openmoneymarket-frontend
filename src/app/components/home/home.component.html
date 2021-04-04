@@ -161,6 +161,7 @@
             <ng-container *ngFor="let asset of userAssets; last as isLast; let i = index">
               <!-- Asset (USDb, ICX, ..) -->
               <app-asset [asset]="asset" #assetEl
+                         [riskSlider]="riskComponent.sliderRisk"
                          [index]="i"
                          [activeMarketView]="activeMarketView"
                          [ngStyle]="{display: 'contents'}"
