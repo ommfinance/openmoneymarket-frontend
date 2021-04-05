@@ -58,7 +58,7 @@ export class CalculationsService {
   // calculate the total risk percentage based on the user health factor or user action
   public calculateTotalRisk(assetTag?: AssetTag, diff?: number, userAction?: UserAction, updateState = true): number {
     let res: number;
-    if (assetTag && diff && userAction) {
+    if (assetTag && diff && userAction != null) {
       res = this.calculateTotalRiskDynamic(assetTag, diff, userAction);
     } else {
       res = this.calculateTotalRiskBasedOnHF();
