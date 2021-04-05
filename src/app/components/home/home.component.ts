@@ -129,6 +129,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
         this.onToggleYourOverviewClick();
       } else {
         // user logout
+        this.onToggleMarketOverviewClick();
         this.onAllMarketsClick();
       }
     });
