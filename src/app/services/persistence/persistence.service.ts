@@ -336,8 +336,8 @@ export class PersistenceService {
   }
 
   public isAssetAvailableToSupply(assetTag: AssetTag): boolean {
-    // if user has not supplied the asset and has balance of it > 0
-    return this.userAssetSuppliedIsZero(assetTag)  && !this.userAssetBalanceIsZero(assetTag);
+    // if user has not supplied or borrowed the asset and has balance of it > 0
+    return this.userAssetSuppliedIsZero(assetTag) && this.userAssetBorrowedIsZero(assetTag)  && !this.userAssetBalanceIsZero(assetTag);
   }
 
   // asset is active if is either supplied or borrowed (available to borrow should be also considered using calc service)
