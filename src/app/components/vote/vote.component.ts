@@ -331,8 +331,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   ommVotingPower(): number {
-    const totalIcxStaked = this.persistenceService.getAssetReserveData(AssetTag.ICX)?.totalLiquidity ?? 0;
-    return totalIcxStaked * this.votingPower;
+    return this.persistenceService.getAssetReserveData(AssetTag.ICX)?.totalLiquidity ?? 0;
   }
 
   isMaxStaked(): boolean {
