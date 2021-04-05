@@ -9,6 +9,7 @@ import {OmmTokenBalanceDetails} from "../models/OmmTokenBalanceDetails";
 import {Prep, PrepList} from "../models/Preps";
 import {DelegationPreference} from "../models/DelegationPreference";
 import {YourPrepVote} from "../models/YourPrepVote";
+import {UnstakeIcxData, UnstakeInfo} from "../models/UnstakeInfo";
 
 export class Mapper {
 
@@ -178,5 +179,11 @@ export class Mapper {
     });
 
     return res;
+  }
+
+  static mapUserIcxUnstakeData(unstakeIcxData: UnstakeIcxData[]): UnstakeInfo {
+    let totalAmount = 0;
+    unstakeIcxData.forEach(u => totalAmount += Utils.hexToNormalisedNumber(u.amount));
+    return new UnstakeInfo(totalAmount, unstakeIcxData);
   }
 }

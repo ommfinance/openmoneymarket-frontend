@@ -22,6 +22,7 @@ import {CheckerService} from "../checker/checker.service";
 import {LocalStorageService} from "../local-storage/local-storage.service";
 import {WalletType} from "../../models/wallets/Wallet";
 import {HttpClient} from "@angular/common/http";
+import {UnstakeIcxData} from "../../models/UnstakeInfo";
 
 @Injectable({
   providedIn: 'root'
@@ -207,6 +208,13 @@ export class DataLoaderService {
     });
   }
 
+  public loadUserUnstakingInfo(): Promise<void> {
+    return this.scoreService.getTheUserUnstakeInfo().then((unstakeIcxData: UnstakeIcxData[]) => {
+      this.persistenceService.userUnstakingInfo = Mapper.mapUserIcxUnstakeData(unstakeIcxData);
+      log.debug(this.persistenceService.userUnstakingInfo);
+    });
+  }
+
   public loadLoanOriginationFeePercentage(): Promise<void> {
     return this.scoreService.getLoanOriginationFeePercentage().then(res => {
       this.persistenceService.loanOriginationFeePercentage = res;
@@ -313,7 +321,8 @@ export class DataLoaderService {
       this.loadAllUserAssetsBalances(),
       this.loadUserAccountData(),
       this.loadUserGovernanceData(),
-      this.loadUserDelegations()
+      this.loadUserDelegations(),
+      this.loadUserUnstakingInfo()
     ]);
   }
 

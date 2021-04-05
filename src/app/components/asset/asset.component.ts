@@ -909,4 +909,8 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     return +assetFormat(this.asset.tag).from(value);
   }
 
+  shouldShowUnstaking(): boolean {
+    const amount = this.persistenceService.userUnstakingInfo?.totalAmount ?? 0;
+    return this.asset.tag === AssetTag.ICX && amount > 0;
+  }
 }

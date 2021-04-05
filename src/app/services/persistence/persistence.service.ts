@@ -13,6 +13,7 @@ import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
 import {PrepList} from "../../models/Preps";
 import {YourPrepVote} from "../../models/YourPrepVote";
 import {Utils} from "../../common/utils";
+import {UnstakeInfo} from "../../models/UnstakeInfo";
 
 @Injectable({
   providedIn: 'root'
@@ -34,6 +35,7 @@ export class PersistenceService {
   public userAccountData?: UserAccountData;
   public userOmmRewards?: OmmRewards;
   public userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
+  public userUnstakingInfo?: UnstakeInfo;
   public minOmmStakeAmount = 1;
   public totalStakedOmm = 0;
 

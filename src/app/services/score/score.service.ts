@@ -19,6 +19,7 @@ import {Mapper} from "../../common/mapper";
 import {IconAmount, IconConverter} from "icon-sdk-js";
 import {YourPrepVote} from "../../models/YourPrepVote";
 import {DelegationPreference} from "../../models/DelegationPreference";
+import {UnstakeIcxData} from "../../models/UnstakeInfo";
 
 
 @Injectable({
@@ -61,6 +62,23 @@ export class ScoreService {
     log.debug("getTokenDistributionPerDay: ", res);
 
     return Utils.hexToNormalisedNumber(res);
+  }
+
+  /**
+   * @description Get the un-stake information for a specific user.
+   * @return  list of un-staking amounts and block heights
+   */
+  public async getTheUserUnstakeInfo(): Promise<UnstakeIcxData[]> {
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
+    const params = {
+      _address: this.persistenceService.activeWallet!.address,
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
+      ScoreMethodNames.GET_USER_UNSTAKE_INFO, params, IconTransactionType.READ);
+
+    return await this.iconApiService.iconService.call(tx).execute();
   }
 
   /**
