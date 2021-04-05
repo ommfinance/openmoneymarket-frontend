@@ -12,7 +12,7 @@ import {CalculationsService} from "../../services/calculations/calculations.serv
 import {YourPrepVote} from "../../models/YourPrepVote";
 import {NotificationService} from "../../services/notification/notification.service";
 import {StakingAction} from "../../models/StakingAction";
-import {ModalAction} from "../../models/ModalAction";
+import {ModalAction, ModalStatus} from "../../models/ModalAction";
 import {SlidersService} from "../../services/sliders/sliders.service";
 import {Utils} from "../../common/utils";
 import {DataLoaderService} from "../../services/data-loader/data-loader.service";
@@ -93,8 +93,10 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       if (res.modalAction.modalType === ModalType.UPDATE_PREP_SELECTION
         || res.modalAction.modalType === ModalType.REMOVE_ALL_VOTES) {
         // if it failed
-        if (!res.success) {
-          this.yourVotesPrepList = this.persistenceService.yourVotesPrepList;
+        if (res.status === ModalStatus.FAILED) {
+          this.yourVotesPrepList = [...this.persistenceService.yourVotesPrepList];
+        } else if (res.status === ModalStatus.CANCELLED) {
+          this.yourVotesEditMode = true;
         }
       }
     });
@@ -262,12 +264,26 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       this.modalService.showNewModal(ModalType.UPDATE_PREP_SELECTION, undefined, undefined, voteAction);
     } else {
       this.yourVotesEditMode = false;
-      this.modalService.showNewModal(ModalType.REMOVE_ALL_VOTES);
+      this.modalService.showNewModal(ModalType.REMOVE_ALL_VOTES, undefined, undefined, new VoteAction([]));
     }
   }
 
-  removeYourVotePrep(index: number): void {
+  removeYourVotePrepByIndex(index: number): void {
     // remove prep from list
+    this.yourVotesPrepList.splice(index, 1);
+    this.fillYourVotePercentages(this.yourVotesPrepList);
+  }
+
+  removeYourVotePrepByAddress(prep: Prep): void {
+    // remove prep from list
+    let index = 0;
+    for (let i = 0; i < this.yourVotesPrepList.length; i++) {
+      if (this.yourVotesPrepList[i].address === prep.address) {
+        index = i;
+        break;
+      }
+    }
+
     this.yourVotesPrepList.splice(index, 1);
     this.fillYourVotePercentages(this.yourVotesPrepList);
   }
@@ -432,5 +448,14 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     // sliders max is sum of staked + available balance
     return Utils.addDecimalsPrecision(this.persistenceService.getUsersStakedOmmBalance(),
         this.persistenceService.getUsersAvailableOmmBalance());
+  }
+
+  prepIsInYourVotes(prep: Prep): boolean {
+    for (const p of this.yourVotesPrepList) {
+      if (p.address === prep.address) {
+        return true;
+      }
+    }
+    return false;
   }
 }

@@ -7,7 +7,7 @@ import {DataLoaderService} from "../data-loader/data-loader.service";
 import log from "loglevel";
 import {NotificationService} from "../notification/notification.service";
 import {LocalStorageService} from "../local-storage/local-storage.service";
-import {ModalAction, ModalActionsResult} from "../../models/ModalAction";
+import {ModalAction, ModalActionsResult, ModalStatus} from "../../models/ModalAction";
 import {ModalType} from "../../models/ModalType";
 import {StateChangeService} from "../state-change/state-change.service";
 
@@ -116,7 +116,7 @@ export class TransactionResultService {
   }
 
   public showSuccessActionNotification(modalAction: ModalAction): void {
-    this.stateChangeService.userModalActionResult.next(new ModalActionsResult(modalAction, false));
+    this.stateChangeService.userModalActionResult.next(new ModalActionsResult(modalAction, ModalStatus.SUCCESS));
 
     if (modalAction.assetAction) {
       const assetAction = modalAction.assetAction;
@@ -159,7 +159,7 @@ export class TransactionResultService {
   }
 
   public showFailedActionNotification(modalAction: ModalAction): void {
-    this.stateChangeService.userModalActionResult.next(new ModalActionsResult(modalAction, false));
+    this.stateChangeService.userModalActionResult.next(new ModalActionsResult(modalAction, ModalStatus.FAILED));
 
     if (modalAction.assetAction) {
       const assetAction = modalAction.assetAction;

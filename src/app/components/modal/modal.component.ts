@@ -4,7 +4,7 @@ import {Subscription} from "rxjs";
 import {ModalType} from "../../models/ModalType";
 import {IconexApiService} from "../../services/iconex-api/iconex-api.service";
 import {BridgeWidgetService} from "../../services/bridge-widget/bridge-widget.service";
-import {ModalAction, ModalActionsResult} from "../../models/ModalAction";
+import {ModalAction, ModalActionsResult, ModalStatus} from "../../models/ModalAction";
 import {BaseClass} from "../base-class";
 import {BORROW, REPAY, SUPPLY, WITHDRAW} from "../../common/constants";
 import {SupplyService} from "../../services/supply/supply.service";
@@ -220,7 +220,7 @@ export class ModalComponent extends BaseClass implements OnInit {
   }
 
   onCancelClick(): void {
-    this.stateChangeService.userModalActionResult.next(new ModalActionsResult(this.activeModalChange!, false));
+    this.stateChangeService.userModalActionResult.next(new ModalActionsResult(this.activeModalChange!, ModalStatus.CANCELLED));
     this.modalService.hideActiveModal();
   }
 

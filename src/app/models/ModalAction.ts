@@ -19,10 +19,16 @@ export class ModalAction {
 
 export class ModalActionsResult {
   modalAction: ModalAction;
-  success: boolean;
+  status: ModalStatus;
 
-  constructor(modalAction: ModalAction, success: boolean) {
+  constructor(modalAction: ModalAction, status: ModalStatus) {
     this.modalAction = modalAction;
-    this.success = success;
+    this.status = status;
   }
+}
+
+export enum ModalStatus {
+  SUCCESS,
+  FAILED,
+  CANCELLED
 }

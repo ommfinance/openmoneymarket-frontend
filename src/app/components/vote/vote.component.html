@@ -125,7 +125,7 @@
               <td class="name">
                 <div class="grid grid-center">
                   <div class="grid-cell">
-                    <div class="minus" (click)="removeYourVotePrep(i)">–</div>
+                    <div class="minus" (click)="removeYourVotePrepByIndex(i)">–</div>
                     <img src="assets/img/icon/profile.svg">
                   </div>
                   <div class="grid-cell">
@@ -207,7 +207,8 @@
                 <td class="name">
                   <div class="grid grid-center">
                     <div class="grid-cell">
-                      <div class="plus" [ngStyle]="hideElement(!userLoggedIn())" (click)="addYourVotePrep(prep)">+</div>
+                      <div class="plus" [ngStyle]="hideElement(!userLoggedIn() || prepIsInYourVotes(prep))" (click)="addYourVotePrep(prep)">+</div>
+                      <div class="minus" [ngStyle]="hideElement(!userLoggedIn() || !prepIsInYourVotes(prep) || !yourVotesEditMode)" (click)="removeYourVotePrepByAddress(prep)">–</div>
                       <img [src]="prep.logoUrl">
                     </div>
                     <div class="grid-cell">
