@@ -59,10 +59,12 @@ export class WithdrawService {
   private buildWithdrawIcxTx(amount: number, waitForUnstaking = false): any {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
-    // convert amount from ICX value to sICX
-    log.debug("Withdraw amount before conversion to sICX = " + amount);
-    amount = Utils.convertICXTosICX(amount, this.persistenceService.getAssetReserveData(AssetTag.ICX)!.sICXRate);
-    log.debug("Withdraw amount after conversion to sICX = " + amount);
+    if (amount !== -1) {
+      // convert amount from ICX value to sICX
+      log.debug("Withdraw amount before conversion to sICX = " + amount);
+      amount = Utils.convertICXTosICX(amount, this.persistenceService.getAssetReserveData(AssetTag.ICX)!.sICXRate);
+      log.debug("Withdraw amount after conversion to sICX = " + amount);
+    }
 
     const params = {
       _amount: amount !== -1 ? IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()) : "-0x1",
