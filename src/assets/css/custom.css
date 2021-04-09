@@ -2,7 +2,7 @@
   border-color: red !important;
 }
 
-/* temporary logo for USDC temporary  TODO */
+/* ICON USDC logo */
 .list tbody tr.usdc td:first-of-type {
   background-image: url(../img/logos/usdc-logo.png);
   background-repeat: no-repeat;
