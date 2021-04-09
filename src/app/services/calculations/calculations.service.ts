@@ -26,8 +26,10 @@ export class CalculationsService {
 
     res = Utils.convertIfSICXToICX(res, this.persistenceService.sIcxToIcxRate(), assetTag);
 
-    log.debug("Total repayment formula res = ", res / this.persistenceService.getAssetExchangePrice(assetTag));
-    return res / this.persistenceService.getAssetExchangePrice(assetTag);
+    const repaymentAmount =  res / this.persistenceService.getAssetExchangePrice(assetTag);
+
+    log.debug("Total repayment formula res = ", repaymentAmount * 1.1);
+    return repaymentAmount * 1.1;
   }
 
   public votingPower(): number {
