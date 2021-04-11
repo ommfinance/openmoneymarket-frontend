@@ -355,4 +355,9 @@ export class ModalComponent extends BaseClass implements OnInit {
     this.modalService.showModal(this.modalLoading.nativeElement);
   }
 
+  activeModalHasLiquidityRewards(): boolean {
+    const liquidityRewards = this.activeModalChange?.assetAction?.details?.ommRewards?.liquidityRewards ?? 0;
+    return liquidityRewards > 0;
+  }
+
 }
