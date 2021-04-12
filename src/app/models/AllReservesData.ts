@@ -2,12 +2,12 @@ import {AssetTag} from "./Asset";
 import {OmmError} from "../core/errors/OmmError";
 
 export class AllReservesData {
-  USDb: ReserveData;
+  USDB: ReserveData;
   ICX: ReserveData;
   USDC: ReserveData;
 
   constructor(USDb: ReserveData, sICX: ReserveData, IUSDC: ReserveData) {
-    this.USDb = USDb;
+    this.USDB = USDb;
     this.ICX = sICX;
     this.USDC = IUSDC;
   }
@@ -16,8 +16,8 @@ export class AllReservesData {
     switch (assetTag) {
       case AssetTag.ICX:
         return this.ICX;
-      case AssetTag.USDb:
-        return this.USDb;
+      case AssetTag.USDB:
+        return this.USDB;
       case AssetTag.USDC:
         return this.USDC;
       default:
@@ -30,8 +30,8 @@ export class AllReservesData {
       case AssetTag.ICX:
         this.ICX = reserveData;
         break;
-      case AssetTag.USDb:
-        this.USDb = reserveData;
+      case AssetTag.USDB:
+        this.USDB = reserveData;
         break;
       case AssetTag.USDC:
         this.USDC = reserveData;

@@ -79,7 +79,7 @@ export class PerformanceComponent extends BaseClass implements OnInit, AfterView
     const before = this.roundDownTo2Decimals(this.persistenceService.userOmmTokenBalanceDetails?.totalBalance ?? 0);
     const rewards = this.roundDownTo2Decimals(this.persistenceService.userOmmRewards?.total ?? 0);
     const after = Utils.addDecimalsPrecision(before, rewards);
-    this.modalService.showNewModal(ModalType.CLAIM_OMM_REWARDS, new AssetAction(new Asset(AssetClass.USDb, AssetName.USDb, AssetTag.USDb),
+    this.modalService.showNewModal(ModalType.CLAIM_OMM_REWARDS, new AssetAction(new Asset(AssetClass.USDb, AssetName.USDb, AssetTag.USDB),
       before, after, rewards, undefined, new ClaimOmmDetails(this.persistenceService.userOmmRewards)));
   }
 

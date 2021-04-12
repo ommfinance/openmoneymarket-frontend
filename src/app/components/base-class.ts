@@ -101,14 +101,14 @@ export class BaseClass {
     if (!value) {
       return 0;
     }
-    return +assetFormat(AssetTag.USDb).from(value);
+    return +assetFormat(AssetTag.USDB).from(value);
   }
 
   public fromNumberToUSDbFormat(value: number): string {
     if (!value) {
       return "- USDb";
     }
-    return assetFormat(AssetTag.USDb).to(value);
+    return assetFormat(AssetTag.USDB).to(value);
   }
 
   public hideElement(hide: boolean): any {

@@ -3,7 +3,7 @@ import {Asset, AssetTag, supportedAssetsMap} from "../Asset";
 export abstract class Wallet {
   address = "";
   balances: Map<AssetTag, number> = new Map([
-    [AssetTag.USDb, 0],
+    [AssetTag.USDB, 0],
     [AssetTag.ICX, 0],
     [AssetTag.USDC, 0],
   ]);

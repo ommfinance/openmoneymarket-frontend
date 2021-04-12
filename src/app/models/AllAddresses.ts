@@ -16,7 +16,7 @@ export class AllAddresses {
     switch (assetTag) {
       case AssetTag.ICX:
         return this.collateral.sICX;
-      case AssetTag.USDb:
+      case AssetTag.USDB:
         return this.collateral.USDb;
       case AssetTag.USDC:
         return this.collateral.IUSDC;
@@ -29,7 +29,7 @@ export class AllAddresses {
     switch (assetTag) {
       case AssetTag.ICX:
         return this.oTokens.oICX;
-      case AssetTag.USDb:
+      case AssetTag.USDB:
         return this.oTokens.oUSDb;
       case AssetTag.USDC:
         return this.oTokens.oIUSDC;

@@ -29,7 +29,7 @@ export class StateChangeService {
    * Map containing subscribable Subjects for each of the Asset (e.g. USDb, ICX, ..)
    */
   public userBalanceChangeMap: Map<AssetTag, Subject<number>> = new Map([
-    [AssetTag.USDb, new Subject<number>()],
+    [AssetTag.USDB, new Subject<number>()],
     [AssetTag.ICX, new Subject<number>()],
     [AssetTag.USDC, new Subject<number>()],
   ]);
@@ -40,7 +40,7 @@ export class StateChangeService {
    * Map containing subscribable Subjects for each of the Asset reserve (e.g. USDb, ICX, ..)
    */
   public userReserveChangeMap: Map<AssetTag, Subject<UserReserveData>> = new Map([
-    [AssetTag.USDb, new Subject<UserReserveData>()],
+    [AssetTag.USDB, new Subject<UserReserveData>()],
     [AssetTag.ICX, new Subject<UserReserveData>()],
     [AssetTag.USDC, new Subject<UserReserveData>()],
   ]);

@@ -23,13 +23,13 @@ export enum AssetName {
 }
 
 export enum AssetTag {
-  USDb = "USDb",
+  USDB = "USDB",
   ICX = "ICX",
   USDC = "IUSDC"
 }
 
 export const supportedAssetsMap: Map<AssetTag, Asset> = new Map([
-  [AssetTag.USDb, new Asset(AssetClass.USDb, AssetName.USDb, AssetTag.USDb)],
+  [AssetTag.USDB, new Asset(AssetClass.USDb, AssetName.USDb, AssetTag.USDB)],
   [AssetTag.ICX, new Asset(AssetClass.ICX, AssetName.ICX , AssetTag.ICX)],
   [AssetTag.USDC, new Asset(AssetClass.USDC, AssetName.USDC , AssetTag.USDC)],
 ]);

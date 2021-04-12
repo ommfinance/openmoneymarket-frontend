@@ -104,7 +104,7 @@ export class DataLoaderService {
   public loadAllReserveData(): Promise<void> {
     return this.scoreService.getAllReserveData().then((allReserves: AllReservesData) => {
       log.debug("loadAllReserves.allReserves: ", allReserves);
-      const newAllReserve = new AllReservesData(allReserves.USDb, allReserves.ICX, allReserves.USDC);
+      const newAllReserve = new AllReservesData(allReserves.USDB, allReserves.ICX, allReserves.USDC);
       Object.entries(newAllReserve).forEach((value: [string, ReserveData]) => {
         // @ts-ignore
         newAllReserve[value[0]] = Mapper.mapReserveData(value[1]);
@@ -131,7 +131,7 @@ export class DataLoaderService {
     return this.scoreService.getAllReserveConfigurationData().then((allReservesConfigData: AllReserveConfigData) => {
       log.debug("loadAllReservesConfigData : ", allReservesConfigData);
       const newAllReserveConfigData = new AllReserveConfigData(
-        allReservesConfigData.USDb,
+        allReservesConfigData.USDB,
         allReservesConfigData.ICX,
         allReservesConfigData.USDC);
       Object.entries(newAllReserveConfigData).forEach((value: [string, ReserveData]) => {
