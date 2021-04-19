@@ -6,7 +6,7 @@ import {PersistenceService} from "./services/persistence/persistence.service";
 import {BaseClass} from "./components/base-class";
 import {ReloaderService} from "./services/reloader/reloader.service";
 import {WalletType} from "./models/wallets/Wallet";
-import {LocalStorageService} from "./services/local-storage/local-storage.service";
+import {LocalStorageService, WalletLogin} from "./services/local-storage/local-storage.service";
 import {IconexWallet} from "./models/wallets/IconexWallet";
 import {LedgerWallet} from "./models/wallets/LedgerWallet";
 import log from "loglevel";
@@ -63,7 +63,10 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
 
   reLogin(): void {
     if (!this.persistenceService.userLoggedIn()) {
-      const walletLogin: any = this.localStorageService.getLastWalletLogin();
+      const walletLogin: WalletLogin | undefined = this.localStorageService.getLastWalletLogin();
+      if (!walletLogin) {
+        return;
+      }
       const timestamp = walletLogin.timestamp;
 
       log.debug(`reLogin walletLogin: ${walletLogin}`);
@@ -71,7 +74,7 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
       // if last login was less than 1 hour ago 3600 do re-login
       const currentTimestamp = + new Date();
       if (timestamp > currentTimestamp - 3600000) {
-        const activeWallet = walletLogin.wallet;
+        const activeWallet: any = walletLogin.wallet;
         const activeWalletType = activeWallet?.type;
 
         if (activeWallet &&  activeWalletType === WalletType.ICONEX || activeWalletType === WalletType.LEDGER) {

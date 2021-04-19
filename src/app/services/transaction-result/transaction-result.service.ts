@@ -28,7 +28,7 @@ export class TransactionResultService {
 
   public processIconexTransactionResult(payload: IconJsonRpcResponse, maxRetry: number = 5): void {
     // get last modal action from localstorage
-    const modalAction: ModalAction = this.localStorageService.getLastModalAction();
+    const modalAction: ModalAction = this.localStorageService.getLastModalAction()!!;
 
     if (payload.result) {
       this.iconApiService.getTxResult(payload.result).then(res => {
@@ -66,7 +66,7 @@ export class TransactionResultService {
 
   processIconTransactionResult(txHash: string, maxRetry: number = 5): void {
     // get last modal action from localstorage
-    const modalAction: ModalAction = this.localStorageService.getLastModalAction();
+    const modalAction: ModalAction = this.localStorageService.getLastModalAction()!!;
 
     this.iconApiService.getTxResult(txHash).then((res: any) => {
       // reload all reserves and user specific data (reserve, account data, ..)
@@ -101,7 +101,7 @@ export class TransactionResultService {
     this.dataLoaderService.afterUserActionReload();
 
     // get last modal action from localstorage
-    const modalAction: ModalAction = this.localStorageService.getLastModalAction();
+    const modalAction: ModalAction = this.localStorageService.getLastModalAction()!!;
 
     // success
     if (status === 1) {
@@ -158,7 +158,11 @@ export class TransactionResultService {
     }
   }
 
-  public showFailedActionNotification(modalAction: ModalAction): void {
+  public showFailedActionNotification(modalAction?: ModalAction): void {
+    if (!modalAction) {
+      return;
+    }
+
     this.stateChangeService.userModalActionResult.next(new ModalActionsResult(modalAction, ModalStatus.FAILED));
 
     if (modalAction.assetAction) {

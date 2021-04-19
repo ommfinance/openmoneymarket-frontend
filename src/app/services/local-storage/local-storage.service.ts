@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import {Subject} from "rxjs";
-import {AssetAction} from "../../models/AssetAction";
 import {ModalAction} from "../../models/ModalAction";
 import {BridgeWallet} from "../../models/wallets/BridgeWallet";
 import {IconexWallet} from "../../models/wallets/IconexWallet";
@@ -22,7 +21,7 @@ export class LocalStorageService {
     this.set("modal.action", modalAction);
   }
 
-  getLastModalAction(): ModalAction {
+  getLastModalAction(): ModalAction | undefined {
     return this.get("modal.action");
   }
 
@@ -30,7 +29,7 @@ export class LocalStorageService {
     this.set("wallet", new WalletLogin(wallet, + new Date()));
   }
 
-  getLastWalletLogin(): WalletLogin {
+  getLastWalletLogin(): WalletLogin | undefined {
     return this.get("wallet");
   }
 
@@ -40,7 +39,7 @@ export class LocalStorageService {
 
   get(key: string): any {
     if (this.isLocalStorageSupported) {
-      return JSON.parse(this.localStorage.getItem(key) ?? "");
+      return JSON.parse(this.localStorage.getItem(key) ?? "{}");
     }
     return undefined;
   }
