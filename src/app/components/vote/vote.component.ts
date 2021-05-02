@@ -20,7 +20,6 @@ import {VoteAction} from "../../models/VoteAction";
 import {AssetTag} from "../../models/Asset";
 import {contributorsMap} from "../../common/constants";
 
-declare var $: any;
 declare var noUiSlider: any;
 
 @Component({
@@ -86,6 +85,9 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   resetStateValues(): void {
     this.yourVotesEditMode = false;
     this.voteOverviewEditMode = false;
+
+    this.yourVotesPrepList = [...this.persistenceService.yourVotesPrepList];
+    this.votingPower = this.calculationsService.votingPower();
   }
 
   private subscribeToModalActionResult(): void {
@@ -183,9 +185,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       if (this.userOmmTokenBalanceDetails) {
         this.userOmmTokenBalanceDetails.stakedBalance = value;
       }
-
-      // Update OMM stake values as ICX
-      // $('.value-icx-stake-amount').text(normalFormat.to(value * 1.3));
     });
   }
 
@@ -256,7 +255,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   onConfirmSavePrepClick(): void {
     if (this.voteListsAreEqual()) {
       this.notificationService.showNewNotification("Your vote list did not change.");
-      return;
     }
     else if (this.listIsNotNullOrEmpty(this.yourVotesPrepList)) {
       this.yourVotesEditMode = false;
@@ -331,7 +329,9 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   ommVotingPower(): number {
-    return this.persistenceService.getAssetReserveData(AssetTag.ICX)?.totalLiquidity ?? 0;
+    const totalLiquidityIcx = this.persistenceService.getAssetReserveData(AssetTag.ICX)?.totalLiquidity ?? 0;
+    const totalBorrowedIcx = this.persistenceService.getAssetReserveData(AssetTag.ICX)?.totalBorrows ?? 0;
+    return this.convertSICXToICX(totalLiquidityIcx - totalBorrowedIcx);
   }
 
   isMaxStaked(): boolean {
@@ -356,7 +356,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
             return false;
           }
         }
-
         return true;
       }
     } else {

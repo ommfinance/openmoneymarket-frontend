@@ -36,15 +36,13 @@ export class CalculationsService {
     const totalIcxStakedByOMM = this.persistenceService.getAssetReserveData(AssetTag.ICX)?.totalLiquidity ?? 0;
     const totalStakedOmm = this.persistenceService.totalStakedOmm;
 
-    // log.debug("********* totalVotingPower() ************");
-    // log.debug("totalIcxStakedByOMM:", totalIcxStakedByOMM);
-    // log.debug("totalStakedOmm:", totalStakedOmm);
-
     if (totalIcxStakedByOMM === 0 || totalStakedOmm === 0) {
       return 0;
     }
 
-    return totalIcxStakedByOMM / totalStakedOmm;
+    const res = Utils.divideDecimalsPrecision(totalIcxStakedByOMM, totalStakedOmm)
+
+    return Utils.roundDownTo2Decimals(Utils.convertSICXToICX(res, this.persistenceService.sIcxToIcxRate()));
   }
 
   public calculateAssetSupplySliderMax(assetTag: AssetTag): number {
