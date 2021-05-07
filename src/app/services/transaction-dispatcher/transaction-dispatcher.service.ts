@@ -56,7 +56,7 @@ export class TransactionDispatcherService {
         this.transactionResultService.processIconTransactionResult(txHash);
       }
     } catch (e) {
-      this.transactionResultService.showFailedActionNotification(this.localStorageService.getLastModalAction());
+      this.transactionResultService.showFailedActionNotification(e?.message ?? "", this.localStorageService.getLastModalAction());
     }
   }
 

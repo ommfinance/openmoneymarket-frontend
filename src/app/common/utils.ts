@@ -165,4 +165,8 @@ export class Utils {
     const d = new Date(tmp.getFullYear(), tmp.getMonth() + 1, 0);
     return d.getDate();
   }
+
+  public static extractTxFailureMessage(tx: any): string {
+    return tx?.failure?.message ?? "";
+  }
 }

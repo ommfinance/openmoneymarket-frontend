@@ -42,7 +42,7 @@ export class TransactionResultService {
           this.showSuccessActionNotification(modalAction);
         } else {
           // show proper failed notification
-          this.showFailedActionNotification(modalAction);
+          this.showFailedActionNotification(Utils.extractTxFailureMessage(res), modalAction);
           log.debug("Transaction failed! Details: ", res);
         }
       }).catch(e => {
@@ -50,7 +50,7 @@ export class TransactionResultService {
           setTimeout( () => this.processIconexTransactionResult(payload, maxRetry - 1), 2200);
         } else {
           log.debug("Error in isTxConfirmed:", e);
-          this.showFailedActionNotification(modalAction);
+          this.showFailedActionNotification("Failed to confirm the transaction.", modalAction);
           // reload all reserves and user specific data (reserve, account data, ..)
           this.dataLoaderService.afterUserActionReload();
         }
@@ -61,7 +61,7 @@ export class TransactionResultService {
 
       log.error(`ICON RPC ERROR details:`);
       log.error(payload);
-      this.showFailedActionNotification(modalAction);
+      this.showFailedActionNotification(payload?.error?.message ?? "", modalAction);
     }
   }
 
@@ -79,7 +79,7 @@ export class TransactionResultService {
         this.showSuccessActionNotification(modalAction);
       } else {
         // show proper failed notification
-        this.showFailedActionNotification(modalAction);
+        this.showFailedActionNotification(Utils.extractTxFailureMessage(res), modalAction);
         log.debug("Transaction failed! Details: ", res);
       }
     }).catch(e => {
@@ -90,7 +90,7 @@ export class TransactionResultService {
         this.dataLoaderService.afterUserActionReload();
 
         log.debug("Error in isTxConfirmed:", e);
-        this.showFailedActionNotification(modalAction);
+        this.showFailedActionNotification("Failed to confirm the transaction.", modalAction);
       }
     });
   }
@@ -112,7 +112,7 @@ export class TransactionResultService {
     else {
       log.debug("Bridge: transaction failed, details:", error);
       // show proper failed notification
-      this.showFailedActionNotification(modalAction);
+      this.showFailedActionNotification("Error occurred in Bridge. Details: " + error ?? "", modalAction);
     }
   }
 
@@ -163,7 +163,7 @@ export class TransactionResultService {
     }
   }
 
-  public showFailedActionNotification(modalAction?: ModalAction): void {
+  public showFailedActionNotification(failedTxMessage: string, modalAction?: ModalAction): void {
     if (!modalAction) {
       return;
     }
@@ -174,36 +174,36 @@ export class TransactionResultService {
       const assetAction = modalAction.assetAction;
       switch (modalAction.modalType) {
         case ModalType.SUPPLY:
-          this.notificationService.showNewNotification(`Couldn't supply ${assetAction.asset.tag}. Try again.`);
+          this.notificationService.showNewNotification(`Couldn't supply ${assetAction.asset.tag}. ${failedTxMessage} Try again.`);
           break;
         case ModalType.WITHDRAW:
-          this.notificationService.showNewNotification(`Couldn't withdraw ${assetAction.asset.tag}. Try again.`);
+          this.notificationService.showNewNotification(`Couldn't withdraw ${assetAction.asset.tag}. ${failedTxMessage} Try again.`);
           break;
         case ModalType.BORROW:
-          this.notificationService.showNewNotification(`Couldn't borrow ${assetAction.asset.tag}. Try again.`);
+          this.notificationService.showNewNotification(`Couldn't borrow ${assetAction.asset.tag}. ${failedTxMessage} Try again.`);
           break;
         case ModalType.REPAY:
-          this.notificationService.showNewNotification(`Couldn't repay ${assetAction.asset.tag}. Try again.`);
+          this.notificationService.showNewNotification(`Couldn't repay ${assetAction.asset.tag}. ${failedTxMessage} Try again.`);
           break;
         case ModalType.CLAIM_OMM_REWARDS:
-          this.notificationService.showNewNotification("Couldn't claim Omm Tokens. Try again.");
+          this.notificationService.showNewNotification(`Couldn't claim Omm Tokens. ${failedTxMessage} Try again.`);
       }
     } else if (modalAction.stakingAction) {
       switch (modalAction.modalType) {
         case ModalType.STAKE_OMM_TOKENS:
-          this.notificationService.showNewNotification(`Couldn't stake Omm Tokens. Try again.`);
+          this.notificationService.showNewNotification(`Couldn't stake Omm Tokens. ${failedTxMessage} Try again.`);
           break;
         case ModalType.UNSTAKE_OMM_TOKENS:
-          this.notificationService.showNewNotification(`Couldn't unstake Omm Tokens. Try again.`);
+          this.notificationService.showNewNotification(`Couldn't unstake Omm Tokens. ${failedTxMessage} Try again.`);
           break;
       }
     } else if (modalAction.voteAction) {
       switch (modalAction.modalType) {
         case ModalType.UPDATE_PREP_SELECTION:
-          this.notificationService.showNewNotification(`Couldn't allocate your votes. Try again.`);
+          this.notificationService.showNewNotification(`Couldn't allocate your votes. ${failedTxMessage} Try again.`);
           break;
         case ModalType.REMOVE_ALL_VOTES:
-          this.notificationService.showNewNotification(`Couldn't remove your votes. Try again.`);
+          this.notificationService.showNewNotification(`Couldn't remove your votes. ${failedTxMessage} Try again.`);
           break;
       }
     }
