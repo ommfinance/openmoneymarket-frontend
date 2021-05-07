@@ -48,7 +48,7 @@
     </div>
 
     <p class="text-center" [ngStyle]="hideElement(shouldHideClaimBtn())">
-      <a href="javascript:void(0);" (click)="onClaimOmmRewardsClick()" class="button modal-trigger" data-modal="modal-claim-rewards">Claim Omm rewards</a>
+      <a href="javascript:void(0);" (click)="onClaimOmmRewardsClick()" class="button modal-trigger" data-modal="modal-claim-rewards">Claim {{formatNumberToUSLocaleString(roundDownTo2Decimals(persistenceService.userOmmRewards?.total))}} Omm rewards</a>
     </p>
   </div>
 </div>

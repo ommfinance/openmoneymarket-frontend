@@ -9,6 +9,16 @@
 	Fonts
 ========================================================================== */
 
+/* Metropolis light */
+
+@font-face {
+  font-family: 'metropolis-light';
+  src: url('../font/metropolis-light/metropolis-light.woff2') format('woff2'),
+  url('../font/metropolis-light/metropolis-light.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 /* Metropolis medium */
 
 @font-face {
@@ -2621,6 +2631,23 @@ input[type="text"].input-borrow-available {
   margin-top: 10px;
 }
 
+#vote-overview input[type="text"] {
+  border: 2px solid #d3d9e7;
+  max-width: 70%;
+  margin-bottom: 5px;
+  text-align: center;
+  color: #49546a;
+  transition: border 0.3s ease;
+}
+#vote-overview input[type="text"]:hover,
+#vote-overview input[type="text"]:focus {
+  border: 2px solid #2ca9b7;
+  transition: border 0.2s ease;
+}
+#vote-overview #omm-stake .actions-adjust.active {
+  margin-top: 25px;
+}
+
 /* Vote message for when logged out */
 
 #message-vote-logged-out {
@@ -3089,4 +3116,17 @@ input[type="text"].input-borrow-available {
     border-bottom: 1px solid #d3d9e7;
     padding-bottom: 15px;
   }
+}
+
+@media (max-width: 500px) {
+
+  /* Sign in modal */
+
+  .sign-in-options > .grid-cell a {
+    padding: 10px 5px;
+  }
+  .sign-in-options .grid-cell img {
+    height: 40px;
+  }
+
 }
