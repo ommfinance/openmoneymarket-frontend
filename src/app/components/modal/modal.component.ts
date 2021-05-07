@@ -326,7 +326,7 @@ export class ModalComponent extends BaseClass implements OnInit {
         this.supplyService.supplyAsset(this.activeModalChange!.assetAction!.amount, assetTag, `Supplying ${assetTag}...`);
         break;
       case ModalType.REPAY:
-        this.repayService.repayAsset(this.activeModalChange!.assetAction!.amount, assetTag, `Repaying ${assetTag}...`);
+        this.repayService.repayAsset(this.activeModalChange!, assetTag, `Repaying ${assetTag}...`);
         break;
       case ModalType.WITHDRAW:
         const amount = this.activeModalChange!.assetAction!.after === 0 ? -1 : this.activeModalChange!.assetAction!.amount;

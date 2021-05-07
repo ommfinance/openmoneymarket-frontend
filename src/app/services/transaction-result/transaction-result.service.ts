@@ -10,6 +10,7 @@ import {LocalStorageService} from "../local-storage/local-storage.service";
 import {ModalAction, ModalActionsResult, ModalStatus} from "../../models/ModalAction";
 import {ModalType} from "../../models/ModalType";
 import {StateChangeService} from "../state-change/state-change.service";
+import {Utils} from "../../common/utils";
 
 @Injectable({
   providedIn: 'root'
@@ -120,6 +121,8 @@ export class TransactionResultService {
 
     if (modalAction.assetAction) {
       const assetAction = modalAction.assetAction;
+      assetAction.amount = Utils.roundDownTo2Decimals(assetAction.amount)
+
       switch (modalAction.modalType) {
         case ModalType.SUPPLY:
           this.notificationService.showNewNotification(`${assetAction.amount} ${assetAction.asset.tag} supplied.`);
@@ -138,6 +141,8 @@ export class TransactionResultService {
       }
     } else if (modalAction.stakingAction) {
       const voteAction = modalAction.stakingAction;
+      voteAction.amount = Utils.roundDownTo2Decimals(voteAction.amount)
+
       switch (modalAction.modalType) {
         case ModalType.STAKE_OMM_TOKENS:
           this.notificationService.showNewNotification(`${voteAction.amount} OMM staked.`);

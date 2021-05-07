@@ -18,20 +18,6 @@ export class CalculationsService {
   constructor(private persistenceService: PersistenceService,
               private stateChangeService: StateChangeService) { }
 
-
-  public totalRepaymentFormula(assetTag: AssetTag): number {
-    const currentBorrowBalanceUSD = this.persistenceService.getUserBorrowedAssetUSDBalance(assetTag);
-    const borrowRate = this.persistenceService.getUserAssetReserve(assetTag)!.borrowRate;
-    let res = currentBorrowBalanceUSD * (1 + borrowRate * (1 / (365 * 24 * 6)));
-
-    res = Utils.convertIfSICXToICX(res, this.persistenceService.sIcxToIcxRate(), assetTag);
-
-    const repaymentAmount =  res / this.persistenceService.getAssetExchangePrice(assetTag);
-
-    log.debug("Total repayment formula res = ", repaymentAmount * 1.1);
-    return repaymentAmount * 1.1;
-  }
-
   public votingPower(): number {
     const totalIcxStakedByOMM = this.persistenceService.getAssetReserveData(AssetTag.ICX)?.totalLiquidity ?? 0;
     const totalStakedOmm = this.persistenceService.totalStakedOmm;

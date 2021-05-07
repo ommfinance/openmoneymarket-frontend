@@ -95,6 +95,14 @@ export class Utils {
     }
   }
 
+  public static roundUpTo2Decimals(value: number | BigNumber | string): number {
+    if (value instanceof BigNumber) {
+      return +(value.toFixed(2, BigNumber.ROUND_UP));
+    } else {
+      return +(new BigNumber(value).toFixed(2, BigNumber.ROUND_UP));
+    }
+  }
+
   public static roundDownToZeroDecimals(value: number | BigNumber | string): number {
     if (value instanceof BigNumber) {
       return +(value.toFixed(0, BigNumber.ROUND_DOWN));

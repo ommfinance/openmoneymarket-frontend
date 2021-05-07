@@ -10,6 +10,9 @@ import {CheckerService} from "../checker/checker.service";
 import log from "loglevel";
 import {AssetTag} from "../../models/Asset";
 import {TransactionDispatcherService} from "../transaction-dispatcher/transaction-dispatcher.service";
+import {ScoreService} from "../score/score.service";
+import {LocalStorageService} from "../local-storage/local-storage.service";
+import {ModalAction} from "../../models/ModalAction";
 
 @Injectable({
   providedIn: 'root'
@@ -20,19 +23,46 @@ export class RepayService {
               private persistenceService: PersistenceService,
               private iconexApiService: IconexApiService,
               private checkerService: CheckerService,
-              private transactionDispatcherService: TransactionDispatcherService) {
+              private transactionDispatcherService: TransactionDispatcherService,
+              private scoreService: ScoreService,
+              private localStorageService: LocalStorageService) {
   }
 
-  public repayAsset(amount: number, assetTag: AssetTag, notificationMessage: string): void {
+  public repayAsset(modalAction: ModalAction, assetTag: AssetTag, notificationMessage: string): void {
+    let amount = modalAction.assetAction!.amount
     amount = Utils.convertIfICXTosICX(amount, this.persistenceService.getAssetReserveData(AssetTag.ICX)!.sICXRate, assetTag);
     amount = Utils.roundDownTo2Decimals(amount);
-    const tx = this.buildRepayAssetTx(amount, assetTag);
 
-    log.debug(`repay ${assetTag} TX: `, tx);
-    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
+    // fetch users debt amount from SCORE
+    this.getUserDebt(assetTag, amount).then((debt: number) => {
+      // round up debt to 2 decimals in order to try to avoid the dust
+      debt = Utils.roundUpTo2Decimals(debt)
+      log.debug("debt being repaid = " + debt)
+
+      // store updated amount (debt) in localstorage
+      modalAction.assetAction!.amount = debt
+      this.localStorageService.persistModalAction(modalAction);
+
+      // build repay tx
+      const tx = this.buildRepayAssetTx(debt, assetTag);
+
+      log.debug(`repay ${assetTag} TX: `, tx);
+      this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
+    });
   }
 
-  private buildRepayAssetTx(amount: number, assetTag: AssetTag): any {
+  public getUserDebt(assetTag: AssetTag, amount: number): Promise<number> {
+    return this.scoreService.getUserDebt(assetTag).then(res => {
+      log.debug(`getUserDebt for ${assetTag} = ${res}`)
+      return res;
+    }).catch(e => {
+      log.error("Error occurred in getUserDebt:");
+      log.error(e);
+      return amount
+    })
+  }
+
+    private buildRepayAssetTx(amount: number, assetTag: AssetTag): any {
     this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
 
     const decimals = this.persistenceService.allReserves!.getReserveData(assetTag).decimals;

@@ -66,7 +66,7 @@
               <div class="grid-cell">
                 <label class="label supplied">Supplied</label>
                 <input type="text" title="{{asset.tag}} supplied" id="input-supply" #inputSupply class="input-supply"
-                       (keypress)="supplyAssetAmountChange()" disabled="" value="0" (keyup)="onInputSupplyLostFocus()">
+                       disabled="" value="0" (keyup)="onInputSupplyLostFocus()">
               </div>
               <div class="grid-cell">
                 <label class="label available">Available</label>
@@ -149,8 +149,7 @@
             <div class="grid legend">
               <div class="grid-cell">
                 <label class="label borrowed">Borrowed</label>
-                <input type="text" title="{{asset.tag}} borrowed" id="input-borrow" class="input-borrow" #inputBorrow disabled value="0"
-                (keypress)="borrowAssetAmountChange()" (keyup)="onInputBorrowLostFocus()">
+                <input type="text" title="{{asset.tag}} borrowed" id="input-borrow" class="input-borrow" #inputBorrow disabled value="0" (keyup)="onInputBorrowLostFocus()">
               </div>
               <div class="grid-cell">
                 <label class="label available">Available</label>

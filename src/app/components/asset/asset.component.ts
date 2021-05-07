@@ -225,53 +225,39 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   /**
-   * Logic to trigger on supply amount change
-   */
-  supplyAssetAmountChange(): void {
-    if (this.userLoggedIn()) {
-      // check that supplied value is not greater than max
-      if (this.getInputSupplyValue() > this.supplySliderMaxValue()) {
-        this.inputSupply.classList.add("red-border");
-      } else {
-        // reset border color if it passes the check
-        this.inputSupply.classList.remove("red-border");
-      }
-    }
-  }
-
-  /**
-   * Set supply slider to input value after 1 sec of user keyup
+   * Logic to trigger on supply amount change after 1 sec of user keyup
    */
   onInputSupplyLostFocus(): void {
     this.delay(() => {
       const value = this.getInputSupplyValue();
-      this.setSupplySliderValue(value);
-    }, 1000 );
-  }
 
-  /**
-   * Logic to trigger on borrow amount change
-   */
-  public borrowAssetAmountChange(): void {
-    if (this.userLoggedIn()) {
-      // check that borrowed value is not greater than max
-      if (this.getInputBorrowValue() > this.borrowSliderMaxValue()) {
-        this.inputBorrow.classList.add("red-border");
+      if (value > this.supplySliderMaxValue()) {
+        this.inputSupply.classList.add("red-border");
       } else {
         // reset border color if it passes the check
-        this.inputBorrow.classList.remove("red-border");
+        this.inputSupply.classList.remove("red-border");
+        // set slider value
+        this.setSupplySliderValue(value)
       }
-    }
+    }, 500 );
   }
 
   /**
-   * Set borrow slider to input value after 1 sec of user keyup
+   * Logic to trigger on borrow amount change after 1 sec of user keyup
    */
   onInputBorrowLostFocus(): void {
     this.delay(() => {
       const value = this.getInputBorrowValue();
-      this.setBorrowSliderValue(value);
-    }, 1000 );
+
+      if (value > this.borrowSliderMaxValue()) {
+        this.inputBorrow.classList.add("red-border");
+      } else {
+        // reset border color if it passes the check
+        this.inputBorrow.classList.remove("red-border");
+        // set slider value
+        this.setBorrowSliderValue(value);
+      }
+    }, 500 );
   }
 
 
@@ -347,10 +333,9 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     if (borrowAmountDiff > 0) {
       this.modalService.showNewModal(ModalType.BORROW, new AssetAction(this.asset, currentlyBorrowed , after, amount, risk));
     } else if (borrowAmountDiff < 0) {
-
       // if full repayment
       if (after === 0) {
-        amount = this.calculationService.totalRepaymentFormula(this.asset.tag);
+        amount = currentlyBorrowed;
       }
 
       this.modalService.showNewModal(ModalType.REPAY, new AssetAction(this.asset, currentlyBorrowed , after, amount, risk));

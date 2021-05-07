@@ -63,6 +63,14 @@ export class PersistenceService {
     this.userReserves = new UserReserves();
   }
 
+  public getReserveAddressByAssetTag(assetTag: AssetTag): string | undefined {
+    return this.allAddresses?.collateralAddress(assetTag);
+  }
+
+  public getDecimalsForReserve(assetTag: AssetTag) {
+    return this.allReserves?.getReserveData(assetTag).decimals;
+  }
+
   public getUsersStakedOmmBalance(): number {
     return Utils.roundDownToZeroDecimals(this.userOmmTokenBalanceDetails?.stakedBalance ?? 0);
   }

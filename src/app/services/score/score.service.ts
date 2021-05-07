@@ -40,7 +40,7 @@ export class ScoreService {
   public async getAllScoreAddresses(): Promise<AllAddresses> {
     const tx = this.iconApiService.buildTransaction("",  environment.ADDRESS_PROVIDER_SCORE,
       ScoreMethodNames.GET_ALL_ADDRESSES, {}, IconTransactionType.READ);
-    return await this.iconApiService.iconService.call(tx).execute();
+    return this.iconApiService.iconService.call(tx).execute();
   }
 
   /**
@@ -78,7 +78,7 @@ export class ScoreService {
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
       ScoreMethodNames.GET_USER_UNSTAKE_INFO, params, IconTransactionType.READ);
 
-    return await this.iconApiService.iconService.call(tx).execute();
+    return this.iconApiService.iconService.call(tx).execute();
   }
 
   /**
@@ -112,7 +112,7 @@ export class ScoreService {
     };
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
       ScoreMethodNames.GET_USER_RESERVE_DATA, params, IconTransactionType.READ);
-    return await this.iconApiService.iconService.call(tx).execute();
+    return this.iconApiService.iconService.call(tx).execute();
   }
 
   /**
@@ -128,7 +128,7 @@ export class ScoreService {
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
       ScoreMethodNames.GET_USER_ALL_RESERVE_DATA, params, IconTransactionType.READ);
-    return await this.iconApiService.iconService.call(tx).execute();
+    return this.iconApiService.iconService.call(tx).execute();
   }
 
   /**
@@ -144,7 +144,28 @@ export class ScoreService {
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
       ScoreMethodNames.GET_USER_ACCOUNT_DATA, params, IconTransactionType.READ);
-    return await this.iconApiService.iconService.call(tx).execute();
+    return this.iconApiService.iconService.call(tx).execute();
+  }
+
+  /**
+   * @description Get real time debt of user for specific reserve, i.e. how much user has to repay
+   * @return debt number
+   */
+  public async getUserDebt(assetTag: AssetTag): Promise<number> {
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
+    const params = {
+      _user: this.persistenceService.activeWallet!.address,
+      _reserve: this.persistenceService.getReserveAddressByAssetTag(assetTag)
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
+      ScoreMethodNames.GET_USER_REALTIME_DEBT, params, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute()
+    log.debug("getUserDebt.res = ");
+    log.debug(res)
+    return Utils.hexToNormalisedNumber(res, this.persistenceService.getDecimalsForReserve(assetTag))
   }
 
   /**
@@ -187,7 +208,7 @@ export class ScoreService {
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
       ScoreMethodNames.GET_RESERVE_CONFIGURATION_DATA, params, IconTransactionType.READ);
-    return await this.iconApiService.iconService.call(tx).execute();
+    return this.iconApiService.iconService.call(tx).execute();
   }
 
   /**
@@ -197,7 +218,7 @@ export class ScoreService {
   public async getAllReserveConfigurationData(): Promise<any> {
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
       ScoreMethodNames.GET_ALL_RESERVE_CONFIGURATION_DATA, {}, IconTransactionType.READ);
-    return await this.iconApiService.iconService.call(tx).execute();
+    return this.iconApiService.iconService.call(tx).execute();
   }
 
   /**
@@ -210,7 +231,7 @@ export class ScoreService {
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
       ScoreMethodNames.GET_ALL_RESERVE_DATA, {}, IconTransactionType.READ);
 
-    return await this.iconApiService.iconService.call(tx).execute();
+    return this.iconApiService.iconService.call(tx).execute();
   }
 
   /**
@@ -224,7 +245,7 @@ export class ScoreService {
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
       ScoreMethodNames.GET_SPECIFIC_RESERVE_DATA, { _reserve: reserve }, IconTransactionType.READ);
 
-    return await this.iconApiService.iconService.call(tx).execute();
+    return this.iconApiService.iconService.call(tx).execute();
   }
 
   /**
@@ -247,14 +268,11 @@ export class ScoreService {
   public async getUserAssetBalance(assetTag: AssetTag): Promise<number> {
     log.debug(`Fetching user balance for ${assetTag}...`);
 
-    let balance = 0;
-
-    switch (assetTag) {
-      case AssetTag.ICX:
-        balance = await this.iconApiService.getIcxBalance(this.persistenceService.activeWallet!.address);
-        break;
-      default:
-        balance = await this.getIRC2TokenBalance(assetTag);
+    let balance: number;
+    if (AssetTag.ICX === assetTag) {
+      balance = await this.iconApiService.getIcxBalance(this.persistenceService.activeWallet!.address);
+    } else {
+      balance = await this.getIRC2TokenBalance(assetTag);
     }
 
     // set asset balance
