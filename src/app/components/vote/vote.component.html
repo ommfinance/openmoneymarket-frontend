@@ -64,6 +64,7 @@
           <div class="grid-cell text-center">
             <dl class="metadata">
               <dt>Your stake</dt>
+              <input type="text" name="omm-stake" class="{{voteOverviewEditMode ? 'active' : 'hide'}}" id="stake-input" #stakeInput (input)="onInputStakeOmmChange()">
               <dd><span class="value-omm-stake-amount" #ommStk>{{formatNumberToUSLocaleString(userOmmTokenBalanceDetails?.stakedBalance)
                 }}</span> / {{formatNumberToUSLocaleString(getYourVoteMax())}} OMM</dd>
             </dl>

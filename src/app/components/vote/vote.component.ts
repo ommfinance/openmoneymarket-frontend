@@ -19,6 +19,7 @@ import {DataLoaderService} from "../../services/data-loader/data-loader.service"
 import {VoteAction} from "../../models/VoteAction";
 import {AssetTag} from "../../models/Asset";
 import {contributorsMap} from "../../common/constants";
+import {normalFormat} from "../../common/formats";
 
 declare var noUiSlider: any;
 
@@ -37,6 +38,9 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   @ViewChild("stkSlider")set sliderStakeSetter(sliderStake: ElementRef) {this.sliderStake = sliderStake.nativeElement; }
   private sliderStake!: any;
+
+  @ViewChild("stakeInput")set stakeInputSetter(stakeInput: ElementRef) {this.inputStakeOmm = stakeInput.nativeElement; }
+  private inputStakeOmm!: any;
 
   @ViewChild("ommStk")set ommStakeAmountSetter(ommStake: ElementRef) {this.ommStakeAmount = ommStake.nativeElement; }
   private ommStakeAmount?: any;
@@ -182,10 +186,23 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     this.sliderStake.noUiSlider.on('update', (values: any, handle: any) => {
       const value = +values[handle];
 
+      // Update Omm stake input text box
+      this.inputStakeOmm.value = normalFormat.to(parseFloat(values[handle]));
+
       if (this.userOmmTokenBalanceDetails) {
         this.userOmmTokenBalanceDetails.stakedBalance = value;
       }
     });
+  }
+
+  // Stake input updates the slider
+  onInputStakeOmmChange(): void {
+    log.debug("onInputStakeOmmChange: " + this.inputStakeOmm.value)
+    if (+this.inputStakeOmm.value) {
+      this.sliderStake.noUiSlider.set(normalFormat.from(this.inputStakeOmm.value));
+    } else {
+      this.sliderStake.noUiSlider.set(normalFormat.from("0"));
+    }
   }
 
   onSignInClick(): void {
