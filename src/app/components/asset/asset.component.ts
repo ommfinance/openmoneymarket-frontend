@@ -333,7 +333,8 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     if (borrowAmountDiff > 0) {
       this.modalService.showNewModal(ModalType.BORROW, new AssetAction(this.asset, currentlyBorrowed , after, amount, risk));
     } else if (borrowAmountDiff < 0) {
-      // if full repayment
+
+      // full repayment
       if (after === 0) {
         amount = currentlyBorrowed;
       }

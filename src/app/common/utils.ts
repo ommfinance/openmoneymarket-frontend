@@ -2,7 +2,6 @@ import IconService from 'icon-sdk-js';
 import {BigNumber} from "bignumber.js";
 import bigDecimal from "js-big-decimal";
 import {AssetTag} from "../models/Asset";
-import {RoundingModes} from "js-big-decimal/dist/node/roundingModes";
 
 export class Utils {
 
@@ -38,7 +37,7 @@ export class Utils {
     }
     if (typeof value === "string") {
       // return rounded down to 2 decimals places number
-      return +Utils.roundOffTo2Decimals(new BigNumber(value, 16));
+      return +Utils.roundDownTo2Decimals(new BigNumber(value, 16));
     }
     else {
       return value;
@@ -112,7 +111,7 @@ export class Utils {
   }
 
   public static convertICXTosICX(value: number, todayRate: number): number {
-    return Utils.roundOffTo2Decimals(value / todayRate);
+    return value / todayRate;
   }
 
   public static convertSICXToICX(sICXvalue: number, sIcxToIcxRate: number): number {
@@ -121,7 +120,7 @@ export class Utils {
 
   public static convertIfICXTosICX(value: number, todayRate: number, assetTag: AssetTag): number {
     if (assetTag === AssetTag.ICX) {
-      return Utils.roundOffTo2Decimals(value / todayRate);
+      return value / todayRate;
     } else {
       return value;
     }

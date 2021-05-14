@@ -33,22 +33,30 @@ export class RepayService {
     amount = Utils.convertIfICXTosICX(amount, this.persistenceService.getAssetReserveData(AssetTag.ICX)!.sICXRate, assetTag);
     amount = Utils.roundDownTo2Decimals(amount);
 
-    // fetch users debt amount from SCORE
-    this.getUserDebt(assetTag, amount).then((debt: number) => {
-      // round up debt to 2 decimals in order to try to avoid the dust
-      debt = Utils.roundUpTo2Decimals(debt)
-      log.debug("debt being repaid = " + debt)
+    // fetch users debt amount from SCORE if it is full repayment
+    if (modalAction.assetAction?.after === 0) {
+      this.getUserDebt(assetTag, amount).then((debt: number) => {
+        // round up debt to 2 decimals in order to try to avoid the dust
+        debt = Utils.roundUpTo2Decimals(debt)
+        log.debug("debt being repaid = " + debt)
 
-      // store updated amount (debt) in localstorage
-      modalAction.assetAction!.amount = debt
-      this.localStorageService.persistModalAction(modalAction);
+        // store updated amount (debt) in localstorage
+        modalAction.assetAction!.amount = debt
+        this.localStorageService.persistModalAction(modalAction);
 
+        // build repay tx
+        const tx = this.buildRepayAssetTx(debt, assetTag);
+
+        log.debug(`repay ${assetTag} TX: `, tx);
+        this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
+      });
+    } else {
       // build repay tx
-      const tx = this.buildRepayAssetTx(debt, assetTag);
+      const tx = this.buildRepayAssetTx(amount, assetTag);
 
       log.debug(`repay ${assetTag} TX: `, tx);
       this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
-    });
+    }
   }
 
   public getUserDebt(assetTag: AssetTag, amount: number): Promise<number> {
