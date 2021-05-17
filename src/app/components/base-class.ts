@@ -84,8 +84,7 @@ export class BaseClass {
 
     // convert in to percentage
     num = +num * 100;
-    const res = `${(Utils.roundOffTo2Decimals(num))}%`;
-    return res;
+    return `${(Utils.roundOffTo2Decimals(num))}%`;
   }
 
   public to0DecimalPercentString(num?: number | string): string {
@@ -93,8 +92,7 @@ export class BaseClass {
 
     // convert in to percentage
     num = +num * 100;
-    const res = `${(num.toFixed())}%`;
-    return res;
+    return `${(num.toFixed())}%`;
   }
 
   public fromUSDbFormatToNumber(value: any): number {

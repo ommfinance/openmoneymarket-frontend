@@ -244,7 +244,7 @@ export class PersistenceService {
 
     // Sum(My supply amount for each asset * Supply APY for each asset)
     this.userReserves!.reserveMap.forEach(reserve => {
-      supplied = reserve?.currentOTokenBalance ?? 0;
+      supplied = reserve?.currentOTokenBalanceUSD ?? 0;
       supplyApy = reserve?.liquidityRate ?? 0;
       supplyApySum += supplied * supplyApy;
       supplySum += supplied;
@@ -262,7 +262,7 @@ export class PersistenceService {
 
     // Sum(My supply amount for each asset * Supply APY for each asset)
     this.userReserves!.reserveMap.forEach(reserve => {
-      borrowed = reserve?.currentBorrowBalance ?? 0;
+      borrowed = reserve?.currentBorrowBalanceUSD ?? 0;
       borrowApy = reserve?.borrowRate ?? 0;
       borrowApySum += borrowed * borrowApy;
       borrowSum += borrowed;

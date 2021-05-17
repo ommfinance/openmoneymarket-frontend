@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {PersistenceService} from "../persistence/persistence.service";
 import {AssetTag} from "../../models/Asset";
 import log from "loglevel";
-import {RiskCalculationData} from "../../models/RiskCalculationData";
 import {UserAction} from "../../models/UserAction";
 import {ReserveData} from "../../models/AllReservesData";
 import {StateChangeService} from "../state-change/state-change.service";
