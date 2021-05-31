@@ -101,7 +101,7 @@ export class PersistenceService {
   }
 
   public getUserUSDbBalance(): number {
-    return this.activeWallet?.balances.get(AssetTag.USDB) ?? 0;
+    return this.activeWallet?.balances.get(AssetTag.USDS) ?? 0;
   }
 
   public getUserAssetBalance(assetTag: AssetTag): number {
@@ -155,7 +155,7 @@ export class PersistenceService {
   }
 
   public getUserUSDbReserve(): UserReserveData | undefined {
-    return this.userReserves?.reserveMap.get(AssetTag.USDB);
+    return this.userReserves?.reserveMap.get(AssetTag.USDS);
   }
 
   public getUserIcxReserve(): UserReserveData | undefined {

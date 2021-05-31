@@ -30,13 +30,13 @@ export class StateChangeService {
    * Map containing subscribable Subjects for each of the Asset (e.g. USDb, ICX, ..)
    */
   public userBalanceChangeMap: Map<AssetTag, Subject<number>> = new Map([
-    [AssetTag.USDB, new Subject<number>()],
+    [AssetTag.USDS, new Subject<number>()],
     [AssetTag.ICX, new Subject<number>()],
     [AssetTag.USDC, new Subject<number>()],
   ]);
 
   public userCollateralBalanceChangeMap: Map<CollateralAssetTag, Subject<number>> = new Map([
-    [CollateralAssetTag.USDB, new Subject<number>()],
+    [CollateralAssetTag.USDS, new Subject<number>()],
     [CollateralAssetTag.sICX, new Subject<number>()],
     [CollateralAssetTag.USDC, new Subject<number>()],
   ]);
@@ -45,7 +45,7 @@ export class StateChangeService {
    * Map containing subscribable Subjects for each of the Asset reserve (e.g. USDb, ICX, ..)
    */
   public userReserveChangeMap: Map<AssetTag, Subject<UserReserveData>> = new Map([
-    [AssetTag.USDB, new Subject<UserReserveData>()],
+    [AssetTag.USDS, new Subject<UserReserveData>()],
     [AssetTag.ICX, new Subject<UserReserveData>()],
     [AssetTag.USDC, new Subject<UserReserveData>()],
   ]);
@@ -78,7 +78,7 @@ export class StateChangeService {
    * Subscribable subject for monitoring the user debt changes for each asset
    */
   public userDebtMapChange: Map<AssetTag, Subject<number | undefined>> = new Map([
-    [AssetTag.USDB, new Subject<number | undefined>()],
+    [AssetTag.USDS, new Subject<number | undefined>()],
     [AssetTag.ICX, new Subject<number | undefined>()],
     [AssetTag.USDC, new Subject<number | undefined>()],
   ]);

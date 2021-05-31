@@ -11,31 +11,31 @@ export class Asset {
 }
 
 export enum AssetClass {
-  USDb = "usdb",
+  USDS = "usds",
   ICX = "icx",
   USDC = "usdc"
 }
 
 export enum AssetName {
-  USDb = "Bridge Dollars",
+  USDS = "Stably USD",
   ICX = "ICON",
   USDC = "ICON USD Coin"
 }
 
 export class AssetTag {
-  static USDB = "USDB";
+  static USDS = "USDS";
   static ICX = "ICX";
   static USDC = "IUSDC";
 }
 
 export class CollateralAssetTag {
-  static USDB = "USDB";
+  static USDS = "USDS";
   static sICX = "sICX";
   static USDC = "IUSDC";
 }
 
 export const supportedAssetsMap: Map<AssetTag, Asset> = new Map([
-  [AssetTag.USDB, new Asset(AssetClass.USDb, AssetName.USDb, AssetTag.USDB)],
+  [AssetTag.USDS, new Asset(AssetClass.USDS, AssetName.USDS, AssetTag.USDS)],
   [AssetTag.ICX, new Asset(AssetClass.ICX, AssetName.ICX , AssetTag.ICX)],
   [AssetTag.USDC, new Asset(AssetClass.USDC, AssetName.USDC , AssetTag.USDC)],
 ]);

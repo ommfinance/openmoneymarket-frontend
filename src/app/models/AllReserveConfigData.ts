@@ -4,11 +4,11 @@ import {ReserveConfigData} from "./ReserveConfigData";
 
 export class AllReserveConfigData {
   ICX: ReserveConfigData;
-  USDB: ReserveConfigData;
+  USDS: ReserveConfigData;
   USDC: ReserveConfigData;
 
   constructor(USDb: ReserveConfigData, sICX: ReserveConfigData, IUSDC: ReserveConfigData) {
-    this.USDB = USDb;
+    this.USDS = USDb;
     this.ICX = sICX;
     this.USDC = IUSDC;
   }
@@ -17,8 +17,8 @@ export class AllReserveConfigData {
     switch (assetTag) {
       case AssetTag.ICX:
         return this.ICX;
-      case AssetTag.USDB:
-        return this.USDB;
+      case AssetTag.USDS:
+        return this.USDS;
       case AssetTag.USDC:
         return this.USDC;
       default:

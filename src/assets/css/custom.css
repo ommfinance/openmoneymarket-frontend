@@ -10,6 +10,14 @@
   background-size: 35px;
 }
 
+/* Stably USD logo */
+.list tbody tr.usds td:first-of-type {
+  background-image: url(../img/logos/usds-logo.png);
+  background-repeat: no-repeat;
+  background-position: 33px center;
+  background-size: 35px;
+}
+
 .value-your-votes {
   font-size: 20px;
   color: #7a8294;
