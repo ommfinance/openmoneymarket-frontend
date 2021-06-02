@@ -142,6 +142,12 @@
 
           <!-- Borrow allow (Show if user can borrow) -->
           <div class="borrow-allow" [ngStyle]="hideElement(this.persistenceService.userHasNotSuppliedAnyAsset())">
+
+            <!-- Used indicator -->
+            <div class="used-container" *ngIf="isAssetBorrowUsed()">
+              <div class="used active" [ngStyle]="{left: assetRepayUsedPercentage() + '%'}"><p class="label">Used</p></div>
+            </div>
+
             <!-- Borrow slider -->
             <div id="slider-borrow" #sliderBorrow disabled></div>
 

@@ -1,4 +1,4 @@
-import {AssetTag} from "./Asset";
+import {AssetTag, CollateralAssetTag} from "./Asset";
 
 export class AllAddresses {
   collateral: Collateral;
@@ -12,7 +12,7 @@ export class AllAddresses {
     this.systemContract = systemContract;
   }
 
-  collateralAddress(assetTag: AssetTag): string {
+  collateralAddress(assetTag: AssetTag | CollateralAssetTag): string {
     switch (assetTag) {
       case AssetTag.ICX:
         return this.collateral.sICX;
@@ -20,6 +20,12 @@ export class AllAddresses {
         return this.collateral.USDB;
       case AssetTag.USDC:
         return this.collateral.IUSDC;
+      case CollateralAssetTag.sICX:
+        return this.collateral.sICX;
+      case CollateralAssetTag.USDB:
+        return this.collateral.USDB;
+      case CollateralAssetTag.USDC:
+        return this.collateral.IUSDC
       default:
         return "";
     }

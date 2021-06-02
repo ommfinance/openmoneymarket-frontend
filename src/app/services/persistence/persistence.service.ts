@@ -5,7 +5,7 @@ import {AllReservesData, ReserveData} from "../../models/AllReservesData";
 import {UserReserveData, UserReserves} from "../../models/UserReserveData";
 import {UserAccountData} from "../../models/UserAccountData";
 import {BridgeWallet} from "../../models/wallets/BridgeWallet";
-import {AssetTag} from "../../models/Asset";
+import {AssetTag, CollateralAssetTag} from "../../models/Asset";
 import {AllReserveConfigData} from "../../models/AllReserveConfigData";
 import {LedgerWallet} from "../../models/wallets/LedgerWallet";
 import {OmmRewards} from "../../models/OmmRewards";
@@ -36,6 +36,7 @@ export class PersistenceService {
   public userOmmRewards?: OmmRewards;
   public userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
   public userUnstakingInfo?: UnstakeInfo;
+  public userDebt: Map<CollateralAssetTag, number | undefined> = new Map<CollateralAssetTag, number | undefined>();
   public minOmmStakeAmount = 1;
   public totalStakedOmm = 0;
 
@@ -71,6 +72,10 @@ export class PersistenceService {
     return this.allReserves?.getReserveData(assetTag).decimals;
   }
 
+  public getUserAssetDebt(assetTag: AssetTag): number {
+    return this.userDebt.get(assetTag) ?? 0;
+  }
+
   public getUsersStakedOmmBalance(): number {
     return Utils.roundDownToZeroDecimals(this.userOmmTokenBalanceDetails?.stakedBalance ?? 0);
   }
@@ -101,6 +106,10 @@ export class PersistenceService {
 
   public getUserAssetBalance(assetTag: AssetTag): number {
     return this.activeWallet?.balances.get(assetTag) ?? 0;
+  }
+
+  public getUserAssetCollateralBalance(collateralAssetTag: CollateralAssetTag): number {
+    return this.activeWallet?.collateralBalances.get(collateralAssetTag) ?? 0;
   }
 
   public getUserAssetUSDBalance(assetTag: AssetTag): number {

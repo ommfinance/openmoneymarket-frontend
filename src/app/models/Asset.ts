@@ -22,10 +22,16 @@ export enum AssetName {
   USDC = "ICON USD Coin"
 }
 
-export enum AssetTag {
-  USDB = "USDB",
-  ICX = "ICX",
-  USDC = "IUSDC"
+export class AssetTag {
+  static USDB = "USDB";
+  static ICX = "ICX";
+  static USDC = "IUSDC";
+}
+
+export class CollateralAssetTag {
+  static USDB = "USDB";
+  static sICX = "sICX";
+  static USDC = "IUSDC";
 }
 
 export const supportedAssetsMap: Map<AssetTag, Asset> = new Map([

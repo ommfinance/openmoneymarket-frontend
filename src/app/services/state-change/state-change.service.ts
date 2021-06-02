@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {Subject} from "rxjs";
 import {UserReserveData} from "../../models/UserReserveData";
 import {PersistenceService} from "../persistence/persistence.service";
-import {AssetTag} from "../../models/Asset";
+import {AssetTag, CollateralAssetTag} from "../../models/Asset";
 import {IconexWallet} from "../../models/wallets/IconexWallet";
 import {BridgeWallet} from "../../models/wallets/BridgeWallet";
 import {UserAccountData} from "../../models/UserAccountData";
@@ -11,6 +11,7 @@ import {OmmRewards} from "../../models/OmmRewards";
 import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
 import {PrepList} from "../../models/Preps";
 import {YourPrepVote} from "../../models/YourPrepVote";
+import log from "loglevel";
 
 @Injectable({
   providedIn: 'root'
@@ -34,7 +35,11 @@ export class StateChangeService {
     [AssetTag.USDC, new Subject<number>()],
   ]);
 
-  // public userTotalRiskChange: Subject<number> = new Subject<number>();
+  public userCollateralBalanceChangeMap: Map<CollateralAssetTag, Subject<number>> = new Map([
+    [CollateralAssetTag.USDB, new Subject<number>()],
+    [CollateralAssetTag.sICX, new Subject<number>()],
+    [CollateralAssetTag.USDC, new Subject<number>()],
+  ]);
 
   /**
    * Map containing subscribable Subjects for each of the Asset reserve (e.g. USDb, ICX, ..)
@@ -69,6 +74,15 @@ export class StateChangeService {
    */
   public userTotalRiskChange: Subject<number> = new Subject<number>();
 
+  /**
+   * Subscribable subject for monitoring the user debt changes for each asset
+   */
+  public userDebtMapChange: Map<AssetTag, Subject<number | undefined>> = new Map([
+    [AssetTag.USDB, new Subject<number | undefined>()],
+    [AssetTag.ICX, new Subject<number | undefined>()],
+    [AssetTag.USDC, new Subject<number | undefined>()],
+  ]);
+
 
   constructor(private persistenceService: PersistenceService) {
     this.userBalanceChangeMap.forEach((subject: Subject<number>, key: AssetTag) => {
@@ -79,10 +93,27 @@ export class StateChangeService {
       });
     });
 
+    this.userCollateralBalanceChangeMap.forEach((subject: Subject<number>, key: CollateralAssetTag) => {
+      subject.subscribe(value => {
+        if (this.persistenceService.activeWallet) {
+          this.persistenceService.activeWallet.collateralBalances.set(key, value);
+        }
+      });
+    });
+
     this.userReserveChangeMap.forEach((subject: Subject<UserReserveData>, assetTag: AssetTag) => {
       subject.subscribe((value: UserReserveData) => {
         if (this.persistenceService.activeWallet) {
-          this.persistenceService.userReserves!.reserveMap.set(assetTag, value);
+          this.persistenceService.userReserves.reserveMap.set(assetTag, value);
+        }
+      });
+    });
+
+    this.userDebtMapChange.forEach((subject: Subject<number | undefined>, assetTag: AssetTag) => {
+      subject.subscribe((value: number | undefined) => {
+        if (this.persistenceService.activeWallet) {
+          log.debug(`Loaded asset ${assetTag} debt ${value}...`);
+          this.persistenceService.userDebt.set(assetTag, value);
         }
       });
     });
@@ -99,6 +130,14 @@ export class StateChangeService {
 
   public updateUserAssetBalance(balance: number, assetTag: AssetTag): void {
     this.userBalanceChangeMap.get(assetTag)!.next(balance);
+  }
+
+  public updateUserCollateralAssetBalance(balance: number, assetTag: CollateralAssetTag): void {
+    this.userCollateralBalanceChangeMap.get(assetTag)!.next(balance);
+  }
+
+  public updateUserDebt(debt: number, assetTag: AssetTag): void {
+    this.userDebtMapChange.get(assetTag)!.next(debt);
   }
 
   public updateUserAssetReserve(reserve: UserReserveData, assetTag: AssetTag): void {

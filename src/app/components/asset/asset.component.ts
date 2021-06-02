@@ -523,7 +523,14 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   initBorrowSliderLogic(): void {
     // On asset-user borrow slider update (Your markets)
     this.sliderBorrow.noUiSlider.on('update', (values: any, handle: any) => {
+
       const value = this.roundDownTo2Decimals(this.deformatAssetValue(values[handle]));
+
+      // TODO: stop slider on min (do not allow to go below "Used" repayment a.k.a user available balance of asset)
+      if (value < 192.5 && 192.5 < this.borrowSliderMaxValue()) {
+        return this.sliderBorrow.noUiSlider.set(192.5);
+      }
+
       // Update asset-user borrowed text box
       this.inputBorrow.value = this.roundDownTo2Decimals(value);
       // const convertedValue = this.convertSliderValue(value);
@@ -877,6 +884,26 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     } else {
       return res;
     }
+  }
+
+  assetRepayUsedPercentage(): number {
+    if (this.getUserBorrowedAssetBalance() <= 0){
+      return 0;
+    }
+
+    // return in percentage how much is "used", i.e. how much in percentage user still has to repay
+    // user can not scroll below this percentage on repayment / borrow slider
+    const userAssetBalance = this.persistenceService.getUserAssetBalance(this.asset.tag);
+    const userAssetDebt = this.persistenceService.getUserAssetDebt(this.asset.tag);
+    return userAssetBalance > userAssetDebt ? 0 : (userAssetBalance / this.borrowSliderMaxValue()) * 100;
+  }
+
+  isAssetBorrowUsed(): boolean {
+    if (this.getUserBorrowedAssetBalance() <= 0){
+      return false;
+    }
+
+    return this.persistenceService.getUserAssetBalance(this.asset.tag) < this.persistenceService.getUserAssetDebt(this.asset.tag);
   }
 
   isAllMarketViewActive(): boolean {

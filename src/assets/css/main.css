@@ -2300,6 +2300,35 @@ input[type="text"].input-borrow-available {
   background: linear-gradient( 90deg, rgb(96,129,223) 0%, rgb(157,77,241) 100%);
 }
 
+/* Locked / Used indicator */
+
+.used-container {
+  position: relative;
+}
+.used {
+  position: absolute;
+  width: 1px;
+  height: 15px;
+  margin-top: 30px;
+  background-color: #d3d9e7;
+  margin-top: 0px;
+  z-index: 2;
+  opacity: 0;
+  transition: height 0.2s ease, opacity 0.2s ease;
+}
+.adjust .used {
+  height: 5px;
+  transition: height 0.2s ease;
+}
+.used .label {
+  margin-top: -20px;
+  margin-left: -18px;
+}
+.used.active {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
 /* Supplied / Borrowed legend */
 
 .supply .legend .supplied,
@@ -2391,6 +2420,63 @@ input[type="text"].input-borrow-available {
 
 .overview .metadata dd {
   font-size: 25px;
+}
+
+/* APR toggle */
+
+#apr-toggle {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 20px;
+  float: right;
+  margin-top: 10px;
+}
+#apr-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+#apr-toggle .switch-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #c6cddd;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+#apr-toggle .switch-slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 4px;
+  bottom: 3px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+#apr-toggle input:checked + .switch-slider {
+  background-color: #00b1a3;
+}
+#apr-toggle input:checked + .switch-slider:before {
+  -webkit-transform: translateX(39px);
+  -ms-transform: translateX(39px);
+  transform: translateX(39px);
+}
+#apr-toggle .switch-slider.round {
+  border-radius: 35px;
+}
+#apr-toggle .switch-slider.round:before {
+  border-radius: 50%;
+}
+.apr-label {
+  float: right;
+  margin-top: 10px;
+  margin-right: 10px;
 }
 
 /*
@@ -2591,9 +2677,13 @@ input[type="text"].input-borrow-available {
 #markets .filters {
   margin-bottom: 25px;
 }
-.tooltip.expanded-risk-tooltip .tooltip-icon {
+.tooltip.expanded-risk-tooltip .tooltip-icon,
+.daily-interest-tooltip .tooltip-icon {
   width: 12px;
-  margin-bottom: 1px;
+  margin-bottom: 2px;
+}
+.daily-interest-tooltip .tooltip-content {
+  bottom: -37px;
 }
 .tooltip.expanded-risk-tooltip .tooltip-content {
   margin-bottom: -30px;
@@ -2630,7 +2720,6 @@ input[type="text"].input-borrow-available {
 #vote-overview #omm-stake .actions-default .button {
   margin-top: 10px;
 }
-
 #vote-overview input[type="text"] {
   border: 2px solid #d3d9e7;
   max-width: 70%;

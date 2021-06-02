@@ -12,7 +12,7 @@ import {AllReservesData, ReserveData} from "../../models/AllReservesData";
 import {UserAccountData} from "../../models/UserAccountData";
 import {ReserveConfigData} from "../../models/ReserveConfigData";
 import {StateChangeService} from "../state-change/state-change.service";
-import {AssetTag} from "../../models/Asset";
+import {AssetTag, CollateralAssetTag} from "../../models/Asset";
 import log from "loglevel";
 import {PrepList} from "../../models/Preps";
 import {Mapper} from "../../common/mapper";
@@ -162,10 +162,14 @@ export class ScoreService {
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
       ScoreMethodNames.GET_USER_REALTIME_DEBT, params, IconTransactionType.READ);
 
-    const res = await this.iconApiService.iconService.call(tx).execute()
-    log.debug("getUserDebt.res = ");
-    log.debug(res)
-    return Utils.hexToNormalisedNumber(res, this.persistenceService.getDecimalsForReserve(assetTag))
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    const normalisedRes = Utils.hexToNormalisedNumber(res, this.persistenceService.getDecimalsForReserve(assetTag));
+
+    // commit the change
+    this.stateChangeService.updateUserDebt(normalisedRes, assetTag);
+
+    return normalisedRes
   }
 
   /**
@@ -277,6 +281,7 @@ export class ScoreService {
 
     // set asset balance
     log.debug(`User (${this.persistenceService.activeWallet!.address}) ${assetTag} balance: ${balance}`);
+
     this.persistenceService.activeWallet!.balances.set(assetTag, balance);
 
     // commit the change
@@ -285,7 +290,23 @@ export class ScoreService {
     return balance;
   }
 
-  private async getIRC2TokenBalance(assetTag: AssetTag): Promise<number> {
+  public async getUserCollateralAssetBalance(assetTag: CollateralAssetTag): Promise<number> {
+    log.debug(`Fetching user balance for ${assetTag}...`);
+
+    let balance = await this.getIRC2TokenBalance(assetTag);
+
+    // set asset balance
+    log.debug(`User (${this.persistenceService.activeWallet!.address}) ${assetTag} balance: ${balance}`);
+
+    this.persistenceService.activeWallet!.collateralBalances.set(assetTag, balance);
+
+    // commit the change
+    this.stateChangeService.updateUserCollateralAssetBalance(balance, assetTag);
+
+    return balance;
+  }
+
+  private async getIRC2TokenBalance(assetTag: AssetTag | CollateralAssetTag): Promise<number> {
     this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
 
     const decimals = this.persistenceService.allReserves!.getReserveData(assetTag).decimals;
@@ -299,7 +320,12 @@ export class ScoreService {
     const balance = Utils.hexToNormalisedNumber(res, decimals);
 
     log.debug(`User (${this.persistenceService.activeWallet!.address}) ${assetTag} balance = ${balance}`);
-    this.stateChangeService.updateUserAssetBalance(balance, assetTag);
+
+    if (assetTag instanceof AssetTag) {
+      this.stateChangeService.updateUserAssetBalance(balance, assetTag);
+    } else {
+      this.stateChangeService.updateUserCollateralAssetBalance(balance, assetTag);
+    }
 
     return balance;
   }

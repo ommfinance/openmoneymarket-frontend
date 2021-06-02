@@ -10,6 +10,14 @@
           <li id="toggle-market-overview" class="{{isMarketOverviewActive() ? 'active': ''}}" (click)="onToggleMarketOverviewClick()">Market overview</li>
         </ul>
       </div>
+
+      <div class="grid-cell">
+        <label id="apr-toggle">
+          <input id="apr-toggle-checkbox" type="checkbox">
+          <span class="switch-slider round"></span>
+        </label>
+        <p class="label apr-label">APY without OMM</p>
+      </div>
     </div>
 
         <!-- Your overview content -->
@@ -28,7 +36,7 @@
           <!-- Your supply APY -->
           <div class="grid-cell text-center">
             <dl class="metadata">
-              <dt>Your supply APY</dt>
+              <dt class="">Your supply APY</dt>
               <dd class="text-green value-supplied-apy">{{to2DecimalRoundedOffPercentString(this.persistenceService.getMySupplyApy())}}</dd>
             </dl>
           </div>
@@ -141,17 +149,29 @@
             <tr id="your-markets-header" [ngStyle]="hideElement(shouldHideYourMarketHeader())">
               <th>Asset</th>
               <th>You've supplied</th>
-              <th>Supply APY</th>
+              <th>Supply APY <span class="supply-apy-tooltip tooltip">
+													<span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+													<div class="tooltip-content"><p class="supply-apy-tooltip-content">The amount of interest you’ll earn if you supply an asset for 1 year. Rates vary based on supply and demand.</p></div>
+												</span></th>
               <th>You've borrowed</th>
-              <th>Borrow APY</th>
+              <th>Borrow APY <span class="borrow-apy-tooltip tooltip">
+													<span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+													<div class="tooltip-content"><p class="borrow-apy-tooltip-content">The amount of interest you’ll owe if you borrow an asset for 1 year. Rates vary based on supply and demand.</p></div>
+												</span></th>
             </tr>
 
             <tr id="all-markets-header" [ngStyle]="hideElement(!allMarketViewActive())">
               <th>Asset</th>
               <th>Total supplied</th>
-              <th>Supply APY</th>
+              <th>Supply APY <span class="supply-apy-tooltip tooltip">
+													<span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+													<div class="tooltip-content"><p class="supply-apy-tooltip-content">The amount of interest you’ll earn if you supply an asset for 1 year. Rates vary based on supply and demand.</p></div>
+												</span></th>
               <th>Total borrowed</th>
-              <th>Borrow APY</th>
+              <th>Borrow APY <span class="borrow-apy-tooltip tooltip">
+													<span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+													<div class="tooltip-content"><p class="borrow-apy-tooltip-content">"The amount of interest you’ll owe if you borrow an asset for 1 year. Rates vary based on supply and demand.</p></div>
+												</span></th>
             </tr>
           </thead>
           <tbody>

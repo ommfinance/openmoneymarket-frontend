@@ -6,7 +6,7 @@ import {AllReservesData, ReserveData} from "../../models/AllReservesData";
 import {Mapper} from "../../common/mapper";
 import {UserAccountData} from "../../models/UserAccountData";
 import {StateChangeService} from "../state-change/state-change.service";
-import {AssetTag} from "../../models/Asset";
+import {AssetTag, CollateralAssetTag} from "../../models/Asset";
 import log from "loglevel";
 import {IconexWallet} from "../../models/wallets/IconexWallet";
 import {BridgeWallet} from "../../models/wallets/BridgeWallet";
@@ -55,10 +55,7 @@ export class DataLoaderService {
     log.info("Login with wallet: ", wallet);
 
     try {
-      await Promise.all([
-        this.loadUserSpecificData()
-      ]);
-
+      await this.loadUserSpecificData();
     } catch (e) {
       log.debug(e);
       this.persistenceService.activeWallet = undefined;
@@ -68,8 +65,7 @@ export class DataLoaderService {
 
     // gracefully fetch Omm part
     try {
-      const [userOmmRewRes, userOmmTokBalDet
-      ] = await Promise.all([
+      await Promise.all([
         this.loadUserOmmRewards(),
         this.loadUserOmmTokenBalanceDetails()
       ]);
@@ -91,6 +87,20 @@ export class DataLoaderService {
   public loadAllUserAssetsBalances(): void {
     Object.values(AssetTag).forEach(assetTag => {
       this.scoreService.getUserAssetBalance(assetTag).then();
+    });
+
+    Object.values(CollateralAssetTag).forEach(assetTag => {
+      this.scoreService.getUserCollateralAssetBalance(assetTag).then();
+    });
+  }
+
+  public loadAllUserDebts(): void {
+    Object.values(AssetTag).forEach(assetTag => {
+      this.scoreService.getUserDebt(assetTag).then()
+        .catch(e => {
+        log.error("Failed to load user debt for asset " + assetTag);
+        log.error(e);
+      });
     });
   }
 
@@ -324,6 +334,22 @@ export class DataLoaderService {
       this.loadUserDelegations(),
       this.loadUserUnstakingInfo()
     ]);
+
+    // load this as
+    this.loadUserAsyncData();
+  }
+
+  /**
+   * Load async without waiting
+   */
+  public loadUserAsyncData(): void {
+    try {
+      this.loadAllUserDebts();
+    } catch (e) {
+      log.error("Error occurred in loadUserAsyncData...");
+      log.error(e);
+    }
+
   }
 
   public async loadUserGovernanceData(): Promise<void> {

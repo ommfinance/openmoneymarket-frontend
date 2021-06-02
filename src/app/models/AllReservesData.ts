@@ -1,4 +1,4 @@
-import {AssetTag} from "./Asset";
+import {AssetTag, CollateralAssetTag} from "./Asset";
 import {OmmError} from "../core/errors/OmmError";
 
 export class AllReservesData {
@@ -12,13 +12,19 @@ export class AllReservesData {
     this.USDC = IUSDC;
   }
 
-  public getReserveData(assetTag: AssetTag): ReserveData {
+  public getReserveData(assetTag: AssetTag | CollateralAssetTag): ReserveData {
     switch (assetTag) {
       case AssetTag.ICX:
         return this.ICX;
       case AssetTag.USDB:
         return this.USDB;
       case AssetTag.USDC:
+        return this.USDC;
+      case CollateralAssetTag.sICX:
+        return this.ICX;
+      case CollateralAssetTag.USDB:
+        return this.USDB;
+      case CollateralAssetTag.USDC:
         return this.USDC;
       default:
         throw new OmmError(`AllReserves.getReserveData: Unsupported parameter = ${assetTag}`);
