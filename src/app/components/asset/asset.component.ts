@@ -8,7 +8,7 @@ import {
   percentageFormat
 } from "../../common/formats";
 import {CalculationsService} from "../../services/calculations/calculations.service";
-import {Asset, AssetTag} from "../../models/Asset";
+import {Asset, AssetTag, assetToCollateralAssetTag} from "../../models/Asset";
 import log from "loglevel";
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import {PersistenceService} from "../../services/persistence/persistence.service";
@@ -526,14 +526,16 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
       const value = this.roundDownTo2Decimals(this.deformatAssetValue(values[handle]));
 
-      // TODO: stop slider on min (do not allow to go below "Used" repayment a.k.a user available balance of asset)
-      if (value < 192.5 && 192.5 < this.borrowSliderMaxValue()) {
-        return this.sliderBorrow.noUiSlider.set(192.5);
+      // stop slider on min (do not allow to go below "Used" repayment a.k.a user available balance of asset)
+      if (this.isAssetBorrowUsed() || true) {
+        const borrowUsed = this.borrowUsed();
+        if (value < borrowUsed) {
+          return this.setBorrowSliderValue(borrowUsed);
+        }
       }
 
       // Update asset-user borrowed text box
       this.inputBorrow.value = this.roundDownTo2Decimals(value);
-      // const convertedValue = this.convertSliderValue(value);
 
       // Update asset-user available text box
       this.inputBorrowAvailable.value = assetFormat(this.asset.tag).to(Utils.subtractDecimalsWithPrecision(
@@ -554,7 +556,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         $('.risk-message-noassets').css("display", "none");
       }
 
-      // const borrowDiff = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag) - convertedValue;
       const borrowDiff = Utils.subtractDecimalsWithPrecision(this.getUserBorrowedAssetBalance(), value);
 
       // update risk data
@@ -887,23 +888,38 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   assetRepayUsedPercentage(): number {
+    log.debug(`************ assetRepayUsedPercentage ************`);
     if (this.getUserBorrowedAssetBalance() <= 0){
       return 0;
     }
 
     // return in percentage how much is "used", i.e. how much in percentage user still has to repay
     // user can not scroll below this percentage on repayment / borrow slider
-    const userAssetBalance = this.persistenceService.getUserAssetBalance(this.asset.tag);
-    const userAssetDebt = this.persistenceService.getUserAssetDebt(this.asset.tag);
-    return userAssetBalance > userAssetDebt ? 0 : (userAssetBalance / this.borrowSliderMaxValue()) * 100;
+    const borrowUsed = this.borrowUsed();
+    const percentageUsed = borrowUsed === 0 ? 0 : (borrowUsed / this.borrowSliderMaxValue()) * 100;
+    log.debug(`assetRepayUsedPercentage for ${this.asset.tag} = ${percentageUsed}`);
+    return percentageUsed;
   }
 
+  borrowUsed(): number {
+    const collateralAssetTag = assetToCollateralAssetTag(this.asset.tag);
+    const userCollateralAssetBalance = this.persistenceService.getUserAssetCollateralBalance(collateralAssetTag);
+
+    log.debug(`userCollateralAssetBalance for ${this.asset.tag} = ${userCollateralAssetBalance}`);
+    const userAssetDebt = this.persistenceService.getUserAssetDebt(this.asset.tag);
+    log.debug(`userAssetDebt for ${this.asset.tag} = ${userAssetDebt}`);
+    return userCollateralAssetBalance > userAssetDebt ? 0 : userCollateralAssetBalance
+  }
+
+  // check if users balance is less than amount he has to repay
   isAssetBorrowUsed(): boolean {
     if (this.getUserBorrowedAssetBalance() <= 0){
       return false;
     }
 
-    return this.persistenceService.getUserAssetBalance(this.asset.tag) < this.persistenceService.getUserAssetDebt(this.asset.tag);
+    const collateralAssetTag = assetToCollateralAssetTag(this.asset.tag);
+
+    return this.persistenceService.getUserAssetCollateralBalance(collateralAssetTag) < this.persistenceService.getUserAssetDebt(this.asset.tag);
   }
 
   isAllMarketViewActive(): boolean {

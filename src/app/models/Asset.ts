@@ -34,6 +34,19 @@ export class CollateralAssetTag {
   static USDC = "IUSDC";
 }
 
+export function assetToCollateralAssetTag(assetTag: AssetTag): CollateralAssetTag {
+  switch (assetTag) {
+    case AssetTag.ICX:
+      return CollateralAssetTag.sICX;
+    case AssetTag.USDC:
+      return CollateralAssetTag.USDC;
+    case AssetTag.USDS:
+      return CollateralAssetTag.USDS;
+    default:
+      throw new Error("Invalid AssetTag provided to assetToCollateralAssetTag method!");
+  }
+}
+
 export const supportedAssetsMap: Map<AssetTag, Asset> = new Map([
   [AssetTag.USDS, new Asset(AssetClass.USDS, AssetName.USDS, AssetTag.USDS)],
   [AssetTag.ICX, new Asset(AssetClass.ICX, AssetName.ICX , AssetTag.ICX)],

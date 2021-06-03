@@ -84,8 +84,8 @@ export class CalculationsService {
    * @return total user risk as a number (multiply by 100 to get percentage)
    */
   private calculateTotalRiskDynamic(assetTag: AssetTag, amount: number, userAction: UserAction): number {
-    log.debug("*******************  calculateTotalRiskDynamic  ***************************");
-    log.debug(`Params: assetTag=${assetTag}, amount=${amount}, userAction=${userAction.toString()}`);
+    // log.debug("*******************  calculateTotalRiskDynamic  ***************************");
+    // log.debug(`Params: assetTag=${assetTag}, amount=${amount}, userAction=${userAction.toString()}`);
 
     const userAccountData = this.persistenceService.userAccountData;
     // if user account data not yet initialised return 0
@@ -121,8 +121,8 @@ export class CalculationsService {
         // if user takes out the loan (borrow) update the origination fee and add amount to the total borrow balance
         const originationFee = this.persistenceService.getUserAssetReserve(assetTag)?.originationFee ?? 0;
         const originationFeePercentage = this.persistenceService.loanOriginationFeePercentage ?? 0.001;
-        log.debug(`originationFee=${originationFee}`);
-        log.debug(`amount being borrowed=${amount} ${assetTag}`);
+        // log.debug(`originationFee=${originationFee}`);
+        // log.debug(`amount being borrowed=${amount} ${assetTag}`);
         totalFeeUSD += amount * assetExchangePrice * originationFeePercentage + originationFee;
         totalBorrowBalanceUSD += amount * assetExchangePrice;
         break;
@@ -133,11 +133,11 @@ export class CalculationsService {
     }
 
 
-    log.debug("Total risk percentage calculation:");
-    log.debug(`totalBorrowBalanceUSD=${totalBorrowBalanceUSD}`);
-    log.debug(`totalCollateralBalanceUSD=${totalCollateralBalanceUSD}`);
-    log.debug(`totalFeeUSD=${totalFeeUSD}`);
-    log.debug(`liquidationThreshold=${liquidationThreshold}`);
+    // log.debug("Total risk percentage calculation:");
+    // log.debug(`totalBorrowBalanceUSD=${totalBorrowBalanceUSD}`);
+    // log.debug(`totalCollateralBalanceUSD=${totalCollateralBalanceUSD}`);
+    // log.debug(`totalFeeUSD=${totalFeeUSD}`);
+    // log.debug(`liquidationThreshold=${liquidationThreshold}`);
 
     let res = totalBorrowBalanceUSD / ((totalCollateralBalanceUSD - totalFeeUSD) * liquidationThreshold);
 
@@ -145,7 +145,7 @@ export class CalculationsService {
       res = 1;
     }
 
-    log.debug("Total dynamic risk = " + res);
+    // log.debug("Total dynamic risk = " + res);
 
     return res;
   }

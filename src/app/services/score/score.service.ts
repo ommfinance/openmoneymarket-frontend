@@ -291,12 +291,11 @@ export class ScoreService {
   }
 
   public async getUserCollateralAssetBalance(assetTag: CollateralAssetTag): Promise<number> {
-    log.debug(`Fetching user balance for ${assetTag}...`);
+    log.debug(`Fetching user collateral balance for ${assetTag}...`);
 
     let balance = await this.getIRC2TokenBalance(assetTag);
 
-    // set asset balance
-    log.debug(`User (${this.persistenceService.activeWallet!.address}) ${assetTag} balance: ${balance}`);
+    log.debug(`User (${this.persistenceService.activeWallet!.address}) collateral ${assetTag} balance: ${balance}`);
 
     this.persistenceService.activeWallet!.collateralBalances.set(assetTag, balance);
 
