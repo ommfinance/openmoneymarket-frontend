@@ -527,8 +527,8 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       const value = this.roundDownTo2Decimals(this.deformatAssetValue(values[handle]));
 
       // stop slider on min (do not allow to go below "Used" repayment a.k.a user available balance of asset)
-      if (this.isAssetBorrowUsed() || true) {
-        const borrowUsed = this.borrowUsed();
+      if (this.isAssetBorrowUsed()) {
+        const borrowUsed = this.convertSICXToICXIfAssetIsICX(this.borrowUsed());
         if (value < borrowUsed) {
           return this.setBorrowSliderValue(borrowUsed);
         }
@@ -635,6 +635,9 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   private convertSICXToICXIfAssetIsICX(value: number): number {
+    if (!value || value === 0) {
+      return 0;
+    }
     return this.asset.tag === AssetTag.ICX ? this.convertSICXToICX(value) : value;
   }
 
@@ -908,7 +911,10 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     log.debug(`userCollateralAssetBalance for ${this.asset.tag} = ${userCollateralAssetBalance}`);
     const userAssetDebt = this.persistenceService.getUserAssetDebt(this.asset.tag);
     log.debug(`userAssetDebt for ${this.asset.tag} = ${userAssetDebt}`);
-    return userCollateralAssetBalance > userAssetDebt ? 0 : userCollateralAssetBalance
+
+    // if user has balance of collateral asset greater than the debt he has to repay return 0
+    // else return the amount that is outstanding (debt - balance)
+    return userCollateralAssetBalance >= userAssetDebt ? 0 : Utils.subtractDecimalsWithPrecision(userAssetDebt, userCollateralAssetBalance)
   }
 
   // check if users balance is less than amount he has to repay
