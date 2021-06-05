@@ -7,6 +7,7 @@ import {ReserveData} from "../../models/AllReservesData";
 import {StateChangeService} from "../state-change/state-change.service";
 import {Utils} from "../../common/utils";
 import {Prep, PrepList} from "../../models/Preps";
+import {OmmError} from "../../core/errors/OmmError";
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +17,74 @@ export class CalculationsService {
 
   constructor(private persistenceService: PersistenceService,
               private stateChangeService: StateChangeService) { }
+
+  public calculateBorrowApyWithOmmRewards(assetTag: AssetTag): number {
+    log.debug("****** calculateBorrowApyWithOmmRewards *****");
+    log.debug("assetTag = " + assetTag);
+    const borrowRate = this.persistenceService.getAssetReserveData(assetTag)?.borrowRate ?? 0;
+    log.debug("borrowRate = " + borrowRate);
+    const tokenDistributionPerDay = this.persistenceService.tokenDistributionPerDay;
+    log.debug("tokenDistributionPerDay = " + tokenDistributionPerDay);
+    const totalInterestOverAYear = this.borrowTotalInterestOverAYear();
+    log.debug("totalInterestOverAYear = " + totalInterestOverAYear);
+    const result = this.borrowOmmApyFormula(borrowRate, totalInterestOverAYear, tokenDistributionPerDay, this.persistenceService.ommPriceUSD);
+    log.debug("result = " + result);
+
+    return result;
+  }
+
+  public borrowOmmApyFormula(borrowRate: number, totalInterestOverAYear: number, tokenDistributionPerDay: number,
+                             ommPriceUSD: number): number {
+    return borrowRate / totalInterestOverAYear * tokenDistributionPerDay * ommPriceUSD * 0.2 * 365;
+  }
+
+  public calculateSupplyApyWithOmmRewards(assetTag: AssetTag): number {
+    const liquidityRate = this.persistenceService.getAssetReserveData(assetTag)?.liquidityRate ?? 0;
+    const totalInterestOverAYear = this.supplyTotalInterestOverAYear();
+    const tokenDistributionPerDay = this.persistenceService.tokenDistributionPerDay;
+
+    return this.supplyOmmApyFormula(liquidityRate, totalInterestOverAYear, tokenDistributionPerDay, this.persistenceService.ommPriceUSD);
+  }
+
+  public supplyOmmApyFormula(liquidityRate: number, totalInterestOverAYear: number, tokenDistributionPerDay: number,
+                             ommPriceUSD: number): number {
+    return liquidityRate / totalInterestOverAYear * tokenDistributionPerDay * ommPriceUSD * 0.2 * 365
+  }
+
+  /**
+   * @description sum(sum(CollateralBalanceUSD * liquidityRate)) for all users
+   * @return {Number}
+   */
+  public supplyTotalInterestOverAYear(): number {
+    let allUsersCollateralSumRate = 0;
+
+    if (this.persistenceService.allReserves) {
+      Object.values(this.persistenceService.allReserves).forEach((reserve: ReserveData) => {
+        allUsersCollateralSumRate += reserve.totalLiquidityUSD * reserve.liquidityRate;
+      });
+
+      return allUsersCollateralSumRate
+    } else {
+      throw new OmmError("getAllUsersCollateralSumRate -> this.persistenceService.allReserves is undefined");
+    }
+  }
+
+  /**
+   * @description formula = sum(sum(BorrowBalanceUSD * borrowRate))
+   * @return {Number}
+   */
+  borrowTotalInterestOverAYear(): number {
+    let allUsersBorrowSumRate = 0;
+    if (this.persistenceService.allReserves) {
+      Object.values(this.persistenceService.allReserves).forEach((reserve: ReserveData) => {
+        allUsersBorrowSumRate += reserve.totalBorrowsUSD * reserve.borrowRate;
+      });
+
+      return allUsersBorrowSumRate
+    } else {
+      throw new OmmError("getAllUsersBorrowSumRate -> this.persistenceService.allReserves is undefined");
+    }
+  }
 
   public votingPower(): number {
     const totalIcxStakedByOMM = this.persistenceService.getAssetReserveData(AssetTag.ICX)?.totalLiquidity ?? 0;

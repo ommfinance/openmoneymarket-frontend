@@ -7,9 +7,9 @@
   <ng-container *ngIf="!isAllMarketViewActive() && !isAssetAvailable()">
     <td><span class="value-supplied">{{this.toDollarUSLocaleString(roundOffTo2Decimals(this.persistenceService.getUserAssetReserve(asset.tag)?.currentOTokenBalanceUSD))}}</span><br>
       <span class="value-supplied label">{{this.formatNumberToUSLocaleString(getUserSuppliedAssetBalance())}} {{asset.tag}}</span></td>
-    <td class="text-green">{{to2DecimalRoundedOffPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate)}}</td>
+    <td class="text-green">{{to2DecimalRoundedOffPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate)}}</td> <!-- Supply APY-->
     <td><span class="value-borrowed">{{this.toDollarUSLocaleString(roundOffTo2Decimals(this.persistenceService.getUserAssetReserve(asset.tag)?.currentBorrowBalanceUSD))}}</span><br>
-      <span class="value-borrowed label">{{this.formatNumberToUSLocaleString(getUserBorrowedAssetBalance())}} {{asset.tag}}</span></td>
+      <span class="value-borrowed label">{{this.formatNumberToUSLocaleString(getUserBorrowedAssetBalance())}} {{asset.tag}}</span></td> <!-- Borrow APY -->
     <td class="text-purple">{{to2DecimalRoundedOffPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.borrowRate)}}</td>
   </ng-container>
 
@@ -17,17 +17,17 @@
   <ng-container *ngIf="!isAllMarketViewActive() && isAssetAvailable()">
     <td colspan="2" class="text-right">{{this.toDollarUSLocaleString(roundOffTo2Decimals(getUserSuppliableBalanceUSD()))}}
       <br><span class="label">{{this.formatNumberToUSLocaleString(roundOffTo2Decimals(getUserSuppliableBalance()))}} {{asset.tag}}</span></td>
-    <td colspan="2" class="text-right"><span class="text-green">{{to2DecimalRoundedOffPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate)}} APY</span></td>
+    <td colspan="2" class="text-right"><span class="text-green">{{to2DecimalRoundedOffPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate)}} APY</span></td> <!-- Supply APY -->
   </ng-container>
 
   <!-- All markets state -->
   <ng-container *ngIf="isAllMarketViewActive()">
     <td><span>{{this.toDollarUSLocaleString(roundOffTo2Decimals(this.persistenceService.getAssetReserveData(asset.tag)?.totalLiquidityUSD))}}</span><br>
       <span class="label">{{this.formatNumberToUSLocaleString(roundOffTo2Decimals(getTotalLiquidity()))}} {{asset.tag}}</span></td>
-    <td class="text-green">{{to2DecimalRoundedOffPercentString(this.persistenceService.getAssetReserveData(asset.tag)?.liquidityRate)}}</td>
+    <td class="text-green">{{to2DecimalRoundedOffPercentString(getMarketSupplyRate())}}</td> <!-- Supply APY -->
     <td>{{this.toDollarUSLocaleString(roundOffTo2Decimals(this.persistenceService.getAssetReserveData(asset.tag)?.totalBorrowsUSD))}}<br>
       <span class="label">{{this.formatNumberToUSLocaleString(roundOffTo2Decimals(getTotalBorrows()))}} {{asset.tag}}</span></td>
-    <td class="text-purple">{{to2DecimalRoundedOffPercentString(this.persistenceService.getAssetReserveData(asset.tag)?.borrowRate)}}</td>
+    <td class="text-purple">{{to2DecimalRoundedOffPercentString(getMarketBorrowRate())}}</td> <!-- Borrow APY -->
   </ng-container>
 
 </tr>

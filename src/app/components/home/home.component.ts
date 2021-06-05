@@ -58,6 +58,9 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
 
   public hideMarketHeader = false;
 
+  // OMM toggle checkbox
+  public ommApyChecked = false;
+
 
   constructor(public persistenceService: PersistenceService,
               public depositService: SupplyService,
@@ -88,6 +91,11 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
 
     // call cd after to avoid ExpressionChangedAfterItHasBeenCheckedError
     this.cd.detectChanges();
+  }
+
+
+  ommApyToggleChanged(): void {
+    // TODO overview total / your APY logic
   }
 
   // load the asset lists

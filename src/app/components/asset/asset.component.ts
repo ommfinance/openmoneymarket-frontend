@@ -31,6 +31,11 @@ declare var $: any;
 export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   @Input() asset!: Asset;
+  _ommApyChecked: boolean = false;
+  @Input() set ommApyChecked(ommApyChecked: boolean) {
+    this._ommApyChecked = ommApyChecked;
+    this.ommApyCheckedChange();
+  }
   @Input() riskSlider!: any;
   @Input() index!: number;
   @Input() activeMarketView!: ActiveMarketView;
@@ -95,6 +100,10 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.initBorrowSliderLogic();
     this.initSubscribedValues();
     this.subscribeToTotalRiskChange();
+  }
+
+  ommApyCheckedChange(): void {
+
   }
 
   /**
@@ -948,4 +957,15 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     const amount = this.persistenceService.userUnstakingInfo?.totalAmount ?? 0;
     return this.asset.tag === AssetTag.ICX && amount > 0;
   }
+
+  getMarketBorrowRate(): number {
+    return this._ommApyChecked ? this.calculationService.calculateBorrowApyWithOmmRewards(this.asset.tag) :
+      this.persistenceService.getAssetReserveData(this.asset.tag)?.borrowRate ?? 0;
+  }
+
+  getMarketSupplyRate(): number {
+    return this._ommApyChecked ? this.calculationService.calculateSupplyApyWithOmmRewards(this.asset.tag) :
+      this.persistenceService.getAssetReserveData(this.asset.tag)?.liquidityRate ?? 0;
+  }
+
 }

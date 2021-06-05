@@ -39,6 +39,7 @@ export class PersistenceService {
   public userDebt: Map<CollateralAssetTag, number | undefined> = new Map<CollateralAssetTag, number | undefined>();
   public minOmmStakeAmount = 1;
   public totalStakedOmm = 0;
+  public ommPriceUSD = 2; // TODO fetch that from oracle / DEX
 
   public tokenDistributionPerDay = 1;
   public loanOriginationFeePercentage = 0.001;
