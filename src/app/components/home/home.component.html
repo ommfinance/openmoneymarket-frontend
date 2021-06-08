@@ -37,7 +37,7 @@
           <div class="grid-cell text-center">
             <dl class="metadata">
               <dt class="">Your supply APY</dt>
-              <dd class="text-green value-supplied-apy">{{to2DecimalRoundedOffPercentString(this.persistenceService.getMySupplyApy())}}</dd>
+              <dd class="text-green value-supplied-apy">{{to2DecimalRoundedOffPercentString(this.calculationService.getYourSupplyApy(ommApyChecked))}}</dd>
             </dl>
           </div>
         </div>
@@ -58,7 +58,7 @@
           <div class="grid-cell text-center">
             <dl class="metadata">
               <dt>Your borrow APY</dt>
-              <dd class="text-purple value-borrowed-apy">{{to2DecimalRoundedOffPercentString(this.persistenceService.getMyBorrowApy())}}</dd>
+              <dd class="text-purple value-borrowed-apy">{{to2DecimalRoundedOffPercentString(this.calculationService.getYourBorrowApy(ommApyChecked))}}</dd>
             </dl>
           </div>
         </div>
@@ -82,7 +82,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Total supply APY</dt>
-                  <dd class="text-green">{{to2DecimalRoundedOffPercentString(this.calculationService.getTotalAvgSupplyApy())}}</dd>
+                  <dd class="text-green">{{to2DecimalRoundedOffPercentString(this.calculationService.getTotalAvgSupplyApy(ommApyChecked))}}</dd>
                 </dl>
               </div>
             </div>
@@ -103,7 +103,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Total borrow APY</dt>
-                  <dd class="text-purple">{{to2DecimalRoundedOffPercentString(this.calculationService.getTotalAvgBorrowApy())}}</dd>
+                  <dd class="text-purple">{{to2DecimalRoundedOffPercentString(this.calculationService.getTotalAvgBorrowApy(ommApyChecked))}}</dd>
                 </dl>
               </div>
             </div>

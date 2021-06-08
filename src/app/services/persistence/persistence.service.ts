@@ -246,7 +246,7 @@ export class PersistenceService {
     return counter === 0 || total === 0 ? 0 : total / counter;
   }
 
-  public getMySupplyApy(): number {
+  public getYourSupplyApy(): number {
     let supplyApySum = 0;
     let supplySum = 0;
     let supplied;
@@ -260,11 +260,10 @@ export class PersistenceService {
       supplySum += supplied;
     });
 
-
     return supplyApySum / supplySum;
   }
 
-  public getMyBorrowApy(): number {
+  public getYourBorrowApy(): number {
     let borrowApySum = 0;
     let borrowSum = 0;
     let borrowed;
@@ -277,7 +276,6 @@ export class PersistenceService {
       borrowApySum += borrowed * borrowApy;
       borrowSum += borrowed;
     });
-
 
     return borrowApySum / borrowSum;
   }

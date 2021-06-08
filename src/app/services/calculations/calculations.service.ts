@@ -8,6 +8,7 @@ import {StateChangeService} from "../state-change/state-change.service";
 import {Utils} from "../../common/utils";
 import {Prep, PrepList} from "../../models/Preps";
 import {OmmError} from "../../core/errors/OmmError";
+import {UserReserveData} from "../../models/UserReserveData";
 
 @Injectable({
   providedIn: 'root'
@@ -427,7 +428,7 @@ export class CalculationsService {
     return (userSum / allUsersSum) * 0.2 * this.persistenceService.tokenDistributionPerDay;
   }
 
-  public getTotalAvgSupplyApy(): number {
+  public getTotalAvgSupplyApy(ommApyIncluded = false): number {
     let totalLiquidityUSDsum = 0;
     let totalLiquidityUSDsupplyApySum = 0;
 
@@ -435,15 +436,18 @@ export class CalculationsService {
       return 0;
     }
 
-    Object.values(this.persistenceService.allReserves).forEach((property: ReserveData) => {
-      totalLiquidityUSDsum += property.totalLiquidityUSD;
-      totalLiquidityUSDsupplyApySum += property.totalLiquidityUSD * property.liquidityRate;
-    });
+    let reserve: ReserveData | undefined;
+    Object.values(AssetTag).forEach((assetTag: AssetTag) => {
+      reserve = this.persistenceService.allReserves!.getReserveData(assetTag);
+      totalLiquidityUSDsum += reserve.totalLiquidityUSD;
+      const rate = ommApyIncluded ? reserve.liquidityRate + this.calculateSupplyApyWithOmmRewards(assetTag) : reserve.liquidityRate;
+        totalLiquidityUSDsupplyApySum += reserve.totalLiquidityUSD * rate;
+    })
 
     return totalLiquidityUSDsupplyApySum / totalLiquidityUSDsum;
   }
 
-  public getTotalAvgBorrowApy(): number {
+  public getTotalAvgBorrowApy(ommApyIncluded = false): number {
     let totalBorrowUSDsum = 0;
     let totalBorrowUSDsupplyApySum = 0;
 
@@ -451,12 +455,51 @@ export class CalculationsService {
       return 0;
     }
 
-    Object.values(this.persistenceService.allReserves).forEach((property: ReserveData) => {
-      totalBorrowUSDsum += property.totalBorrowsUSD;
-      totalBorrowUSDsupplyApySum += property.totalBorrowsUSD * property.borrowRate;
-    });
+    let reserve: ReserveData | undefined;
+    Object.values(AssetTag).forEach((assetTag: AssetTag) => {
+      reserve = this.persistenceService.allReserves!.getReserveData(assetTag);
+      const rate = ommApyIncluded ? reserve.borrowRate + this.calculateBorrowApyWithOmmRewards(assetTag) : reserve.borrowRate;
+      totalBorrowUSDsum += reserve.totalBorrowsUSD;
+      totalBorrowUSDsupplyApySum += reserve.totalBorrowsUSD * rate;
+    })
 
     return totalBorrowUSDsupplyApySum / totalBorrowUSDsum;
+  }
+
+  public getYourSupplyApy(ommApyIncluded = false): number {
+    let supplyApySum = 0;
+    let supplySum = 0;
+    let supplied;
+    let supplyApy;
+
+    // Sum(My supply amount for each asset * Supply APY for each asset)
+    this.persistenceService.userReserves.reserveMap.forEach((reserve: UserReserveData | undefined, assetTag: AssetTag) => {
+      supplied = reserve?.currentOTokenBalanceUSD ?? 0;
+      supplyApy = reserve?.liquidityRate ?? 0;
+      const rate = ommApyIncluded ? supplyApy + this.calculateSupplyApyWithOmmRewards(assetTag) : supplyApy
+      supplyApySum += supplied * rate;
+      supplySum += supplied;
+    });
+
+    return supplyApySum / supplySum;
+  }
+
+  public getYourBorrowApy(ommApyIncluded = false): number {
+    let borrowApySum = 0;
+    let borrowSum = 0;
+    let borrowed;
+    let borrowApy;
+
+    // Sum(My supply amount for each asset * Supply APY for each asset)
+    this.persistenceService.userReserves.reserveMap.forEach((reserve: UserReserveData | undefined, assetTag: AssetTag) => {
+      borrowed = reserve?.currentBorrowBalanceUSD ?? 0;
+      borrowApy = reserve?.borrowRate ?? 0;
+      const rate = ommApyIncluded ? borrowApy + this.calculateBorrowApyWithOmmRewards(assetTag) : borrowApy;
+      borrowApySum += borrowed * rate;
+      borrowSum += borrowed;
+    });
+
+    return borrowApySum / borrowSum;
   }
 
   public calculatePrepsIcxReward(prep: Prep, prepList: PrepList): number {

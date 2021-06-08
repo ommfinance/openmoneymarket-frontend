@@ -968,4 +968,12 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       this.persistenceService.getAssetReserveData(this.asset.tag)?.liquidityRate ?? 0;
   }
 
+  getUserSupplyApy(): number | undefined {
+    return this._ommApyChecked ? this.getMarketSupplyRate() : this.persistenceService.getUserAssetReserve(this.asset.tag)?.liquidityRate;
+  }
+
+  getUserBorrowApy(): number | undefined {
+    return this._ommApyChecked ? this.getMarketBorrowRate() : this.persistenceService.getUserAssetReserve(this.asset.tag)?.borrowRate;
+  }
+
 }
