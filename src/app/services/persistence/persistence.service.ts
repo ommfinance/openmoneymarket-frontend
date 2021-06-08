@@ -39,7 +39,7 @@ export class PersistenceService {
   public userDebt: Map<CollateralAssetTag, number | undefined> = new Map<CollateralAssetTag, number | undefined>();
   public minOmmStakeAmount = 1;
   public totalStakedOmm = 0;
-  public ommPriceUSD = 2; // TODO fetch that from oracle / DEX
+  public ommPriceUSD = 1; // default to 1
 
   public tokenDistributionPerDay = 1;
   public loanOriginationFeePercentage = 0.001;
@@ -253,7 +253,7 @@ export class PersistenceService {
     let supplyApy;
 
     // Sum(My supply amount for each asset * Supply APY for each asset)
-    this.userReserves!.reserveMap.forEach(reserve => {
+    this.userReserves.reserveMap.forEach(reserve => {
       supplied = reserve?.currentOTokenBalanceUSD ?? 0;
       supplyApy = reserve?.liquidityRate ?? 0;
       supplyApySum += supplied * supplyApy;
@@ -271,7 +271,7 @@ export class PersistenceService {
     let borrowApy;
 
     // Sum(My supply amount for each asset * Supply APY for each asset)
-    this.userReserves!.reserveMap.forEach(reserve => {
+    this.userReserves.reserveMap.forEach(reserve => {
       borrowed = reserve?.currentBorrowBalanceUSD ?? 0;
       borrowApy = reserve?.borrowRate ?? 0;
       borrowApySum += borrowed * borrowApy;

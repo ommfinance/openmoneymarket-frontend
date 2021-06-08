@@ -50,6 +50,11 @@ export class ScoreMethodNames {
   public static TEST_MINT = "testMint";
 
   /**
+   * Balanced DEX SCORE
+   */
+  public static GET_PRICE_BY_NAME = "getPriceByName";
+
+  /**
    * Delegation SCORE
    */
   public static GET_USER_DELEGATION_DETAILS = "getUserDelegationDetails";

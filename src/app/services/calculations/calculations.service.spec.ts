@@ -24,11 +24,11 @@ describe('CalculationsService', () => {
   });
 
   it('Test borrowOmmApyFormula USDS testnet values', () => {
-    const borrowRate = 3.617802522022774;
+    const borrowRate = 0.03617802522022774;
     const ommPriceUSD = 2;
     const ommTokenDistribution = 1000000;
     const totalInterestOverAYear = 406.97350242030865;
-    const expectedResult = 1297871.15;
+    const expectedResult = 12978.7115; // * 100 returns the percentage
     expect(service.borrowOmmApyFormula(borrowRate, totalInterestOverAYear, ommTokenDistribution, ommPriceUSD)).toBeCloseTo(expectedResult, 2);
   });
 

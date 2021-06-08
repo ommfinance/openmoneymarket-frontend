@@ -23,6 +23,7 @@ import {LocalStorageService} from "../local-storage/local-storage.service";
 import {WalletType} from "../../models/wallets/Wallet";
 import {HttpClient} from "@angular/common/http";
 import {UnstakeIcxData} from "../../models/UnstakeInfo";
+import {BalancedDexPools} from "../../models/BalancedDexPools";
 
 @Injectable({
   providedIn: 'root'
@@ -240,6 +241,22 @@ export class DataLoaderService {
       log.error("Error in loadMinOmmStakeAmount()");
       log.error(e);
     });
+  }
+
+  public loadOmmTokenPriceUSD(): void {
+    Promise.all([
+      this.scoreService.getOmmTokenPriceUSD(BalancedDexPools.OMM2_USDS),
+      this.scoreService.getOmmTokenPriceUSD(BalancedDexPools.OMM2_IUSDC)
+    ]).then(([ommUsdsPrice, ommIusdcPrice]) => {
+        log.debug(`ommUsdsPrice = ${ommUsdsPrice}`);
+        log.debug(`ommIusdcPrice = ${ommIusdcPrice}`);
+        const averageOmmPriceUSD = (ommUsdsPrice + ommIusdcPrice) / 2;
+        log.debug(`averageOmmPriceUSD = ${averageOmmPriceUSD}`);
+        this.persistenceService.ommPriceUSD = averageOmmPriceUSD;
+    }).catch(e => {
+        log.error("Error in loadOmmTokenPriceUSD()");
+        log.error(e);
+    });
 
   }
 
@@ -323,6 +340,8 @@ export class DataLoaderService {
       this.loadPrepList(),
       this.loadMinOmmStakeAmount()
     ]);
+
+    this.loadCoreAsyncData();
   }
 
   public async loadUserSpecificData(): Promise<void> {
@@ -335,12 +354,11 @@ export class DataLoaderService {
       this.loadUserUnstakingInfo()
     ]);
 
-    // load this as
     this.loadUserAsyncData();
   }
 
   /**
-   * Load async without waiting
+   * Load user data async without waiting
    */
   public loadUserAsyncData(): void {
     try {
@@ -349,7 +367,13 @@ export class DataLoaderService {
       log.error("Error occurred in loadUserAsyncData...");
       log.error(e);
     }
+  }
 
+  /**
+   * Load core data async without waiting
+   */
+  public loadCoreAsyncData(): void {
+    this.loadOmmTokenPriceUSD();
   }
 
   public async loadUserGovernanceData(): Promise<void> {

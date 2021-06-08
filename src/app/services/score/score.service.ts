@@ -20,6 +20,7 @@ import {IconAmount, IconConverter} from "icon-sdk-js";
 import {YourPrepVote} from "../../models/YourPrepVote";
 import {DelegationPreference} from "../../models/DelegationPreference";
 import {UnstakeIcxData} from "../../models/UnstakeInfo";
+import {BalancedDexPools} from "../../models/BalancedDexPools";
 
 
 @Injectable({
@@ -265,6 +266,25 @@ export class ScoreService {
     const res = await this.iconApiService.iconService.call(tx).execute();
 
     log.debug("getOmmTokenMinStakeAmount: ", res);
+
+    return Utils.hexToNormalisedNumber(res);
+  }
+
+  /**
+   * @description Get OMM token USD price
+   * @return  number OMM token price in USD
+   */
+  public async getOmmTokenPriceUSD(poolName: BalancedDexPools): Promise<number> {
+
+    const params = {
+      _name: poolName
+    }
+    const tx = this.iconApiService.buildTransaction("",  environment.BALANCED_DEX_SCORE,
+      ScoreMethodNames.GET_PRICE_BY_NAME, params, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getOmmTokenPriceUSD: ", res);
 
     return Utils.hexToNormalisedNumber(res);
   }
