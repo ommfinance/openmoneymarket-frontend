@@ -317,4 +317,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     return this.activeMarketOverview === ActiveMarketOverview.MARKET_OVERVIEW;
   }
 
+  getOmmPriceUSD(): string {
+    return `($${this.formatNumberToUSLocaleString(this.roundOffTo2Decimals(this.persistenceService.ommPriceUSD))})`;
+  }
 }

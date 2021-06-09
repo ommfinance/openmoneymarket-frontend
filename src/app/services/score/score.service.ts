@@ -20,7 +20,7 @@ import {IconAmount, IconConverter} from "icon-sdk-js";
 import {YourPrepVote} from "../../models/YourPrepVote";
 import {DelegationPreference} from "../../models/DelegationPreference";
 import {UnstakeIcxData} from "../../models/UnstakeInfo";
-import {BalancedDexPools} from "../../models/BalancedDexPools";
+import {BalancedDexPools, balDexPoolsPriceDecimalsMap} from "../../models/BalancedDexPools";
 
 
 @Injectable({
@@ -170,7 +170,7 @@ export class ScoreService {
     // commit the change
     this.stateChangeService.updateUserDebt(normalisedRes, assetTag);
 
-    return normalisedRes
+    return normalisedRes;
   }
 
   /**
@@ -278,7 +278,8 @@ export class ScoreService {
 
     const params = {
       _name: poolName
-    }
+    };
+
     const tx = this.iconApiService.buildTransaction("",  environment.BALANCED_DEX_SCORE,
       ScoreMethodNames.GET_PRICE_BY_NAME, params, IconTransactionType.READ);
 
@@ -286,7 +287,7 @@ export class ScoreService {
 
     log.debug("getOmmTokenPriceUSD: ", res);
 
-    return Utils.hexToNormalisedNumber(res);
+    return Utils.hexToNormalisedNumber(res, balDexPoolsPriceDecimalsMap.get(poolName));
   }
 
   public async getUserAssetBalance(assetTag: AssetTag): Promise<number> {
@@ -313,7 +314,7 @@ export class ScoreService {
   public async getUserCollateralAssetBalance(assetTag: CollateralAssetTag): Promise<number> {
     log.debug(`Fetching user collateral balance for ${assetTag}...`);
 
-    let balance = await this.getIRC2TokenBalance(assetTag);
+    const balance = await this.getIRC2TokenBalance(assetTag);
 
     log.debug(`User (${this.persistenceService.activeWallet!.address}) collateral ${assetTag} balance: ${balance}`);
 
