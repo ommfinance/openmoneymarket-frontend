@@ -1,6 +1,6 @@
 # Frontend
 
-![build](https://github.com/github/docs/actions/workflows/build.yml/badge.svg)
+![build](https://github.com/openmoneymarket/openmoneymarket-frontend/actions/workflows/build.yml/badge.svg)
 
 This is a frontend of the Open money market project.
 
