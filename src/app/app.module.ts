@@ -7,7 +7,6 @@ import {FormsModule} from '@angular/forms';
 import { HeaderComponent } from './components/header/header.component';
 import { HomeComponent } from './components/home/home.component';
 import {CoreModule} from "./core/core.module";
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NotificationComponent } from './components/notification/notification.component';
 import { ModalComponent } from './components/modal/modal.component';
 import { PerformanceComponent } from './components/performance/performance.component';
@@ -39,10 +38,9 @@ log.setLevel(environment.production ? "error" : "debug");
     AppRoutingModule,
     FormsModule,
     CoreModule,
-    BrowserAnimationsModule,
     HttpClientModule
   ],
-  providers: [],
+  providers: [HttpClientModule],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
