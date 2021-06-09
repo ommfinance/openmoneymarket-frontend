@@ -16,7 +16,7 @@
           <input id="apr-toggle-checkbox" type="checkbox" [(ngModel)]="ommApyChecked" (change)="ommApyToggleChanged()">
           <span class="switch-slider round"></span>
         </label>
-        <p class="label apr-label" #aprLabel>{{ommApyChecked ? "APY with OMM" : "APY without OMM"}}</p>
+        <p class="label apr-label" #aprLabel>{{ommApyChecked ? "APY with OMM" : "APY without OMM"}} {{getOmmPriceUSD()}}</p>
       </div>
     </div>
 
