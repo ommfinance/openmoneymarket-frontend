@@ -1,4 +1,7 @@
 # Frontend
+
+![build](https://github.com/github/docs/actions/workflows/build.yml/badge.svg)
+
 This is a frontend of the Open money market project.
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.1.1.
