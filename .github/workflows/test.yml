@@ -1,4 +1,4 @@
-name: Omm frontend CI
+name: Omm CI tests
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the frontend branch
@@ -31,7 +31,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: npm ci and npm run build
+      - name: npm ci and npm run test
         run: |
           npm ci
-          npm run build:ci
+          npm run test:ci

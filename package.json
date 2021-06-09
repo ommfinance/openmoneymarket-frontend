@@ -11,7 +11,8 @@
     "test:watch": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "build:ci": "npm run clean && npm run test && npm run build:prod",
+    "build:ci": "npm run clean && npm run build:prod",
+    "test:ci": "npm run test",
     "deploy": "ng build && cd .. && git subtree push --prefix frontend heroku master"
   },
   "engines": {
