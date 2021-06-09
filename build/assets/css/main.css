@@ -1463,11 +1463,14 @@ input[type=number]::-webkit-outer-spin-button {
 .tooltip .tooltip-content .menu-list li a {
 	color: #49546a;
 }
-.tooltip .tooltip-content .menu-list li:hover {
+.tooltip .tooltip-content .menu-list li:not(.disable):hover {
 	background-color: #dbe3f0;
 	padding-left: 15px !important;
 	padding-right: 15px !important;
 	transition: background-color 0.2s ease, padding 0.2s ease;
+}
+.tooltip .tooltip-content .menu-list .disable {
+    cursor: not-allowed;
 }
 .tooltip .tooltip-content .menu-list li::before {
 	position: relative;
@@ -2962,6 +2965,7 @@ input[type="submit"] {
     padding: 8px 30px;
     box-shadow: transparent;
     transition: color 0.3s ease, border 0.3s ease, background-color 0.3s ease;
+    cursor: not-allowed !important;
 }
 
 .slider {

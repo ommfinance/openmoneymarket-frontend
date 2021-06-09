@@ -79,7 +79,7 @@
             const userIconAddress = localStorage.getItem("BRIDGE_USER_ICON_ADDRESS")
 
             if(!!userIconAddress){
-                console.log("Preparing USDb transaction for address " + userIconAddress)
+                console.log("Preparing USDS transaction for address " + userIconAddress)
                 const customEvent = new CustomEvent('bri.send.tx', {
                     detail: {
                         payload: {
@@ -94,8 +94,8 @@
                             "data": {
                                 "method": "transfer",
                                 "params": {
-                                    "_to": "hx9f2173c968820a816e1c5e101dbb9ed7c14b616b", // USDb Receiver Address
-                                    "_value":"0x53444835ec580000"}                       // USDb Amount
+                                    "_to": "hx9f2173c968820a816e1c5e101dbb9ed7c14b616b", // USDS Receiver Address
+                                    "_value":"0x53444835ec580000"}                       // USDS Amount
                             }
                         }
                     }

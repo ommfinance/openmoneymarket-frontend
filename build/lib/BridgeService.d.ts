@@ -65,7 +65,7 @@ export declare class BridgeService {
      * @return {Promise<string>} The transaction hash promise
      * @throws {BridgeError} - contains user friendly message and external error (if present)
      */
-    sendIrc2Tokens(to: string, amount: number, scoreAddress: string): Promise<string>;
+    sendIrc2Tokens(to: string, amount: number, scoreAddress: string, data?: string): Promise<string>;
     /**
      * @description Send ICX tokens to another wallet.
      * @param {string} to - The EOA address.
