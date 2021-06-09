@@ -7,7 +7,7 @@ export declare class Token {
     constructor(tag: string, name: string, logo: any, scoreAddress: string, balance?: number);
 }
 export declare enum SupportedTokens {
-    USDb = "USDb",
+    USDS = "USDS",
     ICX = "ICX"
 }
 export declare class Tokens {

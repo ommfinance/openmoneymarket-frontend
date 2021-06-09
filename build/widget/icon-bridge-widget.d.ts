@@ -1,9 +1,5 @@
 import { LitElement } from 'lit-element';
-import "./child-elements/kyc-account";
 import "./child-elements/send-token";
-import "./child-elements/withdraw-elem";
-import "./child-elements/payment-methods";
-import "./child-elements/kyc-status-elem";
 export declare class IconBridgeWidget extends LitElement {
     private hideButton;
     private mainModalWrapper;
@@ -21,10 +17,8 @@ export declare class IconBridgeWidget extends LitElement {
     private signingInView;
     private errorView;
     private transactionDetailView;
-    private kycAccountElemView;
     private sendTokenElemView;
     private paymentMethodsElemView;
-    private kycStatusElemView;
     private activeModalView;
     private notification;
     private emailError;
@@ -35,10 +29,7 @@ export declare class IconBridgeWidget extends LitElement {
     private selectedTransaction;
     private user;
     private userMagicMetadata;
-    private userContact;
-    private userKycData;
-    private kycChecks;
-    private uploadedDocuments;
+    kycChecksCount: Number;
     private userTokensMap;
     private selectedToken;
     private linkedCreditCards;
@@ -59,18 +50,14 @@ export declare class IconBridgeWidget extends LitElement {
     protected firstUpdated(_changedProperties: any): void;
     connectedCallback(): void;
     private handleBriWidgetEvent;
-    private reloadBriBalanceAndPaymentMethods;
+    private reloadUsdsBalanceAndPaymentMethods;
     private showModalView;
     private setActiveModalView;
     private refreshBaseData;
-    private refreshPrimeTrustData;
     private establishIntervals;
     private clearIntervals;
-    private loadUserBriBalance;
+    private loadUserUsdsBalance;
     private loadUserTokens;
-    private loadUserKycData;
-    private handleKycStatusChanges;
-    private loadUserPrimeTrustContact;
     private signOut;
     private submitLoginForm;
     private handleEmailInput;
@@ -82,8 +69,6 @@ export declare class IconBridgeWidget extends LitElement {
     private showChangeEmail;
     private hideEmailChangeShowMain;
     backToHomeView(): void;
-    private showPaymentMethods;
-    private showWithdrawalPaymentMethods;
     private onBridgeButtonClick;
     private showWidget;
     private hideWidget;
@@ -93,17 +78,10 @@ export declare class IconBridgeWidget extends LitElement {
     private _handleChangeEmailKeyDown;
     private updateEmail;
     private handleTokenTransfer;
-    private handleDepositEvent;
-    private handleWithdrawEvent;
-    private reloadLinkedCredCards;
-    private reloadLinkedBankAccounts;
-    private handleAccountCreated;
     private emailChange;
     private handleOnWithdrawFundsClick;
     private handleOnViewBlockchainAddressClick;
     private scrollHeaderLogic;
-    private showProcessingView;
-    private onKycStatusClick;
     private onDepositClick;
     private onAssetClick;
     private onCopyAddressClick;
@@ -113,7 +91,6 @@ export declare class IconBridgeWidget extends LitElement {
     private onTransactionClick;
     private getTransactionsHtml;
     private getTransactionDetailHtml;
-    private getKycStatusTitleFromElem;
     render(): import("lit-element").TemplateResult;
     private getTransactionNavHtml;
 }

@@ -16,4 +16,5 @@ export declare function log(message: any, ...args: any): void;
 export declare function isBankAccount(selectedPaymentMethod: BankAccount | CreditCard): boolean;
 export declare function extractPaymentMethodName(selectedPaymentMethod: BankAccount | CreditCard): string;
 export declare function numberWithCommas(amount: string): string;
+export declare function dateWithDashes(date: string): string;
 //# sourceMappingURL=Utils.d.ts.map
