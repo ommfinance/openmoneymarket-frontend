@@ -943,7 +943,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   getInputBorrowValue(): number {
-    return +assetFormat(this.asset.tag).from(this.inputBorrow.value);
+    return +assetFormat(this.asset.tag).from(this.inputBorrow?.value ?? 0);
   }
 
   getInputSupplyValue(): number {
