@@ -2,6 +2,8 @@ import IconService from 'icon-sdk-js';
 import {BigNumber} from "bignumber.js";
 import bigDecimal from "js-big-decimal";
 import {AssetTag} from "../models/Asset";
+import {BridgeWidgetAction} from "../models/BridgeWidgetAction";
+import log from "loglevel";
 
 export class Utils {
 
@@ -167,5 +169,15 @@ export class Utils {
 
   public static extractTxFailureMessage(tx: any): string {
     return tx?.failure?.message ?? "";
+  }
+
+  public static dispatchBridgeWidgetAction(action: BridgeWidgetAction): void {
+    const event = new CustomEvent('bri.widget', {
+      detail: {
+        action: action.valueOf()
+      }
+    });
+    log.debug("Dispatched Bridge event: ", event);
+    window.dispatchEvent(event);
   }
 }

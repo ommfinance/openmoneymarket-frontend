@@ -9,6 +9,7 @@ import {DataLoaderService} from "../data-loader/data-loader.service";
 import log from "loglevel";
 import {OmmError} from "../../core/errors/OmmError";
 import {NotificationService} from "../notification/notification.service";
+import {LoginService} from "../login/login.service";
 
 @Injectable({
   providedIn: "root"
@@ -24,6 +25,7 @@ export class IconexApiService {
               private transactionResultService: TransactionResultService,
               private scoreService: ScoreService,
               private dataLoaderService: DataLoaderService,
+              private loginService: LoginService,
               private notificationService: NotificationService) { }
 
   public iconexEventHandler( e: any): void {
@@ -39,7 +41,7 @@ export class IconexApiService {
         break;
       }
       case "RESPONSE_ADDRESS": {
-        this.dataLoaderService.walletLogin(new IconexWallet(payload));
+        this.loginService.walletLogin(new IconexWallet(payload));
         log.debug("Successfully connected your Icon wallet!");
         break;
       }

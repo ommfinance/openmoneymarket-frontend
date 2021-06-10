@@ -13,6 +13,8 @@ import {DataLoaderService} from "../../services/data-loader/data-loader.service"
 import {NotificationService} from "../../services/notification/notification.service";
 import {NavigationEnd, Router} from "@angular/router";
 import {LedgerWallet} from "../../models/wallets/LedgerWallet";
+import {LoginService} from "../../services/login/login.service";
+import {LogoutService} from "../../services/logout/logout.service";
 
 declare var $: any;
 
@@ -33,6 +35,8 @@ export class HeaderComponent extends BaseClass implements OnInit {
               private modalService: ModalService,
               private bridgeWidgetService: BridgeWidgetService,
               private dataLoaderService: DataLoaderService,
+              private loginService: LoginService,
+              private logoutService: LogoutService,
               private notificationService: NotificationService,
               private router: Router) {
     super(persistenceService);
@@ -56,7 +60,7 @@ export class HeaderComponent extends BaseClass implements OnInit {
 
   onRefreshClick(): void {
     if (this.persistenceService.activeWallet) {
-      this.dataLoaderService.walletLogin(this.persistenceService.activeWallet).then(() => {
+      this.loginService.walletLogin(this.persistenceService.activeWallet).then(() => {
         this.notificationService.showNewNotification("Successfully refreshed the data.");
       }).catch(() => {
         this.notificationService.showNewNotification("Failed to refreshed the data.");
@@ -85,13 +89,9 @@ export class HeaderComponent extends BaseClass implements OnInit {
   }
 
   onSignOutClick(): void {
-    // if Bridge wallet commit request to Bridge to sign out
-    if (this.persistenceService.bridgeWalletActive()) {
-      this.bridgeWidgetService.signOutUser();
-    }
-
-    this.dataLoaderService.walletLogout();
+    this.logoutService.signOutUser();
   }
+
   // get Iconex wallet address or Bridge email
   getWalletId(): string {
     if (this.persistenceService.activeWallet instanceof IconexWallet) {
