@@ -69,7 +69,7 @@ export class PersistenceService {
     return this.allAddresses?.collateralAddress(assetTag);
   }
 
-  public getDecimalsForReserve(assetTag: AssetTag) {
+  public getDecimalsForReserve(assetTag: AssetTag): number | undefined {
     return this.allReserves?.getReserveData(assetTag).decimals;
   }
 

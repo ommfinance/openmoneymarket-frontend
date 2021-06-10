@@ -31,7 +31,7 @@ declare var $: any;
 export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   @Input() asset!: Asset;
-  _ommApyChecked: boolean = false;
+  _ommApyChecked = false;
   @Input() set ommApyChecked(ommApyChecked: boolean) {
     this._ommApyChecked = ommApyChecked;
     this.ommApyCheckedChange();
@@ -246,7 +246,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         // reset border color if it passes the check
         this.inputSupply.classList.remove("red-border");
         // set slider value
-        this.setSupplySliderValue(value)
+        this.setSupplySliderValue(value);
       }
     }, 500 );
   }
@@ -544,7 +544,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       }
 
       // Update asset-user borrowed text box
-      this.inputBorrow.value = this.roundDownTo2Decimals(value);
+      this.inputBorrow.value = assetFormat(this.asset.tag).to(value);
 
       // Update asset-user available text box
       this.inputBorrowAvailable.value = assetFormat(this.asset.tag).to(Utils.subtractDecimalsWithPrecision(
@@ -923,7 +923,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
     // if user has balance of collateral asset greater than the debt he has to repay return 0
     // else return the amount that is outstanding (debt - balance)
-    return userCollateralAssetBalance >= userAssetDebt ? 0 : Utils.subtractDecimalsWithPrecision(userAssetDebt, userCollateralAssetBalance)
+    return userCollateralAssetBalance >= userAssetDebt ? 0 : Utils.subtractDecimalsWithPrecision(userAssetDebt, userCollateralAssetBalance);
   }
 
   // check if users balance is less than amount he has to repay
@@ -934,7 +934,8 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
     const collateralAssetTag = assetToCollateralAssetTag(this.asset.tag);
 
-    return this.persistenceService.getUserAssetCollateralBalance(collateralAssetTag) < this.persistenceService.getUserAssetDebt(this.asset.tag);
+    return this.persistenceService.getUserAssetCollateralBalance(collateralAssetTag)
+      < this.persistenceService.getUserAssetDebt(this.asset.tag);
   }
 
   isAllMarketViewActive(): boolean {
@@ -942,7 +943,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   getInputBorrowValue(): number {
-    return +assetFormat(this.asset.tag).from(this.inputBorrow.value);
+    return +assetFormat(this.asset.tag).from(this.inputBorrow?.value ?? 0);
   }
 
   getInputSupplyValue(): number {

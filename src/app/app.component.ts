@@ -10,6 +10,7 @@ import {LocalStorageService, WalletLogin} from "./services/local-storage/local-s
 import {IconexWallet} from "./models/wallets/IconexWallet";
 import {LedgerWallet} from "./models/wallets/LedgerWallet";
 import log from "loglevel";
+import {LoginService} from "./services/login/login.service";
 
 declare var $: any;
 
@@ -27,6 +28,7 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
 
   constructor(private iconexApiService: IconexApiService,
               private dataLoaderService: DataLoaderService,
+              private loginService: LoginService,
               private modalService: ModalService,
               public persistenceService: PersistenceService,
               private reloaderService: ReloaderService,
@@ -80,10 +82,10 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
         if (activeWallet &&  activeWalletType === WalletType.ICONEX || activeWalletType === WalletType.LEDGER) {
           switch (activeWalletType) {
             case WalletType.ICONEX:
-              this.dataLoaderService.walletLogin(new IconexWallet(activeWallet.address), true);
+              this.loginService.walletLogin(new IconexWallet(activeWallet.address), true);
               break;
             case WalletType.LEDGER:
-              this.dataLoaderService.walletLogin(new LedgerWallet(activeWallet.address, activeWallet.path), true);
+              this.loginService.walletLogin(new LedgerWallet(activeWallet.address, activeWallet.path), true);
               break;
           }
         }

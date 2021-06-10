@@ -24,6 +24,8 @@ import log from "loglevel";
 import {TransactionDispatcherService} from "../../services/transaction-dispatcher/transaction-dispatcher.service";
 import {OmmService} from "../../services/omm/omm.service";
 import {VoteService} from "../../services/vote/vote.service";
+import {LoginService} from "../../services/login/login.service";
+import {IconexWallet} from "../../models/wallets/IconexWallet";
 
 
 @Component({
@@ -75,6 +77,7 @@ export class ModalComponent extends BaseClass implements OnInit {
               public persistenceService: PersistenceService,
               private ledgerService: LedgerService,
               private dataLoaderService: DataLoaderService,
+              private loginService: LoginService,
               private transactionDispatcherService: TransactionDispatcherService,
               private ommService: OmmService,
               private voteService: VoteService) {
@@ -142,7 +145,7 @@ export class ModalComponent extends BaseClass implements OnInit {
 
   onSelectLedgerAddressClick(wallet: LedgerWallet): void {
     this.modalService.hideActiveModal();
-    this.dataLoaderService.walletLogin(wallet);
+    this.loginService.walletLogin(wallet);
   }
 
   onLedgerAddressPageClick(page: number): void {
@@ -340,8 +343,10 @@ export class ModalComponent extends BaseClass implements OnInit {
     // commit modal action change
     this.stateChangeService.updateUserModalAction(this.activeModalChange);
 
-    // hide current modal
-    this.modalService.hideActiveModal();
+    // hide current modal if not Iconex wallet
+    if (!(this.persistenceService.activeWallet instanceof IconexWallet)) {
+      this.modalService.hideActiveModal();
+    }
   }
 
   private waitForUnstakingIcx(): boolean {

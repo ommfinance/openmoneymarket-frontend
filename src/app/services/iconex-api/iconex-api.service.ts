@@ -9,6 +9,9 @@ import {DataLoaderService} from "../data-loader/data-loader.service";
 import log from "loglevel";
 import {OmmError} from "../../core/errors/OmmError";
 import {NotificationService} from "../notification/notification.service";
+import {LoginService} from "../login/login.service";
+import {IconexId} from "../../models/IconexId";
+import {ModalService} from "../modal/modal.service";
 
 @Injectable({
   providedIn: "root"
@@ -24,10 +27,13 @@ export class IconexApiService {
               private transactionResultService: TransactionResultService,
               private scoreService: ScoreService,
               private dataLoaderService: DataLoaderService,
-              private notificationService: NotificationService) { }
+              private loginService: LoginService,
+              private notificationService: NotificationService,
+              private modalService: ModalService) { }
 
   public iconexEventHandler( e: any): void {
     const {type, payload} = e.detail;
+    log.debug("iconexEventHandler:");
     log.debug(type, " : ", payload);
 
     switch (type) {
@@ -39,16 +45,23 @@ export class IconexApiService {
         break;
       }
       case "RESPONSE_ADDRESS": {
-        this.dataLoaderService.walletLogin(new IconexWallet(payload));
+        this.loginService.walletLogin(new IconexWallet(payload));
         log.debug("Successfully connected your Icon wallet!");
         break;
       }
       case "RESPONSE_SIGNING": {
-        console.log(payload); // e.g., 'q/dVc3qj4En0GN+...'
+        log.debug("RESPONSE_SIGNING:");
+        log.debug(payload); // e.g., 'q/dVc3qj4En0GN+...'
         break;
       }
       case "RESPONSE_JSON-RPC": {
         log.debug("RESPONSE_JSON-RPC", payload.result);
+
+        if (payload.id === IconexId.SHOW_MESSAGE_HIDE_MODAL) {
+          this.notificationService.showNotificationToShow();
+          this.modalService.hideActiveModal();
+        }
+
         this.transactionResultService.processIconexTransactionResult(payload);
         break;
       }
@@ -85,7 +98,7 @@ export class IconexApiService {
       }}));
   }
 
-  public dispatchSendTransactionEvent(transaction: any): void {
+  public dispatchSendTransactionEvent(transaction: any, id: number = IconexId.DEFAULT): void {
     window.dispatchEvent(new CustomEvent("ICONEX_RELAY_REQUEST", {
       detail: {
         type: "REQUEST_JSON-RPC",
@@ -93,13 +106,21 @@ export class IconexApiService {
           jsonrpc: "2.0",
           method: "icx_sendTransaction",
           params: IconConverter.toRawTransaction(transaction),
-          id: 1
+          id
         }
       }
     }));
   }
 
   public dispatchSignTransactionEvent(transaction: any): void {
+    const payload = {
+      detail: {
+        type: "REQUEST_SIGNING",
+        payload: IconConverter.toRawTransaction(transaction)
+      }
+    };
+    log.debug("dispatchSignTransactionEvent payload:");
+    log.debug(payload);
     window.dispatchEvent(new CustomEvent("ICONEX_RELAY_REQUEST", {
       detail: {
         type: "REQUEST_SIGNING",

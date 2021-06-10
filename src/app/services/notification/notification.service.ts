@@ -14,11 +14,18 @@ export class NotificationService {
   activeNotificationChange$ = this.activeNotificationChange.asObservable();
 
   public activeNotification?: HTMLElement;
+  public notificationMessageToShow?: string;
 
   constructor() { }
 
   showNewNotification(message: string, type: NotificationType = NotificationType.DEFAULT): void {
     this.activeNotificationChange.next(new NotificationAction(message, type));
+  }
+
+  showNotificationToShow(): void {
+    if (this.notificationMessageToShow) {
+      this.activeNotificationChange.next(new NotificationAction(this.notificationMessageToShow, NotificationType.DEFAULT));
+    }
   }
 
   hideActiveNotification(): void {
@@ -39,4 +46,7 @@ export class NotificationService {
     }
   }
 
+  setNotificationToShow(message: string): void {
+    this.notificationMessageToShow = message;
+  }
 }

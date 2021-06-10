@@ -8,11 +8,8 @@ import {UserAccountData} from "../../models/UserAccountData";
 import {StateChangeService} from "../state-change/state-change.service";
 import {AssetTag, CollateralAssetTag} from "../../models/Asset";
 import log from "loglevel";
-import {IconexWallet} from "../../models/wallets/IconexWallet";
-import {BridgeWallet} from "../../models/wallets/BridgeWallet";
 import {OmmError} from "../../core/errors/OmmError";
 import {AllReserveConfigData} from "../../models/AllReserveConfigData";
-import {LedgerWallet} from "../../models/wallets/LedgerWallet";
 import {OmmService} from "../omm/omm.service";
 import {OmmRewards} from "../../models/OmmRewards";
 import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
@@ -20,7 +17,6 @@ import {NotificationService} from "../notification/notification.service";
 import {ErrorCode, ErrorService} from "../error/error.service";
 import {CheckerService} from "../checker/checker.service";
 import {LocalStorageService} from "../local-storage/local-storage.service";
-import {WalletType} from "../../models/wallets/Wallet";
 import {HttpClient} from "@angular/common/http";
 import {UnstakeIcxData} from "../../models/UnstakeInfo";
 import {BalancedDexPools} from "../../models/BalancedDexPools";
@@ -40,49 +36,6 @@ export class DataLoaderService {
               private localStorageService: LocalStorageService,
               private http: HttpClient) {
 
-  }
-
-  public async walletLogin(wallet: IconexWallet | BridgeWallet | LedgerWallet, relogin: boolean = false): Promise<void> {
-    this.persistenceService.activeWallet = wallet;
-
-    if (!relogin) {
-      if (wallet.type !== WalletType.BRIDGE) {
-        this.localStorageService.persistWalletLogin(wallet);
-      } else {
-        this.localStorageService.clearWalletLogin();
-      }
-    }
-
-    log.info("Login with wallet: ", wallet);
-
-    try {
-      await this.loadUserSpecificData();
-    } catch (e) {
-      log.debug(e);
-      this.persistenceService.activeWallet = undefined;
-      this.notificationService.showNewNotification("Error occurred! Try again in a moment.");
-      throw new OmmError("Error occurred! Try again in a moment.", e);
-    }
-
-    // gracefully fetch Omm part
-    try {
-      await Promise.all([
-        this.loadUserOmmRewards(),
-        this.loadUserOmmTokenBalanceDetails()
-      ]);
-    } catch (e) {
-      log.error("Error in [loadUserOmmRewards, loadUserOmmTokenBalanceDetails]");
-    }
-
-    this.stateChangeService.updateLoginStatus(this.persistenceService.activeWallet);
-  }
-
-  public walletLogout(): void {
-    // clear active wallet
-    this.persistenceService.logoutUser();
-
-    // commit change to the state change service
-    this.stateChangeService.updateLoginStatus(this.persistenceService.activeWallet);
   }
 
   public loadAllUserAssetsBalances(): void {
