@@ -11,6 +11,7 @@ import {IconApiService} from "../icon-api/icon-api.service";
 import {IconConverter} from "icon-sdk-js";
 import {TransactionResultService} from "../transaction-result/transaction-result.service";
 import {LocalStorageService} from "../local-storage/local-storage.service";
+import {IconexId} from "../../models/IconexId";
 
 @Injectable({
   providedIn: 'root'
@@ -39,8 +40,8 @@ export class TransactionDispatcherService {
       }
 
       if (this.persistenceService.activeWallet instanceof IconexWallet) {
-        this.iconexApiService.dispatchSendTransactionEvent(tx);
-        this.notificationService.showNewNotification(notificationMessage);
+        this.iconexApiService.dispatchSendTransactionEvent(tx, IconexId.SHOW_MESSAGE_HIDE_MODAL);
+        this.notificationService.setNotificationToShow(notificationMessage);
       } else if (this.persistenceService.activeWallet instanceof BridgeWallet) {
         this.bridgeWidgetService.sendTransaction(tx);
         this.notificationService.showNewNotification(notificationMessage);

@@ -25,6 +25,7 @@ import {TransactionDispatcherService} from "../../services/transaction-dispatche
 import {OmmService} from "../../services/omm/omm.service";
 import {VoteService} from "../../services/vote/vote.service";
 import {LoginService} from "../../services/login/login.service";
+import {IconexWallet} from "../../models/wallets/IconexWallet";
 
 
 @Component({
@@ -342,8 +343,10 @@ export class ModalComponent extends BaseClass implements OnInit {
     // commit modal action change
     this.stateChangeService.updateUserModalAction(this.activeModalChange);
 
-    // hide current modal
-    this.modalService.hideActiveModal();
+    // hide current modal if not Iconex wallet
+    if (!(this.persistenceService.activeWallet instanceof IconexWallet)) {
+      this.modalService.hideActiveModal();
+    }
   }
 
   private waitForUnstakingIcx(): boolean {
