@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 // @ts-ignore
-import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
+import TransportWebHID from "@ledgerhq/hw-transport-webhid";
 import log from "loglevel";
 import {LedgerIcxBaseData} from "../../interfaces/LedgerIcxBaseData";
 import {Icx} from "../../libs/hw-app-icx/Icx";
@@ -18,7 +18,7 @@ import {OmmError} from "../../core/errors/OmmError";
 })
 export class LedgerService {
 
-  private icx?: TransportWebUSB;
+  private icx?: TransportWebHID;
 
   private LIST_NUM = 5;
 
@@ -30,8 +30,7 @@ export class LedgerService {
 
   async signIn(): Promise<LedgerIcxBaseData | undefined> {
 
-    if (!TransportWebUSB.isSupported) {
-      // alert("Unable to connect the ledger. WebUSB transport is not supported.");
+    if (!TransportWebHID.isSupported) {
       this.notificationService.showNewNotification("Unable to connect the ledger. WebUSB transport is not supported.");
     }
 
@@ -106,11 +105,13 @@ export class LedgerService {
   }
 
   async initialiseTransport(): Promise<void> {
-    const transport = await TransportWebUSB.create();
-    transport.setDebugMode(false);
-    transport.setExchangeTimeout(60000); // 60 seconds
+    if (!this.icx) {
+      const transport = await TransportWebHID.create();
+      transport.setDebugMode(false);
+      transport.setExchangeTimeout(60000); // 60 seconds
 
-    this.icx = new Icx(transport);
+      this.icx = new Icx(transport);
+    }
   }
 
   _generateHashKey(obj: any): any {
