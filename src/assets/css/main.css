@@ -2,7 +2,7 @@
 * Omm
 * Main CSS
 * Version 1.0
-* Last updated 1/3/21
+* Last updated 15/6/21
 */
 
 /* ==========================================================================
@@ -42,6 +42,16 @@
 /* ==========================================================================
 	HTML
 ========================================================================== */
+
+/* Notice */
+
+.notice {
+  background-color: #edeff4;
+  padding: 15px;
+  border-radius: 15px;
+  margin-top: 15px;
+  text-align: center;
+}
 
 /* Force border box */
 
@@ -270,15 +280,19 @@ textarea {
 }
 .header .wallet-content li {
   margin-bottom: 15px;
-  background-image: url(../img/icon/wallet.svg);
   background-repeat: no-repeat;
   background-position: 0px center;
   background-size: 20px;
   padding-left: 30px;
 }
-.header .wallet-content li:last-of-type {
-  margin-bottom: 5px;
+.header .wallet-content li#menu-wallet {
+  background-image: url(../img/icon/wallet.svg);
+}
+.header .wallet-content li#menu-copy {
   background-image: url(../img/icon/copy.svg);
+}
+.header .wallet-content li#menu-change {
+  background-image: url(../img/icon/wallet.svg);
 }
 .header .wallet-content a {
   color: #7a8294;
