@@ -45,11 +45,11 @@
       <div class="grid wallet-content bridge panel">
         <div class="grid-cell">
           <ul>
-            <li [ngStyle]="hideElement(!this.persistenceService.bridgeWalletActive())">
+            <li id="menu-wallet" [ngStyle]="hideElement(!this.persistenceService.bridgeWalletActive())">
               <a href="javascript:void(0);" (click)="onOpenBridgeClick()" class="animation-underline">Open Bridge</a>
             </li>
-            <li><a href="javascript:void(0);" class="animation-underline" (click)="onCopyIconAddressClick()">Copy ICON address</a></li>
-            <li><a href="javascript:void(0);" (click)="onSignInClick()">Change wallet</a></li>
+            <li id="menu-copy"><a href="javascript:void(0);" (click)="onCopyIconAddressClick()" class="animation-underline">Copy ICON address</a></li>
+            <li id="menu-change" class="hide"><a href="javascript:void(0);" class="animation-underline" (click)="onSignInClick()">Change wallet</a></li>
           </ul>
           <p class="text-center"><a href="javascript:void(0);" class="button" (click)="onSignOutClick()">Sign out</a></p>
         </div>

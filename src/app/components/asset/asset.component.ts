@@ -606,7 +606,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   convertSliderValue(value: number): number {
-    if (this.asset.tag === AssetTag.ICX) {
+    if (this.isAssetIcx()) {
       return this.convertFromICXTosICX(value);
     } else {
       return value;
@@ -647,13 +647,13 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     if (!value || value === 0) {
       return 0;
     }
-    return this.asset.tag === AssetTag.ICX ? this.convertSICXToICX(value) : value;
+    return this.isAssetIcx() ? this.convertSICXToICX(value) : value;
   }
 
   private setSupplySliderValue(value: number, convert = false): void {
     let res: number;
     // if asset is ICX, convert sICX -> ICX
-    if (convert && this.asset.tag === AssetTag.ICX) {
+    if (convert && this.isAssetIcx()) {
       res = this.roundDownTo2Decimals(this.convertSICXToICX(value));
     } else {
       res = this.roundDownTo2Decimals(value);
@@ -671,7 +671,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   private setBorrowSliderValue(value: number, convert = false): void {
     let res: number;
     // if asset is ICX, convert sICX -> ICX
-    if (convert && this.asset.tag === AssetTag.ICX) {
+    if (convert && this.isAssetIcx()) {
       res = this.roundDownTo2Decimals(this.convertSICXToICX(value));
     } else {
       res = this.roundDownTo2Decimals(value);
@@ -688,7 +688,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   getUserSuppliedAssetBalance(): number {
     let res = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag);
 
-    if (this.asset.tag === AssetTag.ICX) {
+    if (this.isAssetIcx()) {
       res = this.convertSICXToICX(res);
     }
 
@@ -698,7 +698,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   getUserBorrowedAssetBalance(): number {
     let res = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag);
 
-    if (this.asset.tag === AssetTag.ICX) {
+    if (this.isAssetIcx()) {
       res = this.convertSICXToICX(res);
     }
 
@@ -752,7 +752,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     const currentBorrow = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag) ?? 0;
     let availTotalBorrow = totalSupplied - totalBorrowed + currentBorrow;
 
-    if (this.asset.tag === AssetTag.ICX) {
+    if (this.isAssetIcx()) {
       availTotalBorrow = this.convertSICXToICX(availTotalBorrow);
     }
 
@@ -883,7 +883,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   getTotalBorrows(): number {
     const res = this.persistenceService.getAssetReserveData(this.asset.tag)?.totalBorrows ?? 0;
-    if (this.asset.tag === AssetTag.ICX) {
+    if (this.isAssetIcx()) {
       return this.convertSICXToICX(res);
     } else {
       return res;
@@ -892,7 +892,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   getTotalLiquidity(): number {
     const res = this.persistenceService.getAssetReserveData(this.asset.tag)?.totalLiquidity ?? 0;
-    if (this.asset.tag === AssetTag.ICX) {
+    if (this.isAssetIcx()) {
       return this.convertSICXToICX(res);
     } else {
       return res;
@@ -956,7 +956,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   shouldShowUnstaking(): boolean {
     const amount = this.persistenceService.userUnstakingInfo?.totalAmount ?? 0;
-    return this.asset.tag === AssetTag.ICX && amount > 0;
+    return this.isAssetIcx() && amount > 0;
   }
 
   getMarketBorrowRate(): number {
@@ -975,6 +975,26 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   getUserBorrowApy(): number | undefined {
     return this._ommApyChecked ? this.getMarketBorrowRate() : this.persistenceService.getUserAssetReserve(this.asset.tag)?.borrowRate;
+  }
+
+  getAssetTagAdjusted(): string {
+    if (this.isAssetIcx()) {
+      return "ICX / sICX";
+    } else {
+      return this.asset.tag.toString();
+    }
+  }
+
+  getBorrowAssetTagAdjusted(): string {
+    if (this.isAssetIcx()) {
+      return "sICX";
+    } else {
+      return this.asset.tag.toString();
+    }
+  }
+
+  isAssetIcx(): boolean {
+    return this.asset.tag === AssetTag.ICX;
   }
 
 }

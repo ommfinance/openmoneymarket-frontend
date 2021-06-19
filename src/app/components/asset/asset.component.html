@@ -1,7 +1,7 @@
 <!-- Your markets (users asset) or Available to supply state -->
 <tr class="asset {{asset.className}} {{getAssetClass()}}" (click)="onAssetClick()" #assetYour [ngStyle]="hideElement(!shouldBeShown())">
 
-  <td>{{asset.name}}<br><span class="label">{{asset.tag}}</span></td>
+  <td>{{asset.name}}<br><span class="label">{{getAssetTagAdjusted()}}</span></td>
 
   <!-- Your asset state -->
   <ng-container *ngIf="!isAllMarketViewActive() && !isAssetAvailable()">
@@ -9,8 +9,8 @@
       <span class="value-supplied label">{{this.formatNumberToUSLocaleString(getUserSuppliedAssetBalance())}} {{asset.tag}}</span></td>
     <td class="text-green">{{to2DecimalRoundedOffPercentString(getUserSupplyApy())}}</td> <!-- Supply APY-->
     <td><span class="value-borrowed">{{this.toDollarUSLocaleString(roundOffTo2Decimals(this.persistenceService.getUserAssetReserve(asset.tag)?.currentBorrowBalanceUSD))}}</span><br>
-      <span class="value-borrowed label">{{this.formatNumberToUSLocaleString(getUserBorrowedAssetBalance())}} {{asset.tag}}</span></td> <!-- Borrow APY -->
-    <td class="text-purple">{{to2DecimalRoundedOffPercentString(getUserBorrowApy())}}</td>
+      <span class="value-borrowed label">{{this.formatNumberToUSLocaleString(getUserBorrowedAssetBalance())}} {{getBorrowAssetTagAdjusted()}}</span></td>
+    <td class="text-purple">{{to2DecimalRoundedOffPercentString(getUserBorrowApy())}}</td><!-- Borrow APY -->
   </ng-container>
 
   <!-- Asset available state -->
@@ -26,7 +26,7 @@
       <span class="label">{{this.formatNumberToUSLocaleString(roundOffTo2Decimals(getTotalLiquidity()))}} {{asset.tag}}</span></td>
     <td class="text-green">{{to2DecimalRoundedOffPercentString(getMarketSupplyRate())}}</td> <!-- Supply APY -->
     <td>{{this.toDollarUSLocaleString(roundOffTo2Decimals(this.persistenceService.getAssetReserveData(asset.tag)?.totalBorrowsUSD))}}<br>
-      <span class="label">{{this.formatNumberToUSLocaleString(roundOffTo2Decimals(getTotalBorrows()))}} {{asset.tag}}</span></td>
+      <span class="label">{{this.formatNumberToUSLocaleString(roundOffTo2Decimals(getTotalBorrows()))}} {{getBorrowAssetTagAdjusted()}}</span></td>
     <td class="text-purple">{{to2DecimalRoundedOffPercentString(getMarketBorrowRate())}}</td> <!-- Borrow APY -->
   </ng-container>
 
@@ -211,6 +211,10 @@
             <p class="text-center label message">Supply an asset to borrow {{asset.name}}.</p>
           </div>
         </div>
+      </div>
+
+      <div class="notice" *ngIf="isAssetIcx()">
+        <p class="label">When you borrow or withdraw, you'll receive staked ICX (sICX). You can swap sICX for ICX on <a href="https://app.balanced.network/trade" target="_blank">Balanced</a>.</p>
       </div>
     </div>
   </td>
