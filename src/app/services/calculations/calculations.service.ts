@@ -28,7 +28,8 @@ export class CalculationsService {
     log.debug("tokenDistributionPerDay = " + tokenDistributionPerDay);
     const totalInterestOverAYear = this.borrowTotalInterestOverAYear();
     log.debug("totalInterestOverAYear = " + totalInterestOverAYear);
-    const result = this.borrowOmmApyFormula(borrowRate, totalInterestOverAYear, tokenDistributionPerDay, this.persistenceService.ommPriceUSD);
+    const result = this.borrowOmmApyFormula(borrowRate, totalInterestOverAYear, tokenDistributionPerDay,
+      this.persistenceService.ommPriceUSD);
     log.debug("result = " + result);
 
     return result;
@@ -49,12 +50,12 @@ export class CalculationsService {
 
   public supplyOmmApyFormula(liquidityRate: number, totalInterestOverAYear: number, tokenDistributionPerDay: number,
                              ommPriceUSD: number): number {
-    return liquidityRate / totalInterestOverAYear * tokenDistributionPerDay * ommPriceUSD * 0.2 * 365
+    return liquidityRate / totalInterestOverAYear * tokenDistributionPerDay * ommPriceUSD * 0.2 * 365;
   }
 
   /**
    * @description sum(sum(CollateralBalanceUSD * liquidityRate)) for all users
-   * @return {Number}
+   * @return Number
    */
   public supplyTotalInterestOverAYear(): number {
     let allUsersCollateralSumRate = 0;
@@ -64,7 +65,7 @@ export class CalculationsService {
         allUsersCollateralSumRate += reserve.totalLiquidityUSD * reserve.liquidityRate;
       });
 
-      return allUsersCollateralSumRate
+      return allUsersCollateralSumRate;
     } else {
       throw new OmmError("getAllUsersCollateralSumRate -> this.persistenceService.allReserves is undefined");
     }
@@ -72,7 +73,7 @@ export class CalculationsService {
 
   /**
    * @description formula = sum(sum(BorrowBalanceUSD * borrowRate))
-   * @return {Number}
+   * @return Number
    */
   borrowTotalInterestOverAYear(): number {
     let allUsersBorrowSumRate = 0;
@@ -81,7 +82,7 @@ export class CalculationsService {
         allUsersBorrowSumRate += reserve.totalBorrowsUSD * reserve.borrowRate;
       });
 
-      return allUsersBorrowSumRate
+      return allUsersBorrowSumRate;
     } else {
       throw new OmmError("getAllUsersBorrowSumRate -> this.persistenceService.allReserves is undefined");
     }
@@ -95,7 +96,7 @@ export class CalculationsService {
       return 0;
     }
 
-    const res = Utils.divideDecimalsPrecision(totalIcxStakedByOMM, totalStakedOmm)
+    const res = Utils.divideDecimalsPrecision(totalIcxStakedByOMM, totalStakedOmm);
 
     return Utils.roundDownTo2Decimals(Utils.convertSICXToICX(res, this.persistenceService.sIcxToIcxRate()));
   }
@@ -441,8 +442,8 @@ export class CalculationsService {
       reserve = this.persistenceService.allReserves!.getReserveData(assetTag);
       totalLiquidityUSDsum += reserve.totalLiquidityUSD;
       const rate = ommApyIncluded ? reserve.liquidityRate + this.calculateSupplyApyWithOmmRewards(assetTag) : reserve.liquidityRate;
-        totalLiquidityUSDsupplyApySum += reserve.totalLiquidityUSD * rate;
-    })
+      totalLiquidityUSDsupplyApySum += reserve.totalLiquidityUSD * rate;
+    });
 
     return totalLiquidityUSDsupplyApySum / totalLiquidityUSDsum;
   }
@@ -461,7 +462,7 @@ export class CalculationsService {
       const rate = ommApyIncluded ? reserve.borrowRate + this.calculateBorrowApyWithOmmRewards(assetTag) : reserve.borrowRate;
       totalBorrowUSDsum += reserve.totalBorrowsUSD;
       totalBorrowUSDsupplyApySum += reserve.totalBorrowsUSD * rate;
-    })
+    });
 
     return totalBorrowUSDsupplyApySum / totalBorrowUSDsum;
   }
@@ -476,7 +477,7 @@ export class CalculationsService {
     this.persistenceService.userReserves.reserveMap.forEach((reserve: UserReserveData | undefined, assetTag: AssetTag) => {
       supplied = reserve?.currentOTokenBalanceUSD ?? 0;
       supplyApy = reserve?.liquidityRate ?? 0;
-      const rate = ommApyIncluded ? supplyApy + this.calculateSupplyApyWithOmmRewards(assetTag) : supplyApy
+      const rate = ommApyIncluded ? supplyApy + this.calculateSupplyApyWithOmmRewards(assetTag) : supplyApy;
       supplyApySum += supplied * rate;
       supplySum += supplied;
     });
