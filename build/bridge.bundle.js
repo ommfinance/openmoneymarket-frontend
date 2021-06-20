@@ -106,7 +106,8 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "IconExtension", function() { return IconExtension; });
-/* harmony import */ var magic_sdk__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! magic-sdk */ "./node_modules/magic-sdk/dist/module/index.js");
+/* harmony import */ var magic_sdk__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! magic-sdk */ "./node_modules/magic-sdk/dist/cjs/index.js");
+/* harmony import */ var magic_sdk__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(magic_sdk__WEBPACK_IMPORTED_MODULE_0__);
 var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -194,4767 +195,6 @@ var IconExtension = /** @class */ (function (_super) {
 }(magic_sdk__WEBPACK_IMPORTED_MODULE_0__["Extension"].Internal));
 
 //# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/dist/module/core/json-rpc.js":
-/*!***********************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/dist/module/core/json-rpc.js ***!
-  \***********************************************************************/
-/*! exports provided: standardizeJsonRpcRequestPayload, createJsonRpcRequestPayload, JsonRpcResponse */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "standardizeJsonRpcRequestPayload", function() { return standardizeJsonRpcRequestPayload; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createJsonRpcRequestPayload", function() { return createJsonRpcRequestPayload; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "JsonRpcResponse", function() { return JsonRpcResponse; });
-/* harmony import */ var _util_type_guards__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/type-guards */ "./node_modules/@magic-sdk/provider/dist/module/util/type-guards.js");
-/* harmony import */ var _util_get_payload_id__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../util/get-payload-id */ "./node_modules/@magic-sdk/provider/dist/module/util/get-payload-id.js");
-/* eslint-disable no-underscore-dangle, no-param-reassign */
-
-
-var payloadPreprocessedSymbol = Symbol('Payload pre-processed by Magic SDK');
-/**
- * To avoid "pre-processing" a payload more than once (and needlessly
- * incrementing our payload ID generator), we attach a symbol to detect a
- * payloads we've already visited.
- */
-function markPayloadAsPreprocessed(payload) {
-    Object.defineProperty(payload, payloadPreprocessedSymbol, {
-        value: true,
-        enumerable: false,
-    });
-    return payload;
-}
-/**
- * Returns `true` if the payload has been visited by our "pre-processing," in
- * `standardizeJsonRpcRequestPayload(...)`.
- */
-function isPayloadPreprocessed(payload) {
-    return !!payload[payloadPreprocessedSymbol];
-}
-/**
- * Returns a full `JsonRpcRequestPayload` from a potentially incomplete payload
- * object. This method mutates the given `payload` to preserve compatibility
- * with external libraries that perform their own `JsonRpcRequestPayload.id`
- * check to associate responses (such as `web3`).
- *
- * This function is no-op if the payload has already been processed before.
- */
-function standardizeJsonRpcRequestPayload(payload) {
-    var _a, _b, _c;
-    if (!isPayloadPreprocessed(payload)) {
-        payload.jsonrpc = (_a = payload.jsonrpc) !== null && _a !== void 0 ? _a : '2.0';
-        payload.id = Object(_util_get_payload_id__WEBPACK_IMPORTED_MODULE_1__["getPayloadId"])();
-        payload.method = (_b = payload.method) !== null && _b !== void 0 ? _b : 'noop';
-        payload.params = (_c = payload.params) !== null && _c !== void 0 ? _c : [];
-        markPayloadAsPreprocessed(payload);
-    }
-    return payload;
-}
-/**
- * Build a valid JSON RPC payload for emitting to the Magic SDK iframe relayer.
- */
-function createJsonRpcRequestPayload(method, params) {
-    if (params === void 0) { params = []; }
-    return markPayloadAsPreprocessed({
-        params: params,
-        method: method,
-        jsonrpc: '2.0',
-        id: Object(_util_get_payload_id__WEBPACK_IMPORTED_MODULE_1__["getPayloadId"])(),
-    });
-}
-/**
- * Formats and standardizes a JSON RPC 2.0 response from a number of potential
- * sources.
- */
-var JsonRpcResponse = /** @class */ (function () {
-    function JsonRpcResponse(responseOrPayload) {
-        if (responseOrPayload instanceof JsonRpcResponse) {
-            this._jsonrpc = responseOrPayload.payload.jsonrpc;
-            this._id = responseOrPayload.payload.id;
-            this._result = responseOrPayload.payload.result;
-            this._error = responseOrPayload.payload.error;
-        }
-        else if (Object(_util_type_guards__WEBPACK_IMPORTED_MODULE_0__["isJsonRpcResponsePayload"])(responseOrPayload)) {
-            this._jsonrpc = responseOrPayload.jsonrpc;
-            this._id = responseOrPayload.id;
-            this._result = responseOrPayload.result;
-            this._error = responseOrPayload.error;
-        }
-        else {
-            this._jsonrpc = responseOrPayload.jsonrpc;
-            this._id = responseOrPayload.id;
-            this._result = undefined;
-            this._error = undefined;
-        }
-    }
-    JsonRpcResponse.prototype.applyError = function (error) {
-        this._error = error;
-        return this;
-    };
-    JsonRpcResponse.prototype.applyResult = function (result) {
-        this._result = result;
-        return this;
-    };
-    Object.defineProperty(JsonRpcResponse.prototype, "hasError", {
-        get: function () {
-            return typeof this._error !== 'undefined' && this._error !== null;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(JsonRpcResponse.prototype, "hasResult", {
-        get: function () {
-            return typeof this._result !== 'undefined';
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(JsonRpcResponse.prototype, "payload", {
-        get: function () {
-            return {
-                jsonrpc: this._jsonrpc,
-                id: this._id,
-                result: this._result,
-                error: this._error,
-            };
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return JsonRpcResponse;
-}());
-
-//# sourceMappingURL=json-rpc.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/dist/module/core/payload-transport.js":
-/*!********************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/dist/module/core/payload-transport.js ***!
-  \********************************************************************************/
-/*! exports provided: PayloadTransport */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PayloadTransport", function() { return PayloadTransport; });
-/* harmony import */ var _magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @magic-sdk/types */ "./node_modules/@magic-sdk/types/dist/module/index.js");
-/* harmony import */ var _json_rpc__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./json-rpc */ "./node_modules/@magic-sdk/provider/dist/module/core/json-rpc.js");
-/* harmony import */ var _util_promise_tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../util/promise-tools */ "./node_modules/@magic-sdk/provider/dist/module/util/promise-tools.js");
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-/**
- * Get the originating payload from a batch request using the specified `id`.
- */
-function getRequestPayloadFromBatch(requestPayload, id) {
-    return id && Array.isArray(requestPayload)
-        ? requestPayload.find(function (p) { return p.id === id; })
-        : requestPayload;
-}
-/**
- * Ensures the incoming response follows the expected schema and parses for a
- * JSON RPC payload ID.
- */
-function standardizeResponse(requestPayload, event) {
-    var _a;
-    var id = (_a = event.data.response) === null || _a === void 0 ? void 0 : _a.id;
-    var requestPayloadResolved = getRequestPayloadFromBatch(requestPayload, id);
-    if (id && requestPayloadResolved) {
-        // Build a standardized response object
-        var response = new _json_rpc__WEBPACK_IMPORTED_MODULE_1__["JsonRpcResponse"](requestPayloadResolved)
-            .applyResult(event.data.response.result)
-            .applyError(event.data.response.error);
-        return { id: id, response: response };
-    }
-    return {};
-}
-var PayloadTransport = /** @class */ (function () {
-    /**
-     * Create an instance of `PayloadTransport`
-     *
-     * @param overlay - The `IframeController` context to which the event will be
-     * posted.
-     * @param endpoint - The URL for the relevant iframe context.
-     * @param encodedQueryParams - The unique, encoded query parameters for the
-     * relevant iframe context.
-     */
-    function PayloadTransport(endpoint, encodedQueryParams) {
-        this.endpoint = endpoint;
-        this.encodedQueryParams = encodedQueryParams;
-        this.messageHandlers = new Set();
-        this.init();
-    }
-    PayloadTransport.prototype.post = function (overlay, msgType, payload) {
-        return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
-            return __generator(this, function (_a) {
-                return [2 /*return*/, Object(_util_promise_tools__WEBPACK_IMPORTED_MODULE_2__["createAutoCatchingPromise"])(function (resolve) { return __awaiter(_this, void 0, void 0, function () {
-                        var batchData, batchIds, acknowledgeResponse, removeResponseListener;
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0: return [4 /*yield*/, overlay.ready];
-                                case 1:
-                                    _a.sent();
-                                    batchData = [];
-                                    batchIds = Array.isArray(payload) ? payload.map(function (p) { return p.id; }) : [];
-                                    return [4 /*yield*/, overlay.postMessage({ msgType: msgType + "-" + this.encodedQueryParams, payload: payload })];
-                                case 2:
-                                    _a.sent();
-                                    acknowledgeResponse = function (removeEventListener) { return function (event) {
-                                        var _a = standardizeResponse(payload, event), id = _a.id, response = _a.response;
-                                        if (id && response && Array.isArray(payload) && batchIds.includes(id)) {
-                                            batchData.push(response);
-                                            // For batch requests, we wait for all responses before resolving.
-                                            if (batchData.length === payload.length) {
-                                                removeEventListener();
-                                                resolve(batchData);
-                                            }
-                                        }
-                                        else if (id && response && !Array.isArray(payload) && id === payload.id) {
-                                            removeEventListener();
-                                            resolve(response);
-                                        }
-                                    }; };
-                                    removeResponseListener = this.on(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicIncomingWindowMessage"].MAGIC_HANDLE_RESPONSE, acknowledgeResponse(function () { return removeResponseListener(); }));
-                                    return [2 /*return*/];
-                            }
-                        });
-                    }); })];
-            });
-        });
-    };
-    /**
-     * Listen for events received with the given `msgType`.
-     *
-     * @param msgType - The `msgType` encoded with the event data.
-     * @param handler - A handler function to execute on each event received.
-     * @return A `void` function to remove the attached event.
-     */
-    PayloadTransport.prototype.on = function (msgType, handler) {
-        var _this = this;
-        var boundHandler = handler.bind(window);
-        // We cannot effectively cover this function because it never gets reference
-        // by value. The functionality of this callback is tested within
-        // `initMessageListener`.
-        /* istanbul ignore next */
-        var listener = function (event) {
-            if (event.data.msgType === msgType + "-" + _this.encodedQueryParams)
-                boundHandler(event);
-        };
-        this.messageHandlers.add(listener);
-        return function () { return _this.messageHandlers.delete(listener); };
-    };
-    return PayloadTransport;
-}());
-
-//# sourceMappingURL=payload-transport.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/dist/module/core/sdk-environment.js":
-/*!******************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/dist/module/core/sdk-environment.js ***!
-  \******************************************************************************/
-/*! exports provided: SDKEnvironment, createSDK, envNameToNpmName */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SDKEnvironment", function() { return SDKEnvironment; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createSDK", function() { return createSDK; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "envNameToNpmName", function() { return envNameToNpmName; });
-var SDKEnvironment = {};
-function createSDK(SDKBaseCtor, environment) {
-    Object.assign(SDKEnvironment, environment);
-    return SDKBaseCtor;
-}
-var envNameToNpmName = {
-    'magic-sdk': 'magic-sdk',
-    'magic-sdk-rn': '@magic-sdk/react-native',
-};
-//# sourceMappingURL=sdk-environment.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/dist/module/core/sdk-exceptions.js":
-/*!*****************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/dist/module/core/sdk-exceptions.js ***!
-  \*****************************************************************************/
-/*! exports provided: MagicSDKError, MagicRPCError, MagicSDKWarning, MagicExtensionError, MagicExtensionWarning, createMissingApiKeyError, createModalNotReadyError, createMalformedResponseError, createExtensionNotInitializedError, createWebAuthnNotSupportError, createWebAuthCreateCredentialError, createIncompatibleExtensionsError, createInvalidArgumentError, createDuplicateIframeWarning, createSynchronousWeb3MethodWarning, createReactNativeEndpointConfigurationWarning, createDeprecationWarning */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MagicSDKError", function() { return MagicSDKError; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MagicRPCError", function() { return MagicRPCError; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MagicSDKWarning", function() { return MagicSDKWarning; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MagicExtensionError", function() { return MagicExtensionError; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MagicExtensionWarning", function() { return MagicExtensionWarning; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createMissingApiKeyError", function() { return createMissingApiKeyError; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createModalNotReadyError", function() { return createModalNotReadyError; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createMalformedResponseError", function() { return createMalformedResponseError; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createExtensionNotInitializedError", function() { return createExtensionNotInitializedError; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createWebAuthnNotSupportError", function() { return createWebAuthnNotSupportError; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createWebAuthCreateCredentialError", function() { return createWebAuthCreateCredentialError; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createIncompatibleExtensionsError", function() { return createIncompatibleExtensionsError; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createInvalidArgumentError", function() { return createInvalidArgumentError; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createDuplicateIframeWarning", function() { return createDuplicateIframeWarning; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createSynchronousWeb3MethodWarning", function() { return createSynchronousWeb3MethodWarning; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createReactNativeEndpointConfigurationWarning", function() { return createReactNativeEndpointConfigurationWarning; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createDeprecationWarning", function() { return createDeprecationWarning; });
-/* harmony import */ var _magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @magic-sdk/types */ "./node_modules/@magic-sdk/types/dist/module/index.js");
-/* harmony import */ var _util_type_guards__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../util/type-guards */ "./node_modules/@magic-sdk/provider/dist/module/util/type-guards.js");
-/* harmony import */ var _sdk_environment__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./sdk-environment */ "./node_modules/@magic-sdk/provider/dist/module/core/sdk-environment.js");
-var __extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-// --- Error/warning classes
-/**
- * This error type represents internal SDK errors. This could be developer
- * mistakes (or Magic's mistakes), or execution errors unrelated to standard
- * JavaScript exceptions.
- */
-var MagicSDKError = /** @class */ (function (_super) {
-    __extends(MagicSDKError, _super);
-    function MagicSDKError(code, rawMessage) {
-        var _this = _super.call(this, "Magic SDK Error: [" + code + "] " + rawMessage) || this;
-        _this.code = code;
-        _this.rawMessage = rawMessage;
-        _this.__proto__ = Error;
-        Object.setPrototypeOf(_this, MagicSDKError.prototype);
-        return _this;
-    }
-    return MagicSDKError;
-}(Error));
-
-/**
- * This error type communicates exceptions that occur during execution in the
- * Magic `<iframe>` context.
- */
-var MagicRPCError = /** @class */ (function (_super) {
-    __extends(MagicRPCError, _super);
-    function MagicRPCError(sourceError) {
-        var _this = _super.call(this) || this;
-        _this.__proto__ = Error;
-        var codeNormalized = Number(sourceError === null || sourceError === void 0 ? void 0 : sourceError.code);
-        _this.rawMessage = (sourceError === null || sourceError === void 0 ? void 0 : sourceError.message) || 'Internal error';
-        _this.code = Object(_util_type_guards__WEBPACK_IMPORTED_MODULE_1__["isJsonRpcErrorCode"])(codeNormalized) ? codeNormalized : _magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["RPCErrorCode"].InternalError;
-        _this.message = "Magic RPC Error: [" + _this.code + "] " + _this.rawMessage;
-        Object.setPrototypeOf(_this, MagicRPCError.prototype);
-        return _this;
-    }
-    return MagicRPCError;
-}(Error));
-
-/**
- * In contrast to `SDKError` objects, this "warning" type communicates important
- * context that does not rise to the level of an exception. These should be
- * logged rather than thrown.
- */
-var MagicSDKWarning = /** @class */ (function () {
-    function MagicSDKWarning(code, rawMessage) {
-        this.code = code;
-        this.rawMessage = rawMessage;
-        this.message = "Magic SDK Warning: [" + code + "] " + rawMessage;
-    }
-    /**
-     * Logs this warning to the console.
-     */
-    MagicSDKWarning.prototype.log = function () {
-        console.warn(this.message);
-    };
-    return MagicSDKWarning;
-}());
-
-/**
- * This error type is reserved for communicating errors that arise during
- * execution of Magic SDK Extension methods. Compare this to the `SDKError`
- * type, specifically in context of Extensions.
- */
-var MagicExtensionError = /** @class */ (function (_super) {
-    __extends(MagicExtensionError, _super);
-    function MagicExtensionError(ext, code, rawMessage, data) {
-        var _this = _super.call(this, "Magic Extension Error (" + ext.name + "): [" + code + "] " + rawMessage) || this;
-        _this.code = code;
-        _this.rawMessage = rawMessage;
-        _this.data = data;
-        _this.__proto__ = Error;
-        Object.setPrototypeOf(_this, MagicExtensionError.prototype);
-        return _this;
-    }
-    return MagicExtensionError;
-}(Error));
-
-/**
- * In contrast to `MagicExtensionError` objects, this "warning" type
- * communicates important context that does not rise to the level of an
- * exception. These should be logged rather than thrown.
- */
-var MagicExtensionWarning = /** @class */ (function () {
-    function MagicExtensionWarning(ext, code, rawMessage) {
-        this.code = code;
-        this.rawMessage = rawMessage;
-        this.message = "Magic Extension Warning (" + ext.name + "): [" + code + "] " + rawMessage;
-    }
-    /**
-     * Logs this warning to the console.
-     */
-    MagicExtensionWarning.prototype.log = function () {
-        console.warn(this.message);
-    };
-    return MagicExtensionWarning;
-}());
-
-// --- SDK error factories
-function createMissingApiKeyError() {
-    return new MagicSDKError(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["SDKErrorCode"].MissingApiKey, 'Please provide an API key that you acquired from the Magic developer dashboard.');
-}
-function createModalNotReadyError() {
-    return new MagicSDKError(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["SDKErrorCode"].ModalNotReady, 'Modal is not ready.');
-}
-function createMalformedResponseError() {
-    return new MagicSDKError(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["SDKErrorCode"].MalformedResponse, 'Response from the Magic iframe is malformed.');
-}
-function createExtensionNotInitializedError(member) {
-    return new MagicSDKError(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["SDKErrorCode"].ExtensionNotInitialized, "Extensions must be initialized with a Magic SDK instance before `Extension." + member + "` can be accessed. Do not invoke `Extension." + member + "` inside an extension constructor.");
-}
-function createWebAuthnNotSupportError() {
-    return new MagicSDKError(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["SDKErrorCode"].WebAuthnNotSupported, 'WebAuthn is not supported in this device.');
-}
-function createWebAuthCreateCredentialError(message) {
-    return new MagicSDKError(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["SDKErrorCode"].WebAuthnCreateCredentialError, "Error creating credential: " + message);
-}
-function createIncompatibleExtensionsError(extensions) {
-    var npmName = _sdk_environment__WEBPACK_IMPORTED_MODULE_2__["envNameToNpmName"][_sdk_environment__WEBPACK_IMPORTED_MODULE_2__["SDKEnvironment"].sdkName];
-    var msg = "Some extensions are incompatible with `" + npmName + "@" + _sdk_environment__WEBPACK_IMPORTED_MODULE_2__["SDKEnvironment"].version + "`:";
-    extensions
-        .filter(function (ext) { return typeof ext.compat !== 'undefined' && ext.compat !== null; })
-        .forEach(function (ext) {
-        var compat = ext.compat[npmName];
-        /* istanbul ignore else */
-        if (typeof compat === 'string') {
-            msg += "\n  - Extension `" + ext.name + "` supports version(s) `" + compat + "`";
-        }
-        else if (!compat) {
-            msg += "\n  - Extension `" + ext.name + "` does not support " + _sdk_environment__WEBPACK_IMPORTED_MODULE_2__["SDKEnvironment"].target + " environments.";
-        }
-        // Else case is irrelevant here here
-        // (we filter out extensions with missing `compat` field)
-    });
-    return new MagicSDKError(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["SDKErrorCode"].IncompatibleExtensions, msg);
-}
-function createInvalidArgumentError(options) {
-    /**
-     * Parses the argument index (given by `argument`) to attach the correct ordinal suffix.
-     * (i.e.: 1st, 2nd, 3rd, 4th, etc.)
-     */
-    var ordinalSuffix = function (i) {
-        var iAdjusted = i + 1; // Argument is zero-indexed.
-        var j = iAdjusted % 10;
-        var k = iAdjusted % 100;
-        if (j === 1 && k !== 11)
-            return iAdjusted + "st";
-        if (j === 2 && k !== 12)
-            return iAdjusted + "nd";
-        if (j === 3 && k !== 13)
-            return iAdjusted + "rd";
-        return iAdjusted + "th";
-    };
-    return new MagicSDKError(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["SDKErrorCode"].InvalidArgument, "Invalid " + ordinalSuffix(options.argument) + " argument given to `" + options.procedure + "`.\n" +
-        ("  Expected: `" + options.expected + "`\n") +
-        ("  Received: `" + options.received + "`"));
-}
-// --- SDK warning factories
-function createDuplicateIframeWarning() {
-    return new MagicSDKWarning(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["SDKWarningCode"].DuplicateIframe, 'Duplicate iframes found.');
-}
-function createSynchronousWeb3MethodWarning() {
-    return new MagicSDKWarning(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["SDKWarningCode"].SyncWeb3Method, 'Non-async web3 methods are deprecated in web3 > 1.0 and are not supported by the Magic web3 provider. Please use an async method instead.');
-}
-function createReactNativeEndpointConfigurationWarning() {
-    return new MagicSDKWarning(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["SDKWarningCode"].ReactNativeEndpointConfiguration, "CUSTOM DOMAINS ARE NOT SUPPORTED WHEN USING MAGIC SDK WITH REACT NATIVE! The `endpoint` parameter SHOULD NOT be provided. The Magic `<iframe>` is automatically wrapped by a WebView pointed at `" + _sdk_environment__WEBPACK_IMPORTED_MODULE_2__["SDKEnvironment"].defaultEndpoint + "`. Changing this default behavior will lead to unexpected results and potentially security-threatening bugs.");
-}
-function createDeprecationWarning(options) {
-    var method = options.method, removalVersions = options.removalVersions, useInstead = options.useInstead;
-    var npmName = _sdk_environment__WEBPACK_IMPORTED_MODULE_2__["envNameToNpmName"][_sdk_environment__WEBPACK_IMPORTED_MODULE_2__["SDKEnvironment"].sdkName];
-    var removalVersion = removalVersions[npmName];
-    var useInsteadSuffix = useInstead ? " Use `" + useInstead + "` instead." : '';
-    var message = "`" + method + "` will be removed from `" + npmName + "` in version `" + removalVersion + "`." + useInsteadSuffix;
-    return new MagicSDKWarning(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["SDKWarningCode"].DeprecationNotice, message);
-}
-//# sourceMappingURL=sdk-exceptions.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/dist/module/core/sdk.js":
-/*!******************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/dist/module/core/sdk.js ***!
-  \******************************************************************/
-/*! exports provided: SDKBase */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SDKBase", function() { return SDKBase; });
-/* harmony import */ var semver_functions_satisfies__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! semver/functions/satisfies */ "./node_modules/@magic-sdk/provider/node_modules/semver/functions/satisfies.js");
-/* harmony import */ var semver_functions_satisfies__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(semver_functions_satisfies__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _util_base64_json__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../util/base64-json */ "./node_modules/@magic-sdk/provider/dist/module/util/base64-json.js");
-/* harmony import */ var _sdk_exceptions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./sdk-exceptions */ "./node_modules/@magic-sdk/provider/dist/module/core/sdk-exceptions.js");
-/* harmony import */ var _modules_auth__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../modules/auth */ "./node_modules/@magic-sdk/provider/dist/module/modules/auth/index.js");
-/* harmony import */ var _modules_user__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../modules/user */ "./node_modules/@magic-sdk/provider/dist/module/modules/user/index.js");
-/* harmony import */ var _modules_rpc_provider__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../modules/rpc-provider */ "./node_modules/@magic-sdk/provider/dist/module/modules/rpc-provider/index.js");
-/* harmony import */ var _util_url__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../util/url */ "./node_modules/@magic-sdk/provider/dist/module/util/url.js");
-/* harmony import */ var _modules_base_extension__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../modules/base-extension */ "./node_modules/@magic-sdk/provider/dist/module/modules/base-extension.js");
-/* harmony import */ var _util_type_guards__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../util/type-guards */ "./node_modules/@magic-sdk/provider/dist/module/util/type-guards.js");
-/* harmony import */ var _sdk_environment__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./sdk-environment */ "./node_modules/@magic-sdk/provider/dist/module/core/sdk-environment.js");
-/* eslint-disable no-underscore-dangle, no-param-reassign  */
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-
-
-
-
-
-
-/**
- * Checks if the given `ext` is compatible with the platform & version of Magic
- * SDK currently in use.
- */
-function checkExtensionCompat(ext) {
-    if (ext.compat) {
-        // Check web compatibility
-        if (_sdk_environment__WEBPACK_IMPORTED_MODULE_9__["SDKEnvironment"].sdkName === 'magic-sdk') {
-            return typeof ext.compat['magic-sdk'] === 'string'
-                ? semver_functions_satisfies__WEBPACK_IMPORTED_MODULE_0___default()(_sdk_environment__WEBPACK_IMPORTED_MODULE_9__["SDKEnvironment"].version, ext.compat['magic-sdk'])
-                : !!ext.compat['magic-sdk'];
-        }
-        // Check React Native compatibility
-        /* istanbul ignore else */
-        if (_sdk_environment__WEBPACK_IMPORTED_MODULE_9__["SDKEnvironment"].sdkName === 'magic-sdk-rn') {
-            return typeof ext.compat['@magic-sdk/react-native'] === 'string'
-                ? semver_functions_satisfies__WEBPACK_IMPORTED_MODULE_0___default()(_sdk_environment__WEBPACK_IMPORTED_MODULE_9__["SDKEnvironment"].version, ext.compat['@magic-sdk/react-native'])
-                : !!ext.compat['@magic-sdk/react-native'];
-        }
-        // Else case should be impossible here...
-    }
-    // To gracefully support older extensions, we assume
-    // compatibility when the `compat` field is missing.
-    return true;
-}
-/**
- * Initializes SDK extensions, checks for platform/version compatiblity issues,
- * then consolidates any global configurations provided by those extensions.
- */
-function prepareExtensions(options) {
-    var _this = this;
-    var _a;
-    var extensions = (_a = options === null || options === void 0 ? void 0 : options.extensions) !== null && _a !== void 0 ? _a : [];
-    var extConfig = {};
-    var incompatibleExtensions = [];
-    if (Array.isArray(extensions)) {
-        extensions.forEach(function (ext) {
-            if (checkExtensionCompat(ext)) {
-                ext.init(_this);
-                _this[ext.name] = ext;
-                if (ext instanceof _modules_base_extension__WEBPACK_IMPORTED_MODULE_7__["Extension"].Internal) {
-                    if (!Object(_util_type_guards__WEBPACK_IMPORTED_MODULE_8__["isEmpty"])(ext.config))
-                        extConfig[ext.name] = ext.config;
-                }
-            }
-            else {
-                incompatibleExtensions.push(ext);
-            }
-        });
-    }
-    else {
-        Object.keys(extensions).forEach(function (name) {
-            if (checkExtensionCompat(extensions[name])) {
-                extensions[name].init(_this);
-                var ext = extensions[name];
-                _this[name] = ext;
-                if (ext instanceof _modules_base_extension__WEBPACK_IMPORTED_MODULE_7__["Extension"].Internal) {
-                    if (!Object(_util_type_guards__WEBPACK_IMPORTED_MODULE_8__["isEmpty"])(ext.config))
-                        extConfig[extensions[name].name] = ext.config;
-                }
-            }
-            else {
-                incompatibleExtensions.push(extensions[name]);
-            }
-        });
-    }
-    if (incompatibleExtensions.length) {
-        throw Object(_sdk_exceptions__WEBPACK_IMPORTED_MODULE_2__["createIncompatibleExtensionsError"])(incompatibleExtensions);
-    }
-    return extConfig;
-}
-var SDKBase = /** @class */ (function () {
-    /**
-     * Creates an instance of Magic SDK.
-     */
-    function SDKBase(apiKey, options) {
-        var _a;
-        this.apiKey = apiKey;
-        if (!apiKey)
-            throw Object(_sdk_exceptions__WEBPACK_IMPORTED_MODULE_2__["createMissingApiKeyError"])();
-        if (_sdk_environment__WEBPACK_IMPORTED_MODULE_9__["SDKEnvironment"].target === 'react-native' && (options === null || options === void 0 ? void 0 : options.endpoint)) {
-            Object(_sdk_exceptions__WEBPACK_IMPORTED_MODULE_2__["createReactNativeEndpointConfigurationWarning"])().log();
-        }
-        var defaultEndpoint = _sdk_environment__WEBPACK_IMPORTED_MODULE_9__["SDKEnvironment"].defaultEndpoint, version = _sdk_environment__WEBPACK_IMPORTED_MODULE_9__["SDKEnvironment"].version;
-        this.endpoint = Object(_util_url__WEBPACK_IMPORTED_MODULE_6__["createURL"])((_a = options === null || options === void 0 ? void 0 : options.endpoint) !== null && _a !== void 0 ? _a : defaultEndpoint).origin;
-        // Assign API Modules
-        this.auth = new _modules_auth__WEBPACK_IMPORTED_MODULE_3__["AuthModule"](this);
-        this.user = new _modules_user__WEBPACK_IMPORTED_MODULE_4__["UserModule"](this);
-        this.rpcProvider = new _modules_rpc_provider__WEBPACK_IMPORTED_MODULE_5__["RPCProviderModule"](this);
-        // Prepare Extensions
-        var extConfig = prepareExtensions.call(this, options);
-        // Build query params for the current `ViewController`
-        this.encodedQueryParams = Object(_util_base64_json__WEBPACK_IMPORTED_MODULE_1__["encodeJSON"])({
-            API_KEY: this.apiKey,
-            DOMAIN_ORIGIN: window.location ? window.location.origin : '',
-            ETH_NETWORK: options === null || options === void 0 ? void 0 : options.network,
-            host: Object(_util_url__WEBPACK_IMPORTED_MODULE_6__["createURL"])(this.endpoint).host,
-            sdk: _sdk_environment__WEBPACK_IMPORTED_MODULE_9__["SDKEnvironment"].sdkName,
-            version: version,
-            ext: Object(_util_type_guards__WEBPACK_IMPORTED_MODULE_8__["isEmpty"])(extConfig) ? undefined : extConfig,
-            locale: (options === null || options === void 0 ? void 0 : options.locale) || 'en_US',
-        });
-    }
-    Object.defineProperty(SDKBase.prototype, "transport", {
-        /**
-         * Represents the JSON RPC payload message channel associated with this
-         * `MagicSDK` instance.
-         */
-        get: function () {
-            if (!SDKBase.__transports__.has(this.encodedQueryParams)) {
-                SDKBase.__transports__.set(this.encodedQueryParams, new _sdk_environment__WEBPACK_IMPORTED_MODULE_9__["SDKEnvironment"].PayloadTransport(this.endpoint, this.encodedQueryParams));
-            }
-            return SDKBase.__transports__.get(this.encodedQueryParams);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(SDKBase.prototype, "overlay", {
-        /**
-         * Represents the view controller associated with this `MagicSDK` instance.
-         */
-        get: function () {
-            if (!SDKBase.__overlays__.has(this.encodedQueryParams)) {
-                var controller = new _sdk_environment__WEBPACK_IMPORTED_MODULE_9__["SDKEnvironment"].ViewController(this.transport, this.endpoint, this.encodedQueryParams);
-                SDKBase.__overlays__.set(this.encodedQueryParams, controller);
-            }
-            return SDKBase.__overlays__.get(this.encodedQueryParams);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    /**
-     * Preloads the Magic view, allowing for faster initial requests in browser
-     * environments. Awaiting the returned promise will signal when the Magic view
-     * has completed loading and is ready for requests.
-     */
-    SDKBase.prototype.preload = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.overlay.ready];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    SDKBase.__transports__ = new Map();
-    SDKBase.__overlays__ = new Map();
-    return SDKBase;
-}());
-
-//# sourceMappingURL=sdk.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/dist/module/core/view-controller.js":
-/*!******************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/dist/module/core/view-controller.js ***!
-  \******************************************************************************/
-/*! exports provided: ViewController */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ViewController", function() { return ViewController; });
-/* harmony import */ var _magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @magic-sdk/types */ "./node_modules/@magic-sdk/types/dist/module/index.js");
-
-var ViewController = /** @class */ (function () {
-    function ViewController(transport, endpoint, encodedQueryParams) {
-        this.transport = transport;
-        this.endpoint = endpoint;
-        this.encodedQueryParams = encodedQueryParams;
-        this.ready = this.waitForReady();
-        if (this.init)
-            this.init();
-        this.listen();
-    }
-    ViewController.prototype.waitForReady = function () {
-        var _this = this;
-        return new Promise(function (resolve) {
-            _this.transport.on(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicIncomingWindowMessage"].MAGIC_OVERLAY_READY, function () { return resolve(); });
-        });
-    };
-    /**
-     * Listen for messages sent from the underlying Magic `<WebView>`.
-     */
-    ViewController.prototype.listen = function () {
-        var _this = this;
-        this.transport.on(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicIncomingWindowMessage"].MAGIC_HIDE_OVERLAY, function () {
-            _this.hideOverlay();
-        });
-        this.transport.on(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicIncomingWindowMessage"].MAGIC_SHOW_OVERLAY, function () {
-            _this.showOverlay();
-        });
-    };
-    return ViewController;
-}());
-
-//# sourceMappingURL=view-controller.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/dist/module/index.js":
-/*!***************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/dist/module/index.js ***!
-  \***************************************************************/
-/*! exports provided: SDKBase, createSDK, PayloadTransport, ViewController, MagicSDKError, MagicRPCError, MagicSDKWarning, MagicExtensionError, MagicExtensionWarning, createMissingApiKeyError, createModalNotReadyError, createMalformedResponseError, createExtensionNotInitializedError, createWebAuthnNotSupportError, createWebAuthCreateCredentialError, createIncompatibleExtensionsError, createInvalidArgumentError, createDuplicateIframeWarning, createSynchronousWeb3MethodWarning, createReactNativeEndpointConfigurationWarning, createDeprecationWarning, Extension, getPayloadId, isPromiEvent, createPromiEvent, createAutoCatchingPromise, encodeJSON, decodeJSON, encodeQueryParameters, decodeQueryParameters, isJsonRpcRequestPayload, isJsonRpcResponsePayload, isMagicPayloadMethod, isJsonRpcErrorCode, isEmpty, createURL, storage */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _core_sdk__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./core/sdk */ "./node_modules/@magic-sdk/provider/dist/module/core/sdk.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "SDKBase", function() { return _core_sdk__WEBPACK_IMPORTED_MODULE_0__["SDKBase"]; });
-
-/* harmony import */ var _core_sdk_environment__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./core/sdk-environment */ "./node_modules/@magic-sdk/provider/dist/module/core/sdk-environment.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createSDK", function() { return _core_sdk_environment__WEBPACK_IMPORTED_MODULE_1__["createSDK"]; });
-
-/* harmony import */ var _core_payload_transport__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./core/payload-transport */ "./node_modules/@magic-sdk/provider/dist/module/core/payload-transport.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "PayloadTransport", function() { return _core_payload_transport__WEBPACK_IMPORTED_MODULE_2__["PayloadTransport"]; });
-
-/* harmony import */ var _core_view_controller__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./core/view-controller */ "./node_modules/@magic-sdk/provider/dist/module/core/view-controller.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ViewController", function() { return _core_view_controller__WEBPACK_IMPORTED_MODULE_3__["ViewController"]; });
-
-/* harmony import */ var _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./core/sdk-exceptions */ "./node_modules/@magic-sdk/provider/dist/module/core/sdk-exceptions.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "MagicSDKError", function() { return _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__["MagicSDKError"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "MagicRPCError", function() { return _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__["MagicRPCError"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "MagicSDKWarning", function() { return _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__["MagicSDKWarning"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "MagicExtensionError", function() { return _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__["MagicExtensionError"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "MagicExtensionWarning", function() { return _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__["MagicExtensionWarning"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createMissingApiKeyError", function() { return _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__["createMissingApiKeyError"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createModalNotReadyError", function() { return _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__["createModalNotReadyError"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createMalformedResponseError", function() { return _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__["createMalformedResponseError"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createExtensionNotInitializedError", function() { return _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__["createExtensionNotInitializedError"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createWebAuthnNotSupportError", function() { return _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__["createWebAuthnNotSupportError"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createWebAuthCreateCredentialError", function() { return _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__["createWebAuthCreateCredentialError"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createIncompatibleExtensionsError", function() { return _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__["createIncompatibleExtensionsError"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createInvalidArgumentError", function() { return _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__["createInvalidArgumentError"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createDuplicateIframeWarning", function() { return _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__["createDuplicateIframeWarning"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createSynchronousWeb3MethodWarning", function() { return _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__["createSynchronousWeb3MethodWarning"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createReactNativeEndpointConfigurationWarning", function() { return _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__["createReactNativeEndpointConfigurationWarning"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createDeprecationWarning", function() { return _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__["createDeprecationWarning"]; });
-
-/* harmony import */ var _modules_base_extension__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/base-extension */ "./node_modules/@magic-sdk/provider/dist/module/modules/base-extension.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Extension", function() { return _modules_base_extension__WEBPACK_IMPORTED_MODULE_5__["Extension"]; });
-
-/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./util */ "./node_modules/@magic-sdk/provider/dist/module/util/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "getPayloadId", function() { return _util__WEBPACK_IMPORTED_MODULE_6__["getPayloadId"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "isPromiEvent", function() { return _util__WEBPACK_IMPORTED_MODULE_6__["isPromiEvent"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createPromiEvent", function() { return _util__WEBPACK_IMPORTED_MODULE_6__["createPromiEvent"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createAutoCatchingPromise", function() { return _util__WEBPACK_IMPORTED_MODULE_6__["createAutoCatchingPromise"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "encodeJSON", function() { return _util__WEBPACK_IMPORTED_MODULE_6__["encodeJSON"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "decodeJSON", function() { return _util__WEBPACK_IMPORTED_MODULE_6__["decodeJSON"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "encodeQueryParameters", function() { return _util__WEBPACK_IMPORTED_MODULE_6__["encodeQueryParameters"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "decodeQueryParameters", function() { return _util__WEBPACK_IMPORTED_MODULE_6__["decodeQueryParameters"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "isJsonRpcRequestPayload", function() { return _util__WEBPACK_IMPORTED_MODULE_6__["isJsonRpcRequestPayload"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "isJsonRpcResponsePayload", function() { return _util__WEBPACK_IMPORTED_MODULE_6__["isJsonRpcResponsePayload"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "isMagicPayloadMethod", function() { return _util__WEBPACK_IMPORTED_MODULE_6__["isMagicPayloadMethod"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "isJsonRpcErrorCode", function() { return _util__WEBPACK_IMPORTED_MODULE_6__["isJsonRpcErrorCode"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "isEmpty", function() { return _util__WEBPACK_IMPORTED_MODULE_6__["isEmpty"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createURL", function() { return _util__WEBPACK_IMPORTED_MODULE_6__["createURL"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "storage", function() { return _util__WEBPACK_IMPORTED_MODULE_6__["storage"]; });
-
-
-
-
-
-
-
-
-//# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/dist/module/modules/auth/index.js":
-/*!****************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/dist/module/modules/auth/index.js ***!
-  \****************************************************************************/
-/*! exports provided: AuthModule */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AuthModule", function() { return AuthModule; });
-/* harmony import */ var _magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @magic-sdk/types */ "./node_modules/@magic-sdk/types/dist/module/index.js");
-/* harmony import */ var _base_module__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../base-module */ "./node_modules/@magic-sdk/provider/dist/module/modules/base-module.js");
-/* harmony import */ var _core_json_rpc__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../core/json-rpc */ "./node_modules/@magic-sdk/provider/dist/module/core/json-rpc.js");
-/* harmony import */ var _util_webauthn__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../util/webauthn */ "./node_modules/@magic-sdk/provider/dist/module/util/webauthn.js");
-/* harmony import */ var _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../core/sdk-exceptions */ "./node_modules/@magic-sdk/provider/dist/module/core/sdk-exceptions.js");
-/* harmony import */ var _core_sdk_environment__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../core/sdk-environment */ "./node_modules/@magic-sdk/provider/dist/module/core/sdk-environment.js");
-var __extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-
-
-var AuthModule = /** @class */ (function (_super) {
-    __extends(AuthModule, _super);
-    function AuthModule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    /**
-     * Initiate the "magic link" login flow for a user. If the flow is successful,
-     * this method will return a Decentralized ID token (with a default lifespan
-     * of 15 minutes).
-     */
-    AuthModule.prototype.loginWithMagicLink = function (configuration) {
-        var email = configuration.email, _a = configuration.showUI, showUI = _a === void 0 ? true : _a, redirectURI = configuration.redirectURI;
-        var requestPayload = Object(_core_json_rpc__WEBPACK_IMPORTED_MODULE_2__["createJsonRpcRequestPayload"])(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicPayloadMethod"].LoginWithMagicLink, [
-            { email: email, showUI: showUI, redirectURI: redirectURI },
-        ]);
-        return this.request(requestPayload);
-    };
-    /**
-     * Log a user in with a special one-time-use credential token. This is
-     * currently used during magic link flows with a configured redirect to
-     * hydrate the user session at the end of the flow. If the flow is successful,
-     * this method will return a Decentralized ID token (with a default lifespan
-     * of 15 minutes).
-     *
-     * If no argument is provided, a credential is automatically parsed from
-     * `window.location.search`.
-     */
-    AuthModule.prototype.loginWithCredential = function (credentialOrQueryString) {
-        var credentialResolved = credentialOrQueryString !== null && credentialOrQueryString !== void 0 ? credentialOrQueryString : '';
-        if (!credentialOrQueryString && _core_sdk_environment__WEBPACK_IMPORTED_MODULE_5__["SDKEnvironment"].target === 'web') {
-            credentialResolved = window.location.search;
-            // Remove the query from the redirect callback as a precaution.
-            var urlWithoutQuery = window.location.origin + window.location.pathname;
-            window.history.replaceState(null, '', urlWithoutQuery);
-        }
-        var requestPayload = Object(_core_json_rpc__WEBPACK_IMPORTED_MODULE_2__["createJsonRpcRequestPayload"])(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicPayloadMethod"].LoginWithCredential, [credentialResolved]);
-        return this.request(requestPayload);
-    };
-    AuthModule.prototype.registerWithWebAuthn = function (configuration) {
-        return __awaiter(this, void 0, void 0, function () {
-            var username, _a, nickname, options, credential, err_1;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        if (!window.PublicKeyCredential) {
-                            throw Object(_core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__["createWebAuthnNotSupportError"])();
-                        }
-                        username = configuration.username, _a = configuration.nickname, nickname = _a === void 0 ? '' : _a;
-                        return [4 /*yield*/, this.request(Object(_core_json_rpc__WEBPACK_IMPORTED_MODULE_2__["createJsonRpcRequestPayload"])(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicPayloadMethod"].WebAuthnRegistrationStart, [{ username: username }]))];
-                    case 1:
-                        options = _b.sent();
-                        _b.label = 2;
-                    case 2:
-                        _b.trys.push([2, 4, , 5]);
-                        return [4 /*yield*/, navigator.credentials.create({
-                                publicKey: options.credential_options,
-                            })];
-                    case 3:
-                        credential = (_b.sent());
-                        return [3 /*break*/, 5];
-                    case 4:
-                        err_1 = _b.sent();
-                        throw Object(_core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__["createWebAuthCreateCredentialError"])(err_1);
-                    case 5: return [2 /*return*/, this.request(Object(_core_json_rpc__WEBPACK_IMPORTED_MODULE_2__["createJsonRpcRequestPayload"])(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicPayloadMethod"].RegisterWithWebAuth, [
-                            {
-                                id: options.id,
-                                nickname: nickname,
-                                transport: credential.response.getTransports(),
-                                user_agent: navigator.userAgent,
-                                registration_response: Object(_util_webauthn__WEBPACK_IMPORTED_MODULE_3__["transformNewAssertionForServer"])(credential),
-                            },
-                        ]))];
-                }
-            });
-        });
-    };
-    AuthModule.prototype.loginWithWebAuthn = function (configuration) {
-        return __awaiter(this, void 0, void 0, function () {
-            var username, transformedCredentialRequestOptions, assertion, err_2;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!window.PublicKeyCredential) {
-                            throw Object(_core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__["createWebAuthnNotSupportError"])();
-                        }
-                        username = configuration.username;
-                        return [4 /*yield*/, this.request(Object(_core_json_rpc__WEBPACK_IMPORTED_MODULE_2__["createJsonRpcRequestPayload"])(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicPayloadMethod"].LoginWithWebAuthn, [{ username: username }]))];
-                    case 1:
-                        transformedCredentialRequestOptions = _a.sent();
-                        _a.label = 2;
-                    case 2:
-                        _a.trys.push([2, 4, , 5]);
-                        return [4 /*yield*/, navigator.credentials.get({
-                                publicKey: transformedCredentialRequestOptions,
-                            })];
-                    case 3:
-                        assertion = (_a.sent());
-                        return [3 /*break*/, 5];
-                    case 4:
-                        err_2 = _a.sent();
-                        throw Object(_core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__["createWebAuthCreateCredentialError"])(err_2);
-                    case 5: return [2 /*return*/, this.request(Object(_core_json_rpc__WEBPACK_IMPORTED_MODULE_2__["createJsonRpcRequestPayload"])(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicPayloadMethod"].WebAuthnLoginVerfiy, [
-                            {
-                                username: username,
-                                assertion_response: Object(_util_webauthn__WEBPACK_IMPORTED_MODULE_3__["transformAssertionForServer"])(assertion),
-                            },
-                        ]))];
-                }
-            });
-        });
-    };
-    return AuthModule;
-}(_base_module__WEBPACK_IMPORTED_MODULE_1__["BaseModule"]));
-
-//# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/dist/module/modules/base-extension.js":
-/*!********************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/dist/module/modules/base-extension.js ***!
-  \********************************************************************************/
-/*! exports provided: Extension */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Extension", function() { return Extension; });
-/* harmony import */ var _core_json_rpc__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../core/json-rpc */ "./node_modules/@magic-sdk/provider/dist/module/core/json-rpc.js");
-/* harmony import */ var _base_module__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./base-module */ "./node_modules/@magic-sdk/provider/dist/module/modules/base-module.js");
-/* harmony import */ var _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../core/sdk-exceptions */ "./node_modules/@magic-sdk/provider/dist/module/core/sdk-exceptions.js");
-/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../util */ "./node_modules/@magic-sdk/provider/dist/module/util/index.js");
-var __extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-var BaseExtension = /** @class */ (function (_super) {
-    __extends(BaseExtension, _super);
-    function BaseExtension() {
-        var _this = _super.call(this, undefined) || this;
-        _this.isInitialized = false;
-        _this.utils = {
-            createPromiEvent: _util__WEBPACK_IMPORTED_MODULE_3__["createPromiEvent"],
-            isPromiEvent: _util__WEBPACK_IMPORTED_MODULE_3__["isPromiEvent"],
-            encodeJSON: _util__WEBPACK_IMPORTED_MODULE_3__["encodeJSON"],
-            decodeJSON: _util__WEBPACK_IMPORTED_MODULE_3__["decodeJSON"],
-            encodeQueryParameters: _util__WEBPACK_IMPORTED_MODULE_3__["encodeQueryParameters"],
-            decodeQueryParameters: _util__WEBPACK_IMPORTED_MODULE_3__["decodeQueryParameters"],
-            createJsonRpcRequestPayload: _core_json_rpc__WEBPACK_IMPORTED_MODULE_0__["createJsonRpcRequestPayload"],
-            standardizeJsonRpcRequestPayload: _core_json_rpc__WEBPACK_IMPORTED_MODULE_0__["standardizeJsonRpcRequestPayload"],
-            storage: _util__WEBPACK_IMPORTED_MODULE_3__["storage"],
-        };
-        var sdkAccessFields = ['request', 'transport', 'overlay', 'sdk'];
-        // Disallow SDK access before initialization.
-        return new Proxy(_this, {
-            get: function (target, prop, receiver) {
-                if (sdkAccessFields.includes(prop) && !_this.isInitialized) {
-                    throw Object(_core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_2__["createExtensionNotInitializedError"])(prop);
-                }
-                return Reflect.get(target, prop, receiver);
-            },
-        });
-    }
-    /**
-     * Registers a Magic SDK instance with this Extension.
-     */
-    BaseExtension.prototype.init = function (sdk) {
-        if (this.isInitialized)
-            return;
-        this.sdk = sdk;
-        this.isInitialized = true;
-    };
-    /**
-     * Creates a deprecation warning wrapped with a native Magic SDK warning type.
-     * Best practice is to warn users of upcoming deprecations at least one major
-     * version before the change is implemented. You can use this method to
-     * communicate deprecations in a manner consistent with Magic SDK core code.
-     */
-    BaseExtension.prototype.createDeprecationWarning = function (options) {
-        var method = options.method, removalVersion = options.removalVersion, useInstead = options.useInstead;
-        var useInsteadSuffix = useInstead ? " Use `" + useInstead + "` instead." : '';
-        var message = "`" + method + "` will be removed from this Extension in version `" + removalVersion + "`." + useInsteadSuffix;
-        return new _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_2__["MagicExtensionWarning"](this, 'DEPRECATION_NOTICE', message);
-    };
-    /**
-     * Creates a warning wrapped with a native Magic SDK warning type. This
-     * maintains consistency in warning messaging for consumers of Magic SDK and
-     * this Extension.
-     */
-    BaseExtension.prototype.createWarning = function (code, message) {
-        return new _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_2__["MagicExtensionWarning"](this, code, message);
-    };
-    /**
-     * Creates an error wrapped with a native Magic SDK error type. This maintains
-     * consistency in error handling for consumers of Magic SDK and this
-     * Extension.
-     */
-    BaseExtension.prototype.createError = function (code, message, data) {
-        return new _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_2__["MagicExtensionError"](this, code, message, data);
-    };
-    /**
-     * Throws an error wrapped with a native Magic SDK error type. This maintains
-     * consistency in error handling for consumers of Magic SDK and this
-     * Extension.
-     */
-    BaseExtension.prototype.raiseError = function (code, message, data) {
-        throw new _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_2__["MagicExtensionError"](this, code, message, data);
-    };
-    return BaseExtension;
-}(_base_module__WEBPACK_IMPORTED_MODULE_1__["BaseModule"]));
-var InternalExtension = /** @class */ (function (_super) {
-    __extends(InternalExtension, _super);
-    function InternalExtension() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    return InternalExtension;
-}(BaseExtension));
-var Extension = /** @class */ (function (_super) {
-    __extends(Extension, _super);
-    function Extension() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    /**
-     * This is a special constructor used to mark an extension as "official." Only
-     * official extensions can interact with the iframe using custom JSON RPC
-     * methods and business logic. This is intended for internal-use only and
-     * provides no advantage to open-source extension developers.
-     *
-     * @internal
-     */
-    Extension.Internal = InternalExtension;
-    return Extension;
-}(BaseExtension));
-
-//# sourceMappingURL=base-extension.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/dist/module/modules/base-module.js":
-/*!*****************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/dist/module/modules/base-module.js ***!
-  \*****************************************************************************/
-/*! exports provided: BaseModule */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BaseModule", function() { return BaseModule; });
-/* harmony import */ var _magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @magic-sdk/types */ "./node_modules/@magic-sdk/types/dist/module/index.js");
-/* harmony import */ var _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../core/sdk-exceptions */ "./node_modules/@magic-sdk/provider/dist/module/core/sdk-exceptions.js");
-/* harmony import */ var _core_json_rpc__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../core/json-rpc */ "./node_modules/@magic-sdk/provider/dist/module/core/json-rpc.js");
-/* harmony import */ var _util_promise_tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../util/promise-tools */ "./node_modules/@magic-sdk/provider/dist/module/util/promise-tools.js");
-var __read = (undefined && undefined.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-var __spread = (undefined && undefined.__spread) || function () {
-    for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
-    return ar;
-};
-
-
-
-
-var BaseModule = /** @class */ (function () {
-    function BaseModule(sdk) {
-        this.sdk = sdk;
-    }
-    Object.defineProperty(BaseModule.prototype, "transport", {
-        /**
-         * The `PayloadTransport` for the SDK instance registered to this module.
-         */
-        get: function () {
-            return this.sdk.transport;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(BaseModule.prototype, "overlay", {
-        /**
-         * The `ViewController` for the SDK instance registered to this module.
-         */
-        get: function () {
-            return this.sdk.overlay;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    /**
-     * Emits promisified requests to the Magic `<iframe>` context.
-     */
-    BaseModule.prototype.request = function (payload) {
-        var responsePromise = this.transport.post(this.overlay, _magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicOutgoingWindowMessage"].MAGIC_HANDLE_REQUEST, Object(_core_json_rpc__WEBPACK_IMPORTED_MODULE_2__["standardizeJsonRpcRequestPayload"])(payload));
-        // PromiEvent-ify the response.
-        var promiEvent = Object(_util_promise_tools__WEBPACK_IMPORTED_MODULE_3__["createPromiEvent"])(function (resolve, reject) {
-            responsePromise
-                .then(function (res) {
-                cleanupEvents();
-                if (res.hasError)
-                    reject(new _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_1__["MagicRPCError"](res.payload.error));
-                else if (res.hasResult)
-                    resolve(res.payload.result);
-                else
-                    throw Object(_core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_1__["createMalformedResponseError"])();
-            })
-                .catch(function (err) {
-                cleanupEvents();
-                reject(err);
-            });
-        });
-        // Listen for events from the `<iframe>` associated with the current payload
-        // and emit those to `PromiEvent` subscribers.
-        var cleanupEvents = this.transport.on(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicIncomingWindowMessage"].MAGIC_HANDLE_EVENT, function (evt) {
-            var _a;
-            var response = evt.data.response;
-            if (response.id === payload.id && ((_a = response.result) === null || _a === void 0 ? void 0 : _a.event)) {
-                var _b = response.result, event_1 = _b.event, _c = _b.params, params = _c === void 0 ? [] : _c;
-                promiEvent.emit.apply(promiEvent, __spread([event_1], params));
-            }
-        });
-        return promiEvent;
-    };
-    return BaseModule;
-}());
-
-//# sourceMappingURL=base-module.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/dist/module/modules/rpc-provider/index.js":
-/*!************************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/dist/module/modules/rpc-provider/index.js ***!
-  \************************************************************************************/
-/*! exports provided: RPCProviderModule */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RPCProviderModule", function() { return RPCProviderModule; });
-/* harmony import */ var _magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @magic-sdk/types */ "./node_modules/@magic-sdk/types/dist/module/index.js");
-/* harmony import */ var _base_module__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../base-module */ "./node_modules/@magic-sdk/provider/dist/module/modules/base-module.js");
-/* harmony import */ var _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../core/sdk-exceptions */ "./node_modules/@magic-sdk/provider/dist/module/core/sdk-exceptions.js");
-/* harmony import */ var _core_json_rpc__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../core/json-rpc */ "./node_modules/@magic-sdk/provider/dist/module/core/json-rpc.js");
-/* harmony import */ var _util_events__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../util/events */ "./node_modules/@magic-sdk/provider/dist/module/util/events.js");
-/* eslint-disable consistent-return, prefer-spread */
-var __extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var __assign = (undefined && undefined.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-
-
-
-
-
-var _a = Object(_util_events__WEBPACK_IMPORTED_MODULE_4__["createTypedEmitter"])(), createBoundEmitterMethod = _a.createBoundEmitterMethod, createChainingEmitterMethod = _a.createChainingEmitterMethod;
-/** */
-var RPCProviderModule = /** @class */ (function (_super) {
-    __extends(RPCProviderModule, _super);
-    function RPCProviderModule() {
-        // Implements EIP 1193:
-        // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1193.md
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.isMagic = true;
-        _this.on = createChainingEmitterMethod('on', _this);
-        _this.once = createChainingEmitterMethod('once', _this);
-        _this.addListener = createChainingEmitterMethod('addListener', _this);
-        _this.off = createChainingEmitterMethod('off', _this);
-        _this.removeListener = createChainingEmitterMethod('removeListener', _this);
-        _this.removeAllListeners = createChainingEmitterMethod('removeAllListeners', _this);
-        _this.emit = createBoundEmitterMethod('emit');
-        _this.eventNames = createBoundEmitterMethod('eventNames');
-        _this.listeners = createBoundEmitterMethod('listeners');
-        _this.listenerCount = createBoundEmitterMethod('listenerCount');
-        return _this;
-    }
-    /* eslint-enable prettier/prettier */
-    RPCProviderModule.prototype.sendAsync = function (payload, onRequestComplete) {
-        if (!onRequestComplete) {
-            throw Object(_core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_2__["createInvalidArgumentError"])({
-                procedure: 'Magic.rpcProvider.sendAsync',
-                argument: 1,
-                expected: 'function',
-                received: onRequestComplete === null ? 'null' : typeof onRequestComplete,
-            });
-        }
-        if (Array.isArray(payload)) {
-            this.transport
-                .post(this.overlay, _magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicOutgoingWindowMessage"].MAGIC_HANDLE_REQUEST, payload.map(function (p) { return Object(_core_json_rpc__WEBPACK_IMPORTED_MODULE_3__["standardizeJsonRpcRequestPayload"])(p); }))
-                .then(function (batchResponse) {
-                onRequestComplete(null, batchResponse.map(function (response) { return (__assign(__assign({}, response.payload), { error: response.hasError ? new _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_2__["MagicRPCError"](response.payload.error) : null })); }));
-            });
-        }
-        else {
-            var finalPayload = Object(_core_json_rpc__WEBPACK_IMPORTED_MODULE_3__["standardizeJsonRpcRequestPayload"])(payload);
-            this.transport
-                .post(this.overlay, _magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicOutgoingWindowMessage"].MAGIC_HANDLE_REQUEST, finalPayload)
-                .then(function (response) {
-                onRequestComplete(response.hasError ? new _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_2__["MagicRPCError"](response.payload.error) : null, response.payload);
-            });
-        }
-    };
-    /* eslint-enable prettier/prettier */
-    RPCProviderModule.prototype.send = function (payloadOrMethod, onRequestCompleteOrParams) {
-        // Case #1
-        // Web3 >= 1.0.0-beta.38 calls `send` with method and parameters.
-        if (typeof payloadOrMethod === 'string') {
-            var payload = Object(_core_json_rpc__WEBPACK_IMPORTED_MODULE_3__["createJsonRpcRequestPayload"])(payloadOrMethod, Array.isArray(onRequestCompleteOrParams) ? onRequestCompleteOrParams : []);
-            return this.request(payload);
-        }
-        // Case #2
-        // Web3 <= 1.0.0-beta.37 uses `send` with a callback for async queries.
-        if (Array.isArray(payloadOrMethod) || !!onRequestCompleteOrParams) {
-            /* eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion */
-            this.sendAsync(payloadOrMethod, onRequestCompleteOrParams);
-            return;
-        }
-        // Case #3
-        // Legacy synchronous methods (unsupported).
-        var warning = Object(_core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_2__["createSynchronousWeb3MethodWarning"])();
-        warning.log();
-        return new _core_json_rpc__WEBPACK_IMPORTED_MODULE_3__["JsonRpcResponse"](payloadOrMethod).applyError({
-            code: -32603,
-            message: warning.rawMessage,
-        }).payload;
-    };
-    RPCProviderModule.prototype.enable = function () {
-        var requestPayload = Object(_core_json_rpc__WEBPACK_IMPORTED_MODULE_3__["createJsonRpcRequestPayload"])('eth_accounts');
-        return this.request(requestPayload);
-    };
-    return RPCProviderModule;
-}(_base_module__WEBPACK_IMPORTED_MODULE_1__["BaseModule"]));
-
-//# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/dist/module/modules/user/index.js":
-/*!****************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/dist/module/modules/user/index.js ***!
-  \****************************************************************************/
-/*! exports provided: UserModule */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "UserModule", function() { return UserModule; });
-/* harmony import */ var _magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @magic-sdk/types */ "./node_modules/@magic-sdk/types/dist/module/index.js");
-/* harmony import */ var _base_module__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../base-module */ "./node_modules/@magic-sdk/provider/dist/module/modules/base-module.js");
-/* harmony import */ var _core_json_rpc__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../core/json-rpc */ "./node_modules/@magic-sdk/provider/dist/module/core/json-rpc.js");
-/* harmony import */ var _util_webauthn__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../util/webauthn */ "./node_modules/@magic-sdk/provider/dist/module/util/webauthn.js");
-/* harmony import */ var _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../core/sdk-exceptions */ "./node_modules/@magic-sdk/provider/dist/module/core/sdk-exceptions.js");
-var __extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-
-var UserModule = /** @class */ (function (_super) {
-    __extends(UserModule, _super);
-    function UserModule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    /** */
-    UserModule.prototype.getIdToken = function (configuration) {
-        var requestPayload = Object(_core_json_rpc__WEBPACK_IMPORTED_MODULE_2__["createJsonRpcRequestPayload"])(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicPayloadMethod"].GetIdToken, [configuration]);
-        return this.request(requestPayload);
-    };
-    /** */
-    UserModule.prototype.generateIdToken = function (configuration) {
-        var requestPayload = Object(_core_json_rpc__WEBPACK_IMPORTED_MODULE_2__["createJsonRpcRequestPayload"])(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicPayloadMethod"].GenerateIdToken, [configuration]);
-        return this.request(requestPayload);
-    };
-    /** */
-    UserModule.prototype.getMetadata = function () {
-        var requestPayload = Object(_core_json_rpc__WEBPACK_IMPORTED_MODULE_2__["createJsonRpcRequestPayload"])(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicPayloadMethod"].GetMetadata);
-        return this.request(requestPayload);
-    };
-    /** */
-    UserModule.prototype.updateEmail = function (configuration) {
-        var email = configuration.email, _a = configuration.showUI, showUI = _a === void 0 ? true : _a;
-        var requestPayload = Object(_core_json_rpc__WEBPACK_IMPORTED_MODULE_2__["createJsonRpcRequestPayload"])(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicPayloadMethod"].UpdateEmail, [{ email: email, showUI: showUI }]);
-        return this.request(requestPayload);
-    };
-    /** */
-    UserModule.prototype.isLoggedIn = function () {
-        var requestPayload = Object(_core_json_rpc__WEBPACK_IMPORTED_MODULE_2__["createJsonRpcRequestPayload"])(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicPayloadMethod"].IsLoggedIn);
-        return this.request(requestPayload);
-    };
-    /** */
-    UserModule.prototype.logout = function () {
-        var requestPayload = Object(_core_json_rpc__WEBPACK_IMPORTED_MODULE_2__["createJsonRpcRequestPayload"])(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicPayloadMethod"].Logout);
-        return this.request(requestPayload);
-    };
-    UserModule.prototype.getWebAuthnInfo = function () {
-        var requestPayload = Object(_core_json_rpc__WEBPACK_IMPORTED_MODULE_2__["createJsonRpcRequestPayload"])(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicPayloadMethod"].GetWebAuthnInfo, []);
-        return this.request(requestPayload);
-    };
-    UserModule.prototype.updateWebAuthnInfo = function (configuration) {
-        var id = configuration.id, nickname = configuration.nickname;
-        var requestPayload = Object(_core_json_rpc__WEBPACK_IMPORTED_MODULE_2__["createJsonRpcRequestPayload"])(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicPayloadMethod"].UpdateWebAuthnInfo, [
-            {
-                webAuthnCredentialsId: id,
-                nickname: nickname,
-            },
-        ]);
-        return this.request(requestPayload);
-    };
-    UserModule.prototype.unregisterWebAuthnDevice = function (id) {
-        var requestPayload = Object(_core_json_rpc__WEBPACK_IMPORTED_MODULE_2__["createJsonRpcRequestPayload"])(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicPayloadMethod"].UnregisterWebAuthDevice, [
-            {
-                webAuthnCredentialsId: id,
-            },
-        ]);
-        return this.request(requestPayload);
-    };
-    UserModule.prototype.registerWebAuthnDevice = function (nickname) {
-        if (nickname === void 0) { nickname = ''; }
-        return __awaiter(this, void 0, void 0, function () {
-            var options, credential, err_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!window.PublicKeyCredential) {
-                            throw Object(_core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__["createWebAuthnNotSupportError"])();
-                        }
-                        return [4 /*yield*/, this.request(Object(_core_json_rpc__WEBPACK_IMPORTED_MODULE_2__["createJsonRpcRequestPayload"])(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicPayloadMethod"].RegisterWebAuthDeviceStart, []))];
-                    case 1:
-                        options = _a.sent();
-                        _a.label = 2;
-                    case 2:
-                        _a.trys.push([2, 4, , 5]);
-                        return [4 /*yield*/, navigator.credentials.create({
-                                publicKey: options.credential_options,
-                            })];
-                    case 3:
-                        credential = (_a.sent());
-                        return [3 /*break*/, 5];
-                    case 4:
-                        err_1 = _a.sent();
-                        throw Object(_core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_4__["createWebAuthCreateCredentialError"])(err_1);
-                    case 5: return [2 /*return*/, this.request(Object(_core_json_rpc__WEBPACK_IMPORTED_MODULE_2__["createJsonRpcRequestPayload"])(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicPayloadMethod"].RegisterWebAuthDevice, [
-                            {
-                                nickname: nickname,
-                                transport: credential.response.getTransports(),
-                                user_agent: navigator.userAgent,
-                                registration_response: Object(_util_webauthn__WEBPACK_IMPORTED_MODULE_3__["transformNewAssertionForServer"])(credential),
-                            },
-                        ]))];
-                }
-            });
-        });
-    };
-    return UserModule;
-}(_base_module__WEBPACK_IMPORTED_MODULE_1__["BaseModule"]));
-
-//# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/dist/module/util/base64-json.js":
-/*!**************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/dist/module/util/base64-json.js ***!
-  \**************************************************************************/
-/*! exports provided: encodeJSON, decodeJSON, encodeQueryParameters, decodeQueryParameters */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "encodeJSON", function() { return encodeJSON; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "decodeJSON", function() { return decodeJSON; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "encodeQueryParameters", function() { return encodeQueryParameters; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "decodeQueryParameters", function() { return decodeQueryParameters; });
-/* harmony import */ var _core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../core/sdk-exceptions */ "./node_modules/@magic-sdk/provider/dist/module/core/sdk-exceptions.js");
-
-/**
- * Given a JSON-serializable object, encode as a Base64 string.
- */
-function encodeJSON(options) {
-    return btoa(JSON.stringify(options));
-}
-/**
- * Given a Base64 JSON string, decode a JavaScript object.
- */
-function decodeJSON(queryString) {
-    return JSON.parse(atob(queryString));
-}
-// --- DEPRECATED!
-/**
- * Given a JSON-serializable object, encode as a Base64 string.
- *
- * @deprecated
- */
-/* istanbul ignore next */
-function encodeQueryParameters(options) {
-    Object(_core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_0__["createDeprecationWarning"])({
-        method: 'encodeQueryParameters()',
-        removalVersions: { 'magic-sdk': 'v3.0.0', '@magic-sdk/react-native': 'v3.0.0' },
-        useInstead: 'encodeJSON()',
-    }).log();
-    return btoa(JSON.stringify(options));
-}
-/**
- * Given a Base64 JSON string, decode a JavaScript object.
- *
- * @deprecated
- */
-/* istanbul ignore next */
-function decodeQueryParameters(queryString) {
-    Object(_core_sdk_exceptions__WEBPACK_IMPORTED_MODULE_0__["createDeprecationWarning"])({
-        method: 'decodeQueryParameters()',
-        removalVersions: { 'magic-sdk': 'v3.0.0', '@magic-sdk/react-native': 'v3.0.0' },
-        useInstead: 'decodeJSON()',
-    }).log();
-    return JSON.parse(atob(queryString));
-}
-//# sourceMappingURL=base64-json.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/dist/module/util/events.js":
-/*!*********************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/dist/module/util/events.js ***!
-  \*********************************************************************/
-/*! exports provided: TypedEmitter, createTypedEmitter */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TypedEmitter", function() { return TypedEmitter; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createTypedEmitter", function() { return createTypedEmitter; });
-/* harmony import */ var eventemitter3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! eventemitter3 */ "./node_modules/eventemitter3/index.js");
-/* harmony import */ var eventemitter3__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(eventemitter3__WEBPACK_IMPORTED_MODULE_0__);
-var __extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-/**
- * An extension of `EventEmitter` (provided by `eventemitter3`) with an adjusted
- * type interface that supports the unique structure of Magic SDK modules.
- */
-var TypedEmitter = /** @class */ (function (_super) {
-    __extends(TypedEmitter, _super);
-    function TypedEmitter() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    return TypedEmitter;
-}(eventemitter3__WEBPACK_IMPORTED_MODULE_0___default.a));
-
-/**
- * Creates a `TypedEmitter` instance and returns helper functions for easily
- * mixing `TypedEmitter` methods into other objects.
- */
-function createTypedEmitter() {
-    var emitter = new TypedEmitter();
-    var createChainingEmitterMethod = function (method, source) {
-        return function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            emitter[method].apply(emitter, args);
-            return source;
-        };
-    };
-    var createBoundEmitterMethod = function (method) {
-        return function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            return emitter[method].apply(emitter, args);
-        };
-    };
-    return {
-        emitter: emitter,
-        createChainingEmitterMethod: createChainingEmitterMethod,
-        createBoundEmitterMethod: createBoundEmitterMethod,
-    };
-}
-//# sourceMappingURL=events.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/dist/module/util/get-payload-id.js":
-/*!*****************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/dist/module/util/get-payload-id.js ***!
-  \*****************************************************************************/
-/*! exports provided: getPayloadId */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getPayloadId", function() { return getPayloadId; });
-var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-function createIntGenerator() {
-    var index;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                index = 0;
-                _a.label = 1;
-            case 1:
-                if (false) {}
-                if (!(index < Number.MAX_SAFE_INTEGER)) return [3 /*break*/, 3];
-                return [4 /*yield*/, ++index];
-            case 2:
-                _a.sent();
-                return [3 /*break*/, 4];
-            case 3:
-                index = 0;
-                _a.label = 4;
-            case 4: return [3 /*break*/, 1];
-            case 5: return [2 /*return*/];
-        }
-    });
-}
-var intGenerator = createIntGenerator();
-/**
- * Get an integer ID for attaching to a JSON RPC request payload.
- */
-function getPayloadId() {
-    return intGenerator.next().value;
-}
-//# sourceMappingURL=get-payload-id.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/dist/module/util/index.js":
-/*!********************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/dist/module/util/index.js ***!
-  \********************************************************************/
-/*! exports provided: getPayloadId, isPromiEvent, createPromiEvent, createAutoCatchingPromise, encodeJSON, decodeJSON, encodeQueryParameters, decodeQueryParameters, isJsonRpcRequestPayload, isJsonRpcResponsePayload, isMagicPayloadMethod, isJsonRpcErrorCode, isEmpty, createURL, storage */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _get_payload_id__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./get-payload-id */ "./node_modules/@magic-sdk/provider/dist/module/util/get-payload-id.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "getPayloadId", function() { return _get_payload_id__WEBPACK_IMPORTED_MODULE_0__["getPayloadId"]; });
-
-/* harmony import */ var _promise_tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./promise-tools */ "./node_modules/@magic-sdk/provider/dist/module/util/promise-tools.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "isPromiEvent", function() { return _promise_tools__WEBPACK_IMPORTED_MODULE_1__["isPromiEvent"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createPromiEvent", function() { return _promise_tools__WEBPACK_IMPORTED_MODULE_1__["createPromiEvent"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createAutoCatchingPromise", function() { return _promise_tools__WEBPACK_IMPORTED_MODULE_1__["createAutoCatchingPromise"]; });
-
-/* harmony import */ var _base64_json__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./base64-json */ "./node_modules/@magic-sdk/provider/dist/module/util/base64-json.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "encodeJSON", function() { return _base64_json__WEBPACK_IMPORTED_MODULE_2__["encodeJSON"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "decodeJSON", function() { return _base64_json__WEBPACK_IMPORTED_MODULE_2__["decodeJSON"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "encodeQueryParameters", function() { return _base64_json__WEBPACK_IMPORTED_MODULE_2__["encodeQueryParameters"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "decodeQueryParameters", function() { return _base64_json__WEBPACK_IMPORTED_MODULE_2__["decodeQueryParameters"]; });
-
-/* harmony import */ var _type_guards__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./type-guards */ "./node_modules/@magic-sdk/provider/dist/module/util/type-guards.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "isJsonRpcRequestPayload", function() { return _type_guards__WEBPACK_IMPORTED_MODULE_3__["isJsonRpcRequestPayload"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "isJsonRpcResponsePayload", function() { return _type_guards__WEBPACK_IMPORTED_MODULE_3__["isJsonRpcResponsePayload"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "isMagicPayloadMethod", function() { return _type_guards__WEBPACK_IMPORTED_MODULE_3__["isMagicPayloadMethod"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "isJsonRpcErrorCode", function() { return _type_guards__WEBPACK_IMPORTED_MODULE_3__["isJsonRpcErrorCode"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "isEmpty", function() { return _type_guards__WEBPACK_IMPORTED_MODULE_3__["isEmpty"]; });
-
-/* harmony import */ var _url__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./url */ "./node_modules/@magic-sdk/provider/dist/module/util/url.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createURL", function() { return _url__WEBPACK_IMPORTED_MODULE_4__["createURL"]; });
-
-/* harmony import */ var _storage__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./storage */ "./node_modules/@magic-sdk/provider/dist/module/util/storage.js");
-/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "storage", function() { return _storage__WEBPACK_IMPORTED_MODULE_5__; });
-
-
-
-
-
-
-
-//# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/dist/module/util/promise-tools.js":
-/*!****************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/dist/module/util/promise-tools.js ***!
-  \****************************************************************************/
-/*! exports provided: isPromiEvent, createPromiEvent, createAutoCatchingPromise */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isPromiEvent", function() { return isPromiEvent; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createPromiEvent", function() { return createPromiEvent; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createAutoCatchingPromise", function() { return createAutoCatchingPromise; });
-/* harmony import */ var _events__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./events */ "./node_modules/@magic-sdk/provider/dist/module/util/events.js");
-
-var promiEventBrand = Symbol('isPromiEvent');
-/**
- * Returns `true` if the given `value` is a `PromiEvent`.
- */
-function isPromiEvent(value) {
-    return !!value[promiEventBrand];
-}
-/**
- * Create a native JavaScript `Promise` overloaded with strongly-typed methods
- * from `EventEmitter`.
- */
-function createPromiEvent(executor) {
-    var promise = createAutoCatchingPromise(executor);
-    var _a = Object(_events__WEBPACK_IMPORTED_MODULE_0__["createTypedEmitter"])(), createBoundEmitterMethod = _a.createBoundEmitterMethod, createChainingEmitterMethod = _a.createChainingEmitterMethod;
-    // We save the original `Promise` methods to the following symbols so we can
-    // access them internally.
-    var thenSymbol = Symbol('Promise.then');
-    var catchSymbol = Symbol('Promise.catch');
-    var finallySymbol = Symbol('Promise.finally');
-    /**
-     * Ensures the next object in the `PromiEvent` chain is overloaded with
-     * `EventEmitter` methods.
-     */
-    var createChainingPromiseMethod = function (method, source) { return function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var nextPromise = source[method].apply(source, args);
-        return promiEvent(nextPromise);
-    }; };
-    /**
-     * Builds a `PromiEvent` by assigning `EventEmitter` methods to a native
-     * `Promise` object.
-     */
-    var promiEvent = function (source) {
-        var _a;
-        return Object.assign(source, (_a = {},
-            _a[promiEventBrand] = true,
-            _a[thenSymbol] = source[thenSymbol] || source.then,
-            _a[catchSymbol] = source[catchSymbol] || source.catch,
-            _a[finallySymbol] = source[finallySymbol] || source.finally,
-            _a.then = createChainingPromiseMethod(thenSymbol, source),
-            _a.catch = createChainingPromiseMethod(catchSymbol, source),
-            _a.finally = createChainingPromiseMethod(finallySymbol, source),
-            _a.on = createChainingEmitterMethod('on', source),
-            _a.once = createChainingEmitterMethod('once', source),
-            _a.addListener = createChainingEmitterMethod('addListener', source),
-            _a.off = createChainingEmitterMethod('off', source),
-            _a.removeListener = createChainingEmitterMethod('removeListener', source),
-            _a.removeAllListeners = createChainingEmitterMethod('removeAllListeners', source),
-            _a.emit = createBoundEmitterMethod('emit'),
-            _a.eventNames = createBoundEmitterMethod('eventNames'),
-            _a.listeners = createBoundEmitterMethod('listeners'),
-            _a.listenerCount = createBoundEmitterMethod('listenerCount'),
-            _a));
-    };
-    var result = promiEvent(promise.then(function (resolved) {
-        // Emit default completion events and resolve result.
-        result.emit('done', resolved);
-        result.emit('settled');
-        return resolved;
-    }, function (err) {
-        // Emit default error events and re-throw.
-        result.emit('error', err);
-        result.emit('settled');
-        throw err;
-    }));
-    return result;
-}
-/**
- * Creates a `Promise` with an **async executor** that automatically catches
- * errors occurring within the executor. Nesting promises in this way is usually
- * deemed an _anti-pattern_, but it's useful and clean when promisifying the
- * event-based code that's inherent to JSON RPC.
- *
- * So, here we solve the issue of nested promises by ensuring that no errors
- * mistakenly go unhandled!
- */
-function createAutoCatchingPromise(executor) {
-    return new Promise(function (resolve, reject) {
-        var result = executor(resolve, reject);
-        Promise.resolve(result).catch(reject);
-    });
-}
-//# sourceMappingURL=promise-tools.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/dist/module/util/storage.js":
-/*!**********************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/dist/module/util/storage.js ***!
-  \**********************************************************************/
-/*! exports provided: getItem, setItem, removeItem, clear, length, key, keys, iterate */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getItem", function() { return getItem; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setItem", function() { return setItem; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "removeItem", function() { return removeItem; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "clear", function() { return clear; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "length", function() { return length; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "key", function() { return key; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "keys", function() { return keys; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "iterate", function() { return iterate; });
-/* harmony import */ var _core_sdk_environment__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../core/sdk-environment */ "./node_modules/@magic-sdk/provider/dist/module/core/sdk-environment.js");
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-var __read = (undefined && undefined.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-var __spread = (undefined && undefined.__spread) || function () {
-    for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
-    return ar;
-};
-
-var lf;
-/**
- * Proxies `localforage` methods with strong-typing.
- */
-function proxyLocalForageMethod(method) {
-    var _this = this;
-    return function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        return __awaiter(_this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!!lf) return [3 /*break*/, 2];
-                        return [4 /*yield*/, _core_sdk_environment__WEBPACK_IMPORTED_MODULE_0__["SDKEnvironment"].configureStorage()];
-                    case 1:
-                        lf = _a.sent();
-                        _a.label = 2;
-                    case 2: return [4 /*yield*/, lf.ready()];
-                    case 3:
-                        _a.sent();
-                        return [2 /*return*/, lf[method].apply(lf, __spread(args))];
-                }
-            });
-        });
-    };
-}
-var getItem = proxyLocalForageMethod('getItem');
-var setItem = proxyLocalForageMethod('setItem');
-var removeItem = proxyLocalForageMethod('removeItem');
-var clear = proxyLocalForageMethod('clear');
-var length = proxyLocalForageMethod('length');
-var key = proxyLocalForageMethod('key');
-var keys = proxyLocalForageMethod('keys');
-var iterate = proxyLocalForageMethod('iterate');
-//# sourceMappingURL=storage.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/dist/module/util/type-guards.js":
-/*!**************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/dist/module/util/type-guards.js ***!
-  \**************************************************************************/
-/*! exports provided: isJsonRpcRequestPayload, isJsonRpcResponsePayload, isMagicPayloadMethod, isJsonRpcErrorCode, isEmpty */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isJsonRpcRequestPayload", function() { return isJsonRpcRequestPayload; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isJsonRpcResponsePayload", function() { return isJsonRpcResponsePayload; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isMagicPayloadMethod", function() { return isMagicPayloadMethod; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isJsonRpcErrorCode", function() { return isJsonRpcErrorCode; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isEmpty", function() { return isEmpty; });
-/* harmony import */ var _magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @magic-sdk/types */ "./node_modules/@magic-sdk/types/dist/module/index.js");
-/**
- * This file contains our type guards.
- *
- * Type guards are a feature of TypeScript which narrow the type signature of
- * intesection types (types that can be one thing or another).
- *
- * @see
- * https://www.typescriptlang.org/docs/handbook/advanced-types.html#type-guards-and-differentiating-types
- */
-
-/**
- * Assert `value` is `undefined`.
- */
-function isUndefined(value) {
-    return typeof value === 'undefined';
-}
-/**
- * Assert `value` is `null`.
- */
-function isNull(value) {
-    return value === null;
-}
-/**
- * Assert `value` is `null` or `undefined`.
- */
-function isNil(value) {
-    return isNull(value) || isUndefined(value);
-}
-/**
- * Assert `value` is a `JsonRpcRequestPayload` object.
- */
-function isJsonRpcRequestPayload(value) {
-    if (isNil(value))
-        return false;
-    return (!isUndefined(value.jsonrpc) && !isUndefined(value.id) && !isUndefined(value.method) && !isUndefined(value.params));
-}
-/**
- * Assert `value` is a `JsonRpcResponsePayload` object.
- */
-function isJsonRpcResponsePayload(value) {
-    if (isNil(value))
-        return false;
-    return (!isUndefined(value.jsonrpc) && !isUndefined(value.id) && (!isUndefined(value.result) || !isUndefined(value.error)));
-}
-/**
- * Assert `value` is a Magic SDK payload method identifier.
- */
-function isMagicPayloadMethod(value) {
-    if (isNil(value))
-        return false;
-    return typeof value === 'string' && Object.values(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["MagicPayloadMethod"]).includes(value);
-}
-/**
- * Assert `value` is an expected JSON RPC error code.
- */
-function isJsonRpcErrorCode(value) {
-    if (isNil(value))
-        return false;
-    return typeof value === 'number' && Object.values(_magic_sdk_types__WEBPACK_IMPORTED_MODULE_0__["RPCErrorCode"]).includes(value);
-}
-/**
- * Assert `value` is an empty, plain object.
- */
-function isEmpty(value) {
-    if (!value)
-        return true;
-    for (var key in value) {
-        /* istanbul ignore else */
-        if (Object.hasOwnProperty.call(value, key)) {
-            return false;
-        }
-    }
-    return true;
-}
-//# sourceMappingURL=type-guards.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/dist/module/util/url.js":
-/*!******************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/dist/module/util/url.js ***!
-  \******************************************************************/
-/*! exports provided: createURL */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createURL", function() { return createURL; });
-/**
- * Builds a `URL` object safely.
- */
-function createURL(url, base) {
-    // Safari raises an error if `undefined` is given to the second argument of
-    // the `URL` constructor.
-    return base ? new URL(url, base) : new URL(url);
-}
-//# sourceMappingURL=url.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/dist/module/util/webauthn.js":
-/*!***********************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/dist/module/util/webauthn.js ***!
-  \***********************************************************************/
-/*! exports provided: transformNewAssertionForServer, transformAssertionForServer */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "transformNewAssertionForServer", function() { return transformNewAssertionForServer; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "transformAssertionForServer", function() { return transformAssertionForServer; });
-var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-/* eslint-disable */
-/* istanbul ignore next  */
-function fromByteArray(uint8) {
-    var i;
-    var extraBytes = uint8.length % 3; // if we have 1 byte left, pad 2 bytes
-    var output = '';
-    var temp;
-    var length;
-    function encode(num) {
-        return lookup.charAt(num);
-    }
-    function tripletToBase64(num) {
-        return encode((num >> 18) & 0x3f) + encode((num >> 12) & 0x3f) + encode((num >> 6) & 0x3f) + encode(num & 0x3f);
-    }
-    // go through the array every three bytes, we'll deal with trailing stuff later
-    for (i = 0, length = uint8.length - extraBytes; i < length; i += 3) {
-        temp = (uint8[i] << 16) + (uint8[i + 1] << 8) + uint8[i + 2];
-        output += tripletToBase64(temp);
-    }
-    // pad the end with zeros, but make sure to not forget the extra bytes
-    switch (extraBytes) {
-        case 1:
-            temp = uint8[uint8.length - 1];
-            output += encode(temp >> 2);
-            output += encode((temp << 4) & 0x3f);
-            output += '==';
-            break;
-        case 2:
-            temp = (uint8[uint8.length - 2] << 8) + uint8[uint8.length - 1];
-            output += encode(temp >> 10);
-            output += encode((temp >> 4) & 0x3f);
-            output += encode((temp << 2) & 0x3f);
-            output += '=';
-            break;
-        default:
-            break;
-    }
-    return output;
-}
-/* istanbul ignore next  */
-function b64enc(buf) {
-    return fromByteArray(buf).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-}
-/* istanbul ignore next  */
-function b64RawEnc(buf) {
-    return fromByteArray(buf).replace(/\+/g, '-').replace(/\//g, '_');
-}
-/* istanbul ignore next  */
-function hexEncode(buf) {
-    return Array.from(buf)
-        .map(function (x) {
-        return ("0" + x.toString(16)).substr(-2);
-    })
-        .join('');
-}
-/**
- * Transforms the binary data in the credential into base64 strings
- * for posting to the server.
- * @param {PublicKeyCredential} newAssertion
- */
-/* istanbul ignore next  */
-var transformNewAssertionForServer = function (newAssertion) {
-    var attObj = new Uint8Array(newAssertion.response.attestationObject);
-    var clientDataJSON = new Uint8Array(newAssertion.response.clientDataJSON);
-    var rawId = new Uint8Array(newAssertion.rawId);
-    var registrationClientExtensions = newAssertion.getClientExtensionResults();
-    return {
-        id: newAssertion.id,
-        rawId: b64enc(rawId),
-        type: newAssertion.type,
-        attObj: b64enc(attObj),
-        clientData: b64enc(clientDataJSON),
-        registrationClientExtensions: JSON.stringify(registrationClientExtensions),
-    };
-};
-/**
- * Encodes the binary data in the assertion into strings for posting to the server.
- * @param {PublicKeyCredential} newAssertion
- */
-/* istanbul ignore next  */
-var transformAssertionForServer = function (newAssertion) {
-    var authData = new Uint8Array(newAssertion.response.authenticatorData);
-    var clientDataJSON = new Uint8Array(newAssertion.response.clientDataJSON);
-    var rawId = new Uint8Array(newAssertion.rawId);
-    var sig = new Uint8Array(newAssertion.response.signature);
-    var assertionClientExtensions = newAssertion.getClientExtensionResults();
-    return {
-        id: newAssertion.id,
-        rawId: b64enc(rawId),
-        type: newAssertion.type,
-        authData: b64RawEnc(authData),
-        clientData: b64RawEnc(clientDataJSON),
-        signature: hexEncode(sig),
-        assertionClientExtensions: JSON.stringify(assertionClientExtensions),
-    };
-};
-//# sourceMappingURL=webauthn.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/node_modules/lru-cache/index.js":
-/*!**************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/node_modules/lru-cache/index.js ***!
-  \**************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-// A linked list to keep track of recently-used-ness
-const Yallist = __webpack_require__(/*! yallist */ "./node_modules/@magic-sdk/provider/node_modules/yallist/yallist.js")
-
-const MAX = Symbol('max')
-const LENGTH = Symbol('length')
-const LENGTH_CALCULATOR = Symbol('lengthCalculator')
-const ALLOW_STALE = Symbol('allowStale')
-const MAX_AGE = Symbol('maxAge')
-const DISPOSE = Symbol('dispose')
-const NO_DISPOSE_ON_SET = Symbol('noDisposeOnSet')
-const LRU_LIST = Symbol('lruList')
-const CACHE = Symbol('cache')
-const UPDATE_AGE_ON_GET = Symbol('updateAgeOnGet')
-
-const naiveLength = () => 1
-
-// lruList is a yallist where the head is the youngest
-// item, and the tail is the oldest.  the list contains the Hit
-// objects as the entries.
-// Each Hit object has a reference to its Yallist.Node.  This
-// never changes.
-//
-// cache is a Map (or PseudoMap) that matches the keys to
-// the Yallist.Node object.
-class LRUCache {
-  constructor (options) {
-    if (typeof options === 'number')
-      options = { max: options }
-
-    if (!options)
-      options = {}
-
-    if (options.max && (typeof options.max !== 'number' || options.max < 0))
-      throw new TypeError('max must be a non-negative number')
-    // Kind of weird to have a default max of Infinity, but oh well.
-    const max = this[MAX] = options.max || Infinity
-
-    const lc = options.length || naiveLength
-    this[LENGTH_CALCULATOR] = (typeof lc !== 'function') ? naiveLength : lc
-    this[ALLOW_STALE] = options.stale || false
-    if (options.maxAge && typeof options.maxAge !== 'number')
-      throw new TypeError('maxAge must be a number')
-    this[MAX_AGE] = options.maxAge || 0
-    this[DISPOSE] = options.dispose
-    this[NO_DISPOSE_ON_SET] = options.noDisposeOnSet || false
-    this[UPDATE_AGE_ON_GET] = options.updateAgeOnGet || false
-    this.reset()
-  }
-
-  // resize the cache when the max changes.
-  set max (mL) {
-    if (typeof mL !== 'number' || mL < 0)
-      throw new TypeError('max must be a non-negative number')
-
-    this[MAX] = mL || Infinity
-    trim(this)
-  }
-  get max () {
-    return this[MAX]
-  }
-
-  set allowStale (allowStale) {
-    this[ALLOW_STALE] = !!allowStale
-  }
-  get allowStale () {
-    return this[ALLOW_STALE]
-  }
-
-  set maxAge (mA) {
-    if (typeof mA !== 'number')
-      throw new TypeError('maxAge must be a non-negative number')
-
-    this[MAX_AGE] = mA
-    trim(this)
-  }
-  get maxAge () {
-    return this[MAX_AGE]
-  }
-
-  // resize the cache when the lengthCalculator changes.
-  set lengthCalculator (lC) {
-    if (typeof lC !== 'function')
-      lC = naiveLength
-
-    if (lC !== this[LENGTH_CALCULATOR]) {
-      this[LENGTH_CALCULATOR] = lC
-      this[LENGTH] = 0
-      this[LRU_LIST].forEach(hit => {
-        hit.length = this[LENGTH_CALCULATOR](hit.value, hit.key)
-        this[LENGTH] += hit.length
-      })
-    }
-    trim(this)
-  }
-  get lengthCalculator () { return this[LENGTH_CALCULATOR] }
-
-  get length () { return this[LENGTH] }
-  get itemCount () { return this[LRU_LIST].length }
-
-  rforEach (fn, thisp) {
-    thisp = thisp || this
-    for (let walker = this[LRU_LIST].tail; walker !== null;) {
-      const prev = walker.prev
-      forEachStep(this, fn, walker, thisp)
-      walker = prev
-    }
-  }
-
-  forEach (fn, thisp) {
-    thisp = thisp || this
-    for (let walker = this[LRU_LIST].head; walker !== null;) {
-      const next = walker.next
-      forEachStep(this, fn, walker, thisp)
-      walker = next
-    }
-  }
-
-  keys () {
-    return this[LRU_LIST].toArray().map(k => k.key)
-  }
-
-  values () {
-    return this[LRU_LIST].toArray().map(k => k.value)
-  }
-
-  reset () {
-    if (this[DISPOSE] &&
-        this[LRU_LIST] &&
-        this[LRU_LIST].length) {
-      this[LRU_LIST].forEach(hit => this[DISPOSE](hit.key, hit.value))
-    }
-
-    this[CACHE] = new Map() // hash of items by key
-    this[LRU_LIST] = new Yallist() // list of items in order of use recency
-    this[LENGTH] = 0 // length of items in the list
-  }
-
-  dump () {
-    return this[LRU_LIST].map(hit =>
-      isStale(this, hit) ? false : {
-        k: hit.key,
-        v: hit.value,
-        e: hit.now + (hit.maxAge || 0)
-      }).toArray().filter(h => h)
-  }
-
-  dumpLru () {
-    return this[LRU_LIST]
-  }
-
-  set (key, value, maxAge) {
-    maxAge = maxAge || this[MAX_AGE]
-
-    if (maxAge && typeof maxAge !== 'number')
-      throw new TypeError('maxAge must be a number')
-
-    const now = maxAge ? Date.now() : 0
-    const len = this[LENGTH_CALCULATOR](value, key)
-
-    if (this[CACHE].has(key)) {
-      if (len > this[MAX]) {
-        del(this, this[CACHE].get(key))
-        return false
-      }
-
-      const node = this[CACHE].get(key)
-      const item = node.value
-
-      // dispose of the old one before overwriting
-      // split out into 2 ifs for better coverage tracking
-      if (this[DISPOSE]) {
-        if (!this[NO_DISPOSE_ON_SET])
-          this[DISPOSE](key, item.value)
-      }
-
-      item.now = now
-      item.maxAge = maxAge
-      item.value = value
-      this[LENGTH] += len - item.length
-      item.length = len
-      this.get(key)
-      trim(this)
-      return true
-    }
-
-    const hit = new Entry(key, value, len, now, maxAge)
-
-    // oversized objects fall out of cache automatically.
-    if (hit.length > this[MAX]) {
-      if (this[DISPOSE])
-        this[DISPOSE](key, value)
-
-      return false
-    }
-
-    this[LENGTH] += hit.length
-    this[LRU_LIST].unshift(hit)
-    this[CACHE].set(key, this[LRU_LIST].head)
-    trim(this)
-    return true
-  }
-
-  has (key) {
-    if (!this[CACHE].has(key)) return false
-    const hit = this[CACHE].get(key).value
-    return !isStale(this, hit)
-  }
-
-  get (key) {
-    return get(this, key, true)
-  }
-
-  peek (key) {
-    return get(this, key, false)
-  }
-
-  pop () {
-    const node = this[LRU_LIST].tail
-    if (!node)
-      return null
-
-    del(this, node)
-    return node.value
-  }
-
-  del (key) {
-    del(this, this[CACHE].get(key))
-  }
-
-  load (arr) {
-    // reset the cache
-    this.reset()
-
-    const now = Date.now()
-    // A previous serialized cache has the most recent items first
-    for (let l = arr.length - 1; l >= 0; l--) {
-      const hit = arr[l]
-      const expiresAt = hit.e || 0
-      if (expiresAt === 0)
-        // the item was created without expiration in a non aged cache
-        this.set(hit.k, hit.v)
-      else {
-        const maxAge = expiresAt - now
-        // dont add already expired items
-        if (maxAge > 0) {
-          this.set(hit.k, hit.v, maxAge)
-        }
-      }
-    }
-  }
-
-  prune () {
-    this[CACHE].forEach((value, key) => get(this, key, false))
-  }
-}
-
-const get = (self, key, doUse) => {
-  const node = self[CACHE].get(key)
-  if (node) {
-    const hit = node.value
-    if (isStale(self, hit)) {
-      del(self, node)
-      if (!self[ALLOW_STALE])
-        return undefined
-    } else {
-      if (doUse) {
-        if (self[UPDATE_AGE_ON_GET])
-          node.value.now = Date.now()
-        self[LRU_LIST].unshiftNode(node)
-      }
-    }
-    return hit.value
-  }
-}
-
-const isStale = (self, hit) => {
-  if (!hit || (!hit.maxAge && !self[MAX_AGE]))
-    return false
-
-  const diff = Date.now() - hit.now
-  return hit.maxAge ? diff > hit.maxAge
-    : self[MAX_AGE] && (diff > self[MAX_AGE])
-}
-
-const trim = self => {
-  if (self[LENGTH] > self[MAX]) {
-    for (let walker = self[LRU_LIST].tail;
-      self[LENGTH] > self[MAX] && walker !== null;) {
-      // We know that we're about to delete this one, and also
-      // what the next least recently used key will be, so just
-      // go ahead and set it now.
-      const prev = walker.prev
-      del(self, walker)
-      walker = prev
-    }
-  }
-}
-
-const del = (self, node) => {
-  if (node) {
-    const hit = node.value
-    if (self[DISPOSE])
-      self[DISPOSE](hit.key, hit.value)
-
-    self[LENGTH] -= hit.length
-    self[CACHE].delete(hit.key)
-    self[LRU_LIST].removeNode(node)
-  }
-}
-
-class Entry {
-  constructor (key, value, length, now, maxAge) {
-    this.key = key
-    this.value = value
-    this.length = length
-    this.now = now
-    this.maxAge = maxAge || 0
-  }
-}
-
-const forEachStep = (self, fn, node, thisp) => {
-  let hit = node.value
-  if (isStale(self, hit)) {
-    del(self, node)
-    if (!self[ALLOW_STALE])
-      hit = undefined
-  }
-  if (hit)
-    fn.call(thisp, hit.value, hit.key, self)
-}
-
-module.exports = LRUCache
-
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/node_modules/semver/classes/comparator.js":
-/*!************************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/node_modules/semver/classes/comparator.js ***!
-  \************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-const ANY = Symbol('SemVer ANY')
-// hoisted class for cyclic dependency
-class Comparator {
-  static get ANY () {
-    return ANY
-  }
-  constructor (comp, options) {
-    options = parseOptions(options)
-
-    if (comp instanceof Comparator) {
-      if (comp.loose === !!options.loose) {
-        return comp
-      } else {
-        comp = comp.value
-      }
-    }
-
-    debug('comparator', comp, options)
-    this.options = options
-    this.loose = !!options.loose
-    this.parse(comp)
-
-    if (this.semver === ANY) {
-      this.value = ''
-    } else {
-      this.value = this.operator + this.semver.version
-    }
-
-    debug('comp', this)
-  }
-
-  parse (comp) {
-    const r = this.options.loose ? re[t.COMPARATORLOOSE] : re[t.COMPARATOR]
-    const m = comp.match(r)
-
-    if (!m) {
-      throw new TypeError(`Invalid comparator: ${comp}`)
-    }
-
-    this.operator = m[1] !== undefined ? m[1] : ''
-    if (this.operator === '=') {
-      this.operator = ''
-    }
-
-    // if it literally is just '>' or '' then allow anything.
-    if (!m[2]) {
-      this.semver = ANY
-    } else {
-      this.semver = new SemVer(m[2], this.options.loose)
-    }
-  }
-
-  toString () {
-    return this.value
-  }
-
-  test (version) {
-    debug('Comparator.test', version, this.options.loose)
-
-    if (this.semver === ANY || version === ANY) {
-      return true
-    }
-
-    if (typeof version === 'string') {
-      try {
-        version = new SemVer(version, this.options)
-      } catch (er) {
-        return false
-      }
-    }
-
-    return cmp(version, this.operator, this.semver, this.options)
-  }
-
-  intersects (comp, options) {
-    if (!(comp instanceof Comparator)) {
-      throw new TypeError('a Comparator is required')
-    }
-
-    if (!options || typeof options !== 'object') {
-      options = {
-        loose: !!options,
-        includePrerelease: false
-      }
-    }
-
-    if (this.operator === '') {
-      if (this.value === '') {
-        return true
-      }
-      return new Range(comp.value, options).test(this.value)
-    } else if (comp.operator === '') {
-      if (comp.value === '') {
-        return true
-      }
-      return new Range(this.value, options).test(comp.semver)
-    }
-
-    const sameDirectionIncreasing =
-      (this.operator === '>=' || this.operator === '>') &&
-      (comp.operator === '>=' || comp.operator === '>')
-    const sameDirectionDecreasing =
-      (this.operator === '<=' || this.operator === '<') &&
-      (comp.operator === '<=' || comp.operator === '<')
-    const sameSemVer = this.semver.version === comp.semver.version
-    const differentDirectionsInclusive =
-      (this.operator === '>=' || this.operator === '<=') &&
-      (comp.operator === '>=' || comp.operator === '<=')
-    const oppositeDirectionsLessThan =
-      cmp(this.semver, '<', comp.semver, options) &&
-      (this.operator === '>=' || this.operator === '>') &&
-        (comp.operator === '<=' || comp.operator === '<')
-    const oppositeDirectionsGreaterThan =
-      cmp(this.semver, '>', comp.semver, options) &&
-      (this.operator === '<=' || this.operator === '<') &&
-        (comp.operator === '>=' || comp.operator === '>')
-
-    return (
-      sameDirectionIncreasing ||
-      sameDirectionDecreasing ||
-      (sameSemVer && differentDirectionsInclusive) ||
-      oppositeDirectionsLessThan ||
-      oppositeDirectionsGreaterThan
-    )
-  }
-}
-
-module.exports = Comparator
-
-const parseOptions = __webpack_require__(/*! ../internal/parse-options */ "./node_modules/@magic-sdk/provider/node_modules/semver/internal/parse-options.js")
-const {re, t} = __webpack_require__(/*! ../internal/re */ "./node_modules/@magic-sdk/provider/node_modules/semver/internal/re.js")
-const cmp = __webpack_require__(/*! ../functions/cmp */ "./node_modules/@magic-sdk/provider/node_modules/semver/functions/cmp.js")
-const debug = __webpack_require__(/*! ../internal/debug */ "./node_modules/@magic-sdk/provider/node_modules/semver/internal/debug.js")
-const SemVer = __webpack_require__(/*! ./semver */ "./node_modules/@magic-sdk/provider/node_modules/semver/classes/semver.js")
-const Range = __webpack_require__(/*! ./range */ "./node_modules/@magic-sdk/provider/node_modules/semver/classes/range.js")
-
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/node_modules/semver/classes/range.js":
-/*!*******************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/node_modules/semver/classes/range.js ***!
-  \*******************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-// hoisted class for cyclic dependency
-class Range {
-  constructor (range, options) {
-    options = parseOptions(options)
-
-    if (range instanceof Range) {
-      if (
-        range.loose === !!options.loose &&
-        range.includePrerelease === !!options.includePrerelease
-      ) {
-        return range
-      } else {
-        return new Range(range.raw, options)
-      }
-    }
-
-    if (range instanceof Comparator) {
-      // just put it in the set and return
-      this.raw = range.value
-      this.set = [[range]]
-      this.format()
-      return this
-    }
-
-    this.options = options
-    this.loose = !!options.loose
-    this.includePrerelease = !!options.includePrerelease
-
-    // First, split based on boolean or ||
-    this.raw = range
-    this.set = range
-      .split(/\s*\|\|\s*/)
-      // map the range to a 2d array of comparators
-      .map(range => this.parseRange(range.trim()))
-      // throw out any comparator lists that are empty
-      // this generally means that it was not a valid range, which is allowed
-      // in loose mode, but will still throw if the WHOLE range is invalid.
-      .filter(c => c.length)
-
-    if (!this.set.length) {
-      throw new TypeError(`Invalid SemVer Range: ${range}`)
-    }
-
-    // if we have any that are not the null set, throw out null sets.
-    if (this.set.length > 1) {
-      // keep the first one, in case they're all null sets
-      const first = this.set[0]
-      this.set = this.set.filter(c => !isNullSet(c[0]))
-      if (this.set.length === 0)
-        this.set = [first]
-      else if (this.set.length > 1) {
-        // if we have any that are *, then the range is just *
-        for (const c of this.set) {
-          if (c.length === 1 && isAny(c[0])) {
-            this.set = [c]
-            break
-          }
-        }
-      }
-    }
-
-    this.format()
-  }
-
-  format () {
-    this.range = this.set
-      .map((comps) => {
-        return comps.join(' ').trim()
-      })
-      .join('||')
-      .trim()
-    return this.range
-  }
-
-  toString () {
-    return this.range
-  }
-
-  parseRange (range) {
-    range = range.trim()
-
-    // memoize range parsing for performance.
-    // this is a very hot path, and fully deterministic.
-    const memoOpts = Object.keys(this.options).join(',')
-    const memoKey = `parseRange:${memoOpts}:${range}`
-    const cached = cache.get(memoKey)
-    if (cached)
-      return cached
-
-    const loose = this.options.loose
-    // `1.2.3 - 1.2.4` => `>=1.2.3 <=1.2.4`
-    const hr = loose ? re[t.HYPHENRANGELOOSE] : re[t.HYPHENRANGE]
-    range = range.replace(hr, hyphenReplace(this.options.includePrerelease))
-    debug('hyphen replace', range)
-    // `> 1.2.3 < 1.2.5` => `>1.2.3 <1.2.5`
-    range = range.replace(re[t.COMPARATORTRIM], comparatorTrimReplace)
-    debug('comparator trim', range, re[t.COMPARATORTRIM])
-
-    // `~ 1.2.3` => `~1.2.3`
-    range = range.replace(re[t.TILDETRIM], tildeTrimReplace)
-
-    // `^ 1.2.3` => `^1.2.3`
-    range = range.replace(re[t.CARETTRIM], caretTrimReplace)
-
-    // normalize spaces
-    range = range.split(/\s+/).join(' ')
-
-    // At this point, the range is completely trimmed and
-    // ready to be split into comparators.
-
-    const compRe = loose ? re[t.COMPARATORLOOSE] : re[t.COMPARATOR]
-    const rangeList = range
-      .split(' ')
-      .map(comp => parseComparator(comp, this.options))
-      .join(' ')
-      .split(/\s+/)
-      // >=0.0.0 is equivalent to *
-      .map(comp => replaceGTE0(comp, this.options))
-      // in loose mode, throw out any that are not valid comparators
-      .filter(this.options.loose ? comp => !!comp.match(compRe) : () => true)
-      .map(comp => new Comparator(comp, this.options))
-
-    // if any comparators are the null set, then replace with JUST null set
-    // if more than one comparator, remove any * comparators
-    // also, don't include the same comparator more than once
-    const l = rangeList.length
-    const rangeMap = new Map()
-    for (const comp of rangeList) {
-      if (isNullSet(comp))
-        return [comp]
-      rangeMap.set(comp.value, comp)
-    }
-    if (rangeMap.size > 1 && rangeMap.has(''))
-      rangeMap.delete('')
-
-    const result = [...rangeMap.values()]
-    cache.set(memoKey, result)
-    return result
-  }
-
-  intersects (range, options) {
-    if (!(range instanceof Range)) {
-      throw new TypeError('a Range is required')
-    }
-
-    return this.set.some((thisComparators) => {
-      return (
-        isSatisfiable(thisComparators, options) &&
-        range.set.some((rangeComparators) => {
-          return (
-            isSatisfiable(rangeComparators, options) &&
-            thisComparators.every((thisComparator) => {
-              return rangeComparators.every((rangeComparator) => {
-                return thisComparator.intersects(rangeComparator, options)
-              })
-            })
-          )
-        })
-      )
-    })
-  }
-
-  // if ANY of the sets match ALL of its comparators, then pass
-  test (version) {
-    if (!version) {
-      return false
-    }
-
-    if (typeof version === 'string') {
-      try {
-        version = new SemVer(version, this.options)
-      } catch (er) {
-        return false
-      }
-    }
-
-    for (let i = 0; i < this.set.length; i++) {
-      if (testSet(this.set[i], version, this.options)) {
-        return true
-      }
-    }
-    return false
-  }
-}
-module.exports = Range
-
-const LRU = __webpack_require__(/*! lru-cache */ "./node_modules/@magic-sdk/provider/node_modules/lru-cache/index.js")
-const cache = new LRU({ max: 1000 })
-
-const parseOptions = __webpack_require__(/*! ../internal/parse-options */ "./node_modules/@magic-sdk/provider/node_modules/semver/internal/parse-options.js")
-const Comparator = __webpack_require__(/*! ./comparator */ "./node_modules/@magic-sdk/provider/node_modules/semver/classes/comparator.js")
-const debug = __webpack_require__(/*! ../internal/debug */ "./node_modules/@magic-sdk/provider/node_modules/semver/internal/debug.js")
-const SemVer = __webpack_require__(/*! ./semver */ "./node_modules/@magic-sdk/provider/node_modules/semver/classes/semver.js")
-const {
-  re,
-  t,
-  comparatorTrimReplace,
-  tildeTrimReplace,
-  caretTrimReplace
-} = __webpack_require__(/*! ../internal/re */ "./node_modules/@magic-sdk/provider/node_modules/semver/internal/re.js")
-
-const isNullSet = c => c.value === '<0.0.0-0'
-const isAny = c => c.value === ''
-
-// take a set of comparators and determine whether there
-// exists a version which can satisfy it
-const isSatisfiable = (comparators, options) => {
-  let result = true
-  const remainingComparators = comparators.slice()
-  let testComparator = remainingComparators.pop()
-
-  while (result && remainingComparators.length) {
-    result = remainingComparators.every((otherComparator) => {
-      return testComparator.intersects(otherComparator, options)
-    })
-
-    testComparator = remainingComparators.pop()
-  }
-
-  return result
-}
-
-// comprised of xranges, tildes, stars, and gtlt's at this point.
-// already replaced the hyphen ranges
-// turn into a set of JUST comparators.
-const parseComparator = (comp, options) => {
-  debug('comp', comp, options)
-  comp = replaceCarets(comp, options)
-  debug('caret', comp)
-  comp = replaceTildes(comp, options)
-  debug('tildes', comp)
-  comp = replaceXRanges(comp, options)
-  debug('xrange', comp)
-  comp = replaceStars(comp, options)
-  debug('stars', comp)
-  return comp
-}
-
-const isX = id => !id || id.toLowerCase() === 'x' || id === '*'
-
-// ~, ~> --> * (any, kinda silly)
-// ~2, ~2.x, ~2.x.x, ~>2, ~>2.x ~>2.x.x --> >=2.0.0 <3.0.0-0
-// ~2.0, ~2.0.x, ~>2.0, ~>2.0.x --> >=2.0.0 <2.1.0-0
-// ~1.2, ~1.2.x, ~>1.2, ~>1.2.x --> >=1.2.0 <1.3.0-0
-// ~1.2.3, ~>1.2.3 --> >=1.2.3 <1.3.0-0
-// ~1.2.0, ~>1.2.0 --> >=1.2.0 <1.3.0-0
-const replaceTildes = (comp, options) =>
-  comp.trim().split(/\s+/).map((comp) => {
-    return replaceTilde(comp, options)
-  }).join(' ')
-
-const replaceTilde = (comp, options) => {
-  const r = options.loose ? re[t.TILDELOOSE] : re[t.TILDE]
-  return comp.replace(r, (_, M, m, p, pr) => {
-    debug('tilde', comp, _, M, m, p, pr)
-    let ret
-
-    if (isX(M)) {
-      ret = ''
-    } else if (isX(m)) {
-      ret = `>=${M}.0.0 <${+M + 1}.0.0-0`
-    } else if (isX(p)) {
-      // ~1.2 == >=1.2.0 <1.3.0-0
-      ret = `>=${M}.${m}.0 <${M}.${+m + 1}.0-0`
-    } else if (pr) {
-      debug('replaceTilde pr', pr)
-      ret = `>=${M}.${m}.${p}-${pr
-      } <${M}.${+m + 1}.0-0`
-    } else {
-      // ~1.2.3 == >=1.2.3 <1.3.0-0
-      ret = `>=${M}.${m}.${p
-      } <${M}.${+m + 1}.0-0`
-    }
-
-    debug('tilde return', ret)
-    return ret
-  })
-}
-
-// ^ --> * (any, kinda silly)
-// ^2, ^2.x, ^2.x.x --> >=2.0.0 <3.0.0-0
-// ^2.0, ^2.0.x --> >=2.0.0 <3.0.0-0
-// ^1.2, ^1.2.x --> >=1.2.0 <2.0.0-0
-// ^1.2.3 --> >=1.2.3 <2.0.0-0
-// ^1.2.0 --> >=1.2.0 <2.0.0-0
-const replaceCarets = (comp, options) =>
-  comp.trim().split(/\s+/).map((comp) => {
-    return replaceCaret(comp, options)
-  }).join(' ')
-
-const replaceCaret = (comp, options) => {
-  debug('caret', comp, options)
-  const r = options.loose ? re[t.CARETLOOSE] : re[t.CARET]
-  const z = options.includePrerelease ? '-0' : ''
-  return comp.replace(r, (_, M, m, p, pr) => {
-    debug('caret', comp, _, M, m, p, pr)
-    let ret
-
-    if (isX(M)) {
-      ret = ''
-    } else if (isX(m)) {
-      ret = `>=${M}.0.0${z} <${+M + 1}.0.0-0`
-    } else if (isX(p)) {
-      if (M === '0') {
-        ret = `>=${M}.${m}.0${z} <${M}.${+m + 1}.0-0`
-      } else {
-        ret = `>=${M}.${m}.0${z} <${+M + 1}.0.0-0`
-      }
-    } else if (pr) {
-      debug('replaceCaret pr', pr)
-      if (M === '0') {
-        if (m === '0') {
-          ret = `>=${M}.${m}.${p}-${pr
-          } <${M}.${m}.${+p + 1}-0`
-        } else {
-          ret = `>=${M}.${m}.${p}-${pr
-          } <${M}.${+m + 1}.0-0`
-        }
-      } else {
-        ret = `>=${M}.${m}.${p}-${pr
-        } <${+M + 1}.0.0-0`
-      }
-    } else {
-      debug('no pr')
-      if (M === '0') {
-        if (m === '0') {
-          ret = `>=${M}.${m}.${p
-          }${z} <${M}.${m}.${+p + 1}-0`
-        } else {
-          ret = `>=${M}.${m}.${p
-          }${z} <${M}.${+m + 1}.0-0`
-        }
-      } else {
-        ret = `>=${M}.${m}.${p
-        } <${+M + 1}.0.0-0`
-      }
-    }
-
-    debug('caret return', ret)
-    return ret
-  })
-}
-
-const replaceXRanges = (comp, options) => {
-  debug('replaceXRanges', comp, options)
-  return comp.split(/\s+/).map((comp) => {
-    return replaceXRange(comp, options)
-  }).join(' ')
-}
-
-const replaceXRange = (comp, options) => {
-  comp = comp.trim()
-  const r = options.loose ? re[t.XRANGELOOSE] : re[t.XRANGE]
-  return comp.replace(r, (ret, gtlt, M, m, p, pr) => {
-    debug('xRange', comp, ret, gtlt, M, m, p, pr)
-    const xM = isX(M)
-    const xm = xM || isX(m)
-    const xp = xm || isX(p)
-    const anyX = xp
-
-    if (gtlt === '=' && anyX) {
-      gtlt = ''
-    }
-
-    // if we're including prereleases in the match, then we need
-    // to fix this to -0, the lowest possible prerelease value
-    pr = options.includePrerelease ? '-0' : ''
-
-    if (xM) {
-      if (gtlt === '>' || gtlt === '<') {
-        // nothing is allowed
-        ret = '<0.0.0-0'
-      } else {
-        // nothing is forbidden
-        ret = '*'
-      }
-    } else if (gtlt && anyX) {
-      // we know patch is an x, because we have any x at all.
-      // replace X with 0
-      if (xm) {
-        m = 0
-      }
-      p = 0
-
-      if (gtlt === '>') {
-        // >1 => >=2.0.0
-        // >1.2 => >=1.3.0
-        gtlt = '>='
-        if (xm) {
-          M = +M + 1
-          m = 0
-          p = 0
-        } else {
-          m = +m + 1
-          p = 0
-        }
-      } else if (gtlt === '<=') {
-        // <=0.7.x is actually <0.8.0, since any 0.7.x should
-        // pass.  Similarly, <=7.x is actually <8.0.0, etc.
-        gtlt = '<'
-        if (xm) {
-          M = +M + 1
-        } else {
-          m = +m + 1
-        }
-      }
-
-      if (gtlt === '<')
-        pr = '-0'
-
-      ret = `${gtlt + M}.${m}.${p}${pr}`
-    } else if (xm) {
-      ret = `>=${M}.0.0${pr} <${+M + 1}.0.0-0`
-    } else if (xp) {
-      ret = `>=${M}.${m}.0${pr
-      } <${M}.${+m + 1}.0-0`
-    }
-
-    debug('xRange return', ret)
-
-    return ret
-  })
-}
-
-// Because * is AND-ed with everything else in the comparator,
-// and '' means "any version", just remove the *s entirely.
-const replaceStars = (comp, options) => {
-  debug('replaceStars', comp, options)
-  // Looseness is ignored here.  star is always as loose as it gets!
-  return comp.trim().replace(re[t.STAR], '')
-}
-
-const replaceGTE0 = (comp, options) => {
-  debug('replaceGTE0', comp, options)
-  return comp.trim()
-    .replace(re[options.includePrerelease ? t.GTE0PRE : t.GTE0], '')
-}
-
-// This function is passed to string.replace(re[t.HYPHENRANGE])
-// M, m, patch, prerelease, build
-// 1.2 - 3.4.5 => >=1.2.0 <=3.4.5
-// 1.2.3 - 3.4 => >=1.2.0 <3.5.0-0 Any 3.4.x will do
-// 1.2 - 3.4 => >=1.2.0 <3.5.0-0
-const hyphenReplace = incPr => ($0,
-  from, fM, fm, fp, fpr, fb,
-  to, tM, tm, tp, tpr, tb) => {
-  if (isX(fM)) {
-    from = ''
-  } else if (isX(fm)) {
-    from = `>=${fM}.0.0${incPr ? '-0' : ''}`
-  } else if (isX(fp)) {
-    from = `>=${fM}.${fm}.0${incPr ? '-0' : ''}`
-  } else if (fpr) {
-    from = `>=${from}`
-  } else {
-    from = `>=${from}${incPr ? '-0' : ''}`
-  }
-
-  if (isX(tM)) {
-    to = ''
-  } else if (isX(tm)) {
-    to = `<${+tM + 1}.0.0-0`
-  } else if (isX(tp)) {
-    to = `<${tM}.${+tm + 1}.0-0`
-  } else if (tpr) {
-    to = `<=${tM}.${tm}.${tp}-${tpr}`
-  } else if (incPr) {
-    to = `<${tM}.${tm}.${+tp + 1}-0`
-  } else {
-    to = `<=${to}`
-  }
-
-  return (`${from} ${to}`).trim()
-}
-
-const testSet = (set, version, options) => {
-  for (let i = 0; i < set.length; i++) {
-    if (!set[i].test(version)) {
-      return false
-    }
-  }
-
-  if (version.prerelease.length && !options.includePrerelease) {
-    // Find the set of versions that are allowed to have prereleases
-    // For example, ^1.2.3-pr.1 desugars to >=1.2.3-pr.1 <2.0.0
-    // That should allow `1.2.3-pr.2` to pass.
-    // However, `1.2.4-alpha.notready` should NOT be allowed,
-    // even though it's within the range set by the comparators.
-    for (let i = 0; i < set.length; i++) {
-      debug(set[i].semver)
-      if (set[i].semver === Comparator.ANY) {
-        continue
-      }
-
-      if (set[i].semver.prerelease.length > 0) {
-        const allowed = set[i].semver
-        if (allowed.major === version.major &&
-            allowed.minor === version.minor &&
-            allowed.patch === version.patch) {
-          return true
-        }
-      }
-    }
-
-    // Version has a -pre, but it's not one of the ones we like.
-    return false
-  }
-
-  return true
-}
-
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/node_modules/semver/classes/semver.js":
-/*!********************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/node_modules/semver/classes/semver.js ***!
-  \********************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-const debug = __webpack_require__(/*! ../internal/debug */ "./node_modules/@magic-sdk/provider/node_modules/semver/internal/debug.js")
-const { MAX_LENGTH, MAX_SAFE_INTEGER } = __webpack_require__(/*! ../internal/constants */ "./node_modules/@magic-sdk/provider/node_modules/semver/internal/constants.js")
-const { re, t } = __webpack_require__(/*! ../internal/re */ "./node_modules/@magic-sdk/provider/node_modules/semver/internal/re.js")
-
-const parseOptions = __webpack_require__(/*! ../internal/parse-options */ "./node_modules/@magic-sdk/provider/node_modules/semver/internal/parse-options.js")
-const { compareIdentifiers } = __webpack_require__(/*! ../internal/identifiers */ "./node_modules/@magic-sdk/provider/node_modules/semver/internal/identifiers.js")
-class SemVer {
-  constructor (version, options) {
-    options = parseOptions(options)
-
-    if (version instanceof SemVer) {
-      if (version.loose === !!options.loose &&
-          version.includePrerelease === !!options.includePrerelease) {
-        return version
-      } else {
-        version = version.version
-      }
-    } else if (typeof version !== 'string') {
-      throw new TypeError(`Invalid Version: ${version}`)
-    }
-
-    if (version.length > MAX_LENGTH) {
-      throw new TypeError(
-        `version is longer than ${MAX_LENGTH} characters`
-      )
-    }
-
-    debug('SemVer', version, options)
-    this.options = options
-    this.loose = !!options.loose
-    // this isn't actually relevant for versions, but keep it so that we
-    // don't run into trouble passing this.options around.
-    this.includePrerelease = !!options.includePrerelease
-
-    const m = version.trim().match(options.loose ? re[t.LOOSE] : re[t.FULL])
-
-    if (!m) {
-      throw new TypeError(`Invalid Version: ${version}`)
-    }
-
-    this.raw = version
-
-    // these are actually numbers
-    this.major = +m[1]
-    this.minor = +m[2]
-    this.patch = +m[3]
-
-    if (this.major > MAX_SAFE_INTEGER || this.major < 0) {
-      throw new TypeError('Invalid major version')
-    }
-
-    if (this.minor > MAX_SAFE_INTEGER || this.minor < 0) {
-      throw new TypeError('Invalid minor version')
-    }
-
-    if (this.patch > MAX_SAFE_INTEGER || this.patch < 0) {
-      throw new TypeError('Invalid patch version')
-    }
-
-    // numberify any prerelease numeric ids
-    if (!m[4]) {
-      this.prerelease = []
-    } else {
-      this.prerelease = m[4].split('.').map((id) => {
-        if (/^[0-9]+$/.test(id)) {
-          const num = +id
-          if (num >= 0 && num < MAX_SAFE_INTEGER) {
-            return num
-          }
-        }
-        return id
-      })
-    }
-
-    this.build = m[5] ? m[5].split('.') : []
-    this.format()
-  }
-
-  format () {
-    this.version = `${this.major}.${this.minor}.${this.patch}`
-    if (this.prerelease.length) {
-      this.version += `-${this.prerelease.join('.')}`
-    }
-    return this.version
-  }
-
-  toString () {
-    return this.version
-  }
-
-  compare (other) {
-    debug('SemVer.compare', this.version, this.options, other)
-    if (!(other instanceof SemVer)) {
-      if (typeof other === 'string' && other === this.version) {
-        return 0
-      }
-      other = new SemVer(other, this.options)
-    }
-
-    if (other.version === this.version) {
-      return 0
-    }
-
-    return this.compareMain(other) || this.comparePre(other)
-  }
-
-  compareMain (other) {
-    if (!(other instanceof SemVer)) {
-      other = new SemVer(other, this.options)
-    }
-
-    return (
-      compareIdentifiers(this.major, other.major) ||
-      compareIdentifiers(this.minor, other.minor) ||
-      compareIdentifiers(this.patch, other.patch)
-    )
-  }
-
-  comparePre (other) {
-    if (!(other instanceof SemVer)) {
-      other = new SemVer(other, this.options)
-    }
-
-    // NOT having a prerelease is > having one
-    if (this.prerelease.length && !other.prerelease.length) {
-      return -1
-    } else if (!this.prerelease.length && other.prerelease.length) {
-      return 1
-    } else if (!this.prerelease.length && !other.prerelease.length) {
-      return 0
-    }
-
-    let i = 0
-    do {
-      const a = this.prerelease[i]
-      const b = other.prerelease[i]
-      debug('prerelease compare', i, a, b)
-      if (a === undefined && b === undefined) {
-        return 0
-      } else if (b === undefined) {
-        return 1
-      } else if (a === undefined) {
-        return -1
-      } else if (a === b) {
-        continue
-      } else {
-        return compareIdentifiers(a, b)
-      }
-    } while (++i)
-  }
-
-  compareBuild (other) {
-    if (!(other instanceof SemVer)) {
-      other = new SemVer(other, this.options)
-    }
-
-    let i = 0
-    do {
-      const a = this.build[i]
-      const b = other.build[i]
-      debug('prerelease compare', i, a, b)
-      if (a === undefined && b === undefined) {
-        return 0
-      } else if (b === undefined) {
-        return 1
-      } else if (a === undefined) {
-        return -1
-      } else if (a === b) {
-        continue
-      } else {
-        return compareIdentifiers(a, b)
-      }
-    } while (++i)
-  }
-
-  // preminor will bump the version up to the next minor release, and immediately
-  // down to pre-release. premajor and prepatch work the same way.
-  inc (release, identifier) {
-    switch (release) {
-      case 'premajor':
-        this.prerelease.length = 0
-        this.patch = 0
-        this.minor = 0
-        this.major++
-        this.inc('pre', identifier)
-        break
-      case 'preminor':
-        this.prerelease.length = 0
-        this.patch = 0
-        this.minor++
-        this.inc('pre', identifier)
-        break
-      case 'prepatch':
-        // If this is already a prerelease, it will bump to the next version
-        // drop any prereleases that might already exist, since they are not
-        // relevant at this point.
-        this.prerelease.length = 0
-        this.inc('patch', identifier)
-        this.inc('pre', identifier)
-        break
-      // If the input is a non-prerelease version, this acts the same as
-      // prepatch.
-      case 'prerelease':
-        if (this.prerelease.length === 0) {
-          this.inc('patch', identifier)
-        }
-        this.inc('pre', identifier)
-        break
-
-      case 'major':
-        // If this is a pre-major version, bump up to the same major version.
-        // Otherwise increment major.
-        // 1.0.0-5 bumps to 1.0.0
-        // 1.1.0 bumps to 2.0.0
-        if (
-          this.minor !== 0 ||
-          this.patch !== 0 ||
-          this.prerelease.length === 0
-        ) {
-          this.major++
-        }
-        this.minor = 0
-        this.patch = 0
-        this.prerelease = []
-        break
-      case 'minor':
-        // If this is a pre-minor version, bump up to the same minor version.
-        // Otherwise increment minor.
-        // 1.2.0-5 bumps to 1.2.0
-        // 1.2.1 bumps to 1.3.0
-        if (this.patch !== 0 || this.prerelease.length === 0) {
-          this.minor++
-        }
-        this.patch = 0
-        this.prerelease = []
-        break
-      case 'patch':
-        // If this is not a pre-release version, it will increment the patch.
-        // If it is a pre-release it will bump up to the same patch version.
-        // 1.2.0-5 patches to 1.2.0
-        // 1.2.0 patches to 1.2.1
-        if (this.prerelease.length === 0) {
-          this.patch++
-        }
-        this.prerelease = []
-        break
-      // This probably shouldn't be used publicly.
-      // 1.0.0 'pre' would become 1.0.0-0 which is the wrong direction.
-      case 'pre':
-        if (this.prerelease.length === 0) {
-          this.prerelease = [0]
-        } else {
-          let i = this.prerelease.length
-          while (--i >= 0) {
-            if (typeof this.prerelease[i] === 'number') {
-              this.prerelease[i]++
-              i = -2
-            }
-          }
-          if (i === -1) {
-            // didn't increment anything
-            this.prerelease.push(0)
-          }
-        }
-        if (identifier) {
-          // 1.2.0-beta.1 bumps to 1.2.0-beta.2,
-          // 1.2.0-beta.fooblz or 1.2.0-beta bumps to 1.2.0-beta.0
-          if (this.prerelease[0] === identifier) {
-            if (isNaN(this.prerelease[1])) {
-              this.prerelease = [identifier, 0]
-            }
-          } else {
-            this.prerelease = [identifier, 0]
-          }
-        }
-        break
-
-      default:
-        throw new Error(`invalid increment argument: ${release}`)
-    }
-    this.format()
-    this.raw = this.version
-    return this
-  }
-}
-
-module.exports = SemVer
-
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/node_modules/semver/functions/cmp.js":
-/*!*******************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/node_modules/semver/functions/cmp.js ***!
-  \*******************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-const eq = __webpack_require__(/*! ./eq */ "./node_modules/@magic-sdk/provider/node_modules/semver/functions/eq.js")
-const neq = __webpack_require__(/*! ./neq */ "./node_modules/@magic-sdk/provider/node_modules/semver/functions/neq.js")
-const gt = __webpack_require__(/*! ./gt */ "./node_modules/@magic-sdk/provider/node_modules/semver/functions/gt.js")
-const gte = __webpack_require__(/*! ./gte */ "./node_modules/@magic-sdk/provider/node_modules/semver/functions/gte.js")
-const lt = __webpack_require__(/*! ./lt */ "./node_modules/@magic-sdk/provider/node_modules/semver/functions/lt.js")
-const lte = __webpack_require__(/*! ./lte */ "./node_modules/@magic-sdk/provider/node_modules/semver/functions/lte.js")
-
-const cmp = (a, op, b, loose) => {
-  switch (op) {
-    case '===':
-      if (typeof a === 'object')
-        a = a.version
-      if (typeof b === 'object')
-        b = b.version
-      return a === b
-
-    case '!==':
-      if (typeof a === 'object')
-        a = a.version
-      if (typeof b === 'object')
-        b = b.version
-      return a !== b
-
-    case '':
-    case '=':
-    case '==':
-      return eq(a, b, loose)
-
-    case '!=':
-      return neq(a, b, loose)
-
-    case '>':
-      return gt(a, b, loose)
-
-    case '>=':
-      return gte(a, b, loose)
-
-    case '<':
-      return lt(a, b, loose)
-
-    case '<=':
-      return lte(a, b, loose)
-
-    default:
-      throw new TypeError(`Invalid operator: ${op}`)
-  }
-}
-module.exports = cmp
-
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/node_modules/semver/functions/compare.js":
-/*!***********************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/node_modules/semver/functions/compare.js ***!
-  \***********************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-const SemVer = __webpack_require__(/*! ../classes/semver */ "./node_modules/@magic-sdk/provider/node_modules/semver/classes/semver.js")
-const compare = (a, b, loose) =>
-  new SemVer(a, loose).compare(new SemVer(b, loose))
-
-module.exports = compare
-
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/node_modules/semver/functions/eq.js":
-/*!******************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/node_modules/semver/functions/eq.js ***!
-  \******************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-const compare = __webpack_require__(/*! ./compare */ "./node_modules/@magic-sdk/provider/node_modules/semver/functions/compare.js")
-const eq = (a, b, loose) => compare(a, b, loose) === 0
-module.exports = eq
-
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/node_modules/semver/functions/gt.js":
-/*!******************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/node_modules/semver/functions/gt.js ***!
-  \******************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-const compare = __webpack_require__(/*! ./compare */ "./node_modules/@magic-sdk/provider/node_modules/semver/functions/compare.js")
-const gt = (a, b, loose) => compare(a, b, loose) > 0
-module.exports = gt
-
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/node_modules/semver/functions/gte.js":
-/*!*******************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/node_modules/semver/functions/gte.js ***!
-  \*******************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-const compare = __webpack_require__(/*! ./compare */ "./node_modules/@magic-sdk/provider/node_modules/semver/functions/compare.js")
-const gte = (a, b, loose) => compare(a, b, loose) >= 0
-module.exports = gte
-
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/node_modules/semver/functions/lt.js":
-/*!******************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/node_modules/semver/functions/lt.js ***!
-  \******************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-const compare = __webpack_require__(/*! ./compare */ "./node_modules/@magic-sdk/provider/node_modules/semver/functions/compare.js")
-const lt = (a, b, loose) => compare(a, b, loose) < 0
-module.exports = lt
-
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/node_modules/semver/functions/lte.js":
-/*!*******************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/node_modules/semver/functions/lte.js ***!
-  \*******************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-const compare = __webpack_require__(/*! ./compare */ "./node_modules/@magic-sdk/provider/node_modules/semver/functions/compare.js")
-const lte = (a, b, loose) => compare(a, b, loose) <= 0
-module.exports = lte
-
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/node_modules/semver/functions/neq.js":
-/*!*******************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/node_modules/semver/functions/neq.js ***!
-  \*******************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-const compare = __webpack_require__(/*! ./compare */ "./node_modules/@magic-sdk/provider/node_modules/semver/functions/compare.js")
-const neq = (a, b, loose) => compare(a, b, loose) !== 0
-module.exports = neq
-
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/node_modules/semver/functions/satisfies.js":
-/*!*************************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/node_modules/semver/functions/satisfies.js ***!
-  \*************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-const Range = __webpack_require__(/*! ../classes/range */ "./node_modules/@magic-sdk/provider/node_modules/semver/classes/range.js")
-const satisfies = (version, range, options) => {
-  try {
-    range = new Range(range, options)
-  } catch (er) {
-    return false
-  }
-  return range.test(version)
-}
-module.exports = satisfies
-
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/node_modules/semver/internal/constants.js":
-/*!************************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/node_modules/semver/internal/constants.js ***!
-  \************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-// Note: this is the semver.org version of the spec that it implements
-// Not necessarily the package version of this code.
-const SEMVER_SPEC_VERSION = '2.0.0'
-
-const MAX_LENGTH = 256
-const MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER ||
-  /* istanbul ignore next */ 9007199254740991
-
-// Max safe segment length for coercion.
-const MAX_SAFE_COMPONENT_LENGTH = 16
-
-module.exports = {
-  SEMVER_SPEC_VERSION,
-  MAX_LENGTH,
-  MAX_SAFE_INTEGER,
-  MAX_SAFE_COMPONENT_LENGTH
-}
-
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/node_modules/semver/internal/debug.js":
-/*!********************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/node_modules/semver/internal/debug.js ***!
-  \********************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(process) {const debug = (
-  typeof process === 'object' &&
-  process.env &&
-  process.env.NODE_DEBUG &&
-  /\bsemver\b/i.test(process.env.NODE_DEBUG)
-) ? (...args) => console.error('SEMVER', ...args)
-  : () => {}
-
-module.exports = debug
-
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../../../../process/browser.js */ "./node_modules/process/browser.js")))
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/node_modules/semver/internal/identifiers.js":
-/*!**************************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/node_modules/semver/internal/identifiers.js ***!
-  \**************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-const numeric = /^[0-9]+$/
-const compareIdentifiers = (a, b) => {
-  const anum = numeric.test(a)
-  const bnum = numeric.test(b)
-
-  if (anum && bnum) {
-    a = +a
-    b = +b
-  }
-
-  return a === b ? 0
-    : (anum && !bnum) ? -1
-    : (bnum && !anum) ? 1
-    : a < b ? -1
-    : 1
-}
-
-const rcompareIdentifiers = (a, b) => compareIdentifiers(b, a)
-
-module.exports = {
-  compareIdentifiers,
-  rcompareIdentifiers
-}
-
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/node_modules/semver/internal/parse-options.js":
-/*!****************************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/node_modules/semver/internal/parse-options.js ***!
-  \****************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-// parse out just the options we care about so we always get a consistent
-// obj with keys in a consistent order.
-const opts = ['includePrerelease', 'loose', 'rtl']
-const parseOptions = options =>
-  !options ? {}
-  : typeof options !== 'object' ? { loose: true }
-  : opts.filter(k => options[k]).reduce((options, k) => {
-    options[k] = true
-    return options
-  }, {})
-module.exports = parseOptions
-
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/node_modules/semver/internal/re.js":
-/*!*****************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/node_modules/semver/internal/re.js ***!
-  \*****************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-const { MAX_SAFE_COMPONENT_LENGTH } = __webpack_require__(/*! ./constants */ "./node_modules/@magic-sdk/provider/node_modules/semver/internal/constants.js")
-const debug = __webpack_require__(/*! ./debug */ "./node_modules/@magic-sdk/provider/node_modules/semver/internal/debug.js")
-exports = module.exports = {}
-
-// The actual regexps go on exports.re
-const re = exports.re = []
-const src = exports.src = []
-const t = exports.t = {}
-let R = 0
-
-const createToken = (name, value, isGlobal) => {
-  const index = R++
-  debug(index, value)
-  t[name] = index
-  src[index] = value
-  re[index] = new RegExp(value, isGlobal ? 'g' : undefined)
-}
-
-// The following Regular Expressions can be used for tokenizing,
-// validating, and parsing SemVer version strings.
-
-// ## Numeric Identifier
-// A single `0`, or a non-zero digit followed by zero or more digits.
-
-createToken('NUMERICIDENTIFIER', '0|[1-9]\\d*')
-createToken('NUMERICIDENTIFIERLOOSE', '[0-9]+')
-
-// ## Non-numeric Identifier
-// Zero or more digits, followed by a letter or hyphen, and then zero or
-// more letters, digits, or hyphens.
-
-createToken('NONNUMERICIDENTIFIER', '\\d*[a-zA-Z-][a-zA-Z0-9-]*')
-
-// ## Main Version
-// Three dot-separated numeric identifiers.
-
-createToken('MAINVERSION', `(${src[t.NUMERICIDENTIFIER]})\\.` +
-                   `(${src[t.NUMERICIDENTIFIER]})\\.` +
-                   `(${src[t.NUMERICIDENTIFIER]})`)
-
-createToken('MAINVERSIONLOOSE', `(${src[t.NUMERICIDENTIFIERLOOSE]})\\.` +
-                        `(${src[t.NUMERICIDENTIFIERLOOSE]})\\.` +
-                        `(${src[t.NUMERICIDENTIFIERLOOSE]})`)
-
-// ## Pre-release Version Identifier
-// A numeric identifier, or a non-numeric identifier.
-
-createToken('PRERELEASEIDENTIFIER', `(?:${src[t.NUMERICIDENTIFIER]
-}|${src[t.NONNUMERICIDENTIFIER]})`)
-
-createToken('PRERELEASEIDENTIFIERLOOSE', `(?:${src[t.NUMERICIDENTIFIERLOOSE]
-}|${src[t.NONNUMERICIDENTIFIER]})`)
-
-// ## Pre-release Version
-// Hyphen, followed by one or more dot-separated pre-release version
-// identifiers.
-
-createToken('PRERELEASE', `(?:-(${src[t.PRERELEASEIDENTIFIER]
-}(?:\\.${src[t.PRERELEASEIDENTIFIER]})*))`)
-
-createToken('PRERELEASELOOSE', `(?:-?(${src[t.PRERELEASEIDENTIFIERLOOSE]
-}(?:\\.${src[t.PRERELEASEIDENTIFIERLOOSE]})*))`)
-
-// ## Build Metadata Identifier
-// Any combination of digits, letters, or hyphens.
-
-createToken('BUILDIDENTIFIER', '[0-9A-Za-z-]+')
-
-// ## Build Metadata
-// Plus sign, followed by one or more period-separated build metadata
-// identifiers.
-
-createToken('BUILD', `(?:\\+(${src[t.BUILDIDENTIFIER]
-}(?:\\.${src[t.BUILDIDENTIFIER]})*))`)
-
-// ## Full Version String
-// A main version, followed optionally by a pre-release version and
-// build metadata.
-
-// Note that the only major, minor, patch, and pre-release sections of
-// the version string are capturing groups.  The build metadata is not a
-// capturing group, because it should not ever be used in version
-// comparison.
-
-createToken('FULLPLAIN', `v?${src[t.MAINVERSION]
-}${src[t.PRERELEASE]}?${
-  src[t.BUILD]}?`)
-
-createToken('FULL', `^${src[t.FULLPLAIN]}$`)
-
-// like full, but allows v1.2.3 and =1.2.3, which people do sometimes.
-// also, 1.0.0alpha1 (prerelease without the hyphen) which is pretty
-// common in the npm registry.
-createToken('LOOSEPLAIN', `[v=\\s]*${src[t.MAINVERSIONLOOSE]
-}${src[t.PRERELEASELOOSE]}?${
-  src[t.BUILD]}?`)
-
-createToken('LOOSE', `^${src[t.LOOSEPLAIN]}$`)
-
-createToken('GTLT', '((?:<|>)?=?)')
-
-// Something like "2.*" or "1.2.x".
-// Note that "x.x" is a valid xRange identifer, meaning "any version"
-// Only the first item is strictly required.
-createToken('XRANGEIDENTIFIERLOOSE', `${src[t.NUMERICIDENTIFIERLOOSE]}|x|X|\\*`)
-createToken('XRANGEIDENTIFIER', `${src[t.NUMERICIDENTIFIER]}|x|X|\\*`)
-
-createToken('XRANGEPLAIN', `[v=\\s]*(${src[t.XRANGEIDENTIFIER]})` +
-                   `(?:\\.(${src[t.XRANGEIDENTIFIER]})` +
-                   `(?:\\.(${src[t.XRANGEIDENTIFIER]})` +
-                   `(?:${src[t.PRERELEASE]})?${
-                     src[t.BUILD]}?` +
-                   `)?)?`)
-
-createToken('XRANGEPLAINLOOSE', `[v=\\s]*(${src[t.XRANGEIDENTIFIERLOOSE]})` +
-                        `(?:\\.(${src[t.XRANGEIDENTIFIERLOOSE]})` +
-                        `(?:\\.(${src[t.XRANGEIDENTIFIERLOOSE]})` +
-                        `(?:${src[t.PRERELEASELOOSE]})?${
-                          src[t.BUILD]}?` +
-                        `)?)?`)
-
-createToken('XRANGE', `^${src[t.GTLT]}\\s*${src[t.XRANGEPLAIN]}$`)
-createToken('XRANGELOOSE', `^${src[t.GTLT]}\\s*${src[t.XRANGEPLAINLOOSE]}$`)
-
-// Coercion.
-// Extract anything that could conceivably be a part of a valid semver
-createToken('COERCE', `${'(^|[^\\d])' +
-              '(\\d{1,'}${MAX_SAFE_COMPONENT_LENGTH}})` +
-              `(?:\\.(\\d{1,${MAX_SAFE_COMPONENT_LENGTH}}))?` +
-              `(?:\\.(\\d{1,${MAX_SAFE_COMPONENT_LENGTH}}))?` +
-              `(?:$|[^\\d])`)
-createToken('COERCERTL', src[t.COERCE], true)
-
-// Tilde ranges.
-// Meaning is "reasonably at or greater than"
-createToken('LONETILDE', '(?:~>?)')
-
-createToken('TILDETRIM', `(\\s*)${src[t.LONETILDE]}\\s+`, true)
-exports.tildeTrimReplace = '$1~'
-
-createToken('TILDE', `^${src[t.LONETILDE]}${src[t.XRANGEPLAIN]}$`)
-createToken('TILDELOOSE', `^${src[t.LONETILDE]}${src[t.XRANGEPLAINLOOSE]}$`)
-
-// Caret ranges.
-// Meaning is "at least and backwards compatible with"
-createToken('LONECARET', '(?:\\^)')
-
-createToken('CARETTRIM', `(\\s*)${src[t.LONECARET]}\\s+`, true)
-exports.caretTrimReplace = '$1^'
-
-createToken('CARET', `^${src[t.LONECARET]}${src[t.XRANGEPLAIN]}$`)
-createToken('CARETLOOSE', `^${src[t.LONECARET]}${src[t.XRANGEPLAINLOOSE]}$`)
-
-// A simple gt/lt/eq thing, or just "" to indicate "any version"
-createToken('COMPARATORLOOSE', `^${src[t.GTLT]}\\s*(${src[t.LOOSEPLAIN]})$|^$`)
-createToken('COMPARATOR', `^${src[t.GTLT]}\\s*(${src[t.FULLPLAIN]})$|^$`)
-
-// An expression to strip any whitespace between the gtlt and the thing
-// it modifies, so that `> 1.2.3` ==> `>1.2.3`
-createToken('COMPARATORTRIM', `(\\s*)${src[t.GTLT]
-}\\s*(${src[t.LOOSEPLAIN]}|${src[t.XRANGEPLAIN]})`, true)
-exports.comparatorTrimReplace = '$1$2$3'
-
-// Something like `1.2.3 - 1.2.4`
-// Note that these all use the loose form, because they'll be
-// checked against either the strict or loose comparator form
-// later.
-createToken('HYPHENRANGE', `^\\s*(${src[t.XRANGEPLAIN]})` +
-                   `\\s+-\\s+` +
-                   `(${src[t.XRANGEPLAIN]})` +
-                   `\\s*$`)
-
-createToken('HYPHENRANGELOOSE', `^\\s*(${src[t.XRANGEPLAINLOOSE]})` +
-                        `\\s+-\\s+` +
-                        `(${src[t.XRANGEPLAINLOOSE]})` +
-                        `\\s*$`)
-
-// Star ranges basically just allow anything at all.
-createToken('STAR', '(<|>)?=?\\s*\\*')
-// >=0.0.0 is like a star
-createToken('GTE0', '^\\s*>=\\s*0\.0\.0\\s*$')
-createToken('GTE0PRE', '^\\s*>=\\s*0\.0\.0-0\\s*$')
-
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/node_modules/yallist/iterator.js":
-/*!***************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/node_modules/yallist/iterator.js ***!
-  \***************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-module.exports = function (Yallist) {
-  Yallist.prototype[Symbol.iterator] = function* () {
-    for (let walker = this.head; walker; walker = walker.next) {
-      yield walker.value
-    }
-  }
-}
-
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/provider/node_modules/yallist/yallist.js":
-/*!**************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/provider/node_modules/yallist/yallist.js ***!
-  \**************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-module.exports = Yallist
-
-Yallist.Node = Node
-Yallist.create = Yallist
-
-function Yallist (list) {
-  var self = this
-  if (!(self instanceof Yallist)) {
-    self = new Yallist()
-  }
-
-  self.tail = null
-  self.head = null
-  self.length = 0
-
-  if (list && typeof list.forEach === 'function') {
-    list.forEach(function (item) {
-      self.push(item)
-    })
-  } else if (arguments.length > 0) {
-    for (var i = 0, l = arguments.length; i < l; i++) {
-      self.push(arguments[i])
-    }
-  }
-
-  return self
-}
-
-Yallist.prototype.removeNode = function (node) {
-  if (node.list !== this) {
-    throw new Error('removing node which does not belong to this list')
-  }
-
-  var next = node.next
-  var prev = node.prev
-
-  if (next) {
-    next.prev = prev
-  }
-
-  if (prev) {
-    prev.next = next
-  }
-
-  if (node === this.head) {
-    this.head = next
-  }
-  if (node === this.tail) {
-    this.tail = prev
-  }
-
-  node.list.length--
-  node.next = null
-  node.prev = null
-  node.list = null
-
-  return next
-}
-
-Yallist.prototype.unshiftNode = function (node) {
-  if (node === this.head) {
-    return
-  }
-
-  if (node.list) {
-    node.list.removeNode(node)
-  }
-
-  var head = this.head
-  node.list = this
-  node.next = head
-  if (head) {
-    head.prev = node
-  }
-
-  this.head = node
-  if (!this.tail) {
-    this.tail = node
-  }
-  this.length++
-}
-
-Yallist.prototype.pushNode = function (node) {
-  if (node === this.tail) {
-    return
-  }
-
-  if (node.list) {
-    node.list.removeNode(node)
-  }
-
-  var tail = this.tail
-  node.list = this
-  node.prev = tail
-  if (tail) {
-    tail.next = node
-  }
-
-  this.tail = node
-  if (!this.head) {
-    this.head = node
-  }
-  this.length++
-}
-
-Yallist.prototype.push = function () {
-  for (var i = 0, l = arguments.length; i < l; i++) {
-    push(this, arguments[i])
-  }
-  return this.length
-}
-
-Yallist.prototype.unshift = function () {
-  for (var i = 0, l = arguments.length; i < l; i++) {
-    unshift(this, arguments[i])
-  }
-  return this.length
-}
-
-Yallist.prototype.pop = function () {
-  if (!this.tail) {
-    return undefined
-  }
-
-  var res = this.tail.value
-  this.tail = this.tail.prev
-  if (this.tail) {
-    this.tail.next = null
-  } else {
-    this.head = null
-  }
-  this.length--
-  return res
-}
-
-Yallist.prototype.shift = function () {
-  if (!this.head) {
-    return undefined
-  }
-
-  var res = this.head.value
-  this.head = this.head.next
-  if (this.head) {
-    this.head.prev = null
-  } else {
-    this.tail = null
-  }
-  this.length--
-  return res
-}
-
-Yallist.prototype.forEach = function (fn, thisp) {
-  thisp = thisp || this
-  for (var walker = this.head, i = 0; walker !== null; i++) {
-    fn.call(thisp, walker.value, i, this)
-    walker = walker.next
-  }
-}
-
-Yallist.prototype.forEachReverse = function (fn, thisp) {
-  thisp = thisp || this
-  for (var walker = this.tail, i = this.length - 1; walker !== null; i--) {
-    fn.call(thisp, walker.value, i, this)
-    walker = walker.prev
-  }
-}
-
-Yallist.prototype.get = function (n) {
-  for (var i = 0, walker = this.head; walker !== null && i < n; i++) {
-    // abort out of the list early if we hit a cycle
-    walker = walker.next
-  }
-  if (i === n && walker !== null) {
-    return walker.value
-  }
-}
-
-Yallist.prototype.getReverse = function (n) {
-  for (var i = 0, walker = this.tail; walker !== null && i < n; i++) {
-    // abort out of the list early if we hit a cycle
-    walker = walker.prev
-  }
-  if (i === n && walker !== null) {
-    return walker.value
-  }
-}
-
-Yallist.prototype.map = function (fn, thisp) {
-  thisp = thisp || this
-  var res = new Yallist()
-  for (var walker = this.head; walker !== null;) {
-    res.push(fn.call(thisp, walker.value, this))
-    walker = walker.next
-  }
-  return res
-}
-
-Yallist.prototype.mapReverse = function (fn, thisp) {
-  thisp = thisp || this
-  var res = new Yallist()
-  for (var walker = this.tail; walker !== null;) {
-    res.push(fn.call(thisp, walker.value, this))
-    walker = walker.prev
-  }
-  return res
-}
-
-Yallist.prototype.reduce = function (fn, initial) {
-  var acc
-  var walker = this.head
-  if (arguments.length > 1) {
-    acc = initial
-  } else if (this.head) {
-    walker = this.head.next
-    acc = this.head.value
-  } else {
-    throw new TypeError('Reduce of empty list with no initial value')
-  }
-
-  for (var i = 0; walker !== null; i++) {
-    acc = fn(acc, walker.value, i)
-    walker = walker.next
-  }
-
-  return acc
-}
-
-Yallist.prototype.reduceReverse = function (fn, initial) {
-  var acc
-  var walker = this.tail
-  if (arguments.length > 1) {
-    acc = initial
-  } else if (this.tail) {
-    walker = this.tail.prev
-    acc = this.tail.value
-  } else {
-    throw new TypeError('Reduce of empty list with no initial value')
-  }
-
-  for (var i = this.length - 1; walker !== null; i--) {
-    acc = fn(acc, walker.value, i)
-    walker = walker.prev
-  }
-
-  return acc
-}
-
-Yallist.prototype.toArray = function () {
-  var arr = new Array(this.length)
-  for (var i = 0, walker = this.head; walker !== null; i++) {
-    arr[i] = walker.value
-    walker = walker.next
-  }
-  return arr
-}
-
-Yallist.prototype.toArrayReverse = function () {
-  var arr = new Array(this.length)
-  for (var i = 0, walker = this.tail; walker !== null; i++) {
-    arr[i] = walker.value
-    walker = walker.prev
-  }
-  return arr
-}
-
-Yallist.prototype.slice = function (from, to) {
-  to = to || this.length
-  if (to < 0) {
-    to += this.length
-  }
-  from = from || 0
-  if (from < 0) {
-    from += this.length
-  }
-  var ret = new Yallist()
-  if (to < from || to < 0) {
-    return ret
-  }
-  if (from < 0) {
-    from = 0
-  }
-  if (to > this.length) {
-    to = this.length
-  }
-  for (var i = 0, walker = this.head; walker !== null && i < from; i++) {
-    walker = walker.next
-  }
-  for (; walker !== null && i < to; i++, walker = walker.next) {
-    ret.push(walker.value)
-  }
-  return ret
-}
-
-Yallist.prototype.sliceReverse = function (from, to) {
-  to = to || this.length
-  if (to < 0) {
-    to += this.length
-  }
-  from = from || 0
-  if (from < 0) {
-    from += this.length
-  }
-  var ret = new Yallist()
-  if (to < from || to < 0) {
-    return ret
-  }
-  if (from < 0) {
-    from = 0
-  }
-  if (to > this.length) {
-    to = this.length
-  }
-  for (var i = this.length, walker = this.tail; walker !== null && i > to; i--) {
-    walker = walker.prev
-  }
-  for (; walker !== null && i > from; i--, walker = walker.prev) {
-    ret.push(walker.value)
-  }
-  return ret
-}
-
-Yallist.prototype.splice = function (start, deleteCount, ...nodes) {
-  if (start > this.length) {
-    start = this.length - 1
-  }
-  if (start < 0) {
-    start = this.length + start;
-  }
-
-  for (var i = 0, walker = this.head; walker !== null && i < start; i++) {
-    walker = walker.next
-  }
-
-  var ret = []
-  for (var i = 0; walker && i < deleteCount; i++) {
-    ret.push(walker.value)
-    walker = this.removeNode(walker)
-  }
-  if (walker === null) {
-    walker = this.tail
-  }
-
-  if (walker !== this.head && walker !== this.tail) {
-    walker = walker.prev
-  }
-
-  for (var i = 0; i < nodes.length; i++) {
-    walker = insert(this, walker, nodes[i])
-  }
-  return ret;
-}
-
-Yallist.prototype.reverse = function () {
-  var head = this.head
-  var tail = this.tail
-  for (var walker = head; walker !== null; walker = walker.prev) {
-    var p = walker.prev
-    walker.prev = walker.next
-    walker.next = p
-  }
-  this.head = tail
-  this.tail = head
-  return this
-}
-
-function insert (self, node, value) {
-  var inserted = node === self.head ?
-    new Node(value, null, node, self) :
-    new Node(value, node, node.next, self)
-
-  if (inserted.next === null) {
-    self.tail = inserted
-  }
-  if (inserted.prev === null) {
-    self.head = inserted
-  }
-
-  self.length++
-
-  return inserted
-}
-
-function push (self, item) {
-  self.tail = new Node(item, self.tail, null, self)
-  if (!self.head) {
-    self.head = self.tail
-  }
-  self.length++
-}
-
-function unshift (self, item) {
-  self.head = new Node(item, null, self.head, self)
-  if (!self.tail) {
-    self.tail = self.head
-  }
-  self.length++
-}
-
-function Node (value, prev, next, list) {
-  if (!(this instanceof Node)) {
-    return new Node(value, prev, next, list)
-  }
-
-  this.list = list
-  this.value = value
-
-  if (prev) {
-    prev.next = this
-    this.prev = prev
-  } else {
-    this.prev = null
-  }
-
-  if (next) {
-    next.prev = this
-    this.next = next
-  } else {
-    this.next = null
-  }
-}
-
-try {
-  // add if support for Symbol.iterator is present
-  __webpack_require__(/*! ./iterator.js */ "./node_modules/@magic-sdk/provider/node_modules/yallist/iterator.js")(Yallist)
-} catch (er) {}
-
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/types/dist/module/core/exception-types.js":
-/*!***************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/types/dist/module/core/exception-types.js ***!
-  \***************************************************************************/
-/*! exports provided: SDKErrorCode, SDKWarningCode, RPCErrorCode */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SDKErrorCode", function() { return SDKErrorCode; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SDKWarningCode", function() { return SDKWarningCode; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RPCErrorCode", function() { return RPCErrorCode; });
-var SDKErrorCode;
-(function (SDKErrorCode) {
-    SDKErrorCode["MissingApiKey"] = "MISSING_API_KEY";
-    SDKErrorCode["ModalNotReady"] = "MODAL_NOT_READY";
-    SDKErrorCode["MalformedResponse"] = "MALFORMED_RESPONSE";
-    SDKErrorCode["InvalidArgument"] = "INVALID_ARGUMENT";
-    SDKErrorCode["ExtensionNotInitialized"] = "EXTENSION_NOT_INITIALIZED";
-    SDKErrorCode["WebAuthnNotSupported"] = "WEBAUTHN_NOT_SUPPORTED";
-    SDKErrorCode["IncompatibleExtensions"] = "INCOMPATIBLE_EXTENSIONS";
-    SDKErrorCode["WebAuthnCreateCredentialError"] = "WEBAUTHN_CREATE_CREDENTIAL_ERROR";
-})(SDKErrorCode || (SDKErrorCode = {}));
-var SDKWarningCode;
-(function (SDKWarningCode) {
-    SDKWarningCode["SyncWeb3Method"] = "SYNC_WEB3_METHOD";
-    SDKWarningCode["DuplicateIframe"] = "DUPLICATE_IFRAME";
-    SDKWarningCode["ReactNativeEndpointConfiguration"] = "REACT_NATIVE_ENDPOINT_CONFIGURATION";
-    SDKWarningCode["DeprecationNotice"] = "DEPRECATION_NOTICE";
-})(SDKWarningCode || (SDKWarningCode = {}));
-var RPCErrorCode;
-(function (RPCErrorCode) {
-    // Standard JSON RPC 2.0 Error Codes
-    RPCErrorCode[RPCErrorCode["ParseError"] = -32700] = "ParseError";
-    RPCErrorCode[RPCErrorCode["InvalidRequest"] = -32600] = "InvalidRequest";
-    RPCErrorCode[RPCErrorCode["MethodNotFound"] = -32601] = "MethodNotFound";
-    RPCErrorCode[RPCErrorCode["InvalidParams"] = -32602] = "InvalidParams";
-    RPCErrorCode[RPCErrorCode["InternalError"] = -32603] = "InternalError";
-    // Custom RPC Error Codes
-    RPCErrorCode[RPCErrorCode["MagicLinkFailedVerification"] = -10000] = "MagicLinkFailedVerification";
-    RPCErrorCode[RPCErrorCode["MagicLinkExpired"] = -10001] = "MagicLinkExpired";
-    RPCErrorCode[RPCErrorCode["MagicLinkRateLimited"] = -10002] = "MagicLinkRateLimited";
-    RPCErrorCode[RPCErrorCode["MagicLinkInvalidRedirectURL"] = -10006] = "MagicLinkInvalidRedirectURL";
-    RPCErrorCode[RPCErrorCode["UserAlreadyLoggedIn"] = -10003] = "UserAlreadyLoggedIn";
-    RPCErrorCode[RPCErrorCode["UpdateEmailFailed"] = -10004] = "UpdateEmailFailed";
-    RPCErrorCode[RPCErrorCode["UserRequestEditEmail"] = -10005] = "UserRequestEditEmail";
-})(RPCErrorCode || (RPCErrorCode = {}));
-//# sourceMappingURL=exception-types.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/types/dist/module/core/json-rpc-types.js":
-/*!**************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/types/dist/module/core/json-rpc-types.js ***!
-  \**************************************************************************/
-/*! exports provided: MagicPayloadMethod */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MagicPayloadMethod", function() { return MagicPayloadMethod; });
-// --- Payload methods
-/**
- * Enum of JSON RPC methods for interacting with the Magic SDK authentication
- * relayer.
- */
-var MagicPayloadMethod;
-(function (MagicPayloadMethod) {
-    MagicPayloadMethod["LoginWithMagicLink"] = "magic_auth_login_with_magic_link";
-    MagicPayloadMethod["LoginWithCredential"] = "magic_auth_login_with_credential";
-    MagicPayloadMethod["GetIdToken"] = "magic_auth_get_id_token";
-    MagicPayloadMethod["GenerateIdToken"] = "magic_auth_generate_id_token";
-    MagicPayloadMethod["GetMetadata"] = "magic_auth_get_metadata";
-    MagicPayloadMethod["IsLoggedIn"] = "magic_auth_is_logged_in";
-    MagicPayloadMethod["Logout"] = "magic_auth_logout";
-    MagicPayloadMethod["UpdateEmail"] = "magic_auth_update_email";
-    MagicPayloadMethod["WebAuthnRegistrationStart"] = "magic_auth_webauthn_registration_start";
-    MagicPayloadMethod["RegisterWithWebAuth"] = "magic_auth_webauthn_register";
-    MagicPayloadMethod["LoginWithWebAuthn"] = "magic_auth_login_with_web_authn";
-    MagicPayloadMethod["WebAuthnLoginVerfiy"] = "magic_auth_login_with_webauthn_verify";
-    MagicPayloadMethod["GetWebAuthnInfo"] = "magic_user_get_webauthn_credentials";
-    MagicPayloadMethod["UpdateWebAuthnInfo"] = "magic_user_update_webauthn";
-    MagicPayloadMethod["UnregisterWebAuthDevice"] = "magic_user_unregister_webauthn";
-    MagicPayloadMethod["RegisterWebAuthDeviceStart"] = "magic_auth_register_webauthn_device_start";
-    MagicPayloadMethod["RegisterWebAuthDevice"] = "magic_auth_register_webauthn_device";
-})(MagicPayloadMethod || (MagicPayloadMethod = {}));
-//# sourceMappingURL=json-rpc-types.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/types/dist/module/core/message-types.js":
-/*!*************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/types/dist/module/core/message-types.js ***!
-  \*************************************************************************/
-/*! exports provided: MagicIncomingWindowMessage, MagicOutgoingWindowMessage */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MagicIncomingWindowMessage", function() { return MagicIncomingWindowMessage; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MagicOutgoingWindowMessage", function() { return MagicOutgoingWindowMessage; });
-var MagicIncomingWindowMessage;
-(function (MagicIncomingWindowMessage) {
-    MagicIncomingWindowMessage["MAGIC_HANDLE_RESPONSE"] = "MAGIC_HANDLE_RESPONSE";
-    MagicIncomingWindowMessage["MAGIC_OVERLAY_READY"] = "MAGIC_OVERLAY_READY";
-    MagicIncomingWindowMessage["MAGIC_SHOW_OVERLAY"] = "MAGIC_SHOW_OVERLAY";
-    MagicIncomingWindowMessage["MAGIC_HIDE_OVERLAY"] = "MAGIC_HIDE_OVERLAY";
-    MagicIncomingWindowMessage["MAGIC_HANDLE_EVENT"] = "MAGIC_HANDLE_EVENT";
-})(MagicIncomingWindowMessage || (MagicIncomingWindowMessage = {}));
-var MagicOutgoingWindowMessage;
-(function (MagicOutgoingWindowMessage) {
-    MagicOutgoingWindowMessage["MAGIC_HANDLE_REQUEST"] = "MAGIC_HANDLE_REQUEST";
-})(MagicOutgoingWindowMessage || (MagicOutgoingWindowMessage = {}));
-//# sourceMappingURL=message-types.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/types/dist/module/index.js":
-/*!************************************************************!*\
-  !*** ./node_modules/@magic-sdk/types/dist/module/index.js ***!
-  \************************************************************/
-/*! exports provided: MagicPayloadMethod, MagicIncomingWindowMessage, MagicOutgoingWindowMessage, SDKErrorCode, SDKWarningCode, RPCErrorCode, EthChainType */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _core_json_rpc_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./core/json-rpc-types */ "./node_modules/@magic-sdk/types/dist/module/core/json-rpc-types.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "MagicPayloadMethod", function() { return _core_json_rpc_types__WEBPACK_IMPORTED_MODULE_0__["MagicPayloadMethod"]; });
-
-/* harmony import */ var _core_message_types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./core/message-types */ "./node_modules/@magic-sdk/types/dist/module/core/message-types.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "MagicIncomingWindowMessage", function() { return _core_message_types__WEBPACK_IMPORTED_MODULE_1__["MagicIncomingWindowMessage"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "MagicOutgoingWindowMessage", function() { return _core_message_types__WEBPACK_IMPORTED_MODULE_1__["MagicOutgoingWindowMessage"]; });
-
-/* harmony import */ var _core_exception_types__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./core/exception-types */ "./node_modules/@magic-sdk/types/dist/module/core/exception-types.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "SDKErrorCode", function() { return _core_exception_types__WEBPACK_IMPORTED_MODULE_2__["SDKErrorCode"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "SDKWarningCode", function() { return _core_exception_types__WEBPACK_IMPORTED_MODULE_2__["SDKWarningCode"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "RPCErrorCode", function() { return _core_exception_types__WEBPACK_IMPORTED_MODULE_2__["RPCErrorCode"]; });
-
-/* harmony import */ var _modules_rpc_provider_types__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/rpc-provider-types */ "./node_modules/@magic-sdk/types/dist/module/modules/rpc-provider-types.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "EthChainType", function() { return _modules_rpc_provider_types__WEBPACK_IMPORTED_MODULE_3__["EthChainType"]; });
-
-// Only re-export types that are intended for the public API from this file.
-
-
-
-
-//# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@magic-sdk/types/dist/module/modules/rpc-provider-types.js":
-/*!*********************************************************************************!*\
-  !*** ./node_modules/@magic-sdk/types/dist/module/modules/rpc-provider-types.js ***!
-  \*********************************************************************************/
-/*! exports provided: EthChainType */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EthChainType", function() { return EthChainType; });
-var EthChainType;
-(function (EthChainType) {
-    EthChainType["Harmony"] = "HARMONY";
-})(EthChainType || (EthChainType = {}));
-//# sourceMappingURL=rpc-provider-types.js.map
 
 /***/ }),
 
@@ -6935,6 +2175,2910 @@ function fromByteArray (uint8) {
 
 /***/ }),
 
+/***/ "./node_modules/bignumber.js/bignumber.js":
+/*!************************************************!*\
+  !*** ./node_modules/bignumber.js/bignumber.js ***!
+  \************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_RESULT__;;(function (globalObject) {
+  'use strict';
+
+/*
+ *      bignumber.js v9.0.1
+ *      A JavaScript library for arbitrary-precision arithmetic.
+ *      https://github.com/MikeMcl/bignumber.js
+ *      Copyright (c) 2020 Michael Mclaughlin <M8ch88l@gmail.com>
+ *      MIT Licensed.
+ *
+ *      BigNumber.prototype methods     |  BigNumber methods
+ *                                      |
+ *      absoluteValue            abs    |  clone
+ *      comparedTo                      |  config               set
+ *      decimalPlaces            dp     |      DECIMAL_PLACES
+ *      dividedBy                div    |      ROUNDING_MODE
+ *      dividedToIntegerBy       idiv   |      EXPONENTIAL_AT
+ *      exponentiatedBy          pow    |      RANGE
+ *      integerValue                    |      CRYPTO
+ *      isEqualTo                eq     |      MODULO_MODE
+ *      isFinite                        |      POW_PRECISION
+ *      isGreaterThan            gt     |      FORMAT
+ *      isGreaterThanOrEqualTo   gte    |      ALPHABET
+ *      isInteger                       |  isBigNumber
+ *      isLessThan               lt     |  maximum              max
+ *      isLessThanOrEqualTo      lte    |  minimum              min
+ *      isNaN                           |  random
+ *      isNegative                      |  sum
+ *      isPositive                      |
+ *      isZero                          |
+ *      minus                           |
+ *      modulo                   mod    |
+ *      multipliedBy             times  |
+ *      negated                         |
+ *      plus                            |
+ *      precision                sd     |
+ *      shiftedBy                       |
+ *      squareRoot               sqrt   |
+ *      toExponential                   |
+ *      toFixed                         |
+ *      toFormat                        |
+ *      toFraction                      |
+ *      toJSON                          |
+ *      toNumber                        |
+ *      toPrecision                     |
+ *      toString                        |
+ *      valueOf                         |
+ *
+ */
+
+
+  var BigNumber,
+    isNumeric = /^-?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i,
+    mathceil = Math.ceil,
+    mathfloor = Math.floor,
+
+    bignumberError = '[BigNumber Error] ',
+    tooManyDigits = bignumberError + 'Number primitive has more than 15 significant digits: ',
+
+    BASE = 1e14,
+    LOG_BASE = 14,
+    MAX_SAFE_INTEGER = 0x1fffffffffffff,         // 2^53 - 1
+    // MAX_INT32 = 0x7fffffff,                   // 2^31 - 1
+    POWS_TEN = [1, 10, 100, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9, 1e10, 1e11, 1e12, 1e13],
+    SQRT_BASE = 1e7,
+
+    // EDITABLE
+    // The limit on the value of DECIMAL_PLACES, TO_EXP_NEG, TO_EXP_POS, MIN_EXP, MAX_EXP, and
+    // the arguments to toExponential, toFixed, toFormat, and toPrecision.
+    MAX = 1E9;                                   // 0 to MAX_INT32
+
+
+  /*
+   * Create and return a BigNumber constructor.
+   */
+  function clone(configObject) {
+    var div, convertBase, parseNumeric,
+      P = BigNumber.prototype = { constructor: BigNumber, toString: null, valueOf: null },
+      ONE = new BigNumber(1),
+
+
+      //----------------------------- EDITABLE CONFIG DEFAULTS -------------------------------
+
+
+      // The default values below must be integers within the inclusive ranges stated.
+      // The values can also be changed at run-time using BigNumber.set.
+
+      // The maximum number of decimal places for operations involving division.
+      DECIMAL_PLACES = 20,                     // 0 to MAX
+
+      // The rounding mode used when rounding to the above decimal places, and when using
+      // toExponential, toFixed, toFormat and toPrecision, and round (default value).
+      // UP         0 Away from zero.
+      // DOWN       1 Towards zero.
+      // CEIL       2 Towards +Infinity.
+      // FLOOR      3 Towards -Infinity.
+      // HALF_UP    4 Towards nearest neighbour. If equidistant, up.
+      // HALF_DOWN  5 Towards nearest neighbour. If equidistant, down.
+      // HALF_EVEN  6 Towards nearest neighbour. If equidistant, towards even neighbour.
+      // HALF_CEIL  7 Towards nearest neighbour. If equidistant, towards +Infinity.
+      // HALF_FLOOR 8 Towards nearest neighbour. If equidistant, towards -Infinity.
+      ROUNDING_MODE = 4,                       // 0 to 8
+
+      // EXPONENTIAL_AT : [TO_EXP_NEG , TO_EXP_POS]
+
+      // The exponent value at and beneath which toString returns exponential notation.
+      // Number type: -7
+      TO_EXP_NEG = -7,                         // 0 to -MAX
+
+      // The exponent value at and above which toString returns exponential notation.
+      // Number type: 21
+      TO_EXP_POS = 21,                         // 0 to MAX
+
+      // RANGE : [MIN_EXP, MAX_EXP]
+
+      // The minimum exponent value, beneath which underflow to zero occurs.
+      // Number type: -324  (5e-324)
+      MIN_EXP = -1e7,                          // -1 to -MAX
+
+      // The maximum exponent value, above which overflow to Infinity occurs.
+      // Number type:  308  (1.7976931348623157e+308)
+      // For MAX_EXP > 1e7, e.g. new BigNumber('1e100000000').plus(1) may be slow.
+      MAX_EXP = 1e7,                           // 1 to MAX
+
+      // Whether to use cryptographically-secure random number generation, if available.
+      CRYPTO = false,                          // true or false
+
+      // The modulo mode used when calculating the modulus: a mod n.
+      // The quotient (q = a / n) is calculated according to the corresponding rounding mode.
+      // The remainder (r) is calculated as: r = a - n * q.
+      //
+      // UP        0 The remainder is positive if the dividend is negative, else is negative.
+      // DOWN      1 The remainder has the same sign as the dividend.
+      //             This modulo mode is commonly known as 'truncated division' and is
+      //             equivalent to (a % n) in JavaScript.
+      // FLOOR     3 The remainder has the same sign as the divisor (Python %).
+      // HALF_EVEN 6 This modulo mode implements the IEEE 754 remainder function.
+      // EUCLID    9 Euclidian division. q = sign(n) * floor(a / abs(n)).
+      //             The remainder is always positive.
+      //
+      // The truncated division, floored division, Euclidian division and IEEE 754 remainder
+      // modes are commonly used for the modulus operation.
+      // Although the other rounding modes can also be used, they may not give useful results.
+      MODULO_MODE = 1,                         // 0 to 9
+
+      // The maximum number of significant digits of the result of the exponentiatedBy operation.
+      // If POW_PRECISION is 0, there will be unlimited significant digits.
+      POW_PRECISION = 0,                    // 0 to MAX
+
+      // The format specification used by the BigNumber.prototype.toFormat method.
+      FORMAT = {
+        prefix: '',
+        groupSize: 3,
+        secondaryGroupSize: 0,
+        groupSeparator: ',',
+        decimalSeparator: '.',
+        fractionGroupSize: 0,
+        fractionGroupSeparator: '\xA0',      // non-breaking space
+        suffix: ''
+      },
+
+      // The alphabet used for base conversion. It must be at least 2 characters long, with no '+',
+      // '-', '.', whitespace, or repeated character.
+      // '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$_'
+      ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyz';
+
+
+    //------------------------------------------------------------------------------------------
+
+
+    // CONSTRUCTOR
+
+
+    /*
+     * The BigNumber constructor and exported function.
+     * Create and return a new instance of a BigNumber object.
+     *
+     * v {number|string|BigNumber} A numeric value.
+     * [b] {number} The base of v. Integer, 2 to ALPHABET.length inclusive.
+     */
+    function BigNumber(v, b) {
+      var alphabet, c, caseChanged, e, i, isNum, len, str,
+        x = this;
+
+      // Enable constructor call without `new`.
+      if (!(x instanceof BigNumber)) return new BigNumber(v, b);
+
+      if (b == null) {
+
+        if (v && v._isBigNumber === true) {
+          x.s = v.s;
+
+          if (!v.c || v.e > MAX_EXP) {
+            x.c = x.e = null;
+          } else if (v.e < MIN_EXP) {
+            x.c = [x.e = 0];
+          } else {
+            x.e = v.e;
+            x.c = v.c.slice();
+          }
+
+          return;
+        }
+
+        if ((isNum = typeof v == 'number') && v * 0 == 0) {
+
+          // Use `1 / n` to handle minus zero also.
+          x.s = 1 / v < 0 ? (v = -v, -1) : 1;
+
+          // Fast path for integers, where n < 2147483648 (2**31).
+          if (v === ~~v) {
+            for (e = 0, i = v; i >= 10; i /= 10, e++);
+
+            if (e > MAX_EXP) {
+              x.c = x.e = null;
+            } else {
+              x.e = e;
+              x.c = [v];
+            }
+
+            return;
+          }
+
+          str = String(v);
+        } else {
+
+          if (!isNumeric.test(str = String(v))) return parseNumeric(x, str, isNum);
+
+          x.s = str.charCodeAt(0) == 45 ? (str = str.slice(1), -1) : 1;
+        }
+
+        // Decimal point?
+        if ((e = str.indexOf('.')) > -1) str = str.replace('.', '');
+
+        // Exponential form?
+        if ((i = str.search(/e/i)) > 0) {
+
+          // Determine exponent.
+          if (e < 0) e = i;
+          e += +str.slice(i + 1);
+          str = str.substring(0, i);
+        } else if (e < 0) {
+
+          // Integer.
+          e = str.length;
+        }
+
+      } else {
+
+        // '[BigNumber Error] Base {not a primitive number|not an integer|out of range}: {b}'
+        intCheck(b, 2, ALPHABET.length, 'Base');
+
+        // Allow exponential notation to be used with base 10 argument, while
+        // also rounding to DECIMAL_PLACES as with other bases.
+        if (b == 10) {
+          x = new BigNumber(v);
+          return round(x, DECIMAL_PLACES + x.e + 1, ROUNDING_MODE);
+        }
+
+        str = String(v);
+
+        if (isNum = typeof v == 'number') {
+
+          // Avoid potential interpretation of Infinity and NaN as base 44+ values.
+          if (v * 0 != 0) return parseNumeric(x, str, isNum, b);
+
+          x.s = 1 / v < 0 ? (str = str.slice(1), -1) : 1;
+
+          // '[BigNumber Error] Number primitive has more than 15 significant digits: {n}'
+          if (BigNumber.DEBUG && str.replace(/^0\.0*|\./, '').length > 15) {
+            throw Error
+             (tooManyDigits + v);
+          }
+        } else {
+          x.s = str.charCodeAt(0) === 45 ? (str = str.slice(1), -1) : 1;
+        }
+
+        alphabet = ALPHABET.slice(0, b);
+        e = i = 0;
+
+        // Check that str is a valid base b number.
+        // Don't use RegExp, so alphabet can contain special characters.
+        for (len = str.length; i < len; i++) {
+          if (alphabet.indexOf(c = str.charAt(i)) < 0) {
+            if (c == '.') {
+
+              // If '.' is not the first character and it has not be found before.
+              if (i > e) {
+                e = len;
+                continue;
+              }
+            } else if (!caseChanged) {
+
+              // Allow e.g. hexadecimal 'FF' as well as 'ff'.
+              if (str == str.toUpperCase() && (str = str.toLowerCase()) ||
+                  str == str.toLowerCase() && (str = str.toUpperCase())) {
+                caseChanged = true;
+                i = -1;
+                e = 0;
+                continue;
+              }
+            }
+
+            return parseNumeric(x, String(v), isNum, b);
+          }
+        }
+
+        // Prevent later check for length on converted number.
+        isNum = false;
+        str = convertBase(str, b, 10, x.s);
+
+        // Decimal point?
+        if ((e = str.indexOf('.')) > -1) str = str.replace('.', '');
+        else e = str.length;
+      }
+
+      // Determine leading zeros.
+      for (i = 0; str.charCodeAt(i) === 48; i++);
+
+      // Determine trailing zeros.
+      for (len = str.length; str.charCodeAt(--len) === 48;);
+
+      if (str = str.slice(i, ++len)) {
+        len -= i;
+
+        // '[BigNumber Error] Number primitive has more than 15 significant digits: {n}'
+        if (isNum && BigNumber.DEBUG &&
+          len > 15 && (v > MAX_SAFE_INTEGER || v !== mathfloor(v))) {
+            throw Error
+             (tooManyDigits + (x.s * v));
+        }
+
+         // Overflow?
+        if ((e = e - i - 1) > MAX_EXP) {
+
+          // Infinity.
+          x.c = x.e = null;
+
+        // Underflow?
+        } else if (e < MIN_EXP) {
+
+          // Zero.
+          x.c = [x.e = 0];
+        } else {
+          x.e = e;
+          x.c = [];
+
+          // Transform base
+
+          // e is the base 10 exponent.
+          // i is where to slice str to get the first element of the coefficient array.
+          i = (e + 1) % LOG_BASE;
+          if (e < 0) i += LOG_BASE;  // i < 1
+
+          if (i < len) {
+            if (i) x.c.push(+str.slice(0, i));
+
+            for (len -= LOG_BASE; i < len;) {
+              x.c.push(+str.slice(i, i += LOG_BASE));
+            }
+
+            i = LOG_BASE - (str = str.slice(i)).length;
+          } else {
+            i -= len;
+          }
+
+          for (; i--; str += '0');
+          x.c.push(+str);
+        }
+      } else {
+
+        // Zero.
+        x.c = [x.e = 0];
+      }
+    }
+
+
+    // CONSTRUCTOR PROPERTIES
+
+
+    BigNumber.clone = clone;
+
+    BigNumber.ROUND_UP = 0;
+    BigNumber.ROUND_DOWN = 1;
+    BigNumber.ROUND_CEIL = 2;
+    BigNumber.ROUND_FLOOR = 3;
+    BigNumber.ROUND_HALF_UP = 4;
+    BigNumber.ROUND_HALF_DOWN = 5;
+    BigNumber.ROUND_HALF_EVEN = 6;
+    BigNumber.ROUND_HALF_CEIL = 7;
+    BigNumber.ROUND_HALF_FLOOR = 8;
+    BigNumber.EUCLID = 9;
+
+
+    /*
+     * Configure infrequently-changing library-wide settings.
+     *
+     * Accept an object with the following optional properties (if the value of a property is
+     * a number, it must be an integer within the inclusive range stated):
+     *
+     *   DECIMAL_PLACES   {number}           0 to MAX
+     *   ROUNDING_MODE    {number}           0 to 8
+     *   EXPONENTIAL_AT   {number|number[]}  -MAX to MAX  or  [-MAX to 0, 0 to MAX]
+     *   RANGE            {number|number[]}  -MAX to MAX (not zero)  or  [-MAX to -1, 1 to MAX]
+     *   CRYPTO           {boolean}          true or false
+     *   MODULO_MODE      {number}           0 to 9
+     *   POW_PRECISION       {number}           0 to MAX
+     *   ALPHABET         {string}           A string of two or more unique characters which does
+     *                                       not contain '.'.
+     *   FORMAT           {object}           An object with some of the following properties:
+     *     prefix                 {string}
+     *     groupSize              {number}
+     *     secondaryGroupSize     {number}
+     *     groupSeparator         {string}
+     *     decimalSeparator       {string}
+     *     fractionGroupSize      {number}
+     *     fractionGroupSeparator {string}
+     *     suffix                 {string}
+     *
+     * (The values assigned to the above FORMAT object properties are not checked for validity.)
+     *
+     * E.g.
+     * BigNumber.config({ DECIMAL_PLACES : 20, ROUNDING_MODE : 4 })
+     *
+     * Ignore properties/parameters set to null or undefined, except for ALPHABET.
+     *
+     * Return an object with the properties current values.
+     */
+    BigNumber.config = BigNumber.set = function (obj) {
+      var p, v;
+
+      if (obj != null) {
+
+        if (typeof obj == 'object') {
+
+          // DECIMAL_PLACES {number} Integer, 0 to MAX inclusive.
+          // '[BigNumber Error] DECIMAL_PLACES {not a primitive number|not an integer|out of range}: {v}'
+          if (obj.hasOwnProperty(p = 'DECIMAL_PLACES')) {
+            v = obj[p];
+            intCheck(v, 0, MAX, p);
+            DECIMAL_PLACES = v;
+          }
+
+          // ROUNDING_MODE {number} Integer, 0 to 8 inclusive.
+          // '[BigNumber Error] ROUNDING_MODE {not a primitive number|not an integer|out of range}: {v}'
+          if (obj.hasOwnProperty(p = 'ROUNDING_MODE')) {
+            v = obj[p];
+            intCheck(v, 0, 8, p);
+            ROUNDING_MODE = v;
+          }
+
+          // EXPONENTIAL_AT {number|number[]}
+          // Integer, -MAX to MAX inclusive or
+          // [integer -MAX to 0 inclusive, 0 to MAX inclusive].
+          // '[BigNumber Error] EXPONENTIAL_AT {not a primitive number|not an integer|out of range}: {v}'
+          if (obj.hasOwnProperty(p = 'EXPONENTIAL_AT')) {
+            v = obj[p];
+            if (v && v.pop) {
+              intCheck(v[0], -MAX, 0, p);
+              intCheck(v[1], 0, MAX, p);
+              TO_EXP_NEG = v[0];
+              TO_EXP_POS = v[1];
+            } else {
+              intCheck(v, -MAX, MAX, p);
+              TO_EXP_NEG = -(TO_EXP_POS = v < 0 ? -v : v);
+            }
+          }
+
+          // RANGE {number|number[]} Non-zero integer, -MAX to MAX inclusive or
+          // [integer -MAX to -1 inclusive, integer 1 to MAX inclusive].
+          // '[BigNumber Error] RANGE {not a primitive number|not an integer|out of range|cannot be zero}: {v}'
+          if (obj.hasOwnProperty(p = 'RANGE')) {
+            v = obj[p];
+            if (v && v.pop) {
+              intCheck(v[0], -MAX, -1, p);
+              intCheck(v[1], 1, MAX, p);
+              MIN_EXP = v[0];
+              MAX_EXP = v[1];
+            } else {
+              intCheck(v, -MAX, MAX, p);
+              if (v) {
+                MIN_EXP = -(MAX_EXP = v < 0 ? -v : v);
+              } else {
+                throw Error
+                 (bignumberError + p + ' cannot be zero: ' + v);
+              }
+            }
+          }
+
+          // CRYPTO {boolean} true or false.
+          // '[BigNumber Error] CRYPTO not true or false: {v}'
+          // '[BigNumber Error] crypto unavailable'
+          if (obj.hasOwnProperty(p = 'CRYPTO')) {
+            v = obj[p];
+            if (v === !!v) {
+              if (v) {
+                if (typeof crypto != 'undefined' && crypto &&
+                 (crypto.getRandomValues || crypto.randomBytes)) {
+                  CRYPTO = v;
+                } else {
+                  CRYPTO = !v;
+                  throw Error
+                   (bignumberError + 'crypto unavailable');
+                }
+              } else {
+                CRYPTO = v;
+              }
+            } else {
+              throw Error
+               (bignumberError + p + ' not true or false: ' + v);
+            }
+          }
+
+          // MODULO_MODE {number} Integer, 0 to 9 inclusive.
+          // '[BigNumber Error] MODULO_MODE {not a primitive number|not an integer|out of range}: {v}'
+          if (obj.hasOwnProperty(p = 'MODULO_MODE')) {
+            v = obj[p];
+            intCheck(v, 0, 9, p);
+            MODULO_MODE = v;
+          }
+
+          // POW_PRECISION {number} Integer, 0 to MAX inclusive.
+          // '[BigNumber Error] POW_PRECISION {not a primitive number|not an integer|out of range}: {v}'
+          if (obj.hasOwnProperty(p = 'POW_PRECISION')) {
+            v = obj[p];
+            intCheck(v, 0, MAX, p);
+            POW_PRECISION = v;
+          }
+
+          // FORMAT {object}
+          // '[BigNumber Error] FORMAT not an object: {v}'
+          if (obj.hasOwnProperty(p = 'FORMAT')) {
+            v = obj[p];
+            if (typeof v == 'object') FORMAT = v;
+            else throw Error
+             (bignumberError + p + ' not an object: ' + v);
+          }
+
+          // ALPHABET {string}
+          // '[BigNumber Error] ALPHABET invalid: {v}'
+          if (obj.hasOwnProperty(p = 'ALPHABET')) {
+            v = obj[p];
+
+            // Disallow if less than two characters,
+            // or if it contains '+', '-', '.', whitespace, or a repeated character.
+            if (typeof v == 'string' && !/^.?$|[+\-.\s]|(.).*\1/.test(v)) {
+              ALPHABET = v;
+            } else {
+              throw Error
+               (bignumberError + p + ' invalid: ' + v);
+            }
+          }
+
+        } else {
+
+          // '[BigNumber Error] Object expected: {v}'
+          throw Error
+           (bignumberError + 'Object expected: ' + obj);
+        }
+      }
+
+      return {
+        DECIMAL_PLACES: DECIMAL_PLACES,
+        ROUNDING_MODE: ROUNDING_MODE,
+        EXPONENTIAL_AT: [TO_EXP_NEG, TO_EXP_POS],
+        RANGE: [MIN_EXP, MAX_EXP],
+        CRYPTO: CRYPTO,
+        MODULO_MODE: MODULO_MODE,
+        POW_PRECISION: POW_PRECISION,
+        FORMAT: FORMAT,
+        ALPHABET: ALPHABET
+      };
+    };
+
+
+    /*
+     * Return true if v is a BigNumber instance, otherwise return false.
+     *
+     * If BigNumber.DEBUG is true, throw if a BigNumber instance is not well-formed.
+     *
+     * v {any}
+     *
+     * '[BigNumber Error] Invalid BigNumber: {v}'
+     */
+    BigNumber.isBigNumber = function (v) {
+      if (!v || v._isBigNumber !== true) return false;
+      if (!BigNumber.DEBUG) return true;
+
+      var i, n,
+        c = v.c,
+        e = v.e,
+        s = v.s;
+
+      out: if ({}.toString.call(c) == '[object Array]') {
+
+        if ((s === 1 || s === -1) && e >= -MAX && e <= MAX && e === mathfloor(e)) {
+
+          // If the first element is zero, the BigNumber value must be zero.
+          if (c[0] === 0) {
+            if (e === 0 && c.length === 1) return true;
+            break out;
+          }
+
+          // Calculate number of digits that c[0] should have, based on the exponent.
+          i = (e + 1) % LOG_BASE;
+          if (i < 1) i += LOG_BASE;
+
+          // Calculate number of digits of c[0].
+          //if (Math.ceil(Math.log(c[0] + 1) / Math.LN10) == i) {
+          if (String(c[0]).length == i) {
+
+            for (i = 0; i < c.length; i++) {
+              n = c[i];
+              if (n < 0 || n >= BASE || n !== mathfloor(n)) break out;
+            }
+
+            // Last element cannot be zero, unless it is the only element.
+            if (n !== 0) return true;
+          }
+        }
+
+      // Infinity/NaN
+      } else if (c === null && e === null && (s === null || s === 1 || s === -1)) {
+        return true;
+      }
+
+      throw Error
+        (bignumberError + 'Invalid BigNumber: ' + v);
+    };
+
+
+    /*
+     * Return a new BigNumber whose value is the maximum of the arguments.
+     *
+     * arguments {number|string|BigNumber}
+     */
+    BigNumber.maximum = BigNumber.max = function () {
+      return maxOrMin(arguments, P.lt);
+    };
+
+
+    /*
+     * Return a new BigNumber whose value is the minimum of the arguments.
+     *
+     * arguments {number|string|BigNumber}
+     */
+    BigNumber.minimum = BigNumber.min = function () {
+      return maxOrMin(arguments, P.gt);
+    };
+
+
+    /*
+     * Return a new BigNumber with a random value equal to or greater than 0 and less than 1,
+     * and with dp, or DECIMAL_PLACES if dp is omitted, decimal places (or less if trailing
+     * zeros are produced).
+     *
+     * [dp] {number} Decimal places. Integer, 0 to MAX inclusive.
+     *
+     * '[BigNumber Error] Argument {not a primitive number|not an integer|out of range}: {dp}'
+     * '[BigNumber Error] crypto unavailable'
+     */
+    BigNumber.random = (function () {
+      var pow2_53 = 0x20000000000000;
+
+      // Return a 53 bit integer n, where 0 <= n < 9007199254740992.
+      // Check if Math.random() produces more than 32 bits of randomness.
+      // If it does, assume at least 53 bits are produced, otherwise assume at least 30 bits.
+      // 0x40000000 is 2^30, 0x800000 is 2^23, 0x1fffff is 2^21 - 1.
+      var random53bitInt = (Math.random() * pow2_53) & 0x1fffff
+       ? function () { return mathfloor(Math.random() * pow2_53); }
+       : function () { return ((Math.random() * 0x40000000 | 0) * 0x800000) +
+         (Math.random() * 0x800000 | 0); };
+
+      return function (dp) {
+        var a, b, e, k, v,
+          i = 0,
+          c = [],
+          rand = new BigNumber(ONE);
+
+        if (dp == null) dp = DECIMAL_PLACES;
+        else intCheck(dp, 0, MAX);
+
+        k = mathceil(dp / LOG_BASE);
+
+        if (CRYPTO) {
+
+          // Browsers supporting crypto.getRandomValues.
+          if (crypto.getRandomValues) {
+
+            a = crypto.getRandomValues(new Uint32Array(k *= 2));
+
+            for (; i < k;) {
+
+              // 53 bits:
+              // ((Math.pow(2, 32) - 1) * Math.pow(2, 21)).toString(2)
+              // 11111 11111111 11111111 11111111 11100000 00000000 00000000
+              // ((Math.pow(2, 32) - 1) >>> 11).toString(2)
+              //                                     11111 11111111 11111111
+              // 0x20000 is 2^21.
+              v = a[i] * 0x20000 + (a[i + 1] >>> 11);
+
+              // Rejection sampling:
+              // 0 <= v < 9007199254740992
+              // Probability that v >= 9e15, is
+              // 7199254740992 / 9007199254740992 ~= 0.0008, i.e. 1 in 1251
+              if (v >= 9e15) {
+                b = crypto.getRandomValues(new Uint32Array(2));
+                a[i] = b[0];
+                a[i + 1] = b[1];
+              } else {
+
+                // 0 <= v <= 8999999999999999
+                // 0 <= (v % 1e14) <= 99999999999999
+                c.push(v % 1e14);
+                i += 2;
+              }
+            }
+            i = k / 2;
+
+          // Node.js supporting crypto.randomBytes.
+          } else if (crypto.randomBytes) {
+
+            // buffer
+            a = crypto.randomBytes(k *= 7);
+
+            for (; i < k;) {
+
+              // 0x1000000000000 is 2^48, 0x10000000000 is 2^40
+              // 0x100000000 is 2^32, 0x1000000 is 2^24
+              // 11111 11111111 11111111 11111111 11111111 11111111 11111111
+              // 0 <= v < 9007199254740992
+              v = ((a[i] & 31) * 0x1000000000000) + (a[i + 1] * 0x10000000000) +
+                 (a[i + 2] * 0x100000000) + (a[i + 3] * 0x1000000) +
+                 (a[i + 4] << 16) + (a[i + 5] << 8) + a[i + 6];
+
+              if (v >= 9e15) {
+                crypto.randomBytes(7).copy(a, i);
+              } else {
+
+                // 0 <= (v % 1e14) <= 99999999999999
+                c.push(v % 1e14);
+                i += 7;
+              }
+            }
+            i = k / 7;
+          } else {
+            CRYPTO = false;
+            throw Error
+             (bignumberError + 'crypto unavailable');
+          }
+        }
+
+        // Use Math.random.
+        if (!CRYPTO) {
+
+          for (; i < k;) {
+            v = random53bitInt();
+            if (v < 9e15) c[i++] = v % 1e14;
+          }
+        }
+
+        k = c[--i];
+        dp %= LOG_BASE;
+
+        // Convert trailing digits to zeros according to dp.
+        if (k && dp) {
+          v = POWS_TEN[LOG_BASE - dp];
+          c[i] = mathfloor(k / v) * v;
+        }
+
+        // Remove trailing elements which are zero.
+        for (; c[i] === 0; c.pop(), i--);
+
+        // Zero?
+        if (i < 0) {
+          c = [e = 0];
+        } else {
+
+          // Remove leading elements which are zero and adjust exponent accordingly.
+          for (e = -1 ; c[0] === 0; c.splice(0, 1), e -= LOG_BASE);
+
+          // Count the digits of the first element of c to determine leading zeros, and...
+          for (i = 1, v = c[0]; v >= 10; v /= 10, i++);
+
+          // adjust the exponent accordingly.
+          if (i < LOG_BASE) e -= LOG_BASE - i;
+        }
+
+        rand.e = e;
+        rand.c = c;
+        return rand;
+      };
+    })();
+
+
+    /*
+     * Return a BigNumber whose value is the sum of the arguments.
+     *
+     * arguments {number|string|BigNumber}
+     */
+    BigNumber.sum = function () {
+      var i = 1,
+        args = arguments,
+        sum = new BigNumber(args[0]);
+      for (; i < args.length;) sum = sum.plus(args[i++]);
+      return sum;
+    };
+
+
+    // PRIVATE FUNCTIONS
+
+
+    // Called by BigNumber and BigNumber.prototype.toString.
+    convertBase = (function () {
+      var decimal = '0123456789';
+
+      /*
+       * Convert string of baseIn to an array of numbers of baseOut.
+       * Eg. toBaseOut('255', 10, 16) returns [15, 15].
+       * Eg. toBaseOut('ff', 16, 10) returns [2, 5, 5].
+       */
+      function toBaseOut(str, baseIn, baseOut, alphabet) {
+        var j,
+          arr = [0],
+          arrL,
+          i = 0,
+          len = str.length;
+
+        for (; i < len;) {
+          for (arrL = arr.length; arrL--; arr[arrL] *= baseIn);
+
+          arr[0] += alphabet.indexOf(str.charAt(i++));
+
+          for (j = 0; j < arr.length; j++) {
+
+            if (arr[j] > baseOut - 1) {
+              if (arr[j + 1] == null) arr[j + 1] = 0;
+              arr[j + 1] += arr[j] / baseOut | 0;
+              arr[j] %= baseOut;
+            }
+          }
+        }
+
+        return arr.reverse();
+      }
+
+      // Convert a numeric string of baseIn to a numeric string of baseOut.
+      // If the caller is toString, we are converting from base 10 to baseOut.
+      // If the caller is BigNumber, we are converting from baseIn to base 10.
+      return function (str, baseIn, baseOut, sign, callerIsToString) {
+        var alphabet, d, e, k, r, x, xc, y,
+          i = str.indexOf('.'),
+          dp = DECIMAL_PLACES,
+          rm = ROUNDING_MODE;
+
+        // Non-integer.
+        if (i >= 0) {
+          k = POW_PRECISION;
+
+          // Unlimited precision.
+          POW_PRECISION = 0;
+          str = str.replace('.', '');
+          y = new BigNumber(baseIn);
+          x = y.pow(str.length - i);
+          POW_PRECISION = k;
+
+          // Convert str as if an integer, then restore the fraction part by dividing the
+          // result by its base raised to a power.
+
+          y.c = toBaseOut(toFixedPoint(coeffToString(x.c), x.e, '0'),
+           10, baseOut, decimal);
+          y.e = y.c.length;
+        }
+
+        // Convert the number as integer.
+
+        xc = toBaseOut(str, baseIn, baseOut, callerIsToString
+         ? (alphabet = ALPHABET, decimal)
+         : (alphabet = decimal, ALPHABET));
+
+        // xc now represents str as an integer and converted to baseOut. e is the exponent.
+        e = k = xc.length;
+
+        // Remove trailing zeros.
+        for (; xc[--k] == 0; xc.pop());
+
+        // Zero?
+        if (!xc[0]) return alphabet.charAt(0);
+
+        // Does str represent an integer? If so, no need for the division.
+        if (i < 0) {
+          --e;
+        } else {
+          x.c = xc;
+          x.e = e;
+
+          // The sign is needed for correct rounding.
+          x.s = sign;
+          x = div(x, y, dp, rm, baseOut);
+          xc = x.c;
+          r = x.r;
+          e = x.e;
+        }
+
+        // xc now represents str converted to baseOut.
+
+        // THe index of the rounding digit.
+        d = e + dp + 1;
+
+        // The rounding digit: the digit to the right of the digit that may be rounded up.
+        i = xc[d];
+
+        // Look at the rounding digits and mode to determine whether to round up.
+
+        k = baseOut / 2;
+        r = r || d < 0 || xc[d + 1] != null;
+
+        r = rm < 4 ? (i != null || r) && (rm == 0 || rm == (x.s < 0 ? 3 : 2))
+              : i > k || i == k &&(rm == 4 || r || rm == 6 && xc[d - 1] & 1 ||
+               rm == (x.s < 0 ? 8 : 7));
+
+        // If the index of the rounding digit is not greater than zero, or xc represents
+        // zero, then the result of the base conversion is zero or, if rounding up, a value
+        // such as 0.00001.
+        if (d < 1 || !xc[0]) {
+
+          // 1^-dp or 0
+          str = r ? toFixedPoint(alphabet.charAt(1), -dp, alphabet.charAt(0)) : alphabet.charAt(0);
+        } else {
+
+          // Truncate xc to the required number of decimal places.
+          xc.length = d;
+
+          // Round up?
+          if (r) {
+
+            // Rounding up may mean the previous digit has to be rounded up and so on.
+            for (--baseOut; ++xc[--d] > baseOut;) {
+              xc[d] = 0;
+
+              if (!d) {
+                ++e;
+                xc = [1].concat(xc);
+              }
+            }
+          }
+
+          // Determine trailing zeros.
+          for (k = xc.length; !xc[--k];);
+
+          // E.g. [4, 11, 15] becomes 4bf.
+          for (i = 0, str = ''; i <= k; str += alphabet.charAt(xc[i++]));
+
+          // Add leading zeros, decimal point and trailing zeros as required.
+          str = toFixedPoint(str, e, alphabet.charAt(0));
+        }
+
+        // The caller will add the sign.
+        return str;
+      };
+    })();
+
+
+    // Perform division in the specified base. Called by div and convertBase.
+    div = (function () {
+
+      // Assume non-zero x and k.
+      function multiply(x, k, base) {
+        var m, temp, xlo, xhi,
+          carry = 0,
+          i = x.length,
+          klo = k % SQRT_BASE,
+          khi = k / SQRT_BASE | 0;
+
+        for (x = x.slice(); i--;) {
+          xlo = x[i] % SQRT_BASE;
+          xhi = x[i] / SQRT_BASE | 0;
+          m = khi * xlo + xhi * klo;
+          temp = klo * xlo + ((m % SQRT_BASE) * SQRT_BASE) + carry;
+          carry = (temp / base | 0) + (m / SQRT_BASE | 0) + khi * xhi;
+          x[i] = temp % base;
+        }
+
+        if (carry) x = [carry].concat(x);
+
+        return x;
+      }
+
+      function compare(a, b, aL, bL) {
+        var i, cmp;
+
+        if (aL != bL) {
+          cmp = aL > bL ? 1 : -1;
+        } else {
+
+          for (i = cmp = 0; i < aL; i++) {
+
+            if (a[i] != b[i]) {
+              cmp = a[i] > b[i] ? 1 : -1;
+              break;
+            }
+          }
+        }
+
+        return cmp;
+      }
+
+      function subtract(a, b, aL, base) {
+        var i = 0;
+
+        // Subtract b from a.
+        for (; aL--;) {
+          a[aL] -= i;
+          i = a[aL] < b[aL] ? 1 : 0;
+          a[aL] = i * base + a[aL] - b[aL];
+        }
+
+        // Remove leading zeros.
+        for (; !a[0] && a.length > 1; a.splice(0, 1));
+      }
+
+      // x: dividend, y: divisor.
+      return function (x, y, dp, rm, base) {
+        var cmp, e, i, more, n, prod, prodL, q, qc, rem, remL, rem0, xi, xL, yc0,
+          yL, yz,
+          s = x.s == y.s ? 1 : -1,
+          xc = x.c,
+          yc = y.c;
+
+        // Either NaN, Infinity or 0?
+        if (!xc || !xc[0] || !yc || !yc[0]) {
+
+          return new BigNumber(
+
+           // Return NaN if either NaN, or both Infinity or 0.
+           !x.s || !y.s || (xc ? yc && xc[0] == yc[0] : !yc) ? NaN :
+
+            // Return ±0 if x is ±0 or y is ±Infinity, or return ±Infinity as y is ±0.
+            xc && xc[0] == 0 || !yc ? s * 0 : s / 0
+         );
+        }
+
+        q = new BigNumber(s);
+        qc = q.c = [];
+        e = x.e - y.e;
+        s = dp + e + 1;
+
+        if (!base) {
+          base = BASE;
+          e = bitFloor(x.e / LOG_BASE) - bitFloor(y.e / LOG_BASE);
+          s = s / LOG_BASE | 0;
+        }
+
+        // Result exponent may be one less then the current value of e.
+        // The coefficients of the BigNumbers from convertBase may have trailing zeros.
+        for (i = 0; yc[i] == (xc[i] || 0); i++);
+
+        if (yc[i] > (xc[i] || 0)) e--;
+
+        if (s < 0) {
+          qc.push(1);
+          more = true;
+        } else {
+          xL = xc.length;
+          yL = yc.length;
+          i = 0;
+          s += 2;
+
+          // Normalise xc and yc so highest order digit of yc is >= base / 2.
+
+          n = mathfloor(base / (yc[0] + 1));
+
+          // Not necessary, but to handle odd bases where yc[0] == (base / 2) - 1.
+          // if (n > 1 || n++ == 1 && yc[0] < base / 2) {
+          if (n > 1) {
+            yc = multiply(yc, n, base);
+            xc = multiply(xc, n, base);
+            yL = yc.length;
+            xL = xc.length;
+          }
+
+          xi = yL;
+          rem = xc.slice(0, yL);
+          remL = rem.length;
+
+          // Add zeros to make remainder as long as divisor.
+          for (; remL < yL; rem[remL++] = 0);
+          yz = yc.slice();
+          yz = [0].concat(yz);
+          yc0 = yc[0];
+          if (yc[1] >= base / 2) yc0++;
+          // Not necessary, but to prevent trial digit n > base, when using base 3.
+          // else if (base == 3 && yc0 == 1) yc0 = 1 + 1e-15;
+
+          do {
+            n = 0;
+
+            // Compare divisor and remainder.
+            cmp = compare(yc, rem, yL, remL);
+
+            // If divisor < remainder.
+            if (cmp < 0) {
+
+              // Calculate trial digit, n.
+
+              rem0 = rem[0];
+              if (yL != remL) rem0 = rem0 * base + (rem[1] || 0);
+
+              // n is how many times the divisor goes into the current remainder.
+              n = mathfloor(rem0 / yc0);
+
+              //  Algorithm:
+              //  product = divisor multiplied by trial digit (n).
+              //  Compare product and remainder.
+              //  If product is greater than remainder:
+              //    Subtract divisor from product, decrement trial digit.
+              //  Subtract product from remainder.
+              //  If product was less than remainder at the last compare:
+              //    Compare new remainder and divisor.
+              //    If remainder is greater than divisor:
+              //      Subtract divisor from remainder, increment trial digit.
+
+              if (n > 1) {
+
+                // n may be > base only when base is 3.
+                if (n >= base) n = base - 1;
+
+                // product = divisor * trial digit.
+                prod = multiply(yc, n, base);
+                prodL = prod.length;
+                remL = rem.length;
+
+                // Compare product and remainder.
+                // If product > remainder then trial digit n too high.
+                // n is 1 too high about 5% of the time, and is not known to have
+                // ever been more than 1 too high.
+                while (compare(prod, rem, prodL, remL) == 1) {
+                  n--;
+
+                  // Subtract divisor from product.
+                  subtract(prod, yL < prodL ? yz : yc, prodL, base);
+                  prodL = prod.length;
+                  cmp = 1;
+                }
+              } else {
+
+                // n is 0 or 1, cmp is -1.
+                // If n is 0, there is no need to compare yc and rem again below,
+                // so change cmp to 1 to avoid it.
+                // If n is 1, leave cmp as -1, so yc and rem are compared again.
+                if (n == 0) {
+
+                  // divisor < remainder, so n must be at least 1.
+                  cmp = n = 1;
+                }
+
+                // product = divisor
+                prod = yc.slice();
+                prodL = prod.length;
+              }
+
+              if (prodL < remL) prod = [0].concat(prod);
+
+              // Subtract product from remainder.
+              subtract(rem, prod, remL, base);
+              remL = rem.length;
+
+               // If product was < remainder.
+              if (cmp == -1) {
+
+                // Compare divisor and new remainder.
+                // If divisor < new remainder, subtract divisor from remainder.
+                // Trial digit n too low.
+                // n is 1 too low about 5% of the time, and very rarely 2 too low.
+                while (compare(yc, rem, yL, remL) < 1) {
+                  n++;
+
+                  // Subtract divisor from remainder.
+                  subtract(rem, yL < remL ? yz : yc, remL, base);
+                  remL = rem.length;
+                }
+              }
+            } else if (cmp === 0) {
+              n++;
+              rem = [0];
+            } // else cmp === 1 and n will be 0
+
+            // Add the next digit, n, to the result array.
+            qc[i++] = n;
+
+            // Update the remainder.
+            if (rem[0]) {
+              rem[remL++] = xc[xi] || 0;
+            } else {
+              rem = [xc[xi]];
+              remL = 1;
+            }
+          } while ((xi++ < xL || rem[0] != null) && s--);
+
+          more = rem[0] != null;
+
+          // Leading zero?
+          if (!qc[0]) qc.splice(0, 1);
+        }
+
+        if (base == BASE) {
+
+          // To calculate q.e, first get the number of digits of qc[0].
+          for (i = 1, s = qc[0]; s >= 10; s /= 10, i++);
+
+          round(q, dp + (q.e = i + e * LOG_BASE - 1) + 1, rm, more);
+
+        // Caller is convertBase.
+        } else {
+          q.e = e;
+          q.r = +more;
+        }
+
+        return q;
+      };
+    })();
+
+
+    /*
+     * Return a string representing the value of BigNumber n in fixed-point or exponential
+     * notation rounded to the specified decimal places or significant digits.
+     *
+     * n: a BigNumber.
+     * i: the index of the last digit required (i.e. the digit that may be rounded up).
+     * rm: the rounding mode.
+     * id: 1 (toExponential) or 2 (toPrecision).
+     */
+    function format(n, i, rm, id) {
+      var c0, e, ne, len, str;
+
+      if (rm == null) rm = ROUNDING_MODE;
+      else intCheck(rm, 0, 8);
+
+      if (!n.c) return n.toString();
+
+      c0 = n.c[0];
+      ne = n.e;
+
+      if (i == null) {
+        str = coeffToString(n.c);
+        str = id == 1 || id == 2 && (ne <= TO_EXP_NEG || ne >= TO_EXP_POS)
+         ? toExponential(str, ne)
+         : toFixedPoint(str, ne, '0');
+      } else {
+        n = round(new BigNumber(n), i, rm);
+
+        // n.e may have changed if the value was rounded up.
+        e = n.e;
+
+        str = coeffToString(n.c);
+        len = str.length;
+
+        // toPrecision returns exponential notation if the number of significant digits
+        // specified is less than the number of digits necessary to represent the integer
+        // part of the value in fixed-point notation.
+
+        // Exponential notation.
+        if (id == 1 || id == 2 && (i <= e || e <= TO_EXP_NEG)) {
+
+          // Append zeros?
+          for (; len < i; str += '0', len++);
+          str = toExponential(str, e);
+
+        // Fixed-point notation.
+        } else {
+          i -= ne;
+          str = toFixedPoint(str, e, '0');
+
+          // Append zeros?
+          if (e + 1 > len) {
+            if (--i > 0) for (str += '.'; i--; str += '0');
+          } else {
+            i += e - len;
+            if (i > 0) {
+              if (e + 1 == len) str += '.';
+              for (; i--; str += '0');
+            }
+          }
+        }
+      }
+
+      return n.s < 0 && c0 ? '-' + str : str;
+    }
+
+
+    // Handle BigNumber.max and BigNumber.min.
+    function maxOrMin(args, method) {
+      var n,
+        i = 1,
+        m = new BigNumber(args[0]);
+
+      for (; i < args.length; i++) {
+        n = new BigNumber(args[i]);
+
+        // If any number is NaN, return NaN.
+        if (!n.s) {
+          m = n;
+          break;
+        } else if (method.call(m, n)) {
+          m = n;
+        }
+      }
+
+      return m;
+    }
+
+
+    /*
+     * Strip trailing zeros, calculate base 10 exponent and check against MIN_EXP and MAX_EXP.
+     * Called by minus, plus and times.
+     */
+    function normalise(n, c, e) {
+      var i = 1,
+        j = c.length;
+
+       // Remove trailing zeros.
+      for (; !c[--j]; c.pop());
+
+      // Calculate the base 10 exponent. First get the number of digits of c[0].
+      for (j = c[0]; j >= 10; j /= 10, i++);
+
+      // Overflow?
+      if ((e = i + e * LOG_BASE - 1) > MAX_EXP) {
+
+        // Infinity.
+        n.c = n.e = null;
+
+      // Underflow?
+      } else if (e < MIN_EXP) {
+
+        // Zero.
+        n.c = [n.e = 0];
+      } else {
+        n.e = e;
+        n.c = c;
+      }
+
+      return n;
+    }
+
+
+    // Handle values that fail the validity test in BigNumber.
+    parseNumeric = (function () {
+      var basePrefix = /^(-?)0([xbo])(?=\w[\w.]*$)/i,
+        dotAfter = /^([^.]+)\.$/,
+        dotBefore = /^\.([^.]+)$/,
+        isInfinityOrNaN = /^-?(Infinity|NaN)$/,
+        whitespaceOrPlus = /^\s*\+(?=[\w.])|^\s+|\s+$/g;
+
+      return function (x, str, isNum, b) {
+        var base,
+          s = isNum ? str : str.replace(whitespaceOrPlus, '');
+
+        // No exception on ±Infinity or NaN.
+        if (isInfinityOrNaN.test(s)) {
+          x.s = isNaN(s) ? null : s < 0 ? -1 : 1;
+        } else {
+          if (!isNum) {
+
+            // basePrefix = /^(-?)0([xbo])(?=\w[\w.]*$)/i
+            s = s.replace(basePrefix, function (m, p1, p2) {
+              base = (p2 = p2.toLowerCase()) == 'x' ? 16 : p2 == 'b' ? 2 : 8;
+              return !b || b == base ? p1 : m;
+            });
+
+            if (b) {
+              base = b;
+
+              // E.g. '1.' to '1', '.1' to '0.1'
+              s = s.replace(dotAfter, '$1').replace(dotBefore, '0.$1');
+            }
+
+            if (str != s) return new BigNumber(s, base);
+          }
+
+          // '[BigNumber Error] Not a number: {n}'
+          // '[BigNumber Error] Not a base {b} number: {n}'
+          if (BigNumber.DEBUG) {
+            throw Error
+              (bignumberError + 'Not a' + (b ? ' base ' + b : '') + ' number: ' + str);
+          }
+
+          // NaN
+          x.s = null;
+        }
+
+        x.c = x.e = null;
+      }
+    })();
+
+
+    /*
+     * Round x to sd significant digits using rounding mode rm. Check for over/under-flow.
+     * If r is truthy, it is known that there are more digits after the rounding digit.
+     */
+    function round(x, sd, rm, r) {
+      var d, i, j, k, n, ni, rd,
+        xc = x.c,
+        pows10 = POWS_TEN;
+
+      // if x is not Infinity or NaN...
+      if (xc) {
+
+        // rd is the rounding digit, i.e. the digit after the digit that may be rounded up.
+        // n is a base 1e14 number, the value of the element of array x.c containing rd.
+        // ni is the index of n within x.c.
+        // d is the number of digits of n.
+        // i is the index of rd within n including leading zeros.
+        // j is the actual index of rd within n (if < 0, rd is a leading zero).
+        out: {
+
+          // Get the number of digits of the first element of xc.
+          for (d = 1, k = xc[0]; k >= 10; k /= 10, d++);
+          i = sd - d;
+
+          // If the rounding digit is in the first element of xc...
+          if (i < 0) {
+            i += LOG_BASE;
+            j = sd;
+            n = xc[ni = 0];
+
+            // Get the rounding digit at index j of n.
+            rd = n / pows10[d - j - 1] % 10 | 0;
+          } else {
+            ni = mathceil((i + 1) / LOG_BASE);
+
+            if (ni >= xc.length) {
+
+              if (r) {
+
+                // Needed by sqrt.
+                for (; xc.length <= ni; xc.push(0));
+                n = rd = 0;
+                d = 1;
+                i %= LOG_BASE;
+                j = i - LOG_BASE + 1;
+              } else {
+                break out;
+              }
+            } else {
+              n = k = xc[ni];
+
+              // Get the number of digits of n.
+              for (d = 1; k >= 10; k /= 10, d++);
+
+              // Get the index of rd within n.
+              i %= LOG_BASE;
+
+              // Get the index of rd within n, adjusted for leading zeros.
+              // The number of leading zeros of n is given by LOG_BASE - d.
+              j = i - LOG_BASE + d;
+
+              // Get the rounding digit at index j of n.
+              rd = j < 0 ? 0 : n / pows10[d - j - 1] % 10 | 0;
+            }
+          }
+
+          r = r || sd < 0 ||
+
+          // Are there any non-zero digits after the rounding digit?
+          // The expression  n % pows10[d - j - 1]  returns all digits of n to the right
+          // of the digit at j, e.g. if n is 908714 and j is 2, the expression gives 714.
+           xc[ni + 1] != null || (j < 0 ? n : n % pows10[d - j - 1]);
+
+          r = rm < 4
+           ? (rd || r) && (rm == 0 || rm == (x.s < 0 ? 3 : 2))
+           : rd > 5 || rd == 5 && (rm == 4 || r || rm == 6 &&
+
+            // Check whether the digit to the left of the rounding digit is odd.
+            ((i > 0 ? j > 0 ? n / pows10[d - j] : 0 : xc[ni - 1]) % 10) & 1 ||
+             rm == (x.s < 0 ? 8 : 7));
+
+          if (sd < 1 || !xc[0]) {
+            xc.length = 0;
+
+            if (r) {
+
+              // Convert sd to decimal places.
+              sd -= x.e + 1;
+
+              // 1, 0.1, 0.01, 0.001, 0.0001 etc.
+              xc[0] = pows10[(LOG_BASE - sd % LOG_BASE) % LOG_BASE];
+              x.e = -sd || 0;
+            } else {
+
+              // Zero.
+              xc[0] = x.e = 0;
+            }
+
+            return x;
+          }
+
+          // Remove excess digits.
+          if (i == 0) {
+            xc.length = ni;
+            k = 1;
+            ni--;
+          } else {
+            xc.length = ni + 1;
+            k = pows10[LOG_BASE - i];
+
+            // E.g. 56700 becomes 56000 if 7 is the rounding digit.
+            // j > 0 means i > number of leading zeros of n.
+            xc[ni] = j > 0 ? mathfloor(n / pows10[d - j] % pows10[j]) * k : 0;
+          }
+
+          // Round up?
+          if (r) {
+
+            for (; ;) {
+
+              // If the digit to be rounded up is in the first element of xc...
+              if (ni == 0) {
+
+                // i will be the length of xc[0] before k is added.
+                for (i = 1, j = xc[0]; j >= 10; j /= 10, i++);
+                j = xc[0] += k;
+                for (k = 1; j >= 10; j /= 10, k++);
+
+                // if i != k the length has increased.
+                if (i != k) {
+                  x.e++;
+                  if (xc[0] == BASE) xc[0] = 1;
+                }
+
+                break;
+              } else {
+                xc[ni] += k;
+                if (xc[ni] != BASE) break;
+                xc[ni--] = 0;
+                k = 1;
+              }
+            }
+          }
+
+          // Remove trailing zeros.
+          for (i = xc.length; xc[--i] === 0; xc.pop());
+        }
+
+        // Overflow? Infinity.
+        if (x.e > MAX_EXP) {
+          x.c = x.e = null;
+
+        // Underflow? Zero.
+        } else if (x.e < MIN_EXP) {
+          x.c = [x.e = 0];
+        }
+      }
+
+      return x;
+    }
+
+
+    function valueOf(n) {
+      var str,
+        e = n.e;
+
+      if (e === null) return n.toString();
+
+      str = coeffToString(n.c);
+
+      str = e <= TO_EXP_NEG || e >= TO_EXP_POS
+        ? toExponential(str, e)
+        : toFixedPoint(str, e, '0');
+
+      return n.s < 0 ? '-' + str : str;
+    }
+
+
+    // PROTOTYPE/INSTANCE METHODS
+
+
+    /*
+     * Return a new BigNumber whose value is the absolute value of this BigNumber.
+     */
+    P.absoluteValue = P.abs = function () {
+      var x = new BigNumber(this);
+      if (x.s < 0) x.s = 1;
+      return x;
+    };
+
+
+    /*
+     * Return
+     *   1 if the value of this BigNumber is greater than the value of BigNumber(y, b),
+     *   -1 if the value of this BigNumber is less than the value of BigNumber(y, b),
+     *   0 if they have the same value,
+     *   or null if the value of either is NaN.
+     */
+    P.comparedTo = function (y, b) {
+      return compare(this, new BigNumber(y, b));
+    };
+
+
+    /*
+     * If dp is undefined or null or true or false, return the number of decimal places of the
+     * value of this BigNumber, or null if the value of this BigNumber is ±Infinity or NaN.
+     *
+     * Otherwise, if dp is a number, return a new BigNumber whose value is the value of this
+     * BigNumber rounded to a maximum of dp decimal places using rounding mode rm, or
+     * ROUNDING_MODE if rm is omitted.
+     *
+     * [dp] {number} Decimal places: integer, 0 to MAX inclusive.
+     * [rm] {number} Rounding mode. Integer, 0 to 8 inclusive.
+     *
+     * '[BigNumber Error] Argument {not a primitive number|not an integer|out of range}: {dp|rm}'
+     */
+    P.decimalPlaces = P.dp = function (dp, rm) {
+      var c, n, v,
+        x = this;
+
+      if (dp != null) {
+        intCheck(dp, 0, MAX);
+        if (rm == null) rm = ROUNDING_MODE;
+        else intCheck(rm, 0, 8);
+
+        return round(new BigNumber(x), dp + x.e + 1, rm);
+      }
+
+      if (!(c = x.c)) return null;
+      n = ((v = c.length - 1) - bitFloor(this.e / LOG_BASE)) * LOG_BASE;
+
+      // Subtract the number of trailing zeros of the last number.
+      if (v = c[v]) for (; v % 10 == 0; v /= 10, n--);
+      if (n < 0) n = 0;
+
+      return n;
+    };
+
+
+    /*
+     *  n / 0 = I
+     *  n / N = N
+     *  n / I = 0
+     *  0 / n = 0
+     *  0 / 0 = N
+     *  0 / N = N
+     *  0 / I = 0
+     *  N / n = N
+     *  N / 0 = N
+     *  N / N = N
+     *  N / I = N
+     *  I / n = I
+     *  I / 0 = I
+     *  I / N = N
+     *  I / I = N
+     *
+     * Return a new BigNumber whose value is the value of this BigNumber divided by the value of
+     * BigNumber(y, b), rounded according to DECIMAL_PLACES and ROUNDING_MODE.
+     */
+    P.dividedBy = P.div = function (y, b) {
+      return div(this, new BigNumber(y, b), DECIMAL_PLACES, ROUNDING_MODE);
+    };
+
+
+    /*
+     * Return a new BigNumber whose value is the integer part of dividing the value of this
+     * BigNumber by the value of BigNumber(y, b).
+     */
+    P.dividedToIntegerBy = P.idiv = function (y, b) {
+      return div(this, new BigNumber(y, b), 0, 1);
+    };
+
+
+    /*
+     * Return a BigNumber whose value is the value of this BigNumber exponentiated by n.
+     *
+     * If m is present, return the result modulo m.
+     * If n is negative round according to DECIMAL_PLACES and ROUNDING_MODE.
+     * If POW_PRECISION is non-zero and m is not present, round to POW_PRECISION using ROUNDING_MODE.
+     *
+     * The modular power operation works efficiently when x, n, and m are integers, otherwise it
+     * is equivalent to calculating x.exponentiatedBy(n).modulo(m) with a POW_PRECISION of 0.
+     *
+     * n {number|string|BigNumber} The exponent. An integer.
+     * [m] {number|string|BigNumber} The modulus.
+     *
+     * '[BigNumber Error] Exponent not an integer: {n}'
+     */
+    P.exponentiatedBy = P.pow = function (n, m) {
+      var half, isModExp, i, k, more, nIsBig, nIsNeg, nIsOdd, y,
+        x = this;
+
+      n = new BigNumber(n);
+
+      // Allow NaN and ±Infinity, but not other non-integers.
+      if (n.c && !n.isInteger()) {
+        throw Error
+          (bignumberError + 'Exponent not an integer: ' + valueOf(n));
+      }
+
+      if (m != null) m = new BigNumber(m);
+
+      // Exponent of MAX_SAFE_INTEGER is 15.
+      nIsBig = n.e > 14;
+
+      // If x is NaN, ±Infinity, ±0 or ±1, or n is ±Infinity, NaN or ±0.
+      if (!x.c || !x.c[0] || x.c[0] == 1 && !x.e && x.c.length == 1 || !n.c || !n.c[0]) {
+
+        // The sign of the result of pow when x is negative depends on the evenness of n.
+        // If +n overflows to ±Infinity, the evenness of n would be not be known.
+        y = new BigNumber(Math.pow(+valueOf(x), nIsBig ? 2 - isOdd(n) : +valueOf(n)));
+        return m ? y.mod(m) : y;
+      }
+
+      nIsNeg = n.s < 0;
+
+      if (m) {
+
+        // x % m returns NaN if abs(m) is zero, or m is NaN.
+        if (m.c ? !m.c[0] : !m.s) return new BigNumber(NaN);
+
+        isModExp = !nIsNeg && x.isInteger() && m.isInteger();
+
+        if (isModExp) x = x.mod(m);
+
+      // Overflow to ±Infinity: >=2**1e10 or >=1.0000024**1e15.
+      // Underflow to ±0: <=0.79**1e10 or <=0.9999975**1e15.
+      } else if (n.e > 9 && (x.e > 0 || x.e < -1 || (x.e == 0
+        // [1, 240000000]
+        ? x.c[0] > 1 || nIsBig && x.c[1] >= 24e7
+        // [80000000000000]  [99999750000000]
+        : x.c[0] < 8e13 || nIsBig && x.c[0] <= 9999975e7))) {
+
+        // If x is negative and n is odd, k = -0, else k = 0.
+        k = x.s < 0 && isOdd(n) ? -0 : 0;
+
+        // If x >= 1, k = ±Infinity.
+        if (x.e > -1) k = 1 / k;
+
+        // If n is negative return ±0, else return ±Infinity.
+        return new BigNumber(nIsNeg ? 1 / k : k);
+
+      } else if (POW_PRECISION) {
+
+        // Truncating each coefficient array to a length of k after each multiplication
+        // equates to truncating significant digits to POW_PRECISION + [28, 41],
+        // i.e. there will be a minimum of 28 guard digits retained.
+        k = mathceil(POW_PRECISION / LOG_BASE + 2);
+      }
+
+      if (nIsBig) {
+        half = new BigNumber(0.5);
+        if (nIsNeg) n.s = 1;
+        nIsOdd = isOdd(n);
+      } else {
+        i = Math.abs(+valueOf(n));
+        nIsOdd = i % 2;
+      }
+
+      y = new BigNumber(ONE);
+
+      // Performs 54 loop iterations for n of 9007199254740991.
+      for (; ;) {
+
+        if (nIsOdd) {
+          y = y.times(x);
+          if (!y.c) break;
+
+          if (k) {
+            if (y.c.length > k) y.c.length = k;
+          } else if (isModExp) {
+            y = y.mod(m);    //y = y.minus(div(y, m, 0, MODULO_MODE).times(m));
+          }
+        }
+
+        if (i) {
+          i = mathfloor(i / 2);
+          if (i === 0) break;
+          nIsOdd = i % 2;
+        } else {
+          n = n.times(half);
+          round(n, n.e + 1, 1);
+
+          if (n.e > 14) {
+            nIsOdd = isOdd(n);
+          } else {
+            i = +valueOf(n);
+            if (i === 0) break;
+            nIsOdd = i % 2;
+          }
+        }
+
+        x = x.times(x);
+
+        if (k) {
+          if (x.c && x.c.length > k) x.c.length = k;
+        } else if (isModExp) {
+          x = x.mod(m);    //x = x.minus(div(x, m, 0, MODULO_MODE).times(m));
+        }
+      }
+
+      if (isModExp) return y;
+      if (nIsNeg) y = ONE.div(y);
+
+      return m ? y.mod(m) : k ? round(y, POW_PRECISION, ROUNDING_MODE, more) : y;
+    };
+
+
+    /*
+     * Return a new BigNumber whose value is the value of this BigNumber rounded to an integer
+     * using rounding mode rm, or ROUNDING_MODE if rm is omitted.
+     *
+     * [rm] {number} Rounding mode. Integer, 0 to 8 inclusive.
+     *
+     * '[BigNumber Error] Argument {not a primitive number|not an integer|out of range}: {rm}'
+     */
+    P.integerValue = function (rm) {
+      var n = new BigNumber(this);
+      if (rm == null) rm = ROUNDING_MODE;
+      else intCheck(rm, 0, 8);
+      return round(n, n.e + 1, rm);
+    };
+
+
+    /*
+     * Return true if the value of this BigNumber is equal to the value of BigNumber(y, b),
+     * otherwise return false.
+     */
+    P.isEqualTo = P.eq = function (y, b) {
+      return compare(this, new BigNumber(y, b)) === 0;
+    };
+
+
+    /*
+     * Return true if the value of this BigNumber is a finite number, otherwise return false.
+     */
+    P.isFinite = function () {
+      return !!this.c;
+    };
+
+
+    /*
+     * Return true if the value of this BigNumber is greater than the value of BigNumber(y, b),
+     * otherwise return false.
+     */
+    P.isGreaterThan = P.gt = function (y, b) {
+      return compare(this, new BigNumber(y, b)) > 0;
+    };
+
+
+    /*
+     * Return true if the value of this BigNumber is greater than or equal to the value of
+     * BigNumber(y, b), otherwise return false.
+     */
+    P.isGreaterThanOrEqualTo = P.gte = function (y, b) {
+      return (b = compare(this, new BigNumber(y, b))) === 1 || b === 0;
+
+    };
+
+
+    /*
+     * Return true if the value of this BigNumber is an integer, otherwise return false.
+     */
+    P.isInteger = function () {
+      return !!this.c && bitFloor(this.e / LOG_BASE) > this.c.length - 2;
+    };
+
+
+    /*
+     * Return true if the value of this BigNumber is less than the value of BigNumber(y, b),
+     * otherwise return false.
+     */
+    P.isLessThan = P.lt = function (y, b) {
+      return compare(this, new BigNumber(y, b)) < 0;
+    };
+
+
+    /*
+     * Return true if the value of this BigNumber is less than or equal to the value of
+     * BigNumber(y, b), otherwise return false.
+     */
+    P.isLessThanOrEqualTo = P.lte = function (y, b) {
+      return (b = compare(this, new BigNumber(y, b))) === -1 || b === 0;
+    };
+
+
+    /*
+     * Return true if the value of this BigNumber is NaN, otherwise return false.
+     */
+    P.isNaN = function () {
+      return !this.s;
+    };
+
+
+    /*
+     * Return true if the value of this BigNumber is negative, otherwise return false.
+     */
+    P.isNegative = function () {
+      return this.s < 0;
+    };
+
+
+    /*
+     * Return true if the value of this BigNumber is positive, otherwise return false.
+     */
+    P.isPositive = function () {
+      return this.s > 0;
+    };
+
+
+    /*
+     * Return true if the value of this BigNumber is 0 or -0, otherwise return false.
+     */
+    P.isZero = function () {
+      return !!this.c && this.c[0] == 0;
+    };
+
+
+    /*
+     *  n - 0 = n
+     *  n - N = N
+     *  n - I = -I
+     *  0 - n = -n
+     *  0 - 0 = 0
+     *  0 - N = N
+     *  0 - I = -I
+     *  N - n = N
+     *  N - 0 = N
+     *  N - N = N
+     *  N - I = N
+     *  I - n = I
+     *  I - 0 = I
+     *  I - N = N
+     *  I - I = N
+     *
+     * Return a new BigNumber whose value is the value of this BigNumber minus the value of
+     * BigNumber(y, b).
+     */
+    P.minus = function (y, b) {
+      var i, j, t, xLTy,
+        x = this,
+        a = x.s;
+
+      y = new BigNumber(y, b);
+      b = y.s;
+
+      // Either NaN?
+      if (!a || !b) return new BigNumber(NaN);
+
+      // Signs differ?
+      if (a != b) {
+        y.s = -b;
+        return x.plus(y);
+      }
+
+      var xe = x.e / LOG_BASE,
+        ye = y.e / LOG_BASE,
+        xc = x.c,
+        yc = y.c;
+
+      if (!xe || !ye) {
+
+        // Either Infinity?
+        if (!xc || !yc) return xc ? (y.s = -b, y) : new BigNumber(yc ? x : NaN);
+
+        // Either zero?
+        if (!xc[0] || !yc[0]) {
+
+          // Return y if y is non-zero, x if x is non-zero, or zero if both are zero.
+          return yc[0] ? (y.s = -b, y) : new BigNumber(xc[0] ? x :
+
+           // IEEE 754 (2008) 6.3: n - n = -0 when rounding to -Infinity
+           ROUNDING_MODE == 3 ? -0 : 0);
+        }
+      }
+
+      xe = bitFloor(xe);
+      ye = bitFloor(ye);
+      xc = xc.slice();
+
+      // Determine which is the bigger number.
+      if (a = xe - ye) {
+
+        if (xLTy = a < 0) {
+          a = -a;
+          t = xc;
+        } else {
+          ye = xe;
+          t = yc;
+        }
+
+        t.reverse();
+
+        // Prepend zeros to equalise exponents.
+        for (b = a; b--; t.push(0));
+        t.reverse();
+      } else {
+
+        // Exponents equal. Check digit by digit.
+        j = (xLTy = (a = xc.length) < (b = yc.length)) ? a : b;
+
+        for (a = b = 0; b < j; b++) {
+
+          if (xc[b] != yc[b]) {
+            xLTy = xc[b] < yc[b];
+            break;
+          }
+        }
+      }
+
+      // x < y? Point xc to the array of the bigger number.
+      if (xLTy) t = xc, xc = yc, yc = t, y.s = -y.s;
+
+      b = (j = yc.length) - (i = xc.length);
+
+      // Append zeros to xc if shorter.
+      // No need to add zeros to yc if shorter as subtract only needs to start at yc.length.
+      if (b > 0) for (; b--; xc[i++] = 0);
+      b = BASE - 1;
+
+      // Subtract yc from xc.
+      for (; j > a;) {
+
+        if (xc[--j] < yc[j]) {
+          for (i = j; i && !xc[--i]; xc[i] = b);
+          --xc[i];
+          xc[j] += BASE;
+        }
+
+        xc[j] -= yc[j];
+      }
+
+      // Remove leading zeros and adjust exponent accordingly.
+      for (; xc[0] == 0; xc.splice(0, 1), --ye);
+
+      // Zero?
+      if (!xc[0]) {
+
+        // Following IEEE 754 (2008) 6.3,
+        // n - n = +0  but  n - n = -0  when rounding towards -Infinity.
+        y.s = ROUNDING_MODE == 3 ? -1 : 1;
+        y.c = [y.e = 0];
+        return y;
+      }
+
+      // No need to check for Infinity as +x - +y != Infinity && -x - -y != Infinity
+      // for finite x and y.
+      return normalise(y, xc, ye);
+    };
+
+
+    /*
+     *   n % 0 =  N
+     *   n % N =  N
+     *   n % I =  n
+     *   0 % n =  0
+     *  -0 % n = -0
+     *   0 % 0 =  N
+     *   0 % N =  N
+     *   0 % I =  0
+     *   N % n =  N
+     *   N % 0 =  N
+     *   N % N =  N
+     *   N % I =  N
+     *   I % n =  N
+     *   I % 0 =  N
+     *   I % N =  N
+     *   I % I =  N
+     *
+     * Return a new BigNumber whose value is the value of this BigNumber modulo the value of
+     * BigNumber(y, b). The result depends on the value of MODULO_MODE.
+     */
+    P.modulo = P.mod = function (y, b) {
+      var q, s,
+        x = this;
+
+      y = new BigNumber(y, b);
+
+      // Return NaN if x is Infinity or NaN, or y is NaN or zero.
+      if (!x.c || !y.s || y.c && !y.c[0]) {
+        return new BigNumber(NaN);
+
+      // Return x if y is Infinity or x is zero.
+      } else if (!y.c || x.c && !x.c[0]) {
+        return new BigNumber(x);
+      }
+
+      if (MODULO_MODE == 9) {
+
+        // Euclidian division: q = sign(y) * floor(x / abs(y))
+        // r = x - qy    where  0 <= r < abs(y)
+        s = y.s;
+        y.s = 1;
+        q = div(x, y, 0, 3);
+        y.s = s;
+        q.s *= s;
+      } else {
+        q = div(x, y, 0, MODULO_MODE);
+      }
+
+      y = x.minus(q.times(y));
+
+      // To match JavaScript %, ensure sign of zero is sign of dividend.
+      if (!y.c[0] && MODULO_MODE == 1) y.s = x.s;
+
+      return y;
+    };
+
+
+    /*
+     *  n * 0 = 0
+     *  n * N = N
+     *  n * I = I
+     *  0 * n = 0
+     *  0 * 0 = 0
+     *  0 * N = N
+     *  0 * I = N
+     *  N * n = N
+     *  N * 0 = N
+     *  N * N = N
+     *  N * I = N
+     *  I * n = I
+     *  I * 0 = N
+     *  I * N = N
+     *  I * I = I
+     *
+     * Return a new BigNumber whose value is the value of this BigNumber multiplied by the value
+     * of BigNumber(y, b).
+     */
+    P.multipliedBy = P.times = function (y, b) {
+      var c, e, i, j, k, m, xcL, xlo, xhi, ycL, ylo, yhi, zc,
+        base, sqrtBase,
+        x = this,
+        xc = x.c,
+        yc = (y = new BigNumber(y, b)).c;
+
+      // Either NaN, ±Infinity or ±0?
+      if (!xc || !yc || !xc[0] || !yc[0]) {
+
+        // Return NaN if either is NaN, or one is 0 and the other is Infinity.
+        if (!x.s || !y.s || xc && !xc[0] && !yc || yc && !yc[0] && !xc) {
+          y.c = y.e = y.s = null;
+        } else {
+          y.s *= x.s;
+
+          // Return ±Infinity if either is ±Infinity.
+          if (!xc || !yc) {
+            y.c = y.e = null;
+
+          // Return ±0 if either is ±0.
+          } else {
+            y.c = [0];
+            y.e = 0;
+          }
+        }
+
+        return y;
+      }
+
+      e = bitFloor(x.e / LOG_BASE) + bitFloor(y.e / LOG_BASE);
+      y.s *= x.s;
+      xcL = xc.length;
+      ycL = yc.length;
+
+      // Ensure xc points to longer array and xcL to its length.
+      if (xcL < ycL) zc = xc, xc = yc, yc = zc, i = xcL, xcL = ycL, ycL = i;
+
+      // Initialise the result array with zeros.
+      for (i = xcL + ycL, zc = []; i--; zc.push(0));
+
+      base = BASE;
+      sqrtBase = SQRT_BASE;
+
+      for (i = ycL; --i >= 0;) {
+        c = 0;
+        ylo = yc[i] % sqrtBase;
+        yhi = yc[i] / sqrtBase | 0;
+
+        for (k = xcL, j = i + k; j > i;) {
+          xlo = xc[--k] % sqrtBase;
+          xhi = xc[k] / sqrtBase | 0;
+          m = yhi * xlo + xhi * ylo;
+          xlo = ylo * xlo + ((m % sqrtBase) * sqrtBase) + zc[j] + c;
+          c = (xlo / base | 0) + (m / sqrtBase | 0) + yhi * xhi;
+          zc[j--] = xlo % base;
+        }
+
+        zc[j] = c;
+      }
+
+      if (c) {
+        ++e;
+      } else {
+        zc.splice(0, 1);
+      }
+
+      return normalise(y, zc, e);
+    };
+
+
+    /*
+     * Return a new BigNumber whose value is the value of this BigNumber negated,
+     * i.e. multiplied by -1.
+     */
+    P.negated = function () {
+      var x = new BigNumber(this);
+      x.s = -x.s || null;
+      return x;
+    };
+
+
+    /*
+     *  n + 0 = n
+     *  n + N = N
+     *  n + I = I
+     *  0 + n = n
+     *  0 + 0 = 0
+     *  0 + N = N
+     *  0 + I = I
+     *  N + n = N
+     *  N + 0 = N
+     *  N + N = N
+     *  N + I = N
+     *  I + n = I
+     *  I + 0 = I
+     *  I + N = N
+     *  I + I = I
+     *
+     * Return a new BigNumber whose value is the value of this BigNumber plus the value of
+     * BigNumber(y, b).
+     */
+    P.plus = function (y, b) {
+      var t,
+        x = this,
+        a = x.s;
+
+      y = new BigNumber(y, b);
+      b = y.s;
+
+      // Either NaN?
+      if (!a || !b) return new BigNumber(NaN);
+
+      // Signs differ?
+       if (a != b) {
+        y.s = -b;
+        return x.minus(y);
+      }
+
+      var xe = x.e / LOG_BASE,
+        ye = y.e / LOG_BASE,
+        xc = x.c,
+        yc = y.c;
+
+      if (!xe || !ye) {
+
+        // Return ±Infinity if either ±Infinity.
+        if (!xc || !yc) return new BigNumber(a / 0);
+
+        // Either zero?
+        // Return y if y is non-zero, x if x is non-zero, or zero if both are zero.
+        if (!xc[0] || !yc[0]) return yc[0] ? y : new BigNumber(xc[0] ? x : a * 0);
+      }
+
+      xe = bitFloor(xe);
+      ye = bitFloor(ye);
+      xc = xc.slice();
+
+      // Prepend zeros to equalise exponents. Faster to use reverse then do unshifts.
+      if (a = xe - ye) {
+        if (a > 0) {
+          ye = xe;
+          t = yc;
+        } else {
+          a = -a;
+          t = xc;
+        }
+
+        t.reverse();
+        for (; a--; t.push(0));
+        t.reverse();
+      }
+
+      a = xc.length;
+      b = yc.length;
+
+      // Point xc to the longer array, and b to the shorter length.
+      if (a - b < 0) t = yc, yc = xc, xc = t, b = a;
+
+      // Only start adding at yc.length - 1 as the further digits of xc can be ignored.
+      for (a = 0; b;) {
+        a = (xc[--b] = xc[b] + yc[b] + a) / BASE | 0;
+        xc[b] = BASE === xc[b] ? 0 : xc[b] % BASE;
+      }
+
+      if (a) {
+        xc = [a].concat(xc);
+        ++ye;
+      }
+
+      // No need to check for zero, as +x + +y != 0 && -x + -y != 0
+      // ye = MAX_EXP + 1 possible
+      return normalise(y, xc, ye);
+    };
+
+
+    /*
+     * If sd is undefined or null or true or false, return the number of significant digits of
+     * the value of this BigNumber, or null if the value of this BigNumber is ±Infinity or NaN.
+     * If sd is true include integer-part trailing zeros in the count.
+     *
+     * Otherwise, if sd is a number, return a new BigNumber whose value is the value of this
+     * BigNumber rounded to a maximum of sd significant digits using rounding mode rm, or
+     * ROUNDING_MODE if rm is omitted.
+     *
+     * sd {number|boolean} number: significant digits: integer, 1 to MAX inclusive.
+     *                     boolean: whether to count integer-part trailing zeros: true or false.
+     * [rm] {number} Rounding mode. Integer, 0 to 8 inclusive.
+     *
+     * '[BigNumber Error] Argument {not a primitive number|not an integer|out of range}: {sd|rm}'
+     */
+    P.precision = P.sd = function (sd, rm) {
+      var c, n, v,
+        x = this;
+
+      if (sd != null && sd !== !!sd) {
+        intCheck(sd, 1, MAX);
+        if (rm == null) rm = ROUNDING_MODE;
+        else intCheck(rm, 0, 8);
+
+        return round(new BigNumber(x), sd, rm);
+      }
+
+      if (!(c = x.c)) return null;
+      v = c.length - 1;
+      n = v * LOG_BASE + 1;
+
+      if (v = c[v]) {
+
+        // Subtract the number of trailing zeros of the last element.
+        for (; v % 10 == 0; v /= 10, n--);
+
+        // Add the number of digits of the first element.
+        for (v = c[0]; v >= 10; v /= 10, n++);
+      }
+
+      if (sd && x.e + 1 > n) n = x.e + 1;
+
+      return n;
+    };
+
+
+    /*
+     * Return a new BigNumber whose value is the value of this BigNumber shifted by k places
+     * (powers of 10). Shift to the right if n > 0, and to the left if n < 0.
+     *
+     * k {number} Integer, -MAX_SAFE_INTEGER to MAX_SAFE_INTEGER inclusive.
+     *
+     * '[BigNumber Error] Argument {not a primitive number|not an integer|out of range}: {k}'
+     */
+    P.shiftedBy = function (k) {
+      intCheck(k, -MAX_SAFE_INTEGER, MAX_SAFE_INTEGER);
+      return this.times('1e' + k);
+    };
+
+
+    /*
+     *  sqrt(-n) =  N
+     *  sqrt(N) =  N
+     *  sqrt(-I) =  N
+     *  sqrt(I) =  I
+     *  sqrt(0) =  0
+     *  sqrt(-0) = -0
+     *
+     * Return a new BigNumber whose value is the square root of the value of this BigNumber,
+     * rounded according to DECIMAL_PLACES and ROUNDING_MODE.
+     */
+    P.squareRoot = P.sqrt = function () {
+      var m, n, r, rep, t,
+        x = this,
+        c = x.c,
+        s = x.s,
+        e = x.e,
+        dp = DECIMAL_PLACES + 4,
+        half = new BigNumber('0.5');
+
+      // Negative/NaN/Infinity/zero?
+      if (s !== 1 || !c || !c[0]) {
+        return new BigNumber(!s || s < 0 && (!c || c[0]) ? NaN : c ? x : 1 / 0);
+      }
+
+      // Initial estimate.
+      s = Math.sqrt(+valueOf(x));
+
+      // Math.sqrt underflow/overflow?
+      // Pass x to Math.sqrt as integer, then adjust the exponent of the result.
+      if (s == 0 || s == 1 / 0) {
+        n = coeffToString(c);
+        if ((n.length + e) % 2 == 0) n += '0';
+        s = Math.sqrt(+n);
+        e = bitFloor((e + 1) / 2) - (e < 0 || e % 2);
+
+        if (s == 1 / 0) {
+          n = '5e' + e;
+        } else {
+          n = s.toExponential();
+          n = n.slice(0, n.indexOf('e') + 1) + e;
+        }
+
+        r = new BigNumber(n);
+      } else {
+        r = new BigNumber(s + '');
+      }
+
+      // Check for zero.
+      // r could be zero if MIN_EXP is changed after the this value was created.
+      // This would cause a division by zero (x/t) and hence Infinity below, which would cause
+      // coeffToString to throw.
+      if (r.c[0]) {
+        e = r.e;
+        s = e + dp;
+        if (s < 3) s = 0;
+
+        // Newton-Raphson iteration.
+        for (; ;) {
+          t = r;
+          r = half.times(t.plus(div(x, t, dp, 1)));
+
+          if (coeffToString(t.c).slice(0, s) === (n = coeffToString(r.c)).slice(0, s)) {
+
+            // The exponent of r may here be one less than the final result exponent,
+            // e.g 0.0009999 (e-4) --> 0.001 (e-3), so adjust s so the rounding digits
+            // are indexed correctly.
+            if (r.e < e) --s;
+            n = n.slice(s - 3, s + 1);
+
+            // The 4th rounding digit may be in error by -1 so if the 4 rounding digits
+            // are 9999 or 4999 (i.e. approaching a rounding boundary) continue the
+            // iteration.
+            if (n == '9999' || !rep && n == '4999') {
+
+              // On the first iteration only, check to see if rounding up gives the
+              // exact result as the nines may infinitely repeat.
+              if (!rep) {
+                round(t, t.e + DECIMAL_PLACES + 2, 0);
+
+                if (t.times(t).eq(x)) {
+                  r = t;
+                  break;
+                }
+              }
+
+              dp += 4;
+              s += 4;
+              rep = 1;
+            } else {
+
+              // If rounding digits are null, 0{0,4} or 50{0,3}, check for exact
+              // result. If not, then there are further digits and m will be truthy.
+              if (!+n || !+n.slice(1) && n.charAt(0) == '5') {
+
+                // Truncate to the first rounding digit.
+                round(r, r.e + DECIMAL_PLACES + 2, 1);
+                m = !r.times(r).eq(x);
+              }
+
+              break;
+            }
+          }
+        }
+      }
+
+      return round(r, r.e + DECIMAL_PLACES + 1, ROUNDING_MODE, m);
+    };
+
+
+    /*
+     * Return a string representing the value of this BigNumber in exponential notation and
+     * rounded using ROUNDING_MODE to dp fixed decimal places.
+     *
+     * [dp] {number} Decimal places. Integer, 0 to MAX inclusive.
+     * [rm] {number} Rounding mode. Integer, 0 to 8 inclusive.
+     *
+     * '[BigNumber Error] Argument {not a primitive number|not an integer|out of range}: {dp|rm}'
+     */
+    P.toExponential = function (dp, rm) {
+      if (dp != null) {
+        intCheck(dp, 0, MAX);
+        dp++;
+      }
+      return format(this, dp, rm, 1);
+    };
+
+
+    /*
+     * Return a string representing the value of this BigNumber in fixed-point notation rounding
+     * to dp fixed decimal places using rounding mode rm, or ROUNDING_MODE if rm is omitted.
+     *
+     * Note: as with JavaScript's number type, (-0).toFixed(0) is '0',
+     * but e.g. (-0.00001).toFixed(0) is '-0'.
+     *
+     * [dp] {number} Decimal places. Integer, 0 to MAX inclusive.
+     * [rm] {number} Rounding mode. Integer, 0 to 8 inclusive.
+     *
+     * '[BigNumber Error] Argument {not a primitive number|not an integer|out of range}: {dp|rm}'
+     */
+    P.toFixed = function (dp, rm) {
+      if (dp != null) {
+        intCheck(dp, 0, MAX);
+        dp = dp + this.e + 1;
+      }
+      return format(this, dp, rm);
+    };
+
+
+    /*
+     * Return a string representing the value of this BigNumber in fixed-point notation rounded
+     * using rm or ROUNDING_MODE to dp decimal places, and formatted according to the properties
+     * of the format or FORMAT object (see BigNumber.set).
+     *
+     * The formatting object may contain some or all of the properties shown below.
+     *
+     * FORMAT = {
+     *   prefix: '',
+     *   groupSize: 3,
+     *   secondaryGroupSize: 0,
+     *   groupSeparator: ',',
+     *   decimalSeparator: '.',
+     *   fractionGroupSize: 0,
+     *   fractionGroupSeparator: '\xA0',      // non-breaking space
+     *   suffix: ''
+     * };
+     *
+     * [dp] {number} Decimal places. Integer, 0 to MAX inclusive.
+     * [rm] {number} Rounding mode. Integer, 0 to 8 inclusive.
+     * [format] {object} Formatting options. See FORMAT pbject above.
+     *
+     * '[BigNumber Error] Argument {not a primitive number|not an integer|out of range}: {dp|rm}'
+     * '[BigNumber Error] Argument not an object: {format}'
+     */
+    P.toFormat = function (dp, rm, format) {
+      var str,
+        x = this;
+
+      if (format == null) {
+        if (dp != null && rm && typeof rm == 'object') {
+          format = rm;
+          rm = null;
+        } else if (dp && typeof dp == 'object') {
+          format = dp;
+          dp = rm = null;
+        } else {
+          format = FORMAT;
+        }
+      } else if (typeof format != 'object') {
+        throw Error
+          (bignumberError + 'Argument not an object: ' + format);
+      }
+
+      str = x.toFixed(dp, rm);
+
+      if (x.c) {
+        var i,
+          arr = str.split('.'),
+          g1 = +format.groupSize,
+          g2 = +format.secondaryGroupSize,
+          groupSeparator = format.groupSeparator || '',
+          intPart = arr[0],
+          fractionPart = arr[1],
+          isNeg = x.s < 0,
+          intDigits = isNeg ? intPart.slice(1) : intPart,
+          len = intDigits.length;
+
+        if (g2) i = g1, g1 = g2, g2 = i, len -= i;
+
+        if (g1 > 0 && len > 0) {
+          i = len % g1 || g1;
+          intPart = intDigits.substr(0, i);
+          for (; i < len; i += g1) intPart += groupSeparator + intDigits.substr(i, g1);
+          if (g2 > 0) intPart += groupSeparator + intDigits.slice(i);
+          if (isNeg) intPart = '-' + intPart;
+        }
+
+        str = fractionPart
+         ? intPart + (format.decimalSeparator || '') + ((g2 = +format.fractionGroupSize)
+          ? fractionPart.replace(new RegExp('\\d{' + g2 + '}\\B', 'g'),
+           '$&' + (format.fractionGroupSeparator || ''))
+          : fractionPart)
+         : intPart;
+      }
+
+      return (format.prefix || '') + str + (format.suffix || '');
+    };
+
+
+    /*
+     * Return an array of two BigNumbers representing the value of this BigNumber as a simple
+     * fraction with an integer numerator and an integer denominator.
+     * The denominator will be a positive non-zero value less than or equal to the specified
+     * maximum denominator. If a maximum denominator is not specified, the denominator will be
+     * the lowest value necessary to represent the number exactly.
+     *
+     * [md] {number|string|BigNumber} Integer >= 1, or Infinity. The maximum denominator.
+     *
+     * '[BigNumber Error] Argument {not an integer|out of range} : {md}'
+     */
+    P.toFraction = function (md) {
+      var d, d0, d1, d2, e, exp, n, n0, n1, q, r, s,
+        x = this,
+        xc = x.c;
+
+      if (md != null) {
+        n = new BigNumber(md);
+
+        // Throw if md is less than one or is not an integer, unless it is Infinity.
+        if (!n.isInteger() && (n.c || n.s !== 1) || n.lt(ONE)) {
+          throw Error
+            (bignumberError + 'Argument ' +
+              (n.isInteger() ? 'out of range: ' : 'not an integer: ') + valueOf(n));
+        }
+      }
+
+      if (!xc) return new BigNumber(x);
+
+      d = new BigNumber(ONE);
+      n1 = d0 = new BigNumber(ONE);
+      d1 = n0 = new BigNumber(ONE);
+      s = coeffToString(xc);
+
+      // Determine initial denominator.
+      // d is a power of 10 and the minimum max denominator that specifies the value exactly.
+      e = d.e = s.length - x.e - 1;
+      d.c[0] = POWS_TEN[(exp = e % LOG_BASE) < 0 ? LOG_BASE + exp : exp];
+      md = !md || n.comparedTo(d) > 0 ? (e > 0 ? d : n1) : n;
+
+      exp = MAX_EXP;
+      MAX_EXP = 1 / 0;
+      n = new BigNumber(s);
+
+      // n0 = d1 = 0
+      n0.c[0] = 0;
+
+      for (; ;)  {
+        q = div(n, d, 0, 1);
+        d2 = d0.plus(q.times(d1));
+        if (d2.comparedTo(md) == 1) break;
+        d0 = d1;
+        d1 = d2;
+        n1 = n0.plus(q.times(d2 = n1));
+        n0 = d2;
+        d = n.minus(q.times(d2 = d));
+        n = d2;
+      }
+
+      d2 = div(md.minus(d0), d1, 0, 1);
+      n0 = n0.plus(d2.times(n1));
+      d0 = d0.plus(d2.times(d1));
+      n0.s = n1.s = x.s;
+      e = e * 2;
+
+      // Determine which fraction is closer to x, n0/d0 or n1/d1
+      r = div(n1, d1, e, ROUNDING_MODE).minus(x).abs().comparedTo(
+          div(n0, d0, e, ROUNDING_MODE).minus(x).abs()) < 1 ? [n1, d1] : [n0, d0];
+
+      MAX_EXP = exp;
+
+      return r;
+    };
+
+
+    /*
+     * Return the value of this BigNumber converted to a number primitive.
+     */
+    P.toNumber = function () {
+      return +valueOf(this);
+    };
+
+
+    /*
+     * Return a string representing the value of this BigNumber rounded to sd significant digits
+     * using rounding mode rm or ROUNDING_MODE. If sd is less than the number of digits
+     * necessary to represent the integer part of the value in fixed-point notation, then use
+     * exponential notation.
+     *
+     * [sd] {number} Significant digits. Integer, 1 to MAX inclusive.
+     * [rm] {number} Rounding mode. Integer, 0 to 8 inclusive.
+     *
+     * '[BigNumber Error] Argument {not a primitive number|not an integer|out of range}: {sd|rm}'
+     */
+    P.toPrecision = function (sd, rm) {
+      if (sd != null) intCheck(sd, 1, MAX);
+      return format(this, sd, rm, 2);
+    };
+
+
+    /*
+     * Return a string representing the value of this BigNumber in base b, or base 10 if b is
+     * omitted. If a base is specified, including base 10, round according to DECIMAL_PLACES and
+     * ROUNDING_MODE. If a base is not specified, and this BigNumber has a positive exponent
+     * that is equal to or greater than TO_EXP_POS, or a negative exponent equal to or less than
+     * TO_EXP_NEG, return exponential notation.
+     *
+     * [b] {number} Integer, 2 to ALPHABET.length inclusive.
+     *
+     * '[BigNumber Error] Base {not a primitive number|not an integer|out of range}: {b}'
+     */
+    P.toString = function (b) {
+      var str,
+        n = this,
+        s = n.s,
+        e = n.e;
+
+      // Infinity or NaN?
+      if (e === null) {
+        if (s) {
+          str = 'Infinity';
+          if (s < 0) str = '-' + str;
+        } else {
+          str = 'NaN';
+        }
+      } else {
+        if (b == null) {
+          str = e <= TO_EXP_NEG || e >= TO_EXP_POS
+           ? toExponential(coeffToString(n.c), e)
+           : toFixedPoint(coeffToString(n.c), e, '0');
+        } else if (b === 10) {
+          n = round(new BigNumber(n), DECIMAL_PLACES + e + 1, ROUNDING_MODE);
+          str = toFixedPoint(coeffToString(n.c), n.e, '0');
+        } else {
+          intCheck(b, 2, ALPHABET.length, 'Base');
+          str = convertBase(toFixedPoint(coeffToString(n.c), e, '0'), 10, b, s, true);
+        }
+
+        if (s < 0 && n.c[0]) str = '-' + str;
+      }
+
+      return str;
+    };
+
+
+    /*
+     * Return as toString, but do not accept a base argument, and include the minus sign for
+     * negative zero.
+     */
+    P.valueOf = P.toJSON = function () {
+      return valueOf(this);
+    };
+
+
+    P._isBigNumber = true;
+
+    if (configObject != null) BigNumber.set(configObject);
+
+    return BigNumber;
+  }
+
+
+  // PRIVATE HELPER FUNCTIONS
+
+  // These functions don't need access to variables,
+  // e.g. DECIMAL_PLACES, in the scope of the `clone` function above.
+
+
+  function bitFloor(n) {
+    var i = n | 0;
+    return n > 0 || n === i ? i : i - 1;
+  }
+
+
+  // Return a coefficient array as a string of base 10 digits.
+  function coeffToString(a) {
+    var s, z,
+      i = 1,
+      j = a.length,
+      r = a[0] + '';
+
+    for (; i < j;) {
+      s = a[i++] + '';
+      z = LOG_BASE - s.length;
+      for (; z--; s = '0' + s);
+      r += s;
+    }
+
+    // Determine trailing zeros.
+    for (j = r.length; r.charCodeAt(--j) === 48;);
+
+    return r.slice(0, j + 1 || 1);
+  }
+
+
+  // Compare the value of BigNumbers x and y.
+  function compare(x, y) {
+    var a, b,
+      xc = x.c,
+      yc = y.c,
+      i = x.s,
+      j = y.s,
+      k = x.e,
+      l = y.e;
+
+    // Either NaN?
+    if (!i || !j) return null;
+
+    a = xc && !xc[0];
+    b = yc && !yc[0];
+
+    // Either zero?
+    if (a || b) return a ? b ? 0 : -j : i;
+
+    // Signs differ?
+    if (i != j) return i;
+
+    a = i < 0;
+    b = k == l;
+
+    // Either Infinity?
+    if (!xc || !yc) return b ? 0 : !xc ^ a ? 1 : -1;
+
+    // Compare exponents.
+    if (!b) return k > l ^ a ? 1 : -1;
+
+    j = (k = xc.length) < (l = yc.length) ? k : l;
+
+    // Compare digit by digit.
+    for (i = 0; i < j; i++) if (xc[i] != yc[i]) return xc[i] > yc[i] ^ a ? 1 : -1;
+
+    // Compare lengths.
+    return k == l ? 0 : k > l ^ a ? 1 : -1;
+  }
+
+
+  /*
+   * Check that n is a primitive number, an integer, and in range, otherwise throw.
+   */
+  function intCheck(n, min, max, name) {
+    if (n < min || n > max || n !== mathfloor(n)) {
+      throw Error
+       (bignumberError + (name || 'Argument') + (typeof n == 'number'
+         ? n < min || n > max ? ' out of range: ' : ' not an integer: '
+         : ' not a primitive number: ') + String(n));
+    }
+  }
+
+
+  // Assumes finite n.
+  function isOdd(n) {
+    var k = n.c.length - 1;
+    return bitFloor(n.e / LOG_BASE) == k && n.c[k] % 2 != 0;
+  }
+
+
+  function toExponential(str, e) {
+    return (str.length > 1 ? str.charAt(0) + '.' + str.slice(1) : str) +
+     (e < 0 ? 'e' : 'e+') + e;
+  }
+
+
+  function toFixedPoint(str, e, z) {
+    var len, zs;
+
+    // Negative exponent?
+    if (e < 0) {
+
+      // Prepend zeros.
+      for (zs = z + '.'; ++e; zs += z);
+      str = zs + str;
+
+    // Positive exponent
+    } else {
+      len = str.length;
+
+      // Append zeros.
+      if (++e > len) {
+        for (zs = z, e -= len; --e; zs += z);
+        str += zs;
+      } else if (e < len) {
+        str = str.slice(0, e) + '.' + str.slice(e);
+      }
+    }
+
+    return str;
+  }
+
+
+  // EXPORT
+
+
+  BigNumber = clone();
+  BigNumber['default'] = BigNumber.BigNumber = BigNumber;
+
+  // AMD.
+  if (true) {
+    !(__WEBPACK_AMD_DEFINE_RESULT__ = (function () { return BigNumber; }).call(exports, __webpack_require__, exports, module),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+  // Node.js and other environments that support module.exports.
+  } else {}
+})(this);
+
+
+/***/ }),
+
 /***/ "./node_modules/dijkstrajs/dijkstra.js":
 /*!*********************************************!*\
   !*** ./node_modules/dijkstrajs/dijkstra.js ***!
@@ -7107,354 +5251,6 @@ var dijkstra = {
 // node.js module exports
 if (true) {
   module.exports = dijkstra;
-}
-
-
-/***/ }),
-
-/***/ "./node_modules/eventemitter3/index.js":
-/*!*********************************************!*\
-  !*** ./node_modules/eventemitter3/index.js ***!
-  \*********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var has = Object.prototype.hasOwnProperty
-  , prefix = '~';
-
-/**
- * Constructor to create a storage for our `EE` objects.
- * An `Events` instance is a plain object whose properties are event names.
- *
- * @constructor
- * @private
- */
-function Events() {}
-
-//
-// We try to not inherit from `Object.prototype`. In some engines creating an
-// instance in this way is faster than calling `Object.create(null)` directly.
-// If `Object.create(null)` is not supported we prefix the event names with a
-// character to make sure that the built-in object properties are not
-// overridden or used as an attack vector.
-//
-if (Object.create) {
-  Events.prototype = Object.create(null);
-
-  //
-  // This hack is needed because the `__proto__` property is still inherited in
-  // some old browsers like Android 4, iPhone 5.1, Opera 11 and Safari 5.
-  //
-  if (!new Events().__proto__) prefix = false;
-}
-
-/**
- * Representation of a single event listener.
- *
- * @param {Function} fn The listener function.
- * @param {*} context The context to invoke the listener with.
- * @param {Boolean} [once=false] Specify if the listener is a one-time listener.
- * @constructor
- * @private
- */
-function EE(fn, context, once) {
-  this.fn = fn;
-  this.context = context;
-  this.once = once || false;
-}
-
-/**
- * Add a listener for a given event.
- *
- * @param {EventEmitter} emitter Reference to the `EventEmitter` instance.
- * @param {(String|Symbol)} event The event name.
- * @param {Function} fn The listener function.
- * @param {*} context The context to invoke the listener with.
- * @param {Boolean} once Specify if the listener is a one-time listener.
- * @returns {EventEmitter}
- * @private
- */
-function addListener(emitter, event, fn, context, once) {
-  if (typeof fn !== 'function') {
-    throw new TypeError('The listener must be a function');
-  }
-
-  var listener = new EE(fn, context || emitter, once)
-    , evt = prefix ? prefix + event : event;
-
-  if (!emitter._events[evt]) emitter._events[evt] = listener, emitter._eventsCount++;
-  else if (!emitter._events[evt].fn) emitter._events[evt].push(listener);
-  else emitter._events[evt] = [emitter._events[evt], listener];
-
-  return emitter;
-}
-
-/**
- * Clear event by name.
- *
- * @param {EventEmitter} emitter Reference to the `EventEmitter` instance.
- * @param {(String|Symbol)} evt The Event name.
- * @private
- */
-function clearEvent(emitter, evt) {
-  if (--emitter._eventsCount === 0) emitter._events = new Events();
-  else delete emitter._events[evt];
-}
-
-/**
- * Minimal `EventEmitter` interface that is molded against the Node.js
- * `EventEmitter` interface.
- *
- * @constructor
- * @public
- */
-function EventEmitter() {
-  this._events = new Events();
-  this._eventsCount = 0;
-}
-
-/**
- * Return an array listing the events for which the emitter has registered
- * listeners.
- *
- * @returns {Array}
- * @public
- */
-EventEmitter.prototype.eventNames = function eventNames() {
-  var names = []
-    , events
-    , name;
-
-  if (this._eventsCount === 0) return names;
-
-  for (name in (events = this._events)) {
-    if (has.call(events, name)) names.push(prefix ? name.slice(1) : name);
-  }
-
-  if (Object.getOwnPropertySymbols) {
-    return names.concat(Object.getOwnPropertySymbols(events));
-  }
-
-  return names;
-};
-
-/**
- * Return the listeners registered for a given event.
- *
- * @param {(String|Symbol)} event The event name.
- * @returns {Array} The registered listeners.
- * @public
- */
-EventEmitter.prototype.listeners = function listeners(event) {
-  var evt = prefix ? prefix + event : event
-    , handlers = this._events[evt];
-
-  if (!handlers) return [];
-  if (handlers.fn) return [handlers.fn];
-
-  for (var i = 0, l = handlers.length, ee = new Array(l); i < l; i++) {
-    ee[i] = handlers[i].fn;
-  }
-
-  return ee;
-};
-
-/**
- * Return the number of listeners listening to a given event.
- *
- * @param {(String|Symbol)} event The event name.
- * @returns {Number} The number of listeners.
- * @public
- */
-EventEmitter.prototype.listenerCount = function listenerCount(event) {
-  var evt = prefix ? prefix + event : event
-    , listeners = this._events[evt];
-
-  if (!listeners) return 0;
-  if (listeners.fn) return 1;
-  return listeners.length;
-};
-
-/**
- * Calls each of the listeners registered for a given event.
- *
- * @param {(String|Symbol)} event The event name.
- * @returns {Boolean} `true` if the event had listeners, else `false`.
- * @public
- */
-EventEmitter.prototype.emit = function emit(event, a1, a2, a3, a4, a5) {
-  var evt = prefix ? prefix + event : event;
-
-  if (!this._events[evt]) return false;
-
-  var listeners = this._events[evt]
-    , len = arguments.length
-    , args
-    , i;
-
-  if (listeners.fn) {
-    if (listeners.once) this.removeListener(event, listeners.fn, undefined, true);
-
-    switch (len) {
-      case 1: return listeners.fn.call(listeners.context), true;
-      case 2: return listeners.fn.call(listeners.context, a1), true;
-      case 3: return listeners.fn.call(listeners.context, a1, a2), true;
-      case 4: return listeners.fn.call(listeners.context, a1, a2, a3), true;
-      case 5: return listeners.fn.call(listeners.context, a1, a2, a3, a4), true;
-      case 6: return listeners.fn.call(listeners.context, a1, a2, a3, a4, a5), true;
-    }
-
-    for (i = 1, args = new Array(len -1); i < len; i++) {
-      args[i - 1] = arguments[i];
-    }
-
-    listeners.fn.apply(listeners.context, args);
-  } else {
-    var length = listeners.length
-      , j;
-
-    for (i = 0; i < length; i++) {
-      if (listeners[i].once) this.removeListener(event, listeners[i].fn, undefined, true);
-
-      switch (len) {
-        case 1: listeners[i].fn.call(listeners[i].context); break;
-        case 2: listeners[i].fn.call(listeners[i].context, a1); break;
-        case 3: listeners[i].fn.call(listeners[i].context, a1, a2); break;
-        case 4: listeners[i].fn.call(listeners[i].context, a1, a2, a3); break;
-        default:
-          if (!args) for (j = 1, args = new Array(len -1); j < len; j++) {
-            args[j - 1] = arguments[j];
-          }
-
-          listeners[i].fn.apply(listeners[i].context, args);
-      }
-    }
-  }
-
-  return true;
-};
-
-/**
- * Add a listener for a given event.
- *
- * @param {(String|Symbol)} event The event name.
- * @param {Function} fn The listener function.
- * @param {*} [context=this] The context to invoke the listener with.
- * @returns {EventEmitter} `this`.
- * @public
- */
-EventEmitter.prototype.on = function on(event, fn, context) {
-  return addListener(this, event, fn, context, false);
-};
-
-/**
- * Add a one-time listener for a given event.
- *
- * @param {(String|Symbol)} event The event name.
- * @param {Function} fn The listener function.
- * @param {*} [context=this] The context to invoke the listener with.
- * @returns {EventEmitter} `this`.
- * @public
- */
-EventEmitter.prototype.once = function once(event, fn, context) {
-  return addListener(this, event, fn, context, true);
-};
-
-/**
- * Remove the listeners of a given event.
- *
- * @param {(String|Symbol)} event The event name.
- * @param {Function} fn Only remove the listeners that match this function.
- * @param {*} context Only remove the listeners that have this context.
- * @param {Boolean} once Only remove one-time listeners.
- * @returns {EventEmitter} `this`.
- * @public
- */
-EventEmitter.prototype.removeListener = function removeListener(event, fn, context, once) {
-  var evt = prefix ? prefix + event : event;
-
-  if (!this._events[evt]) return this;
-  if (!fn) {
-    clearEvent(this, evt);
-    return this;
-  }
-
-  var listeners = this._events[evt];
-
-  if (listeners.fn) {
-    if (
-      listeners.fn === fn &&
-      (!once || listeners.once) &&
-      (!context || listeners.context === context)
-    ) {
-      clearEvent(this, evt);
-    }
-  } else {
-    for (var i = 0, events = [], length = listeners.length; i < length; i++) {
-      if (
-        listeners[i].fn !== fn ||
-        (once && !listeners[i].once) ||
-        (context && listeners[i].context !== context)
-      ) {
-        events.push(listeners[i]);
-      }
-    }
-
-    //
-    // Reset the array, or remove it completely if we have no more listeners.
-    //
-    if (events.length) this._events[evt] = events.length === 1 ? events[0] : events;
-    else clearEvent(this, evt);
-  }
-
-  return this;
-};
-
-/**
- * Remove all listeners, or those of the specified event.
- *
- * @param {(String|Symbol)} [event] The event name.
- * @returns {EventEmitter} `this`.
- * @public
- */
-EventEmitter.prototype.removeAllListeners = function removeAllListeners(event) {
-  var evt;
-
-  if (event) {
-    evt = prefix ? prefix + event : event;
-    if (this._events[evt]) clearEvent(this, evt);
-  } else {
-    this._events = new Events();
-    this._eventsCount = 0;
-  }
-
-  return this;
-};
-
-//
-// Alias methods names because people roll like that.
-//
-EventEmitter.prototype.off = EventEmitter.prototype.removeListener;
-EventEmitter.prototype.addListener = EventEmitter.prototype.on;
-
-//
-// Expose the prefix.
-//
-EventEmitter.prefixed = prefix;
-
-//
-// Allow `EventEmitter` to be imported as module namespace.
-//
-EventEmitter.EventEmitter = EventEmitter;
-
-//
-// Expose the module.
-//
-if (true) {
-  module.exports = EventEmitter;
 }
 
 
@@ -11121,3857 +8917,14 @@ const svg = (strings, ...values) => new _lib_template_result_js__WEBPACK_IMPORTE
 
 /***/ }),
 
-/***/ "./node_modules/localforage-driver-memory/_bundle/umd.js":
-/*!***************************************************************!*\
-  !*** ./node_modules/localforage-driver-memory/_bundle/umd.js ***!
-  \***************************************************************/
+/***/ "./node_modules/magic-sdk/dist/cjs/index.js":
+/*!**************************************************!*\
+  !*** ./node_modules/magic-sdk/dist/cjs/index.js ***!
+  \**************************************************/
 /*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-/*!
-MIT License
-
-Copyright (c) 2018 Arturas Molcanovas <a.molcanovas@gmail.com>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-
-
-(function (global, factory) {
-     true ? factory(exports) :
-    undefined;
-}(typeof self !== 'undefined' ? self : this, function (exports) { 'use strict';
-
-    var _driver = 'localforage-driver-memory';
-
-    /*! *****************************************************************************
-    Copyright (c) Microsoft Corporation. All rights reserved.
-    Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-    this file except in compliance with the License. You may obtain a copy of the
-    License at http://www.apache.org/licenses/LICENSE-2.0
-
-    THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-    KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-    WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-    MERCHANTABLITY OR NON-INFRINGEMENT.
-
-    See the Apache Version 2.0 License for specific language governing permissions
-    and limitations under the License.
-    ***************************************************************************** */
-
-    function __values(o) {
-        var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
-        if (m) return m.call(o);
-        return {
-            next: function () {
-                if (o && i >= o.length) o = void 0;
-                return { value: o && o[i++], done: !o };
-            }
-        };
-    }
-
-    /*!
-    MIT License
-
-    Copyright (c) 2018 Arturas Molcanovas <a.molcanovas@gmail.com>
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
-
-    */
-
-    /**
-     * Abstracts constructing a Blob object, so it also works in older
-     * browsers that don't support the native Blob constructor. (i.e.
-     * old QtWebKit versions, at least).
-     * Abstracts constructing a Blob object, so it also works in older
-     * browsers that don't support the native Blob constructor. (i.e.
-     * old QtWebKit versions, at least).
-     *
-     * @param parts
-     * @param properties
-     */
-    function createBlob(parts, properties) {
-        /* global BlobBuilder,MSBlobBuilder,MozBlobBuilder,WebKitBlobBuilder */
-        parts = parts || [];
-        properties = properties || {};
-        try {
-            return new Blob(parts, properties);
-        }
-        catch (e) {
-            if (e.name !== 'TypeError') {
-                throw e;
-            }
-            //tslint:disable-next-line:variable-name
-            var Builder = typeof BlobBuilder !== 'undefined' ? BlobBuilder
-                : typeof MSBlobBuilder !== 'undefined' ? MSBlobBuilder
-                    : typeof MozBlobBuilder !== 'undefined' ? MozBlobBuilder
-                        : WebKitBlobBuilder;
-            var builder = new Builder();
-            for (var i = 0; i < parts.length; i += 1) {
-                builder.append(parts[i]);
-            }
-            return builder.getBlob(properties.type);
-        }
-    }
-
-    var BLOB_TYPE_PREFIX_REGEX = /^~~local_forage_type~([^~]+)~/;
-    var SERIALIZED_MARKER_LENGTH = "__lfsc__:" /* SERIALIZED_MARKER */.length;
-    var TYPE_SERIALIZED_MARKER_LENGTH = SERIALIZED_MARKER_LENGTH + "arbf" /* TYPE_ARRAYBUFFER */.length;
-    //tslint:disable:no-magic-numbers no-bitwise prefer-switch no-unbound-method
-    var toString = Object.prototype.toString;
-    function stringToBuffer(serializedString) {
-        // Fill the string into a ArrayBuffer.
-        var bufferLength = serializedString.length * 0.75;
-        var len = serializedString.length;
-        if (serializedString[serializedString.length - 1] === '=') {
-            bufferLength--;
-            if (serializedString[serializedString.length - 2] === '=') {
-                bufferLength--;
-            }
-        }
-        var buffer = new ArrayBuffer(bufferLength);
-        var bytes = new Uint8Array(buffer);
-        for (var i = 0, p = 0; i < len; i += 4) {
-            var encoded1 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" /* BASE_CHARS */.indexOf(serializedString[i]);
-            var encoded2 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" /* BASE_CHARS */.indexOf(serializedString[i + 1]);
-            var encoded3 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" /* BASE_CHARS */.indexOf(serializedString[i + 2]);
-            var encoded4 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" /* BASE_CHARS */.indexOf(serializedString[i + 3]);
-            bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
-            bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
-            bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
-        }
-        return buffer;
-    }
-    /**
-     * Converts a buffer to a string to store, serialized, in the backend
-     * storage library.
-     */
-    function bufferToString(buffer) {
-        // base64-arraybuffer
-        var bytes = new Uint8Array(buffer);
-        var base64String = '';
-        for (var i = 0; i < bytes.length; i += 3) {
-            /*jslint bitwise: true */
-            base64String += "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" /* BASE_CHARS */[bytes[i] >> 2];
-            base64String += "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" /* BASE_CHARS */[((bytes[i] & 3) << 4) | (bytes[i + 1] >> 4)];
-            base64String +=
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" /* BASE_CHARS */[((bytes[i + 1] & 15) << 2) | (bytes[i + 2] >> 6)];
-            base64String += "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" /* BASE_CHARS */[bytes[i + 2] & 63];
-        }
-        if (bytes.length % 3 === 2) {
-            base64String = base64String.substring(0, base64String.length - 1) + '=';
-        }
-        else if (bytes.length % 3 === 1) {
-            base64String = base64String.substring(0, base64String.length - 2) + '==';
-        }
-        return base64String;
-    }
-    /**
-     * Serialize a value, afterwards executing a callback (which usually
-     * instructs the `setItem()` callback/promise to be executed). This is how
-     * we store binary data with localStorage.
-     * @param value
-     * @param callback
-     */
-    function serialize(value, callback) {
-        var valueType = '';
-        if (value) {
-            valueType = toString.call(value);
-        }
-        // Cannot use `value instanceof ArrayBuffer` or such here, as these
-        // checks fail when running the tests using casper.js...
-        if (value && (valueType === '[object ArrayBuffer]' ||
-            (value.buffer && toString.call(value.buffer) === '[object ArrayBuffer]'))) {
-            // Convert binary arrays to a string and prefix the string with
-            // a special marker.
-            var buffer = void 0;
-            var marker = "__lfsc__:" /* SERIALIZED_MARKER */;
-            if (value instanceof ArrayBuffer) {
-                buffer = value;
-                marker += "arbf" /* TYPE_ARRAYBUFFER */;
-            }
-            else {
-                buffer = value.buffer;
-                if (valueType === '[object Int8Array]') {
-                    marker += "si08" /* TYPE_INT8ARRAY */;
-                }
-                else if (valueType === '[object Uint8Array]') {
-                    marker += "ui08" /* TYPE_UINT8ARRAY */;
-                }
-                else if (valueType === '[object Uint8ClampedArray]') {
-                    marker += "uic8" /* TYPE_UINT8CLAMPEDARRAY */;
-                }
-                else if (valueType === '[object Int16Array]') {
-                    marker += "si16" /* TYPE_INT16ARRAY */;
-                }
-                else if (valueType === '[object Uint16Array]') {
-                    marker += "ur16" /* TYPE_UINT16ARRAY */;
-                }
-                else if (valueType === '[object Int32Array]') {
-                    marker += "si32" /* TYPE_INT32ARRAY */;
-                }
-                else if (valueType === '[object Uint32Array]') {
-                    marker += "ui32" /* TYPE_UINT32ARRAY */;
-                }
-                else if (valueType === '[object Float32Array]') {
-                    marker += "fl32" /* TYPE_FLOAT32ARRAY */;
-                }
-                else if (valueType === '[object Float64Array]') {
-                    marker += "fl64" /* TYPE_FLOAT64ARRAY */;
-                }
-                else {
-                    callback(new Error('Failed to get type for BinaryArray'));
-                }
-            }
-            callback(marker + bufferToString(buffer));
-        }
-        else if (valueType === '[object Blob]') {
-            // Convert the blob to a binaryArray and then to a string.
-            var fileReader = new FileReader();
-            fileReader.onload = function () {
-                // Backwards-compatible prefix for the blob type.
-                //tslint:disable-next-line:restrict-plus-operands
-                var str = "~~local_forage_type~" /* BLOB_TYPE_PREFIX */ + value.type + "~" + bufferToString(this.result);
-                callback("__lfsc__:" /* SERIALIZED_MARKER */ + "blob" /* TYPE_BLOB */ + str);
-            };
-            fileReader.readAsArrayBuffer(value);
-        }
-        else {
-            try {
-                callback(JSON.stringify(value));
-            }
-            catch (e) {
-                console.error('Couldn\'t convert value into a JSON string: ', value);
-                callback(null, e);
-            }
-        }
-    }
-    /**
-     * Deserialize data we've inserted into a value column/field. We place
-     * special markers into our strings to mark them as encoded; this isn't
-     * as nice as a meta field, but it's the only sane thing we can do whilst
-     * keeping localStorage support intact.
-     *
-     * Oftentimes this will just deserialize JSON content, but if we have a
-     * special marker (SERIALIZED_MARKER, defined above), we will extract
-     * some kind of arraybuffer/binary data/typed array out of the string.
-     * @param value
-     */
-    function deserialize(value) {
-        // If we haven't marked this string as being specially serialized (i.e.
-        // something other than serialized JSON), we can just return it and be
-        // done with it.
-        if (value.substring(0, SERIALIZED_MARKER_LENGTH) !== "__lfsc__:" /* SERIALIZED_MARKER */) {
-            return JSON.parse(value);
-        }
-        // The following code deals with deserializing some kind of Blob or
-        // TypedArray. First we separate out the type of data we're dealing
-        // with from the data itself.
-        var serializedString = value.substring(TYPE_SERIALIZED_MARKER_LENGTH);
-        var type = value.substring(SERIALIZED_MARKER_LENGTH, TYPE_SERIALIZED_MARKER_LENGTH);
-        var blobType;
-        // Backwards-compatible blob type serialization strategy.
-        // DBs created with older versions of localForage will simply not have the blob type.
-        if (type === "blob" /* TYPE_BLOB */ && BLOB_TYPE_PREFIX_REGEX.test(serializedString)) {
-            var matcher = serializedString.match(BLOB_TYPE_PREFIX_REGEX);
-            blobType = matcher[1];
-            serializedString = serializedString.substring(matcher[0].length);
-        }
-        var buffer = stringToBuffer(serializedString);
-        // Return the right type based on the code/type set during
-        // serialization.
-        switch (type) {
-            case "arbf" /* TYPE_ARRAYBUFFER */:
-                return buffer;
-            case "blob" /* TYPE_BLOB */:
-                return createBlob([buffer], { type: blobType });
-            case "si08" /* TYPE_INT8ARRAY */:
-                return new Int8Array(buffer);
-            case "ui08" /* TYPE_UINT8ARRAY */:
-                return new Uint8Array(buffer);
-            case "uic8" /* TYPE_UINT8CLAMPEDARRAY */:
-                return new Uint8ClampedArray(buffer);
-            case "si16" /* TYPE_INT16ARRAY */:
-                return new Int16Array(buffer);
-            case "ur16" /* TYPE_UINT16ARRAY */:
-                return new Uint16Array(buffer);
-            case "si32" /* TYPE_INT32ARRAY */:
-                return new Int32Array(buffer);
-            case "ui32" /* TYPE_UINT32ARRAY */:
-                return new Uint32Array(buffer);
-            case "fl32" /* TYPE_FLOAT32ARRAY */:
-                return new Float32Array(buffer);
-            case "fl64" /* TYPE_FLOAT64ARRAY */:
-                return new Float64Array(buffer);
-            default:
-                throw new Error('Unkown type: ' + type);
-        }
-    }
-
-    function clone(obj) {
-        var e_1, _a;
-        if (obj === null || typeof (obj) !== 'object' || 'isActiveClone' in obj) {
-            return obj;
-        }
-        var temp = obj instanceof Date ? new Date(obj) : (obj.constructor());
-        try {
-            for (var _b = __values(Object.keys(obj)), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var key = _c.value;
-                if (Object.prototype.hasOwnProperty.call(obj, key)) {
-                    obj['isActiveClone'] = null;
-                    temp[key] = clone(obj[key]);
-                    delete obj['isActiveClone'];
-                }
-            }
-        }
-        catch (e_1_1) { e_1 = { error: e_1_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_1) throw e_1.error; }
-        }
-        return temp;
-    }
-
-    function getKeyPrefix(options, defaultConfig) {
-        return (options.name || defaultConfig.name) + "/" + (options.storeName || defaultConfig.storeName) + "/";
-    }
-
-    function executeCallback(promise, callback) {
-        if (callback) {
-            promise.then(function (result) {
-                callback(null, result);
-            }, function (error) {
-                callback(error);
-            });
-        }
-    }
-
-    function getCallback() {
-        var _args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            _args[_i] = arguments[_i];
-        }
-        if (arguments.length && typeof arguments[arguments.length - 1] === 'function') {
-            return arguments[arguments.length - 1];
-        }
-    }
-
-    //tslint:disable-next-line:no-ignored-initial-value
-    function dropInstanceCommon(options, callback) {
-        var _this = this;
-        callback = getCallback.apply(this, arguments);
-        options = (typeof options !== 'function' && options) || {};
-        if (!options.name) {
-            var currentConfig = this.config();
-            options.name = options.name || currentConfig.name;
-            options.storeName = options.storeName || currentConfig.storeName;
-        }
-        var promise;
-        if (!options.name) {
-            promise = Promise.reject('Invalid arguments');
-        }
-        else {
-            promise = new Promise(function (resolve) {
-                if (!options.storeName) {
-                    resolve(options.name + "/");
-                }
-                else {
-                    resolve(getKeyPrefix(options, _this._defaultConfig));
-                }
-            });
-        }
-        return { promise: promise, callback: callback };
-    }
-
-    function normaliseKey(key) {
-        // Cast the key to a string, as that's all we can set as a key.
-        if (typeof key !== 'string') {
-            console.warn(key + " used as a key, but it is not a string.");
-            key = String(key);
-        }
-        return key;
-    }
-
-    var serialiser = {
-        bufferToString: bufferToString,
-        deserialize: deserialize,
-        serialize: serialize,
-        stringToBuffer: stringToBuffer
-    };
-
-    var stores = {};
-    /** @internal */
-    var Store = /** @class */ (function () {
-        function Store(kp) {
-            this.kp = kp;
-            this.data = {};
-        }
-        Store.resolve = function (kp) {
-            if (!stores[kp]) {
-                stores[kp] = new Store(kp);
-            }
-            return stores[kp];
-        };
-        Store.prototype.clear = function () {
-            this.data = {};
-        };
-        Store.prototype.drop = function () {
-            this.clear();
-            delete stores[this.kp];
-        };
-        Store.prototype.get = function (key) {
-            return this.data[key];
-        };
-        Store.prototype.key = function (idx) {
-            return this.keys()[idx];
-        };
-        Store.prototype.keys = function () {
-            return Object.keys(this.data);
-        };
-        Store.prototype.rm = function (k) {
-            delete this.data[k];
-        };
-        Store.prototype.set = function (k, v) {
-            this.data[k] = v;
-        };
-        return Store;
-    }());
-
-    function _initStorage(options) {
-        var opts = options ? clone(options) : {};
-        var kp = getKeyPrefix(opts, this._defaultConfig);
-        var store = Store.resolve(kp);
-        this._dbInfo = opts;
-        this._dbInfo.serializer = serialiser;
-        this._dbInfo.keyPrefix = kp;
-        this._dbInfo.mStore = store;
-        return Promise.resolve();
-    }
-
-    function clear(callback) {
-        var _this = this;
-        var promise = this.ready().then(function () {
-            _this._dbInfo.mStore.clear();
-        });
-        executeCallback(promise, callback);
-        return promise;
-    }
-
-    function dropInstance(_options, _cb) {
-        var _a = dropInstanceCommon.apply(this, arguments), promise = _a.promise, callback = _a.callback;
-        var outPromise = promise.then(function (keyPrefix) {
-            Store.resolve(keyPrefix).drop();
-        });
-        executeCallback(outPromise, callback);
-        return promise;
-    }
-
-    function getItem(key$, callback) {
-        var _this = this;
-        key$ = normaliseKey(key$);
-        var promise = this.ready().then(function () {
-            var result = _this._dbInfo.mStore.get(key$);
-            // Deserialise if the result is not null or undefined
-            return result == null ? null : _this._dbInfo.serializer.deserialize(result); //tslint:disable-line:triple-equals
-        });
-        executeCallback(promise, callback);
-        return promise;
-    }
-
-    function iterate(iterator, callback) {
-        var _this = this;
-        var promise = this.ready().then(function () {
-            var store = _this._dbInfo.mStore;
-            var keys = store.keys();
-            for (var i = 0; i < keys.length; i++) {
-                var value = store.get(keys[i]);
-                // If a result was found, parse it from the serialized
-                // string into a JS object. If result isn't truthy, the
-                // key is likely undefined and we'll pass it straight
-                // to the iterator.
-                if (value) {
-                    value = _this._dbInfo.serializer.deserialize(value);
-                }
-                value = iterator(value, keys[i], i + 1);
-                if (value !== undefined) {
-                    return value;
-                }
-            }
-        });
-        executeCallback(promise, callback);
-        return promise;
-    }
-
-    function key(idx, callback) {
-        var _this = this;
-        var promise = this.ready().then(function () {
-            var result;
-            try {
-                result = _this._dbInfo.mStore.key(idx);
-                if (result === undefined) {
-                    result = null;
-                }
-            }
-            catch (_a) {
-                result = null;
-            }
-            return result;
-        });
-        executeCallback(promise, callback);
-        return promise;
-    }
-
-    function keys(callback) {
-        var _this = this;
-        var promise = this.ready().then(function () {
-            return _this._dbInfo.mStore.keys();
-        });
-        executeCallback(promise, callback);
-        return promise;
-    }
-
-    function length(callback) {
-        var promise = this.keys().then(function (keys$) { return keys$.length; });
-        executeCallback(promise, callback);
-        return promise;
-    }
-
-    function removeItem(key$, callback) {
-        var _this = this;
-        key$ = normaliseKey(key$);
-        var promise = this.ready().then(function () {
-            _this._dbInfo.mStore.rm(key$);
-        });
-        executeCallback(promise, callback);
-        return promise;
-    }
-
-    function setItem(key$, value, callback) {
-        var _this = this;
-        key$ = normaliseKey(key$);
-        var promise = this.ready().then(function () {
-            if (value === undefined) {
-                value = null;
-            }
-            // Save the original value to pass to the callback.
-            var originalValue = value;
-            return new Promise(function (resolve, reject) {
-                _this._dbInfo.serializer.serialize(value, function (value$, error) {
-                    if (error) {
-                        reject(error);
-                    }
-                    else {
-                        try {
-                            _this._dbInfo.mStore.set(key$, value$);
-                            resolve(originalValue);
-                        }
-                        catch (e) {
-                            reject(e);
-                        }
-                    }
-                });
-            });
-        });
-        executeCallback(promise, callback);
-        return promise;
-    }
-
-    var _support = true;
-
-    exports._support = _support;
-    exports._driver = _driver;
-    exports._initStorage = _initStorage;
-    exports.clear = clear;
-    exports.dropInstance = dropInstance;
-    exports.getItem = getItem;
-    exports.iterate = iterate;
-    exports.key = key;
-    exports.keys = keys;
-    exports.length = length;
-    exports.removeItem = removeItem;
-    exports.setItem = setItem;
-
-    Object.defineProperty(exports, '__esModule', { value: true });
-
-}));
-//# sourceMappingURL=umd.js.map
-
-
-/***/ }),
-
-/***/ "./node_modules/localforage/dist/localforage.js":
-/*!******************************************************!*\
-  !*** ./node_modules/localforage/dist/localforage.js ***!
-  \******************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(global) {var require;var require;/*!
-    localForage -- Offline Storage, Improved
-    Version 1.9.0
-    https://localforage.github.io/localForage
-    (c) 2013-2017 Mozilla, Apache License 2.0
-*/
-(function(f){if(true){module.exports=f()}else { var g; }})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return require(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw (f.code="MODULE_NOT_FOUND", f)}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
-(function (global){
-'use strict';
-var Mutation = global.MutationObserver || global.WebKitMutationObserver;
-
-var scheduleDrain;
-
-{
-  if (Mutation) {
-    var called = 0;
-    var observer = new Mutation(nextTick);
-    var element = global.document.createTextNode('');
-    observer.observe(element, {
-      characterData: true
-    });
-    scheduleDrain = function () {
-      element.data = (called = ++called % 2);
-    };
-  } else if (!global.setImmediate && typeof global.MessageChannel !== 'undefined') {
-    var channel = new global.MessageChannel();
-    channel.port1.onmessage = nextTick;
-    scheduleDrain = function () {
-      channel.port2.postMessage(0);
-    };
-  } else if ('document' in global && 'onreadystatechange' in global.document.createElement('script')) {
-    scheduleDrain = function () {
-
-      // Create a <script> element; its readystatechange event will be fired asynchronously once it is inserted
-      // into the document. Do so, thus queuing up the task. Remember to clean up once it's been called.
-      var scriptEl = global.document.createElement('script');
-      scriptEl.onreadystatechange = function () {
-        nextTick();
-
-        scriptEl.onreadystatechange = null;
-        scriptEl.parentNode.removeChild(scriptEl);
-        scriptEl = null;
-      };
-      global.document.documentElement.appendChild(scriptEl);
-    };
-  } else {
-    scheduleDrain = function () {
-      setTimeout(nextTick, 0);
-    };
-  }
-}
-
-var draining;
-var queue = [];
-//named nextTick for less confusing stack traces
-function nextTick() {
-  draining = true;
-  var i, oldQueue;
-  var len = queue.length;
-  while (len) {
-    oldQueue = queue;
-    queue = [];
-    i = -1;
-    while (++i < len) {
-      oldQueue[i]();
-    }
-    len = queue.length;
-  }
-  draining = false;
-}
-
-module.exports = immediate;
-function immediate(task) {
-  if (queue.push(task) === 1 && !draining) {
-    scheduleDrain();
-  }
-}
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],2:[function(_dereq_,module,exports){
-'use strict';
-var immediate = _dereq_(1);
-
-/* istanbul ignore next */
-function INTERNAL() {}
-
-var handlers = {};
-
-var REJECTED = ['REJECTED'];
-var FULFILLED = ['FULFILLED'];
-var PENDING = ['PENDING'];
-
-module.exports = Promise;
-
-function Promise(resolver) {
-  if (typeof resolver !== 'function') {
-    throw new TypeError('resolver must be a function');
-  }
-  this.state = PENDING;
-  this.queue = [];
-  this.outcome = void 0;
-  if (resolver !== INTERNAL) {
-    safelyResolveThenable(this, resolver);
-  }
-}
-
-Promise.prototype["catch"] = function (onRejected) {
-  return this.then(null, onRejected);
-};
-Promise.prototype.then = function (onFulfilled, onRejected) {
-  if (typeof onFulfilled !== 'function' && this.state === FULFILLED ||
-    typeof onRejected !== 'function' && this.state === REJECTED) {
-    return this;
-  }
-  var promise = new this.constructor(INTERNAL);
-  if (this.state !== PENDING) {
-    var resolver = this.state === FULFILLED ? onFulfilled : onRejected;
-    unwrap(promise, resolver, this.outcome);
-  } else {
-    this.queue.push(new QueueItem(promise, onFulfilled, onRejected));
-  }
-
-  return promise;
-};
-function QueueItem(promise, onFulfilled, onRejected) {
-  this.promise = promise;
-  if (typeof onFulfilled === 'function') {
-    this.onFulfilled = onFulfilled;
-    this.callFulfilled = this.otherCallFulfilled;
-  }
-  if (typeof onRejected === 'function') {
-    this.onRejected = onRejected;
-    this.callRejected = this.otherCallRejected;
-  }
-}
-QueueItem.prototype.callFulfilled = function (value) {
-  handlers.resolve(this.promise, value);
-};
-QueueItem.prototype.otherCallFulfilled = function (value) {
-  unwrap(this.promise, this.onFulfilled, value);
-};
-QueueItem.prototype.callRejected = function (value) {
-  handlers.reject(this.promise, value);
-};
-QueueItem.prototype.otherCallRejected = function (value) {
-  unwrap(this.promise, this.onRejected, value);
-};
-
-function unwrap(promise, func, value) {
-  immediate(function () {
-    var returnValue;
-    try {
-      returnValue = func(value);
-    } catch (e) {
-      return handlers.reject(promise, e);
-    }
-    if (returnValue === promise) {
-      handlers.reject(promise, new TypeError('Cannot resolve promise with itself'));
-    } else {
-      handlers.resolve(promise, returnValue);
-    }
-  });
-}
-
-handlers.resolve = function (self, value) {
-  var result = tryCatch(getThen, value);
-  if (result.status === 'error') {
-    return handlers.reject(self, result.value);
-  }
-  var thenable = result.value;
-
-  if (thenable) {
-    safelyResolveThenable(self, thenable);
-  } else {
-    self.state = FULFILLED;
-    self.outcome = value;
-    var i = -1;
-    var len = self.queue.length;
-    while (++i < len) {
-      self.queue[i].callFulfilled(value);
-    }
-  }
-  return self;
-};
-handlers.reject = function (self, error) {
-  self.state = REJECTED;
-  self.outcome = error;
-  var i = -1;
-  var len = self.queue.length;
-  while (++i < len) {
-    self.queue[i].callRejected(error);
-  }
-  return self;
-};
-
-function getThen(obj) {
-  // Make sure we only access the accessor once as required by the spec
-  var then = obj && obj.then;
-  if (obj && (typeof obj === 'object' || typeof obj === 'function') && typeof then === 'function') {
-    return function appyThen() {
-      then.apply(obj, arguments);
-    };
-  }
-}
-
-function safelyResolveThenable(self, thenable) {
-  // Either fulfill, reject or reject with error
-  var called = false;
-  function onError(value) {
-    if (called) {
-      return;
-    }
-    called = true;
-    handlers.reject(self, value);
-  }
-
-  function onSuccess(value) {
-    if (called) {
-      return;
-    }
-    called = true;
-    handlers.resolve(self, value);
-  }
-
-  function tryToUnwrap() {
-    thenable(onSuccess, onError);
-  }
-
-  var result = tryCatch(tryToUnwrap);
-  if (result.status === 'error') {
-    onError(result.value);
-  }
-}
-
-function tryCatch(func, value) {
-  var out = {};
-  try {
-    out.value = func(value);
-    out.status = 'success';
-  } catch (e) {
-    out.status = 'error';
-    out.value = e;
-  }
-  return out;
-}
-
-Promise.resolve = resolve;
-function resolve(value) {
-  if (value instanceof this) {
-    return value;
-  }
-  return handlers.resolve(new this(INTERNAL), value);
-}
-
-Promise.reject = reject;
-function reject(reason) {
-  var promise = new this(INTERNAL);
-  return handlers.reject(promise, reason);
-}
-
-Promise.all = all;
-function all(iterable) {
-  var self = this;
-  if (Object.prototype.toString.call(iterable) !== '[object Array]') {
-    return this.reject(new TypeError('must be an array'));
-  }
-
-  var len = iterable.length;
-  var called = false;
-  if (!len) {
-    return this.resolve([]);
-  }
-
-  var values = new Array(len);
-  var resolved = 0;
-  var i = -1;
-  var promise = new this(INTERNAL);
-
-  while (++i < len) {
-    allResolver(iterable[i], i);
-  }
-  return promise;
-  function allResolver(value, i) {
-    self.resolve(value).then(resolveFromAll, function (error) {
-      if (!called) {
-        called = true;
-        handlers.reject(promise, error);
-      }
-    });
-    function resolveFromAll(outValue) {
-      values[i] = outValue;
-      if (++resolved === len && !called) {
-        called = true;
-        handlers.resolve(promise, values);
-      }
-    }
-  }
-}
-
-Promise.race = race;
-function race(iterable) {
-  var self = this;
-  if (Object.prototype.toString.call(iterable) !== '[object Array]') {
-    return this.reject(new TypeError('must be an array'));
-  }
-
-  var len = iterable.length;
-  var called = false;
-  if (!len) {
-    return this.resolve([]);
-  }
-
-  var i = -1;
-  var promise = new this(INTERNAL);
-
-  while (++i < len) {
-    resolver(iterable[i]);
-  }
-  return promise;
-  function resolver(value) {
-    self.resolve(value).then(function (response) {
-      if (!called) {
-        called = true;
-        handlers.resolve(promise, response);
-      }
-    }, function (error) {
-      if (!called) {
-        called = true;
-        handlers.reject(promise, error);
-      }
-    });
-  }
-}
-
-},{"1":1}],3:[function(_dereq_,module,exports){
-(function (global){
-'use strict';
-if (typeof global.Promise !== 'function') {
-  global.Promise = _dereq_(2);
-}
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"2":2}],4:[function(_dereq_,module,exports){
-'use strict';
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function getIDB() {
-    /* global indexedDB,webkitIndexedDB,mozIndexedDB,OIndexedDB,msIndexedDB */
-    try {
-        if (typeof indexedDB !== 'undefined') {
-            return indexedDB;
-        }
-        if (typeof webkitIndexedDB !== 'undefined') {
-            return webkitIndexedDB;
-        }
-        if (typeof mozIndexedDB !== 'undefined') {
-            return mozIndexedDB;
-        }
-        if (typeof OIndexedDB !== 'undefined') {
-            return OIndexedDB;
-        }
-        if (typeof msIndexedDB !== 'undefined') {
-            return msIndexedDB;
-        }
-    } catch (e) {
-        return;
-    }
-}
-
-var idb = getIDB();
-
-function isIndexedDBValid() {
-    try {
-        // Initialize IndexedDB; fall back to vendor-prefixed versions
-        // if needed.
-        if (!idb || !idb.open) {
-            return false;
-        }
-        // We mimic PouchDB here;
-        //
-        // We test for openDatabase because IE Mobile identifies itself
-        // as Safari. Oh the lulz...
-        var isSafari = typeof openDatabase !== 'undefined' && /(Safari|iPhone|iPad|iPod)/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent) && !/BlackBerry/.test(navigator.platform);
-
-        var hasFetch = typeof fetch === 'function' && fetch.toString().indexOf('[native code') !== -1;
-
-        // Safari <10.1 does not meet our requirements for IDB support
-        // (see: https://github.com/pouchdb/pouchdb/issues/5572).
-        // Safari 10.1 shipped with fetch, we can use that to detect it.
-        // Note: this creates issues with `window.fetch` polyfills and
-        // overrides; see:
-        // https://github.com/localForage/localForage/issues/856
-        return (!isSafari || hasFetch) && typeof indexedDB !== 'undefined' &&
-        // some outdated implementations of IDB that appear on Samsung
-        // and HTC Android devices <4.4 are missing IDBKeyRange
-        // See: https://github.com/mozilla/localForage/issues/128
-        // See: https://github.com/mozilla/localForage/issues/272
-        typeof IDBKeyRange !== 'undefined';
-    } catch (e) {
-        return false;
-    }
-}
-
-// Abstracts constructing a Blob object, so it also works in older
-// browsers that don't support the native Blob constructor. (i.e.
-// old QtWebKit versions, at least).
-// Abstracts constructing a Blob object, so it also works in older
-// browsers that don't support the native Blob constructor. (i.e.
-// old QtWebKit versions, at least).
-function createBlob(parts, properties) {
-    /* global BlobBuilder,MSBlobBuilder,MozBlobBuilder,WebKitBlobBuilder */
-    parts = parts || [];
-    properties = properties || {};
-    try {
-        return new Blob(parts, properties);
-    } catch (e) {
-        if (e.name !== 'TypeError') {
-            throw e;
-        }
-        var Builder = typeof BlobBuilder !== 'undefined' ? BlobBuilder : typeof MSBlobBuilder !== 'undefined' ? MSBlobBuilder : typeof MozBlobBuilder !== 'undefined' ? MozBlobBuilder : WebKitBlobBuilder;
-        var builder = new Builder();
-        for (var i = 0; i < parts.length; i += 1) {
-            builder.append(parts[i]);
-        }
-        return builder.getBlob(properties.type);
-    }
-}
-
-// This is CommonJS because lie is an external dependency, so Rollup
-// can just ignore it.
-if (typeof Promise === 'undefined') {
-    // In the "nopromises" build this will just throw if you don't have
-    // a global promise object, but it would throw anyway later.
-    _dereq_(3);
-}
-var Promise$1 = Promise;
-
-function executeCallback(promise, callback) {
-    if (callback) {
-        promise.then(function (result) {
-            callback(null, result);
-        }, function (error) {
-            callback(error);
-        });
-    }
-}
-
-function executeTwoCallbacks(promise, callback, errorCallback) {
-    if (typeof callback === 'function') {
-        promise.then(callback);
-    }
-
-    if (typeof errorCallback === 'function') {
-        promise["catch"](errorCallback);
-    }
-}
-
-function normalizeKey(key) {
-    // Cast the key to a string, as that's all we can set as a key.
-    if (typeof key !== 'string') {
-        console.warn(key + ' used as a key, but it is not a string.');
-        key = String(key);
-    }
-
-    return key;
-}
-
-function getCallback() {
-    if (arguments.length && typeof arguments[arguments.length - 1] === 'function') {
-        return arguments[arguments.length - 1];
-    }
-}
-
-// Some code originally from async_storage.js in
-// [Gaia](https://github.com/mozilla-b2g/gaia).
-
-var DETECT_BLOB_SUPPORT_STORE = 'local-forage-detect-blob-support';
-var supportsBlobs = void 0;
-var dbContexts = {};
-var toString = Object.prototype.toString;
-
-// Transaction Modes
-var READ_ONLY = 'readonly';
-var READ_WRITE = 'readwrite';
-
-// Transform a binary string to an array buffer, because otherwise
-// weird stuff happens when you try to work with the binary string directly.
-// It is known.
-// From http://stackoverflow.com/questions/14967647/ (continues on next line)
-// encode-decode-image-with-base64-breaks-image (2013-04-21)
-function _binStringToArrayBuffer(bin) {
-    var length = bin.length;
-    var buf = new ArrayBuffer(length);
-    var arr = new Uint8Array(buf);
-    for (var i = 0; i < length; i++) {
-        arr[i] = bin.charCodeAt(i);
-    }
-    return buf;
-}
-
-//
-// Blobs are not supported in all versions of IndexedDB, notably
-// Chrome <37 and Android <5. In those versions, storing a blob will throw.
-//
-// Various other blob bugs exist in Chrome v37-42 (inclusive).
-// Detecting them is expensive and confusing to users, and Chrome 37-42
-// is at very low usage worldwide, so we do a hacky userAgent check instead.
-//
-// content-type bug: https://code.google.com/p/chromium/issues/detail?id=408120
-// 404 bug: https://code.google.com/p/chromium/issues/detail?id=447916
-// FileReader bug: https://code.google.com/p/chromium/issues/detail?id=447836
-//
-// Code borrowed from PouchDB. See:
-// https://github.com/pouchdb/pouchdb/blob/master/packages/node_modules/pouchdb-adapter-idb/src/blobSupport.js
-//
-function _checkBlobSupportWithoutCaching(idb) {
-    return new Promise$1(function (resolve) {
-        var txn = idb.transaction(DETECT_BLOB_SUPPORT_STORE, READ_WRITE);
-        var blob = createBlob(['']);
-        txn.objectStore(DETECT_BLOB_SUPPORT_STORE).put(blob, 'key');
-
-        txn.onabort = function (e) {
-            // If the transaction aborts now its due to not being able to
-            // write to the database, likely due to the disk being full
-            e.preventDefault();
-            e.stopPropagation();
-            resolve(false);
-        };
-
-        txn.oncomplete = function () {
-            var matchedChrome = navigator.userAgent.match(/Chrome\/(\d+)/);
-            var matchedEdge = navigator.userAgent.match(/Edge\//);
-            // MS Edge pretends to be Chrome 42:
-            // https://msdn.microsoft.com/en-us/library/hh869301%28v=vs.85%29.aspx
-            resolve(matchedEdge || !matchedChrome || parseInt(matchedChrome[1], 10) >= 43);
-        };
-    })["catch"](function () {
-        return false; // error, so assume unsupported
-    });
-}
-
-function _checkBlobSupport(idb) {
-    if (typeof supportsBlobs === 'boolean') {
-        return Promise$1.resolve(supportsBlobs);
-    }
-    return _checkBlobSupportWithoutCaching(idb).then(function (value) {
-        supportsBlobs = value;
-        return supportsBlobs;
-    });
-}
-
-function _deferReadiness(dbInfo) {
-    var dbContext = dbContexts[dbInfo.name];
-
-    // Create a deferred object representing the current database operation.
-    var deferredOperation = {};
-
-    deferredOperation.promise = new Promise$1(function (resolve, reject) {
-        deferredOperation.resolve = resolve;
-        deferredOperation.reject = reject;
-    });
-
-    // Enqueue the deferred operation.
-    dbContext.deferredOperations.push(deferredOperation);
-
-    // Chain its promise to the database readiness.
-    if (!dbContext.dbReady) {
-        dbContext.dbReady = deferredOperation.promise;
-    } else {
-        dbContext.dbReady = dbContext.dbReady.then(function () {
-            return deferredOperation.promise;
-        });
-    }
-}
-
-function _advanceReadiness(dbInfo) {
-    var dbContext = dbContexts[dbInfo.name];
-
-    // Dequeue a deferred operation.
-    var deferredOperation = dbContext.deferredOperations.pop();
-
-    // Resolve its promise (which is part of the database readiness
-    // chain of promises).
-    if (deferredOperation) {
-        deferredOperation.resolve();
-        return deferredOperation.promise;
-    }
-}
-
-function _rejectReadiness(dbInfo, err) {
-    var dbContext = dbContexts[dbInfo.name];
-
-    // Dequeue a deferred operation.
-    var deferredOperation = dbContext.deferredOperations.pop();
-
-    // Reject its promise (which is part of the database readiness
-    // chain of promises).
-    if (deferredOperation) {
-        deferredOperation.reject(err);
-        return deferredOperation.promise;
-    }
-}
-
-function _getConnection(dbInfo, upgradeNeeded) {
-    return new Promise$1(function (resolve, reject) {
-        dbContexts[dbInfo.name] = dbContexts[dbInfo.name] || createDbContext();
-
-        if (dbInfo.db) {
-            if (upgradeNeeded) {
-                _deferReadiness(dbInfo);
-                dbInfo.db.close();
-            } else {
-                return resolve(dbInfo.db);
-            }
-        }
-
-        var dbArgs = [dbInfo.name];
-
-        if (upgradeNeeded) {
-            dbArgs.push(dbInfo.version);
-        }
-
-        var openreq = idb.open.apply(idb, dbArgs);
-
-        if (upgradeNeeded) {
-            openreq.onupgradeneeded = function (e) {
-                var db = openreq.result;
-                try {
-                    db.createObjectStore(dbInfo.storeName);
-                    if (e.oldVersion <= 1) {
-                        // Added when support for blob shims was added
-                        db.createObjectStore(DETECT_BLOB_SUPPORT_STORE);
-                    }
-                } catch (ex) {
-                    if (ex.name === 'ConstraintError') {
-                        console.warn('The database "' + dbInfo.name + '"' + ' has been upgraded from version ' + e.oldVersion + ' to version ' + e.newVersion + ', but the storage "' + dbInfo.storeName + '" already exists.');
-                    } else {
-                        throw ex;
-                    }
-                }
-            };
-        }
-
-        openreq.onerror = function (e) {
-            e.preventDefault();
-            reject(openreq.error);
-        };
-
-        openreq.onsuccess = function () {
-            resolve(openreq.result);
-            _advanceReadiness(dbInfo);
-        };
-    });
-}
-
-function _getOriginalConnection(dbInfo) {
-    return _getConnection(dbInfo, false);
-}
-
-function _getUpgradedConnection(dbInfo) {
-    return _getConnection(dbInfo, true);
-}
-
-function _isUpgradeNeeded(dbInfo, defaultVersion) {
-    if (!dbInfo.db) {
-        return true;
-    }
-
-    var isNewStore = !dbInfo.db.objectStoreNames.contains(dbInfo.storeName);
-    var isDowngrade = dbInfo.version < dbInfo.db.version;
-    var isUpgrade = dbInfo.version > dbInfo.db.version;
-
-    if (isDowngrade) {
-        // If the version is not the default one
-        // then warn for impossible downgrade.
-        if (dbInfo.version !== defaultVersion) {
-            console.warn('The database "' + dbInfo.name + '"' + " can't be downgraded from version " + dbInfo.db.version + ' to version ' + dbInfo.version + '.');
-        }
-        // Align the versions to prevent errors.
-        dbInfo.version = dbInfo.db.version;
-    }
-
-    if (isUpgrade || isNewStore) {
-        // If the store is new then increment the version (if needed).
-        // This will trigger an "upgradeneeded" event which is required
-        // for creating a store.
-        if (isNewStore) {
-            var incVersion = dbInfo.db.version + 1;
-            if (incVersion > dbInfo.version) {
-                dbInfo.version = incVersion;
-            }
-        }
-
-        return true;
-    }
-
-    return false;
-}
-
-// encode a blob for indexeddb engines that don't support blobs
-function _encodeBlob(blob) {
-    return new Promise$1(function (resolve, reject) {
-        var reader = new FileReader();
-        reader.onerror = reject;
-        reader.onloadend = function (e) {
-            var base64 = btoa(e.target.result || '');
-            resolve({
-                __local_forage_encoded_blob: true,
-                data: base64,
-                type: blob.type
-            });
-        };
-        reader.readAsBinaryString(blob);
-    });
-}
-
-// decode an encoded blob
-function _decodeBlob(encodedBlob) {
-    var arrayBuff = _binStringToArrayBuffer(atob(encodedBlob.data));
-    return createBlob([arrayBuff], { type: encodedBlob.type });
-}
-
-// is this one of our fancy encoded blobs?
-function _isEncodedBlob(value) {
-    return value && value.__local_forage_encoded_blob;
-}
-
-// Specialize the default `ready()` function by making it dependent
-// on the current database operations. Thus, the driver will be actually
-// ready when it's been initialized (default) *and* there are no pending
-// operations on the database (initiated by some other instances).
-function _fullyReady(callback) {
-    var self = this;
-
-    var promise = self._initReady().then(function () {
-        var dbContext = dbContexts[self._dbInfo.name];
-
-        if (dbContext && dbContext.dbReady) {
-            return dbContext.dbReady;
-        }
-    });
-
-    executeTwoCallbacks(promise, callback, callback);
-    return promise;
-}
-
-// Try to establish a new db connection to replace the
-// current one which is broken (i.e. experiencing
-// InvalidStateError while creating a transaction).
-function _tryReconnect(dbInfo) {
-    _deferReadiness(dbInfo);
-
-    var dbContext = dbContexts[dbInfo.name];
-    var forages = dbContext.forages;
-
-    for (var i = 0; i < forages.length; i++) {
-        var forage = forages[i];
-        if (forage._dbInfo.db) {
-            forage._dbInfo.db.close();
-            forage._dbInfo.db = null;
-        }
-    }
-    dbInfo.db = null;
-
-    return _getOriginalConnection(dbInfo).then(function (db) {
-        dbInfo.db = db;
-        if (_isUpgradeNeeded(dbInfo)) {
-            // Reopen the database for upgrading.
-            return _getUpgradedConnection(dbInfo);
-        }
-        return db;
-    }).then(function (db) {
-        // store the latest db reference
-        // in case the db was upgraded
-        dbInfo.db = dbContext.db = db;
-        for (var i = 0; i < forages.length; i++) {
-            forages[i]._dbInfo.db = db;
-        }
-    })["catch"](function (err) {
-        _rejectReadiness(dbInfo, err);
-        throw err;
-    });
-}
-
-// FF doesn't like Promises (micro-tasks) and IDDB store operations,
-// so we have to do it with callbacks
-function createTransaction(dbInfo, mode, callback, retries) {
-    if (retries === undefined) {
-        retries = 1;
-    }
-
-    try {
-        var tx = dbInfo.db.transaction(dbInfo.storeName, mode);
-        callback(null, tx);
-    } catch (err) {
-        if (retries > 0 && (!dbInfo.db || err.name === 'InvalidStateError' || err.name === 'NotFoundError')) {
-            return Promise$1.resolve().then(function () {
-                if (!dbInfo.db || err.name === 'NotFoundError' && !dbInfo.db.objectStoreNames.contains(dbInfo.storeName) && dbInfo.version <= dbInfo.db.version) {
-                    // increase the db version, to create the new ObjectStore
-                    if (dbInfo.db) {
-                        dbInfo.version = dbInfo.db.version + 1;
-                    }
-                    // Reopen the database for upgrading.
-                    return _getUpgradedConnection(dbInfo);
-                }
-            }).then(function () {
-                return _tryReconnect(dbInfo).then(function () {
-                    createTransaction(dbInfo, mode, callback, retries - 1);
-                });
-            })["catch"](callback);
-        }
-
-        callback(err);
-    }
-}
-
-function createDbContext() {
-    return {
-        // Running localForages sharing a database.
-        forages: [],
-        // Shared database.
-        db: null,
-        // Database readiness (promise).
-        dbReady: null,
-        // Deferred operations on the database.
-        deferredOperations: []
-    };
-}
-
-// Open the IndexedDB database (automatically creates one if one didn't
-// previously exist), using any options set in the config.
-function _initStorage(options) {
-    var self = this;
-    var dbInfo = {
-        db: null
-    };
-
-    if (options) {
-        for (var i in options) {
-            dbInfo[i] = options[i];
-        }
-    }
-
-    // Get the current context of the database;
-    var dbContext = dbContexts[dbInfo.name];
-
-    // ...or create a new context.
-    if (!dbContext) {
-        dbContext = createDbContext();
-        // Register the new context in the global container.
-        dbContexts[dbInfo.name] = dbContext;
-    }
-
-    // Register itself as a running localForage in the current context.
-    dbContext.forages.push(self);
-
-    // Replace the default `ready()` function with the specialized one.
-    if (!self._initReady) {
-        self._initReady = self.ready;
-        self.ready = _fullyReady;
-    }
-
-    // Create an array of initialization states of the related localForages.
-    var initPromises = [];
-
-    function ignoreErrors() {
-        // Don't handle errors here,
-        // just makes sure related localForages aren't pending.
-        return Promise$1.resolve();
-    }
-
-    for (var j = 0; j < dbContext.forages.length; j++) {
-        var forage = dbContext.forages[j];
-        if (forage !== self) {
-            // Don't wait for itself...
-            initPromises.push(forage._initReady()["catch"](ignoreErrors));
-        }
-    }
-
-    // Take a snapshot of the related localForages.
-    var forages = dbContext.forages.slice(0);
-
-    // Initialize the connection process only when
-    // all the related localForages aren't pending.
-    return Promise$1.all(initPromises).then(function () {
-        dbInfo.db = dbContext.db;
-        // Get the connection or open a new one without upgrade.
-        return _getOriginalConnection(dbInfo);
-    }).then(function (db) {
-        dbInfo.db = db;
-        if (_isUpgradeNeeded(dbInfo, self._defaultConfig.version)) {
-            // Reopen the database for upgrading.
-            return _getUpgradedConnection(dbInfo);
-        }
-        return db;
-    }).then(function (db) {
-        dbInfo.db = dbContext.db = db;
-        self._dbInfo = dbInfo;
-        // Share the final connection amongst related localForages.
-        for (var k = 0; k < forages.length; k++) {
-            var forage = forages[k];
-            if (forage !== self) {
-                // Self is already up-to-date.
-                forage._dbInfo.db = dbInfo.db;
-                forage._dbInfo.version = dbInfo.version;
-            }
-        }
-    });
-}
-
-function getItem(key, callback) {
-    var self = this;
-
-    key = normalizeKey(key);
-
-    var promise = new Promise$1(function (resolve, reject) {
-        self.ready().then(function () {
-            createTransaction(self._dbInfo, READ_ONLY, function (err, transaction) {
-                if (err) {
-                    return reject(err);
-                }
-
-                try {
-                    var store = transaction.objectStore(self._dbInfo.storeName);
-                    var req = store.get(key);
-
-                    req.onsuccess = function () {
-                        var value = req.result;
-                        if (value === undefined) {
-                            value = null;
-                        }
-                        if (_isEncodedBlob(value)) {
-                            value = _decodeBlob(value);
-                        }
-                        resolve(value);
-                    };
-
-                    req.onerror = function () {
-                        reject(req.error);
-                    };
-                } catch (e) {
-                    reject(e);
-                }
-            });
-        })["catch"](reject);
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-// Iterate over all items stored in database.
-function iterate(iterator, callback) {
-    var self = this;
-
-    var promise = new Promise$1(function (resolve, reject) {
-        self.ready().then(function () {
-            createTransaction(self._dbInfo, READ_ONLY, function (err, transaction) {
-                if (err) {
-                    return reject(err);
-                }
-
-                try {
-                    var store = transaction.objectStore(self._dbInfo.storeName);
-                    var req = store.openCursor();
-                    var iterationNumber = 1;
-
-                    req.onsuccess = function () {
-                        var cursor = req.result;
-
-                        if (cursor) {
-                            var value = cursor.value;
-                            if (_isEncodedBlob(value)) {
-                                value = _decodeBlob(value);
-                            }
-                            var result = iterator(value, cursor.key, iterationNumber++);
-
-                            // when the iterator callback returns any
-                            // (non-`undefined`) value, then we stop
-                            // the iteration immediately
-                            if (result !== void 0) {
-                                resolve(result);
-                            } else {
-                                cursor["continue"]();
-                            }
-                        } else {
-                            resolve();
-                        }
-                    };
-
-                    req.onerror = function () {
-                        reject(req.error);
-                    };
-                } catch (e) {
-                    reject(e);
-                }
-            });
-        })["catch"](reject);
-    });
-
-    executeCallback(promise, callback);
-
-    return promise;
-}
-
-function setItem(key, value, callback) {
-    var self = this;
-
-    key = normalizeKey(key);
-
-    var promise = new Promise$1(function (resolve, reject) {
-        var dbInfo;
-        self.ready().then(function () {
-            dbInfo = self._dbInfo;
-            if (toString.call(value) === '[object Blob]') {
-                return _checkBlobSupport(dbInfo.db).then(function (blobSupport) {
-                    if (blobSupport) {
-                        return value;
-                    }
-                    return _encodeBlob(value);
-                });
-            }
-            return value;
-        }).then(function (value) {
-            createTransaction(self._dbInfo, READ_WRITE, function (err, transaction) {
-                if (err) {
-                    return reject(err);
-                }
-
-                try {
-                    var store = transaction.objectStore(self._dbInfo.storeName);
-
-                    // The reason we don't _save_ null is because IE 10 does
-                    // not support saving the `null` type in IndexedDB. How
-                    // ironic, given the bug below!
-                    // See: https://github.com/mozilla/localForage/issues/161
-                    if (value === null) {
-                        value = undefined;
-                    }
-
-                    var req = store.put(value, key);
-
-                    transaction.oncomplete = function () {
-                        // Cast to undefined so the value passed to
-                        // callback/promise is the same as what one would get out
-                        // of `getItem()` later. This leads to some weirdness
-                        // (setItem('foo', undefined) will return `null`), but
-                        // it's not my fault localStorage is our baseline and that
-                        // it's weird.
-                        if (value === undefined) {
-                            value = null;
-                        }
-
-                        resolve(value);
-                    };
-                    transaction.onabort = transaction.onerror = function () {
-                        var err = req.error ? req.error : req.transaction.error;
-                        reject(err);
-                    };
-                } catch (e) {
-                    reject(e);
-                }
-            });
-        })["catch"](reject);
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-function removeItem(key, callback) {
-    var self = this;
-
-    key = normalizeKey(key);
-
-    var promise = new Promise$1(function (resolve, reject) {
-        self.ready().then(function () {
-            createTransaction(self._dbInfo, READ_WRITE, function (err, transaction) {
-                if (err) {
-                    return reject(err);
-                }
-
-                try {
-                    var store = transaction.objectStore(self._dbInfo.storeName);
-                    // We use a Grunt task to make this safe for IE and some
-                    // versions of Android (including those used by Cordova).
-                    // Normally IE won't like `.delete()` and will insist on
-                    // using `['delete']()`, but we have a build step that
-                    // fixes this for us now.
-                    var req = store["delete"](key);
-                    transaction.oncomplete = function () {
-                        resolve();
-                    };
-
-                    transaction.onerror = function () {
-                        reject(req.error);
-                    };
-
-                    // The request will be also be aborted if we've exceeded our storage
-                    // space.
-                    transaction.onabort = function () {
-                        var err = req.error ? req.error : req.transaction.error;
-                        reject(err);
-                    };
-                } catch (e) {
-                    reject(e);
-                }
-            });
-        })["catch"](reject);
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-function clear(callback) {
-    var self = this;
-
-    var promise = new Promise$1(function (resolve, reject) {
-        self.ready().then(function () {
-            createTransaction(self._dbInfo, READ_WRITE, function (err, transaction) {
-                if (err) {
-                    return reject(err);
-                }
-
-                try {
-                    var store = transaction.objectStore(self._dbInfo.storeName);
-                    var req = store.clear();
-
-                    transaction.oncomplete = function () {
-                        resolve();
-                    };
-
-                    transaction.onabort = transaction.onerror = function () {
-                        var err = req.error ? req.error : req.transaction.error;
-                        reject(err);
-                    };
-                } catch (e) {
-                    reject(e);
-                }
-            });
-        })["catch"](reject);
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-function length(callback) {
-    var self = this;
-
-    var promise = new Promise$1(function (resolve, reject) {
-        self.ready().then(function () {
-            createTransaction(self._dbInfo, READ_ONLY, function (err, transaction) {
-                if (err) {
-                    return reject(err);
-                }
-
-                try {
-                    var store = transaction.objectStore(self._dbInfo.storeName);
-                    var req = store.count();
-
-                    req.onsuccess = function () {
-                        resolve(req.result);
-                    };
-
-                    req.onerror = function () {
-                        reject(req.error);
-                    };
-                } catch (e) {
-                    reject(e);
-                }
-            });
-        })["catch"](reject);
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-function key(n, callback) {
-    var self = this;
-
-    var promise = new Promise$1(function (resolve, reject) {
-        if (n < 0) {
-            resolve(null);
-
-            return;
-        }
-
-        self.ready().then(function () {
-            createTransaction(self._dbInfo, READ_ONLY, function (err, transaction) {
-                if (err) {
-                    return reject(err);
-                }
-
-                try {
-                    var store = transaction.objectStore(self._dbInfo.storeName);
-                    var advanced = false;
-                    var req = store.openKeyCursor();
-
-                    req.onsuccess = function () {
-                        var cursor = req.result;
-                        if (!cursor) {
-                            // this means there weren't enough keys
-                            resolve(null);
-
-                            return;
-                        }
-
-                        if (n === 0) {
-                            // We have the first key, return it if that's what they
-                            // wanted.
-                            resolve(cursor.key);
-                        } else {
-                            if (!advanced) {
-                                // Otherwise, ask the cursor to skip ahead n
-                                // records.
-                                advanced = true;
-                                cursor.advance(n);
-                            } else {
-                                // When we get here, we've got the nth key.
-                                resolve(cursor.key);
-                            }
-                        }
-                    };
-
-                    req.onerror = function () {
-                        reject(req.error);
-                    };
-                } catch (e) {
-                    reject(e);
-                }
-            });
-        })["catch"](reject);
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-function keys(callback) {
-    var self = this;
-
-    var promise = new Promise$1(function (resolve, reject) {
-        self.ready().then(function () {
-            createTransaction(self._dbInfo, READ_ONLY, function (err, transaction) {
-                if (err) {
-                    return reject(err);
-                }
-
-                try {
-                    var store = transaction.objectStore(self._dbInfo.storeName);
-                    var req = store.openKeyCursor();
-                    var keys = [];
-
-                    req.onsuccess = function () {
-                        var cursor = req.result;
-
-                        if (!cursor) {
-                            resolve(keys);
-                            return;
-                        }
-
-                        keys.push(cursor.key);
-                        cursor["continue"]();
-                    };
-
-                    req.onerror = function () {
-                        reject(req.error);
-                    };
-                } catch (e) {
-                    reject(e);
-                }
-            });
-        })["catch"](reject);
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-function dropInstance(options, callback) {
-    callback = getCallback.apply(this, arguments);
-
-    var currentConfig = this.config();
-    options = typeof options !== 'function' && options || {};
-    if (!options.name) {
-        options.name = options.name || currentConfig.name;
-        options.storeName = options.storeName || currentConfig.storeName;
-    }
-
-    var self = this;
-    var promise;
-    if (!options.name) {
-        promise = Promise$1.reject('Invalid arguments');
-    } else {
-        var isCurrentDb = options.name === currentConfig.name && self._dbInfo.db;
-
-        var dbPromise = isCurrentDb ? Promise$1.resolve(self._dbInfo.db) : _getOriginalConnection(options).then(function (db) {
-            var dbContext = dbContexts[options.name];
-            var forages = dbContext.forages;
-            dbContext.db = db;
-            for (var i = 0; i < forages.length; i++) {
-                forages[i]._dbInfo.db = db;
-            }
-            return db;
-        });
-
-        if (!options.storeName) {
-            promise = dbPromise.then(function (db) {
-                _deferReadiness(options);
-
-                var dbContext = dbContexts[options.name];
-                var forages = dbContext.forages;
-
-                db.close();
-                for (var i = 0; i < forages.length; i++) {
-                    var forage = forages[i];
-                    forage._dbInfo.db = null;
-                }
-
-                var dropDBPromise = new Promise$1(function (resolve, reject) {
-                    var req = idb.deleteDatabase(options.name);
-
-                    req.onerror = req.onblocked = function (err) {
-                        var db = req.result;
-                        if (db) {
-                            db.close();
-                        }
-                        reject(err);
-                    };
-
-                    req.onsuccess = function () {
-                        var db = req.result;
-                        if (db) {
-                            db.close();
-                        }
-                        resolve(db);
-                    };
-                });
-
-                return dropDBPromise.then(function (db) {
-                    dbContext.db = db;
-                    for (var i = 0; i < forages.length; i++) {
-                        var _forage = forages[i];
-                        _advanceReadiness(_forage._dbInfo);
-                    }
-                })["catch"](function (err) {
-                    (_rejectReadiness(options, err) || Promise$1.resolve())["catch"](function () {});
-                    throw err;
-                });
-            });
-        } else {
-            promise = dbPromise.then(function (db) {
-                if (!db.objectStoreNames.contains(options.storeName)) {
-                    return;
-                }
-
-                var newVersion = db.version + 1;
-
-                _deferReadiness(options);
-
-                var dbContext = dbContexts[options.name];
-                var forages = dbContext.forages;
-
-                db.close();
-                for (var i = 0; i < forages.length; i++) {
-                    var forage = forages[i];
-                    forage._dbInfo.db = null;
-                    forage._dbInfo.version = newVersion;
-                }
-
-                var dropObjectPromise = new Promise$1(function (resolve, reject) {
-                    var req = idb.open(options.name, newVersion);
-
-                    req.onerror = function (err) {
-                        var db = req.result;
-                        db.close();
-                        reject(err);
-                    };
-
-                    req.onupgradeneeded = function () {
-                        var db = req.result;
-                        db.deleteObjectStore(options.storeName);
-                    };
-
-                    req.onsuccess = function () {
-                        var db = req.result;
-                        db.close();
-                        resolve(db);
-                    };
-                });
-
-                return dropObjectPromise.then(function (db) {
-                    dbContext.db = db;
-                    for (var j = 0; j < forages.length; j++) {
-                        var _forage2 = forages[j];
-                        _forage2._dbInfo.db = db;
-                        _advanceReadiness(_forage2._dbInfo);
-                    }
-                })["catch"](function (err) {
-                    (_rejectReadiness(options, err) || Promise$1.resolve())["catch"](function () {});
-                    throw err;
-                });
-            });
-        }
-    }
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-var asyncStorage = {
-    _driver: 'asyncStorage',
-    _initStorage: _initStorage,
-    _support: isIndexedDBValid(),
-    iterate: iterate,
-    getItem: getItem,
-    setItem: setItem,
-    removeItem: removeItem,
-    clear: clear,
-    length: length,
-    key: key,
-    keys: keys,
-    dropInstance: dropInstance
-};
-
-function isWebSQLValid() {
-    return typeof openDatabase === 'function';
-}
-
-// Sadly, the best way to save binary data in WebSQL/localStorage is serializing
-// it to Base64, so this is how we store it to prevent very strange errors with less
-// verbose ways of binary <-> string data storage.
-var BASE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-
-var BLOB_TYPE_PREFIX = '~~local_forage_type~';
-var BLOB_TYPE_PREFIX_REGEX = /^~~local_forage_type~([^~]+)~/;
-
-var SERIALIZED_MARKER = '__lfsc__:';
-var SERIALIZED_MARKER_LENGTH = SERIALIZED_MARKER.length;
-
-// OMG the serializations!
-var TYPE_ARRAYBUFFER = 'arbf';
-var TYPE_BLOB = 'blob';
-var TYPE_INT8ARRAY = 'si08';
-var TYPE_UINT8ARRAY = 'ui08';
-var TYPE_UINT8CLAMPEDARRAY = 'uic8';
-var TYPE_INT16ARRAY = 'si16';
-var TYPE_INT32ARRAY = 'si32';
-var TYPE_UINT16ARRAY = 'ur16';
-var TYPE_UINT32ARRAY = 'ui32';
-var TYPE_FLOAT32ARRAY = 'fl32';
-var TYPE_FLOAT64ARRAY = 'fl64';
-var TYPE_SERIALIZED_MARKER_LENGTH = SERIALIZED_MARKER_LENGTH + TYPE_ARRAYBUFFER.length;
-
-var toString$1 = Object.prototype.toString;
-
-function stringToBuffer(serializedString) {
-    // Fill the string into a ArrayBuffer.
-    var bufferLength = serializedString.length * 0.75;
-    var len = serializedString.length;
-    var i;
-    var p = 0;
-    var encoded1, encoded2, encoded3, encoded4;
-
-    if (serializedString[serializedString.length - 1] === '=') {
-        bufferLength--;
-        if (serializedString[serializedString.length - 2] === '=') {
-            bufferLength--;
-        }
-    }
-
-    var buffer = new ArrayBuffer(bufferLength);
-    var bytes = new Uint8Array(buffer);
-
-    for (i = 0; i < len; i += 4) {
-        encoded1 = BASE_CHARS.indexOf(serializedString[i]);
-        encoded2 = BASE_CHARS.indexOf(serializedString[i + 1]);
-        encoded3 = BASE_CHARS.indexOf(serializedString[i + 2]);
-        encoded4 = BASE_CHARS.indexOf(serializedString[i + 3]);
-
-        /*jslint bitwise: true */
-        bytes[p++] = encoded1 << 2 | encoded2 >> 4;
-        bytes[p++] = (encoded2 & 15) << 4 | encoded3 >> 2;
-        bytes[p++] = (encoded3 & 3) << 6 | encoded4 & 63;
-    }
-    return buffer;
-}
-
-// Converts a buffer to a string to store, serialized, in the backend
-// storage library.
-function bufferToString(buffer) {
-    // base64-arraybuffer
-    var bytes = new Uint8Array(buffer);
-    var base64String = '';
-    var i;
-
-    for (i = 0; i < bytes.length; i += 3) {
-        /*jslint bitwise: true */
-        base64String += BASE_CHARS[bytes[i] >> 2];
-        base64String += BASE_CHARS[(bytes[i] & 3) << 4 | bytes[i + 1] >> 4];
-        base64String += BASE_CHARS[(bytes[i + 1] & 15) << 2 | bytes[i + 2] >> 6];
-        base64String += BASE_CHARS[bytes[i + 2] & 63];
-    }
-
-    if (bytes.length % 3 === 2) {
-        base64String = base64String.substring(0, base64String.length - 1) + '=';
-    } else if (bytes.length % 3 === 1) {
-        base64String = base64String.substring(0, base64String.length - 2) + '==';
-    }
-
-    return base64String;
-}
-
-// Serialize a value, afterwards executing a callback (which usually
-// instructs the `setItem()` callback/promise to be executed). This is how
-// we store binary data with localStorage.
-function serialize(value, callback) {
-    var valueType = '';
-    if (value) {
-        valueType = toString$1.call(value);
-    }
-
-    // Cannot use `value instanceof ArrayBuffer` or such here, as these
-    // checks fail when running the tests using casper.js...
-    //
-    // TODO: See why those tests fail and use a better solution.
-    if (value && (valueType === '[object ArrayBuffer]' || value.buffer && toString$1.call(value.buffer) === '[object ArrayBuffer]')) {
-        // Convert binary arrays to a string and prefix the string with
-        // a special marker.
-        var buffer;
-        var marker = SERIALIZED_MARKER;
-
-        if (value instanceof ArrayBuffer) {
-            buffer = value;
-            marker += TYPE_ARRAYBUFFER;
-        } else {
-            buffer = value.buffer;
-
-            if (valueType === '[object Int8Array]') {
-                marker += TYPE_INT8ARRAY;
-            } else if (valueType === '[object Uint8Array]') {
-                marker += TYPE_UINT8ARRAY;
-            } else if (valueType === '[object Uint8ClampedArray]') {
-                marker += TYPE_UINT8CLAMPEDARRAY;
-            } else if (valueType === '[object Int16Array]') {
-                marker += TYPE_INT16ARRAY;
-            } else if (valueType === '[object Uint16Array]') {
-                marker += TYPE_UINT16ARRAY;
-            } else if (valueType === '[object Int32Array]') {
-                marker += TYPE_INT32ARRAY;
-            } else if (valueType === '[object Uint32Array]') {
-                marker += TYPE_UINT32ARRAY;
-            } else if (valueType === '[object Float32Array]') {
-                marker += TYPE_FLOAT32ARRAY;
-            } else if (valueType === '[object Float64Array]') {
-                marker += TYPE_FLOAT64ARRAY;
-            } else {
-                callback(new Error('Failed to get type for BinaryArray'));
-            }
-        }
-
-        callback(marker + bufferToString(buffer));
-    } else if (valueType === '[object Blob]') {
-        // Conver the blob to a binaryArray and then to a string.
-        var fileReader = new FileReader();
-
-        fileReader.onload = function () {
-            // Backwards-compatible prefix for the blob type.
-            var str = BLOB_TYPE_PREFIX + value.type + '~' + bufferToString(this.result);
-
-            callback(SERIALIZED_MARKER + TYPE_BLOB + str);
-        };
-
-        fileReader.readAsArrayBuffer(value);
-    } else {
-        try {
-            callback(JSON.stringify(value));
-        } catch (e) {
-            console.error("Couldn't convert value into a JSON string: ", value);
-
-            callback(null, e);
-        }
-    }
-}
-
-// Deserialize data we've inserted into a value column/field. We place
-// special markers into our strings to mark them as encoded; this isn't
-// as nice as a meta field, but it's the only sane thing we can do whilst
-// keeping localStorage support intact.
-//
-// Oftentimes this will just deserialize JSON content, but if we have a
-// special marker (SERIALIZED_MARKER, defined above), we will extract
-// some kind of arraybuffer/binary data/typed array out of the string.
-function deserialize(value) {
-    // If we haven't marked this string as being specially serialized (i.e.
-    // something other than serialized JSON), we can just return it and be
-    // done with it.
-    if (value.substring(0, SERIALIZED_MARKER_LENGTH) !== SERIALIZED_MARKER) {
-        return JSON.parse(value);
-    }
-
-    // The following code deals with deserializing some kind of Blob or
-    // TypedArray. First we separate out the type of data we're dealing
-    // with from the data itself.
-    var serializedString = value.substring(TYPE_SERIALIZED_MARKER_LENGTH);
-    var type = value.substring(SERIALIZED_MARKER_LENGTH, TYPE_SERIALIZED_MARKER_LENGTH);
-
-    var blobType;
-    // Backwards-compatible blob type serialization strategy.
-    // DBs created with older versions of localForage will simply not have the blob type.
-    if (type === TYPE_BLOB && BLOB_TYPE_PREFIX_REGEX.test(serializedString)) {
-        var matcher = serializedString.match(BLOB_TYPE_PREFIX_REGEX);
-        blobType = matcher[1];
-        serializedString = serializedString.substring(matcher[0].length);
-    }
-    var buffer = stringToBuffer(serializedString);
-
-    // Return the right type based on the code/type set during
-    // serialization.
-    switch (type) {
-        case TYPE_ARRAYBUFFER:
-            return buffer;
-        case TYPE_BLOB:
-            return createBlob([buffer], { type: blobType });
-        case TYPE_INT8ARRAY:
-            return new Int8Array(buffer);
-        case TYPE_UINT8ARRAY:
-            return new Uint8Array(buffer);
-        case TYPE_UINT8CLAMPEDARRAY:
-            return new Uint8ClampedArray(buffer);
-        case TYPE_INT16ARRAY:
-            return new Int16Array(buffer);
-        case TYPE_UINT16ARRAY:
-            return new Uint16Array(buffer);
-        case TYPE_INT32ARRAY:
-            return new Int32Array(buffer);
-        case TYPE_UINT32ARRAY:
-            return new Uint32Array(buffer);
-        case TYPE_FLOAT32ARRAY:
-            return new Float32Array(buffer);
-        case TYPE_FLOAT64ARRAY:
-            return new Float64Array(buffer);
-        default:
-            throw new Error('Unkown type: ' + type);
-    }
-}
-
-var localforageSerializer = {
-    serialize: serialize,
-    deserialize: deserialize,
-    stringToBuffer: stringToBuffer,
-    bufferToString: bufferToString
-};
-
-/*
- * Includes code from:
- *
- * base64-arraybuffer
- * https://github.com/niklasvh/base64-arraybuffer
- *
- * Copyright (c) 2012 Niklas von Hertzen
- * Licensed under the MIT license.
- */
-
-function createDbTable(t, dbInfo, callback, errorCallback) {
-    t.executeSql('CREATE TABLE IF NOT EXISTS ' + dbInfo.storeName + ' ' + '(id INTEGER PRIMARY KEY, key unique, value)', [], callback, errorCallback);
-}
-
-// Open the WebSQL database (automatically creates one if one didn't
-// previously exist), using any options set in the config.
-function _initStorage$1(options) {
-    var self = this;
-    var dbInfo = {
-        db: null
-    };
-
-    if (options) {
-        for (var i in options) {
-            dbInfo[i] = typeof options[i] !== 'string' ? options[i].toString() : options[i];
-        }
-    }
-
-    var dbInfoPromise = new Promise$1(function (resolve, reject) {
-        // Open the database; the openDatabase API will automatically
-        // create it for us if it doesn't exist.
-        try {
-            dbInfo.db = openDatabase(dbInfo.name, String(dbInfo.version), dbInfo.description, dbInfo.size);
-        } catch (e) {
-            return reject(e);
-        }
-
-        // Create our key/value table if it doesn't exist.
-        dbInfo.db.transaction(function (t) {
-            createDbTable(t, dbInfo, function () {
-                self._dbInfo = dbInfo;
-                resolve();
-            }, function (t, error) {
-                reject(error);
-            });
-        }, reject);
-    });
-
-    dbInfo.serializer = localforageSerializer;
-    return dbInfoPromise;
-}
-
-function tryExecuteSql(t, dbInfo, sqlStatement, args, callback, errorCallback) {
-    t.executeSql(sqlStatement, args, callback, function (t, error) {
-        if (error.code === error.SYNTAX_ERR) {
-            t.executeSql('SELECT name FROM sqlite_master ' + "WHERE type='table' AND name = ?", [dbInfo.storeName], function (t, results) {
-                if (!results.rows.length) {
-                    // if the table is missing (was deleted)
-                    // re-create it table and retry
-                    createDbTable(t, dbInfo, function () {
-                        t.executeSql(sqlStatement, args, callback, errorCallback);
-                    }, errorCallback);
-                } else {
-                    errorCallback(t, error);
-                }
-            }, errorCallback);
-        } else {
-            errorCallback(t, error);
-        }
-    }, errorCallback);
-}
-
-function getItem$1(key, callback) {
-    var self = this;
-
-    key = normalizeKey(key);
-
-    var promise = new Promise$1(function (resolve, reject) {
-        self.ready().then(function () {
-            var dbInfo = self._dbInfo;
-            dbInfo.db.transaction(function (t) {
-                tryExecuteSql(t, dbInfo, 'SELECT * FROM ' + dbInfo.storeName + ' WHERE key = ? LIMIT 1', [key], function (t, results) {
-                    var result = results.rows.length ? results.rows.item(0).value : null;
-
-                    // Check to see if this is serialized content we need to
-                    // unpack.
-                    if (result) {
-                        result = dbInfo.serializer.deserialize(result);
-                    }
-
-                    resolve(result);
-                }, function (t, error) {
-                    reject(error);
-                });
-            });
-        })["catch"](reject);
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-function iterate$1(iterator, callback) {
-    var self = this;
-
-    var promise = new Promise$1(function (resolve, reject) {
-        self.ready().then(function () {
-            var dbInfo = self._dbInfo;
-
-            dbInfo.db.transaction(function (t) {
-                tryExecuteSql(t, dbInfo, 'SELECT * FROM ' + dbInfo.storeName, [], function (t, results) {
-                    var rows = results.rows;
-                    var length = rows.length;
-
-                    for (var i = 0; i < length; i++) {
-                        var item = rows.item(i);
-                        var result = item.value;
-
-                        // Check to see if this is serialized content
-                        // we need to unpack.
-                        if (result) {
-                            result = dbInfo.serializer.deserialize(result);
-                        }
-
-                        result = iterator(result, item.key, i + 1);
-
-                        // void(0) prevents problems with redefinition
-                        // of `undefined`.
-                        if (result !== void 0) {
-                            resolve(result);
-                            return;
-                        }
-                    }
-
-                    resolve();
-                }, function (t, error) {
-                    reject(error);
-                });
-            });
-        })["catch"](reject);
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-function _setItem(key, value, callback, retriesLeft) {
-    var self = this;
-
-    key = normalizeKey(key);
-
-    var promise = new Promise$1(function (resolve, reject) {
-        self.ready().then(function () {
-            // The localStorage API doesn't return undefined values in an
-            // "expected" way, so undefined is always cast to null in all
-            // drivers. See: https://github.com/mozilla/localForage/pull/42
-            if (value === undefined) {
-                value = null;
-            }
-
-            // Save the original value to pass to the callback.
-            var originalValue = value;
-
-            var dbInfo = self._dbInfo;
-            dbInfo.serializer.serialize(value, function (value, error) {
-                if (error) {
-                    reject(error);
-                } else {
-                    dbInfo.db.transaction(function (t) {
-                        tryExecuteSql(t, dbInfo, 'INSERT OR REPLACE INTO ' + dbInfo.storeName + ' ' + '(key, value) VALUES (?, ?)', [key, value], function () {
-                            resolve(originalValue);
-                        }, function (t, error) {
-                            reject(error);
-                        });
-                    }, function (sqlError) {
-                        // The transaction failed; check
-                        // to see if it's a quota error.
-                        if (sqlError.code === sqlError.QUOTA_ERR) {
-                            // We reject the callback outright for now, but
-                            // it's worth trying to re-run the transaction.
-                            // Even if the user accepts the prompt to use
-                            // more storage on Safari, this error will
-                            // be called.
-                            //
-                            // Try to re-run the transaction.
-                            if (retriesLeft > 0) {
-                                resolve(_setItem.apply(self, [key, originalValue, callback, retriesLeft - 1]));
-                                return;
-                            }
-                            reject(sqlError);
-                        }
-                    });
-                }
-            });
-        })["catch"](reject);
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-function setItem$1(key, value, callback) {
-    return _setItem.apply(this, [key, value, callback, 1]);
-}
-
-function removeItem$1(key, callback) {
-    var self = this;
-
-    key = normalizeKey(key);
-
-    var promise = new Promise$1(function (resolve, reject) {
-        self.ready().then(function () {
-            var dbInfo = self._dbInfo;
-            dbInfo.db.transaction(function (t) {
-                tryExecuteSql(t, dbInfo, 'DELETE FROM ' + dbInfo.storeName + ' WHERE key = ?', [key], function () {
-                    resolve();
-                }, function (t, error) {
-                    reject(error);
-                });
-            });
-        })["catch"](reject);
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-// Deletes every item in the table.
-// TODO: Find out if this resets the AUTO_INCREMENT number.
-function clear$1(callback) {
-    var self = this;
-
-    var promise = new Promise$1(function (resolve, reject) {
-        self.ready().then(function () {
-            var dbInfo = self._dbInfo;
-            dbInfo.db.transaction(function (t) {
-                tryExecuteSql(t, dbInfo, 'DELETE FROM ' + dbInfo.storeName, [], function () {
-                    resolve();
-                }, function (t, error) {
-                    reject(error);
-                });
-            });
-        })["catch"](reject);
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-// Does a simple `COUNT(key)` to get the number of items stored in
-// localForage.
-function length$1(callback) {
-    var self = this;
-
-    var promise = new Promise$1(function (resolve, reject) {
-        self.ready().then(function () {
-            var dbInfo = self._dbInfo;
-            dbInfo.db.transaction(function (t) {
-                // Ahhh, SQL makes this one soooooo easy.
-                tryExecuteSql(t, dbInfo, 'SELECT COUNT(key) as c FROM ' + dbInfo.storeName, [], function (t, results) {
-                    var result = results.rows.item(0).c;
-                    resolve(result);
-                }, function (t, error) {
-                    reject(error);
-                });
-            });
-        })["catch"](reject);
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-// Return the key located at key index X; essentially gets the key from a
-// `WHERE id = ?`. This is the most efficient way I can think to implement
-// this rarely-used (in my experience) part of the API, but it can seem
-// inconsistent, because we do `INSERT OR REPLACE INTO` on `setItem()`, so
-// the ID of each key will change every time it's updated. Perhaps a stored
-// procedure for the `setItem()` SQL would solve this problem?
-// TODO: Don't change ID on `setItem()`.
-function key$1(n, callback) {
-    var self = this;
-
-    var promise = new Promise$1(function (resolve, reject) {
-        self.ready().then(function () {
-            var dbInfo = self._dbInfo;
-            dbInfo.db.transaction(function (t) {
-                tryExecuteSql(t, dbInfo, 'SELECT key FROM ' + dbInfo.storeName + ' WHERE id = ? LIMIT 1', [n + 1], function (t, results) {
-                    var result = results.rows.length ? results.rows.item(0).key : null;
-                    resolve(result);
-                }, function (t, error) {
-                    reject(error);
-                });
-            });
-        })["catch"](reject);
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-function keys$1(callback) {
-    var self = this;
-
-    var promise = new Promise$1(function (resolve, reject) {
-        self.ready().then(function () {
-            var dbInfo = self._dbInfo;
-            dbInfo.db.transaction(function (t) {
-                tryExecuteSql(t, dbInfo, 'SELECT key FROM ' + dbInfo.storeName, [], function (t, results) {
-                    var keys = [];
-
-                    for (var i = 0; i < results.rows.length; i++) {
-                        keys.push(results.rows.item(i).key);
-                    }
-
-                    resolve(keys);
-                }, function (t, error) {
-                    reject(error);
-                });
-            });
-        })["catch"](reject);
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-// https://www.w3.org/TR/webdatabase/#databases
-// > There is no way to enumerate or delete the databases available for an origin from this API.
-function getAllStoreNames(db) {
-    return new Promise$1(function (resolve, reject) {
-        db.transaction(function (t) {
-            t.executeSql('SELECT name FROM sqlite_master ' + "WHERE type='table' AND name <> '__WebKitDatabaseInfoTable__'", [], function (t, results) {
-                var storeNames = [];
-
-                for (var i = 0; i < results.rows.length; i++) {
-                    storeNames.push(results.rows.item(i).name);
-                }
-
-                resolve({
-                    db: db,
-                    storeNames: storeNames
-                });
-            }, function (t, error) {
-                reject(error);
-            });
-        }, function (sqlError) {
-            reject(sqlError);
-        });
-    });
-}
-
-function dropInstance$1(options, callback) {
-    callback = getCallback.apply(this, arguments);
-
-    var currentConfig = this.config();
-    options = typeof options !== 'function' && options || {};
-    if (!options.name) {
-        options.name = options.name || currentConfig.name;
-        options.storeName = options.storeName || currentConfig.storeName;
-    }
-
-    var self = this;
-    var promise;
-    if (!options.name) {
-        promise = Promise$1.reject('Invalid arguments');
-    } else {
-        promise = new Promise$1(function (resolve) {
-            var db;
-            if (options.name === currentConfig.name) {
-                // use the db reference of the current instance
-                db = self._dbInfo.db;
-            } else {
-                db = openDatabase(options.name, '', '', 0);
-            }
-
-            if (!options.storeName) {
-                // drop all database tables
-                resolve(getAllStoreNames(db));
-            } else {
-                resolve({
-                    db: db,
-                    storeNames: [options.storeName]
-                });
-            }
-        }).then(function (operationInfo) {
-            return new Promise$1(function (resolve, reject) {
-                operationInfo.db.transaction(function (t) {
-                    function dropTable(storeName) {
-                        return new Promise$1(function (resolve, reject) {
-                            t.executeSql('DROP TABLE IF EXISTS ' + storeName, [], function () {
-                                resolve();
-                            }, function (t, error) {
-                                reject(error);
-                            });
-                        });
-                    }
-
-                    var operations = [];
-                    for (var i = 0, len = operationInfo.storeNames.length; i < len; i++) {
-                        operations.push(dropTable(operationInfo.storeNames[i]));
-                    }
-
-                    Promise$1.all(operations).then(function () {
-                        resolve();
-                    })["catch"](function (e) {
-                        reject(e);
-                    });
-                }, function (sqlError) {
-                    reject(sqlError);
-                });
-            });
-        });
-    }
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-var webSQLStorage = {
-    _driver: 'webSQLStorage',
-    _initStorage: _initStorage$1,
-    _support: isWebSQLValid(),
-    iterate: iterate$1,
-    getItem: getItem$1,
-    setItem: setItem$1,
-    removeItem: removeItem$1,
-    clear: clear$1,
-    length: length$1,
-    key: key$1,
-    keys: keys$1,
-    dropInstance: dropInstance$1
-};
-
-function isLocalStorageValid() {
-    try {
-        return typeof localStorage !== 'undefined' && 'setItem' in localStorage &&
-        // in IE8 typeof localStorage.setItem === 'object'
-        !!localStorage.setItem;
-    } catch (e) {
-        return false;
-    }
-}
-
-function _getKeyPrefix(options, defaultConfig) {
-    var keyPrefix = options.name + '/';
-
-    if (options.storeName !== defaultConfig.storeName) {
-        keyPrefix += options.storeName + '/';
-    }
-    return keyPrefix;
-}
-
-// Check if localStorage throws when saving an item
-function checkIfLocalStorageThrows() {
-    var localStorageTestKey = '_localforage_support_test';
-
-    try {
-        localStorage.setItem(localStorageTestKey, true);
-        localStorage.removeItem(localStorageTestKey);
-
-        return false;
-    } catch (e) {
-        return true;
-    }
-}
-
-// Check if localStorage is usable and allows to save an item
-// This method checks if localStorage is usable in Safari Private Browsing
-// mode, or in any other case where the available quota for localStorage
-// is 0 and there wasn't any saved items yet.
-function _isLocalStorageUsable() {
-    return !checkIfLocalStorageThrows() || localStorage.length > 0;
-}
-
-// Config the localStorage backend, using options set in the config.
-function _initStorage$2(options) {
-    var self = this;
-    var dbInfo = {};
-    if (options) {
-        for (var i in options) {
-            dbInfo[i] = options[i];
-        }
-    }
-
-    dbInfo.keyPrefix = _getKeyPrefix(options, self._defaultConfig);
-
-    if (!_isLocalStorageUsable()) {
-        return Promise$1.reject();
-    }
-
-    self._dbInfo = dbInfo;
-    dbInfo.serializer = localforageSerializer;
-
-    return Promise$1.resolve();
-}
-
-// Remove all keys from the datastore, effectively destroying all data in
-// the app's key/value store!
-function clear$2(callback) {
-    var self = this;
-    var promise = self.ready().then(function () {
-        var keyPrefix = self._dbInfo.keyPrefix;
-
-        for (var i = localStorage.length - 1; i >= 0; i--) {
-            var key = localStorage.key(i);
-
-            if (key.indexOf(keyPrefix) === 0) {
-                localStorage.removeItem(key);
-            }
-        }
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-// Retrieve an item from the store. Unlike the original async_storage
-// library in Gaia, we don't modify return values at all. If a key's value
-// is `undefined`, we pass that value to the callback function.
-function getItem$2(key, callback) {
-    var self = this;
-
-    key = normalizeKey(key);
-
-    var promise = self.ready().then(function () {
-        var dbInfo = self._dbInfo;
-        var result = localStorage.getItem(dbInfo.keyPrefix + key);
-
-        // If a result was found, parse it from the serialized
-        // string into a JS object. If result isn't truthy, the key
-        // is likely undefined and we'll pass it straight to the
-        // callback.
-        if (result) {
-            result = dbInfo.serializer.deserialize(result);
-        }
-
-        return result;
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-// Iterate over all items in the store.
-function iterate$2(iterator, callback) {
-    var self = this;
-
-    var promise = self.ready().then(function () {
-        var dbInfo = self._dbInfo;
-        var keyPrefix = dbInfo.keyPrefix;
-        var keyPrefixLength = keyPrefix.length;
-        var length = localStorage.length;
-
-        // We use a dedicated iterator instead of the `i` variable below
-        // so other keys we fetch in localStorage aren't counted in
-        // the `iterationNumber` argument passed to the `iterate()`
-        // callback.
-        //
-        // See: github.com/mozilla/localForage/pull/435#discussion_r38061530
-        var iterationNumber = 1;
-
-        for (var i = 0; i < length; i++) {
-            var key = localStorage.key(i);
-            if (key.indexOf(keyPrefix) !== 0) {
-                continue;
-            }
-            var value = localStorage.getItem(key);
-
-            // If a result was found, parse it from the serialized
-            // string into a JS object. If result isn't truthy, the
-            // key is likely undefined and we'll pass it straight
-            // to the iterator.
-            if (value) {
-                value = dbInfo.serializer.deserialize(value);
-            }
-
-            value = iterator(value, key.substring(keyPrefixLength), iterationNumber++);
-
-            if (value !== void 0) {
-                return value;
-            }
-        }
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-// Same as localStorage's key() method, except takes a callback.
-function key$2(n, callback) {
-    var self = this;
-    var promise = self.ready().then(function () {
-        var dbInfo = self._dbInfo;
-        var result;
-        try {
-            result = localStorage.key(n);
-        } catch (error) {
-            result = null;
-        }
-
-        // Remove the prefix from the key, if a key is found.
-        if (result) {
-            result = result.substring(dbInfo.keyPrefix.length);
-        }
-
-        return result;
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-function keys$2(callback) {
-    var self = this;
-    var promise = self.ready().then(function () {
-        var dbInfo = self._dbInfo;
-        var length = localStorage.length;
-        var keys = [];
-
-        for (var i = 0; i < length; i++) {
-            var itemKey = localStorage.key(i);
-            if (itemKey.indexOf(dbInfo.keyPrefix) === 0) {
-                keys.push(itemKey.substring(dbInfo.keyPrefix.length));
-            }
-        }
-
-        return keys;
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-// Supply the number of keys in the datastore to the callback function.
-function length$2(callback) {
-    var self = this;
-    var promise = self.keys().then(function (keys) {
-        return keys.length;
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-// Remove an item from the store, nice and simple.
-function removeItem$2(key, callback) {
-    var self = this;
-
-    key = normalizeKey(key);
-
-    var promise = self.ready().then(function () {
-        var dbInfo = self._dbInfo;
-        localStorage.removeItem(dbInfo.keyPrefix + key);
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-// Set a key's value and run an optional callback once the value is set.
-// Unlike Gaia's implementation, the callback function is passed the value,
-// in case you want to operate on that value only after you're sure it
-// saved, or something like that.
-function setItem$2(key, value, callback) {
-    var self = this;
-
-    key = normalizeKey(key);
-
-    var promise = self.ready().then(function () {
-        // Convert undefined values to null.
-        // https://github.com/mozilla/localForage/pull/42
-        if (value === undefined) {
-            value = null;
-        }
-
-        // Save the original value to pass to the callback.
-        var originalValue = value;
-
-        return new Promise$1(function (resolve, reject) {
-            var dbInfo = self._dbInfo;
-            dbInfo.serializer.serialize(value, function (value, error) {
-                if (error) {
-                    reject(error);
-                } else {
-                    try {
-                        localStorage.setItem(dbInfo.keyPrefix + key, value);
-                        resolve(originalValue);
-                    } catch (e) {
-                        // localStorage capacity exceeded.
-                        // TODO: Make this a specific error/event.
-                        if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
-                            reject(e);
-                        }
-                        reject(e);
-                    }
-                }
-            });
-        });
-    });
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-function dropInstance$2(options, callback) {
-    callback = getCallback.apply(this, arguments);
-
-    options = typeof options !== 'function' && options || {};
-    if (!options.name) {
-        var currentConfig = this.config();
-        options.name = options.name || currentConfig.name;
-        options.storeName = options.storeName || currentConfig.storeName;
-    }
-
-    var self = this;
-    var promise;
-    if (!options.name) {
-        promise = Promise$1.reject('Invalid arguments');
-    } else {
-        promise = new Promise$1(function (resolve) {
-            if (!options.storeName) {
-                resolve(options.name + '/');
-            } else {
-                resolve(_getKeyPrefix(options, self._defaultConfig));
-            }
-        }).then(function (keyPrefix) {
-            for (var i = localStorage.length - 1; i >= 0; i--) {
-                var key = localStorage.key(i);
-
-                if (key.indexOf(keyPrefix) === 0) {
-                    localStorage.removeItem(key);
-                }
-            }
-        });
-    }
-
-    executeCallback(promise, callback);
-    return promise;
-}
-
-var localStorageWrapper = {
-    _driver: 'localStorageWrapper',
-    _initStorage: _initStorage$2,
-    _support: isLocalStorageValid(),
-    iterate: iterate$2,
-    getItem: getItem$2,
-    setItem: setItem$2,
-    removeItem: removeItem$2,
-    clear: clear$2,
-    length: length$2,
-    key: key$2,
-    keys: keys$2,
-    dropInstance: dropInstance$2
-};
-
-var sameValue = function sameValue(x, y) {
-    return x === y || typeof x === 'number' && typeof y === 'number' && isNaN(x) && isNaN(y);
-};
-
-var includes = function includes(array, searchElement) {
-    var len = array.length;
-    var i = 0;
-    while (i < len) {
-        if (sameValue(array[i], searchElement)) {
-            return true;
-        }
-        i++;
-    }
-
-    return false;
-};
-
-var isArray = Array.isArray || function (arg) {
-    return Object.prototype.toString.call(arg) === '[object Array]';
-};
-
-// Drivers are stored here when `defineDriver()` is called.
-// They are shared across all instances of localForage.
-var DefinedDrivers = {};
-
-var DriverSupport = {};
-
-var DefaultDrivers = {
-    INDEXEDDB: asyncStorage,
-    WEBSQL: webSQLStorage,
-    LOCALSTORAGE: localStorageWrapper
-};
-
-var DefaultDriverOrder = [DefaultDrivers.INDEXEDDB._driver, DefaultDrivers.WEBSQL._driver, DefaultDrivers.LOCALSTORAGE._driver];
-
-var OptionalDriverMethods = ['dropInstance'];
-
-var LibraryMethods = ['clear', 'getItem', 'iterate', 'key', 'keys', 'length', 'removeItem', 'setItem'].concat(OptionalDriverMethods);
-
-var DefaultConfig = {
-    description: '',
-    driver: DefaultDriverOrder.slice(),
-    name: 'localforage',
-    // Default DB size is _JUST UNDER_ 5MB, as it's the highest size
-    // we can use without a prompt.
-    size: 4980736,
-    storeName: 'keyvaluepairs',
-    version: 1.0
-};
-
-function callWhenReady(localForageInstance, libraryMethod) {
-    localForageInstance[libraryMethod] = function () {
-        var _args = arguments;
-        return localForageInstance.ready().then(function () {
-            return localForageInstance[libraryMethod].apply(localForageInstance, _args);
-        });
-    };
-}
-
-function extend() {
-    for (var i = 1; i < arguments.length; i++) {
-        var arg = arguments[i];
-
-        if (arg) {
-            for (var _key in arg) {
-                if (arg.hasOwnProperty(_key)) {
-                    if (isArray(arg[_key])) {
-                        arguments[0][_key] = arg[_key].slice();
-                    } else {
-                        arguments[0][_key] = arg[_key];
-                    }
-                }
-            }
-        }
-    }
-
-    return arguments[0];
-}
-
-var LocalForage = function () {
-    function LocalForage(options) {
-        _classCallCheck(this, LocalForage);
-
-        for (var driverTypeKey in DefaultDrivers) {
-            if (DefaultDrivers.hasOwnProperty(driverTypeKey)) {
-                var driver = DefaultDrivers[driverTypeKey];
-                var driverName = driver._driver;
-                this[driverTypeKey] = driverName;
-
-                if (!DefinedDrivers[driverName]) {
-                    // we don't need to wait for the promise,
-                    // since the default drivers can be defined
-                    // in a blocking manner
-                    this.defineDriver(driver);
-                }
-            }
-        }
-
-        this._defaultConfig = extend({}, DefaultConfig);
-        this._config = extend({}, this._defaultConfig, options);
-        this._driverSet = null;
-        this._initDriver = null;
-        this._ready = false;
-        this._dbInfo = null;
-
-        this._wrapLibraryMethodsWithReady();
-        this.setDriver(this._config.driver)["catch"](function () {});
-    }
-
-    // Set any config values for localForage; can be called anytime before
-    // the first API call (e.g. `getItem`, `setItem`).
-    // We loop through options so we don't overwrite existing config
-    // values.
-
-
-    LocalForage.prototype.config = function config(options) {
-        // If the options argument is an object, we use it to set values.
-        // Otherwise, we return either a specified config value or all
-        // config values.
-        if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) === 'object') {
-            // If localforage is ready and fully initialized, we can't set
-            // any new configuration values. Instead, we return an error.
-            if (this._ready) {
-                return new Error("Can't call config() after localforage " + 'has been used.');
-            }
-
-            for (var i in options) {
-                if (i === 'storeName') {
-                    options[i] = options[i].replace(/\W/g, '_');
-                }
-
-                if (i === 'version' && typeof options[i] !== 'number') {
-                    return new Error('Database version must be a number.');
-                }
-
-                this._config[i] = options[i];
-            }
-
-            // after all config options are set and
-            // the driver option is used, try setting it
-            if ('driver' in options && options.driver) {
-                return this.setDriver(this._config.driver);
-            }
-
-            return true;
-        } else if (typeof options === 'string') {
-            return this._config[options];
-        } else {
-            return this._config;
-        }
-    };
-
-    // Used to define a custom driver, shared across all instances of
-    // localForage.
-
-
-    LocalForage.prototype.defineDriver = function defineDriver(driverObject, callback, errorCallback) {
-        var promise = new Promise$1(function (resolve, reject) {
-            try {
-                var driverName = driverObject._driver;
-                var complianceError = new Error('Custom driver not compliant; see ' + 'https://mozilla.github.io/localForage/#definedriver');
-
-                // A driver name should be defined and not overlap with the
-                // library-defined, default drivers.
-                if (!driverObject._driver) {
-                    reject(complianceError);
-                    return;
-                }
-
-                var driverMethods = LibraryMethods.concat('_initStorage');
-                for (var i = 0, len = driverMethods.length; i < len; i++) {
-                    var driverMethodName = driverMethods[i];
-
-                    // when the property is there,
-                    // it should be a method even when optional
-                    var isRequired = !includes(OptionalDriverMethods, driverMethodName);
-                    if ((isRequired || driverObject[driverMethodName]) && typeof driverObject[driverMethodName] !== 'function') {
-                        reject(complianceError);
-                        return;
-                    }
-                }
-
-                var configureMissingMethods = function configureMissingMethods() {
-                    var methodNotImplementedFactory = function methodNotImplementedFactory(methodName) {
-                        return function () {
-                            var error = new Error('Method ' + methodName + ' is not implemented by the current driver');
-                            var promise = Promise$1.reject(error);
-                            executeCallback(promise, arguments[arguments.length - 1]);
-                            return promise;
-                        };
-                    };
-
-                    for (var _i = 0, _len = OptionalDriverMethods.length; _i < _len; _i++) {
-                        var optionalDriverMethod = OptionalDriverMethods[_i];
-                        if (!driverObject[optionalDriverMethod]) {
-                            driverObject[optionalDriverMethod] = methodNotImplementedFactory(optionalDriverMethod);
-                        }
-                    }
-                };
-
-                configureMissingMethods();
-
-                var setDriverSupport = function setDriverSupport(support) {
-                    if (DefinedDrivers[driverName]) {
-                        console.info('Redefining LocalForage driver: ' + driverName);
-                    }
-                    DefinedDrivers[driverName] = driverObject;
-                    DriverSupport[driverName] = support;
-                    // don't use a then, so that we can define
-                    // drivers that have simple _support methods
-                    // in a blocking manner
-                    resolve();
-                };
-
-                if ('_support' in driverObject) {
-                    if (driverObject._support && typeof driverObject._support === 'function') {
-                        driverObject._support().then(setDriverSupport, reject);
-                    } else {
-                        setDriverSupport(!!driverObject._support);
-                    }
-                } else {
-                    setDriverSupport(true);
-                }
-            } catch (e) {
-                reject(e);
-            }
-        });
-
-        executeTwoCallbacks(promise, callback, errorCallback);
-        return promise;
-    };
-
-    LocalForage.prototype.driver = function driver() {
-        return this._driver || null;
-    };
-
-    LocalForage.prototype.getDriver = function getDriver(driverName, callback, errorCallback) {
-        var getDriverPromise = DefinedDrivers[driverName] ? Promise$1.resolve(DefinedDrivers[driverName]) : Promise$1.reject(new Error('Driver not found.'));
-
-        executeTwoCallbacks(getDriverPromise, callback, errorCallback);
-        return getDriverPromise;
-    };
-
-    LocalForage.prototype.getSerializer = function getSerializer(callback) {
-        var serializerPromise = Promise$1.resolve(localforageSerializer);
-        executeTwoCallbacks(serializerPromise, callback);
-        return serializerPromise;
-    };
-
-    LocalForage.prototype.ready = function ready(callback) {
-        var self = this;
-
-        var promise = self._driverSet.then(function () {
-            if (self._ready === null) {
-                self._ready = self._initDriver();
-            }
-
-            return self._ready;
-        });
-
-        executeTwoCallbacks(promise, callback, callback);
-        return promise;
-    };
-
-    LocalForage.prototype.setDriver = function setDriver(drivers, callback, errorCallback) {
-        var self = this;
-
-        if (!isArray(drivers)) {
-            drivers = [drivers];
-        }
-
-        var supportedDrivers = this._getSupportedDrivers(drivers);
-
-        function setDriverToConfig() {
-            self._config.driver = self.driver();
-        }
-
-        function extendSelfWithDriver(driver) {
-            self._extend(driver);
-            setDriverToConfig();
-
-            self._ready = self._initStorage(self._config);
-            return self._ready;
-        }
-
-        function initDriver(supportedDrivers) {
-            return function () {
-                var currentDriverIndex = 0;
-
-                function driverPromiseLoop() {
-                    while (currentDriverIndex < supportedDrivers.length) {
-                        var driverName = supportedDrivers[currentDriverIndex];
-                        currentDriverIndex++;
-
-                        self._dbInfo = null;
-                        self._ready = null;
-
-                        return self.getDriver(driverName).then(extendSelfWithDriver)["catch"](driverPromiseLoop);
-                    }
-
-                    setDriverToConfig();
-                    var error = new Error('No available storage method found.');
-                    self._driverSet = Promise$1.reject(error);
-                    return self._driverSet;
-                }
-
-                return driverPromiseLoop();
-            };
-        }
-
-        // There might be a driver initialization in progress
-        // so wait for it to finish in order to avoid a possible
-        // race condition to set _dbInfo
-        var oldDriverSetDone = this._driverSet !== null ? this._driverSet["catch"](function () {
-            return Promise$1.resolve();
-        }) : Promise$1.resolve();
-
-        this._driverSet = oldDriverSetDone.then(function () {
-            var driverName = supportedDrivers[0];
-            self._dbInfo = null;
-            self._ready = null;
-
-            return self.getDriver(driverName).then(function (driver) {
-                self._driver = driver._driver;
-                setDriverToConfig();
-                self._wrapLibraryMethodsWithReady();
-                self._initDriver = initDriver(supportedDrivers);
-            });
-        })["catch"](function () {
-            setDriverToConfig();
-            var error = new Error('No available storage method found.');
-            self._driverSet = Promise$1.reject(error);
-            return self._driverSet;
-        });
-
-        executeTwoCallbacks(this._driverSet, callback, errorCallback);
-        return this._driverSet;
-    };
-
-    LocalForage.prototype.supports = function supports(driverName) {
-        return !!DriverSupport[driverName];
-    };
-
-    LocalForage.prototype._extend = function _extend(libraryMethodsAndProperties) {
-        extend(this, libraryMethodsAndProperties);
-    };
-
-    LocalForage.prototype._getSupportedDrivers = function _getSupportedDrivers(drivers) {
-        var supportedDrivers = [];
-        for (var i = 0, len = drivers.length; i < len; i++) {
-            var driverName = drivers[i];
-            if (this.supports(driverName)) {
-                supportedDrivers.push(driverName);
-            }
-        }
-        return supportedDrivers;
-    };
-
-    LocalForage.prototype._wrapLibraryMethodsWithReady = function _wrapLibraryMethodsWithReady() {
-        // Add a stub for each driver API method that delays the call to the
-        // corresponding driver method until localForage is ready. These stubs
-        // will be replaced by the driver methods as soon as the driver is
-        // loaded, so there is no performance impact.
-        for (var i = 0, len = LibraryMethods.length; i < len; i++) {
-            callWhenReady(this, LibraryMethods[i]);
-        }
-    };
-
-    LocalForage.prototype.createInstance = function createInstance(options) {
-        return new LocalForage(options);
-    };
-
-    return LocalForage;
-}();
-
-// The actual localForage object that we expose as a module or via a
-// global. It's extended by pulling in one of our other libraries.
-
-
-var localforage_js = new LocalForage();
-
-module.exports = localforage_js;
-
-},{"3":3}]},{},[4])(4)
-});
-
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../webpack/buildin/global.js */ "./node_modules/webpack/buildin/global.js")))
-
-/***/ }),
-
-/***/ "./node_modules/magic-sdk/dist/module/iframe-controller.js":
-/*!*****************************************************************!*\
-  !*** ./node_modules/magic-sdk/dist/module/iframe-controller.js ***!
-  \*****************************************************************/
-/*! exports provided: IframeController */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "IframeController", function() { return IframeController; });
-/* harmony import */ var _magic_sdk_provider__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @magic-sdk/provider */ "./node_modules/@magic-sdk/provider/dist/module/index.js");
-/* eslint-disable no-underscore-dangle */
-var __extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-var __values = (undefined && undefined.__values) || function(o) {
-    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-    if (m) return m.call(o);
-    if (o && typeof o.length === "number") return {
-        next: function () {
-            if (o && i >= o.length) o = void 0;
-            return { value: o && o[i++], done: !o };
-        }
-    };
-    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-};
-var __read = (undefined && undefined.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-
-/**
- * Magic `<iframe>` overlay styles. These base styles enable `<iframe>` UI
- * to render above all other DOM content.
- */
-var overlayStyles = {
-    display: 'none',
-    position: 'fixed',
-    top: '0',
-    right: '0',
-    width: '100%',
-    height: '100%',
-    borderRadius: '0',
-    border: 'none',
-    zIndex: '2147483647',
-};
-/**
- * Apply iframe styles to the given element.
- * @param elem - An element to apply styles using CSSOM.
- */
-function applyOverlayStyles(elem) {
-    var e_1, _a;
-    try {
-        for (var _b = __values(Object.entries(overlayStyles)), _c = _b.next(); !_c.done; _c = _b.next()) {
-            var _d = __read(_c.value, 2), cssProperty = _d[0], value = _d[1];
-            /* eslint-disable-next-line no-param-reassign */
-            elem.style[cssProperty] = value;
-        }
-    }
-    catch (e_1_1) { e_1 = { error: e_1_1 }; }
-    finally {
-        try {
-            if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-        }
-        finally { if (e_1) throw e_1.error; }
-    }
-}
-/**
- * Checks if the given query params are associated with an active `<iframe>`
- * instance.
- *
- * @param encodedQueryParams - The unique, encoded query parameters to check for
- * duplicates against.
- */
-function checkForSameSrcInstances(encodedQueryParams) {
-    var iframes = [].slice.call(document.querySelectorAll('.magic-iframe'));
-    return Boolean(iframes.find(function (iframe) { return iframe.src.includes(encodedQueryParams); }));
-}
-/**
- * View controller for the Magic `<iframe>` overlay.
- */
-var IframeController = /** @class */ (function (_super) {
-    __extends(IframeController, _super);
-    function IframeController() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    IframeController.prototype.init = function () {
-        this.iframe = this.createIframe();
-    };
-    IframeController.prototype.createIframe = function () {
-        var _this = this;
-        return new Promise(function (resolve) {
-            var onload = function () {
-                if (!checkForSameSrcInstances(encodeURIComponent(_this.encodedQueryParams))) {
-                    var iframe = document.createElement('iframe');
-                    iframe.classList.add('magic-iframe');
-                    iframe.dataset.magicIframeLabel = Object(_magic_sdk_provider__WEBPACK_IMPORTED_MODULE_0__["createURL"])(_this.endpoint).host;
-                    iframe.src = Object(_magic_sdk_provider__WEBPACK_IMPORTED_MODULE_0__["createURL"])("/send?params=" + encodeURIComponent(_this.encodedQueryParams), _this.endpoint).href;
-                    applyOverlayStyles(iframe);
-                    document.body.appendChild(iframe);
-                    resolve(iframe);
-                }
-                else {
-                    Object(_magic_sdk_provider__WEBPACK_IMPORTED_MODULE_0__["createDuplicateIframeWarning"])().log();
-                }
-            };
-            // Check DOM state and load...
-            if (['loaded', 'interactive', 'complete'].includes(document.readyState)) {
-                onload();
-            }
-            else {
-                // ...or check load events to load
-                window.addEventListener('load', onload, false);
-            }
-        });
-    };
-    IframeController.prototype.showOverlay = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var overlayResolved;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.iframe];
-                    case 1:
-                        overlayResolved = _a.sent();
-                        overlayResolved.style.display = 'block';
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    IframeController.prototype.hideOverlay = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var overlayResolved;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.iframe];
-                    case 1:
-                        overlayResolved = _a.sent();
-                        overlayResolved.style.display = 'none';
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    IframeController.prototype.postMessage = function (data) {
-        return __awaiter(this, void 0, void 0, function () {
-            var iframe;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.iframe];
-                    case 1:
-                        iframe = _a.sent();
-                        if (iframe && iframe.contentWindow) {
-                            iframe.contentWindow.postMessage(data, this.endpoint);
-                        }
-                        else {
-                            throw Object(_magic_sdk_provider__WEBPACK_IMPORTED_MODULE_0__["createModalNotReadyError"])();
-                        }
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    return IframeController;
-}(_magic_sdk_provider__WEBPACK_IMPORTED_MODULE_0__["ViewController"]));
-
-//# sourceMappingURL=iframe-controller.js.map
-
-/***/ }),
-
-/***/ "./node_modules/magic-sdk/dist/module/index.js":
-/*!*****************************************************!*\
-  !*** ./node_modules/magic-sdk/dist/module/index.js ***!
-  \*****************************************************/
-/*! exports provided: Extension, SDKError, ExtensionError, ExtensionWarning, RPCError, SDKWarning, isPromiEvent, MagicPayloadMethod, MagicIncomingWindowMessage, MagicOutgoingWindowMessage, SDKErrorCode, SDKWarningCode, RPCErrorCode, EthChainType, Magic */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Magic", function() { return Magic; });
-/* harmony import */ var _magic_sdk_provider__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @magic-sdk/provider */ "./node_modules/@magic-sdk/provider/dist/module/index.js");
-/* harmony import */ var localforage__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! localforage */ "./node_modules/localforage/dist/localforage.js");
-/* harmony import */ var localforage__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(localforage__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var localforage_driver_memory__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! localforage-driver-memory */ "./node_modules/localforage-driver-memory/_bundle/umd.js");
-/* harmony import */ var localforage_driver_memory__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(localforage_driver_memory__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _iframe_controller__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./iframe-controller */ "./node_modules/magic-sdk/dist/module/iframe-controller.js");
-/* harmony import */ var _web_transport__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./web-transport */ "./node_modules/magic-sdk/dist/module/web-transport.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Extension", function() { return _magic_sdk_provider__WEBPACK_IMPORTED_MODULE_0__["Extension"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "SDKError", function() { return _magic_sdk_provider__WEBPACK_IMPORTED_MODULE_0__["MagicSDKError"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ExtensionError", function() { return _magic_sdk_provider__WEBPACK_IMPORTED_MODULE_0__["MagicExtensionError"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ExtensionWarning", function() { return _magic_sdk_provider__WEBPACK_IMPORTED_MODULE_0__["MagicExtensionWarning"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "RPCError", function() { return _magic_sdk_provider__WEBPACK_IMPORTED_MODULE_0__["MagicRPCError"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "SDKWarning", function() { return _magic_sdk_provider__WEBPACK_IMPORTED_MODULE_0__["MagicSDKWarning"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "isPromiEvent", function() { return _magic_sdk_provider__WEBPACK_IMPORTED_MODULE_0__["isPromiEvent"]; });
-
-/* harmony import */ var _magic_sdk_types__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @magic-sdk/types */ "./node_modules/@magic-sdk/types/dist/module/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "MagicPayloadMethod", function() { return _magic_sdk_types__WEBPACK_IMPORTED_MODULE_5__["MagicPayloadMethod"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "MagicIncomingWindowMessage", function() { return _magic_sdk_types__WEBPACK_IMPORTED_MODULE_5__["MagicIncomingWindowMessage"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "MagicOutgoingWindowMessage", function() { return _magic_sdk_types__WEBPACK_IMPORTED_MODULE_5__["MagicOutgoingWindowMessage"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "SDKErrorCode", function() { return _magic_sdk_types__WEBPACK_IMPORTED_MODULE_5__["SDKErrorCode"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "SDKWarningCode", function() { return _magic_sdk_types__WEBPACK_IMPORTED_MODULE_5__["SDKWarningCode"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "RPCErrorCode", function() { return _magic_sdk_types__WEBPACK_IMPORTED_MODULE_5__["RPCErrorCode"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "EthChainType", function() { return _magic_sdk_types__WEBPACK_IMPORTED_MODULE_5__["EthChainType"]; });
-
-/* eslint-disable no-underscore-dangle */
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-
-
-
-var Magic = Object(_magic_sdk_provider__WEBPACK_IMPORTED_MODULE_0__["createSDK"])(_magic_sdk_provider__WEBPACK_IMPORTED_MODULE_0__["SDKBase"], {
-    target: 'web',
-    sdkName: 'magic-sdk',
-    version: '2.7.0',
-    defaultEndpoint: 'https://auth.magic.link/',
-    ViewController: _iframe_controller__WEBPACK_IMPORTED_MODULE_3__["IframeController"],
-    PayloadTransport: _web_transport__WEBPACK_IMPORTED_MODULE_4__["WebTransport"],
-    configureStorage: /* istanbul ignore next */ function () { return __awaiter(void 0, void 0, void 0, function () {
-        var lf;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    lf = localforage__WEBPACK_IMPORTED_MODULE_1___default.a.createInstance({
-                        name: 'MagicAuthLocalStorageDB',
-                        storeName: 'MagicAuthLocalStorage',
-                    });
-                    return [4 /*yield*/, lf.defineDriver(localforage_driver_memory__WEBPACK_IMPORTED_MODULE_2__)];
-                case 1:
-                    _a.sent();
-                    return [4 /*yield*/, lf.setDriver([localforage__WEBPACK_IMPORTED_MODULE_1___default.a.INDEXEDDB, localforage__WEBPACK_IMPORTED_MODULE_1___default.a.LOCALSTORAGE, localforage_driver_memory__WEBPACK_IMPORTED_MODULE_2__["_driver"]])];
-                case 2:
-                    _a.sent();
-                    return [2 /*return*/, lf];
-            }
-        });
-    }); },
-});
-//# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ "./node_modules/magic-sdk/dist/module/web-transport.js":
-/*!*************************************************************!*\
-  !*** ./node_modules/magic-sdk/dist/module/web-transport.js ***!
-  \*************************************************************/
-/*! exports provided: WebTransport */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "WebTransport", function() { return WebTransport; });
-/* harmony import */ var _magic_sdk_provider__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @magic-sdk/provider */ "./node_modules/@magic-sdk/provider/dist/module/index.js");
-var __extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var __values = (undefined && undefined.__values) || function(o) {
-    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-    if (m) return m.call(o);
-    if (o && typeof o.length === "number") return {
-        next: function () {
-            if (o && i >= o.length) o = void 0;
-            return { value: o && o[i++], done: !o };
-        }
-    };
-    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-};
-
-var WebTransport = /** @class */ (function (_super) {
-    __extends(WebTransport, _super);
-    function WebTransport() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    /**
-     * Initialize the underlying `Window.onmessage` event listener.
-     */
-    WebTransport.prototype.init = function () {
-        var _this = this;
-        window.addEventListener('message', function (event) {
-            var e_1, _a;
-            var _b;
-            if (event.origin === _this.endpoint) {
-                if (event.data && event.data.msgType && _this.messageHandlers.size) {
-                    // If the response object is undefined, we ensure it's at least an
-                    // empty object before passing to the event listener.
-                    /* eslint-disable-next-line no-param-reassign */
-                    event.data.response = (_b = event.data.response) !== null && _b !== void 0 ? _b : {};
-                    try {
-                        for (var _c = __values(_this.messageHandlers.values()), _d = _c.next(); !_d.done; _d = _c.next()) {
-                            var handler = _d.value;
-                            handler(event);
-                        }
-                    }
-                    catch (e_1_1) { e_1 = { error: e_1_1 }; }
-                    finally {
-                        try {
-                            if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
-                        }
-                        finally { if (e_1) throw e_1.error; }
-                    }
-                }
-            }
-        });
-    };
-    return WebTransport;
-}(_magic_sdk_provider__WEBPACK_IMPORTED_MODULE_0__["PayloadTransport"]));
-
-//# sourceMappingURL=web-transport.js.map
+module.exports=function(e){var t={};function n(r){if(t[r])return t[r].exports;var o=t[r]={i:r,l:!1,exports:{}};return e[r].call(o.exports,o,o.exports,n),o.l=!0,o.exports}return n.m=e,n.c=t,n.d=function(e,t,r){n.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:r})},n.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},n.t=function(e,t){if(1&t&&(e=n(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var r=Object.create(null);if(n.r(r),Object.defineProperty(r,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var o in e)n.d(r,o,function(t){return e[t]}.bind(null,o));return r},n.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return n.d(t,"a",t),t},n.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},n.p="",n(n.s=13)}([function(e,t,n){"use strict";function r(e){for(var n in e)t.hasOwnProperty(n)||(t[n]=e[n])}Object.defineProperty(t,"__esModule",{value:!0}),r(n(17)),r(n(18)),r(n(19)),r(n(20))},function(e,t,n){"use strict";var r,o=this&&this.__extends||(r=function(e,t){return(r=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var n in t)t.hasOwnProperty(n)&&(e[n]=t[n])})(e,t)},function(e,t){function n(){this.constructor=e}r(e,t),e.prototype=null===t?Object.create(t):(n.prototype=t.prototype,new n)});Object.defineProperty(t,"__esModule",{value:!0});var i=n(0),a=n(5),s=n(6),u=function(e){function t(n,r){var o=e.call(this,"Magic SDK Error: ["+n+"] "+r)||this;return o.code=n,o.rawMessage=r,o.__proto__=Error,Object.setPrototypeOf(o,t.prototype),o}return o(t,e),t}(Error);t.MagicSDKError=u;var c=function(){function e(e,t){this.code=e,this.rawMessage=t,this.message="Magic SDK Warning: ["+e+"] "+t}return e.prototype.log=function(){console.warn(this.message)},e}();t.MagicSDKWarning=c;var l=function(e){function t(n){var r=e.call(this)||this;r.__proto__=Error;var o=Number(null==n?void 0:n.code);return r.rawMessage=(null==n?void 0:n.message)||"Internal error",r.code=a.isJsonRpcErrorCode(o)?o:i.RPCErrorCode.InternalError,r.message="Magic RPC Error: ["+r.code+"] "+r.rawMessage,Object.setPrototypeOf(r,t.prototype),r}return o(t,e),t}(Error);t.MagicRPCError=l,t.createMissingApiKeyError=function(){return new u(i.SDKErrorCode.MissingApiKey,"Please provide an API key that you acquired from the Magic developer dashboard.")},t.createModalNotReadyError=function(){return new u(i.SDKErrorCode.ModalNotReady,"Modal is not ready.")},t.createMalformedResponseError=function(){return new u(i.SDKErrorCode.MalformedResponse,"Response from the Magic iframe is malformed.")},t.createExtensionNotInitializedError=function(e){return new u(i.SDKErrorCode.ExtensionNotInitialized,"Extensions must be initialized with a Magic SDK instance before `Extension."+e+"` can be accessed. Do not invoke `Extension."+e+"` inside an extension constructor.")},t.createInvalidArgumentError=function(e){var t,n,r,o;return new u(i.SDKErrorCode.InvalidArgument,"Invalid "+(t=e.argument,o=(n=t+1)%100,(1===(r=n%10)&&11!==o?n+"st":2===r&&12!==o?n+"nd":3===r&&13!==o?n+"rd":n+"th")+" argument given to `")+e.procedure+"`.\n  Expected: `"+e.expected+"`\n  Received: `"+e.received+"`")},t.createDuplicateIframeWarning=function(){return new c(i.SDKWarningCode.DuplicateIframe,"Duplicate iframes found.")},t.createSynchronousWeb3MethodWarning=function(){return new c(i.SDKWarningCode.SyncWeb3Method,"Non-async web3 methods are deprecated in web3 > 1.0 and are not supported by the Magic web3 provider. Please use an async method instead.")},t.createReactNativeEndpointConfigurationWarning=function(){return new c(i.SDKWarningCode.ReactNativeEndpointConfiguration,"CUSTOM DOMAINS ARE NOT SUPPORTED WHEN USING MAGIC SDK WITH REACT NATIVE! The `endpoint` parameter SHOULD NOT be provided. The Magic `<iframe>` is automatically wrapped by a WebView pointed at `"+s.MGBOX_URL+"`. Changing this default behavior will lead to unexpected results and potentially security-threatening bugs.")}},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=n(5),o=n(22),i=Symbol("Payload pre-processed by Magic SDK");function a(e){return Object.defineProperty(e,i,{value:!0,enumerable:!1}),e}t.standardizeJsonRpcRequestPayload=function(e){var t,n,r;return function(e){return!!e[i]}(e)||(e.jsonrpc=null!==(t=e.jsonrpc)&&void 0!==t?t:"2.0",e.id=o.getPayloadId(),e.method=null!==(n=e.method)&&void 0!==n?n:"noop",e.params=null!==(r=e.params)&&void 0!==r?r:[],a(e)),e},t.createJsonRpcRequestPayload=function(e,t){return void 0===t&&(t=[]),a({params:t,method:e,jsonrpc:"2.0",id:o.getPayloadId()})};var s=function(){function e(t){t instanceof e?(this._jsonrpc=t.payload.jsonrpc,this._id=t.payload.id,this._result=t.payload.result,this._error=t.payload.error):r.isJsonRpcResponsePayload(t)?(this._jsonrpc=t.jsonrpc,this._id=t.id,this._result=t.result,this._error=t.error):(this._jsonrpc=t.jsonrpc,this._id=t.id,this._result=void 0,this._error=void 0)}return e.prototype.applyError=function(e){return this._error=e,this},e.prototype.applyResult=function(e){return this._result=e,this},Object.defineProperty(e.prototype,"hasError",{get:function(){return void 0!==this._error&&null!==this._error},enumerable:!0,configurable:!0}),Object.defineProperty(e.prototype,"hasResult",{get:function(){return void 0!==this._result},enumerable:!0,configurable:!0}),Object.defineProperty(e.prototype,"payload",{get:function(){return{jsonrpc:this._jsonrpc,id:this._id,result:this._result,error:this._error}},enumerable:!0,configurable:!0}),e}();t.JsonRpcResponse=s},function(e,t,n){},function(e,t,n){"use strict";var r=this&&this.__read||function(e,t){var n="function"==typeof Symbol&&e[Symbol.iterator];if(!n)return e;var r,o,i=n.call(e),a=[];try{for(;(void 0===t||t-- >0)&&!(r=i.next()).done;)a.push(r.value)}catch(e){o={error:e}}finally{try{r&&!r.done&&(n=i.return)&&n.call(i)}finally{if(o)throw o.error}}return a},o=this&&this.__spread||function(){for(var e=[],t=0;t<arguments.length;t++)e=e.concat(r(arguments[t]));return e};Object.defineProperty(t,"__esModule",{value:!0});var i=n(0),a=n(1),s=n(2),u=n(24),c=function(){function e(e){this.sdk=e}return Object.defineProperty(e.prototype,"transport",{get:function(){return this.sdk.transport},enumerable:!0,configurable:!0}),Object.defineProperty(e.prototype,"overlay",{get:function(){return this.sdk.overlay},enumerable:!0,configurable:!0}),e.prototype.request=function(e){var t=this.transport.post(this.overlay,i.MagicOutgoingWindowMessage.MAGIC_HANDLE_REQUEST,s.standardizeJsonRpcRequestPayload(e)),n=u.createPromiEvent((function(e,n){t.then((function(t){if(r(),t.hasError)n(new a.MagicRPCError(t.payload.error));else{if(!t.hasResult)throw a.createMalformedResponseError();e(t.payload.result)}})).catch((function(e){r(),n(e)}))})),r=this.transport.on(i.MagicIncomingWindowMessage.MAGIC_HANDLE_EVENT,(function(t){var r,i=t.data.response;if(i.id===e.id&&(null===(r=i.result)||void 0===r?void 0:r.event)){var a=i.result,s=a.event,u=a.params,c=void 0===u?[]:u;n.emit.apply(n,o([s],c))}}));return n},e}();t.BaseModule=c},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=n(0);function o(e){return void 0===e}function i(e){return function(e){return null===e}(e)||o(e)}t.isJsonRpcRequestPayload=function(e){return!i(e)&&!(o(e.jsonrpc)||o(e.id)||o(e.method)||o(e.params))},t.isJsonRpcResponsePayload=function(e){return!i(e)&&!(o(e.jsonrpc)||o(e.id)||o(e.result)&&o(e.error))},t.isMagicPayloadMethod=function(e){return!i(e)&&("string"==typeof e&&Object.values(r.MagicPayloadMethod).includes(e))},t.isJsonRpcErrorCode=function(e){return!i(e)&&("number"==typeof e&&Object.values(r.RPCErrorCode).includes(e))},t.isEmpty=function(e){if(!e)return!0;for(var t in e)if(Object.hasOwnProperty.call(e,t))return!1;return!0}},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.MAGIC_URL="https://auth.magic.link/",t.MGBOX_URL="https://box.magic.link/",t.IS_REACT_NATIVE=Boolean(!1),t.SDK_NAME="magic-sdk",t.SDK_VERSION="1.4.0"},function(e,t,n){"use strict";var r=this&&this.__awaiter||function(e,t,n,r){return new(n||(n=Promise))((function(o,i){function a(e){try{u(r.next(e))}catch(e){i(e)}}function s(e){try{u(r.throw(e))}catch(e){i(e)}}function u(e){var t;e.done?o(e.value):(t=e.value,t instanceof n?t:new n((function(e){e(t)}))).then(a,s)}u((r=r.apply(e,t||[])).next())}))},o=this&&this.__generator||function(e,t){var n,r,o,i,a={label:0,sent:function(){if(1&o[0])throw o[1];return o[1]},trys:[],ops:[]};return i={next:s(0),throw:s(1),return:s(2)},"function"==typeof Symbol&&(i[Symbol.iterator]=function(){return this}),i;function s(i){return function(s){return function(i){if(n)throw new TypeError("Generator is already executing.");for(;a;)try{if(n=1,r&&(o=2&i[0]?r.return:i[0]?r.throw||((o=r.return)&&o.call(r),0):r.next)&&!(o=o.call(r,i[1])).done)return o;switch(r=0,o&&(i=[2&i[0],o.value]),i[0]){case 0:case 1:o=i;break;case 4:return a.label++,{value:i[1],done:!1};case 5:a.label++,r=i[1],i=[0];continue;case 7:i=a.ops.pop(),a.trys.pop();continue;default:if(!(o=a.trys,(o=o.length>0&&o[o.length-1])||6!==i[0]&&2!==i[0])){a=0;continue}if(3===i[0]&&(!o||i[1]>o[0]&&i[1]<o[3])){a.label=i[1];break}if(6===i[0]&&a.label<o[1]){a.label=o[1],o=i;break}if(o&&a.label<o[2]){a.label=o[2],a.ops.push(i);break}o[2]&&a.ops.pop(),a.trys.pop();continue}i=t.call(e,a)}catch(e){i=[6,e],r=0}finally{n=o=0}if(5&i[0])throw i[1];return{value:i[0]?i[1]:void 0,done:!0}}([i,s])}}},i=this&&this.__values||function(e){var t="function"==typeof Symbol&&Symbol.iterator,n=t&&e[t],r=0;if(n)return n.call(e);if(e&&"number"==typeof e.length)return{next:function(){return e&&r>=e.length&&(e=void 0),{value:e&&e[r++],done:!e}}};throw new TypeError(t?"Object is not iterable.":"Symbol.iterator is not defined.")},a=this&&this.__read||function(e,t){var n="function"==typeof Symbol&&e[Symbol.iterator];if(!n)return e;var r,o,i=n.call(e),a=[];try{for(;(void 0===t||t-- >0)&&!(r=i.next()).done;)a.push(r.value)}catch(e){o={error:e}}finally{try{r&&!r.done&&(n=i.return)&&n.call(i)}finally{if(o)throw o.error}}return a};Object.defineProperty(t,"__esModule",{value:!0});var s=n(0),u=n(1),c=n(8),l={display:"none",position:"fixed",top:"0",right:"0",width:"100%",height:"100%",borderRadius:"0",border:"none",zIndex:"2147483647"};var f=function(){function e(e,t,n){this.transport=e,this.endpoint=t,this.encodedQueryParams=n,this.iframe=this.init(),this.ready=this.waitForReady(),this.listen()}return e.prototype.init=function(){var e=this;return new Promise((function(t){var n=function(){if(r=encodeURIComponent(e.encodedQueryParams),o=[].slice.call(document.querySelectorAll(".magic-iframe")),Boolean(o.find((function(e){return e.src.includes(r)}))))u.createDuplicateIframeWarning().log();else{var n=document.createElement("iframe");n.classList.add("magic-iframe"),n.dataset.magicIframeLabel=c.createURL(e.endpoint).host,n.src=c.createURL("/send?params="+encodeURIComponent(e.encodedQueryParams),e.endpoint).href,function(e){var t,n;try{for(var r=i(Object.entries(l)),o=r.next();!o.done;o=r.next()){var s=a(o.value,2),u=s[0],c=s[1];e.style[u]=c}}catch(e){t={error:e}}finally{try{o&&!o.done&&(n=r.return)&&n.call(r)}finally{if(t)throw t.error}}}(n),document.body.appendChild(n),t(n)}var r,o};["loaded","interactive","complete"].includes(document.readyState)?n():window.addEventListener("load",n,!1)}))},e.prototype.showOverlay=function(){return r(this,void 0,void 0,(function(){return o(this,(function(e){switch(e.label){case 0:return[4,this.iframe];case 1:return e.sent().style.display="block",[2]}}))}))},e.prototype.hideOverlay=function(){return r(this,void 0,void 0,(function(){return o(this,(function(e){switch(e.label){case 0:return[4,this.iframe];case 1:return e.sent().style.display="none",[2]}}))}))},e.prototype.waitForReady=function(){var e=this;return new Promise((function(t){e.transport.on(s.MagicIncomingWindowMessage.MAGIC_OVERLAY_READY,(function(){return t()}))}))},e.prototype.listen=function(){var e=this;this.transport.on(s.MagicIncomingWindowMessage.MAGIC_HIDE_OVERLAY,(function(){e.hideOverlay()})),this.transport.on(s.MagicIncomingWindowMessage.MAGIC_SHOW_OVERLAY,(function(){e.showOverlay()}))},e}();t.IframeController=f},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=n(9);t.createURL=function(e,t){return r.webSafeImports.url.URL?t?new r.webSafeImports.url.URL(e,t):new r.webSafeImports.url.URL(e):t?new URL(e,t):new URL(e)}},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.webSafeImports={rn:n(3),rnwv:n(3),url:n(3)}},function(e,t,n){"use strict";var r=this&&this.__assign||function(){return(r=Object.assign||function(e){for(var t,n=1,r=arguments.length;n<r;n++)for(var o in t=arguments[n])Object.prototype.hasOwnProperty.call(t,o)&&(e[o]=t[o]);return e}).apply(this,arguments)},o=this&&this.__read||function(e,t){var n="function"==typeof Symbol&&e[Symbol.iterator];if(!n)return e;var r,o,i=n.call(e),a=[];try{for(;(void 0===t||t-- >0)&&!(r=i.next()).done;)a.push(r.value)}catch(e){o={error:e}}finally{try{r&&!r.done&&(n=i.return)&&n.call(i)}finally{if(o)throw o.error}}return a},i=this&&this.__importStar||function(e){if(e&&e.__esModule)return e;var t={};if(null!=e)for(var n in e)Object.hasOwnProperty.call(e,n)&&(t[n]=e[n]);return t.default=e,t};Object.defineProperty(t,"__esModule",{value:!0});var a=i(n(3)),s=n(0),u=n(9);var c=function(){function e(e,t,n){var i=this;this.transport=e,this.endpoint=t,this.encodedQueryParams=n,this.Relayer=function(){var e=o(a.useState(!1),2),t=e[0],n=e[1],s=a.useCallback((function(e){i.webView=e}),[]),c=a.useCallback((function(e){i.container=r(r({},e),{showOverlay:l,hideOverlay:f})}),[]),l=a.useCallback((function(){n(!0)}),[]),f=a.useCallback((function(){n(!1)}),[]),d=a.useMemo((function(){return[i.styles["webview-container"],t?i.styles.show:i.styles.hide]}),[t]),p=a.useCallback((function(e){i.transport.handleReactNativeWebViewMessage(e)}),[]);return a.default.createElement(u.webSafeImports.rn.View,{ref:c,style:d},a.default.createElement(u.webSafeImports.rnwv.WebView,{ref:s,source:{uri:i.endpoint+"/send/?params="+encodeURIComponent(i.encodedQueryParams)},onMessage:p,style:i.styles["magic-webview"]}))},this.webView=null,this.container=null,this.ready=this.waitForReady(),this.styles=u.webSafeImports.rn.StyleSheet.create({"magic-webview":{flex:1,backgroundColor:"transparent"},"webview-container":{flex:1,width:"100%",backgroundColor:"transparent",position:"absolute",top:0,left:0,right:0,bottom:0},show:{zIndex:1e4},hide:{zIndex:-1e4}}),this.listen()}return e.prototype.waitForReady=function(){var e=this;return new Promise((function(t){e.transport.on(s.MagicIncomingWindowMessage.MAGIC_OVERLAY_READY,(function(){return t()}))}))},e.prototype.listen=function(){var e=this;this.transport.on(s.MagicIncomingWindowMessage.MAGIC_HIDE_OVERLAY,(function(){e.container&&e.container.hideOverlay()})),this.transport.on(s.MagicIncomingWindowMessage.MAGIC_SHOW_OVERLAY,(function(){e.container&&e.container.showOverlay()}))},e}();t.ReactNativeWebViewController=c},function(e,t,n){"use strict";var r,o=this&&this.__extends||(r=function(e,t){return(r=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var n in t)t.hasOwnProperty(n)&&(e[n]=t[n])})(e,t)},function(e,t){function n(){this.constructor=e}r(e,t),e.prototype=null===t?Object.create(t):(n.prototype=t.prototype,new n)}),i=this&&this.__importDefault||function(e){return e&&e.__esModule?e:{default:e}};Object.defineProperty(t,"__esModule",{value:!0});var a=function(e){function t(){return null!==e&&e.apply(this,arguments)||this}return o(t,e),t}(i(n(25)).default);t.TypedEmitter=a,t.createTypedEmitter=function(){var e=new a;return{emitter:e,createChainingEmitterMethod:function(t,n){return function(){for(var r=[],o=0;o<arguments.length;o++)r[o]=arguments[o];return e[t].apply(e,r),n}},createBoundEmitterMethod:function(t){return function(){for(var n=[],r=0;r<arguments.length;r++)n[r]=arguments[r];return e[t].apply(e,n)}}}}},function(e,t,n){"use strict";var r,o=this&&this.__extends||(r=function(e,t){return(r=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var n in t)t.hasOwnProperty(n)&&(e[n]=t[n])})(e,t)},function(e,t){function n(){this.constructor=e}r(e,t),e.prototype=null===t?Object.create(t):(n.prototype=t.prototype,new n)});Object.defineProperty(t,"__esModule",{value:!0});var i=n(2),a=n(4),s=n(1),u=function(e){function t(){var t=e.call(this,void 0)||this;return t.isInitialized=!1,t.createJsonRpcRequestPayload=i.createJsonRpcRequestPayload,t.standardizeJsonRpcRequestPayload=i.standardizeJsonRpcRequestPayload,new Proxy(t,{get:function(e,n,r){if(["request","transport","overlay","sdk"].includes(n)&&!t.isInitialized)throw s.createExtensionNotInitializedError(n);return Reflect.get(e,n,r)}})}return o(t,e),t.prototype.init=function(e){this.sdk=e,this.isInitialized=!0},t}(a.BaseModule),c=function(e){function t(){return null!==e&&e.apply(this,arguments)||this}return o(t,e),t}(u),l=function(e){function t(){return null!==e&&e.apply(this,arguments)||this}return o(t,e),t.Internal=c,t}(u);t.Extension=l},function(e,t,n){e.exports=n(14)},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=n(15),o=n(1);t.SDKError=o.MagicSDKError,t.SDKWarning=o.MagicSDKWarning,t.RPCError=o.MagicRPCError;var i=n(12);t.Extension=i.Extension,function(e){for(var n in e)t.hasOwnProperty(n)||(t[n]=e[n])}(n(0)),t.Magic=r.MagicSDK},function(e,t,n){"use strict";var r,o=this&&this.__extends||(r=function(e,t){return(r=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var n in t)t.hasOwnProperty(n)&&(e[n]=t[n])})(e,t)},function(e,t){function n(){this.constructor=e}r(e,t),e.prototype=null===t?Object.create(t):(n.prototype=t.prototype,new n)}),i=this&&this.__awaiter||function(e,t,n,r){return new(n||(n=Promise))((function(o,i){function a(e){try{u(r.next(e))}catch(e){i(e)}}function s(e){try{u(r.throw(e))}catch(e){i(e)}}function u(e){var t;e.done?o(e.value):(t=e.value,t instanceof n?t:new n((function(e){e(t)}))).then(a,s)}u((r=r.apply(e,t||[])).next())}))},a=this&&this.__generator||function(e,t){var n,r,o,i,a={label:0,sent:function(){if(1&o[0])throw o[1];return o[1]},trys:[],ops:[]};return i={next:s(0),throw:s(1),return:s(2)},"function"==typeof Symbol&&(i[Symbol.iterator]=function(){return this}),i;function s(i){return function(s){return function(i){if(n)throw new TypeError("Generator is already executing.");for(;a;)try{if(n=1,r&&(o=2&i[0]?r.return:i[0]?r.throw||((o=r.return)&&o.call(r),0):r.next)&&!(o=o.call(r,i[1])).done)return o;switch(r=0,o&&(i=[2&i[0],o.value]),i[0]){case 0:case 1:o=i;break;case 4:return a.label++,{value:i[1],done:!1};case 5:a.label++,r=i[1],i=[0];continue;case 7:i=a.ops.pop(),a.trys.pop();continue;default:if(!(o=a.trys,(o=o.length>0&&o[o.length-1])||6!==i[0]&&2!==i[0])){a=0;continue}if(3===i[0]&&(!o||i[1]>o[0]&&i[1]<o[3])){a.label=i[1];break}if(6===i[0]&&a.label<o[1]){a.label=o[1],o=i;break}if(o&&a.label<o[2]){a.label=o[2],a.ops.push(i);break}o[2]&&a.ops.pop(),a.trys.pop();continue}i=t.call(e,a)}catch(e){i=[6,e],r=0}finally{n=o=0}if(5&i[0])throw i[1];return{value:i[0]?i[1]:void 0,done:!0}}([i,s])}}};Object.defineProperty(t,"__esModule",{value:!0});var s=n(16),u=n(1),c=n(7),l=n(21),f=n(23),d=n(26),p=n(6),h=n(27),y=n(10),v=n(8),_=n(12),g=n(5),m=function(){function e(e,t){var n,r,o=this;if(this.apiKey=e,!e)throw u.createMissingApiKeyError();p.IS_REACT_NATIVE&&(null==t?void 0:t.endpoint)&&u.createReactNativeEndpointConfigurationWarning().log();var i=p.IS_REACT_NATIVE?p.MGBOX_URL:p.MAGIC_URL;this.endpoint=v.createURL(null!==(n=null==t?void 0:t.endpoint)&&void 0!==n?n:i).origin,this.auth=new f.AuthModule(this),this.user=new d.UserModule(this),this.rpcProvider=new h.RPCProviderModule(this);var a=null!==(r=null==t?void 0:t.extensions)&&void 0!==r?r:[],c={};Array.isArray(a)?a.forEach((function(e){e.init(o),o[e.name]=e,e instanceof _.Extension.Internal&&(g.isEmpty(e.config)||(c[e.name]=e.config))})):Object.keys(a).forEach((function(e){a[e].init(o);var t=a[e];o[e]=t,t instanceof _.Extension.Internal&&(g.isEmpty(t.config)||(c[a[e].name]=t.config))})),this.encodedQueryParams=s.encodeQueryParameters({API_KEY:this.apiKey,DOMAIN_ORIGIN:window.location?window.location.origin:"",ETH_NETWORK:null==t?void 0:t.network,host:v.createURL(this.endpoint).host,sdk:p.IS_REACT_NATIVE?p.SDK_NAME+"-rn":p.SDK_NAME,version:p.SDK_VERSION,ext:g.isEmpty(c)?void 0:c})}return Object.defineProperty(e.prototype,"transport",{get:function(){return e.__transports__.has(this.encodedQueryParams)||e.__transports__.set(this.encodedQueryParams,new l.PayloadTransport(this.endpoint,this.encodedQueryParams)),e.__transports__.get(this.encodedQueryParams)},enumerable:!0,configurable:!0}),Object.defineProperty(e.prototype,"overlay",{get:function(){if(!e.__overlays__.has(this.encodedQueryParams)){var t=p.IS_REACT_NATIVE?new y.ReactNativeWebViewController(this.transport,this.endpoint,this.encodedQueryParams):new c.IframeController(this.transport,this.endpoint,this.encodedQueryParams);e.__overlays__.set(this.encodedQueryParams,t)}return e.__overlays__.get(this.encodedQueryParams)},enumerable:!0,configurable:!0}),e.prototype.preload=function(){return i(this,void 0,void 0,(function(){return a(this,(function(e){switch(e.label){case 0:return[4,this.overlay.ready];case 1:return e.sent(),[2]}}))}))},e.__transports__=new Map,e.__overlays__=new Map,e}();t.SDKBase=m;var b=function(e){function t(){return null!==e&&e.apply(this,arguments)||this}return o(t,e),Object.defineProperty(t.prototype,"Relayer",{get:function(){return this.overlay.Relayer},enumerable:!0,configurable:!0}),t}(m);t.SDKBaseReactNative=b,t.MagicSDK=m,t.MagicSDKReactNative=b},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.encodeQueryParameters=function(e){return btoa(JSON.stringify(e))}},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0}),function(e){e.LoginWithMagicLink="magic_auth_login_with_magic_link",e.GetIdToken="magic_auth_get_id_token",e.GenerateIdToken="magic_auth_generate_id_token",e.GetMetadata="magic_auth_get_metadata",e.IsLoggedIn="magic_auth_is_logged_in",e.Logout="magic_auth_logout",e.UpdateEmail="magic_auth_update_email"}(t.MagicPayloadMethod||(t.MagicPayloadMethod={}))},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0}),function(e){e.MAGIC_HANDLE_RESPONSE="MAGIC_HANDLE_RESPONSE",e.MAGIC_OVERLAY_READY="MAGIC_OVERLAY_READY",e.MAGIC_SHOW_OVERLAY="MAGIC_SHOW_OVERLAY",e.MAGIC_HIDE_OVERLAY="MAGIC_HIDE_OVERLAY",e.MAGIC_HANDLE_EVENT="MAGIC_HANDLE_EVENT"}(t.MagicIncomingWindowMessage||(t.MagicIncomingWindowMessage={})),function(e){e.MAGIC_HANDLE_REQUEST="MAGIC_HANDLE_REQUEST"}(t.MagicOutgoingWindowMessage||(t.MagicOutgoingWindowMessage={}))},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0}),function(e){e.MissingApiKey="MISSING_API_KEY",e.ModalNotReady="MODAL_NOT_READY",e.MalformedResponse="MALFORMED_RESPONSE",e.InvalidArgument="INVALID_ARGUMENT",e.ExtensionNotInitialized="EXTENSION_NOT_INITIALIZED"}(t.SDKErrorCode||(t.SDKErrorCode={})),function(e){e.SyncWeb3Method="SYNC_WEB3_METHOD",e.DuplicateIframe="DUPLICATE_IFRAME",e.ReactNativeEndpointConfiguration="REACT_NATIVE_ENDPOINT_CONFIGURATION"}(t.SDKWarningCode||(t.SDKWarningCode={})),function(e){e[e.ParseError=-32700]="ParseError",e[e.InvalidRequest=-32600]="InvalidRequest",e[e.MethodNotFound=-32601]="MethodNotFound",e[e.InvalidParams=-32602]="InvalidParams",e[e.InternalError=-32603]="InternalError",e[e.MagicLinkFailedVerification=-1e4]="MagicLinkFailedVerification",e[e.MagicLinkExpired=-10001]="MagicLinkExpired",e[e.MagicLinkRateLimited=-10002]="MagicLinkRateLimited",e[e.UserAlreadyLoggedIn=-10003]="UserAlreadyLoggedIn",e[e.UpdateEmailFailed=-10004]="UpdateEmailFailed"}(t.RPCErrorCode||(t.RPCErrorCode={}))},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0}),function(e){e.Harmony="HARMONY"}(t.EthChainType||(t.EthChainType={}))},function(e,t,n){"use strict";var r=this&&this.__awaiter||function(e,t,n,r){return new(n||(n=Promise))((function(o,i){function a(e){try{u(r.next(e))}catch(e){i(e)}}function s(e){try{u(r.throw(e))}catch(e){i(e)}}function u(e){var t;e.done?o(e.value):(t=e.value,t instanceof n?t:new n((function(e){e(t)}))).then(a,s)}u((r=r.apply(e,t||[])).next())}))},o=this&&this.__generator||function(e,t){var n,r,o,i,a={label:0,sent:function(){if(1&o[0])throw o[1];return o[1]},trys:[],ops:[]};return i={next:s(0),throw:s(1),return:s(2)},"function"==typeof Symbol&&(i[Symbol.iterator]=function(){return this}),i;function s(i){return function(s){return function(i){if(n)throw new TypeError("Generator is already executing.");for(;a;)try{if(n=1,r&&(o=2&i[0]?r.return:i[0]?r.throw||((o=r.return)&&o.call(r),0):r.next)&&!(o=o.call(r,i[1])).done)return o;switch(r=0,o&&(i=[2&i[0],o.value]),i[0]){case 0:case 1:o=i;break;case 4:return a.label++,{value:i[1],done:!1};case 5:a.label++,r=i[1],i=[0];continue;case 7:i=a.ops.pop(),a.trys.pop();continue;default:if(!(o=a.trys,(o=o.length>0&&o[o.length-1])||6!==i[0]&&2!==i[0])){a=0;continue}if(3===i[0]&&(!o||i[1]>o[0]&&i[1]<o[3])){a.label=i[1];break}if(6===i[0]&&a.label<o[1]){a.label=o[1],o=i;break}if(o&&a.label<o[2]){a.label=o[2],a.ops.push(i);break}o[2]&&a.ops.pop(),a.trys.pop();continue}i=t.call(e,a)}catch(e){i=[6,e],r=0}finally{n=o=0}if(5&i[0])throw i[1];return{value:i[0]?i[1]:void 0,done:!0}}([i,s])}}},i=this&&this.__values||function(e){var t="function"==typeof Symbol&&Symbol.iterator,n=t&&e[t],r=0;if(n)return n.call(e);if(e&&"number"==typeof e.length)return{next:function(){return e&&r>=e.length&&(e=void 0),{value:e&&e[r++],done:!e}}};throw new TypeError(t?"Object is not iterable.":"Symbol.iterator is not defined.")};Object.defineProperty(t,"__esModule",{value:!0});var a=n(0),s=n(7),u=n(2),c=n(1),l=n(10),f=n(6);function d(e,t){var n,r,o=null!==(r=null===(n=t.data.response)||void 0===n?void 0:n.id)&&void 0!==r?r:void 0,i=function(e,t){return t&&Array.isArray(e)?e.find((function(e){return e.id===t})):e}(e,o);return o&&i?{id:o,response:new u.JsonRpcResponse(i).applyResult(t.data.response.result).applyError(t.data.response.error)}:{}}var p=function(){function e(e,t){this.endpoint=e,this.encodedQueryParams=t,this.messageHandlers=new Set,f.IS_REACT_NATIVE||this.initMessageListener()}return e.prototype.post=function(e,t,n){return r(this,void 0,void 0,(function(){var r,i,u,p=this;return o(this,(function(o){switch(o.label){case 0:return[4,e.ready];case 1:return o.sent(),e instanceof s.IframeController?[4,e.iframe]:[3,3];case 2:return i=o.sent(),[3,4];case 3:i=null,o.label=4;case 4:return r=i,u=e instanceof l.ReactNativeWebViewController?e.webView:null,[2,new Promise((function(e,o){var i;if(f.IS_REACT_NATIVE?u&&u.postMessage:r&&r.contentWindow){var s=[],l=Array.isArray(n)?n.map((function(e){return e.id})):[];f.IS_REACT_NATIVE?u.postMessage(JSON.stringify({msgType:t+"-"+p.encodedQueryParams,payload:n}),"*"):r.contentWindow.postMessage({msgType:t+"-"+p.encodedQueryParams,payload:n},"*");var h=p.on(a.MagicIncomingWindowMessage.MAGIC_HANDLE_RESPONSE,(i=function(){return h()},function(t){var r=d(n,t),o=r.id,a=r.response;o&&a&&Array.isArray(n)&&l.includes(o)?(s.push(a),s.length===n.length&&(i(),e(s))):o&&a&&!Array.isArray(n)&&o===n.id&&(i(),e(a))}))}else o(c.createModalNotReadyError())}))]}}))}))},e.prototype.on=function(e,t){var n=this,r=t.bind(window),o=function(t){t.data.msgType===e+"-"+n.encodedQueryParams&&r(t)};return this.messageHandlers.add(o),function(){return n.messageHandlers.delete(o)}},e.prototype.handleReactNativeWebViewMessage=function(e){var t,n,r;if(e.nativeEvent&&e.nativeEvent.url===this.endpoint+"/send/?params="+this.encodedQueryParams&&"string"==typeof e.nativeEvent.data){var o=JSON.parse(e.nativeEvent.data);if(o&&o.msgType&&this.messageHandlers.size){o.response=null!==(r=o.response)&&void 0!==r?r:{};var a={data:o};try{for(var s=i(this.messageHandlers.values()),u=s.next();!u.done;u=s.next()){(0,u.value)(a)}}catch(e){t={error:e}}finally{try{u&&!u.done&&(n=s.return)&&n.call(s)}finally{if(t)throw t.error}}}}},e.prototype.initMessageListener=function(){var e=this;window.addEventListener("message",(function(t){var n,r,o;if(t.origin===e.endpoint&&t.data&&t.data.msgType&&e.messageHandlers.size){t.data.response=null!==(o=t.data.response)&&void 0!==o?o:{};try{for(var a=i(e.messageHandlers.values()),s=a.next();!s.done;s=a.next()){(0,s.value)(t)}}catch(e){n={error:e}}finally{try{s&&!s.done&&(r=a.return)&&r.call(a)}finally{if(n)throw n.error}}}}))},e}();t.PayloadTransport=p},function(e,t,n){"use strict";var r=this&&this.__generator||function(e,t){var n,r,o,i,a={label:0,sent:function(){if(1&o[0])throw o[1];return o[1]},trys:[],ops:[]};return i={next:s(0),throw:s(1),return:s(2)},"function"==typeof Symbol&&(i[Symbol.iterator]=function(){return this}),i;function s(i){return function(s){return function(i){if(n)throw new TypeError("Generator is already executing.");for(;a;)try{if(n=1,r&&(o=2&i[0]?r.return:i[0]?r.throw||((o=r.return)&&o.call(r),0):r.next)&&!(o=o.call(r,i[1])).done)return o;switch(r=0,o&&(i=[2&i[0],o.value]),i[0]){case 0:case 1:o=i;break;case 4:return a.label++,{value:i[1],done:!1};case 5:a.label++,r=i[1],i=[0];continue;case 7:i=a.ops.pop(),a.trys.pop();continue;default:if(!(o=a.trys,(o=o.length>0&&o[o.length-1])||6!==i[0]&&2!==i[0])){a=0;continue}if(3===i[0]&&(!o||i[1]>o[0]&&i[1]<o[3])){a.label=i[1];break}if(6===i[0]&&a.label<o[1]){a.label=o[1],o=i;break}if(o&&a.label<o[2]){a.label=o[2],a.ops.push(i);break}o[2]&&a.ops.pop(),a.trys.pop();continue}i=t.call(e,a)}catch(e){i=[6,e],r=0}finally{n=o=0}if(5&i[0])throw i[1];return{value:i[0]?i[1]:void 0,done:!0}}([i,s])}}};Object.defineProperty(t,"__esModule",{value:!0});var o=function(){var e;return r(this,(function(t){switch(t.label){case 0:e=0,t.label=1;case 1:return e<Number.MAX_SAFE_INTEGER?[4,++e]:[3,3];case 2:return t.sent(),[3,4];case 3:e=0,t.label=4;case 4:return[3,1];case 5:return[2]}}))}();t.getPayloadId=function(){return o.next().value}},function(e,t,n){"use strict";var r,o=this&&this.__extends||(r=function(e,t){return(r=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var n in t)t.hasOwnProperty(n)&&(e[n]=t[n])})(e,t)},function(e,t){function n(){this.constructor=e}r(e,t),e.prototype=null===t?Object.create(t):(n.prototype=t.prototype,new n)});Object.defineProperty(t,"__esModule",{value:!0});var i=n(4),a=n(0),s=n(2),u=function(e){function t(){return null!==e&&e.apply(this,arguments)||this}return o(t,e),t.prototype.loginWithMagicLink=function(e){var t=e.email,n=e.showUI,r=void 0===n||n,o=s.createJsonRpcRequestPayload(a.MagicPayloadMethod.LoginWithMagicLink,[{email:t,showUI:r}]);return this.request(o)},t}(i.BaseModule);t.AuthModule=u},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=n(11),o=Symbol("isPromiEvent");function i(e){return new Promise((function(t,n){var r=e(t,n);Promise.resolve(r).catch(n)}))}t.isPromiEvent=function(e){return!!e[o]},t.createPromiEvent=function(e){var t=i(e),n=r.createTypedEmitter(),a=n.createBoundEmitterMethod,s=n.createChainingEmitterMethod,u=Symbol("Promise.then"),c=Symbol("Promise.catch"),l=Symbol("Promise.finally"),f=function(e,t){return function(){for(var n=[],r=0;r<arguments.length;r++)n[r]=arguments[r];var o=t[e].apply(t,n);return d(o)}},d=function(e){var t;return Object.assign(e,((t={})[o]=!0,t[u]=e[u]||e.then,t[c]=e[c]||e.catch,t[l]=e[l]||e.finally,t.then=f(u,e),t.catch=f(c,e),t.finally=f(l,e),t.on=s("on",e),t.once=s("once",e),t.addListener=s("addListener",e),t.off=s("off",e),t.removeListener=s("removeListener",e),t.removeAllListeners=s("removeAllListeners",e),t.emit=a("emit"),t.eventNames=a("eventNames"),t.listeners=a("listeners"),t.listenerCount=a("listenerCount"),t))},p=d(t.then((function(e){return p.emit("done",e),p.emit("settled"),e}),(function(e){throw p.emit("error",e),p.emit("settled"),e})));return p},t.createAutoCatchingPromise=i},function(e,t,n){"use strict";var r=Object.prototype.hasOwnProperty,o="~";function i(){}function a(e,t,n){this.fn=e,this.context=t,this.once=n||!1}function s(e,t,n,r,i){if("function"!=typeof n)throw new TypeError("The listener must be a function");var s=new a(n,r||e,i),u=o?o+t:t;return e._events[u]?e._events[u].fn?e._events[u]=[e._events[u],s]:e._events[u].push(s):(e._events[u]=s,e._eventsCount++),e}function u(e,t){0==--e._eventsCount?e._events=new i:delete e._events[t]}function c(){this._events=new i,this._eventsCount=0}Object.create&&(i.prototype=Object.create(null),(new i).__proto__||(o=!1)),c.prototype.eventNames=function(){var e,t,n=[];if(0===this._eventsCount)return n;for(t in e=this._events)r.call(e,t)&&n.push(o?t.slice(1):t);return Object.getOwnPropertySymbols?n.concat(Object.getOwnPropertySymbols(e)):n},c.prototype.listeners=function(e){var t=o?o+e:e,n=this._events[t];if(!n)return[];if(n.fn)return[n.fn];for(var r=0,i=n.length,a=new Array(i);r<i;r++)a[r]=n[r].fn;return a},c.prototype.listenerCount=function(e){var t=o?o+e:e,n=this._events[t];return n?n.fn?1:n.length:0},c.prototype.emit=function(e,t,n,r,i,a){var s=o?o+e:e;if(!this._events[s])return!1;var u,c,l=this._events[s],f=arguments.length;if(l.fn){switch(l.once&&this.removeListener(e,l.fn,void 0,!0),f){case 1:return l.fn.call(l.context),!0;case 2:return l.fn.call(l.context,t),!0;case 3:return l.fn.call(l.context,t,n),!0;case 4:return l.fn.call(l.context,t,n,r),!0;case 5:return l.fn.call(l.context,t,n,r,i),!0;case 6:return l.fn.call(l.context,t,n,r,i,a),!0}for(c=1,u=new Array(f-1);c<f;c++)u[c-1]=arguments[c];l.fn.apply(l.context,u)}else{var d,p=l.length;for(c=0;c<p;c++)switch(l[c].once&&this.removeListener(e,l[c].fn,void 0,!0),f){case 1:l[c].fn.call(l[c].context);break;case 2:l[c].fn.call(l[c].context,t);break;case 3:l[c].fn.call(l[c].context,t,n);break;case 4:l[c].fn.call(l[c].context,t,n,r);break;default:if(!u)for(d=1,u=new Array(f-1);d<f;d++)u[d-1]=arguments[d];l[c].fn.apply(l[c].context,u)}}return!0},c.prototype.on=function(e,t,n){return s(this,e,t,n,!1)},c.prototype.once=function(e,t,n){return s(this,e,t,n,!0)},c.prototype.removeListener=function(e,t,n,r){var i=o?o+e:e;if(!this._events[i])return this;if(!t)return u(this,i),this;var a=this._events[i];if(a.fn)a.fn!==t||r&&!a.once||n&&a.context!==n||u(this,i);else{for(var s=0,c=[],l=a.length;s<l;s++)(a[s].fn!==t||r&&!a[s].once||n&&a[s].context!==n)&&c.push(a[s]);c.length?this._events[i]=1===c.length?c[0]:c:u(this,i)}return this},c.prototype.removeAllListeners=function(e){var t;return e?(t=o?o+e:e,this._events[t]&&u(this,t)):(this._events=new i,this._eventsCount=0),this},c.prototype.off=c.prototype.removeListener,c.prototype.addListener=c.prototype.on,c.prefixed=o,c.EventEmitter=c,e.exports=c},function(e,t,n){"use strict";var r,o=this&&this.__extends||(r=function(e,t){return(r=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var n in t)t.hasOwnProperty(n)&&(e[n]=t[n])})(e,t)},function(e,t){function n(){this.constructor=e}r(e,t),e.prototype=null===t?Object.create(t):(n.prototype=t.prototype,new n)});Object.defineProperty(t,"__esModule",{value:!0});var i=n(4),a=n(0),s=n(2),u=function(e){function t(){return null!==e&&e.apply(this,arguments)||this}return o(t,e),t.prototype.getIdToken=function(e){var t=s.createJsonRpcRequestPayload(a.MagicPayloadMethod.GetIdToken,[e]);return this.request(t)},t.prototype.generateIdToken=function(e){var t=s.createJsonRpcRequestPayload(a.MagicPayloadMethod.GenerateIdToken,[e]);return this.request(t)},t.prototype.getMetadata=function(){var e=s.createJsonRpcRequestPayload(a.MagicPayloadMethod.GetMetadata);return this.request(e)},t.prototype.updateEmail=function(e){var t=e.email,n=e.showUI,r=void 0===n||n,o=s.createJsonRpcRequestPayload(a.MagicPayloadMethod.UpdateEmail,[{email:t,showUI:r}]);return this.request(o)},t.prototype.isLoggedIn=function(){var e=s.createJsonRpcRequestPayload(a.MagicPayloadMethod.IsLoggedIn);return this.request(e)},t.prototype.logout=function(){var e=s.createJsonRpcRequestPayload(a.MagicPayloadMethod.Logout);return this.request(e)},t}(i.BaseModule);t.UserModule=u},function(e,t,n){"use strict";var r,o=this&&this.__extends||(r=function(e,t){return(r=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var n in t)t.hasOwnProperty(n)&&(e[n]=t[n])})(e,t)},function(e,t){function n(){this.constructor=e}r(e,t),e.prototype=null===t?Object.create(t):(n.prototype=t.prototype,new n)}),i=this&&this.__assign||function(){return(i=Object.assign||function(e){for(var t,n=1,r=arguments.length;n<r;n++)for(var o in t=arguments[n])Object.prototype.hasOwnProperty.call(t,o)&&(e[o]=t[o]);return e}).apply(this,arguments)};Object.defineProperty(t,"__esModule",{value:!0});var a=n(4),s=n(0),u=n(1),c=n(2),l=n(11).createTypedEmitter(),f=l.createBoundEmitterMethod,d=l.createChainingEmitterMethod,p=function(e){function t(){var t=null!==e&&e.apply(this,arguments)||this;return t.isMagic=!0,t.on=d("on",t),t.once=d("once",t),t.addListener=d("addListener",t),t.off=d("off",t),t.removeListener=d("removeListener",t),t.removeAllListeners=d("removeAllListeners",t),t.emit=f("emit"),t.eventNames=f("eventNames"),t.listeners=f("listeners"),t.listenerCount=f("listenerCount"),t}return o(t,e),t.prototype.sendAsync=function(e,t){if(!t)throw u.createInvalidArgumentError({procedure:"Magic.rpcProvider.sendAsync",argument:1,expected:"function",received:null===t?"null":typeof t});if(Array.isArray(e))this.transport.post(this.overlay,s.MagicOutgoingWindowMessage.MAGIC_HANDLE_REQUEST,e.map((function(e){return c.standardizeJsonRpcRequestPayload(e)}))).then((function(e){t(null,e.map((function(e){return i(i({},e.payload),{error:e.hasError?new u.MagicRPCError(e.payload.error):null})})))}));else{var n=c.standardizeJsonRpcRequestPayload(e);this.transport.post(this.overlay,s.MagicOutgoingWindowMessage.MAGIC_HANDLE_REQUEST,n).then((function(e){t(e.hasError?new u.MagicRPCError(e.payload.error):null,e.payload)}))}},t.prototype.send=function(e,t){if("string"==typeof e){var n=c.createJsonRpcRequestPayload(e,Array.isArray(t)?t:[]);return this.request(n)}if(!Array.isArray(e)&&!t){var r=u.createSynchronousWeb3MethodWarning();return r.log(),new c.JsonRpcResponse(e).applyError({code:-32603,message:r.rawMessage}).payload}this.sendAsync(e,t)},t.prototype.enable=function(){var e=c.createJsonRpcRequestPayload("eth_accounts");return this.request(e)},t}(a.BaseModule);t.RPCProviderModule=p}]);
 
 /***/ }),
 
@@ -23609,6 +17562,19 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./src/assets/img/logo/iusdc-logo.png":
+/*!********************************************!*\
+  !*** ./src/assets/img/logo/iusdc-logo.png ***!
+  \********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony default export */ __webpack_exports__["default"] = ("data:image/png;base64,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");
+
+/***/ }),
+
 /***/ "./src/assets/img/logo/logo.png":
 /*!**************************************!*\
   !*** ./src/assets/img/logo/logo.png ***!
@@ -23619,6 +17585,19 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ("data:image/png;base64,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");
+
+/***/ }),
+
+/***/ "./src/assets/img/logo/sicx-logo.svg":
+/*!*******************************************!*\
+  !*** ./src/assets/img/logo/sicx-logo.svg ***!
+  \*******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony default export */ __webpack_exports__["default"] = ("data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTIwIDEyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjIiPjxwYXRoIGQ9Ik05OC41IDMxLjRsLTEzIDEzYzIuOCA0LjYgNC40IDkuOSA0LjQgMTUuNyAwIDE2LjYtMTMuNCAzMC0zMCAzMC01LjcgMC0xMS4xLTEuNi0xNS43LTQuNGwtMTMgMTNjOCA1LjkgMTcuOSA5LjUgMjguNiA5LjUgMjYuNSAwIDQ4LTIxLjUgNDgtNDggLjItMTAuOS0zLjMtMjAuOC05LjMtMjguOHpNMzAgNjBjMC0xNi42IDEzLjQtMzAgMzAtMzAgNS43IDAgMTEuMSAxLjYgMTUuNyA0LjRsMTMtMTNjLTgtNS45LTE3LjktOS41LTI4LjYtOS41LTI2LjUgMC00OCAyMS41LTQ4IDQ4IDAgMTAuNyAzLjUgMjAuNiA5LjUgMjguNmwxMy0xM2MtMy00LjQtNC42LTkuOC00LjYtMTUuNXoiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iLjc1IiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48Y2lyY2xlIGN4PSIyNDMiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iLjc1IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMTM1KSIvPjxjaXJjbGUgY3g9IjE0NyIgY3k9IjEwOCIgcj0iMTIiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iLjc1IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMTM1KSIvPjwvc3ZnPg==");
 
 /***/ }),
 
@@ -23652,6 +17631,8 @@ const environment = {
     ICON_RPC_URL: "https://bicon.net.solidwallet.io/api/v3",
     BRIDGE_SCORE_ADDRESS: "cxaa068556df80f9917ef146e889f0b2c4b13ab634",
     // BRIDGE_SCORE_ADDRESS: "cx1a52a17ee1a2a6bb52e31fc80bee692baa7455a0", old address
+    SICX_SCORE_ADDRESS: "cxae6334850f13dfd8b50f8544d5acb126bb8ef82d",
+    IUSDC_SCORE_ADDRESS: "cx65f639254090820361da483df233f6d0e69af9b7",
     PRIME_TRUST_CREDIT_CARD_WIDGET_URL: "https://sandbox--primetrust-bootstrapper.netlify.com/bootstrap.js",
     PLAID_LINK_WIDGET_URL: "https://cdn.plaid.com/link/v2/stable/link-initialize.js",
     BRIDGE_NID: 3,
@@ -23693,7 +17674,8 @@ window.BridgeService = _lib_BridgeService__WEBPACK_IMPORTED_MODULE_1__["BridgeSe
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BridgeService", function() { return BridgeService; });
-/* harmony import */ var magic_sdk__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! magic-sdk */ "./node_modules/magic-sdk/dist/module/index.js");
+/* harmony import */ var magic_sdk__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! magic-sdk */ "./node_modules/magic-sdk/dist/cjs/index.js");
+/* harmony import */ var magic_sdk__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(magic_sdk__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _magic_ext_icon__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @magic-ext/icon */ "./node_modules/@magic-ext/icon/dist/module/index.js");
 /* harmony import */ var _magic_login__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./magic-login */ "./src/lib/magic-login.ts");
 /* harmony import */ var _common_requests_wrapper__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./common/requests-wrapper */ "./src/lib/common/requests-wrapper.ts");
@@ -23896,7 +17878,7 @@ class BridgeService {
      * @return {Promise<string>} The transaction hash promise
      * @throws {BridgeError} - contains user friendly message and external error (if present)
      */
-    async sendIrc2Tokens(to, amount, scoreAddress, data) {
+    async sendIrc2Tokens(to, amount, decimals, scoreAddress, data) {
         Object(_common_Utils__WEBPACK_IMPORTED_MODULE_18__["log"])("Send IRC2 token " + amount + " to " + to + ". IRC 2 token SCORE address = " + scoreAddress);
         this.checkMagicInitialized();
         if (!this.magicUserMetadata) {
@@ -23904,7 +17886,7 @@ class BridgeService {
                 this.magicUserMetadata = await this.getLoggedInUsersMagicMetadata();
             }
         }
-        return Object(_services_icon_rpc_api_service__WEBPACK_IMPORTED_MODULE_5__["sendIrc2Token"])(this.magic, to, scoreAddress, amount, data !== null && data !== void 0 ? data : undefined, IconBuilder, IconAmount, IconConverter, this.magicUserMetadata);
+        return Object(_services_icon_rpc_api_service__WEBPACK_IMPORTED_MODULE_5__["sendIrc2Token"])(this.magic, to, scoreAddress, amount, decimals, data !== null && data !== void 0 ? data : undefined, IconBuilder, IconConverter, this.magicUserMetadata);
     }
     /**
      * @description Send ICX tokens to another wallet.
@@ -24252,13 +18234,14 @@ class BridgeService {
 /*!***********************************!*\
   !*** ./src/lib/common/Mapping.ts ***!
   \***********************************/
-/*! exports provided: formatAndFilterIcxTransactions, formatAndFilterBridgeTransactions, mapFundsTransferMethodToBank, mapFundsTransferMethodToCreditCard, transactionTypeToClass, tokenTransactionTypeToClass, getTransactionName, getKycStatusTitle, getKycStatusClass, getKycFailureMessage */
+/*! exports provided: formatAndFilterIcxTransactions, formatAndFilterBridgeTransactions, formatAndFilterIrc2Transactions, mapFundsTransferMethodToBank, mapFundsTransferMethodToCreditCard, transactionTypeToClass, tokenTransactionTypeToClass, getTransactionName, getKycStatusTitle, getKycStatusClass, getKycFailureMessage */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "formatAndFilterIcxTransactions", function() { return formatAndFilterIcxTransactions; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "formatAndFilterBridgeTransactions", function() { return formatAndFilterBridgeTransactions; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "formatAndFilterIrc2Transactions", function() { return formatAndFilterIrc2Transactions; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mapFundsTransferMethodToBank", function() { return mapFundsTransferMethodToBank; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mapFundsTransferMethodToCreditCard", function() { return mapFundsTransferMethodToCreditCard; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "transactionTypeToClass", function() { return transactionTypeToClass; });
@@ -24267,16 +18250,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getKycStatusTitle", function() { return getKycStatusTitle; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getKycStatusClass", function() { return getKycStatusClass; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getKycFailureMessage", function() { return getKycFailureMessage; });
-/* harmony import */ var _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../models/Transaction/BridgeTransaction */ "./src/lib/models/Transaction/BridgeTransaction.ts");
-/* harmony import */ var _environment_environment__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../environment/environment */ "./src/environment/environment.ts");
-/* harmony import */ var _models_bankAccount_BankAccount__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../models/bankAccount/BankAccount */ "./src/lib/models/bankAccount/BankAccount.ts");
-/* harmony import */ var _models_CreditCard_CreditCard__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../models/CreditCard/CreditCard */ "./src/lib/models/CreditCard/CreditCard.ts");
-/* harmony import */ var _code_lists__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./code-lists */ "./src/lib/common/code-lists.ts");
-/* harmony import */ var _models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../models/KycExceptions/CipExceptions */ "./src/lib/models/KycExceptions/CipExceptions.ts");
-/* harmony import */ var _models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../models/KycExceptions/KycDocCheckExceptions */ "./src/lib/models/KycExceptions/KycDocCheckExceptions.ts");
-/* harmony import */ var _models_Transaction_IcxTransactions__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../models/Transaction/IcxTransactions */ "./src/lib/models/Transaction/IcxTransactions.ts");
-/* harmony import */ var _Utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Utils */ "./src/lib/common/Utils.ts");
-/* harmony import */ var _models_Enums_KycStatus__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../models/Enums/KycStatus */ "./src/lib/models/Enums/KycStatus.ts");
+/* harmony import */ var _models_Transaction_SupportedIrc2TokenTransaction__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../models/Transaction/SupportedIrc2TokenTransaction */ "./src/lib/models/Transaction/SupportedIrc2TokenTransaction.ts");
+/* harmony import */ var _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../models/Transaction/BridgeTransaction */ "./src/lib/models/Transaction/BridgeTransaction.ts");
+/* harmony import */ var _environment_environment__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../environment/environment */ "./src/environment/environment.ts");
+/* harmony import */ var _models_bankAccount_BankAccount__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../models/bankAccount/BankAccount */ "./src/lib/models/bankAccount/BankAccount.ts");
+/* harmony import */ var _models_CreditCard_CreditCard__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../models/CreditCard/CreditCard */ "./src/lib/models/CreditCard/CreditCard.ts");
+/* harmony import */ var _code_lists__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./code-lists */ "./src/lib/common/code-lists.ts");
+/* harmony import */ var _models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../models/KycExceptions/CipExceptions */ "./src/lib/models/KycExceptions/CipExceptions.ts");
+/* harmony import */ var _models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../models/KycExceptions/KycDocCheckExceptions */ "./src/lib/models/KycExceptions/KycDocCheckExceptions.ts");
+/* harmony import */ var _models_Transaction_IcxTransaction__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../models/Transaction/IcxTransaction */ "./src/lib/models/Transaction/IcxTransaction.ts");
+/* harmony import */ var _Utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Utils */ "./src/lib/common/Utils.ts");
+/* harmony import */ var _models_Enums_KycStatus__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../models/Enums/KycStatus */ "./src/lib/models/Enums/KycStatus.ts");
+
 
 
 
@@ -24288,17 +18273,17 @@ __webpack_require__.r(__webpack_exports__);
 
 
 function formatAndFilterIcxTransactions(icxTransactions, userIconWalletAddress) {
-    Object(_Utils__WEBPACK_IMPORTED_MODULE_8__["log"])("formatAndFilterIcxTransactions-> icxTransactions:", icxTransactions);
+    Object(_Utils__WEBPACK_IMPORTED_MODULE_9__["log"])("formatAndFilterIcxTransactions-> icxTransactions:", icxTransactions);
     if (icxTransactions && icxTransactions.data.length > 0) {
         let transactions = [];
         let date;
         icxTransactions.data.forEach((icxTransaction) => {
             if (icxTransaction.state == 1 && icxTransaction.dataType == "icx") {
                 date = new Date(icxTransaction.createDate);
-                transactions.push(new _models_Transaction_IcxTransactions__WEBPACK_IMPORTED_MODULE_7__["IcxTransaction"](+icxTransaction.amount, icxTransaction.createDate, icxTransaction.dataType, icxTransaction.fromAddr, icxTransaction.state, icxTransaction.toAddr, icxTransaction.txHash, icxTransaction.txType, date.toDateString(), date, userIconWalletAddress == icxTransaction.fromAddr ? _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_0__["TransactionType"].SENT : _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_0__["TransactionType"].RECEIVED));
+                transactions.push(new _models_Transaction_IcxTransaction__WEBPACK_IMPORTED_MODULE_8__["IcxTransaction"](+icxTransaction.amount, icxTransaction.createDate, icxTransaction.dataType, icxTransaction.fromAddr, icxTransaction.state, icxTransaction.toAddr, icxTransaction.txHash, icxTransaction.txType, date.toDateString(), date, userIconWalletAddress == icxTransaction.fromAddr ? _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_1__["TransactionType"].SENT : _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_1__["TransactionType"].RECEIVED));
             }
         });
-        Object(_Utils__WEBPACK_IMPORTED_MODULE_8__["log"])("Returning transactions: ", transactions);
+        Object(_Utils__WEBPACK_IMPORTED_MODULE_9__["log"])("Returning transactions: ", transactions);
         return transactions.sort((a, b) => b.date.getTime() - a.date.getTime());
     }
     else {
@@ -24311,58 +18296,76 @@ function formatAndFilterBridgeTransactions(iconTokenTransactions, deposits, user
     let date;
     if (iconTokenTransactions) {
         iconTokenTransactions.forEach((transaction) => {
-            if (transaction.contractSymbol != _code_lists__WEBPACK_IMPORTED_MODULE_4__["CodeLists"].BRIDGE_SYMBOL || transaction.state != 1 || transaction.contractAddr != _environment_environment__WEBPACK_IMPORTED_MODULE_1__["environment"].BRIDGE_SCORE_ADDRESS)
+            if ((transaction.contractSymbol != _code_lists__WEBPACK_IMPORTED_MODULE_5__["CodeLists"].BRIDGE_SYMBOL && transaction.contractSymbol != _code_lists__WEBPACK_IMPORTED_MODULE_5__["CodeLists"].BRIDGE_SYMBOL_OLD)
+                || transaction.state != 1 || transaction.contractAddr != _environment_environment__WEBPACK_IMPORTED_MODULE_2__["environment"].BRIDGE_SCORE_ADDRESS)
                 return;
             // create Transaction object and push it to accumulated transaction list
             else {
                 date = new Date(transaction.createDate);
-                transactions.push(new _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_0__["BridgeTransaction"](date.toDateString(), date, +transaction.quantity, transaction, undefined, userIconWalletAddress == transaction.fromAddr ? _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_0__["TransactionType"].SENT : _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_0__["TransactionType"].RECEIVED, undefined));
+                transactions.push(new _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_1__["BridgeTransaction"](date.toDateString(), date, +transaction.quantity, transaction, undefined, userIconWalletAddress == transaction.fromAddr ? _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_1__["TransactionType"].SENT : _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_1__["TransactionType"].RECEIVED, undefined));
             }
         });
     }
     if (deposits) {
         deposits.forEach((deposit) => {
             date = new Date(deposit.createdAt);
-            transactions.push(new _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_0__["BridgeTransaction"](date.toDateString(), date, +deposit.amount, undefined, deposit, _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_0__["TransactionType"].DEPOSITED, undefined));
+            transactions.push(new _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_1__["BridgeTransaction"](date.toDateString(), date, +deposit.amount, undefined, deposit, _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_1__["TransactionType"].DEPOSITED, undefined));
         });
     }
     if (withdrawals) {
         withdrawals.forEach((withdrawal) => {
             date = new Date(withdrawal.createdAt);
-            transactions.push(new _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_0__["BridgeTransaction"](date.toDateString(), date, +withdrawal.amount, undefined, undefined, _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_0__["TransactionType"].WITHDRAW, withdrawal));
+            transactions.push(new _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_1__["BridgeTransaction"](date.toDateString(), date, +withdrawal.amount, undefined, undefined, _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_1__["TransactionType"].WITHDRAW, withdrawal));
         });
     }
     return transactions.sort((a, b) => b.date.getTime() - a.date.getTime());
 }
+function formatAndFilterIrc2Transactions(iconTokenTransactions) {
+    let iusdcTransactions = [];
+    let sicxTransactions = [];
+    if (iconTokenTransactions) {
+        iconTokenTransactions.forEach((transaction) => {
+            if (transaction.contractSymbol == _code_lists__WEBPACK_IMPORTED_MODULE_5__["CodeLists"].IUSDC_SYMBOL && transaction.state == 1 && transaction.contractAddr == _environment_environment__WEBPACK_IMPORTED_MODULE_2__["environment"].IUSDC_SCORE_ADDRESS) {
+                iusdcTransactions.push(transaction);
+            }
+            else if (transaction.contractSymbol == _code_lists__WEBPACK_IMPORTED_MODULE_5__["CodeLists"].SICX_SYMBOL && transaction.state == 1 && transaction.contractAddr == _environment_environment__WEBPACK_IMPORTED_MODULE_2__["environment"].SICX_SCORE_ADDRESS) {
+                sicxTransactions.push(transaction);
+            }
+        });
+    }
+    iusdcTransactions.sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime());
+    sicxTransactions.sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime());
+    return new _models_Transaction_SupportedIrc2TokenTransaction__WEBPACK_IMPORTED_MODULE_0__["SupportedIrc2TokenTransaction"](iusdcTransactions, sicxTransactions);
+}
 function mapFundsTransferMethodToBank(fundsTransferMethod) {
-    return new _models_bankAccount_BankAccount__WEBPACK_IMPORTED_MODULE_2__["BankAccount"](fundsTransferMethod["id"], fundsTransferMethod["attributes"]["contact-name"], fundsTransferMethod["attributes"]["bank-name"], fundsTransferMethod["attributes"]["bank-account-name"], fundsTransferMethod["attributes"]["bank-account-name"], fundsTransferMethod["attributes"]["routing-number"], fundsTransferMethod["attributes"]["last-4"], fundsTransferMethod["attributes"]["funds-transfer-type"]);
+    return new _models_bankAccount_BankAccount__WEBPACK_IMPORTED_MODULE_3__["BankAccount"](fundsTransferMethod["id"], fundsTransferMethod["attributes"]["contact-name"], fundsTransferMethod["attributes"]["bank-name"], fundsTransferMethod["attributes"]["bank-account-name"], fundsTransferMethod["attributes"]["bank-account-name"], fundsTransferMethod["attributes"]["routing-number"], fundsTransferMethod["attributes"]["last-4"], fundsTransferMethod["attributes"]["funds-transfer-type"]);
 }
 function mapFundsTransferMethodToCreditCard(fundsTransferMethod) {
-    return new _models_CreditCard_CreditCard__WEBPACK_IMPORTED_MODULE_3__["CreditCard"](fundsTransferMethod["id"], fundsTransferMethod["attributes"]["credit-card-name"], fundsTransferMethod["attributes"]["credit-card-postal-code"], fundsTransferMethod["attributes"]["credit-card-expiration-date"], fundsTransferMethod["attributes"]["credit-card-type"], fundsTransferMethod["attributes"]["last-4"], fundsTransferMethod["attributes"]["funds-transfer-type"]);
+    return new _models_CreditCard_CreditCard__WEBPACK_IMPORTED_MODULE_4__["CreditCard"](fundsTransferMethod["id"], fundsTransferMethod["attributes"]["credit-card-name"], fundsTransferMethod["attributes"]["credit-card-postal-code"], fundsTransferMethod["attributes"]["credit-card-expiration-date"], fundsTransferMethod["attributes"]["credit-card-type"], fundsTransferMethod["attributes"]["last-4"], fundsTransferMethod["attributes"]["funds-transfer-type"]);
 }
 function transactionTypeToClass(transaction) {
     var _a;
     switch (transaction.type) {
-        case _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_0__["TransactionType"].DEPOSITED:
+        case _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_1__["TransactionType"].DEPOSITED:
             return "deposited";
-        case _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_0__["TransactionType"].WITHDRAW:
+        case _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_1__["TransactionType"].WITHDRAW:
             if (((_a = transaction.withdrawTransaction) === null || _a === void 0 ? void 0 : _a.status) == "pending") {
                 return "withdrawing";
             }
             else {
                 return "withdrawn";
             }
-        case _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_0__["TransactionType"].RECEIVED:
+        case _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_1__["TransactionType"].RECEIVED:
             return "deposited";
-        case _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_0__["TransactionType"].SENT:
+        case _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_1__["TransactionType"].SENT:
             return "sent";
     }
 }
-function tokenTransactionTypeToClass(transaction) {
-    switch (transaction.type) {
-        case _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_0__["TransactionType"].RECEIVED:
+function tokenTransactionTypeToClass(type) {
+    switch (type) {
+        case _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_1__["TransactionType"].RECEIVED:
             return "deposited";
-        case _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_0__["TransactionType"].SENT:
+        case _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_1__["TransactionType"].SENT:
             return "sent";
         default:
             return "sent";
@@ -24370,7 +18373,7 @@ function tokenTransactionTypeToClass(transaction) {
 }
 function getTransactionName(transaction) {
     var _a;
-    if (transaction.type == _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_0__["TransactionType"].WITHDRAW && ((_a = transaction.withdrawTransaction) === null || _a === void 0 ? void 0 : _a.status) == "pending") {
+    if (transaction.type == _models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_1__["TransactionType"].WITHDRAW && ((_a = transaction.withdrawTransaction) === null || _a === void 0 ? void 0 : _a.status) == "pending") {
         return "Withdrawing...";
     }
     else {
@@ -24381,7 +18384,7 @@ function getKycStatusTitle(userKycData, title = "") {
     if (title == "") {
         if (!userKycData)
             return "Not verified";
-        if (!(userKycData.status == _models_Enums_KycStatus__WEBPACK_IMPORTED_MODULE_9__["KycStatus"].opened && userKycData.cipCleared)) {
+        if (!(userKycData.status == _models_Enums_KycStatus__WEBPACK_IMPORTED_MODULE_10__["KycStatus"].opened && userKycData.cipCleared)) {
             return "Not verified";
         }
         else if (!userKycData.amlCleared) {
@@ -24420,39 +18423,39 @@ function getKycStatusClass(title, userKycData) {
 }
 function getKycFailureMessage(errorMessage, country) {
     switch (errorMessage) {
-        case _models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_5__["CipExceptions"].NameAutoCheck:
+        case _models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_6__["CipExceptions"].NameAutoCheck:
             return "Couldn't verify your name.";
-        case _models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_5__["CipExceptions"].DateOfBirthAutoCheck:
+        case _models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_6__["CipExceptions"].DateOfBirthAutoCheck:
             return "Couldn't verify your date of birth.";
-        case _models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_5__["CipExceptions"].TaxIdAutoCheck:
+        case _models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_6__["CipExceptions"].TaxIdAutoCheck:
             if (country == "US")
                 return "Couldn't verify your tax ID number";
             else
                 return "Couldn't verify your ID number";
-        case _models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_5__["CipExceptions"].TaxIdManualCheck:
+        case _models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_6__["CipExceptions"].TaxIdManualCheck:
             if (country == "US")
                 return "Couldn't verify your tax ID number";
             else
                 return "Couldn't verify your ID number";
-        case _models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_5__["CipExceptions"].AddressCheck:
+        case _models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_6__["CipExceptions"].AddressCheck:
             return "Couldn't verify your address.";
-        case _models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_5__["CipExceptions"].AddressManualCheck:
+        case _models_KycExceptions_CipExceptions__WEBPACK_IMPORTED_MODULE_6__["CipExceptions"].AddressManualCheck:
             return "Couldn't verify your address.";
-        case _models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_6__["KycDocCheckExceptions"].DateOfBirth:
+        case _models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_7__["KycDocCheckExceptions"].DateOfBirth:
             return "Your date of birth and photo ID don't match";
-        case _models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_6__["KycDocCheckExceptions"].DocumentInvalid:
+        case _models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_7__["KycDocCheckExceptions"].DocumentInvalid:
             return "Your photo ID is not valid";
-        case _models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_6__["KycDocCheckExceptions"].WaitingForDocumentUploads:
+        case _models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_7__["KycDocCheckExceptions"].WaitingForDocumentUploads:
             return "Your documents did not get uploaded";
-        case _models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_6__["KycDocCheckExceptions"].TaxCountry:
+        case _models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_7__["KycDocCheckExceptions"].TaxCountry:
             return "Your country and photo ID don't match";
-        case _models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_6__["KycDocCheckExceptions"].AddressAutoCheck:
+        case _models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_7__["KycDocCheckExceptions"].AddressAutoCheck:
             return "Your address and proof of address don't match.";
-        case _models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_6__["KycDocCheckExceptions"].Authenticity:
+        case _models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_7__["KycDocCheckExceptions"].Authenticity:
             return "Your photo ID could not be identified";
-        case _models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_6__["KycDocCheckExceptions"].Validity:
+        case _models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_7__["KycDocCheckExceptions"].Validity:
             return "Your photo ID could not be identified";
-        case _models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_6__["KycDocCheckExceptions"].Country:
+        case _models_KycExceptions_KycDocCheckExceptions__WEBPACK_IMPORTED_MODULE_7__["KycDocCheckExceptions"].Country:
             return "Your photo ID could not be identified";
         default:
             return "";
@@ -24498,8 +18501,11 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-function icxValueToNormalValue(icxValue) {
-    return +(icxValue / 1e18).toFixed(2);
+function icxValueToNormalValue(icxValue, decimals) {
+    console.log(icxValue, decimals);
+    const normalValue = +(icxValue / Math.pow(10, decimals)).toFixed(2);
+    console.log(normalValue);
+    return normalValue;
 }
 function parseHexToNumber(value) {
     if (typeof value === 'string')
@@ -24620,6 +18626,11 @@ class CodeLists {
 }
 // Bridge SCORE symbol
 CodeLists.BRIDGE_SYMBOL = "USDS";
+CodeLists.BRIDGE_SYMBOL_OLD = "USDb";
+// Bridge SCORE symbol
+CodeLists.SICX_SYMBOL = "sICX";
+// Bridge SCORE symbol
+CodeLists.IUSDC_SYMBOL = "IUSDC";
 /*
 * ### Prime Trust account related code lists ###
 */
@@ -25078,7 +19089,8 @@ RestApiUrls.ICX_TRANSACTIONS_API_URL = "/address/txList";
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MagicLogin", function() { return MagicLogin; });
-/* harmony import */ var magic_sdk__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! magic-sdk */ "./node_modules/magic-sdk/dist/module/index.js");
+/* harmony import */ var magic_sdk__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! magic-sdk */ "./node_modules/magic-sdk/dist/cjs/index.js");
+/* harmony import */ var magic_sdk__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(magic_sdk__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _models_User_User__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./models/User/User */ "./src/lib/models/User/User.ts");
 /* harmony import */ var _common_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./common/Utils */ "./src/lib/common/Utils.ts");
 /* harmony import */ var _common_consts__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./common/consts */ "./src/lib/common/consts.ts");
@@ -25466,33 +19478,46 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tokens", function() { return Tokens; });
 /* harmony import */ var _assets_img_logo_stably_logo_png__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../assets/img/logo/stably-logo.png */ "./src/assets/img/logo/stably-logo.png");
 /* harmony import */ var _assets_img_logo_icon_logo_svg__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../assets/img/logo/icon-logo.svg */ "./src/assets/img/logo/icon-logo.svg");
-/* harmony import */ var _environment_environment__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../environment/environment */ "./src/environment/environment.ts");
+/* harmony import */ var _assets_img_logo_iusdc_logo_png__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../assets/img/logo/iusdc-logo.png */ "./src/assets/img/logo/iusdc-logo.png");
+/* harmony import */ var _assets_img_logo_sicx_logo_svg__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../assets/img/logo/sicx-logo.svg */ "./src/assets/img/logo/sicx-logo.svg");
+/* harmony import */ var _environment_environment__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../environment/environment */ "./src/environment/environment.ts");
+// @ts-ignore
+
+// @ts-ignore
+
 // @ts-ignore
 
 // @ts-ignore
 
 
 class Token {
-    constructor(tag, name, logo, scoreAddress, balance) {
+    constructor(tag, name, logo, scoreAddress, decimals, balance) {
         this.balance = 0;
+        this.decimals = 18;
         this.tag = tag;
         this.name = name;
         this.logo = logo;
         this.scoreAddress = scoreAddress;
         if (balance)
             this.balance = balance;
+        if (decimals)
+            this.decimals = decimals;
     }
 }
 var SupportedTokens;
 (function (SupportedTokens) {
     SupportedTokens["USDS"] = "USDS";
     SupportedTokens["ICX"] = "ICX";
+    SupportedTokens["sICX"] = "sICX";
+    SupportedTokens["IUSDC"] = "IUSDC";
 })(SupportedTokens || (SupportedTokens = {}));
 class Tokens {
 }
 Tokens.supportedTokensMap = new Map([
-    [SupportedTokens.USDS, new Token("USDS", "Stably USD", _assets_img_logo_stably_logo_png__WEBPACK_IMPORTED_MODULE_0__["default"], _environment_environment__WEBPACK_IMPORTED_MODULE_2__["environment"].BRIDGE_SCORE_ADDRESS)],
-    [SupportedTokens.ICX, new Token("ICX", "ICON", _assets_img_logo_icon_logo_svg__WEBPACK_IMPORTED_MODULE_1__["default"], "")],
+    [SupportedTokens.USDS, new Token("USDS", "Stably USD", _assets_img_logo_stably_logo_png__WEBPACK_IMPORTED_MODULE_0__["default"], _environment_environment__WEBPACK_IMPORTED_MODULE_4__["environment"].BRIDGE_SCORE_ADDRESS, 18)],
+    [SupportedTokens.ICX, new Token("ICX", "ICON", _assets_img_logo_icon_logo_svg__WEBPACK_IMPORTED_MODULE_1__["default"], "", 18)],
+    [SupportedTokens.IUSDC, new Token("IUSDC", "ICON USD Coin", _assets_img_logo_iusdc_logo_png__WEBPACK_IMPORTED_MODULE_2__["default"], _environment_environment__WEBPACK_IMPORTED_MODULE_4__["environment"].IUSDC_SCORE_ADDRESS, 6)],
+    [SupportedTokens.sICX, new Token("sICX", "Staked ICX", _assets_img_logo_sicx_logo_svg__WEBPACK_IMPORTED_MODULE_3__["default"], _environment_environment__WEBPACK_IMPORTED_MODULE_4__["environment"].SICX_SCORE_ADDRESS, 18)],
 ]);
 
 
@@ -25531,10 +19556,10 @@ var TransactionType;
 
 /***/ }),
 
-/***/ "./src/lib/models/Transaction/IcxTransactions.ts":
-/*!*******************************************************!*\
-  !*** ./src/lib/models/Transaction/IcxTransactions.ts ***!
-  \*******************************************************/
+/***/ "./src/lib/models/Transaction/IcxTransaction.ts":
+/*!******************************************************!*\
+  !*** ./src/lib/models/Transaction/IcxTransaction.ts ***!
+  \******************************************************/
 /*! exports provided: IcxTransactions, IcxTransaction */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -25614,6 +19639,26 @@ class Irc2ParamsObj {
 
 /***/ }),
 
+/***/ "./src/lib/models/Transaction/SupportedIrc2TokenTransaction.ts":
+/*!*********************************************************************!*\
+  !*** ./src/lib/models/Transaction/SupportedIrc2TokenTransaction.ts ***!
+  \*********************************************************************/
+/*! exports provided: SupportedIrc2TokenTransaction */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SupportedIrc2TokenTransaction", function() { return SupportedIrc2TokenTransaction; });
+class SupportedIrc2TokenTransaction {
+    constructor(iusdcTransactions, sicxTransactions) {
+        this.iusdcTransactions = iusdcTransactions;
+        this.sicxTransactions = sicxTransactions;
+    }
+}
+
+
+/***/ }),
+
 /***/ "./src/lib/models/Transaction/Transactions.ts":
 /*!****************************************************!*\
   !*** ./src/lib/models/Transaction/Transactions.ts ***!
@@ -25625,9 +19670,11 @@ class Irc2ParamsObj {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Transactions", function() { return Transactions; });
 class Transactions {
-    constructor(bridgeTransactions, icxTransactions) {
+    constructor(bridgeTransactions, icxTransactions, iusdcTransactions, sicxTransactions) {
         this.bridgeTransactions = bridgeTransactions;
         this.icxTransactions = icxTransactions;
+        this.iusdcTransactions = iusdcTransactions;
+        this.sicxTransactions = sicxTransactions;
     }
 }
 
@@ -26071,9 +20118,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getIrc2TokenBalance", function() { return getIrc2TokenBalance; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "buildWithdrawalRequestTransaction", function() { return buildWithdrawalRequestTransaction; });
 /* harmony import */ var _environment_environment__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../environment/environment */ "./src/environment/environment.ts");
-/* harmony import */ var _models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../models/errors/bridgeError */ "./src/lib/models/errors/bridgeError.ts");
-/* harmony import */ var _common_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../common/Utils */ "./src/lib/common/Utils.ts");
-/* harmony import */ var _lib_models_Transaction_Irc2TokenTransaction__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../lib/models/Transaction/Irc2TokenTransaction */ "./src/lib/models/Transaction/Irc2TokenTransaction.ts");
+/* harmony import */ var bignumber_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! bignumber.js */ "./node_modules/bignumber.js/bignumber.js");
+/* harmony import */ var bignumber_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(bignumber_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../models/errors/bridgeError */ "./src/lib/models/errors/bridgeError.ts");
+/* harmony import */ var _common_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../common/Utils */ "./src/lib/common/Utils.ts");
+/* harmony import */ var _lib_models_Transaction_Irc2TokenTransaction__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../lib/models/Transaction/Irc2TokenTransaction */ "./src/lib/models/Transaction/Irc2TokenTransaction.ts");
+
 
 
 
@@ -26085,11 +20135,11 @@ function getNid() {
     return _environment_environment__WEBPACK_IMPORTED_MODULE_0__["environment"].BRIDGE_NID;
 }
 // returns txHash of transaction
-async function sendIrc2Token(magic, address, scoreAddress, amount, data, IconBuilder, IconAmount, IconConverter, magicUserMetadata) {
+async function sendIrc2Token(magic, address, scoreAddress, amount, decimals, data, IconBuilder, IconConverter, magicUserMetadata) {
     if (!magicUserMetadata) {
-        throw new _models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_1__["BridgeError"]("An error occurred. Are you logged in?", Error("User not logged in Magic!"));
+        throw new _models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_2__["BridgeError"]("An error occurred. Are you logged in?", Error("User not logged in Magic!"));
     }
-    const paramsObj = new _lib_models_Transaction_Irc2TokenTransaction__WEBPACK_IMPORTED_MODULE_3__["Irc2ParamsObj"](address, IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()), data);
+    const paramsObj = new _lib_models_Transaction_Irc2TokenTransaction__WEBPACK_IMPORTED_MODULE_4__["Irc2ParamsObj"](address, IconConverter.toHex(new bignumber_js__WEBPACK_IMPORTED_MODULE_1___default.a(amount).multipliedBy(Math.pow(10, decimals))), data);
     const txObj = new IconBuilder.CallTransactionBuilder()
         .from(magicUserMetadata.publicAddress)
         .to(scoreAddress)
@@ -26105,15 +20155,15 @@ async function sendIrc2Token(magic, address, scoreAddress, amount, data, IconBui
         return await magic.icon.sendTransaction(txObj);
     }
     catch (e) {
-        Object(_common_Utils__WEBPACK_IMPORTED_MODULE_2__["log"])(e);
-        throw new _models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_1__["BridgeError"]('Error while sending tokens! ' +
+        Object(_common_Utils__WEBPACK_IMPORTED_MODULE_3__["log"])(e);
+        throw new _models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_2__["BridgeError"]('Error while sending tokens! ' +
             'Please check your balance and try again later.', e);
     }
 }
 // returns txHash of transaction
 async function sendIcxTokens(magic, to, amount, IconBuilder, IconAmount, IconConverter, magicUserMetadata) {
     if (!magicUserMetadata) {
-        throw new _models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_1__["BridgeError"]("An error occurred. Are you logged in?", Error("User not logged in Magic!"));
+        throw new _models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_2__["BridgeError"]("An error occurred. Are you logged in?", Error("User not logged in Magic!"));
     }
     const txObj = new IconBuilder.IcxTransactionBuilder()
         .nid(IconConverter.toHex(getNid()))
@@ -26128,21 +20178,21 @@ async function sendIcxTokens(magic, to, amount, IconBuilder, IconAmount, IconCon
         return await magic.icon.sendTransaction(txObj);
     }
     catch (e) {
-        Object(_common_Utils__WEBPACK_IMPORTED_MODULE_2__["log"])(e);
-        throw new _models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_1__["BridgeError"]('Error while sending ICX tokens! ' +
+        Object(_common_Utils__WEBPACK_IMPORTED_MODULE_3__["log"])(e);
+        throw new _models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_2__["BridgeError"]('Error while sending ICX tokens! ' +
             'Please check your balance and try again later.', e);
     }
 }
 async function getIcxBalance(address, IconSDK) {
     if (!address) {
-        throw new _models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_1__["BridgeError"]("Your Icon wallet address is not available.", Error("getIcxBalance -> address empty or null!"));
+        throw new _models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_2__["BridgeError"]("Your Icon wallet address is not available.", Error("getIcxBalance -> address empty or null!"));
     }
     try {
         return await IconSDK.getBalance(address).execute();
     }
     catch (e) {
-        Object(_common_Utils__WEBPACK_IMPORTED_MODULE_2__["log"])(e);
-        throw new _models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_1__["BridgeError"](`Error while reading Icx account balance!`, e);
+        Object(_common_Utils__WEBPACK_IMPORTED_MODULE_3__["log"])(e);
+        throw new _models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_2__["BridgeError"](`Error while reading Icx account balance!`, e);
     }
 }
 async function getIrc2TokenBalance(address, scoreAddress, IconBuilder, IconSDK) {
@@ -26155,11 +20205,11 @@ async function getIrc2TokenBalance(address, scoreAddress, IconBuilder, IconSDK) 
         .build();
     try {
         const res = await IconSDK.call(txObj).execute();
-        return Object(_common_Utils__WEBPACK_IMPORTED_MODULE_2__["parseHexToNumber"])(res);
+        return Object(_common_Utils__WEBPACK_IMPORTED_MODULE_3__["parseHexToNumber"])(res);
     }
     catch (e) {
-        Object(_common_Utils__WEBPACK_IMPORTED_MODULE_2__["log"])(e);
-        throw new _models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_1__["BridgeError"]("Error while reading your Icon wallet balance. Please try again later. ", e);
+        Object(_common_Utils__WEBPACK_IMPORTED_MODULE_3__["log"])(e);
+        throw new _models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_2__["BridgeError"]("Error while reading your Icon wallet balance. Please try again later. ", e);
     }
 }
 function buildWithdrawalRequestTransaction(from, amount, IconBuilder, IconAmount, IconConverter) {
@@ -26983,7 +21033,7 @@ let SendToken = class SendToken extends lit_element__WEBPACK_IMPORTED_MODULE_0__
                     txHash = await this.bridge.sendIcxTokens(transferToAddress, this.amount);
                 }
                 else {
-                    txHash = await this.bridge.sendIrc2Tokens(transferToAddress, this.amount, this.selectedToken.scoreAddress);
+                    txHash = await this.bridge.sendIrc2Tokens(transferToAddress, this.amount, this.selectedToken.decimals, this.selectedToken.scoreAddress);
                 }
                 setTimeout(this.checkTransferTxHashResult.bind(this, txHash, this.amount, transferToAddress, tokenTag), 3000);
             }
@@ -27343,7 +21393,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../lib/models/Transaction/BridgeTransaction */ "./src/lib/models/Transaction/BridgeTransaction.ts");
 /* harmony import */ var _lib_common_consts__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../lib/common/consts */ "./src/lib/common/consts.ts");
 /* harmony import */ var _lib_common_code_lists__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../lib/common/code-lists */ "./src/lib/common/code-lists.ts");
-/* harmony import */ var magic_sdk__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! magic-sdk */ "./node_modules/magic-sdk/dist/module/index.js");
+/* harmony import */ var magic_sdk__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! magic-sdk */ "./node_modules/magic-sdk/dist/cjs/index.js");
+/* harmony import */ var magic_sdk__WEBPACK_IMPORTED_MODULE_14___default = /*#__PURE__*/__webpack_require__.n(magic_sdk__WEBPACK_IMPORTED_MODULE_14__);
 /* harmony import */ var _lib_models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../lib/models/errors/bridgeError */ "./src/lib/models/errors/bridgeError.ts");
 /* harmony import */ var _lib_models_Enums_NotificationType__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../lib/models/Enums/NotificationType */ "./src/lib/models/Enums/NotificationType.ts");
 /* harmony import */ var _assets_img_logo_logo_png__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../assets/img/logo/logo.png */ "./src/assets/img/logo/logo.png");
@@ -27355,7 +21406,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _child_elements_send_token__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./child-elements/send-token */ "./src/widget/child-elements/send-token.ts");
 /* harmony import */ var _lib_models_Tokens_Tokens__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../lib/models/Tokens/Tokens */ "./src/lib/models/Tokens/Tokens.ts");
 /* harmony import */ var _lib_models_Transaction_Transactions__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../lib/models/Transaction/Transactions */ "./src/lib/models/Transaction/Transactions.ts");
-/* harmony import */ var _lib_models_Transaction_IcxTransactions__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../lib/models/Transaction/IcxTransactions */ "./src/lib/models/Transaction/IcxTransactions.ts");
+/* harmony import */ var _lib_models_Transaction_IcxTransaction__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../lib/models/Transaction/IcxTransaction */ "./src/lib/models/Transaction/IcxTransaction.ts");
 /* harmony import */ var _lib_models_Enums_WidgetAction__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ../lib/models/Enums/WidgetAction */ "./src/lib/models/Enums/WidgetAction.ts");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -27419,7 +21470,7 @@ let IconBridgeWidget = class IconBridgeWidget extends lit_element__WEBPACK_IMPOR
     constructor() {
         super();
         this.hideButton = false;
-        this.transactions = new _lib_models_Transaction_Transactions__WEBPACK_IMPORTED_MODULE_25__["Transactions"]([], []);
+        this.transactions = new _lib_models_Transaction_Transactions__WEBPACK_IMPORTED_MODULE_25__["Transactions"]([], [], [], []);
         // @property() private userContact: Contact | undefined;
         // Prime Trust KYC data for user (account and contact kyc: status, cip, aml, ..)
         // @property() private userKycData: UserKycData | undefined;
@@ -27579,8 +21630,8 @@ let IconBridgeWidget = class IconBridgeWidget extends lit_element__WEBPACK_IMPOR
         // refresh data only if page is focused i.e. active
         if (document.hasFocus()) {
             this.loadUserTokens();
-            this.loadBridgeTransactions();
             this.loadIcxTransactions();
+            this.loadIrc2Transactions();
             // load user PT contact info if missing
             // if (!this.userContact) {
             //   this.loadUserPrimeTrustContact();
@@ -27604,23 +21655,24 @@ let IconBridgeWidget = class IconBridgeWidget extends lit_element__WEBPACK_IMPOR
     }
     async loadUserUsdsBalance() {
         const res = await this.bridge.getIrc2TokenBalance(_environment_environment__WEBPACK_IMPORTED_MODULE_9__["environment"].BRIDGE_SCORE_ADDRESS);
-        this.userTokensMap.get(_lib_models_Tokens_Tokens__WEBPACK_IMPORTED_MODULE_24__["SupportedTokens"].USDS).balance = Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_6__["icxValueToNormalValue"])(res);
+        this.userTokensMap.get(_lib_models_Tokens_Tokens__WEBPACK_IMPORTED_MODULE_24__["SupportedTokens"].USDS).balance = Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_6__["icxValueToNormalValue"])(res, _lib_models_Tokens_Tokens__WEBPACK_IMPORTED_MODULE_24__["Tokens"].supportedTokensMap.get(_lib_models_Tokens_Tokens__WEBPACK_IMPORTED_MODULE_24__["SupportedTokens"].USDS)['decimals']);
     }
     async loadUserTokens() {
         let tokensMap = new Map();
         let newToken;
         for (const token of _lib_models_Tokens_Tokens__WEBPACK_IMPORTED_MODULE_24__["Tokens"].supportedTokensMap.values()) {
-            newToken = new _lib_models_Tokens_Tokens__WEBPACK_IMPORTED_MODULE_24__["Token"](token.tag, token.name, token.logo, token.scoreAddress);
+            newToken = new _lib_models_Tokens_Tokens__WEBPACK_IMPORTED_MODULE_24__["Token"](token.tag, token.name, token.logo, token.scoreAddress, token.decimals);
             if (token.tag == _lib_models_Tokens_Tokens__WEBPACK_IMPORTED_MODULE_24__["SupportedTokens"].ICX) {
-                newToken.balance = Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_6__["icxValueToNormalValue"])(await this.bridge.getIcxBalance());
+                newToken.balance = Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_6__["icxValueToNormalValue"])(await this.bridge.getIcxBalance(), token.decimals);
             }
             else {
-                newToken.balance = Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_6__["icxValueToNormalValue"])(await this.bridge.getIrc2TokenBalance(token.scoreAddress));
+                const res = await this.bridge.getIrc2TokenBalance(token.scoreAddress);
+                newToken.balance = Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_6__["icxValueToNormalValue"])(res, token.decimals);
             }
             // add to the tokensMap only if balance > 0 or if it is USDS
-            if (newToken.tag == _lib_models_Tokens_Tokens__WEBPACK_IMPORTED_MODULE_24__["SupportedTokens"].USDS || newToken.balance > 0) {
-                tokensMap.set(token.tag, newToken);
-            }
+            // if (newToken.tag == SupportedTokens.USDS || newToken.balance > 0) {
+            tokensMap.set(token.tag, newToken);
+            // }
         }
         this.userTokensMap = tokensMap;
     }
@@ -27730,8 +21782,8 @@ let IconBridgeWidget = class IconBridgeWidget extends lit_element__WEBPACK_IMPOR
             // add bri.send.tx event handler after successful login
             this.bridge.addSendTransactionEventListener();
             // async load transactions
-            this.loadBridgeTransactions();
             this.loadIcxTransactions();
+            this.loadIrc2Transactions();
             await this.loadUserTokens();
             await this.loadUserUsdsBalance();
             // await this.loadUserKycData(true);
@@ -27758,16 +21810,10 @@ let IconBridgeWidget = class IconBridgeWidget extends lit_element__WEBPACK_IMPOR
             this.handleError(e);
         }
     }
-    async loadBridgeTransactions() {
-        var _a, _b, _c, _d;
-        let transactionsRes, depositsRes, withdrawalRes;
-        try {
-            transactionsRes = await this.bridge.iconApiService.getTokenTransactions((_a = this.user) === null || _a === void 0 ? void 0 : _a.iconWalletAddress);
-        }
-        catch (e) {
-            Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_6__["log"])(e.userFriendlyMessage);
-        }
-        if ((_b = this.user) === null || _b === void 0 ? void 0 : _b.primeTrustAccId) {
+    async loadBridgeTransactions(transactionsRes) {
+        var _a, _b, _c;
+        let depositsRes, withdrawalRes;
+        if ((_a = this.user) === null || _a === void 0 ? void 0 : _a.primeTrustAccId) {
             try {
                 depositsRes = await this.bridge.contributionsApiService.getAllDeposits();
             }
@@ -27780,10 +21826,10 @@ let IconBridgeWidget = class IconBridgeWidget extends lit_element__WEBPACK_IMPOR
             catch (e) {
                 Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_6__["log"])(e.userFriendlyMessage);
             }
-            this.transactions.bridgeTransactions = Object(_lib_common_Mapping__WEBPACK_IMPORTED_MODULE_8__["formatAndFilterBridgeTransactions"])(transactionsRes === null || transactionsRes === void 0 ? void 0 : transactionsRes.data.data, depositsRes === null || depositsRes === void 0 ? void 0 : depositsRes.data.deposits, (_c = this.user) === null || _c === void 0 ? void 0 : _c.iconWalletAddress, withdrawalRes === null || withdrawalRes === void 0 ? void 0 : withdrawalRes.data.withdrawals);
+            this.transactions.bridgeTransactions = Object(_lib_common_Mapping__WEBPACK_IMPORTED_MODULE_8__["formatAndFilterBridgeTransactions"])(transactionsRes === null || transactionsRes === void 0 ? void 0 : transactionsRes.data.data, depositsRes === null || depositsRes === void 0 ? void 0 : depositsRes.data.deposits, (_b = this.user) === null || _b === void 0 ? void 0 : _b.iconWalletAddress, withdrawalRes === null || withdrawalRes === void 0 ? void 0 : withdrawalRes.data.withdrawals);
         }
         else {
-            this.transactions.bridgeTransactions = Object(_lib_common_Mapping__WEBPACK_IMPORTED_MODULE_8__["formatAndFilterBridgeTransactions"])(transactionsRes === null || transactionsRes === void 0 ? void 0 : transactionsRes.data.data, undefined, (_d = this.user) === null || _d === void 0 ? void 0 : _d.iconWalletAddress, undefined);
+            this.transactions.bridgeTransactions = Object(_lib_common_Mapping__WEBPACK_IMPORTED_MODULE_8__["formatAndFilterBridgeTransactions"])(transactionsRes === null || transactionsRes === void 0 ? void 0 : transactionsRes.data.data, undefined, (_c = this.user) === null || _c === void 0 ? void 0 : _c.iconWalletAddress, undefined);
         }
     }
     async loadIcxTransactions() {
@@ -27795,6 +21841,20 @@ let IconBridgeWidget = class IconBridgeWidget extends lit_element__WEBPACK_IMPOR
         catch (e) {
             Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_6__["log"])(e.userFriendlyMessage);
         }
+    }
+    async loadIrc2Transactions() {
+        var _a;
+        let transactionsRes;
+        try {
+            transactionsRes = await this.bridge.iconApiService.getTokenTransactions((_a = this.user) === null || _a === void 0 ? void 0 : _a.iconWalletAddress);
+            this.loadBridgeTransactions(transactionsRes);
+        }
+        catch (e) {
+            Object(_lib_common_Utils__WEBPACK_IMPORTED_MODULE_6__["log"])(e.userFriendlyMessage);
+        }
+        const supportedTokensTransactions = Object(_lib_common_Mapping__WEBPACK_IMPORTED_MODULE_8__["formatAndFilterIrc2Transactions"])(transactionsRes === null || transactionsRes === void 0 ? void 0 : transactionsRes.data.data);
+        this.transactions.iusdcTransactions = supportedTokensTransactions.iusdcTransactions;
+        this.transactions.sicxTransactions = supportedTokensTransactions.sicxTransactions;
     }
     handleError(e) {
         if (e instanceof _lib_models_errors_bridgeError__WEBPACK_IMPORTED_MODULE_15__["BridgeError"]) {
@@ -27947,7 +22007,7 @@ let IconBridgeWidget = class IconBridgeWidget extends lit_element__WEBPACK_IMPOR
             this.transactions.bridgeTransactions = [new _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["BridgeTransaction"](newBridgeTx.createDate, currentDate, +amount, newBridgeTx, undefined, _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["TransactionType"].SENT, undefined), ...this.transactions.bridgeTransactions];
         }
         else if (tokenTag == _lib_models_Tokens_Tokens__WEBPACK_IMPORTED_MODULE_24__["SupportedTokens"].ICX) {
-            const newIcxTx = new _lib_models_Transaction_IcxTransactions__WEBPACK_IMPORTED_MODULE_26__["IcxTransaction"](amount, currentDate.toDateString(), "icx", (_b = this.user) === null || _b === void 0 ? void 0 : _b.iconWalletAddress, 1, to, "", "", currentDate.toDateString(), currentDate, _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["TransactionType"].SENT);
+            const newIcxTx = new _lib_models_Transaction_IcxTransaction__WEBPACK_IMPORTED_MODULE_26__["IcxTransaction"](amount, currentDate.toDateString(), "icx", (_b = this.user) === null || _b === void 0 ? void 0 : _b.iconWalletAddress, 1, to, "", "", currentDate.toDateString(), currentDate, _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["TransactionType"].SENT);
             this.transactions.icxTransactions = [newIcxTx, ...this.transactions.icxTransactions];
         }
     }
@@ -28226,7 +22286,7 @@ let IconBridgeWidget = class IconBridgeWidget extends lit_element__WEBPACK_IMPOR
                         if (index != 0 && transaction.dateString == this.transactions.icxTransactions[index - 1].dateString) {
                             return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `
                 <tr @click="${() => this.onTransactionClick(transaction)}"
-                class="${Object(_lib_common_Mapping__WEBPACK_IMPORTED_MODULE_8__["tokenTransactionTypeToClass"])(transaction)}">
+                class="${Object(_lib_common_Mapping__WEBPACK_IMPORTED_MODULE_8__["tokenTransactionTypeToClass"])(transaction.type)}">
                   <td>${transaction.type.valueOf()}</td>
                   <td class="text-bold">${transaction.type == _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["TransactionType"].SENT ? "-" : "+"} ${transaction.amount.toFixed(2)} ${(_a = this.selectedToken) === null || _a === void 0 ? void 0 : _a.tag}</td>
                 </tr>
@@ -28238,9 +22298,48 @@ let IconBridgeWidget = class IconBridgeWidget extends lit_element__WEBPACK_IMPOR
                   <td colspan="2" class="date padding-top-15">${transaction.dateString.split(" ").slice(0, -1).join(" ")}</td>
                 </tr>
                 <tr @click="${() => this.onTransactionClick(transaction)}"
-                class="${Object(_lib_common_Mapping__WEBPACK_IMPORTED_MODULE_8__["tokenTransactionTypeToClass"])(transaction)}">
+                class="${Object(_lib_common_Mapping__WEBPACK_IMPORTED_MODULE_8__["tokenTransactionTypeToClass"])(transaction.type)}">
                   <td>${transaction.type.valueOf()}</td>
                   <td class="text-bold">${transaction.type == _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["TransactionType"].SENT ? "-" : "+"} ${transaction.amount.toFixed(2)} ${(_b = this.selectedToken) === null || _b === void 0 ? void 0 : _b.tag}</td>
+                </tr>
+                `;
+                        }
+                    })}
+            </tbody>
+            </table>
+          `;
+                }
+                else if (this.selectedToken.tag == _lib_models_Tokens_Tokens__WEBPACK_IMPORTED_MODULE_24__["SupportedTokens"].IUSDC || this.selectedToken.tag == _lib_models_Tokens_Tokens__WEBPACK_IMPORTED_MODULE_24__["SupportedTokens"].sICX) {
+                    const transactionsList = this.selectedToken.tag == _lib_models_Tokens_Tokens__WEBPACK_IMPORTED_MODULE_24__["SupportedTokens"].IUSDC ?
+                        this.transactions.iusdcTransactions : this.transactions.sicxTransactions;
+                    return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `
+          <!-- If transactions -->
+          <table class="transaction-list">
+            <tbody>
+            ${transactionsList.map((transaction, index) => {
+                        var _a, _b, _c;
+                        const transactionType = transaction.toAddr == ((_a = this.user) === null || _a === void 0 ? void 0 : _a.iconWalletAddress) ?
+                            _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["TransactionType"].RECEIVED : _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["TransactionType"].SENT;
+                        if (index != 0 &&
+                            new Date(transaction.createDate).getDate() ==
+                                new Date(transactionsList[index - 1].createDate).getDate()) {
+                            return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `
+                <tr @click="${() => this.onTransactionClick(transaction)}"
+                class="${Object(_lib_common_Mapping__WEBPACK_IMPORTED_MODULE_8__["tokenTransactionTypeToClass"])(transactionType)}">
+                  <td>${transactionType}</td>
+                  <td class="text-bold">${transactionType == _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["TransactionType"].RECEIVED ? "+" : "-"} ${transaction.quantity} ${(_b = this.selectedToken) === null || _b === void 0 ? void 0 : _b.tag}</td>
+                </tr>
+                `;
+                        }
+                        else {
+                            return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `
+                 <tr>
+                  <td colspan="2" class="date padding-top-15">${new Date(transaction.createDate).toDateString()}</td>
+                </tr>
+                <tr @click="${() => this.onTransactionClick(transaction)}"
+                class="${Object(_lib_common_Mapping__WEBPACK_IMPORTED_MODULE_8__["tokenTransactionTypeToClass"])(transactionType)}">
+                  <td>${transactionType}</td>
+                  <td class="text-bold">${transactionType == _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["TransactionType"].SENT ? "-" : "+"} ${transaction.quantity} ${(_c = this.selectedToken) === null || _c === void 0 ? void 0 : _c.tag}</td>
                 </tr>
                 `;
                         }
@@ -28253,7 +22352,7 @@ let IconBridgeWidget = class IconBridgeWidget extends lit_element__WEBPACK_IMPOR
         }
     }
     getTransactionDetailHtml() {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v;
         let title = lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] ``;
         if (this.selectedTransaction instanceof _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["BridgeTransaction"]) {
             if (((_a = this.selectedTransaction) === null || _a === void 0 ? void 0 : _a.type) == _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["TransactionType"].DEPOSITED) {
@@ -28273,17 +22372,23 @@ let IconBridgeWidget = class IconBridgeWidget extends lit_element__WEBPACK_IMPOR
                       </div>`;
             }
         }
-        if (((_f = this.selectedTransaction) === null || _f === void 0 ? void 0 : _f.type) == _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["TransactionType"].SENT || ((_g = this.selectedTransaction) === null || _g === void 0 ? void 0 : _g.type) == _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["TransactionType"].RECEIVED) {
+        const transactionType = (_g = (_f = this.selectedTransaction) === null || _f === void 0 ? void 0 : _f.type) !== null && _g !== void 0 ? _g : (((_h = this.selectedTransaction) === null || _h === void 0 ? void 0 : _h.toAddr) == ((_j = this.user) === null || _j === void 0 ? void 0 : _j.iconWalletAddress) ?
+            _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["TransactionType"].RECEIVED : _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["TransactionType"].SENT);
+        //@ts-ignore
+        const transactionAmount = (_m = (_l = (_k = this.selectedTransaction) === null || _k === void 0 ? void 0 : _k.amount) === null || _l === void 0 ? void 0 : _l.toFixed(2)) !== null && _m !== void 0 ? _m : (_o = this.selectedTransaction) === null || _o === void 0 ? void 0 : _o.quantity;
+        //@ts-ignore
+        const transactionDate = (_q = (_p = this.selectedTransaction) === null || _p === void 0 ? void 0 : _p.date) !== null && _q !== void 0 ? _q : new Date((_r = this.selectedTransaction) === null || _r === void 0 ? void 0 : _r.createDate);
+        if (transactionType == _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["TransactionType"].SENT || transactionType == _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["TransactionType"].RECEIVED) {
             let blockchainAddress = "";
             if (this.selectedTransaction instanceof _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["BridgeTransaction"]) {
-                blockchainAddress = ((_h = this.selectedTransaction) === null || _h === void 0 ? void 0 : _h.iconTransaction) ? this.selectedTransaction.iconTransaction.toAddr : "Nan";
+                blockchainAddress = ((_s = this.selectedTransaction) === null || _s === void 0 ? void 0 : _s.iconTransaction) ? (_t = this.selectedTransaction.iconTransaction) === null || _t === void 0 ? void 0 : _t.toAddr : "Nan";
             }
             else {
-                blockchainAddress = this.selectedTransaction.toAddr;
+                blockchainAddress = (_u = this.selectedTransaction) === null || _u === void 0 ? void 0 : _u.toAddr;
             }
             title = lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `<div class="grid margin-top-15 padding-bottom-15 border-bottom">
                     <div class="grid-cell">
-                      <p class="text-center label-small">${((_j = this.selectedTransaction) === null || _j === void 0 ? void 0 : _j.type) == _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["TransactionType"].SENT ? "Sent to" : "Received from"}</p>
+                      <p class="text-center label-small">${transactionType == _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["TransactionType"].SENT ? "Sent to" : "Received from"}</p>
                       <p class="text-center text-bold">
                       <span class="blockchain-address">${blockchainAddress}</span>
                       </p>
@@ -28292,9 +22397,9 @@ let IconBridgeWidget = class IconBridgeWidget extends lit_element__WEBPACK_IMPOR
         }
         return lit_element__WEBPACK_IMPORTED_MODULE_0__["html"] `
        <div class="grid-cell">
-        <h2>${((_k = this.selectedTransaction) === null || _k === void 0 ? void 0 : _k.type) == _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["TransactionType"].SENT || ((_l = this.selectedTransaction) === null || _l === void 0 ? void 0 : _l.type) == _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["TransactionType"].WITHDRAW ? "-" : "+"} ${this.selectedTransaction ? this.selectedTransaction.amount.toFixed(2) : "Nan"}<span class="currency label-small">${(_m = this.selectedToken) === null || _m === void 0 ? void 0 : _m.tag}</span></h2>
+        <h2>${transactionType == _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["TransactionType"].SENT || transactionType == _lib_models_Transaction_BridgeTransaction__WEBPACK_IMPORTED_MODULE_11__["TransactionType"].WITHDRAW ? "-" : "+"} ${this.selectedTransaction ? transactionAmount : "NaN"}<span class="currency label-small">${(_v = this.selectedToken) === null || _v === void 0 ? void 0 : _v.tag}</span></h2>
         ${title}
-        <p class="text-center label-small">${this.selectedTransaction ? this.selectedTransaction.dateString + " " + this.selectedTransaction.date.toLocaleTimeString() : "Nan"}</p>
+        <p class="text-center label-small">${this.selectedTransaction ? transactionDate.toDateString() + " " + transactionDate.toLocaleTimeString() : "Nan"}</p>
       </div>
     `;
     }

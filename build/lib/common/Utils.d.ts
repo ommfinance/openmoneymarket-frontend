@@ -1,7 +1,7 @@
 import { NaturalPersonContactUS } from "../models/PrimeTrust/NaturalPersonContactUS";
 import { BankAccount } from "../models/bankAccount/BankAccount";
 import { CreditCard } from "../models/CreditCard/CreditCard";
-export declare function icxValueToNormalValue(icxValue: number): number;
+export declare function icxValueToNormalValue(icxValue: number, decimals: number): number;
 export declare function parseHexToNumber(value: string | number): number;
 export declare function instanceOfNaturalPersonContactUS(object: any): object is NaturalPersonContactUS;
 export declare function extractDidEthAddress(issuer: string | null): string;
