@@ -65,6 +65,7 @@ export declare class IconBridgeWidget extends LitElement {
     private magicLogin;
     private loadBridgeTransactions;
     private loadIcxTransactions;
+    private loadIrc2Transactions;
     private handleError;
     private showChangeEmail;
     private hideEmailChangeShowMain;
