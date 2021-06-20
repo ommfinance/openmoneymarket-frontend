@@ -3,6 +3,7 @@ import {PersistenceService} from "../persistence/persistence.service";
 import {StateChangeService} from "../state-change/state-change.service";
 import {BridgeWidgetAction} from "../../models/BridgeWidgetAction";
 import {Utils} from "../../common/utils";
+import {LocalStorageService} from "../local-storage/local-storage.service";
 
 
 /**
@@ -15,7 +16,8 @@ export class LogoutService {
 
   constructor(
     private persistenceService: PersistenceService,
-    private stateChangeService: StateChangeService
+    private stateChangeService: StateChangeService,
+    private localStorageService: LocalStorageService
   ) { }
 
   signOutUser(): void {
@@ -24,8 +26,11 @@ export class LogoutService {
       this.signOutBridgeUser();
     }
 
-    // clear active wallet
+    // clear active wallet from persistence service
     this.persistenceService.logoutUser();
+
+    // clear local storage wallet data
+    this.localStorageService.clearWalletLogin();
 
     // commit change to the state change service
     this.stateChangeService.updateLoginStatus(this.persistenceService.activeWallet);
