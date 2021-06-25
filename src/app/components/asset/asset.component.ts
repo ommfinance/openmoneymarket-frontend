@@ -103,7 +103,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   ommApyCheckedChange(): void {
-
+    // TODO trigger any potential logic needed
   }
 
   /**
@@ -392,7 +392,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   private subscribeToTotalRiskChange(): void {
     // subscribe to total risk changes
     this.stateChangeService.userTotalRiskChange.subscribe(totalRisk => {
-      // log.debug("Total risk change = " + totalRisk);
       this.totalRisk = totalRisk;
     });
   }
@@ -848,11 +847,11 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   supplySliderMaxValue(): number {
-    return this.sliderSupply.noUiSlider.options.range.max;
+    return this.sliderSupply?.noUiSlider?.options.range.max ?? 0;
   }
 
   borrowSliderMaxValue(): number {
-    return this.sliderBorrow.noUiSlider.options.range.max;
+    return this.sliderBorrow?.noUiSlider?.options.range.max ?? 0;
   }
 
   removeInputRedBorderClass(): void {
