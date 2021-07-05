@@ -476,7 +476,16 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   initSupplySliderlogic(): void {
     // On asset-user supply slider update (Your markets)
     this.sliderSupply.noUiSlider.on('update', (values: any, handle: any) => {
-      const value = this.roundDownTo2Decimals(this.deformatAssetValue(values[handle]));
+      let value = this.deformatAssetValue(values[handle]);
+
+      // in case of ICX leave 1 ICX for the fees
+      if (this.asset.tag === AssetTag.ICX && value > this.supplySliderMaxValue() - 1) {
+        value = this.supplySliderMaxValue() - 1;
+      }
+
+      // ensure it is rounded down
+      value = this.roundDownTo2Decimals(value);
+
       // Update supplied text box
       this.inputSupply.value = assetFormat(this.asset.tag).to(value);
 
