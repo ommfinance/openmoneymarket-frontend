@@ -26,7 +26,7 @@
       <span class="label">{{this.formatNumberToUSLocaleString(roundOffTo2Decimals(getTotalLiquidity()))}} {{asset.tag}}</span></td>
     <td class="text-green">{{to2DecimalRoundedOffPercentString(getMarketSupplyRate())}}</td> <!-- Supply APY -->
     <td>{{this.toDollarUSLocaleString(roundOffTo2Decimals(this.persistenceService.getAssetReserveData(asset.tag)?.totalBorrowsUSD))}}<br>
-      <span class="label">{{this.formatNumberToUSLocaleString(roundOffTo2Decimals(getTotalBorrows()))}} {{getBorrowAssetTagAdjusted()}}</span></td>
+      <span class="label">{{this.formatNumberToUSLocaleString(roundOffTo2Decimals(getTotalAssetBorrows()))}} {{getBorrowAssetTagAdjusted()}}</span></td>
     <td class="text-purple">{{to2DecimalRoundedOffPercentString(getMarketBorrowRate())}}</td> <!-- Borrow APY -->
   </ng-container>
 

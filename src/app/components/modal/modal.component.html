@@ -167,16 +167,16 @@
 <div class="modal" #assetActionModal>
   <div class="modal-content">
     <h3 class="text-center label">{{getModalActionName()}} {{activeModalChange?.assetAction?.asset?.name}}?</h3>
-    <p class="text-bold text-center value-borrow-difference">{{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.amount))}} {{activeModalChange?.assetAction?.asset?.tag}}</p>
+    <p class="text-bold text-center value-borrow-difference">{{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.amount))}} {{getAdjustedAssetTag()}}</p>
     <div class="grid">
       <div class="grid-cell text-center border-right">
         <p class="label">Before</p>
-        <p class="text-dark value-borrowed">{{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.before))}} {{activeModalChange?.assetAction?.asset?.tag}}</p>
+        <p class="text-dark value-borrowed">{{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.before))}} {{getAdjustedAssetTag()}}</p>
       </div>
 
       <div class="grid-cell text-center">
         <p class="label">After</p>
-        <p class="text-dark value-borrow-after">{{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.after))}} {{activeModalChange?.assetAction?.asset?.tag}}</p>
+        <p class="text-dark value-borrow-after">{{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.after))}} {{getAdjustedAssetTag()}}</p>
       </div>
     </div>
 

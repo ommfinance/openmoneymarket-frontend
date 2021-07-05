@@ -15,7 +15,7 @@ import {OmmError} from "../../core/errors/OmmError";
 import {LocalStorageService} from "../../services/local-storage/local-storage.service";
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import {NotificationService} from "../../services/notification/notification.service";
-import {AssetTag} from "../../models/Asset";
+import {AssetTag, assetToCollateralAssetTag, CollateralAssetTag} from "../../models/Asset";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {LedgerService} from "../../services/ledger/ledger.service";
 import {DataLoaderService} from "../../services/data-loader/data-loader.service";
@@ -363,6 +363,22 @@ export class ModalComponent extends BaseClass implements OnInit {
   activeModalHasLiquidityRewards(): boolean {
     const liquidityRewards = this.activeModalChange?.assetAction?.details?.ommRewards?.liquidityRewards ?? 0;
     return liquidityRewards > 0;
+  }
+
+  getAdjustedAssetTag(): AssetTag | CollateralAssetTag | undefined {
+    if (this.activeModalChange?.assetAction) {
+      const tag = this.activeModalChange.assetAction.asset.tag;
+
+      // convert ICX borrow repay to sICX
+      if (tag === AssetTag.ICX && (this.activeModalChange.modalType === ModalType.BORROW
+        || this.activeModalChange.modalType === ModalType.REPAY)) {
+        return assetToCollateralAssetTag(tag);
+      } else {
+        return tag;
+      }
+    } else {
+      return undefined;
+    }
   }
 
 }
