@@ -65,6 +65,10 @@ export class PersistenceService {
     this.userReserves = new UserReserves();
   }
 
+  public getTotalAssetBorrows(assetTag: AssetTag): number {
+    return this.getAssetReserveData(assetTag)?.totalBorrows ?? 0;
+  }
+
   public getReserveAddressByAssetTag(assetTag: AssetTag): string | undefined {
     return this.allAddresses?.collateralAddress(assetTag);
   }

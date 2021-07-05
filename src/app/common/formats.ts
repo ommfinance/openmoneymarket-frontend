@@ -1,16 +1,9 @@
-/*
-* Omm
-* Formats JS
-* Version 1.0
-* Last updated 10/12/20
-*/
-
 /* ==========================================================================
     Formats
 ========================================================================== */
 
 // declare wNumb
-import {AssetTag} from "../models/Asset";
+import {AssetTag, CollateralAssetTag} from "../models/Asset";
 
 declare var wNumb: any;
 
@@ -32,7 +25,7 @@ export const prefixPlusFormat = wNumb({
   prefix: ' + '
 });
 
-export function assetFormat(assetTag: AssetTag): any {
+export function assetFormat(assetTag: AssetTag | CollateralAssetTag): any {
     return wNumb({
       decimals: 2,
       thousand: ',',
@@ -40,8 +33,8 @@ export function assetFormat(assetTag: AssetTag): any {
     });
 }
 
-// + USDb .00
-export function assetPrefixPlusFormat(assetTag: AssetTag): any {
+// + ICX .00
+export function assetPrefixPlusFormat(assetTag: AssetTag | CollateralAssetTag): any {
   return wNumb({
     decimals: 2,
     thousand: ',',
@@ -50,8 +43,8 @@ export function assetPrefixPlusFormat(assetTag: AssetTag): any {
   });
 }
 
-// - USDb .00
-export function assetPrefixMinusFormat(assetTag: AssetTag): any {
+// - ICX .00
+export function assetPrefixMinusFormat(assetTag: AssetTag | CollateralAssetTag): any {
   return wNumb({
     decimals: 2,
     thousand: ',',

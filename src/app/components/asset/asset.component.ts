@@ -129,7 +129,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
     // Reset user asset sliders
     this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag), true);
-    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag), true);
+    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
     this.sliderSupply.setAttribute("disabled", "");
     this.sliderBorrow.setAttribute("disabled", "");
 
@@ -224,7 +224,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
     // Reset user asset sliders
     this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag), true);
-    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag), true);
+    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
 
     // disable inputs
     this.disableInputs();
@@ -436,7 +436,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       this.inputBorrowAvailable.value = assetFormat(this.asset.tag).to(borrowAvailable);
 
       // set borrow slider value
-      this.setBorrowSliderValue(reserve.currentBorrowBalance, true);
+      this.setBorrowSliderValue(reserve.currentBorrowBalance);
 
       // update asset borrow slider max value to  -> borrowed + borrow available
       max = Utils.addDecimalsPrecision(this.convertSICXToICXIfAssetIsICX(reserve.currentBorrowBalance), borrowAvailable);
@@ -532,25 +532,26 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     // On asset-user borrow slider update (Your markets)
     this.sliderBorrow.noUiSlider.on('update', (values: any, handle: any) => {
 
-      const value = this.roundDownTo2Decimals(this.deformatAssetValue(values[handle]));
+      const value = this.roundDownTo2Decimals(this.deformatAssetValue(values[handle], true));
 
       // stop slider on min (do not allow to go below "Used" repayment a.k.a user available balance of asset)
       if (this.isAssetBorrowUsed()) {
-        const borrowUsed = this.convertSICXToICXIfAssetIsICX(this.borrowUsed());
+        const borrowUsed = this.borrowUsed();
         if (value < borrowUsed) {
           return this.setBorrowSliderValue(borrowUsed);
         }
       }
 
       // Update asset-user borrowed text box
-      this.inputBorrow.value = assetFormat(this.asset.tag).to(value);
+      this.inputBorrow.value = assetFormat(assetToCollateralAssetTag(this.asset.tag)).to(value);
 
       // Update asset-user available text box
-      this.inputBorrowAvailable.value = assetFormat(this.asset.tag).to(Utils.subtractDecimalsWithPrecision(
+      this.inputBorrowAvailable.value = assetFormat(assetToCollateralAssetTag(this.asset.tag)).to(Utils.subtractDecimalsWithPrecision(
         this.borrowSliderMaxValue(), value));
 
       // Update asset-user's borrow interest
-      this.setText(this.borrInterestEl, assetPrefixMinusFormat(this.asset.tag).to(this.getDailyBorrowInterest(value)));
+      this.setText(this.borrInterestEl, assetPrefixMinusFormat(assetToCollateralAssetTag(this.asset.tag)).to(
+        this.getDailyBorrowInterest(value)));
 
       // Update asset-user's borrow omm rewards
       this.setText(this.borrRewardsEl, ommPrefixPlusFormat.to(this.calculationService.calculateUsersOmmRewardsForBorrow(
@@ -602,14 +603,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       }
 
     });
-  }
-
-  convertSliderValue(value: number): number {
-    if (this.isAssetIcx()) {
-      return this.convertFromICXTosICX(value);
-    } else {
-      return value;
-    }
   }
 
   setTmpRiskAndColor(totalRisk: number): void {
@@ -667,14 +660,8 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.sliderSupply.noUiSlider.set(res);
   }
 
-  private setBorrowSliderValue(value: number, convert = false): void {
-    let res: number;
-    // if asset is ICX, convert sICX -> ICX
-    if (convert && this.isAssetIcx()) {
-      res = this.roundDownTo2Decimals(this.convertSICXToICX(value));
-    } else {
-      res = this.roundDownTo2Decimals(value);
-    }
+  private setBorrowSliderValue(value: number): void {
+    const res = this.roundDownTo2Decimals(value);
 
     // if value is greater than slider max, update the sliders max and set the value
     if (res > this.borrowSliderMaxValue()) {
@@ -695,13 +682,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   getUserBorrowedAssetBalance(): number {
-    let res = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag);
-
-    if (this.isAssetIcx()) {
-      res = this.convertSICXToICX(res);
-    }
-
-    return this.roundDownTo2Decimals(res);
+    return this.roundDownTo2Decimals(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
   }
 
   getUserSuppliableBalanceUSD(): number {
@@ -797,7 +778,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   resetBorrowSliders(): void {
-    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag), true);
+    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
     this.sliderBorrow.setAttribute("disabled", "");
   }
 
@@ -819,7 +800,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   disableAndResetBorrowSlider(): void {
     // Disable asset-user borrow sliders (Your markets)
-    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag), true);
+    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
     this.sliderBorrow.setAttribute("disabled", "");
   }
 
@@ -835,7 +816,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   enableAssetBorrow(): void {
     this.inputBorrow.removeAttribute("disabled");
     this.sliderBorrow.removeAttribute("disabled");
-    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag), true);
+    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
   }
 
   hideAsset(): void {
@@ -880,13 +861,8 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     }
   }
 
-  getTotalBorrows(): number {
-    const res = this.persistenceService.getAssetReserveData(this.asset.tag)?.totalBorrows ?? 0;
-    if (this.isAssetIcx()) {
-      return this.convertSICXToICX(res);
-    } else {
-      return res;
-    }
+  getTotalAssetBorrows(): number {
+    return this.persistenceService.getTotalAssetBorrows(this.asset.tag);
   }
 
   getTotalLiquidity(): number {
@@ -949,8 +925,12 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     return +assetFormat(this.asset.tag).from(this.inputSupply.value);
   }
 
-  deformatAssetValue(value: any): number {
-    return +assetFormat(this.asset.tag).from(value);
+  deformatAssetValue(value: any, convertToCollateralAsset = false): number {
+    if (convertToCollateralAsset) {
+      return +assetFormat(assetToCollateralAssetTag(this.asset.tag)).from(value);
+    } else {
+      return +assetFormat(this.asset.tag).from(value);
+    }
   }
 
   shouldShowUnstaking(): boolean {
