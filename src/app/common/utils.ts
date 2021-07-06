@@ -188,4 +188,12 @@ export class Utils {
     log.debug("Dispatched Bridge event: ", event);
     window.dispatchEvent(event);
   }
+
+  public static makeNegativeNumber(value: number | string): number {
+    if (typeof value === "string") {
+      return -Math.abs(+value);
+    } else {
+      return -Math.abs(value);
+    }
+  }
 }
