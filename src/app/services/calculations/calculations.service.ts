@@ -20,19 +20,11 @@ export class CalculationsService {
               private stateChangeService: StateChangeService) { }
 
   public calculateBorrowApyWithOmmRewards(assetTag: AssetTag): number {
-    log.debug("****** calculateBorrowApyWithOmmRewards *****");
-    log.debug("assetTag = " + assetTag);
     const borrowRate = this.persistenceService.getAssetReserveData(assetTag)?.borrowRate ?? 0;
-    log.debug("borrowRate = " + borrowRate);
     const tokenDistributionPerDay = this.persistenceService.tokenDistributionPerDay;
-    log.debug("tokenDistributionPerDay = " + tokenDistributionPerDay);
     const totalInterestOverAYear = this.borrowTotalInterestOverAYear();
-    log.debug("totalInterestOverAYear = " + totalInterestOverAYear);
-    const result = this.borrowOmmApyFormula(borrowRate, totalInterestOverAYear, tokenDistributionPerDay,
+    return this.borrowOmmApyFormula(borrowRate, totalInterestOverAYear, tokenDistributionPerDay,
       this.persistenceService.ommPriceUSD);
-    log.debug("result = " + result);
-
-    return result;
   }
 
   public borrowOmmApyFormula(borrowRate: number, totalInterestOverAYear: number, tokenDistributionPerDay: number,
@@ -465,6 +457,36 @@ export class CalculationsService {
     });
 
     return totalBorrowUSDsupplyApySum / totalBorrowUSDsum;
+  }
+
+  // Formulae: User Liquidity Amount in USD * (Supply APY + OMM reward Supply APY) / User Liquidity in USD
+  public getUserAssetSupplyApy(assetTag: AssetTag, ommApyIncluded = false): number {
+    if (ommApyIncluded) {
+      const userLiquidityAmountUSD = this.persistenceService.getUserAssetReserve(assetTag)?.currentOTokenBalanceUSD ?? 0;
+      const supplyApy = this.persistenceService.getUserAssetReserve(assetTag)?.liquidityRate ?? 0;
+      const ommRewardsSupplyApy = this.calculateSupplyApyWithOmmRewards(assetTag);
+
+      return (userLiquidityAmountUSD * (supplyApy + ommRewardsSupplyApy)) / userLiquidityAmountUSD;
+    } else {
+      return this.persistenceService.getUserAssetReserve(assetTag)?.liquidityRate ?? 0;
+    }
+  }
+
+  // Formulae: User Borrows Amount in USD * (Borrow APY + OMM reward Supply APY) / User Borrows in USD
+  public getUserAssetBorrowApy(assetTag: AssetTag, ommApyIncluded = false): number {
+    if (ommApyIncluded) {
+      const userBorrowsAmountUSD = this.persistenceService.getUserAssetReserve(assetTag)?.currentBorrowBalanceUSD ?? 0;
+      const borrowApy = this.persistenceService.getUserAssetReserve(assetTag)?.borrowRate ?? 0;
+      const ommRewardsBorrowApy = this.calculateBorrowApyWithOmmRewards(assetTag);
+
+      // console.log("userBorrowsAmountUSD=" + userBorrowsAmountUSD);
+      // console.log("borrowApy=" + userBorrowsAmountUSD);
+      // console.log("ommRewardsBorrowApy=" + userBorrowsAmountUSD);
+
+      return (userBorrowsAmountUSD * (borrowApy + ommRewardsBorrowApy)) / userBorrowsAmountUSD;
+    } else {
+      return this.persistenceService.getUserAssetReserve(assetTag)?.borrowRate ?? 0;
+    }
   }
 
   public getYourSupplyApy(ommApyIncluded = false): number {

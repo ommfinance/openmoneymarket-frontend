@@ -162,4 +162,12 @@ export class BaseClass {
     return htmlElement.textContent ?? "";
   }
 
+  makeAbsolute(value: number): number {
+    return Math.abs(value);
+  }
+
+  isNegative(value: number): boolean {
+    return value < 0;
+  }
+
 }
