@@ -83,7 +83,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   totalRisk = 0;
 
   constructor(private slidersService: SlidersService,
-              private calculationService: CalculationsService,
+              public calculationService: CalculationsService,
               private stateChangeService: StateChangeService,
               public persistenceService: PersistenceService,
               private modalService: ModalService,
@@ -958,11 +958,13 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   getUserSupplyApy(): number | undefined {
-    return this._ommApyChecked ? this.getMarketSupplyRate() : this.persistenceService.getUserAssetReserve(this.asset.tag)?.liquidityRate;
+    return this._ommApyChecked ? this.calculationService.getUserAssetSupplyApy(this.asset.tag, this._ommApyChecked) :
+      this.persistenceService.getUserAssetReserve(this.asset.tag)?.liquidityRate;
   }
 
-  getUserBorrowApy(): number | undefined {
-    return this._ommApyChecked ? this.getMarketBorrowRate() : this.persistenceService.getUserAssetReserve(this.asset.tag)?.borrowRate;
+  getUserBorrowApy(): number {
+    return this._ommApyChecked ? this.getUserAssetBorrowApy() : this.persistenceService.getUserAssetReserve(this.asset.tag)?.borrowRate
+      ?? 0;
   }
 
   getAssetTagAdjusted(): string {
@@ -983,6 +985,10 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   isAssetIcx(): boolean {
     return this.asset.tag === AssetTag.ICX;
+  }
+
+  getUserAssetBorrowApy(): number {
+    return this.calculationService.getUserAssetBorrowApy(this.asset.tag, this._ommApyChecked);
   }
 
 }
