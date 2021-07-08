@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core';
 import {PersistenceService} from "../persistence/persistence.service";
 import {AssetTag} from "../../models/Asset";
-import log from "loglevel";
 import {UserAction} from "../../models/UserAction";
 import {ReserveData} from "../../models/AllReservesData";
 import {StateChangeService} from "../state-change/state-change.service";
@@ -19,38 +18,74 @@ export class CalculationsService {
   constructor(private persistenceService: PersistenceService,
               private stateChangeService: StateChangeService) { }
 
-  public calculateBorrowApyWithOmmRewards(assetTag: AssetTag): number {
-    log.debug("****** calculateBorrowApyWithOmmRewards *****");
-    log.debug("assetTag = " + assetTag);
-    const borrowRate = this.persistenceService.getAssetReserveData(assetTag)?.borrowRate ?? 0;
-    log.debug("borrowRate = " + borrowRate);
-    const tokenDistributionPerDay = this.persistenceService.tokenDistributionPerDay;
-    log.debug("tokenDistributionPerDay = " + tokenDistributionPerDay);
-    const totalInterestOverAYear = this.borrowTotalInterestOverAYear();
-    log.debug("totalInterestOverAYear = " + totalInterestOverAYear);
-    const result = this.borrowOmmApyFormula(borrowRate, totalInterestOverAYear, tokenDistributionPerDay,
-      this.persistenceService.ommPriceUSD);
-    log.debug("result = " + result);
 
-    return result;
+  // formulae: Supply APY + OMM reward Supply APY
+  calculateUserAndMarketReserveSupplyApy(assetTag: AssetTag): number {
+    const reserveData = this.persistenceService.getAssetReserveData(assetTag);
+
+    if (reserveData) {
+      return reserveData.liquidityRate + this.calculateSupplyApyWithOmmRewards(assetTag);
+    } else {
+      return 0;
+    }
   }
 
+  // formulae: OMM reward Borrow APY - Borrow APY
+  calculateUserAndMarketReserveBorrowApy(assetTag: AssetTag): number {
+    const reserveData = this.persistenceService.getAssetReserveData(assetTag);
+
+    if (reserveData) {
+      const res = this.calculateBorrowApyWithOmmRewards(assetTag) - reserveData.borrowRate;
+      console.log(`this.calculateBorrowApyWithOmmRewards(${assetTag}) - ${reserveData.borrowRate}`,
+        this.calculateBorrowApyWithOmmRewards(assetTag));
+
+      return res;
+    } else {
+      return 0;
+    }
+  }
+
+  public calculateBorrowApyWithOmmRewards(assetTag: AssetTag): number {
+    const reserveData = this.persistenceService.getAssetReserveData(assetTag);
+
+    if (reserveData) {
+      const borrowRate = reserveData.borrowRate;
+      const tokenDistributionPerDay = this.persistenceService.tokenDistributionPerDay;
+      const totalInterestOverAYear = this.borrowTotalInterestOverAYear();
+      return this.borrowOmmApyFormula(borrowRate, totalInterestOverAYear, tokenDistributionPerDay, this.persistenceService.ommPriceUSD,
+        reserveData);
+    } else {
+      return 0;
+    }
+  }
+
+  // Borrow OMM rewards APY: Token Distribution for that day (1M) * OMM Token Price * reserve portion * reserve borrowing * 365
+  // / (reserve supplied * reserve price from Oracle)
   public borrowOmmApyFormula(borrowRate: number, totalInterestOverAYear: number, tokenDistributionPerDay: number,
-                             ommPriceUSD: number): number {
-    return borrowRate / totalInterestOverAYear * tokenDistributionPerDay * ommPriceUSD * 0.2 * 365;
+                             ommPriceUSD: number, reserveData: ReserveData): number {
+    return (tokenDistributionPerDay * ommPriceUSD * reserveData.rewardPercentage * reserveData.borrowingPercentage * 365)
+      / (reserveData.totalBorrows * reserveData.exchangePrice);
   }
 
   public calculateSupplyApyWithOmmRewards(assetTag: AssetTag): number {
-    const liquidityRate = this.persistenceService.getAssetReserveData(assetTag)?.liquidityRate ?? 0;
-    const totalInterestOverAYear = this.supplyTotalInterestOverAYear();
-    const tokenDistributionPerDay = this.persistenceService.tokenDistributionPerDay;
+    const reserveData = this.persistenceService.getAssetReserveData(assetTag);
 
-    return this.supplyOmmApyFormula(liquidityRate, totalInterestOverAYear, tokenDistributionPerDay, this.persistenceService.ommPriceUSD);
+    if (reserveData) {
+      const liquidityRate = this.persistenceService.getAssetReserveData(assetTag)?.liquidityRate ?? 0;
+      const totalInterestOverAYear = this.supplyTotalInterestOverAYear();
+      const tokenDistributionPerDay = this.persistenceService.tokenDistributionPerDay;
+
+      return this.supplyOmmApyFormula(liquidityRate, totalInterestOverAYear, tokenDistributionPerDay, this.persistenceService.ommPriceUSD,
+        reserveData);
+    } else {
+      return 0;
+    }
   }
 
   public supplyOmmApyFormula(liquidityRate: number, totalInterestOverAYear: number, tokenDistributionPerDay: number,
-                             ommPriceUSD: number): number {
-    return liquidityRate / totalInterestOverAYear * tokenDistributionPerDay * ommPriceUSD * 0.2 * 365;
+                             ommPriceUSD: number, reserveData: ReserveData): number {
+    return (tokenDistributionPerDay * ommPriceUSD * reserveData.rewardPercentage * reserveData.lendingPercentage * 365)
+      / (reserveData.totalLiquidity * reserveData.exchangePrice);
   }
 
   /**
@@ -140,10 +175,7 @@ export class CalculationsService {
         return 0;
       }
 
-      const totalRiskPercentage = 1 / healthFactor;
-      // log.debug("**********************************************");
-      // log.debug(`${this.className} calculateTotalRiskBasedOnHF = ${totalRiskPercentage}`);
-      return totalRiskPercentage;
+      return 1 / healthFactor;
     }
   }
 
@@ -155,13 +187,9 @@ export class CalculationsService {
    * @return total user risk as a number (multiply by 100 to get percentage)
    */
   private calculateTotalRiskDynamic(assetTag: AssetTag, amount: number, userAction: UserAction): number {
-    // log.debug("*******************  calculateTotalRiskDynamic  ***************************");
-    // log.debug(`Params: assetTag=${assetTag}, amount=${amount}, userAction=${userAction.toString()}`);
-
     const userAccountData = this.persistenceService.userAccountData;
     // if user account data not yet initialised return 0
     if (!userAccountData) {
-      // log.debug("calculateValueRiskTotal userAccountData = undefined");
       return 0;
     }
 
@@ -171,20 +199,16 @@ export class CalculationsService {
     let totalCollateralBalanceUSD = userAccountData.totalCollateralBalanceUSD;
     const liquidationThreshold = this.persistenceService.getAverageLiquidationThreshold();
 
-
-    // log.debug("Dynamic risk calculation....");
     const assetReserve = this.persistenceService.getAssetReserveData(assetTag);
     const assetExchangePrice = assetReserve?.exchangePrice ?? 0;
 
     switch (userAction) {
       case UserAction.SUPPLY:
-        // log.debug(`amount being supplied=${amount} ${riskCalculationData.assetTag}`);
 
         // if user add more collateral, add USD value of amount to the total collateral balance USD
         totalCollateralBalanceUSD += amount * assetExchangePrice;
         break;
       case UserAction.REDEEM:
-        // log.debug(`amount being redeemed=${amount} ${riskCalculationData.assetTag}`);
         // if user takes out collateral, subtract USD value of amount from the total collateral balance USD
         totalCollateralBalanceUSD -= amount * assetExchangePrice;
         break;
@@ -192,31 +216,19 @@ export class CalculationsService {
         // if user takes out the loan (borrow) update the origination fee and add amount to the total borrow balance
         const originationFee = this.persistenceService.getUserAssetReserve(assetTag)?.originationFee ?? 0;
         const originationFeePercentage = this.persistenceService.loanOriginationFeePercentage ?? 0.001;
-        // log.debug(`originationFee=${originationFee}`);
-        // log.debug(`amount being borrowed=${amount} ${assetTag}`);
         totalFeeUSD += amount * assetExchangePrice * originationFeePercentage + originationFee;
         totalBorrowBalanceUSD += amount * assetExchangePrice;
         break;
       case UserAction.REPAY:
-        // log.debug(`amount being repaid=${amount} ${riskCalculationData.assetTag}`);
         // if user repays the loan, subtract the USD value of amount from the total borrow balance USD
         totalBorrowBalanceUSD -= amount * assetExchangePrice;
     }
-
-
-    // log.debug("Total risk percentage calculation:");
-    // log.debug(`totalBorrowBalanceUSD=${totalBorrowBalanceUSD}`);
-    // log.debug(`totalCollateralBalanceUSD=${totalCollateralBalanceUSD}`);
-    // log.debug(`totalFeeUSD=${totalFeeUSD}`);
-    // log.debug(`liquidationThreshold=${liquidationThreshold}`);
 
     let res = totalBorrowBalanceUSD / ((totalCollateralBalanceUSD - totalFeeUSD) * liquidationThreshold);
 
     if (res < 0) {
       res = 1;
     }
-
-    // log.debug("Total dynamic risk = " + res);
 
     return res;
   }
@@ -227,32 +239,20 @@ export class CalculationsService {
    * @return asset available borrow amount
    */
   public calculateAvailableBorrowForAsset(assetTag: AssetTag): number {
-    // log.debug("**********************************************");
-    // log.debug("calculateAvailableBorrowForAsset:");
     // average across all reserves
     const currentLTV = this.persistenceService.userAccountData?.currentLtv ?? 0;
-    // log.debug("currentLTV:" + currentLTV);
-
     const totalCollateralBalanceUSD = this.persistenceService.userAccountData?.totalCollateralBalanceUSD ?? 0;
-    // log.debug("totalCollateralBalanceUSD:" + totalCollateralBalanceUSD);
-
     const totalFeesUSD = this.persistenceService.userAccountData?.totalFeesUSD ?? 0;
-    // log.debug("totalFeesUSD:" + totalFeesUSD);
 
 
     const borrowsAllowedUSD = (totalCollateralBalanceUSD - totalFeesUSD) * currentLTV;
-    // log.debug("borrowsAllowedUSD:" + borrowsAllowedUSD);
     // previous borrow balance of user across all collaterals in USD
     const totalBorrowBalanceUSD = this.persistenceService.userAccountData?.totalBorrowBalanceUSD ?? 0;
-    // log.debug("totalBorrowBalanceUSD:" + totalBorrowBalanceUSD);
     // the amount user can borrow in USD across all the collaterals
     const availableBorrowUSD = borrowsAllowedUSD - totalBorrowBalanceUSD;
-    // log.debug("availableBorrowUSD:" + availableBorrowUSD);
     // exchange price of the asset (reserve) extracted from the ReserveData
     const exchangePrice = this.persistenceService.getAssetReserveData(assetTag)?.exchangePrice ?? 0.54321;
-    // log.debug(`exchangePrice for ${assetTag} = ${exchangePrice}`);
 
-    // return availableBorrowUSD / exchangePrice;
     let res = availableBorrowUSD / exchangePrice;
 
     if (assetTag === AssetTag.ICX) {
@@ -260,7 +260,6 @@ export class CalculationsService {
       res = Utils.convertSICXToICX(res, this.persistenceService.sIcxToIcxRate());
     }
 
-    // log.debug(`Available borrow for ${assetTag} is: availableBorrowUSD / exchangePrice = ${res}`);
     return Utils.roundDownTo2Decimals(res);
   }
 
@@ -271,25 +270,16 @@ export class CalculationsService {
    * @return users asset supply interest (in USD) for a day
    */
   public calculateUsersDailySupplyInterestForAsset(assetTag: AssetTag, supplied?: number): number {
-    // log.debug("**********************************************");
-    // log.debug("Daily supply interest for reserve calculation:");
-
     let currentOTokenBalanceUSD = this.persistenceService.getUserSuppliedAssetUSDBalance(assetTag);
-    // log.debug(`currentOTokenBalanceUSD=${currentOTokenBalanceUSD}`);
 
     const exchangePrice = this.persistenceService.getAssetExchangePrice(assetTag);
     if (supplied) {
       currentOTokenBalanceUSD = supplied * exchangePrice;
-      // log.debug(`amountBeingSupplied=${supplied}`);
-      // log.debug(`exchangePrice=${exchangePrice}`);
-      // log.debug(`after currentOTokenBalanceUSD=${currentOTokenBalanceUSD}`);
     }
 
     const liquidityRate = this.persistenceService.getUserAssetReserve(assetTag)?.liquidityRate ?? 0;
-    // log.debug(`liquidityRate=${liquidityRate}`);
     // "easy route" formula
     const res = currentOTokenBalanceUSD * liquidityRate * (1 / 365);
-    // log.debug(`Users daily supply interest, currentOTokenBalanceUSD * liquidityRate * (1 / 365) = ${res}`);
 
     // convert to asset
     return res / exchangePrice;
@@ -323,16 +313,11 @@ export class CalculationsService {
 
     const borrowRate = this.persistenceService.getUserAssetReserve(assetTag)?.borrowRate ?? 0;
 
-    // log.debug("**********************************************");
-    // log.debug("Daily borrow interest for reserve calculation for :", assetTag);
-    // log.debug(`currentBorrowBalanceUSD=${currentBorrowBalanceUSD}`);
-    // log.debug(`borrowRate=${borrowRate}`);
     // "easy route" formula
     const res = currentBorrowBalanceUSD * borrowRate * (1 / 365);
 
     // convert to asset
     const valueInAsset = res / exchangePrice;
-    // log.debug(`Result = ${valueInAsset} ${assetTag}`);
 
     return valueInAsset;
   }
@@ -341,13 +326,9 @@ export class CalculationsService {
     let total = 0;
     let exchangePrice = 0;
 
-    // log.debug("******** calculateUsersBorrowInterestPerDayUSD ******");
     Object.values(AssetTag).forEach(assetTag => {
-      // log.debug("assetTag = ", assetTag);
       exchangePrice = this.persistenceService.getAssetExchangePrice(assetTag);
-      // log.debug("exchangePrice = ", exchangePrice);
       total += this.calculateUsersDailyBorrowInterestForAsset(assetTag) * exchangePrice;
-      // log.debug("this.calculateUsersDailyBorrowInterestForAsset(assetTag) = ", this.calculateUsersDailyBorrowInterestForAsset(assetTag));
     });
 
     return total;
@@ -384,12 +365,6 @@ export class CalculationsService {
     Object.values(this.persistenceService?.allReserves).forEach((reserve: ReserveData) => {
       allUsersSum += reserve.totalLiquidityUSD * reserve.liquidityRate;
     });
-
-
-    // log.debug("**********************************:");
-    // log.debug("calculateUsersOmmRewardsForDeposit:");
-    // log.debug("userSum: ", userSum);
-    // log.debug("allUsersSum: ", allUsersSum);
 
     if (userSum === 0 || allUsersSum === 0) { return 0; }
 

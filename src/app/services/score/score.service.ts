@@ -66,6 +66,30 @@ export class ScoreService {
   }
 
   /**
+   * @description Get reference data (price)
+   * @return  Number quoted price (e.g. USD)
+   */
+  public async getReferenceData(base: string, quote: string = "USD"): Promise<number> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const params = {
+      _base: base,
+      _quote: quote
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.PriceOracle,
+      ScoreMethodNames.GET_REFERENCE_DATA, params, IconTransactionType.READ);
+
+    console.log("getReferenceData tx:", tx);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getReferenceData: ", res);
+
+    return Utils.hexToNormalisedNumber(res);
+  }
+
+  /**
    * @description Get the un-stake information for a specific user.
    * @return  list of un-staking amounts and block heights
    */

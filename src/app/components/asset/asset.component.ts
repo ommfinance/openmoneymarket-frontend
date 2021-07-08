@@ -948,12 +948,12 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   getMarketBorrowRate(): number {
-    return this._ommApyChecked ? this.calculationService.calculateBorrowApyWithOmmRewards(this.asset.tag) :
+    return this._ommApyChecked ? this.calculationService.calculateUserAndMarketReserveBorrowApy(this.asset.tag) :
       this.persistenceService.getAssetReserveData(this.asset.tag)?.borrowRate ?? 0;
   }
 
   getMarketSupplyRate(): number {
-    return this._ommApyChecked ? this.calculationService.calculateSupplyApyWithOmmRewards(this.asset.tag) :
+    return this._ommApyChecked ? this.calculationService.calculateUserAndMarketReserveSupplyApy(this.asset.tag) :
       this.persistenceService.getAssetReserveData(this.asset.tag)?.liquidityRate ?? 0;
   }
 

@@ -41,7 +41,7 @@ export class PersistenceService {
   public totalStakedOmm = 0;
   public ommPriceUSD = 1; // default to 1
 
-  public tokenDistributionPerDay = 1;
+  public tokenDistributionPerDay = 1000000;
   public loanOriginationFeePercentage = 0.001;
 
   public prepList?: PrepList;

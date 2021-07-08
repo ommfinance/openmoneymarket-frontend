@@ -72,13 +72,17 @@ export class ReserveData {
   reserveAddress: string;
   sICXRate: number;
   usageAsCollateralEnabled: number;
+  rewardPercentage: number;
+  lendingPercentage: number;
+  borrowingPercentage: number;
+
 
   constructor(totalLiquidity: number, availableLiquidity: number, totalLiquidityUSD: number, availableLiquidityUSD: number,
               totalBorrows: number, totalBorrowsUSD: number, liquidityRate: number, borrowRate: number, oTokenAddress: string,
               exchangePrice: number, lastUpdateTimestamp: number, baseLTVasCollateral: number, borrowCumulativeIndex: number,
               borrowingEnabled: number, decimals: number, isActive: number, isFreezed: number, liquidationBonus: number,
               liquidationThreshold: number, liquidityCumulativeIndex: number, reserveAddress: string, sICXRate: number,
-              usageAsCollateralEnabled: number) {
+              usageAsCollateralEnabled: number, rewardPercentage: number, lendingPercentage: number, borrowingPercentage: number) {
     this.totalLiquidity = totalLiquidity;
     this.availableLiquidity = availableLiquidity;
     this.totalLiquidityUSD = totalLiquidityUSD;
@@ -102,6 +106,9 @@ export class ReserveData {
     this.reserveAddress = reserveAddress;
     this.sICXRate = sICXRate;
     this.usageAsCollateralEnabled = usageAsCollateralEnabled;
+    this.rewardPercentage = rewardPercentage;
+    this.lendingPercentage = lendingPercentage;
+    this.borrowingPercentage = borrowingPercentage;
   }
 }
 
@@ -128,6 +135,10 @@ export class ReserveData {
 // totalLiquidity: "0x8848ec5632c44e279"
 // totalLiquidityUSD: "0x4424762b19622713d"
 // usageAsCollateralEnabled: "0x1"
+// rewardPercentage: "0x2c68af0bb140000",
+// lendingPercentage: "0xc7d713b49da0000",
+// borrowingPercentage: "0x2c68af0bb140000"
+
 
 
 

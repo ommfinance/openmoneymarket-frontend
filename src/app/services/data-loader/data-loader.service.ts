@@ -60,7 +60,8 @@ export class DataLoaderService {
 
   public loadAllScoreAddresses(): Promise<void> {
     return this.scoreService.getAllScoreAddresses().then((allAddresses: AllAddresses) => {
-      this.persistenceService.allAddresses = new AllAddresses(allAddresses.collateral, allAddresses.oTokens, allAddresses.systemContract);
+      this.persistenceService.allAddresses = new AllAddresses(allAddresses.collateral, allAddresses.oTokens, allAddresses.dTokens,
+        allAddresses.systemContract);
       log.debug("Loaded all addresses: ", allAddresses);
     });
   }
@@ -210,7 +211,15 @@ export class DataLoaderService {
         log.error("Error in loadOmmTokenPriceUSD()");
         log.error(e);
     });
+  }
 
+  public loadTokenPriceUSD2(): void {
+    this.scoreService.getReferenceData("OMM").then(res => {
+      console.log("Token price from oracle = " + res);
+    }). catch(e => {
+      console.log("Failed to fetch OMM price");
+      console.error(e);
+    });
   }
 
   public loadTokenDistributionPerDay(): Promise<void> {
@@ -284,6 +293,7 @@ export class DataLoaderService {
   }
 
   public async loadCoreData(): Promise<void> {
+
     await Promise.all([
       this.loadAllReserveData(),
       this.loadAllReservesConfigData(),
