@@ -10,7 +10,7 @@
     <td class="text-green">{{to2DecimalRoundedOffPercentString(getUserSupplyApy())}}</td> <!-- Supply APY-->
     <td><span class="value-borrowed">{{this.toDollarUSLocaleString(roundOffTo2Decimals(this.persistenceService.getUserAssetReserve(asset.tag)?.currentBorrowBalanceUSD))}}</span><br>
       <span class="value-borrowed label">{{this.formatNumberToUSLocaleString(getUserBorrowedAssetBalance())}} {{getBorrowAssetTagAdjusted()}}</span></td>
-    <td class="text-purple">{{to2DecimalRoundedOffPercentString(getUserBorrowApy())}}</td><!-- Borrow APY -->
+    <td class="{{isNegative(getUserBorrowApy()) ? 'text-purple' : 'text-green'}}">{{to2DecimalRoundedOffPercentString(makeAbsolute(getUserBorrowApy()))}}</td><!-- Borrow APY -->
   </ng-container>
 
   <!-- Asset available state -->
@@ -27,7 +27,7 @@
     <td class="text-green">{{to2DecimalRoundedOffPercentString(getMarketSupplyRate())}}</td> <!-- Supply APY -->
     <td>{{this.toDollarUSLocaleString(roundOffTo2Decimals(this.persistenceService.getAssetReserveData(asset.tag)?.totalBorrowsUSD))}}<br>
       <span class="label">{{this.formatNumberToUSLocaleString(roundOffTo2Decimals(getTotalAssetBorrows()))}} {{getBorrowAssetTagAdjusted()}}</span></td>
-    <td class="text-purple">{{to2DecimalRoundedOffPercentString(getMarketBorrowRate())}}</td> <!-- Borrow APY -->
+    <td class="{{isNegative(getMarketBorrowRate()) ? 'text-purple' : 'text-green'}}">{{to2DecimalRoundedOffPercentString(makeAbsolute(getMarketBorrowRate()))}}</td> <!-- Borrow APY -->
   </ng-container>
 
 </tr>
@@ -45,7 +45,7 @@
               <h2>Supply</h2>
             </div>
             <div class="grid-cell text-right">
-              <p class="supply-apy">{{to2DecimalRoundedOffPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.liquidityRate)}} APY</p>
+              <p class="supply-apy">{{to2DecimalRoundedOffPercentString(this.calculationService.getUserAssetSupplyApy(asset.tag, _ommApyChecked))}} APY</p>
             </div>
           </div>
 
@@ -136,7 +136,7 @@
               </span>
             </div>
             <div class="grid-cell text-right">
-              <p class="borrow-apy">{{to2DecimalRoundedOffPercentString(this.persistenceService.getUserAssetReserve(asset.tag)?.borrowRate)}} APY</p>
+              <p class="{{isNegative(getUserAssetBorrowApy()) ? 'borrow-apy':'borrow-apy text-green'}}">{{to2DecimalRoundedOffPercentString(makeAbsolute(getUserAssetBorrowApy()))}} APY</p>
             </div>
           </div>
 

@@ -58,7 +58,7 @@
           <div class="grid-cell text-center">
             <dl class="metadata">
               <dt>Your borrow APY</dt>
-              <dd class="text-purple value-borrowed-apy">{{to2DecimalRoundedOffPercentString(this.calculationService.getYourBorrowApy(ommApyChecked))}}</dd>
+              <dd class="{{isNegative(this.calculationService.getYourBorrowApy(ommApyChecked)) ? 'text-purple' : 'text-green'}} value-borrowed-apy">{{to2DecimalRoundedOffPercentString(makeAbsolute(this.calculationService.getYourBorrowApy(ommApyChecked)))}}</dd> <!-- Borrow APY -->
             </dl>
           </div>
         </div>
@@ -103,7 +103,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Total borrow APY</dt>
-                  <dd class="text-purple">{{to2DecimalRoundedOffPercentString(this.calculationService.getTotalAvgBorrowApy(ommApyChecked))}}</dd>
+                  <dd class="{{isNegative(this.calculationService.getTotalAvgBorrowApy(ommApyChecked)) ? 'text-purple' : 'text-green'}}">{{to2DecimalRoundedOffPercentString(makeAbsolute(this.calculationService.getTotalAvgBorrowApy(ommApyChecked)))}}</dd> <!-- Borrow APY -->
                 </dl>
               </div>
             </div>
