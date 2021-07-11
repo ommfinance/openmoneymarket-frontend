@@ -26,6 +26,10 @@ export class AssetTag {
   static USDS = "USDS";
   static ICX = "ICX";
   static USDC = "IUSDC";
+
+  static fromString(value: string): AssetTag {
+    return AssetTag[value as keyof typeof AssetTag];
+  }
 }
 
 export class CollateralAssetTag {

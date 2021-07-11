@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { CalculationsService } from './calculations.service';
 import {HttpClientTestingModule} from "@angular/common/http/testing";
+import {ReserveData} from "../../models/AllReservesData";
 
 describe('CalculationsService', () => {
   let service: CalculationsService;
@@ -18,29 +19,38 @@ describe('CalculationsService', () => {
   });
 
   it('Test borrowOmmApyFormula USDS', () => {
-    const borrowRate = 5;
+    const borrowRate = 0.0575;
     const ommPriceUSD = 2;
     const ommTokenDistribution = 1000000;
-    const totalInterestOverAYear = 525000;
+    const totalInterestOverAYear = 825000;
+    const lendingBorrowingPortion = 0.1;
 
-    expect(service.borrowOmmApyFormula(borrowRate, totalInterestOverAYear, ommTokenDistribution, ommPriceUSD)).toBeCloseTo(1390.48, 2);
+    const reserveData = {
+      rewardPercentage: 0.4,
+      borrowingPercentage: 0.5,
+      exchangePrice: 1,
+      totalBorrows: 5000000
+    };
+
+    expect(service.borrowOmmApyFormula(lendingBorrowingPortion, borrowRate, totalInterestOverAYear, ommTokenDistribution, ommPriceUSD,
+      reserveData as ReserveData)).toBeCloseTo(2.920, 2);
   });
 
-  it('Test borrowOmmApyFormula USDS testnet values', () => {
-    const borrowRate = 0.03617802522022774;
+  it('Test supplyOmmApyFormula USDS', () => {
+    const supplyRate = 0.0259;
     const ommPriceUSD = 2;
     const ommTokenDistribution = 1000000;
-    const totalInterestOverAYear = 406.97350242030865;
-    const expectedResult = 12978.7115; // * 100 returns the percentage
-    expect(service.borrowOmmApyFormula(borrowRate, totalInterestOverAYear, ommTokenDistribution, ommPriceUSD)).toBeCloseTo(expectedResult, 2);
-  });
+    const totalInterestOverAYear = 825000;
+    const lendingBorrowingPortion = 0.1;
 
-  it('Test calculateSupplyApyWithOmmRewards USDS', () => {
-    const supplyRate = 1.8; // a.k.a liquidity rate
-    const ommPriceUSD = 2;
-    const ommTokenDistribution = 1000000;
-    const totalInterestOverAYear = 472500;
+    const reserveData = {
+      rewardPercentage: 0.4,
+      lendingPercentage: 0.5,
+      exchangePrice: 1,
+      totalLiquidity: 10000000
+    };
 
-    expect(service.supplyOmmApyFormula(supplyRate, totalInterestOverAYear, ommTokenDistribution, ommPriceUSD)).toBeCloseTo(556.19, 2);
+    expect(service.supplyOmmApyFormula(lendingBorrowingPortion, supplyRate, totalInterestOverAYear, ommTokenDistribution, ommPriceUSD,
+      reserveData as ReserveData)).toBeCloseTo(1.46, 2);
   });
 });

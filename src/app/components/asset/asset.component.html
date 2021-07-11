@@ -45,7 +45,7 @@
               <h2>Supply</h2>
             </div>
             <div class="grid-cell text-right">
-              <p class="supply-apy">{{to2DecimalRoundedOffPercentString(this.calculationService.getUserAssetSupplyApy(asset.tag, _ommApyChecked))}} APY</p>
+              <p class="supply-apy">{{to2DecimalRoundedOffPercentString(getMarketSupplyRate())}} APY</p>
             </div>
           </div>
 
@@ -136,7 +136,7 @@
               </span>
             </div>
             <div class="grid-cell text-right">
-              <p class="{{isNegative(getUserAssetBorrowApy()) ? 'borrow-apy':'borrow-apy text-green'}}">{{to2DecimalRoundedOffPercentString(makeAbsolute(getUserAssetBorrowApy()))}} APY</p>
+              <p class="{{isNegative(getMarketBorrowRate()) ? 'borrow-apy':'borrow-apy text-green'}}">{{to2DecimalRoundedOffPercentString(makeAbsolute(getMarketBorrowRate()))}} APY</p>
             </div>
           </div>
 

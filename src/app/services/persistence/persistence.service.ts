@@ -43,6 +43,7 @@ export class PersistenceService {
 
   public tokenDistributionPerDay = 1000000;
   public loanOriginationFeePercentage = 0.001;
+  public lendingBorrowingPortion = 0.1; // TODO fetch from SCORE API
 
   public prepList?: PrepList;
   public yourVotesPrepList: YourPrepVote[] = [];
@@ -63,6 +64,10 @@ export class PersistenceService {
     this.userAccountData = undefined;
     this.userTotalRisk = 0;
     this.userReserves = new UserReserves();
+  }
+
+  public getLtvForReserve(assetTag: AssetTag): number {
+    return this.getAssetReserveData(assetTag)?.baseLTVasCollateral ?? 0;
   }
 
   public getTotalAssetBorrows(assetTag: AssetTag): number {
@@ -151,20 +156,8 @@ export class PersistenceService {
     return this.activeWallet?.balances.get(AssetTag.ICX) ?? 0;
   }
 
-  public getUserSuppliedIcxBalance(): number {
-    return this.userReserves?.reserveMap.get(AssetTag.ICX)?.currentOTokenBalance ?? 0;
-  }
-
   public getUserAssetReserve(assetTag: AssetTag): UserReserveData | undefined {
     return this.userReserves?.reserveMap.get(assetTag);
-  }
-
-  public getUserUSDbReserve(): UserReserveData | undefined {
-    return this.userReserves?.reserveMap.get(AssetTag.USDS);
-  }
-
-  public getUserIcxReserve(): UserReserveData | undefined {
-    return this.userReserves?.reserveMap.get(AssetTag.ICX);
   }
 
   public getAssetReserveData(assetTag: AssetTag): ReserveData | undefined {
@@ -191,17 +184,6 @@ export class PersistenceService {
       totalBorrowed += property.totalBorrowsUSD;
     });
     return totalBorrowed;
-  }
-
-  public getUserTotalSupplied(): number {
-    let totalSupplied = 0;
-    if (!this.userReserves) {
-      return totalSupplied;
-    }
-    this.userReserves.reserveMap.forEach((reserve: UserReserveData | undefined) => {
-      totalSupplied += reserve?.currentOTokenBalance ?? 0;
-    });
-    return totalSupplied;
   }
 
   public getUserTotalSuppliedUSD(): number {
@@ -265,23 +247,6 @@ export class PersistenceService {
     });
 
     return supplyApySum / supplySum;
-  }
-
-  public getYourBorrowApy(): number {
-    let borrowApySum = 0;
-    let borrowSum = 0;
-    let borrowed;
-    let borrowApy;
-
-    // Sum(My supply amount for each asset * Supply APY for each asset)
-    this.userReserves.reserveMap.forEach(reserve => {
-      borrowed = reserve?.currentBorrowBalanceUSD ?? 0;
-      borrowApy = reserve?.borrowRate ?? 0;
-      borrowApySum += borrowed * borrowApy;
-      borrowSum += borrowed;
-    });
-
-    return borrowApySum / borrowSum;
   }
 
   public getAverageLiquidationThreshold(): number {

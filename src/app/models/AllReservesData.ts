@@ -6,10 +6,10 @@ export class AllReservesData {
   ICX: ReserveData;
   USDC: ReserveData;
 
-  constructor(USDb: ReserveData, sICX: ReserveData, IUSDC: ReserveData) {
+  constructor(USDb: ReserveData, sICX: ReserveData, USDC: ReserveData) {
     this.USDS = USDb;
     this.ICX = sICX;
-    this.USDC = IUSDC;
+    this.USDC = USDC;
   }
 
   public getReserveData(assetTag: AssetTag | CollateralAssetTag): ReserveData {

@@ -7,7 +7,7 @@ import {environment} from '../../../environments/environment';
 import {Utils} from "../../common/utils";
 import {CheckerService} from "../checker/checker.service";
 import {AllAddresses} from "../../models/AllAddresses";
-import {UserReserveData} from "../../models/UserReserveData";
+import {UserAllReservesData, UserReserveData} from "../../models/UserReserveData";
 import {AllReservesData, ReserveData} from "../../models/AllReservesData";
 import {UserAccountData} from "../../models/UserAccountData";
 import {ReserveConfigData} from "../../models/ReserveConfigData";
@@ -142,9 +142,9 @@ export class ScoreService {
 
   /**
    * @description Get user reserve data for a all reserves
-   * @return All user reserve data
+   * @return UserAllReservesData
    */
-  public async getUserReserveDataForAllReserves(): Promise<any> {
+  public async getUserReserveDataForAllReserves(): Promise<UserAllReservesData> {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const params = {

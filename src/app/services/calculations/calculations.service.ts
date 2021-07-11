@@ -35,11 +35,7 @@ export class CalculationsService {
     const reserveData = this.persistenceService.getAssetReserveData(assetTag);
 
     if (reserveData) {
-      const res = this.calculateBorrowApyWithOmmRewards(assetTag) - reserveData.borrowRate;
-      console.log(`this.calculateBorrowApyWithOmmRewards(${assetTag}) - ${reserveData.borrowRate}`,
-        this.calculateBorrowApyWithOmmRewards(assetTag));
-
-      return res;
+      return this.calculateBorrowApyWithOmmRewards(assetTag) - reserveData.borrowRate;
     } else {
       return 0;
     }
@@ -52,7 +48,10 @@ export class CalculationsService {
       const borrowRate = reserveData.borrowRate;
       const tokenDistributionPerDay = this.persistenceService.tokenDistributionPerDay;
       const totalInterestOverAYear = this.borrowTotalInterestOverAYear();
-      return this.borrowOmmApyFormula(borrowRate, totalInterestOverAYear, tokenDistributionPerDay, this.persistenceService.ommPriceUSD,
+      const lendingBorrowingPortion = this.persistenceService.lendingBorrowingPortion;
+
+      return this.borrowOmmApyFormula(lendingBorrowingPortion, borrowRate, totalInterestOverAYear, tokenDistributionPerDay,
+        this.persistenceService.ommPriceUSD,
         reserveData);
     } else {
       return 0;
@@ -61,10 +60,10 @@ export class CalculationsService {
 
   // Borrow OMM rewards APY: Token Distribution for that day (1M) * OMM Token Price * reserve portion * reserve borrowing * 365
   // / (reserve supplied * reserve price from Oracle)
-  public borrowOmmApyFormula(borrowRate: number, totalInterestOverAYear: number, tokenDistributionPerDay: number,
-                             ommPriceUSD: number, reserveData: ReserveData): number {
-    return (tokenDistributionPerDay * ommPriceUSD * reserveData.rewardPercentage * reserveData.borrowingPercentage * 365)
-      / (reserveData.totalBorrows * reserveData.exchangePrice);
+  public borrowOmmApyFormula(lendingBorrowingPortion: number, borrowRate: number, totalInterestOverAYear: number,
+                             tokenDistributionPerDay: number, ommPriceUSD: number, reserveData: ReserveData): number {
+    return (lendingBorrowingPortion * tokenDistributionPerDay * ommPriceUSD * reserveData.rewardPercentage
+      * reserveData.borrowingPercentage * 365) / (reserveData.totalBorrows * reserveData.exchangePrice);
   }
 
   public calculateSupplyApyWithOmmRewards(assetTag: AssetTag): number {
@@ -74,18 +73,20 @@ export class CalculationsService {
       const liquidityRate = this.persistenceService.getAssetReserveData(assetTag)?.liquidityRate ?? 0;
       const totalInterestOverAYear = this.supplyTotalInterestOverAYear();
       const tokenDistributionPerDay = this.persistenceService.tokenDistributionPerDay;
+      const lendingBorrowingPortion = this.persistenceService.lendingBorrowingPortion;
 
-      return this.supplyOmmApyFormula(liquidityRate, totalInterestOverAYear, tokenDistributionPerDay, this.persistenceService.ommPriceUSD,
+      return this.supplyOmmApyFormula(lendingBorrowingPortion, liquidityRate, totalInterestOverAYear, tokenDistributionPerDay,
+        this.persistenceService.ommPriceUSD,
         reserveData);
     } else {
       return 0;
     }
   }
 
-  public supplyOmmApyFormula(liquidityRate: number, totalInterestOverAYear: number, tokenDistributionPerDay: number,
-                             ommPriceUSD: number, reserveData: ReserveData): number {
-    return (tokenDistributionPerDay * ommPriceUSD * reserveData.rewardPercentage * reserveData.lendingPercentage * 365)
-      / (reserveData.totalLiquidity * reserveData.exchangePrice);
+  public supplyOmmApyFormula(lendingBorrowingPortion: number, liquidityRate: number, totalInterestOverAYear: number,
+                             tokenDistributionPerDay: number, ommPriceUSD: number, reserveData: ReserveData): number {
+    return (lendingBorrowingPortion * tokenDistributionPerDay * ommPriceUSD * reserveData.rewardPercentage
+      * reserveData.lendingPercentage * 365) / (reserveData.totalLiquidity * reserveData.exchangePrice);
   }
 
   /**
@@ -239,28 +240,28 @@ export class CalculationsService {
    * @return asset available borrow amount
    */
   public calculateAvailableBorrowForAsset(assetTag: AssetTag): number {
-    // average across all reserves
-    const currentLTV = this.persistenceService.userAccountData?.currentLtv ?? 0;
-    const totalCollateralBalanceUSD = this.persistenceService.userAccountData?.totalCollateralBalanceUSD ?? 0;
-    const totalFeesUSD = this.persistenceService.userAccountData?.totalFeesUSD ?? 0;
+    // Formulae: borrowsAllowedUSD = Sum((CollateralBalanceUSD per reserve - totalFeesUSD per reserve) * LTV per reserve)
+    let borrowsAllowedUSD = 0;
 
+    this.persistenceService.userReserves.reserveMap.forEach((userReserveData, tag) => {
+      if (userReserveData) {
+        const collateralBalanceUSD = userReserveData.currentOTokenBalanceUSD;
+        const originationFee = userReserveData.originationFee;
+        const totalReserveFeesUSD = originationFee * userReserveData?.exchangeRate;
+        const reserveLtv = this.persistenceService.getLtvForReserve(tag);
 
-    const borrowsAllowedUSD = (totalCollateralBalanceUSD - totalFeesUSD) * currentLTV;
+        borrowsAllowedUSD += (collateralBalanceUSD - totalReserveFeesUSD) * reserveLtv;
+      }
+    });
+
     // previous borrow balance of user across all collaterals in USD
     const totalBorrowBalanceUSD = this.persistenceService.userAccountData?.totalBorrowBalanceUSD ?? 0;
     // the amount user can borrow in USD across all the collaterals
     const availableBorrowUSD = borrowsAllowedUSD - totalBorrowBalanceUSD;
     // exchange price of the asset (reserve) extracted from the ReserveData
-    const exchangePrice = this.persistenceService.getAssetReserveData(assetTag)?.exchangePrice ?? 0.54321;
+    const exchangePrice = this.persistenceService.getAssetReserveData(assetTag)?.exchangePrice ?? -1;
 
-    let res = availableBorrowUSD / exchangePrice;
-
-    if (assetTag === AssetTag.ICX) {
-      // if asset is ICX converted calculated sICX max borrow in to ICX max borrow
-      res = Utils.convertSICXToICX(res, this.persistenceService.sIcxToIcxRate());
-    }
-
-    return Utils.roundDownTo2Decimals(res);
+    return Utils.roundDownTo2Decimals(availableBorrowUSD / exchangePrice);
   }
 
   /**
