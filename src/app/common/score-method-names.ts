@@ -31,7 +31,7 @@ export class ScoreMethodNames {
   public static GET_ALL_RESERVE_CONFIGURATION_DATA = "getAllReserveConfigurationData";
   public static GET_TOKEN_DISTRIBUTION_PER_DAY = "tokenDistributionPerDay";
   public static GET_LOAN_ORIGINATION_FEE_PERCENTAGE = "getLoanOriginationFeePercentage";
-  public static GET_USER_REALTIME_DEBT = "getRealTimeDebt"
+  public static GET_USER_REALTIME_DEBT = "getRealTimeDebt";
 
  /**
   * Rewards SCORE
@@ -66,6 +66,11 @@ export class ScoreMethodNames {
    */
   public static GET_TODAY_RATE = "getTodayRate";
   public static GET_PREP_TOP_LIST = "getTopPreps";
+
+  /**
+   * Price Oracle SCORE
+   */
+  public static GET_REFERENCE_DATA = "get_reference_data";
 
   /**
    * IISS APIs

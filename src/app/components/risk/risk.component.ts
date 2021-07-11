@@ -1,12 +1,6 @@
-import {AfterViewInit, Component, ElementRef, Input, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
-import {RiskData} from "../../models/RiskData";
-import {percentageFormat} from "../../common/formats";
-import {Subject} from "rxjs";
-import {UserReserveData} from "../../models/UserReserveData";
-import {AssetTag} from "../../models/Asset";
+import {AfterViewInit, Component, ElementRef, Input, OnInit, QueryList, ViewChild} from '@angular/core';
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {StateChangeService} from "../../services/state-change/state-change.service";
-import log from "loglevel";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {BaseClass} from "../base-class";
 import {UserAccountData} from "../../models/UserAccountData";

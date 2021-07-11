@@ -3,12 +3,14 @@ import {AssetTag, CollateralAssetTag} from "./Asset";
 export class AllAddresses {
   collateral: Collateral;
   oTokens: OTokens;
+  dTokens: DTokens;
   systemContract: SystemContract;
 
 
-  constructor(collateral: Collateral, oTokens: OTokens, systemContract: SystemContract) {
+  constructor(collateral: Collateral, oTokens: OTokens, dTokens: DTokens, systemContract: SystemContract) {
     this.collateral = collateral;
     this.oTokens = oTokens;
+    this.dTokens = dTokens;
     this.systemContract = systemContract;
   }
 
@@ -25,7 +27,7 @@ export class AllAddresses {
       case CollateralAssetTag.USDS:
         return this.collateral.USDS;
       case CollateralAssetTag.USDC:
-        return this.collateral.IUSDC
+        return this.collateral.IUSDC;
       default:
         return "";
     }
@@ -57,6 +59,12 @@ interface OTokens {
   oIUSDC: string;
 }
 
+interface DTokens {
+  dUSDS: string;
+  dICX: string;
+  dIUSDC: string;
+}
+
 interface SystemContract {
   LendingPool: string;
   LendingPoolDataProvider: string;
@@ -64,4 +72,5 @@ interface SystemContract {
   Rewards: string;
   OmmToken: string;
   Delegation: string;
+  PriceOracle: string;
 }

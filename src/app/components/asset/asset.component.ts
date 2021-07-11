@@ -673,7 +673,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     const res = this.roundDownTo2Decimals(value);
 
     // if value is greater than slider max, update the sliders max and set the value
-    if (res > this.borrowSliderMaxValue()) {
+    if (res !== 0 && res > this.borrowSliderMaxValue()) {
       this.sliderBorrow.noUiSlider.updateOptions({range: { min: 0, max: res }});
     }
 
@@ -948,22 +948,22 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   getMarketBorrowRate(): number {
-    return this._ommApyChecked ? this.calculationService.calculateBorrowApyWithOmmRewards(this.asset.tag) :
+    return this._ommApyChecked ? this.calculationService.calculateUserAndMarketReserveBorrowApy(this.asset.tag) :
       this.persistenceService.getAssetReserveData(this.asset.tag)?.borrowRate ?? 0;
   }
 
   getMarketSupplyRate(): number {
-    return this._ommApyChecked ? this.calculationService.calculateSupplyApyWithOmmRewards(this.asset.tag) :
+    return this._ommApyChecked ? this.calculationService.calculateUserAndMarketReserveSupplyApy(this.asset.tag) :
       this.persistenceService.getAssetReserveData(this.asset.tag)?.liquidityRate ?? 0;
   }
 
   getUserSupplyApy(): number | undefined {
-    return this._ommApyChecked ? this.calculationService.getUserAssetSupplyApy(this.asset.tag, this._ommApyChecked) :
+    return this._ommApyChecked ? this.getMarketSupplyRate() :
       this.persistenceService.getUserAssetReserve(this.asset.tag)?.liquidityRate;
   }
 
   getUserBorrowApy(): number {
-    return this._ommApyChecked ? this.getUserAssetBorrowApy() : this.persistenceService.getUserAssetReserve(this.asset.tag)?.borrowRate
+    return this._ommApyChecked ? this.getMarketBorrowRate() : this.persistenceService.getUserAssetReserve(this.asset.tag)?.borrowRate
       ?? 0;
   }
 
@@ -985,10 +985,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   isAssetIcx(): boolean {
     return this.asset.tag === AssetTag.ICX;
-  }
-
-  getUserAssetBorrowApy(): number {
-    return this.calculationService.getUserAssetBorrowApy(this.asset.tag, this._ommApyChecked);
   }
 
 }

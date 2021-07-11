@@ -20,6 +20,7 @@ import {LocalStorageService} from "../local-storage/local-storage.service";
 import {HttpClient} from "@angular/common/http";
 import {UnstakeIcxData} from "../../models/UnstakeInfo";
 import {BalancedDexPools} from "../../models/BalancedDexPools";
+import {UserAllReservesData, UserReserveData} from "../../models/UserReserveData";
 
 @Injectable({
   providedIn: 'root'
@@ -60,7 +61,8 @@ export class DataLoaderService {
 
   public loadAllScoreAddresses(): Promise<void> {
     return this.scoreService.getAllScoreAddresses().then((allAddresses: AllAddresses) => {
-      this.persistenceService.allAddresses = new AllAddresses(allAddresses.collateral, allAddresses.oTokens, allAddresses.systemContract);
+      this.persistenceService.allAddresses = new AllAddresses(allAddresses.collateral, allAddresses.oTokens, allAddresses.dTokens,
+        allAddresses.systemContract);
       log.debug("Loaded all addresses: ", allAddresses);
     });
   }
@@ -109,14 +111,6 @@ export class DataLoaderService {
     });
   }
 
-  async loadAllUserAssetReserveData(): Promise<void> {
-    if (this.persistenceService.userLoggedIn()) {
-      for (const assetTag of Object.values(AssetTag)) {
-        await this.loadUserAssetReserveData(assetTag);
-      }
-    }
-  }
-
   async loadUserAssetReserveData(assetTag: AssetTag): Promise<void> {
     this.checkerService.checkAllAddressesLoaded();
 
@@ -127,6 +121,27 @@ export class DataLoaderService {
     this.persistenceService.userReserves!.reserveMap.set(assetTag, mappedReserve);
     log.debug(`User ${assetTag} reserve data:`, mappedReserve);
     this.stateChangeService.updateUserAssetReserve(mappedReserve, assetTag);
+  }
+
+  async loadAllUserReserveData(): Promise<void> {
+    this.checkerService.checkAllAddressesLoaded();
+    const allUserReserveData = await this.scoreService.getUserReserveDataForAllReserves();
+
+    log.debug("loadAllUserReserveData.allUserReserveData before: ", allUserReserveData);
+
+    const newUserAllReserve = new UserAllReservesData(allUserReserveData.USDS, allUserReserveData.ICX, allUserReserveData.USDC);
+
+    Object.entries(newUserAllReserve).forEach((value: [string, UserReserveData]) => {
+      const assetTag = AssetTag.fromString(value[0]);
+      const mappedReserve = Mapper.mapUserReserve(value[1],  this.persistenceService.getAssetReserveData(assetTag)!!.decimals);
+      // @ts-ignore
+      newUserAllReserve[value[0]] = mappedReserve;
+
+      this.persistenceService.userReserves!.reserveMap.set(assetTag, mappedReserve);
+      this.stateChangeService.updateUserAssetReserve(mappedReserve, assetTag);
+    });
+
+    log.debug("loadAllUserReserveData.allUserReserveData after: ", newUserAllReserve);
   }
 
   public loadUserAccountData(): Promise<void> {
@@ -210,7 +225,15 @@ export class DataLoaderService {
         log.error("Error in loadOmmTokenPriceUSD()");
         log.error(e);
     });
+  }
 
+  public loadTokenPriceUSD2(): void {
+    this.scoreService.getReferenceData("OMM").then(res => {
+      console.log("Token price from oracle = " + res);
+    }). catch(e => {
+      console.log("Failed to fetch OMM price");
+      console.error(e);
+    });
   }
 
   public loadTokenDistributionPerDay(): Promise<void> {
@@ -284,6 +307,7 @@ export class DataLoaderService {
   }
 
   public async loadCoreData(): Promise<void> {
+
     await Promise.all([
       this.loadAllReserveData(),
       this.loadAllReservesConfigData(),
@@ -299,7 +323,7 @@ export class DataLoaderService {
 
   public async loadUserSpecificData(): Promise<void> {
     await Promise.all([
-      this.loadAllUserAssetReserveData(),
+      this.loadAllUserReserveData(),
       this.loadAllUserAssetsBalances(),
       this.loadUserAccountData(),
       this.loadUserGovernanceData(),

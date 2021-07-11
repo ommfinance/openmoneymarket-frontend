@@ -7,7 +7,7 @@ import {environment} from '../../../environments/environment';
 import {Utils} from "../../common/utils";
 import {CheckerService} from "../checker/checker.service";
 import {AllAddresses} from "../../models/AllAddresses";
-import {UserReserveData} from "../../models/UserReserveData";
+import {UserAllReservesData, UserReserveData} from "../../models/UserReserveData";
 import {AllReservesData, ReserveData} from "../../models/AllReservesData";
 import {UserAccountData} from "../../models/UserAccountData";
 import {ReserveConfigData} from "../../models/ReserveConfigData";
@@ -66,6 +66,30 @@ export class ScoreService {
   }
 
   /**
+   * @description Get reference data (price)
+   * @return  Number quoted price (e.g. USD)
+   */
+  public async getReferenceData(base: string, quote: string = "USD"): Promise<number> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const params = {
+      _base: base,
+      _quote: quote
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.PriceOracle,
+      ScoreMethodNames.GET_REFERENCE_DATA, params, IconTransactionType.READ);
+
+    console.log("getReferenceData tx:", tx);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getReferenceData: ", res);
+
+    return Utils.hexToNormalisedNumber(res);
+  }
+
+  /**
    * @description Get the un-stake information for a specific user.
    * @return  list of un-staking amounts and block heights
    */
@@ -118,9 +142,9 @@ export class ScoreService {
 
   /**
    * @description Get user reserve data for a all reserves
-   * @return All user reserve data
+   * @return UserAllReservesData
    */
-  public async getUserReserveDataForAllReserves(): Promise<any> {
+  public async getUserReserveDataForAllReserves(): Promise<UserAllReservesData> {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const params = {

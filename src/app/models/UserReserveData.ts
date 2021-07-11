@@ -49,6 +49,18 @@ export class UserReserves {
   ]);
 }
 
+export class UserAllReservesData {
+  constructor(USDS: UserReserveData, ICX: UserReserveData, USDC: UserReserveData) {
+    this.USDS = USDS;
+    this.ICX = ICX;
+    this.USDC = USDC;
+  }
+
+  USDS: UserReserveData;
+  ICX: UserReserveData;
+  USDC: UserReserveData;
+}
+
 // EXAMPLE
 // borrowRate: "0x0"
 // currentBorrowBalance: "0x0"
