@@ -27,7 +27,7 @@ export class OmmService {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
-      this.persistenceService.allAddresses!.systemContract.Rewards, ScoreMethodNames.CLAIM_OMM_REWARDS,
+      this.persistenceService.allAddresses!.systemContract.LendingPool, ScoreMethodNames.CLAIM_OMM_REWARDS,
       {}, IconTransactionType.WRITE);
   }
 
