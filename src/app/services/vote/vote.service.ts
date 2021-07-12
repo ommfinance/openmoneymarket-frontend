@@ -59,7 +59,7 @@ export class VoteService {
     };
 
     return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
-      this.persistenceService.allAddresses!.systemContract.OmmToken, ScoreMethodNames.STAKE_OMM, params, IconTransactionType.WRITE);
+      this.persistenceService.allAddresses!.systemContract.LendingPool, ScoreMethodNames.STAKE_OMM, params, IconTransactionType.WRITE);
   }
 
   /**
@@ -77,7 +77,7 @@ export class VoteService {
     };
 
     return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
-      this.persistenceService.allAddresses!.systemContract.OmmToken, ScoreMethodNames.UNSTAKE_OMM, params, IconTransactionType.WRITE);
+      this.persistenceService.allAddresses!.systemContract.LendingPool, ScoreMethodNames.UNSTAKE_OMM, params, IconTransactionType.WRITE);
   }
 
   /**
