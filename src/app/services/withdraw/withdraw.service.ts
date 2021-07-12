@@ -49,11 +49,12 @@ export class WithdrawService {
     const decimals = this.persistenceService.allReserves!.getReserveData(assetTag).decimals;
 
     const params = {
+      _oToken: this.persistenceService.allAddresses!.oTokenAddress(assetTag),
       _amount: amount !== -1 ? IconConverter.toHex(IconAmount.of(amount, decimals).toLoop()) : "-0x1",
     };
 
     return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
-      this.persistenceService.allAddresses!.oTokenAddress(assetTag), ScoreMethodNames.REDEEM, params, IconTransactionType.WRITE);
+      this.persistenceService.allAddresses!.systemContract.LendingPool, ScoreMethodNames.REDEEM, params, IconTransactionType.WRITE);
   }
 
   private buildWithdrawIcxTx(amount: number, waitForUnstaking = false): any {
@@ -67,11 +68,12 @@ export class WithdrawService {
     }
 
     const params = {
+      _oToken: this.persistenceService.allAddresses!.oTokens.oICX,
       _amount: amount !== -1 ? IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()) : "-0x1",
       _waitForUnstaking: waitForUnstaking ? "0x1" : "0x0"
     };
 
     return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
-      this.persistenceService.allAddresses!.oTokens.oICX, ScoreMethodNames.REDEEM, params, IconTransactionType.WRITE);
+      this.persistenceService.allAddresses!.systemContract.LendingPool, ScoreMethodNames.REDEEM, params, IconTransactionType.WRITE);
   }
 }
