@@ -48,7 +48,7 @@ export class CalculationsService {
       const borrowRate = reserveData.borrowRate;
       const tokenDistributionPerDay = this.persistenceService.tokenDistributionPerDay;
       const totalInterestOverAYear = this.borrowTotalInterestOverAYear();
-      const lendingBorrowingPortion = this.persistenceService.lendingBorrowingPortion;
+      const lendingBorrowingPortion = this.persistenceService.distributionPercentages?.supplyBorrow ?? 0;
 
       return this.borrowOmmApyFormula(lendingBorrowingPortion, borrowRate, totalInterestOverAYear, tokenDistributionPerDay,
         this.persistenceService.ommPriceUSD,
@@ -73,7 +73,7 @@ export class CalculationsService {
       const liquidityRate = this.persistenceService.getAssetReserveData(assetTag)?.liquidityRate ?? 0;
       const totalInterestOverAYear = this.supplyTotalInterestOverAYear();
       const tokenDistributionPerDay = this.persistenceService.tokenDistributionPerDay;
-      const lendingBorrowingPortion = this.persistenceService.lendingBorrowingPortion;
+      const lendingBorrowingPortion = this.persistenceService.distributionPercentages?.supplyBorrow ?? 0;
 
       return this.supplyOmmApyFormula(lendingBorrowingPortion, liquidityRate, totalInterestOverAYear, tokenDistributionPerDay,
         this.persistenceService.ommPriceUSD,

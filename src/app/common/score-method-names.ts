@@ -32,6 +32,7 @@ export class ScoreMethodNames {
   public static GET_TOKEN_DISTRIBUTION_PER_DAY = "tokenDistributionPerDay";
   public static GET_LOAN_ORIGINATION_FEE_PERCENTAGE = "getLoanOriginationFeePercentage";
   public static GET_USER_REALTIME_DEBT = "getRealTimeDebt";
+  public static GET_DIST_PERCENTAGES = "getDistPercentages";
 
  /**
   * Rewards SCORE
