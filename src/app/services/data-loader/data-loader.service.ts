@@ -227,6 +227,16 @@ export class DataLoaderService {
     });
   }
 
+  public loadDistributionPercentages(): void {
+    this.scoreService.getDistPercentages().then(res => {
+      this.persistenceService.distributionPercentages = res;
+      log.debug("Loaded distributionPercentages:", res);
+    }).catch(e => {
+      log.error("Error in loadDistributionPercentages()");
+      log.error(e);
+    });
+  }
+
   public loadTokenPriceUSD2(): void {
     this.scoreService.getReferenceData("OMM").then(res => {
       console.log("Token price from oracle = " + res);
@@ -351,6 +361,7 @@ export class DataLoaderService {
    */
   public loadCoreAsyncData(): void {
     this.loadOmmTokenPriceUSD();
+    this.loadDistributionPercentages();
   }
 
   public async loadUserGovernanceData(): Promise<void> {

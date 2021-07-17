@@ -21,6 +21,7 @@ import {YourPrepVote} from "../../models/YourPrepVote";
 import {DelegationPreference} from "../../models/DelegationPreference";
 import {UnstakeIcxData} from "../../models/UnstakeInfo";
 import {BalancedDexPools, balDexPoolsPriceDecimalsMap} from "../../models/BalancedDexPools";
+import {DistributionPercentages} from "../../models/DistributionPercentages";
 
 
 @Injectable({
@@ -195,6 +196,21 @@ export class ScoreService {
     this.stateChangeService.updateUserDebt(normalisedRes, assetTag);
 
     return normalisedRes;
+  }
+
+  /**
+   * @description Get distribution percentages for recipients (used in OMM APY calculations)
+   * @return DistributionPercentages
+   */
+  public async getDistPercentages(): Promise<DistributionPercentages> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
+      ScoreMethodNames.GET_DIST_PERCENTAGES, {}, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    return Mapper.mapDistributionPercentages(res);
   }
 
   /**

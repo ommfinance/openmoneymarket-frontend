@@ -14,6 +14,7 @@ import {PrepList} from "../../models/Preps";
 import {YourPrepVote} from "../../models/YourPrepVote";
 import {Utils} from "../../common/utils";
 import {UnstakeInfo} from "../../models/UnstakeInfo";
+import {DistributionPercentages} from "../../models/DistributionPercentages";
 
 @Injectable({
   providedIn: 'root'
@@ -43,7 +44,7 @@ export class PersistenceService {
 
   public tokenDistributionPerDay = 1000000;
   public loanOriginationFeePercentage = 0.001;
-  public lendingBorrowingPortion = 0.1; // TODO fetch from SCORE API
+  public distributionPercentages?: DistributionPercentages;
 
   public prepList?: PrepList;
   public yourVotesPrepList: YourPrepVote[] = [];

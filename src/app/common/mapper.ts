@@ -10,8 +10,19 @@ import {Prep, PrepList} from "../models/Preps";
 import {DelegationPreference} from "../models/DelegationPreference";
 import {YourPrepVote} from "../models/YourPrepVote";
 import {UnstakeIcxData, UnstakeInfo} from "../models/UnstakeInfo";
+import {DistributionPercentages} from "../models/DistributionPercentages";
 
 export class Mapper {
+
+
+  public static mapDistributionPercentages(distributionPercentages: DistributionPercentages): DistributionPercentages {
+    return new DistributionPercentages(
+      Utils.hexToNormalisedNumber(distributionPercentages.daoFund),
+      Utils.hexToNormalisedNumber(distributionPercentages.lp),
+      Utils.hexToNormalisedNumber(distributionPercentages.supplyBorrow),
+      Utils.hexToNormalisedNumber(distributionPercentages.workerToken)
+    );
+  }
 
   public static mapUserReserve(reserve: UserReserveData, decimals: number = 18): UserReserveData {
     log.debug("mapUserReserve before: ", reserve);
