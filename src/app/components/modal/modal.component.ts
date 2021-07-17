@@ -26,6 +26,7 @@ import {OmmService} from "../../services/omm/omm.service";
 import {VoteService} from "../../services/vote/vote.service";
 import {LoginService} from "../../services/login/login.service";
 import {IconexWallet} from "../../models/wallets/IconexWallet";
+import {ClaimIcxService} from "../../services/claim-icx/claim-icx.service";
 
 
 @Component({
@@ -43,6 +44,7 @@ export class ModalComponent extends BaseClass implements OnInit {
   @ViewChild('assetActionModal', { static: true }) assetActionModal!: ElementRef;
   @ViewChild('iconWithdrawModal', { static: true }) iconWithdrawModal!: ElementRef;
   @ViewChild('claimOmmRewardsModal', { static: true }) claimOmmRewardsModal!: ElementRef;
+  @ViewChild('claimIcxModal', { static: true }) claimIcxModal!: ElementRef;
   @ViewChild('ledgerAddressList', { static: true }) LedgerAddressListModal!: ElementRef;
   @ViewChild('modalLoading', { static: true }) modalLoading!: ElementRef;
 
@@ -80,7 +82,8 @@ export class ModalComponent extends BaseClass implements OnInit {
               private loginService: LoginService,
               private transactionDispatcherService: TransactionDispatcherService,
               private ommService: OmmService,
-              private voteService: VoteService) {
+              private voteService: VoteService,
+              private claimIcxService: ClaimIcxService) {
     super(persistenceService);
 
     this.activeModalSubscription = this.modalService.activeModalChange$.subscribe((activeModalChange: ModalAction) => {
@@ -90,6 +93,9 @@ export class ModalComponent extends BaseClass implements OnInit {
           break;
         case ModalType.CLAIM_OMM_REWARDS:
           this.setActiveModal(this.claimOmmRewardsModal.nativeElement, activeModalChange);
+          break;
+        case ModalType.CLAIM_ICX:
+          this.setActiveModal(this.claimIcxModal.nativeElement, activeModalChange);
           break;
         case ModalType.STAKE_OMM_TOKENS:
           this.setActiveModal(this.stakeOmmTokensModal.nativeElement, activeModalChange);
@@ -219,7 +225,17 @@ export class ModalComponent extends BaseClass implements OnInit {
     // hide current modal
     this.modalService.hideActiveModal();
 
-    this.transactionDispatcherService.dispatchTransaction(this.ommService.BuildClaimOmmRewardsTx(), "Claiming Omm Tokens...");
+    this.transactionDispatcherService.dispatchTransaction(this.ommService.buildClaimOmmRewardsTx(), "Claiming Omm Tokens...");
+  }
+
+  onClaimIcxClick(): void {
+    // store user action in local storage
+    this.localStorageService.persistModalAction(this.activeModalChange!);
+
+    // hide current modal
+    this.modalService.hideActiveModal();
+
+    this.transactionDispatcherService.dispatchTransaction(this.claimIcxService.buildClaimUnstakedIcxTx(), "Claiming ICX...");
   }
 
   onCancelClick(): void {
@@ -380,5 +396,4 @@ export class ModalComponent extends BaseClass implements OnInit {
       return undefined;
     }
   }
-
 }

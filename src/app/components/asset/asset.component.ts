@@ -967,6 +967,14 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       ?? 0;
   }
 
+  getUserTotalUnstakeAmount(): number {
+    return this.persistenceService.getUserTotalUnstakeAmount();
+  }
+
+  getUserClaimableIcxAmount(): number {
+    return this.persistenceService.userClaimableIcx ?? 0;
+  }
+
   getAssetTagAdjusted(): string {
     if (this.isAssetIcx()) {
       return "ICX / sICX";
@@ -987,4 +995,10 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     return this.asset.tag === AssetTag.ICX;
   }
 
+  onClaimIcxClick(): void {
+    const currentIcxBalance = this.persistenceService.getUserAssetBalance(AssetTag.ICX);
+    const claimableIcx = this.getUserClaimableIcxAmount();
+    const after = Utils.addDecimalsPrecision(currentIcxBalance, claimableIcx);
+    this.modalService.showNewModal(ModalType.CLAIM_ICX, new AssetAction(this.asset, currentIcxBalance, after, claimableIcx));
+  }
 }
