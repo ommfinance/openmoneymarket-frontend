@@ -135,7 +135,7 @@
   <div class="modal-content">
     <!-- Title -->
     <h3 class="text-center label">Claim Omm rewards?</h3>
-    <p class="text-bold text-center value-rewards-mdoal">{{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.amount))}} OMM</p>
+    <p class="text-bold text-center value-rewards-modal">{{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.amount))}} OMM</p>
 
     <ng-container *ngIf="activeModalHasLiquidityRewards()">
       <p class="text-center"><span class="text-bold">Omm rewards:</span> {{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.details?.ommRewards?.ommRewards))}} OMM</p>
@@ -159,6 +159,34 @@
     <div class="modal-actions">
       <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Not now</a>
       <a href="javascript:void(0);" class="button no-margin" (click)="onClaimOmmRewardsClick()">Claim rewards</a>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Claim ICX -->
+<div class="modal" id="modal-claim-icx" #claimIcxModal>
+  <div class="modal-content">
+    <!-- Title -->
+    <h3 class="text-center label">Claim ICX?</h3>
+    <p class="text-bold text-center value-rewards-mdoal">{{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.amount))}} ICX</p>
+
+    <!-- Before & after -->
+    <div class="grid before-after">
+      <div class="grid-cell text-center border-right">
+        <p class="label">Before</p>
+        <p class="text-dark">{{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.before))}} ICX</p>
+      </div>
+
+      <div class="grid-cell text-center">
+        <p class="label">After</p>
+        <p class="text-dark value-rewards-modal">{{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.after))}} ICX</p>
+      </div>
+    </div>
+
+    <!-- Modal actions -->
+    <div class="modal-actions">
+      <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Not now</a>
+      <a href="javascript:void(0);" class="button no-margin" (click)="onClaimIcxClick()">Claim ICX</a>
     </div>
   </div>
 </div>
@@ -226,7 +254,7 @@
         <label class="for-checkbox-tools" for="tool-2">
           <img src="assets/img/icon/clock.svg" class="svg">
           <br>
-          <span class="text-bold">Wait ~9 days</span>
+          <span class="text-bold">Unstake</span>
           <br>
           <span>{{formatNumberToUSLocaleString(activeModalChange?.assetAction?.amount)}} ICX</span>
         </label>
@@ -243,6 +271,8 @@
         </label>
       </div>
     </div>
+
+    <p class="label text-center" style="margin-top: 10px;">Takes up to 7 days. You can claim your ICX from the ICON market when it's ready.</p>
 
     <!-- Modal actions -->
     <div class="modal-actions">

@@ -18,7 +18,6 @@ import {ErrorCode, ErrorService} from "../error/error.service";
 import {CheckerService} from "../checker/checker.service";
 import {LocalStorageService} from "../local-storage/local-storage.service";
 import {HttpClient} from "@angular/common/http";
-import {UnstakeIcxData} from "../../models/UnstakeInfo";
 import {BalancedDexPools} from "../../models/BalancedDexPools";
 import {UserAllReservesData, UserReserveData} from "../../models/UserReserveData";
 
@@ -188,9 +187,16 @@ export class DataLoaderService {
   }
 
   public loadUserUnstakingInfo(): Promise<void> {
-    return this.scoreService.getTheUserUnstakeInfo().then((unstakeIcxData: UnstakeIcxData[]) => {
-      this.persistenceService.userUnstakingInfo = Mapper.mapUserIcxUnstakeData(unstakeIcxData);
-      log.debug(this.persistenceService.userUnstakingInfo);
+    return this.scoreService.getTheUserUnstakeInfo().then(res => {
+      this.persistenceService.userUnstakingInfo = res;
+      log.debug("User unstake info:", res);
+    });
+  }
+
+  public loadUserClaimableIcx(): Promise<void> {
+    return this.scoreService.getUserClaimableIcx().then(amount => {
+      this.persistenceService.userClaimableIcx = amount;
+      log.debug("User claimable ICX: " + amount);
     });
   }
 
@@ -338,7 +344,8 @@ export class DataLoaderService {
       this.loadUserAccountData(),
       this.loadUserGovernanceData(),
       this.loadUserDelegations(),
-      this.loadUserUnstakingInfo()
+      this.loadUserUnstakingInfo(),
+      this.loadUserClaimableIcx()
     ]);
 
     this.loadUserAsyncData();

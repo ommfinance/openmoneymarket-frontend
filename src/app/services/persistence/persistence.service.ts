@@ -37,6 +37,7 @@ export class PersistenceService {
   public userOmmRewards?: OmmRewards;
   public userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
   public userUnstakingInfo?: UnstakeInfo;
+  public userClaimableIcx?: number;
   public userDebt: Map<CollateralAssetTag, number | undefined> = new Map<CollateralAssetTag, number | undefined>();
   public minOmmStakeAmount = 1;
   public totalStakedOmm = 0;
@@ -65,6 +66,10 @@ export class PersistenceService {
     this.userAccountData = undefined;
     this.userTotalRisk = 0;
     this.userReserves = new UserReserves();
+  }
+
+  public getUserTotalUnstakeAmount(): number {
+    return this.userUnstakingInfo?.totalAmount ?? 0;
   }
 
   public getLtvForReserve(assetTag: AssetTag): number {

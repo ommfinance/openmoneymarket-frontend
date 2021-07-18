@@ -12,6 +12,7 @@ import {IconConverter} from "icon-sdk-js";
 import {TransactionResultService} from "../transaction-result/transaction-result.service";
 import {LocalStorageService} from "../local-storage/local-storage.service";
 import {IconexId} from "../../models/IconexId";
+import log from "loglevel";
 
 @Injectable({
   providedIn: 'root'
@@ -34,6 +35,8 @@ export class TransactionDispatcherService {
   async dispatchTransaction(tx: any, notificationMessage: string): Promise<void> {
     try {
       const estimatedStepCost = await this.iconApiService.estimateStepCost(IconConverter.toRawTransaction(tx));
+
+      log.debug("Estimated cost for ", tx, " is ", estimatedStepCost);
 
       if (estimatedStepCost) {
         tx.stepLimit = this.iconApiService.convertNumberToHex(Math.round(estimatedStepCost * 1.1));

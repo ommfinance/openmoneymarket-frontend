@@ -23,7 +23,7 @@ export class OmmService {
    * @description Claim OMM rewards
    * @return Built transaction
    */
-  public BuildClaimOmmRewardsTx(): any {
+  public buildClaimOmmRewardsTx(): any {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,

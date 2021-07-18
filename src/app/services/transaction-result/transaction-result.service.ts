@@ -121,7 +121,7 @@ export class TransactionResultService {
 
     if (modalAction.assetAction) {
       const assetAction = modalAction.assetAction;
-      assetAction.amount = Utils.roundDownTo2Decimals(assetAction.amount)
+      assetAction.amount = Utils.roundDownTo2Decimals(assetAction.amount);
 
       switch (modalAction.modalType) {
         case ModalType.SUPPLY:
@@ -136,12 +136,15 @@ export class TransactionResultService {
         case ModalType.REPAY:
           this.notificationService.showNewNotification(`${assetAction.amount} ${assetAction.asset.tag} repaid.`);
           break;
+        case ModalType.CLAIM_ICX:
+          this.notificationService.showNewNotification(`${assetAction.amount} ICX claimed.`);
+          break;
         case ModalType.CLAIM_OMM_REWARDS:
           this.notificationService.showNewNotification(`${assetAction.amount} Omm Tokens claimed.`);
       }
     } else if (modalAction.stakingAction) {
       const voteAction = modalAction.stakingAction;
-      voteAction.amount = Utils.roundDownTo2Decimals(voteAction.amount)
+      voteAction.amount = Utils.roundDownTo2Decimals(voteAction.amount);
 
       switch (modalAction.modalType) {
         case ModalType.STAKE_OMM_TOKENS:
@@ -184,6 +187,9 @@ export class TransactionResultService {
           break;
         case ModalType.REPAY:
           this.notificationService.showNewNotification(`Couldn't repay ${assetAction.asset.tag}. ${failedTxMessage} Try again.`);
+          break;
+        case ModalType.CLAIM_ICX:
+          this.notificationService.showNewNotification(`Couldn't claim ICX. ${failedTxMessage} Try again.`);
           break;
         case ModalType.CLAIM_OMM_REWARDS:
           this.notificationService.showNewNotification(`Couldn't claim Omm Tokens. ${failedTxMessage} Try again.`);

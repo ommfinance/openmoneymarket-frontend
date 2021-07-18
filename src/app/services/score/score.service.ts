@@ -19,7 +19,7 @@ import {Mapper} from "../../common/mapper";
 import {IconAmount, IconConverter} from "icon-sdk-js";
 import {YourPrepVote} from "../../models/YourPrepVote";
 import {DelegationPreference} from "../../models/DelegationPreference";
-import {UnstakeIcxData} from "../../models/UnstakeInfo";
+import {UnstakeIcxData, UnstakeInfo} from "../../models/UnstakeInfo";
 import {BalancedDexPools, balDexPoolsPriceDecimalsMap} from "../../models/BalancedDexPools";
 import {DistributionPercentages} from "../../models/DistributionPercentages";
 
@@ -94,7 +94,7 @@ export class ScoreService {
    * @description Get the un-stake information for a specific user.
    * @return  list of un-staking amounts and block heights
    */
-  public async getTheUserUnstakeInfo(): Promise<UnstakeIcxData[]> {
+  public async getTheUserUnstakeInfo(): Promise<UnstakeInfo> {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const params = {
@@ -104,7 +104,28 @@ export class ScoreService {
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
       ScoreMethodNames.GET_USER_UNSTAKE_INFO, params, IconTransactionType.READ);
 
-    return this.iconApiService.iconService.call(tx).execute();
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    return Mapper.mapUserIcxUnstakeData(res);
+  }
+
+  /**
+   * @description Get the claimable ICX amount for user.
+   * @return  number
+   */
+  public async getUserClaimableIcx(): Promise<number> {
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
+    const params = {
+      _address: this.persistenceService.activeWallet!.address,
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Staking,
+      ScoreMethodNames.GET_USER_CLAIMABLE_ICX, params, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    return Utils.hexToNormalisedNumber(res);
   }
 
   /**
