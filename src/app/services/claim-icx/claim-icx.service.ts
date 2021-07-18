@@ -4,6 +4,7 @@ import {IconTransactionType} from "../../models/IconTransactionType";
 import {CheckerService} from "../checker/checker.service";
 import {IconApiService} from "../icon-api/icon-api.service";
 import {PersistenceService} from "../persistence/persistence.service";
+import log from "loglevel";
 
 @Injectable({
   providedIn: 'root'
@@ -18,11 +19,15 @@ export class ClaimIcxService {
    * @description Build tx to claim unstaked ICX
    * @return  Icon Transaction
    */
-  public async buildClaimUnstakedIcxTx(): Promise<number> {
+  public buildClaimUnstakedIcxTx(): any {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
-    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
+    const tx = this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
       this.persistenceService.allAddresses!.systemContract.Staking, ScoreMethodNames.CLAIM_UNSTAKED_ICX, {}, IconTransactionType.WRITE);
+
+    log.debug("buildClaimUnstakedIcxTx:", tx);
+
+    return tx;
   }
 
 }
