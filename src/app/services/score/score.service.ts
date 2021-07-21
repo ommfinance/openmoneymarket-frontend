@@ -22,6 +22,7 @@ import {DelegationPreference} from "../../models/DelegationPreference";
 import {UnstakeIcxData, UnstakeInfo} from "../../models/UnstakeInfo";
 import {BalancedDexPools, balDexPoolsPriceDecimalsMap} from "../../models/BalancedDexPools";
 import {DistributionPercentages} from "../../models/DistributionPercentages";
+import {PoolStats, PoolStatsInterface} from "../../models/PoolStats";
 
 
 @Injectable({
@@ -467,6 +468,25 @@ export class ScoreService {
     log.debug("getUserDelegationDetails: ", res);
 
     return Mapper.mapUserDelegations(res, this.persistenceService.prepList?.prepAddressToNameMap);
+  }
+
+  /**
+   * @description Get stats for specific pool
+   * @return  PoolStats
+   */
+  public async getPoolStats(poolId: number): Promise<PoolStats> {
+    const params = {
+      _id: poolId
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  environment.BALANCED_DEX_SCORE,
+      ScoreMethodNames.GET_POOL_STATS, params, IconTransactionType.READ);
+
+    const res: PoolStatsInterface = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getPoolStats for " + poolId + ":", res);
+
+    return Mapper.mapPoolStats(res);
   }
 
 }

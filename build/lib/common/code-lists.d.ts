@@ -1,7 +1,6 @@
 import { CountryCode } from "../models/Util/CountryCode";
 export declare class CodeLists {
     static BRIDGE_SYMBOL: string;
-    static BRIDGE_SYMBOL_OLD: string;
     static SICX_SYMBOL: string;
     static IUSDC_SYMBOL: string;
     static stateCodesUS: string[];

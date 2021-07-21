@@ -1,4 +1,14 @@
 import { TransactionType } from "./BridgeTransaction";
+export interface TransactionObj {
+    version: string;
+    from: string;
+    to: string;
+    data: object;
+    dataType: string;
+    timestamp: string;
+    nid: string;
+    nonce: string;
+}
 export declare class Irc2TokenTransaction {
     txHash: string;
     contractAddr: string;

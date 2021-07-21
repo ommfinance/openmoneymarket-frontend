@@ -2,7 +2,7 @@
 * Omm
 * Main CSS
 * Version 1.0
-* Last updated 15/6/21
+* Last updated 1/3/21
 */
 
 /* ==========================================================================
@@ -432,6 +432,49 @@ textarea {
 }
 .grid-cell-bottom {
   align-self: flex-end;
+}
+
+/* ==========================================================================
+	Dark mode
+========================================================================== */
+
+.dark-mode {
+
+}
+
+/* ==========================================================================
+	Liquidity
+========================================================================== */
+
+.list.liquidity {
+  margin-top: 25px;
+}
+.liquidity thead tr th,
+.liquidity tbody tr td {
+  text-align: right;
+}
+.list.liquidity .expanded h2 {
+
+}
+table.list.liquidity tbody tr.pool td:first-of-type {
+  padding-left: 120px;
+  background-size: 85px;
+  background-position: 0px 12px;
+}
+table.list.liquidity tbody tr.pool td:first-of-type {
+  background-image: url(../img/feature/liquidity-pair.png);
+  background-repeat: no-repeat;
+  background-position: 35px center;
+  background-size: 75px;
+}
+table.list.liquidity tbody tr.pool.omm-usds td:first-of-type {
+  background-image: url(../img/feature/liquidity-omm-usds.png);
+}
+table.list.liquidity tbody tr.pool.omm-iusdc td:first-of-type {
+  background-image: url(../img/feature/liquidity-omm-usdc.png);
+}
+table.list.liquidity tbody tr.pool.omm-sicx td:first-of-type {
+  background-image: url(../img/feature/liquidity-omm-sicx.png);
 }
 
 /* ==========================================================================
@@ -2273,6 +2316,26 @@ input[type="text"].input-borrow-available {
   transition: border 0.2s ease;
 }
 
+/*  */
+
+.input-supply.new {
+  padding-right: 64px !important;
+}
+.input-supply + .ticker {
+  font-size: 18px;
+  color: #49546a;
+  text-align: right;
+  position: absolute;
+  margin-top: 16px;
+  margin-left: -60px;
+}
+.balance {
+  color: #49546a;
+  font-size: 18px;
+  margin-top: 7px;
+  margin-left: 30px;
+}
+
 
 /* ==========================================================================
 	Legend
@@ -2943,81 +3006,27 @@ input[type="text"].input-borrow-available {
 }
 
 /* ==========================================================================
-	Liquidate specific styles (Layout styles: sizing, spacing, etc.)
+	Liquidity specific styles (Layout styles: sizing, spacing, etc.)
 ========================================================================== */
 
-/*
-*
-* Liquidations list
-*
-*/
-
-/* Text size */
-
-.list.liquidations tbody {
-  font-size: 14px;
+.pool-expanded .content {
+  max-width: 400px;
+  margin: 25px auto;
 }
-.list.liquidations tbody span {
-  color: #49546a;
-  font-size: 16px;
-}
-
-/* Cell alignment */
-
-.list.liquidations tbody tr td,
-.list.liquidations thead tr th {
-  text-align: right;
-}
-.list.liquidations tbody tr td:first-child,
-.list.liquidations thead tr th:first-child {
-  text-align: left;
-}
-
-/* Expanded content */
-
-.liqidations > h2 {
-  margin-bottom: 15px;
-}
-.liqidations .list-expanded h2 {
-  margin-bottom: 25px;
-  margin-right: initial;
-  width: 100%;
-}
-.liqidations .list-expanded h3 {
+.pool-expanded .content .noUi-target {
   margin-top: 15px;
+  margin-bottom: 15px;
+  background: -moz-linear-gradient( 180deg, rgb(0,211,194, 0.25) 0%, rgb(63,157,213, 0.25) 100%);
+  background: -webkit-linear-gradient( 180deg, rgb(0,211,194, 0.25) 0%, rgb(63,157,213, 0.25) 100%);
+  background: -ms-linear-gradient( 180deg, rgb(0,211,194, 0.25) 0%, rgb(63,157,213, 0.25) 100%);
 }
-.liqidations .list-expanded {
-  padding: 25px 35px;
-  border-top: 1px solid #d3d9e7;
+.pool-expanded .content .noUi-connect {
+  background: -moz-linear-gradient( 180deg, rgb(0,211,194) 0%, rgb(63,157,213) 100%);
+  background: -webkit-linear-gradient( 180deg, rgb(0,211,194) 0%, rgb(63,157,213) 100%);
+  background: -ms-linear-gradient( 180deg, rgb(0,211,194) 0%, rgb(63,157,213) 100%);
 }
-.liqidations .list-expanded .button {
-  margin-top: 25px;
-}
-
-/* Input styles */
-
-.list.liquidations input[type="text"] {
+.pool-expanded input {
   border: 2px solid #d3d9e7;
-  box-shadow: none;
-  max-width: 200px;
-  border-radius: 5px;
-  transition: border 0.3s ease;
-  margin-top: 15px;
-  margin-bottom: 15px;
-}
-.list.liquidations input[type="text"]:hover,
-.list.liquidations input[type="text"]:focus {
-  border: 2px solid #2ca9b7;
-  transition: border 0.2s ease;
-}
-
-/* Receive styles */
-
-.list.liquidations .receive-amount {
-  color: #49546a;
-  font-size: 30px;
-  margin-top: 12px;
-  margin-bottom: 11px;
 }
 
 /* ==========================================================================

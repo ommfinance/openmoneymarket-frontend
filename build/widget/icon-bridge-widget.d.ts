@@ -1,5 +1,7 @@
 import { LitElement } from 'lit-element';
 import "./child-elements/send-token";
+import "./child-elements/deposit";
+import "./child-elements/withdraw";
 export declare class IconBridgeWidget extends LitElement {
     private hideButton;
     private mainModalWrapper;
@@ -7,7 +9,6 @@ export declare class IconBridgeWidget extends LitElement {
     private menuTooltipMain;
     private menuTooltipEmail;
     private animationUnderline;
-    private floatingHeader;
     private inputEmail;
     private changeEmail;
     private signInModalView;
@@ -18,6 +19,8 @@ export declare class IconBridgeWidget extends LitElement {
     private errorView;
     private transactionDetailView;
     private sendTokenElemView;
+    private depositElemView;
+    private withdrawElemView;
     private paymentMethodsElemView;
     private activeModalView;
     private notification;
@@ -32,6 +35,7 @@ export declare class IconBridgeWidget extends LitElement {
     kycChecksCount: Number;
     private userTokensMap;
     private selectedToken;
+    private tokenRates;
     private linkedCreditCards;
     private linkedBankAccounts;
     private selectedAction;
@@ -42,8 +46,6 @@ export declare class IconBridgeWidget extends LitElement {
     private previousView;
     private viewAddressView;
     private qrCodeContainer;
-    private lastScrollPosition;
-    private floatingHeaderActive;
     constructor();
     private resetProperties;
     static styles: any[];
@@ -58,6 +60,7 @@ export declare class IconBridgeWidget extends LitElement {
     private clearIntervals;
     private loadUserUsdsBalance;
     private loadUserTokens;
+    private loadTokenPrice;
     private signOut;
     private submitLoginForm;
     private handleEmailInput;
@@ -82,7 +85,6 @@ export declare class IconBridgeWidget extends LitElement {
     private emailChange;
     private handleOnWithdrawFundsClick;
     private handleOnViewBlockchainAddressClick;
-    private scrollHeaderLogic;
     private onDepositClick;
     private onAssetClick;
     private onCopyAddressClick;
@@ -91,6 +93,7 @@ export declare class IconBridgeWidget extends LitElement {
     private getTitleBalance;
     private onTransactionClick;
     private getTransactionsHtml;
+    private hasSomeTokenTransactions;
     private getTransactionDetailHtml;
     render(): import("lit-element").TemplateResult;
     private getTransactionNavHtml;

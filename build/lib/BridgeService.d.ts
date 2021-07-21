@@ -1,4 +1,5 @@
 import { MagicUserMetadata } from 'magic-sdk';
+import { BigNumber } from 'bignumber.js';
 import { UserApiService } from "./services/user-api-service";
 import { AccountApiService } from "./services/account-api-service";
 import { CreditCardApiService } from "./services/credit-card-api-service";
@@ -8,6 +9,7 @@ import { ContributionsApiService } from "./services/contributions-api-service";
 import { KycApiService } from "./services/kyc-api-service";
 import { WithdrawApiService } from "./services/withdraw-api-service";
 import { MagicLoginResponse } from "./models/Interfaces/MagicLogin";
+import { SupportedTokens } from './models/Tokens/Tokens';
 import { UtilsApiService } from "./services/utils-api-service";
 declare const IconService: any;
 export declare class BridgeService {
@@ -99,6 +101,13 @@ export declare class BridgeService {
      * @throws {BridgeError} - contains user friendly message and external error (if present)
      */
     getIrc2TokenBalance(scoreAddress: string): Promise<number>;
+    /**
+     * @description Get current dollar rate of specified token
+     * @param {SupportedTokens} tokenSymbol - Symbol of the token
+     * @return {Promise<BigNumber>} - Current Dollar Rate in BigNumber
+     * @throws {BridgeError} - contains user friendly message and external error (if present)
+     */
+    getTokenPrice(tokenSymbol: SupportedTokens): Promise<BigNumber>;
     /**
      * @description Get transaction result object.
      * @param {string} txHash - The transaction hash.

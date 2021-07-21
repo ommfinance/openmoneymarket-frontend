@@ -1,0 +1,257 @@
+<main>
+  <!-- Overview -->
+  <section class="overview">
+    <div class="grid">
+      <div class="grid-cell">
+        <h2>Overview</h2>
+        <ul class="toggle" [ngStyle]="hideElement(!userLoggedIn())">
+          <li id="toggle-your-liquidity" class="{{!isAllLiquidityOverviewActive() ? 'active': ''}}" (click)="onYourLiquidityClick()">Your liquidity</li>
+          <li id="toggle-all-liquidity" class="{{isAllLiquidityOverviewActive() ? 'active': ''}}" (click)="onAllLiquidityClick()">All liquidity</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Your liquidity -->
+    <div id="your-liquidity" class="grid panel" [ngStyle]="hideElement(isAllLiquidityOverviewActive() || !userLoggedIn())">
+      <!-- Supplied -->
+      <div class="grid-cell">
+        <div class="grid">
+          <!-- You've supplied -->
+          <div class="grid-cell text-center">
+            <dl class="metadata">
+              <dt>Your liquidity</dt>
+              <dd>$15,000</dd>
+            </dl>
+          </div>
+
+          <!-- Your supply APY -->
+          <div class="grid-cell text-center">
+            <dl class="metadata">
+              <dt>Liquidity APY</dt>
+              <dd class="text-green">58%</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+
+      <!-- Borrowed -->
+      <div class="grid-cell">
+        <div class="grid">
+          <!-- You've borrowed -->
+          <div class="grid-cell text-center border-right">
+            <dl class="metadata">
+              <dt>Daily rewards</dt>
+              <dd class="value-borrowed-total">480 OMM</dd>
+            </dl>
+          </div>
+
+          <!-- Your borrow APY -->
+          <div class="grid-cell text-center">
+            <dl class="metadata">
+              <dt>{{formatNumberToUSLocaleString(roundDownTo2Decimals(getUserOmmRewardsBalance()))}} OMM available</dt>
+              <dd><a href="javascript:void(0);" (click)="onClaimOmmRewardsClick()" class="button modal-trigger" style="margin-top: 0;" data-modal="modal-claim-rewards">Claim rewards</a></dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- All liquidity -->
+    <div id="all-liquidity" class="grid panel" [ngStyle]="hideElement(!isAllLiquidityOverviewActive())">
+      <div class="grid-cell text-center border-right">
+        <dl class="metadata">
+          <dt>Total liquidity</dt>
+          <dd>$30,848,332</dd>
+        </dl>
+      </div>
+      <div class="grid-cell text-center border-right">
+        <dl class="metadata">
+          <dt>Average APY</dt>
+          <dd class="text-green">60%</dd>
+        </dl>
+      </div>
+      <div class="grid-cell text-center">
+        <dl class="metadata">
+          <dt>Daily rewards</dt>
+          <dd>200,000 OMM</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- Liquidity pools -->
+  <section class="overview">
+    <div class="grid">
+      <div class="grid-cell">
+        <h2>Liquidity pools</h2>
+        <ul class="toggle" [ngStyle]="hideElement(!userLoggedIn())">
+          <li id="toggle-your-pools" #toggYourPools class="{{!isAllPoolsActive() ? 'active': ''}}" (click)="onYourPoolsClick()">Your pools</li>
+          <li id="toggle-all-pools" #toggAllPools class="{{isAllPoolsActive() ? 'active': ''}}" (click)="onAllPoolsClick()">All pools</li>
+        </ul>
+      </div>
+    </div>
+
+    <table id="your-pools" class="list liquidity" [ngClass]="isAllPoolsActive() ? 'hide':''">
+      <thead>
+      <tr>
+        <th>Pool</th>
+        <th>You've supplied</th>
+        <th>LP tokens</th>
+        <th>Daily rewards</th>
+        <th>Liquidity APY</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr class="pool omm-usds" #yourPool (click)="onPoolClick()">
+        <td class="text-dark">OMM / USDS</td>
+        <td><span class="text-dark">10,000 OMM</span><br><span class="label">20,000 USDS</span></td>
+        <td><span class="text-dark">2.50</span><br><span class="label">5.79 unstaked</span></td>
+        <td><span class="text-dark">50 OMM</span><br><span class="label">$100</span></td>
+        <td class="text-green">43.50%</td>
+      </tr>
+
+      <!-- OMM / USDS expanded -->
+      <tr class="expanded">
+        <td colspan="5">
+          <div class="pool-expanded pool-omm-usds-expanded hide" #poolExpandedEl>
+            <div class="grid border-top">
+              <div class="grid-cell text-center content">
+                <h2>Stake LP tokens</h2>
+                <p>Supply liquidity on <a href="https://app.balanced.network/trade">Balanced</a>, then<br>stake your LP tokens here to earn OMM.</p>
+                <div id="slider-stake" disabled></div>
+
+                <!-- Rest state -->
+                <div class="grid">
+                  <div class="grid-cell">
+                    <p class="text-dark">2.50 / 8.4 LP tokens</p>
+                    <p><a href="#" class="button" id="adjust-stake" style="margin-top: 10px;">Adjust stake</a></p>
+                  </div>
+                </div>
+
+                <!-- Adjust state -->
+                <div class="grid hide">
+                  <div class="grid-cell">
+                    <div class="grid grid-center" style="margin-top: 15px; margin-bottom: 25px;">
+                      <div class="grid-cell">
+                        <input class="liquidity-input text-right text-dark" type="text" name="">
+                      </div>
+                      <div class="grid-cell text-left" style="margin-left: 10px;">
+                        <p class="text-dark"> / 8.4 LP tokens</p>
+                      </div>
+                    </div>
+
+
+                    <div class="grid grid-center">
+                      <div class="grid-cell text-right">
+                        <a href="#" class="cancel adjust-cancel">Cancel</a>
+                      </div>
+                      <div class="grid-cell text-left">
+                        <a href="#" class="button modal-trigger" data-modal="modal-adjust-stake">Confirm</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+
+      </tbody>
+    </table>
+
+    <!-- All pools -->
+    <table id="all-pools" class="list liquidity" [ngClass]="!isAllPoolsActive() ? 'hide':''">
+      <thead>
+      <tr>
+        <th>Pool</th>
+        <th>Total supplied</th>
+        <th>Total LP tokens</th>
+        <th>Daily rewards</th>
+        <th>Liquidity APY</th>
+      </tr>
+      </thead>
+      <tbody>
+      <!-- OMM / USDS all -->
+      <tr class="pool omm-usds">
+        <td class="text-dark">OMM / USDS</td>
+        <td><span class="text-dark">10,0000 OMM</span><br><span class="label">20,000 USDb</span></td>
+        <td><span class="text-dark">1,860</span></td>
+        <td><span class="text-dark">50,000 OMM</span><br><span class="label">$100,000</span></td>
+        <td class="text-green">43.50%</td>
+      </tr>
+
+      <!-- OMM / USDS all expanded -->
+      <tr class="expanded">
+        <td colspan="5">
+          <div class="pool-expanded pool-omm-usds-expanded hide">
+            <div class="grid border-top">
+              <div class="grid-cell text-center content">
+                <h2>Stake LP tokens</h2>
+                <p>Supply liquidity on <a href="https://app.balanced.network/trade">Balanced</a>, then<br>stake your LP tokens here to earn OMM.</p>
+                <div id="slider-stake" disabled></div>
+                <p class="text-dark">2.50 / 8.4 LP tokens</p>
+                <div class="grid">
+                  <div class="grid-cell">
+                    <p><a href="#" class="button">Adjust stake</a></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+
+      <tr class="spacer"></tr>
+
+      <!-- OMM / IUSDC all -->
+      <tr class="pool omm-iusdc">
+        <td class="text-dark">OMM / IUSDC</td>
+        <td><span class="text-dark">10,000 OMM</span><br><span class="label">20,000 USDb</span></td>
+        <td><span class="text-dark">2,860</span></td>
+        <td><span class="text-dark">50,000 OMM</span><br><span class="label">$100,000</span></td>
+        <td class="text-green">43.50%</td>
+      </tr>
+
+      <!-- OMM / IUSDC all expanded -->
+      <tr class="expanded">
+        <td colspan="5">
+          <div class="pool-expanded pool-omm-iusdc-expanded hide">
+            <div class="grid border-top">
+              <div class="grid-cell text-center content">
+                <h2>Stake LP tokens</h2>
+                <p>Supply liquidity on <a href="https://app.balanced.network/trade">Balanced</a>, then<br>stake your LP tokens here to earn OMM.</p>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+
+      <tr class="spacer"></tr>
+
+      <!-- OMM / sICX all -->
+      <tr class="pool omm-sicx">
+        <td class="text-dark">OMM / sICX</td>
+        <td><span class="text-dark">10,000 OMM</span><br><span class="label">20,000 USDb</span></td>
+        <td><span class="text-dark">4,120</span></td>
+        <td><span class="text-dark">100,000 OMM</span><br><span class="label">$200,000</span></td>
+        <td class="text-green">43.50%</td>
+      </tr>
+
+      <!-- OMM / sICX all expanded -->
+      <tr class="expanded">
+        <td colspan="5">
+          <div class="pool-expanded pool-omm-sicx-expanded hide">
+            <div class="grid border-top">
+              <div class="grid-cell text-center content">
+                <h2>Stake LP tokens</h2>
+                <p>Supply liquidity on <a href="https://app.balanced.network/trade">Balanced</a>, then<br>stake your LP tokens here to earn OMM.</p>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </section>
+</main>

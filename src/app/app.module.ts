@@ -17,6 +17,7 @@ import log from "loglevel";
 import { VoteComponent } from './components/vote/vote.component';
 import { MainComponent } from './components/main/main.component';
 import {HttpClientModule} from "@angular/common/http";
+import { LiquidityComponent } from './components/liquidity/liquidity.component';
 // set logging level
 log.setLevel(environment.production ? "error" : "debug");
 
@@ -31,7 +32,8 @@ log.setLevel(environment.production ? "error" : "debug");
     RiskComponent,
     AssetComponent,
     VoteComponent,
-    MainComponent
+    MainComponent,
+    LiquidityComponent
   ],
   imports: [
     BrowserModule,

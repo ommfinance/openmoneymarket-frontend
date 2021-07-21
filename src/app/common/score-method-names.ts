@@ -56,6 +56,7 @@ export class ScoreMethodNames {
    * Balanced DEX SCORE
    */
   public static GET_PRICE_BY_NAME = "getPriceByName";
+  public static GET_POOL_STATS = "getPoolStats";
 
   /**
    * Delegation SCORE

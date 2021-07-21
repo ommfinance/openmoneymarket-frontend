@@ -11,6 +11,7 @@ import {DelegationPreference} from "../models/DelegationPreference";
 import {YourPrepVote} from "../models/YourPrepVote";
 import {UnstakeIcxData, UnstakeInfo} from "../models/UnstakeInfo";
 import {DistributionPercentages} from "../models/DistributionPercentages";
+import {PoolStats, PoolStatsInterface} from "../models/PoolStats";
 
 export class Mapper {
 
@@ -182,7 +183,7 @@ export class Mapper {
     );
   }
 
-  static mapUserDelegations(delegations: DelegationPreference[], prepAddressToNameMap?: Map<string, string>): YourPrepVote[] {
+  public static mapUserDelegations(delegations: DelegationPreference[], prepAddressToNameMap?: Map<string, string>): YourPrepVote[] {
     const res: YourPrepVote[] = [];
 
     delegations.forEach(delegation => {
@@ -195,7 +196,25 @@ export class Mapper {
     return res;
   }
 
-  static mapUserIcxUnstakeData(unstakeIcxData: UnstakeIcxData[]): UnstakeInfo {
+  public static mapPoolStats(poolStats: PoolStatsInterface): PoolStats {
+    const baseDecimals = Utils.hexToNumber(poolStats.base_decimals);
+    const quoteDecimals = Utils.hexToNumber(poolStats.quote_decimals);
+
+    return new PoolStats(
+      Utils.hexToNormalisedNumber(poolStats.base, baseDecimals),
+      Utils.hexToNormalisedNumber(poolStats.quote, quoteDecimals),
+      poolStats.base_token,
+      poolStats.quote_token,
+      Utils.hexToNormalisedNumber(poolStats.total_supply, quoteDecimals),
+      Utils.hexToNormalisedNumber(poolStats.price, quoteDecimals),
+      poolStats.name,
+      baseDecimals,
+      quoteDecimals,
+      Utils.hexToNumber(poolStats.min_quote)
+    );
+  }
+
+  public static mapUserIcxUnstakeData(unstakeIcxData: UnstakeIcxData[]): UnstakeInfo {
     let totalAmount = 0;
     unstakeIcxData.forEach(u => totalAmount += Utils.hexToNormalisedNumber(u.amount));
     return new UnstakeInfo(totalAmount, unstakeIcxData);
