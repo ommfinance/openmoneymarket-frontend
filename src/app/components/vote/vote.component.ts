@@ -430,7 +430,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   getDelegationAmount(yourPrepVote: YourPrepVote): number {
-    return this.roundOffTo2Decimals(this.persistenceService.getUsersStakedOmmBalance() * (yourPrepVote.percentage / 100) * 1.3);
+    return Utils.roundOffTo2Decimals(this.persistenceService.getUsersStakedOmmBalance() * (yourPrepVote.percentage / 100) * 1.3);
   }
 
   // TODO: in case we want infinity scrolling for preps list

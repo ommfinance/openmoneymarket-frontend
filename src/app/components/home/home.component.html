@@ -29,7 +29,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>You've supplied</dt>
-                  <dd class="value-supplied-total">{{this.toDollarUSLocaleString(roundOffTo2Decimals(this.persistenceService.getUserTotalSuppliedUSD()))}}</dd>
+                  <dd class="value-supplied-total">{{this.toDollarUSLocaleString(this.persistenceService.getUserTotalSuppliedUSD() | roundOff2Dec)}}</dd>
                 </dl>
               </div>
 
@@ -50,7 +50,7 @@
           <div class="grid-cell text-center">
             <dl class="metadata">
               <dt>You've borrowed</dt>
-              <dd class="value-borrowed-total">{{this.toDollarUSLocaleString(roundOffTo2Decimals(this.persistenceService.getUserTotalBorrowedUSD()))}}</dd>
+              <dd class="value-borrowed-total">{{this.toDollarUSLocaleString(this.persistenceService.getUserTotalBorrowedUSD() | roundOff2Dec)}}</dd>
             </dl>
           </div>
 
@@ -74,7 +74,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Total supplied</dt>
-                  <dd>{{this.toDollarUSLocaleString(roundOffTo2Decimals(this.persistenceService.getTotalSuppliedUSD()))}}</dd>
+                  <dd>{{this.toDollarUSLocaleString(this.persistenceService.getTotalSuppliedUSD() | roundOff2Dec)}}</dd>
                 </dl>
               </div>
 
@@ -95,7 +95,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Total borrowed</dt>
-                  <dd>{{this.toDollarUSLocaleString(roundOffTo2Decimals(this.persistenceService.getTotalBorrowedUSD()))}}</dd>
+                  <dd>{{this.toDollarUSLocaleString(this.persistenceService.getTotalBorrowedUSD() | roundOff2Dec)}}</dd>
                 </dl>
               </div>
 

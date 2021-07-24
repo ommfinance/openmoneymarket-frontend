@@ -39,13 +39,6 @@ export class BaseClass {
   //   return `$${this.formatNumberToNdigits(num)}`;
   // }
 
-  public roundOffTo2Decimals(value: number | BigNumber | string | undefined): number {
-    if (!value) {
-      return 0;
-    }
-    return Utils.roundOffTo2Decimals(value);
-  }
-
   public roundOffToCustomDecimals(value: number | BigNumber | string | undefined, decimals: number): number {
     if (!value) {
       return 0;
@@ -67,11 +60,6 @@ export class BaseClass {
     return Utils.roundDownToZeroDecimals(value);
   }
 
-  // public toDollar2digitsStringOrZero(num?: number | string): string {
-  //   if (!num || (+num) === 0) { return "$0"; }
-  //   return `$${this.formatNumberToNdigits(num)}`;
-  // }
-
   public formatNumberToUSLocaleString(num?: number | string, defaultZero = false): string {
     if (!num || (+num) === 0) { return defaultZero ? "0" : "-"; }
     if (typeof num === 'string') {
@@ -91,15 +79,8 @@ export class BaseClass {
 
     // convert in to percentage
     num = +num * 100;
-    return `${(Utils.roundOffTo2Decimals(num))}%`;
-  }
 
-  public to0DecimalPercentString(num?: number | string): string {
-    if (!num || (+num) === 0) { return "-"; }
-
-    // convert in to percentage
-    num = +num * 100;
-    return `${(num.toFixed())}%`;
+    return `${(this.formatNumberToUSLocaleString(Utils.roundOffTo2Decimals(num)))}%`;
   }
 
   public fromUSDbFormatToNumber(value: any): number {

@@ -5,28 +5,28 @@
 
   <!-- Your asset state -->
   <ng-container *ngIf="!isAllMarketViewActive() && !isAssetAvailable()">
-    <td><span class="value-supplied">{{this.toDollarUSLocaleString(roundOffTo2Decimals(this.persistenceService.getUserAssetReserve(asset.tag)?.currentOTokenBalanceUSD))}}</span><br>
-      <span class="value-supplied label">{{this.formatNumberToUSLocaleString(getUserSuppliedAssetBalance())}} {{asset.tag}}</span></td>
+    <td><span class="value-supplied">{{this.toDollarUSLocaleString(this.persistenceService.getUserAssetReserve(asset.tag)?.currentOTokenBalanceUSD | roundOff2Dec)}}</span><br>
+      <span class="value-supplied label">{{getUserSuppliedAssetBalance() | usFormat}} {{asset.tag}}</span></td>
     <td class="text-green">{{to2DecimalRoundedOffPercentString(getUserSupplyApy())}}</td> <!-- Supply APY-->
-    <td><span class="value-borrowed">{{this.toDollarUSLocaleString(roundOffTo2Decimals(this.persistenceService.getUserAssetReserve(asset.tag)?.currentBorrowBalanceUSD))}}</span><br>
-      <span class="value-borrowed label">{{this.formatNumberToUSLocaleString(getUserBorrowedAssetBalance())}} {{getBorrowAssetTagAdjusted()}}</span></td>
+    <td><span class="value-borrowed">{{this.toDollarUSLocaleString(this.persistenceService.getUserAssetReserve(asset.tag)?.currentBorrowBalanceUSD | roundOff2Dec)}}</span><br>
+      <span class="value-borrowed label">{{getUserBorrowedAssetBalance() | usFormat}} {{getBorrowAssetTagAdjusted()}}</span></td>
     <td class="{{isNegative(getUserBorrowApy()) ? 'text-purple' : 'text-green'}}">{{to2DecimalRoundedOffPercentString(makeAbsolute(getUserBorrowApy()))}}</td><!-- Borrow APY -->
   </ng-container>
 
   <!-- Asset available state -->
   <ng-container *ngIf="!isAllMarketViewActive() && isAssetAvailable()">
-    <td colspan="2" class="text-right">{{this.toDollarUSLocaleString(roundOffTo2Decimals(getUserSuppliableBalanceUSD()))}}
-      <br><span class="label">{{this.formatNumberToUSLocaleString(roundOffTo2Decimals(getUserSuppliableBalance()))}} {{asset.tag}}</span></td>
+    <td colspan="2" class="text-right">{{this.toDollarUSLocaleString(getUserSuppliableBalanceUSD() | roundOff2Dec)}}
+      <br><span class="label">{{getUserSuppliableBalance() | roundOff2Dec | usFormat}} {{asset.tag}}</span></td>
     <td colspan="2" class="text-right"><span class="text-green">{{to2DecimalRoundedOffPercentString(getUserSupplyApy())}} APY</span></td> <!-- Supply APY -->
   </ng-container>
 
   <!-- All markets state -->
   <ng-container *ngIf="isAllMarketViewActive()">
-    <td><span>{{this.toDollarUSLocaleString(roundOffTo2Decimals(this.persistenceService.getAssetReserveData(asset.tag)?.totalLiquidityUSD))}}</span><br>
-      <span class="label">{{this.formatNumberToUSLocaleString(roundOffTo2Decimals(getTotalLiquidity()))}} {{asset.tag}}</span></td>
+    <td><span>{{this.toDollarUSLocaleString(this.persistenceService.getAssetReserveData(asset.tag)?.totalLiquidityUSD | roundOff2Dec)}}</span><br>
+      <span class="label">{{getTotalLiquidity() | roundOff2Dec | usFormat}} {{asset.tag}}</span></td>
     <td class="text-green">{{to2DecimalRoundedOffPercentString(getMarketSupplyRate())}}</td> <!-- Supply APY -->
-    <td>{{this.toDollarUSLocaleString(roundOffTo2Decimals(this.persistenceService.getAssetReserveData(asset.tag)?.totalBorrowsUSD))}}<br>
-      <span class="label">{{this.formatNumberToUSLocaleString(roundOffTo2Decimals(getTotalAssetBorrows()))}} {{getBorrowAssetTagAdjusted()}}</span></td>
+    <td>{{this.toDollarUSLocaleString(this.persistenceService.getAssetReserveData(asset.tag)?.totalBorrowsUSD | roundOff2Dec)}}<br>
+      <span class="label">{{getTotalAssetBorrows() | roundOff2Dec | usFormat}} {{getBorrowAssetTagAdjusted()}}</span></td>
     <td class="{{isNegative(getMarketBorrowRate()) ? 'text-purple' : 'text-green'}}">{{to2DecimalRoundedOffPercentString(makeAbsolute(getMarketBorrowRate()))}}</td> <!-- Borrow APY -->
   </ng-container>
 
@@ -72,7 +72,7 @@
                 <label class="label available">Available</label>
                 <input type="text" title="{{asset.tag}} available to supply" #inpSuppAvail id="input-supply-available"
                        class="input-supply-available" disabled value="0">
-                <p *ngIf="shouldShowUnstaking()" class="label">{{formatNumberToUSLocaleString(roundDownTo2Decimals(persistenceService.userUnstakingInfo?.totalAmount))}} ICX unstaking</p>
+                <p *ngIf="shouldShowUnstaking()" class="label">{{roundDownTo2Decimals(persistenceService.userUnstakingInfo?.totalAmount) | usFormat}} ICX unstaking</p>
               </div>
             </div>
 
@@ -168,7 +168,7 @@
               <div class="grid-cell">
                 <dl class="metadata">
                   <dt>Daily interest</dt>
-                  <dd class="value-borrow-interest" #borrInterest>+ {{formatNumberToUSLocaleString(roundOffTo2Decimals(getDailyBorrowInterest()))}} {{asset.tag}}</dd>
+                  <dd class="value-borrow-interest" #borrInterest>+ {{getDailyBorrowInterest() | roundOff2Dec | usFormat}} {{asset.tag}}</dd>
                 </dl>
               </div>
               <div class="grid-cell">
@@ -216,13 +216,13 @@
       <div *ngIf="isAssetIcx()" class="notice">
         <p class="label">When you borrow or withdraw, you'll receive staked ICX (sICX). You can swap sICX for ICX on <a href="https://app.balanced.network/trade" target="_blank">Balanced</a>.</p>
         <!-- If ICX is unstaking -->
-        <p *ngIf="getUserTotalUnstakeAmount() > 0 && getUserClaimableIcxAmount() == 0" class="label" style="margin-top: 7px;">{{formatNumberToUSLocaleString(roundDownTo2Decimals(getUserTotalUnstakeAmount()))}} ICX is unstaking.</p>
+        <p *ngIf="getUserTotalUnstakeAmount() > 0 && getUserClaimableIcxAmount() == 0" class="label" style="margin-top: 7px;">{{roundDownTo2Decimals(getUserTotalUnstakeAmount()) | usFormat}} ICX is unstaking.</p>
         <!-- If some ICX is ready to claim -->
-        <p *ngIf="getUserTotalUnstakeAmount() > 0 && getUserClaimableIcxAmount() > 0" class="label" style="margin-top: 7px;">{{formatNumberToUSLocaleString(roundDownTo2Decimals(getUserTotalUnstakeAmount()))}} ICX is unstaking. <a
-          href="javascript:void(0);" (click)="onClaimIcxClick()" class="modal-trigger" data-modal="modal-claim-icx">{{formatNumberToUSLocaleString(roundDownTo2Decimals(getUserClaimableIcxAmount()))}} ICX is ready to claim</a>.</p>
+        <p *ngIf="getUserTotalUnstakeAmount() > 0 && getUserClaimableIcxAmount() > 0" class="label" style="margin-top: 7px;">{{roundDownTo2Decimals(getUserTotalUnstakeAmount()) | usFormat}} ICX is unstaking. <a
+          href="javascript:void(0);" (click)="onClaimIcxClick()" class="modal-trigger" data-modal="modal-claim-icx">{{roundDownTo2Decimals(getUserClaimableIcxAmount()) | usFormat}} ICX is ready to claim</a>.</p>
         <!-- If all ICX is ready to claim -->
         <p *ngIf="getUserTotalUnstakeAmount() == 0 && getUserClaimableIcxAmount() > 0" class="label" style="margin-top: 7px;">
-          <a href="javascript:void(0);" (click)="onClaimIcxClick()" class="modal-trigger" data-modal="modal-claim-icx">{{formatNumberToUSLocaleString(roundDownTo2Decimals(getUserClaimableIcxAmount()))}} ICX is ready to claim</a>.</p>
+          <a href="javascript:void(0);" (click)="onClaimIcxClick()" class="modal-trigger" data-modal="modal-claim-icx">{{roundDownTo2Decimals(getUserClaimableIcxAmount()) | usFormat}} ICX is ready to claim</a>.</p>
       </div>
 
     </div>
