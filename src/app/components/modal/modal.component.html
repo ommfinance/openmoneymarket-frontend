@@ -36,17 +36,17 @@
   <div class="modal-content">
     <!-- Title -->
     <h3 class="text-center label">Stake Omm Tokens?</h3>
-    <p class="text-center"><span class="value-omm-stake-amount">{{formatNumberToUSLocaleString(activeModalChange?.stakingAction?.amount)}}</span> OMM</p>
+    <p class="text-center"><span class="value-omm-stake-amount">{{activeModalChange?.stakingAction?.amount | usFormat}}</span> OMM</p>
 
     <!-- Before vs after -->
     <div class="grid before-after">
       <div class="grid-cell text-center border-right">
         <p class="label">Before</p>
-        <p class="text-dark">{{formatNumberToUSLocaleString(activeModalChange?.stakingAction?.before)}} OMM</p>
+        <p class="text-dark">{{activeModalChange?.stakingAction?.before | usFormat}} OMM</p>
       </div>
       <div class="grid-cell text-center">
         <p class="label">After</p>
-        <p class="text-dark"><span class="value-omm-stake-amount">{{formatNumberToUSLocaleString(activeModalChange?.stakingAction?.after)}}</span> OMM</p>
+        <p class="text-dark"><span class="value-omm-stake-amount">{{activeModalChange?.stakingAction?.after | usFormat}}</span> OMM</p>
       </div>
     </div>
 
@@ -66,17 +66,17 @@
   <div class="modal-content">
     <!-- Title -->
     <h3 class="text-center label">Unstake Omm Tokens?</h3>
-    <p class="text-center"><span class="value-omm-stake-amount">{{formatNumberToUSLocaleString(activeModalChange?.stakingAction?.amount)}}</span> OMM</p>
+    <p class="text-center"><span class="value-omm-stake-amount">{{activeModalChange?.stakingAction?.amount | usFormat}}</span> OMM</p>
 
     <!-- Before vs after -->
     <div class="grid before-after">
       <div class="grid-cell text-center border-right">
         <p class="label">Before</p>
-        <p class="text-dark">{{formatNumberToUSLocaleString(activeModalChange?.stakingAction?.before)}} OMM</p>
+        <p class="text-dark">{{activeModalChange?.stakingAction?.before | usFormat}} OMM</p>
       </div>
       <div class="grid-cell text-center">
         <p class="label">After</p>
-        <p class="text-dark"><span class="value-omm-stake-amount">{{formatNumberToUSLocaleString(activeModalChange?.stakingAction?.after)}}</span> OMM</p>
+        <p class="text-dark"><span class="value-omm-stake-amount">{{activeModalChange?.stakingAction?.after | usFormat}}</span> OMM</p>
       </div>
     </div>
 
@@ -135,23 +135,23 @@
   <div class="modal-content">
     <!-- Title -->
     <h3 class="text-center label">Claim Omm rewards?</h3>
-    <p class="text-bold text-center value-rewards-modal">{{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.amount))}} OMM</p>
+    <p class="text-bold text-center value-rewards-modal">{{roundDownTo2Decimals(activeModalChange?.assetAction?.amount) | usFormat}} OMM</p>
 
     <ng-container *ngIf="activeModalHasLiquidityRewards()">
-      <p class="text-center"><span class="text-bold">Omm rewards:</span> {{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.details?.ommRewards?.ommRewards))}} OMM</p>
-      <p class="text-center"><span class="text-bold">Liquidity rewards:</span> {{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.details?.ommRewards?.liquidityRewards))}} OMM</p>
+      <p class="text-center"><span class="text-bold">Omm rewards:</span> {{roundDownTo2Decimals(activeModalChange?.assetAction?.details?.ommRewards?.ommRewards) | usFormat}} OMM</p>
+      <p class="text-center"><span class="text-bold">Liquidity rewards:</span> {{roundDownTo2Decimals(activeModalChange?.assetAction?.details?.ommRewards?.liquidityRewards) | usFormat}} OMM</p>
     </ng-container>
 
     <!-- Before & after -->
     <div class="grid before-after">
       <div class="grid-cell text-center border-right">
         <p class="label">Before</p>
-        <p class="text-dark">{{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.before))}} OMM</p>
+        <p class="text-dark">{{roundDownTo2Decimals(activeModalChange?.assetAction?.before) | usFormat}} OMM</p>
       </div>
 
       <div class="grid-cell text-center">
         <p class="label">After</p>
-        <p class="text-dark value-rewards-mdoal">{{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.after))}} OMM</p>
+        <p class="text-dark value-rewards-mdoal">{{roundDownTo2Decimals(activeModalChange?.assetAction?.after) | usFormat}} OMM</p>
       </div>
     </div>
 
@@ -168,18 +168,18 @@
   <div class="modal-content">
     <!-- Title -->
     <h3 class="text-center label">Claim ICX?</h3>
-    <p class="text-bold text-center value-rewards-mdoal">{{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.amount))}} ICX</p>
+    <p class="text-bold text-center value-rewards-mdoal">{{roundDownTo2Decimals(activeModalChange?.assetAction?.amount) | usFormat}} ICX</p>
 
     <!-- Before & after -->
     <div class="grid before-after">
       <div class="grid-cell text-center border-right">
         <p class="label">Before</p>
-        <p class="text-dark">{{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.before))}} ICX</p>
+        <p class="text-dark">{{roundDownTo2Decimals(activeModalChange?.assetAction?.before) | usFormat}} ICX</p>
       </div>
 
       <div class="grid-cell text-center">
         <p class="label">After</p>
-        <p class="text-dark value-rewards-modal">{{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.after))}} ICX</p>
+        <p class="text-dark value-rewards-modal">{{roundDownTo2Decimals(activeModalChange?.assetAction?.after) | usFormat}} ICX</p>
       </div>
     </div>
 
@@ -195,16 +195,16 @@
 <div class="modal" #assetActionModal>
   <div class="modal-content">
     <h3 class="text-center label">{{getModalActionName()}} {{activeModalChange?.assetAction?.asset?.name}}?</h3>
-    <p class="text-bold text-center value-borrow-difference">{{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.amount))}} {{getAdjustedAssetTag()}}</p>
+    <p class="text-bold text-center value-borrow-difference">{{roundDownTo2Decimals(activeModalChange?.assetAction?.amount) | usFormat}} {{getAdjustedAssetTag()}}</p>
     <div class="grid">
       <div class="grid-cell text-center border-right">
         <p class="label">Before</p>
-        <p class="text-dark value-borrowed">{{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.before))}} {{getAdjustedAssetTag()}}</p>
+        <p class="text-dark value-borrowed">{{roundDownTo2Decimals(activeModalChange?.assetAction?.before) | usFormat}} {{getAdjustedAssetTag()}}</p>
       </div>
 
       <div class="grid-cell text-center">
         <p class="label">After</p>
-        <p class="text-dark value-borrow-after">{{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.after))}} {{getAdjustedAssetTag()}}</p>
+        <p class="text-dark value-borrow-after">{{roundDownTo2Decimals(activeModalChange?.assetAction?.after) | usFormat}} {{getAdjustedAssetTag()}}</p>
       </div>
     </div>
 
@@ -212,6 +212,7 @@
 
     <p class="label text-center {{riskGreaterThanZero() ? '': 'hide'}}" style="margin-top: 25px;">Risk: <span class="value-risk-total" style="font-size: 14px !important;"
     >{{activeModalChange?.assetAction?.risk}}%</span></p>
+    <p *ngIf="isBorrow()" class="label text-center" style="margin-top: 5px;">Includes a fee of {{getBorrowFee() | usFormat}} {{getAdjustedAssetTag()}}</p>
 
     <!-- Modal actions -->
     <div class="modal-actions">
@@ -226,18 +227,18 @@
   <div class="modal-content">
     <!-- Title -->
     <h3 class="text-center label">Withdraw ICON?</h3>
-    <p class="text-bold text-center">{{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.amount))}} ICX</p>
+    <p class="text-bold text-center">{{roundDownTo2Decimals(activeModalChange?.assetAction?.amount) | usFormat}} ICX</p>
 
     <!-- Before / After -->
     <div class="grid before-after">
       <div class="grid-cell text-center border-right">
         <p class="label">Before</p>
-        <p class="text-dark">{{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.before))}} ICX</p>
+        <p class="text-dark">{{roundDownTo2Decimals(activeModalChange?.assetAction?.before) | usFormat}} ICX</p>
       </div>
 
       <div class="grid-cell text-center">
         <p class="label">After</p>
-        <p class="text-dark">{{formatNumberToUSLocaleString(roundDownTo2Decimals(activeModalChange?.assetAction?.after))}} ICX</p>
+        <p class="text-dark">{{roundDownTo2Decimals(activeModalChange?.assetAction?.after) | usFormat}} ICX</p>
       </div>
     </div>
 
@@ -256,7 +257,7 @@
           <br>
           <span class="text-bold">Unstake</span>
           <br>
-          <span>{{formatNumberToUSLocaleString(activeModalChange?.assetAction?.amount)}} ICX</span>
+          <span>{{activeModalChange?.assetAction?.amount | usFormat}} ICX</span>
         </label>
       </div>
 
@@ -267,7 +268,7 @@
           <br>
           <span class="text-bold">Keep sICX</span>
           <br>
-          <span>{{formatNumberToUSLocaleString(roundDownTo2Decimals(convertFromICXTosICX(activeModalChange?.assetAction?.amount)))}} sICX</span>
+          <span>{{roundDownTo2Decimals(convertFromICXTosICX(activeModalChange?.assetAction?.amount)) | usFormat}} sICX</span>
         </label>
       </div>
     </div>

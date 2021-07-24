@@ -27,6 +27,7 @@ import {ActiveMarketOverview, ActiveViews} from "../../models/ActiveViews";
 import {UserReserveData} from "../../models/UserReserveData";
 import {ModalAction} from "../../models/ModalAction";
 import {BridgeWidgetService} from "../../services/bridge-widget/bridge-widget.service";
+import {Utils} from "../../common/utils";
 
 @Component({
   selector: 'app-home',
@@ -318,6 +319,6 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   }
 
   getOmmPriceUSD(): string {
-    return `($${this.formatNumberToUSLocaleString(this.roundOffTo2Decimals(this.persistenceService.ommPriceUSD))})`;
+    return `($${this.formatNumberToUSLocaleString(Utils.roundOffTo2Decimals(this.persistenceService.ommPriceUSD))})`;
   }
 }

@@ -80,6 +80,14 @@ export class Utils {
     return new BigNumber(amount).multipliedBy(Math.pow(10, decimals)).toFixed();
   }
 
+  public static roundOffToCustomDecimals(value: number | BigNumber | string, decimals: number): number {
+    if (value instanceof BigNumber) {
+      return +(value.toFixed(decimals, BigNumber.ROUND_HALF_CEIL));
+    } else {
+      return +(new BigNumber(value).toFixed(decimals, BigNumber.ROUND_HALF_CEIL));
+    }
+  }
+
   public static roundOffTo2Decimals(value: number | BigNumber | string): number {
     if (value instanceof BigNumber) {
       return +(value.toFixed(2, BigNumber.ROUND_HALF_CEIL));
