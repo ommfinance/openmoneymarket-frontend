@@ -462,19 +462,19 @@ table.list.liquidity tbody tr.pool td:first-of-type {
   background-position: 0px 12px;
 }
 table.list.liquidity tbody tr.pool td:first-of-type {
-  background-image: url(../img/feature/liquidity-pair.png);
+  background-image: url(../img/icon/liquidity-pair.png);
   background-repeat: no-repeat;
   background-position: 35px center;
   background-size: 75px;
 }
 table.list.liquidity tbody tr.pool.omm-usds td:first-of-type {
-  background-image: url(../img/feature/liquidity-omm-usds.png);
+  background-image: url(../img/icon/liquidity-omm-usds.png);
 }
 table.list.liquidity tbody tr.pool.omm-iusdc td:first-of-type {
-  background-image: url(../img/feature/liquidity-omm-usdc.png);
+  background-image: url(../img/icon/liquidity-omm-usdc.png);
 }
 table.list.liquidity tbody tr.pool.omm-sicx td:first-of-type {
-  background-image: url(../img/feature/liquidity-omm-sicx.png);
+  background-image: url(../img/icon/liquidity-omm-sicx.png);
 }
 
 /* ==========================================================================
