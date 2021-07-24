@@ -27,6 +27,7 @@ import {VoteService} from "../../services/vote/vote.service";
 import {LoginService} from "../../services/login/login.service";
 import {IconexWallet} from "../../models/wallets/IconexWallet";
 import {ClaimIcxService} from "../../services/claim-icx/claim-icx.service";
+import {CalculationsService} from "../../services/calculations/calculations.service";
 
 
 @Component({
@@ -83,7 +84,8 @@ export class ModalComponent extends BaseClass implements OnInit {
               private transactionDispatcherService: TransactionDispatcherService,
               private ommService: OmmService,
               private voteService: VoteService,
-              private claimIcxService: ClaimIcxService) {
+              private claimIcxService: ClaimIcxService,
+              private calculationService: CalculationsService) {
     super(persistenceService);
 
     this.activeModalSubscription = this.modalService.activeModalChange$.subscribe((activeModalChange: ModalAction) => {
@@ -395,5 +397,9 @@ export class ModalComponent extends BaseClass implements OnInit {
     } else {
       return undefined;
     }
+  }
+
+  getBorrowFee(): number {
+    return this.calculationService.calculateBorrowFee(this.activeModalChange?.assetAction?.amount);
   }
 }

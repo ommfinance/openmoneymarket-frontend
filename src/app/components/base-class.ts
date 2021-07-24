@@ -46,6 +46,13 @@ export class BaseClass {
     return Utils.roundOffTo2Decimals(value);
   }
 
+  public roundOffToCustomDecimals(value: number | BigNumber | string | undefined, decimals: number): number {
+    if (!value) {
+      return 0;
+    }
+    return Utils.roundOffToCustomDecimals(value, decimals);
+  }
+
   public roundDownTo2Decimals(value: number | BigNumber | string | undefined): number {
     if (!value) {
       return 0;
