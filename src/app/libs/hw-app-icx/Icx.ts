@@ -2,6 +2,7 @@ import {Utils} from "./Utils";
 // @ts-ignore
 import type Transport from "@ledgerhq/hw-transport";
 import {Buffer} from "buffer";
+import log from "loglevel";
 
 export class Icx {
   transport: Transport<any>;
@@ -59,7 +60,7 @@ export class Icx {
           chainCode: ""
         };
 
-        console.log(result.address.toString());
+        log.debug(result.address.toString());
 
         if (boolChaincode) {
           result.chainCode = response.slice(-32).toString("hex");

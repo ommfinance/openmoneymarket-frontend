@@ -81,7 +81,7 @@ export class ScoreService {
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.PriceOracle,
       ScoreMethodNames.GET_REFERENCE_DATA, params, IconTransactionType.READ);
 
-    console.log("getReferenceData tx:", tx);
+    log.debug("getReferenceData tx:", tx);
 
     const res = await this.iconApiService.iconService.call(tx).execute();
 

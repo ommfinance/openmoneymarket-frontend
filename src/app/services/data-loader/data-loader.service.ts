@@ -217,19 +217,31 @@ export class DataLoaderService {
     });
   }
 
+  // TODO: delete after not useful anymore
+  // public loadOmmTokenPriceUSD(): void {
+  //   Promise.all([
+  //     this.scoreService.getOmmTokenPriceUSD(BalancedDexPools.OMM2_USDS),
+  //     this.scoreService.getOmmTokenPriceUSD(BalancedDexPools.OMM2_IUSDC)
+  //   ]).then(([ommUsdsPrice, ommIusdcPrice]) => {
+  //       log.debug(`ommUsdsPrice = ${ommUsdsPrice}`);
+  //       log.debug(`ommIusdcPrice = ${ommIusdcPrice}`);
+  //       const averageOmmPriceUSD = (ommUsdsPrice + ommIusdcPrice) / 2;
+  //       log.debug(`averageOmmPriceUSD = ${averageOmmPriceUSD}`);
+  //       this.persistenceService.ommPriceUSD = averageOmmPriceUSD;
+  //   }).catch(e => {
+  //       log.error("Error in loadOmmTokenPriceUSD()");
+  //       log.error(e);
+  //   });
+  // }
+
   public loadOmmTokenPriceUSD(): void {
-    Promise.all([
-      this.scoreService.getOmmTokenPriceUSD(BalancedDexPools.OMM2_USDS),
-      this.scoreService.getOmmTokenPriceUSD(BalancedDexPools.OMM2_IUSDC)
-    ]).then(([ommUsdsPrice, ommIusdcPrice]) => {
-        log.debug(`ommUsdsPrice = ${ommUsdsPrice}`);
-        log.debug(`ommIusdcPrice = ${ommIusdcPrice}`);
-        const averageOmmPriceUSD = (ommUsdsPrice + ommIusdcPrice) / 2;
-        log.debug(`averageOmmPriceUSD = ${averageOmmPriceUSD}`);
-        this.persistenceService.ommPriceUSD = averageOmmPriceUSD;
-    }).catch(e => {
-        log.error("Error in loadOmmTokenPriceUSD()");
-        log.error(e);
+    log.debug("loadOmmTokenPriceUSD..");
+    this.scoreService.getReferenceData("OMM").then(res => {
+      log.debug("Token price from oracle = " + res);
+      this.persistenceService.ommPriceUSD = res;
+    }). catch(e => {
+      log.debug("Failed to fetch OMM price");
+      log.error(e);
     });
   }
 
@@ -245,10 +257,10 @@ export class DataLoaderService {
 
   public loadTokenPriceUSD2(): void {
     this.scoreService.getReferenceData("OMM").then(res => {
-      console.log("Token price from oracle = " + res);
+      log.debug("Token price from oracle = " + res);
     }). catch(e => {
-      console.log("Failed to fetch OMM price");
-      console.error(e);
+      log.debug("Failed to fetch OMM price");
+      log.error(e);
     });
   }
 
