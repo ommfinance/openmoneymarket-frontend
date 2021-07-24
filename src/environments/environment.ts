@@ -6,7 +6,7 @@ export const environment = {
   production: false,
   iconRpcUrl: "https://bicon.net.solidwallet.io/api/v3",
   iconDebugRpcUrl: "https://bicon.net.solidwallet.io/api/debug/v3",
-  ADDRESS_PROVIDER_SCORE: 'cx77497caa623b73bb492942081eb809f824b9c82a',
+  ADDRESS_PROVIDER_SCORE: 'cxc39e0e3c228dba62db922776936cc784a9727733',
   BALANCED_DEX_SCORE: "cx399dea56cf199b1c9e43bead0f6a284bdecfbf62",
   // ADDRESS_PROVIDER_SCORE: 'cx19aa6bc8824297f191d695c00101ecafbce33e16', // new one supports delegations
   // testnet (1)
