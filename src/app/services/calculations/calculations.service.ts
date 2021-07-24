@@ -8,6 +8,7 @@ import {Utils} from "../../common/utils";
 import {Prep, PrepList} from "../../models/Preps";
 import {OmmError} from "../../core/errors/OmmError";
 import {UserReserveData} from "../../models/UserReserveData";
+import log from "loglevel";
 
 @Injectable({
   providedIn: 'root'
@@ -477,6 +478,19 @@ export class CalculationsService {
     });
 
     return borrowApySum / borrowSum;
+  }
+
+  public calculateBorrowFee(amount?: number): number {
+    log.debug("calculateBorrowFee..");
+
+    if (!amount) {
+      return 0;
+    }
+
+    const loanOriginationFeePercentage = this.persistenceService.loanOriginationFeePercentage ?? 0.001;
+
+    log.debug(`amount=${amount}, feePercentage=${loanOriginationFeePercentage} borrowFee=${amount * loanOriginationFeePercentage}`);
+    return Utils.multiplyDecimalsPrecision(amount, loanOriginationFeePercentage, 5);
   }
 
   public calculatePrepsIcxReward(prep: Prep, prepList: PrepList): number {
