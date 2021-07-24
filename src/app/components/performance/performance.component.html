@@ -25,7 +25,7 @@
       <div class="grid-cell text-center">
         <dl class="metadata">
           <dt>Supply interest</dt>
-          <dd class="value-supply-interest-total" #suppInterest>+ ${{roundOffTo2Decimals(supplyInterest * getDropDownOptionMultiplier())}}</dd>
+          <dd class="value-supply-interest-total" #suppInterest>+ ${{supplyInterest * getDropDownOptionMultiplier() | roundOff2Dec}}</dd>
         </dl>
       </div>
 
@@ -33,7 +33,7 @@
       <div class="grid-cell text-center borrow-interest-container" [ngStyle]="hideElement(borrowInterest == 0)">
         <dl class="metadata">
           <dt>Borrow interest</dt>
-          <dd class="value-borrow-interest-total" #borrInterest>- ${{roundOffTo2Decimals(borrowInterest * getDropDownOptionMultiplier())}}</dd>
+          <dd class="value-borrow-interest-total" #borrInterest>- ${{borrowInterest * getDropDownOptionMultiplier() | roundOff2Dec}}</dd>
         </dl>
       </div>
 
@@ -41,14 +41,15 @@
       <div class="grid-cell text-center">
         <dl class="metadata">
           <dt>Omm rewards</dt>
-          <dd><span class="value-rewards-total">+ {{formatNumberToUSLocaleString(roundOffTo2Decimals(ommRewards * getDropDownOptionMultiplier()))}}</span>
+          <dd><span class="value-rewards-total">+ {{(ommRewards * getDropDownOptionMultiplier()) | roundOff2Dec | usFormat}}</span>
             <span class="label" style="font-size: 12px;letter-spacing: 1px;margin-left: 5px;">OMM</span></dd>
         </dl>
       </div>
     </div>
 
     <p class="text-center" [ngStyle]="hideElement(shouldHideClaimBtn())">
-      <a href="javascript:void(0);" (click)="onClaimOmmRewardsClick()" class="button modal-trigger" data-modal="modal-claim-rewards">Claim {{formatNumberToUSLocaleString(roundDownTo2Decimals(persistenceService.userOmmRewards?.total))}} Omm Tokens</a>
+      <a href="javascript:void(0);" (click)="onClaimOmmRewardsClick()" class="button modal-trigger" data-modal="modal-claim-rewards"
+      >Claim {{roundDownTo2Decimals(persistenceService.userOmmRewards?.total) | usFormat}} Omm Tokens</a>
     </p>
   </div>
 </div>

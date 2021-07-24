@@ -17,6 +17,8 @@ import log from "loglevel";
 import { VoteComponent } from './components/vote/vote.component';
 import { MainComponent } from './components/main/main.component';
 import {HttpClientModule} from "@angular/common/http";
+import { UsFormatPipe } from './pipes/us-format.pipe';
+import { RoundOff2DecPipe } from './pipes/round-off-2-dec.pipe';
 // set logging level
 log.setLevel(environment.production ? "error" : "debug");
 
@@ -31,7 +33,9 @@ log.setLevel(environment.production ? "error" : "debug");
     RiskComponent,
     AssetComponent,
     VoteComponent,
-    MainComponent
+    MainComponent,
+    UsFormatPipe,
+    RoundOff2DecPipe
   ],
   imports: [
     BrowserModule,
