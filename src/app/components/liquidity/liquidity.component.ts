@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
 import {BaseClass} from "../base-class";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {ActiveLiquidityOverview, ActiveLiquidityPoolsView} from "../../models/ActiveViews";
@@ -11,6 +11,7 @@ import {ModalService} from "../../services/modal/modal.service";
 import {PoolData} from "../../models/PoolData";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import log from "loglevel";
+import {UserPoolData} from "../../models/UserPoolData";
 
 declare var $: any;
 
@@ -19,16 +20,12 @@ declare var $: any;
   templateUrl: './liquidity.component.html',
   styleUrls: ['./liquidity.component.css']
 })
-export class LiquidityComponent extends BaseClass implements OnInit {
+export class LiquidityComponent extends BaseClass implements OnInit, AfterViewInit {
 
   toggleYourPoolsEl: any;
   @ViewChild("toggYourPools")set a(a: ElementRef) {this.toggleYourPoolsEl = a.nativeElement; }
   toggleAllPoolsEl: any;
   @ViewChild("toggAllPools") set b(b: ElementRef) {this.toggleAllPoolsEl = b.nativeElement; }
-  poolExpandedEl: any;
-  @ViewChild("poolExpandedEl") set c(c: ElementRef) {this.poolExpandedEl = c.nativeElement; }
-  yourPoolEl: any;
-  @ViewChild("yourPool") set d(d: ElementRef) {this.yourPoolEl = d.nativeElement; }
 
   public activeLiquidityOverview: ActiveLiquidityOverview = this.userLoggedIn() ? ActiveLiquidityOverview.YOUR_LIQUIDITY :
     ActiveLiquidityOverview.ALL_LIQUIDITY;
@@ -43,6 +40,10 @@ export class LiquidityComponent extends BaseClass implements OnInit {
 
   ngOnInit(): void {
     this.registerSubscriptions();
+  }
+
+  ngAfterViewInit(): void {
+
   }
 
   onClaimOmmRewardsClick(): void {
@@ -84,20 +85,44 @@ export class LiquidityComponent extends BaseClass implements OnInit {
     return this.persistenceService.allPools;
   }
 
+  getUserPoolsData(): UserPoolData[] {
+    return this.persistenceService.userPools;
+  }
+
   getTotalSuppliedBase(poolData: PoolData): number {
-    return this.calculationService.calculateTotalSupplied(poolData);
+    return this.calculationService.calculatePoolTotalSupplied(poolData);
+  }
+
+  getUserSuppliedBase(poolData: UserPoolData): number {
+    return this.calculationService.calculateUserPoolSupplied(poolData);
   }
 
   getTotalSuppliedQuote(poolData: PoolData): number {
-    return this.calculationService.calculateTotalSupplied(poolData, false);
+    return this.calculationService.calculatePoolTotalSupplied(poolData, false);
+  }
+
+  getUserSuppliedQuote(poolData: UserPoolData): number {
+    return this.calculationService.calculateUserPoolSupplied(poolData, false);
   }
 
   getDailyRewards(poolData: PoolData): number {
     return this.calculationService.calculateDailyRewardsForPool(poolData);
   }
 
+  getUserDailyRewards(poolData: UserPoolData): number {
+    return this.calculationService.calculateUserDailyRewardsForPool(poolData);
+  }
+
+  getUserDailyRewardsUSD(poolData: UserPoolData): number {
+    return this.calculationService.calculateUserDailyRewardsForPool(poolData) * this.persistenceService.ommPriceUSD;
+  }
+
   getDailyRewardsAllPools(): number {
     return this.calculationService.calculateDailyRewardsAllPools();
+  }
+
+  getDailyRewardsUserPools(): number {
+    return this.calculationService.calculateDailyRewardsUserPools();
   }
 
   getDailyRewardsUSD(poolData: PoolData): number {
@@ -112,8 +137,16 @@ export class LiquidityComponent extends BaseClass implements OnInit {
     return this.calculationService.getAllPoolTotalLiquidityUSD();
   }
 
+  getUserLiquidityUSD(): number {
+    return this.calculationService.getUserTotalLiquidityUSD();
+  }
+
   getAverageApy(): number {
-    return this.calculationService.getAllPoolAverageApy();
+    return this.calculationService.getAllPoolsAverageApy();
+  }
+
+  getUserAverageApy(): number {
+    return this.calculationService.getUserPoolsAverageApy();
   }
 
   isAllPoolsActive(): boolean {
@@ -145,4 +178,5 @@ export class LiquidityComponent extends BaseClass implements OnInit {
     $(`.pool.${pairClassName}`).toggleClass('active');
     $(`.pool-${pairClassName}-expanded`).slideToggle();
   }
+
 }

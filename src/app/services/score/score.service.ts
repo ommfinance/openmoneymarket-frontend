@@ -23,7 +23,7 @@ import {UnstakeInfo} from "../../models/UnstakeInfo";
 import {BalancedDexPools, balDexPoolsPriceDecimalsMap} from "../../models/BalancedDexPools";
 import {DistributionPercentages} from "../../models/DistributionPercentages";
 import {PoolStats, PoolStatsInterface} from "../../models/PoolStats";
-import {TotalPoolData} from "../../models/TotalPoolData";
+import {TotalPoolData, UserPoolData} from "../../models/TotalPoolData";
 
 
 @Injectable({
@@ -92,7 +92,7 @@ export class ScoreService {
 
   /**
    * @description Get total staked balance for each pool
-   * @return  Number quoted price (e.g. USD)
+   * @return  TotalPoolData[]
    */
   public async getPoolsData(): Promise<TotalPoolData[]> {
     this.checkerService.checkAllAddressesLoaded();
@@ -105,6 +105,27 @@ export class ScoreService {
     log.debug("getPoolsData: ", res);
 
     return Mapper.mapPoolsData(res);
+  }
+
+  /**
+   * @description Get staked LP balance of a particular user for all pools
+   * @return  UserPoolData[]
+   */
+  public async getUserPoolsData(): Promise<UserPoolData[]> {
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
+    const params = {
+      _owner: this.persistenceService.activeWallet!.address,
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.StakedLp,
+      ScoreMethodNames.GET_POOL_BALANCE_BY_USER, params, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getUserPoolsData: ", res);
+
+    return Mapper.mapUserPoolsData(res);
   }
 
   /**

@@ -20,6 +20,8 @@ import {HttpClientModule} from "@angular/common/http";
 import { LiquidityComponent } from './components/liquidity/liquidity.component';
 import { UsFormatPipe } from './pipes/us-format.pipe';
 import { RoundOff2DecPipe } from './pipes/round-off-2-dec.pipe';
+import { RoundDown2DecPipe } from './pipes/round-down-2-dec.pipe';
+import { PoolStakeSliderComponent } from './components/pool-stake-slider/pool-stake-slider.component';
 // set logging level
 log.setLevel(environment.production ? "error" : "debug");
 
@@ -37,7 +39,9 @@ log.setLevel(environment.production ? "error" : "debug");
     MainComponent,
     LiquidityComponent,
     UsFormatPipe,
-    RoundOff2DecPipe
+    RoundOff2DecPipe,
+    RoundDown2DecPipe,
+    PoolStakeSliderComponent
   ],
   imports: [
     BrowserModule,

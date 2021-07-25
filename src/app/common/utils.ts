@@ -96,7 +96,11 @@ export class Utils {
     }
   }
 
-  public static roundDownTo2Decimals(value: number | BigNumber | string): number {
+  public static roundDownTo2Decimals(value: number | BigNumber | string | undefined): number {
+    if (!value) {
+      return 0;
+    }
+
     if (value instanceof BigNumber) {
       return +(value.toFixed(2, BigNumber.ROUND_DOWN));
     } else {

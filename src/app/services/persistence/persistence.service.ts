@@ -16,6 +16,7 @@ import {Utils} from "../../common/utils";
 import {UnstakeInfo} from "../../models/UnstakeInfo";
 import {DistributionPercentages} from "../../models/DistributionPercentages";
 import {PoolData} from "../../models/PoolData";
+import {UserPoolData} from "../../models/UserPoolData";
 
 @Injectable({
   providedIn: 'root'
@@ -34,7 +35,8 @@ export class PersistenceService {
   public allPools: PoolData[] = [];
   public allPoolsDataMap: Map<number, PoolData> = new Map<number, PoolData>();
 
-
+  public userPools: UserPoolData[] = [];
+  public userPoolsDataMap: Map<number, UserPoolData> = new Map<number, UserPoolData>();
 
   public userReserves: UserReserves = new UserReserves();
   public userTotalRisk = 0;

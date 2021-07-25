@@ -1,14 +1,4 @@
 export class PoolStats {
-  base: number;
-  quote: number;
-  baseToken: string;
-  quoteToken: string;
-  totalSupply: number;
-  price: number;
-  name: string;
-  baseDecimals: number;
-  quoteDecimals: number;
-  minQuote: number;
 
   constructor(base: number, quote: number, baseToken: string, quoteToken: string, totalSupply: number, price: number, name: string,
               baseDecimals: number, quoteDecimals: number, minQuote: number) {
@@ -22,6 +12,24 @@ export class PoolStats {
     this.baseDecimals = baseDecimals;
     this.quoteDecimals = quoteDecimals;
     this.minQuote = minQuote;
+  }
+  base: number;
+  quote: number;
+  baseToken: string;
+  quoteToken: string;
+  totalSupply: number;
+  price: number;
+  name: string;
+  baseDecimals: number;
+  quoteDecimals: number;
+  minQuote: number;
+
+  public static getPoolPrecision(baseDecimals: number, quoteDecimals: number): number {
+    return (baseDecimals + quoteDecimals) / 2;
+  }
+
+  getPrecision(): number {
+    return (this.baseDecimals + this.quoteDecimals) / 2;
   }
 }
 

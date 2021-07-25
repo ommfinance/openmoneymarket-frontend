@@ -81,6 +81,7 @@ export class ScoreMethodNames {
    * StakedLp SCORE
    */
   public static GET_BALANCE_BY_POOL = "getBalanceByPool";
+  public static GET_POOL_BALANCE_BY_USER = "getPoolBalanceByUser";
 
   /**
    * IISS APIs

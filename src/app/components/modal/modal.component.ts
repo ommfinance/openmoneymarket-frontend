@@ -48,6 +48,8 @@ export class ModalComponent extends BaseClass implements OnInit {
   @ViewChild('claimIcxModal', { static: true }) claimIcxModal!: ElementRef;
   @ViewChild('ledgerAddressList', { static: true }) LedgerAddressListModal!: ElementRef;
   @ViewChild('modalLoading', { static: true }) modalLoading!: ElementRef;
+  @ViewChild('poolStakeModal', { static: true }) poolStakeModal!: ElementRef;
+  @ViewChild('poolUnstakeModal', { static: true }) poolUnstakeModal!: ElementRef;
 
 
   activeModalSubscription: Subscription;
@@ -110,6 +112,12 @@ export class ModalComponent extends BaseClass implements OnInit {
           break;
         case ModalType.REMOVE_ALL_VOTES:
           this.setActiveModal(this.removePrepModal.nativeElement, activeModalChange);
+          break;
+        case ModalType.POOL_STAKE:
+          this.setActiveModal(this.poolStakeModal.nativeElement, activeModalChange);
+          break;
+        case ModalType.POOL_UNSTAKE:
+          this.setActiveModal(this.poolUnstakeModal.nativeElement, activeModalChange);
           break;
         default:
           // check if it is ICX withdraw action and show corresponding specific view / modal

@@ -3,6 +3,7 @@ import {Asset, AssetTag, supportedAssetsMap} from "../models/Asset";
 import {assetFormat} from "../common/formats";
 import {BigNumber} from "bignumber.js";
 import {PersistenceService} from "../services/persistence/persistence.service";
+import {environment} from "../../environments/environment";
 
 
 /*
@@ -156,6 +157,10 @@ export class BaseClass {
 
   isNegative(value: number): boolean {
     return value < 0;
+  }
+
+  isProduction(): boolean {
+    return environment.production;
   }
 
 }

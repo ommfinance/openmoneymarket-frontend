@@ -1,13 +1,21 @@
 import {PoolStats} from "./PoolStats";
 
-export class PoolData {
+export class UserPoolData {
   poolId: number;
   totalStakedBalance: number;
+  userAvailableBalance: number;
+  userStakedBalance: number;
+  userTotalBalance: number;
   poolStats: PoolStats;
 
-  constructor(poolId: number, totalStakedBalance: number, poolStats: PoolStats) {
+
+  constructor(poolId: number, totalStakedBalance: number, userAvailableBalance: number, userStakedBalance: number, userTotalBalance: number,
+              poolStats: PoolStats) {
     this.poolId = poolId;
     this.totalStakedBalance = totalStakedBalance;
+    this.userAvailableBalance = userAvailableBalance;
+    this.userStakedBalance = userStakedBalance;
+    this.userTotalBalance = userTotalBalance;
     this.poolStats = poolStats;
   }
 

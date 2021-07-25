@@ -13,6 +13,7 @@ import {PrepList} from "../../models/Preps";
 import {YourPrepVote} from "../../models/YourPrepVote";
 import log from "loglevel";
 import {PoolData} from "../../models/PoolData";
+import {UserPoolData} from "../../models/UserPoolData";
 
 @Injectable({
   providedIn: 'root'
@@ -81,6 +82,8 @@ export class StateChangeService {
   private poolsDataChange: Subject<PoolData[]> = new Subject<PoolData[]>();
   poolsDataChange$: Observable<PoolData[]> = this.poolsDataChange.asObservable();
 
+  private userPoolsDataChange: Subject<UserPoolData[]> = new Subject<UserPoolData[]>();
+  userPoolsDataChange$: Observable<UserPoolData[]> = this.userPoolsDataChange.asObservable();
 
   /**
    * Subscribable subject for monitoring the user debt changes for each asset
@@ -130,6 +133,11 @@ export class StateChangeService {
   public poolsDataUpdate(poolsData: PoolData[]): void {
     this.persistenceService.allPools = [...poolsData];
     this.poolsDataChange.next(poolsData);
+  }
+
+  public userPoolsDataUpdate(userPoolsData: UserPoolData[]): void {
+    this.persistenceService.allPools = [...userPoolsData];
+    this.userPoolsDataChange.next(userPoolsData);
   }
 
   public updateLoginStatus(wallet: IconexWallet | BridgeWallet | undefined): void {

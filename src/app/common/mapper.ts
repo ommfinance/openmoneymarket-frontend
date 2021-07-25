@@ -12,7 +12,7 @@ import {YourPrepVote} from "../models/YourPrepVote";
 import {UnstakeIcxData, UnstakeInfo} from "../models/UnstakeInfo";
 import {DistributionPercentages} from "../models/DistributionPercentages";
 import {PoolStats, PoolStatsInterface} from "../models/PoolStats";
-import {TotalPoolData} from "../models/TotalPoolData";
+import {TotalPoolData, UserPoolData} from "../models/TotalPoolData";
 
 export class Mapper {
 
@@ -206,7 +206,7 @@ export class Mapper {
       Utils.hexToNormalisedNumber(poolStats.quote, quoteDecimals),
       poolStats.base_token,
       poolStats.quote_token,
-      Utils.hexToNormalisedNumber(poolStats.total_supply, quoteDecimals),
+      Utils.hexToNormalisedNumber(poolStats.total_supply, PoolStats.getPoolPrecision(baseDecimals, quoteDecimals)),
       Utils.hexToNormalisedNumber(poolStats.price, quoteDecimals),
       poolStats.name,
       baseDecimals,
@@ -225,7 +225,19 @@ export class Mapper {
     return poolsData.map(data => {
       return {
         poolID: Utils.hexToNumber(data.poolID),
-        totalStakedBalance: Utils.hexToNormalisedNumber(data.totalStakedBalance)
+        totalStakedBalance: data.totalStakedBalance // map this after pool stats is received and precision derived
+      };
+    });
+  }
+
+  public static mapUserPoolsData(poolsData: UserPoolData[]): UserPoolData[] {
+    return poolsData.map(data => {
+      return {
+        poolID: Utils.hexToNumber(data.poolID),
+        totalStakedBalance: data.totalStakedBalance, // map this after pool stats is received and precision derived
+        userAvailableBalance: Utils.hexToNormalisedNumber(data.userAvailableBalance),
+        userStakedBalance: Utils.hexToNormalisedNumber(data.userStakedBalance),
+        userTotalBalance: Utils.hexToNormalisedNumber(data.userTotalBalance)
       };
     });
   }

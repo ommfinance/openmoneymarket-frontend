@@ -22,6 +22,8 @@ import {BalancedDexPools} from "../../models/BalancedDexPools";
 import {UserAllReservesData, UserReserveData} from "../../models/UserReserveData";
 import {PoolData} from "../../models/PoolData";
 import {environment} from "../../../environments/environment";
+import {UserPoolData} from "../../models/UserPoolData";
+import {Utils} from "../../common/utils";
 
 @Injectable({
   providedIn: 'root'
@@ -92,11 +94,13 @@ export class DataLoaderService {
       log.debug("loadPoolsData:", poolsData);
 
       // get stats for each pool
+      this.persistenceService.allPoolsDataMap = new Map<number, PoolData>(); // re-init map to trigger state changes
       for (const poolData of poolsData) {
         const poolStats = await this.scoreService.getPoolStats(poolData.poolID);
         log.debug("getPoolStats for " + poolData.poolID + " AFTER mapping:", poolStats);
 
-        const newPoolData = new PoolData(poolData.poolID, poolData.totalStakedBalance, poolStats);
+        const newPoolData = new PoolData(poolData.poolID, Utils.hexToNormalisedNumber(poolData.totalStakedBalance, poolStats.getPrecision())
+          , poolStats);
         // push combined pool and stats to response array and persistence map
         poolsDataRes.push(newPoolData);
         this.persistenceService.allPoolsDataMap.set(poolData.poolID, newPoolData);
@@ -105,6 +109,38 @@ export class DataLoaderService {
       this.stateChangeService.poolsDataUpdate(poolsDataRes);
     } catch (e) {
       log.error("Error in loadPoolsData: ", e);
+    }
+  }
+
+  public async loadUserPoolsData(): Promise<void> {
+    try {
+      const userPoolsDataRes: UserPoolData[] = [];
+
+      // get all users pools
+      const userPoolsData = await this.scoreService.getUserPoolsData();
+      log.debug("loadUserPoolsData:", userPoolsData);
+
+      // get stats for each pool from persistence pool map
+      this.persistenceService.userPoolsDataMap = new Map<number, UserPoolData>(); // re-init map to trigger state changes
+      for (const userPoolData of userPoolsData) {
+        const poolStats = this.persistenceService.allPoolsDataMap.get(userPoolData.poolID)?.poolStats;
+
+        if (!poolStats) {
+          log.error("Could not find pool stats for pool " + userPoolData.poolID);
+          continue;
+        }
+
+        const newUserPoolData = new UserPoolData(userPoolData.poolID, Utils.hexToNormalisedNumber(userPoolData.totalStakedBalance,
+          poolStats.getPrecision()), userPoolData.userAvailableBalance,
+          userPoolData.userStakedBalance, userPoolData.userTotalBalance, poolStats);
+
+        userPoolsDataRes.push(newUserPoolData);
+        this.persistenceService.userPoolsDataMap.set(userPoolData.poolID, newUserPoolData);
+      }
+
+      this.stateChangeService.userPoolsDataUpdate(userPoolsDataRes);
+    } catch (e) {
+      log.error("Error in loadUserPoolsData: ", e);
     }
   }
 
@@ -373,7 +409,8 @@ export class DataLoaderService {
       this.loadUserGovernanceData(),
       this.loadUserDelegations(),
       this.loadUserUnstakingInfo(),
-      this.loadUserClaimableIcx()
+      this.loadUserClaimableIcx(),
+      this.loadUserPoolsData()
     ]);
   }
 
