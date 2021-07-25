@@ -8,6 +8,9 @@ import {ModalType} from "../../models/ModalType";
 import {AssetAction, ClaimOmmDetails} from "../../models/AssetAction";
 import {Asset, AssetClass, AssetName, AssetTag} from "../../models/Asset";
 import {ModalService} from "../../services/modal/modal.service";
+import {PoolData} from "../../models/PoolData";
+import {CalculationsService} from "../../services/calculations/calculations.service";
+import log from "loglevel";
 
 declare var $: any;
 
@@ -33,7 +36,8 @@ export class LiquidityComponent extends BaseClass implements OnInit {
 
   constructor(public persistenceService: PersistenceService,
               private stateChangeService: StateChangeService,
-              private modalService: ModalService) {
+              private modalService: ModalService,
+              private calculationService: CalculationsService) {
     super(persistenceService);
   }
 
@@ -76,6 +80,42 @@ export class LiquidityComponent extends BaseClass implements OnInit {
     });
   }
 
+  getAllPoolsData(): PoolData[] {
+    return this.persistenceService.allPools;
+  }
+
+  getTotalSuppliedBase(poolData: PoolData): number {
+    return this.calculationService.calculateTotalSupplied(poolData);
+  }
+
+  getTotalSuppliedQuote(poolData: PoolData): number {
+    return this.calculationService.calculateTotalSupplied(poolData, false);
+  }
+
+  getDailyRewards(poolData: PoolData): number {
+    return this.calculationService.calculateDailyRewardsForPool(poolData);
+  }
+
+  getDailyRewardsAllPools(): number {
+    return this.calculationService.calculateDailyRewardsAllPools();
+  }
+
+  getDailyRewardsUSD(poolData: PoolData): number {
+    return this.calculationService.calculateDailyRewardsForPool(poolData) * this.persistenceService.ommPriceUSD;
+  }
+
+  getLiquidityApy(poolData: PoolData): number {
+    return this.calculationService.calculatePoolLiquidityApy(poolData);
+  }
+
+  getTotalLiquidityUSD(): number {
+    return this.calculationService.getAllPoolTotalLiquidityUSD();
+  }
+
+  getAverageApy(): number {
+    return this.calculationService.getAllPoolAverageApy();
+  }
+
   isAllPoolsActive(): boolean {
     return this.activeLiquidityPoolView === ActiveLiquidityPoolsView.ALL_POOLS;
   }
@@ -100,8 +140,9 @@ export class LiquidityComponent extends BaseClass implements OnInit {
     this.activeLiquidityPoolView = ActiveLiquidityPoolsView.ALL_POOLS;
   }
 
-  onPoolClick(): void {
-    $(".pool.omm-usds").toggleClass('active');
-    $(".pool-omm-usds-expanded").slideToggle();
+  onPoolClick(pairClassName: string): void {
+    log.debug("onPoolClick: " + pairClassName);
+    $(`.pool.${pairClassName}`).toggleClass('active');
+    $(`.pool-${pairClassName}-expanded`).slideToggle();
   }
 }

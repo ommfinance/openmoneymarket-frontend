@@ -204,4 +204,8 @@ export class Utils {
       return -Math.abs(value);
     }
   }
+
+  public static isUndefinedOrZero(value?: number): boolean {
+    return (!value) || value === 0;
+  }
 }

@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Subject} from "rxjs";
+import {Observable, Subject} from "rxjs";
 import {UserReserveData} from "../../models/UserReserveData";
 import {PersistenceService} from "../persistence/persistence.service";
 import {AssetTag, CollateralAssetTag} from "../../models/Asset";
@@ -12,6 +12,7 @@ import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
 import {PrepList} from "../../models/Preps";
 import {YourPrepVote} from "../../models/YourPrepVote";
 import log from "loglevel";
+import {PoolData} from "../../models/PoolData";
 
 @Injectable({
   providedIn: 'root'
@@ -75,6 +76,13 @@ export class StateChangeService {
   public userTotalRiskChange: Subject<number> = new Subject<number>();
 
   /**
+   * Subscribable subject for monitoring the pools data
+   */
+  private poolsDataChange: Subject<PoolData[]> = new Subject<PoolData[]>();
+  poolsDataChange$: Observable<PoolData[]> = this.poolsDataChange.asObservable();
+
+
+  /**
    * Subscribable subject for monitoring the user debt changes for each asset
    */
   public userDebtMapChange: Map<AssetTag, Subject<number | undefined>> = new Map([
@@ -117,6 +125,11 @@ export class StateChangeService {
         }
       });
     });
+  }
+
+  public poolsDataUpdate(poolsData: PoolData[]): void {
+    this.persistenceService.allPools = [...poolsData];
+    this.poolsDataChange.next(poolsData);
   }
 
   public updateLoginStatus(wallet: IconexWallet | BridgeWallet | undefined): void {

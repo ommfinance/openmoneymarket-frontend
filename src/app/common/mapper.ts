@@ -12,6 +12,7 @@ import {YourPrepVote} from "../models/YourPrepVote";
 import {UnstakeIcxData, UnstakeInfo} from "../models/UnstakeInfo";
 import {DistributionPercentages} from "../models/DistributionPercentages";
 import {PoolStats, PoolStatsInterface} from "../models/PoolStats";
+import {TotalPoolData} from "../models/TotalPoolData";
 
 export class Mapper {
 
@@ -218,5 +219,14 @@ export class Mapper {
     let totalAmount = 0;
     unstakeIcxData.forEach(u => totalAmount += Utils.hexToNormalisedNumber(u.amount));
     return new UnstakeInfo(totalAmount, unstakeIcxData);
+  }
+
+  public static mapPoolsData(poolsData: TotalPoolData[]): TotalPoolData[] {
+    return poolsData.map(data => {
+      return {
+        poolID: Utils.hexToNumber(data.poolID),
+        totalStakedBalance: Utils.hexToNormalisedNumber(data.totalStakedBalance)
+      };
+    });
   }
 }

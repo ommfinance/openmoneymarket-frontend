@@ -20,6 +20,8 @@ import {LocalStorageService} from "../local-storage/local-storage.service";
 import {HttpClient} from "@angular/common/http";
 import {BalancedDexPools} from "../../models/BalancedDexPools";
 import {UserAllReservesData, UserReserveData} from "../../models/UserReserveData";
+import {PoolData} from "../../models/PoolData";
+import {environment} from "../../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
@@ -79,6 +81,31 @@ export class DataLoaderService {
     }).catch(e => {
       log.error("Error in loadAllReserveData: ", e);
     });
+  }
+
+  public async loadPoolsData(): Promise<void> {
+    try {
+      const poolsDataRes: PoolData[] = [];
+
+      // get all pools id and total staked
+      const poolsData = await this.scoreService.getPoolsData();
+      log.debug("loadPoolsData:", poolsData);
+
+      // get stats for each pool
+      for (const poolData of poolsData) {
+        const poolStats = await this.scoreService.getPoolStats(poolData.poolID);
+        log.debug("getPoolStats for " + poolData.poolID + " AFTER mapping:", poolStats);
+
+        const newPoolData = new PoolData(poolData.poolID, poolData.totalStakedBalance, poolStats);
+        // push combined pool and stats to response array and persistence map
+        poolsDataRes.push(newPoolData);
+        this.persistenceService.poolDataMap.set(poolData.poolID, newPoolData);
+      }
+
+      this.stateChangeService.poolsDataUpdate(poolsDataRes);
+    } catch (e) {
+      log.error("Error in loadPoolsData: ", e);
+    }
   }
 
   public loadSpecificReserveData(assetTag: AssetTag): Promise<void> {
@@ -244,7 +271,7 @@ export class DataLoaderService {
   }
 
   public loadTokenPriceUSD2(): void {
-    this.scoreService.getReferenceData("OMM").then(res => {
+    this.scoreService.getReferenceData(environment.production ? "OMM" : "OMM5").then(res => {
       console.log("Token price from oracle = " + res);
     }). catch(e => {
       console.log("Failed to fetch OMM price");
@@ -323,6 +350,7 @@ export class DataLoaderService {
   }
 
   public async loadCoreData(): Promise<void> {
+    this.loadCoreAsyncData();
 
     await Promise.all([
       this.loadAllReserveData(),
@@ -333,11 +361,11 @@ export class DataLoaderService {
       this.loadPrepList(),
       this.loadMinOmmStakeAmount()
     ]);
-
-    this.loadCoreAsyncData();
   }
 
   public async loadUserSpecificData(): Promise<void> {
+    this.loadUserAsyncData();
+
     await Promise.all([
       this.loadAllUserReserveData(),
       this.loadAllUserAssetsBalances(),
@@ -347,8 +375,6 @@ export class DataLoaderService {
       this.loadUserUnstakingInfo(),
       this.loadUserClaimableIcx()
     ]);
-
-    this.loadUserAsyncData();
   }
 
   /**
@@ -367,6 +393,7 @@ export class DataLoaderService {
    * Load core data async without waiting
    */
   public loadCoreAsyncData(): void {
+    this.loadPoolsData();
     this.loadOmmTokenPriceUSD();
     this.loadDistributionPercentages();
   }

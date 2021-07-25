@@ -1,3 +1,5 @@
+import log from "loglevel";
+
 export class Asset {
   className: AssetClass; // e.g. "usdb"
   name: AssetName; // e.g. "Bridge Dollars
@@ -28,7 +30,19 @@ export class AssetTag {
   static USDC = "IUSDC";
 
   static fromString(value: string): AssetTag {
+    if (value === "sICX") {
+      value = "ICX";
+    } else if (value === "IUSDC") {
+      value = "USDC";
+    }
+
     return AssetTag[value as keyof typeof AssetTag];
+  }
+
+  /** construct AssetTag from pool name by parsing quote asset (base asset is always OMM) */
+  static constructFromPoolPairName(name: string): AssetTag {
+    const splitString = name.replace(" ", "").replace(/[0-9]/g, '').split("/");
+    return this.fromString(splitString[1]);
   }
 }
 

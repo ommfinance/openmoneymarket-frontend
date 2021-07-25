@@ -73,4 +73,5 @@ interface SystemContract {
   OmmToken: string;
   Delegation: string;
   PriceOracle: string;
+  StakedLp: string;
 }

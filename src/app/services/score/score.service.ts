@@ -19,10 +19,11 @@ import {Mapper} from "../../common/mapper";
 import {IconAmount, IconConverter} from "icon-sdk-js";
 import {YourPrepVote} from "../../models/YourPrepVote";
 import {DelegationPreference} from "../../models/DelegationPreference";
-import {UnstakeIcxData, UnstakeInfo} from "../../models/UnstakeInfo";
+import {UnstakeInfo} from "../../models/UnstakeInfo";
 import {BalancedDexPools, balDexPoolsPriceDecimalsMap} from "../../models/BalancedDexPools";
 import {DistributionPercentages} from "../../models/DistributionPercentages";
 import {PoolStats, PoolStatsInterface} from "../../models/PoolStats";
+import {TotalPoolData} from "../../models/TotalPoolData";
 
 
 @Injectable({
@@ -82,13 +83,28 @@ export class ScoreService {
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.PriceOracle,
       ScoreMethodNames.GET_REFERENCE_DATA, params, IconTransactionType.READ);
 
-    console.log("getReferenceData tx:", tx);
-
     const res = await this.iconApiService.iconService.call(tx).execute();
 
     log.debug("getReferenceData: ", res);
 
     return Utils.hexToNormalisedNumber(res);
+  }
+
+  /**
+   * @description Get total staked balance for each pool
+   * @return  Number quoted price (e.g. USD)
+   */
+  public async getPoolsData(): Promise<TotalPoolData[]> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.StakedLp,
+      ScoreMethodNames.GET_BALANCE_BY_POOL, {}, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getPoolsData: ", res);
+
+    return Mapper.mapPoolsData(res);
   }
 
   /**
@@ -476,7 +492,7 @@ export class ScoreService {
    */
   public async getPoolStats(poolId: number): Promise<PoolStats> {
     const params = {
-      _id: poolId
+      _id: IconConverter.toHex(poolId)
     };
 
     const tx = this.iconApiService.buildTransaction("",  environment.BALANCED_DEX_SCORE,
@@ -487,6 +503,26 @@ export class ScoreService {
     log.debug("getPoolStats for " + poolId + ":", res);
 
     return Mapper.mapPoolStats(res);
+  }
+
+  /**
+   * @description Get total amount of token in pool
+   * @return  number
+   */
+  public async getPoolTotal(poolId: number, token: string, decimals: number): Promise<number> {
+    const params = {
+      _id: IconConverter.toHex(poolId),
+      _token: token
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  environment.BALANCED_DEX_SCORE,
+      ScoreMethodNames.GET_POOL_TOTAL, params, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getPoolTotal for " + poolId + ":" + token + ":", res);
+
+    return Utils.hexToNormalisedNumber(res, decimals);
   }
 
 }

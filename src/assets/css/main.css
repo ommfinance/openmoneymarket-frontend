@@ -2097,8 +2097,8 @@ ul.pagination li:hover {
 *
 */
 
-.list tbody tr.usdb td:first-of-type {
-  background-image: url(../img/logo/usdb.png);
+.list tbody tr.usds td:first-of-type {
+  background-image: url(../img/logo/usds.png);
   background-repeat: no-repeat;
   background-position: 36px center;
   background-size: 29px;
@@ -2108,6 +2108,12 @@ ul.pagination li:hover {
   background-repeat: no-repeat;
   background-position: 33px center;
   background-size: 35px;
+}
+.list tbody tr.usdc td:first-of-type {
+  background-image: url(../img/logo/usdc.png);
+  background-repeat: no-repeat;
+  background-position: 36px center;
+  background-size: 29px;
 }
 
 /*
