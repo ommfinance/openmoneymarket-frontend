@@ -99,7 +99,7 @@ export class DataLoaderService {
         const newPoolData = new PoolData(poolData.poolID, poolData.totalStakedBalance, poolStats);
         // push combined pool and stats to response array and persistence map
         poolsDataRes.push(newPoolData);
-        this.persistenceService.poolDataMap.set(poolData.poolID, newPoolData);
+        this.persistenceService.allPoolsDataMap.set(poolData.poolID, newPoolData);
       }
 
       this.stateChangeService.poolsDataUpdate(poolsDataRes);

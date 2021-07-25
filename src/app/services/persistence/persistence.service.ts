@@ -32,7 +32,9 @@ export class PersistenceService {
   public allReservesConfigData?: AllReserveConfigData;
 
   public allPools: PoolData[] = [];
-  public poolDataMap: Map<number, PoolData> = new Map<number, PoolData>();
+  public allPoolsDataMap: Map<number, PoolData> = new Map<number, PoolData>();
+
+
 
   public userReserves: UserReserves = new UserReserves();
   public userTotalRisk = 0;

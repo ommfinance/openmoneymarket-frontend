@@ -174,7 +174,7 @@
       <tbody>
         <ng-container *ngFor="let poolData of getAllPoolsData(); last as isLast;">
           <tr class="pool {{poolData.getPairClassName()}}" #allPool (click)="onPoolClick(poolData.getPairClassName())">
-            <td class="text-dark">{{poolData.poolStats.name}}</td>
+            <td class="text-dark">{{poolData.getPrettyName()}}</td>
             <td><span class="text-dark">{{getTotalSuppliedBase(poolData) | roundOff2Dec | usFormat}} OMM</span><br>
               <span class="label">{{getTotalSuppliedQuote(poolData) | roundOff2Dec | usFormat}} USDb</span></td>
             <td><span class="text-dark">{{poolData.totalStakedBalance | roundOff2Dec | usFormat}}</span></td>
