@@ -18,7 +18,6 @@ import {ErrorCode, ErrorService} from "../error/error.service";
 import {CheckerService} from "../checker/checker.service";
 import {LocalStorageService} from "../local-storage/local-storage.service";
 import {HttpClient} from "@angular/common/http";
-import {BalancedDexPools} from "../../models/BalancedDexPools";
 import {UserAllReservesData, UserReserveData} from "../../models/UserReserveData";
 
 @Injectable({
@@ -251,15 +250,6 @@ export class DataLoaderService {
       log.debug("Loaded distributionPercentages:", res);
     }).catch(e => {
       log.error("Error in loadDistributionPercentages()");
-      log.error(e);
-    });
-  }
-
-  public loadTokenPriceUSD2(): void {
-    this.scoreService.getReferenceData("OMM").then(res => {
-      log.debug("Token price from oracle = " + res);
-    }). catch(e => {
-      log.debug("Failed to fetch OMM price");
       log.error(e);
     });
   }
