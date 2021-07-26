@@ -342,6 +342,28 @@ export class ModalComponent extends BaseClass implements OnInit {
     this.modalService.hideActiveModal();
   }
 
+  onPoolStakingClick(): void {
+    // store activeModalChange in local storage
+    this.localStorageService.persistModalAction(this.activeModalChange!);
+
+    switch (this.activeModalChange?.modalType) {
+      case ModalType.POOL_STAKE:
+        // this.stakingLpService.stakeOmm(this.activeModalChange!.stakingAction!.after, "Staking Omm Tokens...");
+        break;
+      case ModalType.POOL_UNSTAKE:
+        // this.stakingLpService.unstakeOmm(this.activeModalChange!.stakingAction!.amount, "Starting unstaking process...");
+        break;
+      default:
+        throw new OmmError(` onGovernanceModalConfirmClick() -> Invalid modal type: ${this.activeModalChange?.modalType}`);
+    }
+
+    // commit modal action change
+    this.stateChangeService.updateUserModalAction(this.activeModalChange);
+
+    // hide current modal
+    this.modalService.hideActiveModal();
+  }
+
   onAssetModalActionConfirmClick(): void {
     // store activeModalChange in local storage
     this.localStorageService.persistModalAction(this.activeModalChange!);
@@ -410,4 +432,5 @@ export class ModalComponent extends BaseClass implements OnInit {
   getBorrowFee(): number {
     return this.calculationService.calculateBorrowFee(this.activeModalChange?.assetAction?.amount);
   }
+
 }

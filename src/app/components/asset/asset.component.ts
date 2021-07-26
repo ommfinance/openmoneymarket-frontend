@@ -31,6 +31,7 @@ declare var $: any;
 export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   @Input() asset!: Asset;
+  // tslint:disable-next-line:variable-name
   _ommApyChecked = false;
   @Input() set ommApyChecked(ommApyChecked: boolean) {
     this._ommApyChecked = ommApyChecked;
@@ -758,7 +759,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     log.debug(`${this.asset.tag} collapseAssetTable()`);
     // Collapse asset-user table`
     this.assetYourEl.classList.remove('active');
-    $(this.marketExpandedEl).hide();
+    $(this.marketExpandedEl).slideUp();
   }
 
   hideAvailableAssetData(): void {

@@ -76,6 +76,18 @@ export class PersistenceService {
     this.userReserves = new UserReserves();
   }
 
+  public getUserPoolStakedBalance(poolId: number): number {
+    return this.userPoolsDataMap.get(poolId)?.userStakedBalance ?? 0;
+  }
+
+  public getUserPoolStakedAvailableBalance(poolId: number): number {
+    return this.userPoolsDataMap.get(poolId)?.userAvailableBalance ?? 0;
+  }
+
+  public getUserPoolTotalBalance(poolId: number): number {
+    return this.userPoolsDataMap.get(poolId)?.userTotalBalance ?? 0;
+  }
+
   public getUserTotalUnstakeAmount(): number {
     return this.userUnstakingInfo?.totalAmount ?? 0;
   }

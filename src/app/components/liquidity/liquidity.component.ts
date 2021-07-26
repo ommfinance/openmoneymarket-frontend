@@ -12,6 +12,7 @@ import {PoolData} from "../../models/PoolData";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import log from "loglevel";
 import {UserPoolData} from "../../models/UserPoolData";
+import {ModalAction} from "../../models/ModalAction";
 
 declare var $: any;
 
@@ -65,6 +66,14 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
 
   private registerSubscriptions(): void {
     this.subscribeToLoginChange();
+    this.subscribeToUserModalActionChange();
+  }
+
+  private subscribeToUserModalActionChange(): void {
+    // User confirmed the modal action
+    this.stateChangeService.userModalActionChange.subscribe((modalAction?: ModalAction) => {
+      this.collapseTables();
+    });
   }
 
   private subscribeToLoginChange(): void {
@@ -171,6 +180,13 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
 
   onAllPoolsClick(): void {
     this.activeLiquidityPoolView = ActiveLiquidityPoolsView.ALL_POOLS;
+  }
+
+  collapseTables(): void {
+    this.getAllPoolsData().forEach(poolData => {
+      $(`.pool.${poolData.getPairClassName()}`).removeClass('active');
+      $(`.pool-${poolData.getPairClassName()}-expanded`).slideUp();
+    });
   }
 
   onPoolClick(pairClassName: string): void {

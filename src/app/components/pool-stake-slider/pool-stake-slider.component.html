@@ -3,7 +3,7 @@
 <!-- Rest state -->
 <div class="grid" #restEl>
   <div class="grid-cell">
-    <p class="text-dark">2.50 / 8.4 LP tokens</p>
+    <p class="text-dark">{{getStakedValue() | usFormat}} / {{sliderMaxValue() | usFormat}} LP tokens</p>
     <p><a href="javascript:void(0);" class="button" id="adjust-stake" style="margin-top: 10px;" (click)="onAdjustClick()">Adjust stake</a></p>
   </div>
 </div>
@@ -16,7 +16,7 @@
         <input class="liquidity-input text-right text-dark" type="text" name="" #inputEl>
       </div>
       <div class="grid-cell text-left" style="margin-left: 10px;">
-        <p class="text-dark"> / 8.4 LP tokens</p>
+        <p class="text-dark"> / {{sliderMaxValue() | usFormat}} LP tokens</p>
       </div>
     </div>
 
