@@ -81,6 +81,11 @@ export class BaseClass {
     // convert in to percentage
     num = +num * 100;
 
+    // handle values smaller than 0.01%
+    if (num < 0.01) {
+      Utils.handleSmallDecimal(num);
+    }
+
     return `${(this.formatNumberToUSLocaleString(Utils.roundOffTo2Decimals(num)))}%`;
   }
 

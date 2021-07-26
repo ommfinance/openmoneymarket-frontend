@@ -26,6 +26,8 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
 
   poolData: UserPoolData | undefined;
 
+  currentStaked = 0;
+
   @Input() set poolId(id: number) {
     this.poolData = this.persistenceService.userPoolsDataMap.get(id);
 

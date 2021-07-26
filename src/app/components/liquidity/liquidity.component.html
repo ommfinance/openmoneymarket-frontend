@@ -122,10 +122,10 @@
             <td class="text-green">{{to2DecimalRoundedOffPercentString(getLiquidityApy(poolData))}}</td>
           </tr>
 
-          <!-- OMM / USDS expanded -->
+          <!-- Pool expanded -->
           <tr class="expanded">
             <td colspan="5">
-              <div class="pool-expanded pool-omm-usds-expanded hide" #poolExpandedEl>
+              <div class="pool-expanded pool-{{poolData.getPairClassName()}}-expanded hide" #poolExpandedEl>
                 <div class="grid border-top">
                   <div class="grid-cell text-center content">
                     <h2>Stake LP tokens</h2>
@@ -133,6 +133,7 @@
                     >Balanced</a>, then<br>stake your LP tokens here to earn OMM.</p>
                     <div id="slider-stake" disabled></div>
 
+<!--                    TODO: When not signed in, or if the user doesn’t have any tokens hide this-->
                     <app-pool-stake-slider *ngIf="userLoggedIn()" [poolId]="poolData.poolId"></app-pool-stake-slider>
 
                   </div>
@@ -175,6 +176,8 @@
                     <h2>Stake LP tokens</h2>
                     <p>Supply liquidity on <a href="{{isProduction() ? 'https://app.balanced.network/trade' :'https://balanced.network/demo/trade/'}}"
                                               target="_blank">Balanced</a>, then<br>stake your LP tokens here to earn OMM.</p>
+
+                    <!-- TODO: When not signed in, or if the user doesn’t have any tokens hide this -->
                     <app-pool-stake-slider *ngIf="userLoggedIn()" [poolId]="poolData.poolId"> </app-pool-stake-slider>
                   </div>
                 </div>
