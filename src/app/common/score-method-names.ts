@@ -82,6 +82,7 @@ export class ScoreMethodNames {
    */
   public static GET_BALANCE_BY_POOL = "getBalanceByPool";
   public static GET_POOL_BALANCE_BY_USER = "getPoolBalanceByUser";
+  public static POOL_UNSTAKE = "unstake";
 
   /**
    * IISS APIs

@@ -136,7 +136,7 @@ export class StateChangeService {
   }
 
   public userPoolsDataUpdate(userPoolsData: UserPoolData[]): void {
-    this.persistenceService.allPools = [...userPoolsData];
+    this.persistenceService.userPools = [...userPoolsData];
     this.userPoolsDataChange.next(userPoolsData);
   }
 

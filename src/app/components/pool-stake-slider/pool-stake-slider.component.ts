@@ -68,7 +68,7 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
       return;
     }
 
-    const stakingAction = new StakingAction(before, after, Math.abs(diff));
+    const stakingAction = new StakingAction(before, after, Math.abs(diff), this.poolId);
 
     if (diff > 0) {
       this.modalService.showNewModal(ModalType.POOL_STAKE, undefined, stakingAction);
