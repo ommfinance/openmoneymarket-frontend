@@ -90,12 +90,36 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
     });
   }
 
+  userHasStakedToPool(poolData: UserPoolData): boolean {
+    return poolData.userStakedBalance > 0;
+  }
+
   getAllPoolsData(): PoolData[] {
     return this.persistenceService.allPools;
   }
 
   getUserPoolsData(): UserPoolData[] {
     return this.persistenceService.userPools;
+  }
+
+  userHasStakedToAnyPool(): boolean {
+    for (const poolData of this.getUserPoolsData()) {
+      if (poolData.userStakedBalance > 0) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  userHasLpTokenAvailable(): boolean {
+    for (const poolData of this.getUserPoolsData()) {
+      if (poolData.userAvailableBalance > 0) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   getTotalSuppliedBase(poolData: PoolData): number {
