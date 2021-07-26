@@ -84,9 +84,8 @@ export class PerformanceComponent extends BaseClass implements OnInit, AfterView
   }
 
   shouldHideClaimBtn(): boolean {
-    return (this.persistenceService.userOmmRewards?.total ?? 0) <= 0
-      || this.persistenceService.userOmmRewards == null
-      || this.persistenceService.userOmmTokenBalanceDetails == null;
+    const userOmmRewardsTotal = this.persistenceService.userOmmRewards?.total ?? 0;
+    return userOmmRewardsTotal <= 0 || this.persistenceService.userOmmTokenBalanceDetails == null;
   }
 
   onTimeSelectorClick(): void {
