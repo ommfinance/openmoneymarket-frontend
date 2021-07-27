@@ -85,6 +85,9 @@ export class StateChangeService {
   private userPoolsDataChange: Subject<UserPoolData[]> = new Subject<UserPoolData[]>();
   userPoolsDataChange$: Observable<UserPoolData[]> = this.userPoolsDataChange.asObservable();
 
+  private onPoolClick: Subject<UserPoolData | PoolData> = new Subject<UserPoolData | PoolData>();
+  onPoolClick$: Observable<UserPoolData | PoolData> = this.onPoolClick.asObservable();
+
   /**
    * Subscribable subject for monitoring the user debt changes for each asset
    */
@@ -128,6 +131,10 @@ export class StateChangeService {
         }
       });
     });
+  }
+
+  public poolClickCUpdate(pool: PoolData | UserPoolData): void {
+    this.onPoolClick.next(pool);
   }
 
   public poolsDataUpdate(poolsData: PoolData[]): void {

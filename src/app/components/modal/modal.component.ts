@@ -350,7 +350,7 @@ export class ModalComponent extends BaseClass implements OnInit {
 
     switch (this.activeModalChange?.modalType) {
       case ModalType.POOL_STAKE:
-        this.stakeLpService.stakeLp(this.activeModalChange!.stakingAction?.payload, this.activeModalChange!.stakingAction!.after, "Staking LP Tokens...");
+        this.stakeLpService.stakeLp(this.activeModalChange!.stakingAction?.payload, this.activeModalChange!.stakingAction!.amount, "Staking LP Tokens...");
         break;
       case ModalType.POOL_UNSTAKE:
         this.stakeLpService.unstakeLp(this.activeModalChange!.stakingAction?.payload, this.activeModalChange!.stakingAction!.amount, "Starting unstaking process...");

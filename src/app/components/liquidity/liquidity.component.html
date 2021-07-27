@@ -112,7 +112,7 @@
       <tbody>
         <ng-container *ngFor="let poolData of getUserPoolsData(); last as isLast;">
           <ng-container *ngIf="userHasStakedToPool(poolData)">
-            <tr class="pool {{poolData.getPairClassName()}}" #yourPool (click)="onPoolClick(poolData.getPairClassName())">
+            <tr class="pool {{poolData.getPairClassName()}}" #yourPool (click)="onPoolClick(poolData)">
               <td class="text-dark">{{poolData.getPrettyName()}}</td>
               <td><span class="text-dark">{{getUserSuppliedBase(poolData) | roundOff2Dec | usFormat}} OMM</span><br>
                 <span class="label">{{getUserSuppliedQuote(poolData) | roundOff2Dec | usFormat}} {{poolData.getQuoteAssetName()}}</span></td>
@@ -134,7 +134,7 @@
                       >Balanced</a>, then<br>stake your LP tokens here to earn OMM.</p>
                       <div id="slider-stake" disabled></div>
 
-                      <app-pool-stake-slider *ngIf="userLoggedIn() && userHasLpTokenAvailableOrHasStaked(poolData.poolId)" [poolIdSet]="poolData.poolId"></app-pool-stake-slider>
+                      <app-pool-stake-slider #stakeSlider *ngIf="userLoggedIn() && userHasLpTokenAvailableOrHasStaked(poolData.poolId)" [poolIdSet]="poolData.poolId"></app-pool-stake-slider>
 
                     </div>
                   </div>
@@ -159,7 +159,7 @@
       </thead>
       <tbody>
         <ng-container *ngFor="let poolData of getAllPoolsData(); last as isLast;">
-          <tr class="pool {{poolData.getPairClassName()}}" #allPool (click)="onPoolClick(poolData.getPairClassName())">
+          <tr class="pool {{poolData.getPairClassName()}}" #allPool (click)="onPoolClick(poolData)">
             <td class="text-dark">{{poolData.getPrettyName()}}</td>
             <td><span class="text-dark">{{getTotalSuppliedBase(poolData) | roundOff2Dec | usFormat}} OMM</span><br>
               <span class="label">{{getTotalSuppliedQuote(poolData) | roundOff2Dec | usFormat}} {{poolData.getQuoteAssetName()}}</span></td>
@@ -178,7 +178,7 @@
                     <p>Supply liquidity on <a href="{{isProduction() ? 'https://app.balanced.network/trade' :'https://balanced.network/demo/trade/'}}"
                                               target="_blank">Balanced</a>, then<br>stake your LP tokens here to earn OMM.</p>
 
-                    <app-pool-stake-slider *ngIf="userLoggedIn() && userHasLpTokenAvailableOrHasStaked(poolData.poolId)" [poolIdSet]="poolData.poolId"> </app-pool-stake-slider>
+                    <app-pool-stake-slider #stakeSlider *ngIf="userLoggedIn() && userHasLpTokenAvailableOrHasStaked(poolData.poolId)" [poolIdSet]="poolData.poolId"> </app-pool-stake-slider>
                   </div>
                 </div>
               </div>

@@ -208,10 +208,12 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
     });
   }
 
-  onPoolClick(pairClassName: string): void {
-    log.debug("onPoolClick: " + pairClassName);
-    $(`.pool.${pairClassName}`).toggleClass('active');
-    $(`.pool-${pairClassName}-expanded`).slideToggle();
+  onPoolClick(poolData: UserPoolData | PoolData): void {
+    // commit event to state change
+    this.stateChangeService.poolClickCUpdate(poolData);
+
+    $(`.pool.${poolData.getPairClassName()}`).toggleClass('active');
+    $(`.pool-${poolData.getPairClassName()}-expanded`).slideToggle();
   }
 
 }

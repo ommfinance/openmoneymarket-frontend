@@ -84,6 +84,13 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
   registerSubscriptions(): void {
     this.subscribeToUserPoolsChange();
     this.subscribeToUserModalActionChange();
+    this.subscribeToPoolClick();
+  }
+
+  private subscribeToPoolClick(): void {
+    this.stateChangeService.onPoolClick$.subscribe(pool => {
+      this.onCancelClick();
+    });
   }
 
   private subscribeToUserModalActionChange(): void {
