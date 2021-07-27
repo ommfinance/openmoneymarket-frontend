@@ -47,7 +47,7 @@ export class StakeLpService {
     this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
 
     log.debug(`Stake LP amount = ` + amount);
-    const decimals = 18;
+    const decimals = this.persistenceService.userPoolsDataMap.get(poolId)?.poolStats.getPrecision() ?? 18;
 
     const params = {
       _to: this.persistenceService.allAddresses!.systemContract.StakedLp,
@@ -68,7 +68,7 @@ export class StakeLpService {
     this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
 
     log.debug(`Un-stake LP amount = ` + amount);
-    const decimals = 18;
+    const decimals = this.persistenceService.userPoolsDataMap.get(poolId)?.poolStats.getPrecision() ?? 18;
 
     const params = {
       _id: IconConverter.toHex(poolId),

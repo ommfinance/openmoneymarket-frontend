@@ -64,7 +64,7 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
   onConfirmClick(): void {
     const before = this.roundDownTo2Decimals(this.persistenceService.getUserPoolStakedBalance(this.poolId));
     const after = this.roundDownTo2Decimals(this.inputStakedEl.value);
-    const diff = Utils.subtractDecimalsWithPrecision(after, before, 0);
+    const diff = Utils.subtractDecimalsWithPrecision(after, before, 2);
 
     // if before and after equal show notification
     if (before === after) {
