@@ -18,7 +18,6 @@ import {ErrorCode, ErrorService} from "../error/error.service";
 import {CheckerService} from "../checker/checker.service";
 import {LocalStorageService} from "../local-storage/local-storage.service";
 import {HttpClient} from "@angular/common/http";
-import {BalancedDexPools} from "../../models/BalancedDexPools";
 import {UserAllReservesData, UserReserveData} from "../../models/UserReserveData";
 import {PoolData} from "../../models/PoolData";
 import {environment} from "../../../environments/environment";
@@ -281,18 +280,13 @@ export class DataLoaderService {
   }
 
   public loadOmmTokenPriceUSD(): void {
-    Promise.all([
-      this.scoreService.getOmmTokenPriceUSD(BalancedDexPools.OMM2_USDS),
-      this.scoreService.getOmmTokenPriceUSD(BalancedDexPools.OMM2_IUSDC)
-    ]).then(([ommUsdsPrice, ommIusdcPrice]) => {
-        log.debug(`ommUsdsPrice = ${ommUsdsPrice}`);
-        log.debug(`ommIusdcPrice = ${ommIusdcPrice}`);
-        const averageOmmPriceUSD = (ommUsdsPrice + ommIusdcPrice) / 2;
-        log.debug(`averageOmmPriceUSD = ${averageOmmPriceUSD}`);
-        this.persistenceService.ommPriceUSD = averageOmmPriceUSD;
-    }).catch(e => {
-        log.error("Error in loadOmmTokenPriceUSD()");
-        log.error(e);
+    log.debug("loadOmmTokenPriceUSD..");
+    this.scoreService.getReferenceData("OMM").then(res => {
+      log.debug("Token price from oracle = " + res);
+      this.persistenceService.ommPriceUSD = res;
+    }). catch(e => {
+      log.debug("Failed to fetch OMM price");
+      log.error(e);
     });
   }
 
@@ -307,7 +301,7 @@ export class DataLoaderService {
   }
 
   public loadTokenPriceUSD2(): void {
-    this.scoreService.getReferenceData(environment.production ? "OMM" : "OMM5").then(res => {
+    this.scoreService.getReferenceData("OMM").then(res => {
       console.log("Token price from oracle = " + res);
     }). catch(e => {
       console.log("Failed to fetch OMM price");

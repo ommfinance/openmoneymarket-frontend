@@ -49,7 +49,7 @@ export class PersistenceService {
   public userDebt: Map<CollateralAssetTag, number | undefined> = new Map<CollateralAssetTag, number | undefined>();
   public minOmmStakeAmount = 1;
   public totalStakedOmm = 0;
-  public ommPriceUSD = 1; // default to 1
+  public ommPriceUSD = -1; // -1 indicates that ommPriceUSD is not set
 
   public tokenDistributionPerDay = 1000000;
   public loanOriginationFeePercentage = 0.001;
