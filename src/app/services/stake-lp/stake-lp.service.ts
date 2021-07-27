@@ -53,7 +53,7 @@ export class StakeLpService {
       _to: this.persistenceService.allAddresses!.systemContract.StakedLp,
       _value: IconConverter.toHex(IconAmount.of(amount, decimals).toLoop()),
       _id: IconConverter.toHex(poolId),
-      _data: IconConverter.fromUtf8('{ "method": "stake", "params": {}}')
+      _data: IconConverter.fromUtf8('{ "method": "stake"}')
     };
 
     return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,

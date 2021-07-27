@@ -112,7 +112,7 @@
       <tbody>
         <ng-container *ngFor="let poolData of getUserPoolsData(); last as isLast;">
           <ng-container *ngIf="userHasStakedToPool(poolData)">
-            <tr class="pool {{poolData.getPairClassName()}}" #yourPool>
+            <tr class="pool {{poolData.getPairClassName()}}" #yourPool (click)="onPoolClick(poolData.getPairClassName())">
               <td class="text-dark">{{poolData.getPrettyName()}}</td>
               <td><span class="text-dark">{{getUserSuppliedBase(poolData) | roundOff2Dec | usFormat}} OMM</span><br>
                 <span class="label">{{getUserSuppliedQuote(poolData) | roundOff2Dec | usFormat}} {{poolData.getQuoteAssetName()}}</span></td>

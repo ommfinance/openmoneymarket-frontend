@@ -126,16 +126,19 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
 
   initSlider(): void {
     const max = this.getStakeMax();
+
     // Stake slider
-    noUiSlider.create(this.sliderEl, {
-      start: [this.poolData?.userStakedBalance ?? 0],
-      padding: [0],
-      connect: 'lower',
-      range: {
-        min: [0],
-        max: [max === 0 ? 1 : max]
-      },
-    });
+    if (!this.sliderEl.noUiSlider) {
+      noUiSlider.create(this.sliderEl, {
+        start: [this.poolData?.userStakedBalance ?? 0],
+        padding: [0],
+        connect: 'lower',
+        range: {
+          min: [0],
+          max: [max === 0 ? 1 : max]
+        },
+      });
+    }
 
     // On stake slider update
     this.sliderEl?.noUiSlider.on('update', (values: any, handle: any) => {
