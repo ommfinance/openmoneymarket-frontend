@@ -171,6 +171,9 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
   }
 
   onCancelClick(): void {
+    // reset values
+    this.setCurrentStaked();
+
     this.sliderEl?.setAttribute("disabled", "");
     this.addClass(this.adjustStateEl, "hide");
     this.removeClass(this.restStateEl, "hide");
