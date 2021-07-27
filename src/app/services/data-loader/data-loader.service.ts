@@ -395,6 +395,7 @@ export class DataLoaderService {
       this.loadLoanOriginationFeePercentage(),
       this.loadTotalStakedOmm(),
       this.loadPrepList(),
+      this.loadPoolsData(),
       this.loadMinOmmStakeAmount()
     ]);
   }
@@ -430,7 +431,6 @@ export class DataLoaderService {
    * Load core data async without waiting
    */
   public loadCoreAsyncData(): void {
-    this.loadPoolsData();
     this.loadOmmTokenPriceUSD();
     this.loadDistributionPercentages();
   }

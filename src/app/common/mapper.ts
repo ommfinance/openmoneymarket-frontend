@@ -20,9 +20,9 @@ export class Mapper {
   public static mapDistributionPercentages(distributionPercentages: DistributionPercentages): DistributionPercentages {
     return new DistributionPercentages(
       Utils.hexToNormalisedNumber(distributionPercentages.daoFund),
-      Utils.hexToNormalisedNumber(distributionPercentages.lp),
-      Utils.hexToNormalisedNumber(distributionPercentages.supplyBorrow),
-      Utils.hexToNormalisedNumber(distributionPercentages.workerToken)
+      Utils.hexToNormalisedNumber(distributionPercentages.liquidityProvider),
+      Utils.hexToNormalisedNumber(distributionPercentages.lendingBorrow),
+      Utils.hexToNormalisedNumber(distributionPercentages.worker)
     );
   }
 

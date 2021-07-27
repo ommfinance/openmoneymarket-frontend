@@ -9,6 +9,7 @@ import {StateChangeService} from "../../services/state-change/state-change.servi
 import {Utils} from "../../common/utils";
 import {NotificationService} from "../../services/notification/notification.service";
 import {ModalAction} from "../../models/ModalAction";
+import log from "loglevel";
 
 declare var noUiSlider: any;
 
@@ -30,11 +31,11 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
 
   poolData: UserPoolData | undefined;
 
-  @Input() set poolId(id: number) {
+  poolId!: number;
+
+  @Input() set poolIdSet(id: number) {
+    this.poolId = id;
     this.poolData = this.persistenceService.userPoolsDataMap.get(id);
-
-    // do something on 'poolData' change TODO
-
   }
 
   constructor(public persistenceService: PersistenceService,
@@ -50,6 +51,9 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
   }
 
   ngAfterViewInit(): void {
+    log.debug("Pool " + this.poolId + "ngAfterViewInit userPoolsDataMap: ", this.persistenceService.userPoolsDataMap);
+
+    this.poolData = this.persistenceService.userPoolsDataMap.get(this.poolId);
     this.initSlider();
     this.setCurrentStaked();
 
@@ -90,7 +94,8 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
   }
 
   subscribeToUserPoolsChange(): void {
-    this.stateChangeService.userPoolsDataChange$.toPromise().then(() => {
+    this.stateChangeService.userPoolsDataChange$.subscribe(() => {
+      this.poolData = this.persistenceService.userPoolsDataMap.get(this.poolId);
       this.initSlider();
       this.setCurrentStaked();
     });
@@ -120,7 +125,6 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
   }
 
   initSlider(): void {
-    const userStakedBalance = this.poolData?.userStakedBalance ?? 0;
     const max = this.getStakeMax();
     // Stake slider
     noUiSlider.create(this.sliderEl, {
@@ -157,8 +161,12 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
 
   getStakeMax(): number {
     // sliders max is sum of staked + available balance
-    return this.roundDownTo2Decimals(Utils.addDecimalsPrecision(this.persistenceService.getUserPoolStakedBalance(this.poolId),
+    const res = this.roundDownTo2Decimals(Utils.addDecimalsPrecision(this.persistenceService.getUserPoolStakedBalance(this.poolId),
       this.persistenceService.getUserPoolStakedAvailableBalance(this.poolId)));
+
+    log.debug(`[pool=${this.poolId}] getStakeMax: `, res);
+
+    return res;
   }
 
   getStakedValue(): number {
