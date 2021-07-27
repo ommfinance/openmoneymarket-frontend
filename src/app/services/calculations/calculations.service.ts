@@ -534,7 +534,7 @@ export class CalculationsService {
     return this.persistenceService.tokenDistributionPerDay * 0.05; // TODO replace constant with pool pair portion
   }
 
-  /** Formula: userStakedBalance / totalStakedBalance * Daily OMM distribution (1M) * OMM/USDS pair portion (0.05 */
+  /** Formula: userStakedBalance / totalStakedBalance * Daily OMM distribution (1M) * OMM/USDS pair portion (0.05) */
   public calculateUserDailyRewardsForPool(poolData: UserPoolData): number {
     // TODO replace constant with pool pair portion
     return poolData.userStakedBalance / poolData.totalStakedBalance * this.persistenceService.tokenDistributionPerDay * 0.05;

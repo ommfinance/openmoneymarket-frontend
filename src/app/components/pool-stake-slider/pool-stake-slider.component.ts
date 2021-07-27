@@ -95,18 +95,36 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
 
   subscribeToUserPoolsChange(): void {
     this.stateChangeService.userPoolsDataChange$.subscribe(() => {
+      log.debug("Pool " + this.poolData?.getPrettyName() + "userPoolsDataChange$ userPoolsDataMap: ",
+        this.persistenceService.userPoolsDataMap);
       this.poolData = this.persistenceService.userPoolsDataMap.get(this.poolId);
       this.initSlider();
       this.setCurrentStaked();
     });
   }
 
+  onInputStakeLostFocus(): void {
+    this.delay(() => {
+      const value = this.getInputStakedValue();
+
+      if (value > this.getStakeMax()) {
+        this.inputStakedEl.classList.add("red-border");
+      } else {
+        // reset border color if it passes the check
+        this.inputStakedEl.classList.remove("red-border");
+        // set slider value
+        this.setStakeSliderValue(value);
+      }
+    }, 500 );
+  }
+
   setCurrentStaked(value?: number): void {
     value = value ? value : (this.persistenceService.userPoolsDataMap.get(this.poolId)?.userStakedBalance ?? 0);
+    log.debug("setCurrentStaked value = " + value);
 
     // update slider value
     if (this.sliderEl?.noUiSlider) {
-      this.setStakeSliderValue(this.inputStakedEl.value);
+      this.setStakeSliderValue(value);
     } else {
       this.inputStakedEl.value = value;
     }
@@ -172,7 +190,7 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
     return res;
   }
 
-  getStakedValue(): number {
-    return this.inputStakedEl?.value ?? 0;
+  getInputStakedValue(): number {
+    return this.roundDownTo2Decimals(this.inputStakedEl?.value ?? 0);
   }
 }

@@ -112,14 +112,9 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
     return false;
   }
 
-  userHasLpTokenAvailable(): boolean {
-    for (const poolData of this.getUserPoolsData()) {
-      if (poolData.userAvailableBalance > 0) {
-        return true;
-      }
-    }
-
-    return false;
+  userHasLpTokenAvailableOrHasStaked(poolId: number): boolean {
+    return this.persistenceService.getUserPoolStakedAvailableBalance(poolId) > 0
+      || this.persistenceService.getUserPoolStakedBalance(poolId) > 0;
   }
 
   getTotalSuppliedBase(poolData: PoolData): number {

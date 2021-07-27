@@ -153,6 +153,12 @@ export class TransactionResultService {
         case ModalType.UNSTAKE_OMM_TOKENS:
           this.notificationService.showNewNotification(`${voteAction.amount} OMM unstaking.`);
           break;
+        case ModalType.POOL_STAKE:
+          this.notificationService.showNewNotification(`${voteAction.amount} LP tokens staked.`);
+          break;
+        case ModalType.POOL_UNSTAKE:
+          this.notificationService.showNewNotification(`${voteAction.amount}  LP tokens unstaked.`);
+          break;
       }
     } else if (modalAction.voteAction) {
       switch (modalAction.modalType) {
@@ -201,6 +207,12 @@ export class TransactionResultService {
           break;
         case ModalType.UNSTAKE_OMM_TOKENS:
           this.notificationService.showNewNotification(`Couldn't unstake Omm Tokens. ${failedTxMessage} Try again.`);
+          break;
+        case ModalType.POOL_STAKE:
+          this.notificationService.showNewNotification(`Couldn't stake LP Tokens. ${failedTxMessage} Try again.`);
+          break;
+        case ModalType.POOL_UNSTAKE:
+          this.notificationService.showNewNotification(`Couldn't unstake LP Tokens. ${failedTxMessage} Try again.`);
           break;
       }
     } else if (modalAction.voteAction) {

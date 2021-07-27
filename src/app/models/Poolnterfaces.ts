@@ -1,9 +1,9 @@
-export interface TotalPoolData {
+export interface TotalPoolInterface {
   poolID: number;
   totalStakedBalance: number;
 }
 
-export interface UserPoolData {
+export interface UserPoolDataInterface {
   poolID: number;
   totalStakedBalance: number;
   userAvailableBalance: number;

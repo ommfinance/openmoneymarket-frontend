@@ -122,19 +122,17 @@ export class DataLoaderService {
       // get stats for each pool from persistence pool map
       this.persistenceService.userPoolsDataMap = new Map<number, UserPoolData>(); // re-init map to trigger state changes
       for (const userPoolData of userPoolsData) {
-        const poolStats = this.persistenceService.allPoolsDataMap.get(userPoolData.poolID)?.poolStats;
+        const poolStats = this.persistenceService.allPoolsDataMap.get(Utils.hexToNumber(userPoolData.poolID))?.poolStats;
 
         if (!poolStats) {
-          log.error("Could not find pool stats for pool " + userPoolData.poolID);
+          log.error("Could not find pool stats for pool " + Utils.hexToNumber(userPoolData.poolID));
           continue;
         }
 
-        const newUserPoolData = new UserPoolData(userPoolData.poolID, Utils.hexToNormalisedNumber(userPoolData.totalStakedBalance,
-          poolStats.getPrecision()), userPoolData.userAvailableBalance,
-          userPoolData.userStakedBalance, userPoolData.userTotalBalance, poolStats);
+        const newUserPoolData = Mapper.mapUserPoolData(userPoolData, poolStats.getPrecision(), poolStats);
 
         userPoolsDataRes.push(newUserPoolData);
-        this.persistenceService.userPoolsDataMap.set(userPoolData.poolID, newUserPoolData);
+        this.persistenceService.userPoolsDataMap.set(newUserPoolData.poolId, newUserPoolData);
       }
 
       this.stateChangeService.userPoolsDataUpdate(userPoolsDataRes);
@@ -373,10 +371,10 @@ export class DataLoaderService {
     }
   }
 
-  public afterUserActionReload(): void {
+  public async afterUserActionReload(): Promise<void> {
     // reload all reserves and user asset-user reserve data
-    this.loadAllReserveData().then();
-    this.loadUserSpecificData();
+    await this.loadAllReserveData();
+    await this.loadUserSpecificData();
   }
 
   public async loadCoreData(): Promise<void> {
