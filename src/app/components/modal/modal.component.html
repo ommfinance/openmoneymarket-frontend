@@ -227,18 +227,18 @@
   <div class="modal-content">
     <!-- Title -->
     <h3 class="text-center label">Withdraw ICON?</h3>
-    <p class="text-bold text-center">{{roundDownTo2Decimals(activeModalChange?.assetAction?.amount) | usFormat}} ICX</p>
+    <p class="text-bold text-center">{{activeModalChange?.assetAction?.amount | roundDown2Dec | usFormat}} ICX</p>
 
     <!-- Before / After -->
     <div class="grid before-after">
       <div class="grid-cell text-center border-right">
         <p class="label">Before</p>
-        <p class="text-dark">{{roundDownTo2Decimals(activeModalChange?.assetAction?.before) | usFormat}} ICX</p>
+        <p class="text-dark">{{activeModalChange?.assetAction?.before | roundDown2Dec | usFormat}} ICX</p>
       </div>
 
       <div class="grid-cell text-center">
         <p class="label">After</p>
-        <p class="text-dark">{{roundDownTo2Decimals(activeModalChange?.assetAction?.after) | usFormat}} ICX</p>
+        <p class="text-dark">{{activeModalChange?.assetAction?.after | roundDown2Dec | usFormat}} ICX</p>
       </div>
     </div>
 
@@ -309,6 +309,66 @@
       </ng-container>
       <li (click)="onLedgerPageNextClick()">></li>
     </ul>
+  </div>
+</div>
+
+<!-- Modal: Confirm Pool Token stake -->
+<div class="modal" id="modal-confirm-pool-stake" #poolStakeModal>
+  <div class="modal-content">
+    <!-- Title -->
+    <h3 class="text-center label">Stake pool tokens?</h3>
+    <p class="text-center">{{activeModalChange?.stakingAction?.amount | roundDown2Dec | usFormat}}</p>
+
+    <!-- Before vs after -->
+    <div class="grid before-after">
+      <div class="grid-cell text-center border-right">
+        <p class="label">Before</p>
+        <p class="text-dark">{{activeModalChange?.stakingAction?.before | roundDown2Dec | usFormat}}</p>
+      </div>
+      <div class="grid-cell text-center">
+        <p class="label">After</p>
+        <p class="text-dark">{{activeModalChange?.stakingAction?.after | roundDown2Dec | usFormat}}</p>
+      </div>
+    </div>
+
+    <!-- Unstaking message -->
+    <p class="label text-center">You'll need to unstake your tokens before you can withdraw your assets from the liquidity pool on Balanced.</p>
+
+    <!-- Modal actions -->
+    <div class="modal-actions">
+      <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Cancel</a>
+      <a href="javascript:void(0);" class="button" (click)="onPoolStakingClick()">Stake</a>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Confirm Pool Token unstake -->
+<div class="modal" id="modal-confirm-pool-unstake" #poolUnstakeModal>
+  <div class="modal-content">
+    <!-- Title -->
+    <h3 class="text-center label">Unstake pool tokens?</h3>
+    <p class="text-center">{{activeModalChange?.stakingAction?.amount | roundDown2Dec | usFormat}}</p>
+
+    <!-- Before vs after -->
+    <div class="grid before-after">
+      <div class="grid-cell text-center border-right">
+        <p class="label">Before</p>
+        <p class="text-dark">{{activeModalChange?.stakingAction?.before | roundDown2Dec | usFormat}}</p>
+      </div>
+      <div class="grid-cell text-center">
+        <p class="label">After</p>
+        <p class="text-dark">{{activeModalChange?.stakingAction?.after | roundDown2Dec | usFormat}}</p>
+      </div>
+    </div>
+
+    <!-- Unstaking message -->
+    <p class="label text-center">After you unstake you can withdraw<br>your liquidity from Balanced.</p>
+
+    <!-- Modal actions -->
+    <div class="modal-actions">
+      <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Cancel</a>
+      <a href="javascript:void(0);" class="button" (click)="onPoolStakingClick()">Unstake</a>
+    </div>
   </div>
 </div>
 

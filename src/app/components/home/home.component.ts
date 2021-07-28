@@ -23,7 +23,7 @@ import {Asset, AssetTag} from "../../models/Asset";
 import log from "loglevel";
 import {AssetComponent} from "../asset/asset.component";
 import {StateChangeService} from "../../services/state-change/state-change.service";
-import {ActiveMarketOverview, ActiveMarketView} from "../../models/ActiveMarketView";
+import {ActiveMarketOverview, ActiveViews} from "../../models/ActiveViews";
 import {UserReserveData} from "../../models/UserReserveData";
 import {ModalAction} from "../../models/ModalAction";
 import {BridgeWidgetService} from "../../services/bridge-widget/bridge-widget.service";
@@ -53,7 +53,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   public availableAssets: Asset[] = [];
 
   // keep track of current active market view in this variable
-  public activeMarketView: ActiveMarketView = ActiveMarketView.ALL_MARKET;
+  public activeMarketView: ActiveViews = ActiveViews.ALL_MARKET;
   public activeMarketOverview: ActiveMarketOverview = this.userLoggedIn() ? ActiveMarketOverview.YOUR_OVERVIEW :
     ActiveMarketOverview.MARKET_OVERVIEW;
 
@@ -101,7 +101,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
 
   // load the asset lists
   loadAssetLists(): void {
-    if (this.activeMarketView === ActiveMarketView.ALL_MARKET) {
+    if (this.activeMarketView === ActiveViews.ALL_MARKET) {
       this.userAssets = [...this.supportedAssets];
     } else {
       this.userAssets = [];
@@ -190,7 +190,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   // On "All markets tab" click
   onAllMarketsClick(): void {
     // set active market view
-    this.activeMarketView = ActiveMarketView.ALL_MARKET;
+    this.activeMarketView = ActiveViews.ALL_MARKET;
 
     // re-load the asset lists
     this.loadAssetLists();
@@ -209,7 +209,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
 
   onYourMarketsClick(): void {
     // set active market view
-    this.activeMarketView = ActiveMarketView.USER_MARKET;
+    this.activeMarketView = ActiveViews.USER_MARKET;
 
     // re-load the asset lists
     this.loadAssetLists();
@@ -307,11 +307,11 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   }
 
   userMarketViewActive(): boolean {
-    return this.activeMarketView === ActiveMarketView.USER_MARKET;
+    return this.activeMarketView === ActiveViews.USER_MARKET;
   }
 
   allMarketViewActive(): boolean {
-    return this.activeMarketView === ActiveMarketView.ALL_MARKET;
+    return this.activeMarketView === ActiveViews.ALL_MARKET;
   }
 
   isMarketOverviewActive(): boolean {

@@ -1,13 +1,13 @@
 export class DistributionPercentages {
   daoFund: number;
-  lp: number;
-  supplyBorrow: number;
-  workerToken: number;
+  liquidityProvider: number;
+  lendingBorrow: number;
+  worker: number;
 
-  constructor(daoFund: number, lp: number, supplyBorrow: number, workerToken: number) {
+  constructor(daoFund: number, lp: number, lendingBorrow: number, worker: number) {
     this.daoFund = daoFund;
-    this.lp = lp;
-    this.supplyBorrow = supplyBorrow;
-    this.workerToken = workerToken;
+    this.liquidityProvider = lp;
+    this.lendingBorrow = lendingBorrow;
+    this.worker = worker;
   }
 }

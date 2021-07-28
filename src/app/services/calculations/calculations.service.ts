@@ -9,6 +9,8 @@ import {Prep, PrepList} from "../../models/Preps";
 import {OmmError} from "../../core/errors/OmmError";
 import {UserReserveData} from "../../models/UserReserveData";
 import log from "loglevel";
+import {PoolData} from "../../models/PoolData";
+import {UserPoolData} from "../../models/UserPoolData";
 
 @Injectable({
   providedIn: 'root'
@@ -49,7 +51,7 @@ export class CalculationsService {
       const borrowRate = reserveData.borrowRate;
       const tokenDistributionPerDay = this.persistenceService.tokenDistributionPerDay;
       const totalInterestOverAYear = this.borrowTotalInterestOverAYear();
-      const lendingBorrowingPortion = this.persistenceService.distributionPercentages?.supplyBorrow ?? 0;
+      const lendingBorrowingPortion = this.persistenceService.distributionPercentages?.lendingBorrow ?? 0;
 
       return this.borrowOmmApyFormula(lendingBorrowingPortion, borrowRate, totalInterestOverAYear, tokenDistributionPerDay,
         this.persistenceService.ommPriceUSD,
@@ -74,12 +76,13 @@ export class CalculationsService {
       const liquidityRate = this.persistenceService.getAssetReserveData(assetTag)?.liquidityRate ?? 0;
       const totalInterestOverAYear = this.supplyTotalInterestOverAYear();
       const tokenDistributionPerDay = this.persistenceService.tokenDistributionPerDay;
-      const lendingBorrowingPortion = this.persistenceService.distributionPercentages?.supplyBorrow ?? 0;
+      const lendingBorrowingPortion = this.persistenceService.distributionPercentages?.lendingBorrow ?? 0;
 
       return this.supplyOmmApyFormula(lendingBorrowingPortion, liquidityRate, totalInterestOverAYear, tokenDistributionPerDay,
         this.persistenceService.ommPriceUSD,
         reserveData);
     } else {
+      log.debug("res is ZERO (reserveData not found)");
       return 0;
     }
   }
@@ -501,6 +504,115 @@ export class CalculationsService {
     const representativeRewards = prep.irep / 2 * 100 * delegationRate;
 
     return blockValidationRewards + representativeRewards;
+  }
+
+
+  /** calculate total supplied both for base and quote token
+   * Formula: totalStakedBalance / Total LP tokens in the Balanced pool (i.e. poolStats -> total_supply) * getPoolTotal (Balanced API #23)
+   * do it twice for base token/quote token (getPoolData dynamic)
+   */
+  public calculatePoolTotalSupplied(poolData: PoolData, base: boolean = true): number {
+    const totalStakedBalance = poolData.totalStakedBalance;
+    const totalLpTokenInPool = poolData.poolStats.totalSupply;
+
+    return totalStakedBalance / totalLpTokenInPool * (base ? poolData.poolStats.base : poolData.poolStats.quote);
+  }
+
+  /** calculate total supplied both for base and quote token
+   * Formula: userStakedBalance / Total LP tokens in the Balanced pool (i.e. poolStats -> total_supply) * getPoolTotal (Balanced API #23)
+   * do it twice for base token/quote token (getPoolData dynamic)
+   */
+  public calculateUserPoolSupplied(poolData: UserPoolData, base: boolean = true): number {
+    const userStakedBalance = poolData.userStakedBalance;
+    const totalLpTokenInPool = poolData.poolStats.totalSupply;
+
+    return userStakedBalance / totalLpTokenInPool * (base ? poolData.poolStats.base : poolData.poolStats.quote);
+  }
+
+  /** Formula: Daily OMM distribution (1M) * Pool pair portion (0.05), same across all 3 pools (OMM/USDS, OMM/iUSDC, OMM/sICX) */
+  public calculateDailyRewardsForPool(poolData: PoolData): number {
+    return this.persistenceService.tokenDistributionPerDay * 0.05; // TODO replace constant with pool pair portion
+  }
+
+  /** Formula: userStakedBalance / totalStakedBalance * Daily OMM distribution (1M) * OMM/USDS pair portion (0.05) */
+  public calculateUserDailyRewardsForPool(poolData: UserPoolData): number {
+    // TODO replace constant with pool pair portion
+    return poolData.userStakedBalance / poolData.totalStakedBalance * this.persistenceService.tokenDistributionPerDay * 0.05;
+  }
+
+  /** Formula: Sum (Daily rewards_Liquidity Pools2 across 3 pools) */
+  public calculateDailyRewardsAllPools(): number {
+    return this.persistenceService.allPools.reduce((a, poolData) => a + this.calculateDailyRewardsForPool(poolData), 0);
+  }
+
+  /** Formula: Sum (Daily rewards_Liquidity Pools2 across 3 pools) */
+  public calculateDailyRewardsUserPools(): number {
+    return this.persistenceService.userPools.reduce((a, poolData) => a + this.calculateUserDailyRewardsForPool(poolData), 0);
+  }
+
+  /** Formula: Daily rewards * OMM price * 365/Total supplied in $ value */
+  public calculatePoolLiquidityApy(poolData: PoolData): number {
+    const dailyRewards = this.calculateDailyRewardsForPool(poolData);
+    const ommPrice = this.persistenceService.ommPriceUSD;
+    const totalSuppliedUSD = this.calculatePoolTotalSuppliedUSD(poolData);
+
+    if (Utils.isUndefinedOrZero(dailyRewards) || Utils.isUndefinedOrZero(totalSuppliedUSD) || Utils.isUndefinedOrZero(ommPrice)) {
+      return 0;
+    }
+
+    return dailyRewards * ommPrice * 365 / totalSuppliedUSD;
+  }
+
+  /** Calculate total supplied for base and quote token of pool in USD */
+  public calculatePoolTotalSuppliedUSD(poolData: PoolData): number {
+    const quoteAssetTag = AssetTag.constructFromPoolPairName(poolData.poolStats.name);
+
+    const totalSuppliedBaseUSD = this.calculatePoolTotalSupplied(poolData, true) * this.persistenceService.ommPriceUSD;
+    const totalSuppliedQuoteUSD = this.calculatePoolTotalSupplied(poolData, false) *
+      this.persistenceService.getAssetExchangePrice(quoteAssetTag);
+
+    return totalSuppliedBaseUSD + totalSuppliedQuoteUSD;
+  }
+
+  /** Calculate user total supplied for base and quote token of pool in USD */
+  public calculateUserPoolTotalSuppliedUSD(poolData: UserPoolData): number {
+    const quoteAssetTag = AssetTag.constructFromPoolPairName(poolData.poolStats.name);
+
+    const totalSuppliedBaseUSD = this.calculateUserPoolSupplied(poolData, true) * this.persistenceService.ommPriceUSD;
+    const totalSuppliedQuoteUSD = this.calculateUserPoolSupplied(poolData, false) *
+      this.persistenceService.getAssetExchangePrice(quoteAssetTag);
+
+    return totalSuppliedBaseUSD + totalSuppliedQuoteUSD;
+  }
+
+  /** Formula: Sum(Total supplied assets across 3 pools in $ value) */
+  public getAllPoolTotalLiquidityUSD(): number {
+    return this.persistenceService.allPools.reduce((a, poolData) => a + this.calculatePoolTotalSuppliedUSD(poolData), 0);
+  }
+
+  /** Formula: Sum(you've supplied assets across 3 pools in $ value) */
+  public getUserTotalLiquidityUSD(): number {
+    return this.persistenceService.userPools.reduce((a, poolData) => a + this.calculateUserPoolTotalSuppliedUSD(poolData), 0);
+  }
+
+  /** Formula: Sum(Liquidity APY (all pools) * Total supplied assets in $ value)/(Total liquidity) */
+  public getAllPoolsAverageApy(): number {
+    const sum = this.persistenceService.allPools.reduce((a, poolData) => a + (this.calculatePoolLiquidityApy(poolData)
+      * this.calculatePoolTotalSuppliedUSD(poolData)), 0);
+
+    const totalLiquidity = this.getAllPoolTotalLiquidityUSD();
+
+    return sum / totalLiquidity;
+  }
+
+  /** Formula: Sum(Liquidity APY (your pools) * You've supplied assets $ value)/(your liquidity) */
+  public getUserPoolsAverageApy(): number {
+    const sum = this.persistenceService.userPools.reduce((a, poolData) => a + (this.calculatePoolLiquidityApy(poolData)
+      * this.calculateUserPoolTotalSuppliedUSD(poolData)), 0);
+
+    const totalLiquidity = this.getAllPoolTotalLiquidityUSD();
+
+    return sum / totalLiquidity;
   }
 
 }

@@ -56,6 +56,8 @@ export class ScoreMethodNames {
    * Balanced DEX SCORE
    */
   public static GET_PRICE_BY_NAME = "getPriceByName";
+  public static GET_POOL_STATS = "getPoolStats";
+  public static GET_POOL_TOTAL: "getPoolTotal";
 
   /**
    * Delegation SCORE
@@ -74,6 +76,13 @@ export class ScoreMethodNames {
    * Price Oracle SCORE
    */
   public static GET_REFERENCE_DATA = "get_reference_data";
+
+  /**
+   * StakedLp SCORE
+   */
+  public static GET_BALANCE_BY_POOL = "getBalanceByPool";
+  public static GET_POOL_BALANCE_BY_USER = "getPoolBalanceByUser";
+  public static POOL_UNSTAKE = "unstake";
 
   /**
    * IISS APIs

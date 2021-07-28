@@ -20,7 +20,7 @@ import {AssetAction} from "../../models/AssetAction";
 import {NotificationService} from "../../services/notification/notification.service";
 import {UserAction} from "../../models/UserAction";
 import {Utils} from "../../common/utils";
-import {ActiveMarketView} from "../../models/ActiveMarketView";
+import {ActiveViews} from "../../models/ActiveViews";
 
 declare var $: any;
 
@@ -31,6 +31,7 @@ declare var $: any;
 export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   @Input() asset!: Asset;
+  // tslint:disable-next-line:variable-name
   _ommApyChecked = false;
   @Input() set ommApyChecked(ommApyChecked: boolean) {
     this._ommApyChecked = ommApyChecked;
@@ -38,7 +39,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
   @Input() riskSlider!: any;
   @Input() index!: number;
-  @Input() activeMarketView!: ActiveMarketView;
+  @Input() activeMarketView!: ActiveViews;
 
   /** Bind html elements to variables using template referencing */
   sliderSupply: any;
@@ -758,7 +759,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     log.debug(`${this.asset.tag} collapseAssetTable()`);
     // Collapse asset-user table`
     this.assetYourEl.classList.remove('active');
-    $(this.marketExpandedEl).hide();
+    $(this.marketExpandedEl).slideUp();
   }
 
   hideAvailableAssetData(): void {
@@ -863,7 +864,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   getAssetClass(): string {
-    if (this.activeMarketView === ActiveMarketView.USER_MARKET) {
+    if (this.activeMarketView === ActiveViews.USER_MARKET) {
       return this.isAssetAvailable() ? 'asset-available' : 'your';
     } else {
       return "all";
@@ -923,7 +924,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   isAllMarketViewActive(): boolean {
-    return this.activeMarketView === ActiveMarketView.ALL_MARKET;
+    return this.activeMarketView === ActiveViews.ALL_MARKET;
   }
 
   getInputBorrowValue(): number {

@@ -11,6 +11,9 @@ import {DelegationPreference} from "../models/DelegationPreference";
 import {YourPrepVote} from "../models/YourPrepVote";
 import {UnstakeIcxData, UnstakeInfo} from "../models/UnstakeInfo";
 import {DistributionPercentages} from "../models/DistributionPercentages";
+import {PoolStats, PoolStatsInterface} from "../models/PoolStats";
+import {TotalPoolInterface, UserPoolDataInterface} from "../models/Poolnterfaces";
+import {UserPoolData} from "../models/UserPoolData";
 
 export class Mapper {
 
@@ -18,9 +21,9 @@ export class Mapper {
   public static mapDistributionPercentages(distributionPercentages: DistributionPercentages): DistributionPercentages {
     return new DistributionPercentages(
       Utils.hexToNormalisedNumber(distributionPercentages.daoFund),
-      Utils.hexToNormalisedNumber(distributionPercentages.lp),
-      Utils.hexToNormalisedNumber(distributionPercentages.supplyBorrow),
-      Utils.hexToNormalisedNumber(distributionPercentages.workerToken)
+      Utils.hexToNormalisedNumber(distributionPercentages.liquidityProvider),
+      Utils.hexToNormalisedNumber(distributionPercentages.lendingBorrow),
+      Utils.hexToNormalisedNumber(distributionPercentages.worker)
     );
   }
 
@@ -182,7 +185,7 @@ export class Mapper {
     );
   }
 
-  static mapUserDelegations(delegations: DelegationPreference[], prepAddressToNameMap?: Map<string, string>): YourPrepVote[] {
+  public static mapUserDelegations(delegations: DelegationPreference[], prepAddressToNameMap?: Map<string, string>): YourPrepVote[] {
     const res: YourPrepVote[] = [];
 
     delegations.forEach(delegation => {
@@ -195,9 +198,47 @@ export class Mapper {
     return res;
   }
 
-  static mapUserIcxUnstakeData(unstakeIcxData: UnstakeIcxData[]): UnstakeInfo {
+  public static mapPoolStats(poolStats: PoolStatsInterface): PoolStats {
+    const baseDecimals = Utils.hexToNumber(poolStats.base_decimals);
+    const quoteDecimals = Utils.hexToNumber(poolStats.quote_decimals);
+
+    return new PoolStats(
+      Utils.hexToNormalisedNumber(poolStats.base, baseDecimals),
+      Utils.hexToNormalisedNumber(poolStats.quote, quoteDecimals),
+      poolStats.base_token,
+      poolStats.quote_token,
+      Utils.hexToNormalisedNumber(poolStats.total_supply, PoolStats.getPoolPrecision(baseDecimals, quoteDecimals)),
+      Utils.hexToNormalisedNumber(poolStats.price, quoteDecimals),
+      poolStats.name,
+      baseDecimals,
+      quoteDecimals,
+      Utils.hexToNumber(poolStats.min_quote)
+    );
+  }
+
+  public static mapUserIcxUnstakeData(unstakeIcxData: UnstakeIcxData[]): UnstakeInfo {
     let totalAmount = 0;
     unstakeIcxData.forEach(u => totalAmount += Utils.hexToNormalisedNumber(u.amount));
     return new UnstakeInfo(totalAmount, unstakeIcxData);
+  }
+
+  public static mapPoolsData(poolsData: TotalPoolInterface[]): TotalPoolInterface[] {
+    return poolsData.map(data => {
+      return {
+        poolID: Utils.hexToNumber(data.poolID),
+        totalStakedBalance: data.totalStakedBalance // map this after pool stats is received and precision derived
+      };
+    });
+  }
+
+  public static mapUserPoolData(poolsData: UserPoolDataInterface, decimals: number, poolStats: PoolStats): UserPoolData {
+    return new UserPoolData(
+      Utils.hexToNumber(poolsData.poolID),
+      Utils.hexToNormalisedNumber(poolsData.totalStakedBalance, decimals),
+      Utils.hexToNormalisedNumber(poolsData.userAvailableBalance, decimals),
+      Utils.hexToNormalisedNumber(poolsData.userStakedBalance, decimals),
+      Utils.hexToNormalisedNumber(poolsData.userTotalBalance, decimals),
+      poolStats
+  );
   }
 }

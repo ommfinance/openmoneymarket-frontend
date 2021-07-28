@@ -1,0 +1,197 @@
+<main>
+  <!-- Overview -->
+  <section class="overview">
+    <div class="grid">
+      <div class="grid-cell">
+        <h2>Overview</h2>
+        <ul class="toggle" [ngStyle]="hideElement(!userLoggedIn())">
+          <li id="toggle-your-liquidity" class="{{!isAllLiquidityOverviewActive() ? 'active': ''}}" (click)="onYourLiquidityClick()">Your liquidity</li>
+          <li id="toggle-all-liquidity" class="{{isAllLiquidityOverviewActive() ? 'active': ''}}" (click)="onAllLiquidityClick()">All liquidity</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Your liquidity -->
+    <div id="your-liquidity" class="grid panel" [ngStyle]="hideElement(isAllLiquidityOverviewActive() || !userLoggedIn())">
+      <!-- Supplied -->
+      <div class="grid-cell">
+        <div class="grid">
+          <!-- You've supplied -->
+          <div class="grid-cell text-center">
+            <dl class="metadata">
+              <dt>Your liquidity</dt>
+              <dd>{{toDollarUSLocaleString(getUserLiquidityUSD() | roundDown2Dec)}}</dd>
+            </dl>
+          </div>
+
+          <!-- Your supply APY -->
+          <div class="grid-cell text-center">
+            <dl class="metadata">
+              <dt>Liquidity APY</dt>
+              <dd class="text-green">{{to2DecimalRoundedOffPercentString(getUserAverageApy())}}</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rewards -->
+      <div class="grid-cell">
+        <div class="grid">
+          <!-- Your daily rewards -->
+          <div class="grid-cell text-center border-right">
+            <dl class="metadata">
+              <dt>Daily rewards</dt>
+              <dd class="value-borrowed-total">{{getDailyRewardsUserPools() | roundOff2Dec | usFormat}} {{getDailyRewardsUserPools() > 0 ? "OMM":""}}</dd>
+            </dl>
+          </div>
+
+          <!-- Your borrow APY -->
+          <div class="grid-cell text-center">
+            <dl class="metadata">
+              <dt>{{formatNumberToUSLocaleString(roundDownTo2Decimals(getUserOmmRewardsBalance()))}} OMM available</dt>
+              <dd><a href="javascript:void(0);" (click)="onClaimOmmRewardsClick()" class="button modal-trigger" style="margin-top: 0;" data-modal="modal-claim-rewards">Claim rewards</a></dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- All liquidity -->
+    <div id="all-liquidity" class="grid panel" [ngStyle]="hideElement(!isAllLiquidityOverviewActive())">
+      <div class="grid-cell text-center border-right">
+        <dl class="metadata">
+          <dt>Total liquidity</dt>
+          <dd>{{toDollarUSLocaleString(getTotalLiquidityUSD() | roundOff2Dec)}}</dd>
+        </dl>
+      </div>
+      <div class="grid-cell text-center border-right">
+        <dl class="metadata">
+          <dt>Average APY</dt>
+          <dd class="text-green">{{to2DecimalRoundedOffPercentString(getAverageApy())}}</dd>
+        </dl>
+      </div>
+      <div class="grid-cell text-center">
+        <dl class="metadata">
+          <dt>Daily rewards</dt>
+          <dd>{{getDailyRewardsAllPools() | roundOff2Dec | usFormat}} {{getDailyRewardsAllPools() > 0 ? "OMM":""}}</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- Liquidity pools -->
+  <section class="overview">
+    <div class="grid">
+      <div class="grid-cell">
+        <h2>Liquidity pools</h2>
+        <ul class="toggle" [ngStyle]="hideElement(!userLoggedIn())">
+          <li id="toggle-your-pools" #toggYourPools class="{{!isAllPoolsActive() ? 'active': ''}}" (click)="onYourPoolsClick()">Your pools</li>
+          <li id="toggle-all-pools" #toggAllPools class="{{isAllPoolsActive() ? 'active': ''}}" (click)="onAllPoolsClick()">All pools</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- If no pools or no LP tokens-->
+    <div *ngIf="userLoggedIn() && !userHasStakedToAnyPool() && !isAllPoolsActive()" class="grid" style="max-width: 500px; margin: 50px auto;">
+      <div class="grid-cell">
+        <p>Supply liquidity on <a href="{{isProduction() ? 'https://app.balanced.network/trade' :'https://balanced.network/demo/trade/'}}" target="_blank">Balanced</a>, then stake your LP tokens here to earn OMM. Includes the risk of impermanent loss, so it’s best for advanced users. <a
+          href="https://docs.omm.finance/user-guide/liquidity" target="_blank">Learn more.</a></p>
+      </div>
+    </div>
+
+    <table id="your-pools" class="list liquidity" [ngClass]="isAllPoolsActive() || !userLoggedIn() || !userHasStakedToAnyPool() ? 'hide':''">
+      <thead>
+      <tr>
+        <th>Pool</th>
+        <th>You've supplied</th>
+        <th>LP tokens</th>
+        <th>Daily rewards</th>
+        <th>Liquidity APY</th>
+      </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let poolData of getUserPoolsData(); last as isLast;">
+          <ng-container *ngIf="userHasStakedToPool(poolData)">
+            <tr class="pool {{poolData.getPairClassName()}}" #yourPool (click)="onPoolClick(poolData)">
+              <td class="text-dark">{{poolData.getPrettyName()}}</td>
+              <td><span class="text-dark">{{getUserSuppliedBase(poolData) | roundOff2Dec | usFormat}} OMM</span><br>
+                <span class="label">{{getUserSuppliedQuote(poolData) | roundOff2Dec | usFormat}} {{poolData.getQuoteAssetName()}}</span></td>
+              <td><span class="text-dark">{{poolData.userStakedBalance | roundDown2Dec | usFormat}}</span><br>
+                <span class="label">{{poolData.userAvailableBalance | roundDown2Dec | usFormat}} unstaked</span></td>
+              <td><span class="text-dark">{{getUserDailyRewards(poolData) | roundOff2Dec | usFormat}} OMM</span><br>
+                <span class="label">{{toDollarUSLocaleString(getUserDailyRewardsUSD(poolData) | roundOff2Dec)}}</span></td>
+              <td class="text-green">{{to2DecimalRoundedOffPercentString(getLiquidityApy(poolData))}}</td>
+            </tr>
+
+            <!-- Pool expanded -->
+            <tr class="expanded">
+              <td colspan="5">
+                <div class="pool-expanded pool-{{poolData.getPairClassName()}}-expanded hide" #poolExpandedEl>
+                  <div class="grid border-top">
+                    <div class="grid-cell text-center content">
+                      <h2>Stake LP tokens</h2>
+                      <p>Supply liquidity on <a href="{{isProduction() ? 'https://app.balanced.network/trade' :'https://balanced.network/demo/trade/'}}" target="_blank"
+                      >Balanced</a>, then<br>stake your LP tokens here to earn OMM.</p>
+                      <div id="slider-stake" disabled></div>
+
+                      <app-pool-stake-slider #stakeSlider *ngIf="userLoggedIn() && userHasLpTokenAvailableOrHasStaked(poolData.poolId)" [poolIdSet]="poolData.poolId"></app-pool-stake-slider>
+
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
+
+          <!-- Spacer -->
+          <tr *ngIf="!isLast" class="spacer"></tr>
+        </ng-container>
+      </tbody>
+    </table>
+
+    <!-- All pools -->
+    <table id="all-pools" class="list liquidity" [ngClass]="!isAllPoolsActive() ? 'hide':''">
+      <thead>
+      <tr>
+        <th>Pool</th>
+        <th>Total supplied</th>
+        <th>Total LP tokens</th>
+        <th>Daily rewards</th>
+        <th>Liquidity APY</th>
+      </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let poolData of getAllPoolsData(); last as isLast;">
+          <tr class="pool {{poolData.getPairClassName()}}" #allPool (click)="onPoolClick(poolData)">
+            <td class="text-dark">{{poolData.getPrettyName()}}</td>
+            <td><span class="text-dark">{{getTotalSuppliedBase(poolData) | roundOff2Dec | usFormat}} OMM</span><br>
+              <span class="label">{{getTotalSuppliedQuote(poolData) | roundOff2Dec | usFormat}} {{poolData.getQuoteAssetName()}}</span></td>
+            <td><span class="text-dark">{{poolData.totalStakedBalance | roundOff2Dec | usFormat}}</span></td>
+            <td><span class="text-dark">{{getDailyRewards(poolData) | roundOff2Dec | usFormat}} OMM</span><br>
+              <span class="label">{{toDollarUSLocaleString(getDailyRewardsUSD(poolData) | roundOff2Dec)}}</span></td>
+            <td class="text-green">{{to2DecimalRoundedOffPercentString(getLiquidityApy(poolData))}}</td>
+          </tr>
+
+          <tr class="expanded">
+            <td colspan="5">
+              <div class="pool-expanded pool-{{poolData.getPairClassName()}}-expanded hide">
+                <div class="grid border-top">
+                  <div class="grid-cell text-center content">
+                    <h2>Stake LP tokens</h2>
+                    <p>Supply liquidity on <a href="{{isProduction() ? 'https://app.balanced.network/trade' :'https://balanced.network/demo/trade/'}}"
+                                              target="_blank">Balanced</a>, then<br>stake your LP tokens here to earn OMM.</p>
+
+                    <app-pool-stake-slider #stakeSlider *ngIf="userLoggedIn() && userHasLpTokenAvailableOrHasStaked(poolData.poolId)" [poolIdSet]="poolData.poolId"> </app-pool-stake-slider>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Spacer -->
+          <tr *ngIf="!isLast" class="spacer"></tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </section>
+</main>

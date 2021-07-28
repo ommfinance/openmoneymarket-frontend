@@ -15,6 +15,8 @@ import {YourPrepVote} from "../../models/YourPrepVote";
 import {Utils} from "../../common/utils";
 import {UnstakeInfo} from "../../models/UnstakeInfo";
 import {DistributionPercentages} from "../../models/DistributionPercentages";
+import {PoolData} from "../../models/PoolData";
+import {UserPoolData} from "../../models/UserPoolData";
 
 @Injectable({
   providedIn: 'root'
@@ -30,6 +32,12 @@ export class PersistenceService {
   public allReserves?: AllReservesData;
   public allReservesConfigData?: AllReserveConfigData;
 
+  public allPools: PoolData[] = [];
+  public allPoolsDataMap: Map<number, PoolData> = new Map<number, PoolData>();
+
+  public userPools: UserPoolData[] = [];
+  public userPoolsDataMap: Map<number, UserPoolData> = new Map<number, UserPoolData>();
+
   public userReserves: UserReserves = new UserReserves();
   public userTotalRisk = 0;
 
@@ -41,7 +49,7 @@ export class PersistenceService {
   public userDebt: Map<CollateralAssetTag, number | undefined> = new Map<CollateralAssetTag, number | undefined>();
   public minOmmStakeAmount = 1;
   public totalStakedOmm = 0;
-  public ommPriceUSD = 1; // default to 1
+  public ommPriceUSD = -1; // -1 indicates that ommPriceUSD is not set
 
   public tokenDistributionPerDay = 1000000;
   public loanOriginationFeePercentage = 0.001;
@@ -66,6 +74,18 @@ export class PersistenceService {
     this.userAccountData = undefined;
     this.userTotalRisk = 0;
     this.userReserves = new UserReserves();
+  }
+
+  public getUserPoolStakedBalance(poolId: number): number {
+    return this.userPoolsDataMap.get(poolId)?.userStakedBalance ?? 0;
+  }
+
+  public getUserPoolStakedAvailableBalance(poolId: number): number {
+    return this.userPoolsDataMap.get(poolId)?.userAvailableBalance ?? 0;
+  }
+
+  public getUserPoolTotalBalance(poolId: number): number {
+    return this.userPoolsDataMap.get(poolId)?.userTotalBalance ?? 0;
   }
 
   public getUserTotalUnstakeAmount(): number {

@@ -28,6 +28,7 @@ import {LoginService} from "../../services/login/login.service";
 import {IconexWallet} from "../../models/wallets/IconexWallet";
 import {ClaimIcxService} from "../../services/claim-icx/claim-icx.service";
 import {CalculationsService} from "../../services/calculations/calculations.service";
+import {StakeLpService} from "../../services/stake-lp/stake-lp.service";
 
 
 @Component({
@@ -48,6 +49,8 @@ export class ModalComponent extends BaseClass implements OnInit {
   @ViewChild('claimIcxModal', { static: true }) claimIcxModal!: ElementRef;
   @ViewChild('ledgerAddressList', { static: true }) LedgerAddressListModal!: ElementRef;
   @ViewChild('modalLoading', { static: true }) modalLoading!: ElementRef;
+  @ViewChild('poolStakeModal', { static: true }) poolStakeModal!: ElementRef;
+  @ViewChild('poolUnstakeModal', { static: true }) poolUnstakeModal!: ElementRef;
 
 
   activeModalSubscription: Subscription;
@@ -85,7 +88,8 @@ export class ModalComponent extends BaseClass implements OnInit {
               private ommService: OmmService,
               private voteService: VoteService,
               private claimIcxService: ClaimIcxService,
-              private calculationService: CalculationsService) {
+              private calculationService: CalculationsService,
+              private stakeLpService: StakeLpService) {
     super(persistenceService);
 
     this.activeModalSubscription = this.modalService.activeModalChange$.subscribe((activeModalChange: ModalAction) => {
@@ -110,6 +114,12 @@ export class ModalComponent extends BaseClass implements OnInit {
           break;
         case ModalType.REMOVE_ALL_VOTES:
           this.setActiveModal(this.removePrepModal.nativeElement, activeModalChange);
+          break;
+        case ModalType.POOL_STAKE:
+          this.setActiveModal(this.poolStakeModal.nativeElement, activeModalChange);
+          break;
+        case ModalType.POOL_UNSTAKE:
+          this.setActiveModal(this.poolUnstakeModal.nativeElement, activeModalChange);
           break;
         default:
           // check if it is ICX withdraw action and show corresponding specific view / modal
@@ -334,6 +344,28 @@ export class ModalComponent extends BaseClass implements OnInit {
     this.modalService.hideActiveModal();
   }
 
+  onPoolStakingClick(): void {
+    // store activeModalChange in local storage
+    this.localStorageService.persistModalAction(this.activeModalChange!);
+
+    switch (this.activeModalChange?.modalType) {
+      case ModalType.POOL_STAKE:
+        this.stakeLpService.stakeLp(this.activeModalChange!.stakingAction?.payload, this.activeModalChange!.stakingAction!.amount, "Staking LP Tokens...");
+        break;
+      case ModalType.POOL_UNSTAKE:
+        this.stakeLpService.unstakeLp(this.activeModalChange!.stakingAction?.payload, this.activeModalChange!.stakingAction!.amount, "Starting unstaking process...");
+        break;
+      default:
+        throw new OmmError(` onGovernanceModalConfirmClick() -> Invalid modal type: ${this.activeModalChange?.modalType}`);
+    }
+
+    // commit modal action change
+    this.stateChangeService.updateUserModalAction(this.activeModalChange);
+
+    // hide current modal
+    this.modalService.hideActiveModal();
+  }
+
   onAssetModalActionConfirmClick(): void {
     // store activeModalChange in local storage
     this.localStorageService.persistModalAction(this.activeModalChange!);
@@ -402,4 +434,5 @@ export class ModalComponent extends BaseClass implements OnInit {
   getBorrowFee(): number {
     return this.calculationService.calculateBorrowFee(this.activeModalChange?.assetAction?.amount);
   }
+
 }

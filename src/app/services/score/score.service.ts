@@ -19,9 +19,11 @@ import {Mapper} from "../../common/mapper";
 import {IconAmount, IconConverter} from "icon-sdk-js";
 import {YourPrepVote} from "../../models/YourPrepVote";
 import {DelegationPreference} from "../../models/DelegationPreference";
-import {UnstakeIcxData, UnstakeInfo} from "../../models/UnstakeInfo";
+import {UnstakeInfo} from "../../models/UnstakeInfo";
 import {BalancedDexPools, balDexPoolsPriceDecimalsMap} from "../../models/BalancedDexPools";
 import {DistributionPercentages} from "../../models/DistributionPercentages";
+import {PoolStats, PoolStatsInterface} from "../../models/PoolStats";
+import {TotalPoolInterface, UserPoolDataInterface} from "../../models/Poolnterfaces";
 
 
 @Injectable({
@@ -81,13 +83,49 @@ export class ScoreService {
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.PriceOracle,
       ScoreMethodNames.GET_REFERENCE_DATA, params, IconTransactionType.READ);
 
-    console.log("getReferenceData tx:", tx);
-
     const res = await this.iconApiService.iconService.call(tx).execute();
 
     log.debug("getReferenceData: ", res);
 
     return Utils.hexToNormalisedNumber(res);
+  }
+
+  /**
+   * @description Get total staked balance for each pool
+   * @return  TotalPoolInterface[]
+   */
+  public async getPoolsData(): Promise<TotalPoolInterface[]> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.StakedLp,
+      ScoreMethodNames.GET_BALANCE_BY_POOL, {}, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getPoolsData: ", res);
+
+    return Mapper.mapPoolsData(res);
+  }
+
+  /**
+   * @description Get staked LP balance of a particular user for all pools
+   * @return  UserPoolDataInterface[]
+   */
+  public async getUserPoolsData(): Promise<UserPoolDataInterface[]> {
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
+    const params = {
+      _owner: this.persistenceService.activeWallet!.address,
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.StakedLp,
+      ScoreMethodNames.GET_POOL_BALANCE_BY_USER, params, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getUserPoolsData: ", res);
+
+    return res;
   }
 
   /**
@@ -467,6 +505,45 @@ export class ScoreService {
     log.debug("getUserDelegationDetails: ", res);
 
     return Mapper.mapUserDelegations(res, this.persistenceService.prepList?.prepAddressToNameMap);
+  }
+
+  /**
+   * @description Get stats for specific pool
+   * @return  PoolStats
+   */
+  public async getPoolStats(poolId: number): Promise<PoolStats> {
+    const params = {
+      _id: IconConverter.toHex(poolId)
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  environment.BALANCED_DEX_SCORE,
+      ScoreMethodNames.GET_POOL_STATS, params, IconTransactionType.READ);
+
+    const res: PoolStatsInterface = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getPoolStats for " + poolId + ":", res);
+
+    return Mapper.mapPoolStats(res);
+  }
+
+  /**
+   * @description Get total amount of token in pool
+   * @return  number
+   */
+  public async getPoolTotal(poolId: number, token: string, decimals: number): Promise<number> {
+    const params = {
+      _id: IconConverter.toHex(poolId),
+      _token: token
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  environment.BALANCED_DEX_SCORE,
+      ScoreMethodNames.GET_POOL_TOTAL, params, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getPoolTotal for " + poolId + ":" + token + ":", res);
+
+    return Utils.hexToNormalisedNumber(res, decimals);
   }
 
 }

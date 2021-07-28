@@ -3,6 +3,7 @@ import {Asset, AssetTag, supportedAssetsMap} from "../models/Asset";
 import {assetFormat} from "../common/formats";
 import {BigNumber} from "bignumber.js";
 import {PersistenceService} from "../services/persistence/persistence.service";
+import {environment} from "../../environments/environment";
 
 
 /*
@@ -80,6 +81,11 @@ export class BaseClass {
     // convert in to percentage
     num = +num * 100;
 
+    // handle values smaller than 0.01%
+    if (num < 0.01) {
+      Utils.handleSmallDecimal(num);
+    }
+
     return `${(this.formatNumberToUSLocaleString(Utils.roundOffTo2Decimals(num)))}%`;
   }
 
@@ -156,6 +162,10 @@ export class BaseClass {
 
   isNegative(value: number): boolean {
     return value < 0;
+  }
+
+  isProduction(): boolean {
+    return environment.production;
   }
 
 }

@@ -11,9 +11,7 @@ import {Utils} from "../../common/utils";
 import {IconAmount, IconConverter} from "icon-sdk-js";
 import {environment} from "../../../environments/environment";
 import {Mapper} from "../../common/mapper";
-import {Prep, PrepList} from "../../models/Preps";
-import {DelegationPreference} from "../../models/DelegationPreference";
-import {AssetTag} from "../../models/Asset";
+import {Prep} from "../../models/Preps";
 import {YourPrepVote} from "../../models/YourPrepVote";
 
 @Injectable({

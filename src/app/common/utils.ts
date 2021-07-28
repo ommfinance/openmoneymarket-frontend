@@ -7,6 +7,16 @@ import log from "loglevel";
 
 export class Utils {
 
+  public static handleSmallDecimal(num: number): string {
+    if (num >= 0.005) {
+      //  Round 0.005% and above up to 0.01%
+      return "<0.01%";
+    } else {
+      // Round value below 0.005% to 0
+      return "0%";
+    }
+  }
+
   // Returns number divided by the 10^decimals and rounded down to 2 decimal places
   public static hexTo2DecimalRoundedOff(value: number | string, decimals: number = 18): number {
     if (!value) {
@@ -96,7 +106,11 @@ export class Utils {
     }
   }
 
-  public static roundDownTo2Decimals(value: number | BigNumber | string): number {
+  public static roundDownTo2Decimals(value: number | BigNumber | string | undefined): number {
+    if (!value) {
+      return 0;
+    }
+
     if (value instanceof BigNumber) {
       return +(value.toFixed(2, BigNumber.ROUND_DOWN));
     } else {
@@ -203,5 +217,9 @@ export class Utils {
     } else {
       return -Math.abs(value);
     }
+  }
+
+  public static isUndefinedOrZero(value?: number): boolean {
+    return (!value) || value === 0;
   }
 }
