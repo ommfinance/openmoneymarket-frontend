@@ -20,9 +20,9 @@ import {LocalStorageService} from "../local-storage/local-storage.service";
 import {HttpClient} from "@angular/common/http";
 import {UserAllReservesData, UserReserveData} from "../../models/UserReserveData";
 import {PoolData} from "../../models/PoolData";
-import {environment} from "../../../environments/environment";
 import {UserPoolData} from "../../models/UserPoolData";
 import {Utils} from "../../common/utils";
+import {PoolsDistPercentages} from "../../models/PoolsDistPercentages";
 
 @Injectable({
   providedIn: 'root'
@@ -108,6 +108,15 @@ export class DataLoaderService {
       this.stateChangeService.poolsDataUpdate(poolsDataRes);
     } catch (e) {
       log.error("Error in loadPoolsData: ", e);
+    }
+  }
+
+  public async loadAllPoolsDistPercentages(): Promise<void> {
+    try {
+      const res = await this.scoreService.getPoolsRewardDistributionPercentages();
+      this.persistenceService.allPoolsDistPercentages = new PoolsDistPercentages(res.liquidity);
+    } catch (e) {
+      log.error("Failed to load distribution percentages for all pools!");
     }
   }
 
@@ -431,6 +440,7 @@ export class DataLoaderService {
   public loadCoreAsyncData(): void {
     this.loadOmmTokenPriceUSD();
     this.loadDistributionPercentages();
+    this.loadAllPoolsDistPercentages();
   }
 
   public async loadUserGovernanceData(): Promise<void> {

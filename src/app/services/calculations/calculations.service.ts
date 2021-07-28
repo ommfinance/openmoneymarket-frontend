@@ -531,13 +531,13 @@ export class CalculationsService {
 
   /** Formula: Daily OMM distribution (1M) * Pool pair portion (0.05), same across all 3 pools (OMM/USDS, OMM/iUSDC, OMM/sICX) */
   public calculateDailyRewardsForPool(poolData: PoolData): number {
-    return this.persistenceService.tokenDistributionPerDay * 0.05; // TODO replace constant with pool pair portion
+    return this.persistenceService.tokenDistributionPerDay * this.persistenceService.getDistPercentageOfPool(poolData.poolId);
   }
 
   /** Formula: userStakedBalance / totalStakedBalance * Daily OMM distribution (1M) * OMM/USDS pair portion (0.05) */
   public calculateUserDailyRewardsForPool(poolData: UserPoolData): number {
-    // TODO replace constant with pool pair portion
-    return poolData.userStakedBalance / poolData.totalStakedBalance * this.persistenceService.tokenDistributionPerDay * 0.05;
+    return poolData.userStakedBalance / poolData.totalStakedBalance * this.persistenceService.tokenDistributionPerDay
+      * this.persistenceService.getDistPercentageOfPool(poolData.poolId);
   }
 
   /** Formula: Sum (Daily rewards_Liquidity Pools2 across 3 pools) */

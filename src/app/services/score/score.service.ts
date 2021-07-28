@@ -24,6 +24,7 @@ import {BalancedDexPools, balDexPoolsPriceDecimalsMap} from "../../models/Balanc
 import {DistributionPercentages} from "../../models/DistributionPercentages";
 import {PoolStats, PoolStatsInterface} from "../../models/PoolStats";
 import {TotalPoolInterface, UserPoolDataInterface} from "../../models/Poolnterfaces";
+import {PoolsDistPercentages} from "../../models/PoolsDistPercentages";
 
 
 @Injectable({
@@ -524,6 +525,23 @@ export class ScoreService {
     log.debug("getPoolStats for " + poolId + ":", res);
 
     return Mapper.mapPoolStats(res);
+  }
+
+  /**
+   * @description Get Liquidity provider pool’s reward distribution percentage
+   * @return PoolsDistPercentages
+   */
+  public async getPoolsRewardDistributionPercentages(): Promise<PoolsDistPercentages> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Rewards,
+      ScoreMethodNames.GET_DIST_PERCENTAGE_ALL_POOLS, {}, IconTransactionType.READ);
+
+    const res: PoolsDistPercentages = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getPoolsRewardDistributionPercentages:", res);
+
+    return res;
   }
 
   /**

@@ -17,6 +17,7 @@ import {UnstakeInfo} from "../../models/UnstakeInfo";
 import {DistributionPercentages} from "../../models/DistributionPercentages";
 import {PoolData} from "../../models/PoolData";
 import {UserPoolData} from "../../models/UserPoolData";
+import {PoolsDistPercentages} from "../../models/PoolsDistPercentages";
 
 @Injectable({
   providedIn: 'root'
@@ -33,6 +34,7 @@ export class PersistenceService {
   public allReservesConfigData?: AllReserveConfigData;
 
   public allPools: PoolData[] = [];
+  public allPoolsDistPercentages?: PoolsDistPercentages;
   public allPoolsDataMap: Map<number, PoolData> = new Map<number, PoolData>();
 
   public userPools: UserPoolData[] = [];
@@ -74,6 +76,10 @@ export class PersistenceService {
     this.userAccountData = undefined;
     this.userTotalRisk = 0;
     this.userReserves = new UserReserves();
+  }
+
+  public getDistPercentageOfPool(poolId: number): number {
+    return this.allPoolsDistPercentages?.getDistPercentageForPool(poolId) ?? 0;
   }
 
   public getUserPoolStakedBalance(poolId: number): number {
