@@ -373,7 +373,13 @@ export class DataLoaderService {
 
   public async afterUserActionReload(): Promise<void> {
     // reload all reserves and user asset-user reserve data
-    await this.loadAllReserveData();
+    await Promise.all([
+      this.loadAllReserveData(),
+      this.loadAllReservesConfigData(),
+      this.loadTotalStakedOmm(),
+      this.loadPoolsData(),
+    ]);
+
     await this.loadUserSpecificData();
   }
 
