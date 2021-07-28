@@ -4,7 +4,7 @@ import {ReserveData} from "../models/AllReservesData";
 import {UserAccountData} from "../models/UserAccountData";
 import log from "loglevel";
 import {ReserveConfigData} from "../models/ReserveConfigData";
-import {OmmRewards} from "../models/OmmRewards";
+import {Liquidity, OmmRewards, Reserve, Staking} from "../models/OmmRewards";
 import {OmmTokenBalanceDetails} from "../models/OmmTokenBalanceDetails";
 import {Prep, PrepList} from "../models/Preps";
 import {DelegationPreference} from "../models/DelegationPreference";
@@ -55,14 +55,25 @@ export class Mapper {
   public static mapUserOmmRewards(ommRewards: OmmRewards): OmmRewards {
     log.debug("mapUserOmmRewards before: ", ommRewards);
     const res = new OmmRewards(
-      Utils.hexToNormalisedNumber(ommRewards.deposit),
-      Utils.hexToNormalisedNumber(ommRewards.borrow),
-      Utils.hexToNormalisedNumber(ommRewards.ommICX),
-      Utils.hexToNormalisedNumber(ommRewards.ommUSDb),
-      Utils.hexToNormalisedNumber(ommRewards.worker),
-      Utils.hexToNormalisedNumber(ommRewards.daoFund),
-      Utils.hexToNormalisedNumber(ommRewards.ommRewards),
-      Utils.hexToNormalisedNumber(ommRewards.liquidityRewards),
+      new Liquidity(
+        Utils.hexToNormalisedNumber(ommRewards.liquidity["OMM/SICX"]),
+        Utils.hexToNormalisedNumber(ommRewards.liquidity["OMM/USDS"]),
+        Utils.hexToNormalisedNumber(ommRewards.liquidity["OMM/IUSDC"]),
+        Utils.hexToNormalisedNumber(ommRewards.liquidity.total)
+      ),
+      new Staking(
+        Utils.hexToNormalisedNumber(ommRewards.staking.OMM),
+        Utils.hexToNormalisedNumber(ommRewards.staking.total)
+      ),
+      new Reserve(
+        Utils.hexToNormalisedNumber(ommRewards.reserve.oUSDS),
+        Utils.hexToNormalisedNumber(ommRewards.reserve.dUSDS),
+        Utils.hexToNormalisedNumber(ommRewards.reserve.dICX),
+        Utils.hexToNormalisedNumber(ommRewards.reserve.oICX),
+        Utils.hexToNormalisedNumber(ommRewards.reserve.oIUSDC),
+        Utils.hexToNormalisedNumber(ommRewards.reserve.dIUSDC),
+        Utils.hexToNormalisedNumber(ommRewards.reserve.total)
+      ),
       Utils.hexToNormalisedNumber(ommRewards.total)
     );
     log.debug("mapUserOmmRewards after: ", res);

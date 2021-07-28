@@ -411,7 +411,7 @@ export class ModalComponent extends BaseClass implements OnInit {
   }
 
   activeModalHasLiquidityRewards(): boolean {
-    const liquidityRewards = this.activeModalChange?.assetAction?.details?.ommRewards?.liquidityRewards ?? 0;
+    const liquidityRewards = this.activeModalChange?.assetAction?.details?.ommRewards?.liquidity.total ?? 0;
     return liquidityRewards > 0;
   }
 

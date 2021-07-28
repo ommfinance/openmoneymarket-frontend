@@ -20,7 +20,6 @@ import {LocalStorageService} from "../local-storage/local-storage.service";
 import {HttpClient} from "@angular/common/http";
 import {UserAllReservesData, UserReserveData} from "../../models/UserReserveData";
 import {PoolData} from "../../models/PoolData";
-import {environment} from "../../../environments/environment";
 import {UserPoolData} from "../../models/UserPoolData";
 import {Utils} from "../../common/utils";
 
