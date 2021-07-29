@@ -157,6 +157,7 @@ export class StateChangeService {
   }
 
   public updateUserAssetBalance(balance: number, assetTag: AssetTag): void {
+    this.persistenceService.activeWallet!.balances.set(assetTag, balance);
     this.userBalanceChangeMap.get(assetTag)!.next(balance);
   }
 

@@ -885,7 +885,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   assetRepayUsedPercentage(): number {
-    log.debug(`************ assetRepayUsedPercentage ************`);
     if (this.getUserBorrowedAssetBalance() <= 0){
       return 0;
     }
@@ -893,18 +892,14 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     // return in percentage how much is "used", i.e. how much in percentage user still has to repay
     // user can not scroll below this percentage on repayment / borrow slider
     const borrowUsed = this.borrowUsed();
-    const percentageUsed = borrowUsed === 0 ? 0 : (borrowUsed / this.borrowSliderMaxValue()) * 100;
-    log.debug(`assetRepayUsedPercentage for ${this.asset.tag} = ${percentageUsed}`);
-    return percentageUsed;
+    return borrowUsed === 0 ? 0 : (borrowUsed / this.borrowSliderMaxValue()) * 100;
   }
 
   borrowUsed(): number {
     const collateralAssetTag = assetToCollateralAssetTag(this.asset.tag);
     const userCollateralAssetBalance = this.persistenceService.getUserAssetCollateralBalance(collateralAssetTag);
 
-    log.debug(`userCollateralAssetBalance for ${this.asset.tag} = ${userCollateralAssetBalance}`);
     const userAssetDebt = this.persistenceService.getUserAssetDebt(this.asset.tag);
-    log.debug(`userAssetDebt for ${this.asset.tag} = ${userAssetDebt}`);
 
     // if user has balance of collateral asset greater than the debt he has to repay return 0
     // else return the amount that is outstanding (debt - balance)

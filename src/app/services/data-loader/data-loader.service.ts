@@ -41,14 +41,26 @@ export class DataLoaderService {
 
   }
 
-  public loadAllUserAssetsBalances(): void {
-    Object.values(AssetTag).forEach(assetTag => {
-      this.scoreService.getUserAssetBalance(assetTag).then();
-    });
+  public async loadAllUserAssetsBalances(): Promise<void> {
+    try {
+      await Promise.all(Object.values(AssetTag).map(
+        async (assetTag) => {
+          this.scoreService.getUserAssetBalance(assetTag).then().catch(e => {
+            log.error("Failed to fetch balance for " + assetTag);
+            log.error(e);
+          });
+      }));
 
-    Object.values(CollateralAssetTag).forEach(assetTag => {
-      this.scoreService.getUserCollateralAssetBalance(assetTag).then();
-    });
+      await Promise.all(CollateralAssetTag.getPropertiesDifferentThanAssetTag().map(
+        async (assetTag) => {
+          this.scoreService.getUserCollateralAssetBalance(assetTag).then().catch(e => {
+            log.error("Failed to fetch balance for " + assetTag);
+            log.error(e);
+          });
+        }));
+    } catch (e) {
+      log.debug("Failed to fetch all user asset balances!");
+    }
   }
 
   public loadAllUserDebts(): void {
@@ -186,7 +198,7 @@ export class DataLoaderService {
       this.persistenceService.allAddresses!.collateralAddress(assetTag));
     const mappedReserve = Mapper.mapUserReserve(userReserveData, this.persistenceService.getAssetReserveData(assetTag)!!.decimals);
 
-    this.persistenceService.userReserves!.reserveMap.set(assetTag, mappedReserve);
+    this.persistenceService.userReserves.reserveMap.set(assetTag, mappedReserve);
     log.debug(`User ${assetTag} reserve data:`, mappedReserve);
     this.stateChangeService.updateUserAssetReserve(mappedReserve, assetTag);
   }
@@ -205,7 +217,7 @@ export class DataLoaderService {
       // @ts-ignore
       newUserAllReserve[value[0]] = mappedReserve;
 
-      this.persistenceService.userReserves!.reserveMap.set(assetTag, mappedReserve);
+      this.persistenceService.userReserves.reserveMap.set(assetTag, mappedReserve);
       this.stateChangeService.updateUserAssetReserve(mappedReserve, assetTag);
     });
 
@@ -393,8 +405,7 @@ export class DataLoaderService {
       this.loadLoanOriginationFeePercentage(),
       this.loadTotalStakedOmm(),
       this.loadPrepList(),
-      this.loadPoolsData(),
-      this.loadMinOmmStakeAmount()
+      this.loadPoolsData()
     ]);
   }
 
@@ -432,6 +443,7 @@ export class DataLoaderService {
     this.loadOmmTokenPriceUSD();
     this.loadDistributionPercentages();
     this.loadAllPoolsDistPercentages();
+    this.loadMinOmmStakeAmount();
   }
 
   public async loadUserGovernanceData(): Promise<void> {
