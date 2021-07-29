@@ -307,15 +307,6 @@ export class DataLoaderService {
     });
   }
 
-  public loadTokenPriceUSD2(): void {
-    this.scoreService.getReferenceData("OMM").then(res => {
-      console.log("Token price from oracle = " + res);
-    }). catch(e => {
-      console.log("Failed to fetch OMM price");
-      console.error(e);
-    });
-  }
-
   public loadTokenDistributionPerDay(): Promise<void> {
     return this.scoreService.getTokenDistributionPerDay().then(res => {
       this.persistenceService.tokenDistributionPerDay = res;
