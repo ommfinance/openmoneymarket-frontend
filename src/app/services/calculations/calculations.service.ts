@@ -439,7 +439,8 @@ export class CalculationsService {
     let reserve: ReserveData | undefined;
     Object.values(AssetTag).forEach((assetTag: AssetTag) => {
       reserve = this.persistenceService.allReserves!.getReserveData(assetTag);
-      const rate = ommApyIncluded ? reserve.borrowRate + this.calculateBorrowApyWithOmmRewards(assetTag) : reserve.borrowRate;
+      const borrowRate = reserve.borrowRate;
+      const rate = ommApyIncluded ? this.calculateBorrowApyWithOmmRewards(assetTag) - borrowRate : Utils.makeNegativeNumber(borrowRate);
       totalBorrowUSDsum += reserve.totalBorrowsUSD;
       totalBorrowUSDsupplyApySum += reserve.totalBorrowsUSD * rate;
     });
@@ -471,11 +472,11 @@ export class CalculationsService {
     let borrowed;
     let borrowApy;
 
-    // Sum(My supply amount for each asset * Supply APY for each asset)
+    // Sum(My borrow amount for each asset * Borrow APY for each asset)
     this.persistenceService.userReserves.reserveMap.forEach((reserve: UserReserveData | undefined, assetTag: AssetTag) => {
       borrowed = reserve?.currentBorrowBalanceUSD ?? 0;
       borrowApy = reserve?.borrowRate ?? 0;
-      const rate = ommApyIncluded ? borrowApy + this.calculateBorrowApyWithOmmRewards(assetTag) : borrowApy;
+      const rate = ommApyIncluded ?  this.calculateBorrowApyWithOmmRewards(assetTag) - borrowApy : Utils.makeNegativeNumber(borrowApy);
       borrowApySum += borrowed * rate;
       borrowSum += borrowed;
     });

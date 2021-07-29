@@ -30,7 +30,7 @@ export class Mapper {
   public static mapUserReserve(reserve: UserReserveData, decimals: number = 18): UserReserveData {
     log.debug("mapUserReserve before: ", reserve);
     const res = new UserReserveData(
-      Utils.hexToNormalisedNumber(Utils.makeNegativeNumber(reserve.borrowRate)),
+      Utils.hexToNormalisedNumber(reserve.borrowRate),
       Utils.hexToNormalisedNumber(reserve.currentBorrowBalance, decimals),
       Utils.hexToNormalisedNumber(reserve.currentBorrowBalanceUSD),
       Utils.hexToNormalisedNumber(reserve.currentOTokenBalance, decimals),
@@ -124,7 +124,7 @@ export class Mapper {
       Utils.hexToNormalisedNumber(reserveData.totalBorrows, decimals),
       Utils.hexToNormalisedNumber(reserveData.totalBorrowsUSD),
       Utils.hexToNormalisedNumber(reserveData.liquidityRate),
-      Utils.hexToNormalisedNumber(Utils.makeNegativeNumber(reserveData.borrowRate)),
+      Utils.hexToNormalisedNumber(reserveData.borrowRate),
       reserveData.oTokenAddress,
       Utils.hexToNormalisedNumber(reserveData.exchangePrice),
       Utils.hexToNumber(reserveData.lastUpdateTimestamp),
