@@ -50,6 +50,10 @@ export class CollateralAssetTag {
   static USDS = "USDS";
   static sICX = "sICX";
   static USDC = "IUSDC";
+
+  public static getPropertiesDifferentThanAssetTag(): CollateralAssetTag[] {
+    return Object.values(CollateralAssetTag).filter(collateralAssetTag =>  !(Object.values(AssetTag).includes(collateralAssetTag)));
+  }
 }
 
 export function assetToCollateralAssetTag(assetTag: AssetTag): CollateralAssetTag {
