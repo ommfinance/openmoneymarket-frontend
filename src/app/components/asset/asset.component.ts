@@ -945,7 +945,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   getMarketBorrowRate(): number {
     return this._ommApyChecked ? this.calculationService.calculateUserAndMarketReserveBorrowApy(this.asset.tag) :
-      this.persistenceService.getAssetReserveData(this.asset.tag)?.borrowRate ?? 0;
+      Utils.makeNegativeNumber(this.persistenceService.getAssetReserveData(this.asset.tag)?.borrowRate ?? 0);
   }
 
   getMarketSupplyRate(): number {
@@ -959,8 +959,8 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   getUserBorrowApy(): number {
-    return this._ommApyChecked ? this.getMarketBorrowRate() : this.persistenceService.getUserAssetReserve(this.asset.tag)?.borrowRate
-      ?? 0;
+    return this._ommApyChecked ? this.getMarketBorrowRate() :
+      Utils.makeNegativeNumber(this.persistenceService.getUserAssetReserve(this.asset.tag)?.borrowRate ?? 0);
   }
 
   getUserTotalUnstakeAmount(): number {

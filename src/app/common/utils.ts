@@ -212,6 +212,10 @@ export class Utils {
   }
 
   public static makeNegativeNumber(value: number | string): number {
+    if (value === 0) {
+      return 0;
+    }
+
     if (typeof value === "string") {
       return -Math.abs(+value);
     } else {
