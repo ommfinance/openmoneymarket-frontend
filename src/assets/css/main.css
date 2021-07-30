@@ -376,6 +376,13 @@ textarea {
   width: 22px;
 }
 
+/* Navigation earn styles */
+
+.navigation-earn svg {
+  width: 16px !important;
+  margin-left: 2px;
+}
+
 /* Default icon colour */
 
 .navigation ul li a svg path,
@@ -3012,7 +3019,7 @@ input[type="text"].input-borrow-available {
 }
 
 /* ==========================================================================
-	Liquidity specific styles (Layout styles: sizing, spacing, etc.)
+	Rewards specific styles (Layout styles: sizing, spacing, etc.)
 ========================================================================== */
 
 .pool-expanded .content {
@@ -3034,15 +3041,101 @@ input[type="text"].input-borrow-available {
 .pool-expanded input {
   border: 2px solid #d3d9e7;
 }
+#your-liquidity dd .label {
+  font-size: 16px;
+}
+
+
+/*
+*
+* Vote overview
+*
+*/
+
+/* Omm stake */
+
+#staking-overview.adjust #omm-stake .actions-default {
+  display: none;
+}
+#staking-overview:not(.adjust) #omm-stake .actions-adjust {
+  display: none;
+}
+#staking-overview #omm-stake .actions-adjust {
+  margin-top: 10px;
+}
+#staking-overview #omm-stake .actions-adjust .button {
+  margin-top: 0;
+}
+#staking-overview #omm-stake .actions-default .button {
+  margin-top: 10px;
+}
+#staking-overview input[type="text"] {
+  border: 2px solid #d3d9e7;
+  max-width: 70%;
+  margin-bottom: 5px;
+  text-align: center;
+  color: #49546a;
+  transition: border 0.3s ease;
+}
+#staking-overview input[type="text"]:hover,
+#staking-overview input[type="text"]:focus {
+  border: 2px solid #2ca9b7;
+  transition: border 0.2s ease;
+}
+#staking-overview #omm-stake .actions-adjust.active {
+  margin-top: 25px;
+}
+
+#staking-overview .button {
+  margin-top: 0;
+}
+.stake-omm-actions-adjust {
+  margin-top: 10px;
+}
+
+/* Omm stake slider */
+
+#staking-overview #omm-stake .noUi-target {
+  margin-top: 25px;
+  margin-bottom: 25px;
+}
+#staking-overview #omm-stake .noUi-horizontal .noUi-handle {
+  border: 3px solid #2ca9b7;
+}
+#staking-overview #omm-stake .noUi-connect {
+  background: -moz-linear-gradient( 180deg, rgb(0,211,194) 0%, rgb(63,157,213) 100%);
+  background: -webkit-linear-gradient( 180deg, rgb(0,211,194) 0%, rgb(63,157,213) 100%);
+  background: -ms-linear-gradient( 180deg, rgb(0,211,194) 0%, rgb(63,157,213) 100%);
+}
+
+/* Staking APY */
+
+#staking-overview #staking-apy {
+  border-left: 1px solid #d3d9e7;
+  padding-left: 35px;
+  margin-left: 35px;
+}
+#staking-overview #staking-apy #staking-apy-data {
+  font-size: 25px;
+  margin-bottom: 15px;
+}
+#staking-overview #staking-apy #staking-apy-data .metadata dd {
+  margin-bottom: 15px;
+}
+
 
 /* ==========================================================================
-	Responsive styles (Coming soon)
+	Responsive styles 1600px and smaller
 ========================================================================== */
 
 @media (max-width: 1600px) {
 
 
 }
+
+/* ==========================================================================
+	Responsive styles: 1200px and smaller
+========================================================================== */
 
 @media (max-width: 1200px) {
 
@@ -3090,6 +3183,10 @@ input[type="text"].input-borrow-available {
     margin-right: 10px;
   }
 }
+
+/* ==========================================================================
+	Responsive styles: 800px and smaller
+========================================================================== */
 
 @media (max-width: 800px) {
 
@@ -3224,17 +3321,32 @@ input[type="text"].input-borrow-available {
     border-bottom-right-radius: 10px;
   }
 
-  /* Liquidations */
+  /*
+  *
+  * Rewards
+  *
+  */
 
-  .list.liquidations .list-expanded > .grid-cell > .grid {
-    flex-direction: column;
+  #your-liquidity.grid.panel {
+    flex-direction: column-reverse;
   }
-  .list.liquidations .list-expanded > .grid-cell > .grid .grid-cell.border-right {
+  #your-liquidity.grid.panel .grid-cell.border-right {
     border-right: none;
-    border-bottom: 1px solid #d3d9e7;
-    padding-bottom: 15px;
+  }
+  #staking-overview .grid.panel {
+    flex-direction: column-reverse;
+  }
+  #staking-overview #staking-apy {
+    margin-bottom: 35px;
+    margin-left: 0;
+    padding-left: 0;
+    border-left: none;
   }
 }
+
+/* ==========================================================================
+	Responsive styles: 500px and smaller
+========================================================================== */
 
 @media (max-width: 500px) {
 

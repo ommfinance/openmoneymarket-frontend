@@ -46,8 +46,8 @@ export class HeaderComponent extends BaseClass implements OnInit {
   handleRouteChange(): void {
     if (this.router.url.includes('vote')) {
       this.pageTitle = "Vote";
-    } else if (this.router.url.includes('liquidity')) {
-      this.pageTitle = "Liquidity";
+    } else if (this.router.url.includes('rewards')) {
+      this.pageTitle = "Rewards";
     } else {
       this.pageTitle = "Home";
     }

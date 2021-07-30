@@ -25,6 +25,7 @@ import {DistributionPercentages} from "../../models/DistributionPercentages";
 import {PoolStats, PoolStatsInterface} from "../../models/PoolStats";
 import {TotalPoolInterface, UserPoolDataInterface} from "../../models/Poolnterfaces";
 import {PoolsDistPercentages} from "../../models/PoolsDistPercentages";
+import {AllAssetDistPercentages} from "../../models/AllAssetDisPercentages";
 
 
 @Injectable({
@@ -540,6 +541,23 @@ export class ScoreService {
     log.debug("getPoolsRewardDistributionPercentages:", res);
 
     return res;
+  }
+
+  /**
+   * @description Get all assets reward distribution percentage
+   * @return PoolsDistPercentages
+   */
+  public async getAllAssetsRewardDistributionPercentages(): Promise<AllAssetDistPercentages> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Rewards,
+      ScoreMethodNames.GET_ALL_ASSET_DIST_PERCENTAGE, {}, IconTransactionType.READ);
+
+    const res: AllAssetDistPercentages = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getPoolsRewardDistributionPercentages:", res);
+
+    return Mapper.mapAllAssetDistPercentages(res);
   }
 
   /**

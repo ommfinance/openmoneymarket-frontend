@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
 import {BaseClass} from "../base-class";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {ActiveLiquidityOverview, ActiveLiquidityPoolsView} from "../../models/ActiveViews";
@@ -13,8 +13,12 @@ import {CalculationsService} from "../../services/calculations/calculations.serv
 import log from "loglevel";
 import {UserPoolData} from "../../models/UserPoolData";
 import {ModalAction} from "../../models/ModalAction";
+import {StakingAction} from "../../models/StakingAction";
+import {NotificationService} from "../../services/notification/notification.service";
+import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
 
 declare var $: any;
+declare var noUiSlider: any;
 
 @Component({
   selector: 'app-liquidity',
@@ -23,19 +27,23 @@ declare var $: any;
 })
 export class LiquidityComponent extends BaseClass implements OnInit, AfterViewInit {
 
-  toggleYourPoolsEl: any;
-  @ViewChild("toggYourPools")set a(a: ElementRef) {this.toggleYourPoolsEl = a.nativeElement; }
-  toggleAllPoolsEl: any;
-  @ViewChild("toggAllPools") set b(b: ElementRef) {this.toggleAllPoolsEl = b.nativeElement; }
+  toggleYourPoolsEl: any; @ViewChild("toggYourPools")set a(a: ElementRef) {this.toggleYourPoolsEl = a.nativeElement; }
+  toggleAllPoolsEl: any; @ViewChild("toggAllPools") set b(b: ElementRef) {this.toggleAllPoolsEl = b.nativeElement; }
+  private ommStakeAmount?: any; @ViewChild("ommStk")set c(ommStake: ElementRef) {this.ommStakeAmount = ommStake.nativeElement; }
+  private sliderStake!: any; @ViewChild("stkSlider")set d(sliderStake: ElementRef) {this.sliderStake = sliderStake.nativeElement; }
 
   public activeLiquidityOverview: ActiveLiquidityOverview = this.userLoggedIn() ? ActiveLiquidityOverview.YOUR_LIQUIDITY :
     ActiveLiquidityOverview.ALL_LIQUIDITY;
   public activeLiquidityPoolView: ActiveLiquidityPoolsView = ActiveLiquidityPoolsView.ALL_POOLS;
 
+  userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
+
   constructor(public persistenceService: PersistenceService,
               private stateChangeService: StateChangeService,
               private modalService: ModalService,
-              private calculationService: CalculationsService) {
+              private calculationService: CalculationsService,
+              private notificationService: NotificationService,
+              private cd: ChangeDetectorRef) {
     super(persistenceService);
   }
 
@@ -44,7 +52,10 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
   }
 
   ngAfterViewInit(): void {
+    this.initStakeSlider();
 
+    // call cd after to avoid ExpressionChangedAfterItHasBeenCheckedError
+    this.cd.detectChanges();
   }
 
   onClaimOmmRewardsClick(): void {
@@ -66,12 +77,31 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
 
   private registerSubscriptions(): void {
     this.subscribeToLoginChange();
+    this.subscribeToOmmTokenBalanceChange();
     this.subscribeToUserModalActionChange();
+  }
+
+  private subscribeToOmmTokenBalanceChange(): void {
+    this.stateChangeService.userOmmTokenBalanceDetailsChange.subscribe((res: OmmTokenBalanceDetails) => {
+      this.userOmmTokenBalanceDetails = res.getClone();
+
+      // sliders max is sum of staked + available balance
+      const sliderMax = Utils.addDecimalsPrecision(this.persistenceService.getUsersStakedOmmBalance(),
+        this.persistenceService.getUsersAvailableOmmBalance());
+
+      this.sliderStake.noUiSlider.updateOptions({
+        start: [this.userOmmTokenBalanceDetails.stakedBalance],
+        range: { min: 0, max: sliderMax > 0 ? sliderMax : 1 }
+      });
+
+      this.sliderStake.noUiSlider.set(this.userOmmTokenBalanceDetails.stakedBalance);
+    });
   }
 
   private subscribeToUserModalActionChange(): void {
     // User confirmed the modal action
     this.stateChangeService.userModalActionChange.subscribe((modalAction?: ModalAction) => {
+      this.onStakeAdjustCancelClick();
       this.collapseTables();
     });
   }
@@ -88,6 +118,113 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
         this.onAllPoolsClick();
       }
     });
+  }
+
+  initStakeSlider(): void {
+    this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails?.getClone();
+    const currentUserOmmStakedBalance = this.persistenceService.getUsersStakedOmmBalance();
+    const userOmmAvailableBalance = this.persistenceService.getUsersAvailableOmmBalance();
+    const max = Utils.addDecimalsPrecision(currentUserOmmStakedBalance, userOmmAvailableBalance);
+
+    // create Stake slider
+    if (this.sliderStake) {
+      noUiSlider.create(this.sliderStake, {
+        start: 0,
+        padding: 0,
+        connect: 'lower',
+        range: {
+          min: [0],
+          max: [max === 0 ? 1 : max]
+        },
+        step: 1,
+      });
+    }
+
+    // slider slider value if user Omm token balances are already loaded
+    if (this.userOmmTokenBalanceDetails) {
+      this.sliderStake.noUiSlider.set(this.roundDownToZeroDecimals(this.userOmmTokenBalanceDetails.stakedBalance));
+    }
+
+    // On stake slider update
+    this.sliderStake.noUiSlider.on('update', (values: any, handle: any) => {
+      const value = +values[handle];
+
+      if (this.userOmmTokenBalanceDetails) {
+        this.userOmmTokenBalanceDetails.stakedBalance = value;
+      }
+    });
+  }
+
+  onConfirmStakeClick(): void {
+    log.debug(`onConfirmStakeClick Omm stake amount = ${this.userOmmTokenBalanceDetails?.stakedBalance}`);
+    const before = this.roundDownToZeroDecimals(this.persistenceService.getUsersStakedOmmBalance());
+    log.debug("before = ", before);
+    const after = this.roundDownToZeroDecimals(this.userOmmTokenBalanceDetails?.stakedBalance ?? 0);
+    log.debug("after = ", after);
+    const diff = Utils.subtractDecimalsWithPrecision(after, before, 0);
+    log.debug("Diff = ", diff);
+
+    // if before and after equal show notification
+    if (before === after) {
+      this.notificationService.showNewNotification("No change in staked value.");
+      return;
+    }
+
+    const voteAction = new StakingAction(before, after, Math.abs(diff));
+
+    if (diff > 0) {
+      if (this.persistenceService.minOmmStakeAmount > diff) {
+        this.notificationService.showNewNotification(`Stake amount must be greater than ${this.persistenceService.minOmmStakeAmount}`);
+      } else {
+        this.modalService.showNewModal(ModalType.STAKE_OMM_TOKENS, undefined, voteAction);
+      }
+    } else {
+      this.modalService.showNewModal(ModalType.UNSTAKE_OMM_TOKENS, undefined, voteAction);
+    }
+  }
+
+  getYourStakeMax(): number {
+    // sliders max is sum of staked + available balance
+    return Utils.addDecimalsPrecision(this.persistenceService.getUsersStakedOmmBalance(),
+      this.persistenceService.getUsersAvailableOmmBalance());
+  }
+
+  // On "Stake" click
+  onStakeAdjustClick(): void {
+    $(".stake-omm-actions-adjust").removeClass('hide');
+    $(".stake-omm-actions-default").addClass('hide');
+    this.sliderStake.removeAttribute("disabled");
+  }
+
+  // On "Cancel Stake" click
+  onStakeAdjustCancelClick(): void {
+    $(".stake-omm-actions-adjust").addClass('hide');
+    $(".stake-omm-actions-default").removeClass('hide');
+
+    // Set your stake slider to the initial value
+    this.sliderStake.setAttribute("disabled", "");
+    this.sliderStake.noUiSlider.set(this.persistenceService.getUsersStakedOmmBalance());
+  }
+
+  shouldHideClaimBtn(): boolean {
+    const userOmmRewardsTotal = this.persistenceService.userOmmRewards?.total ?? 0;
+    return userOmmRewardsTotal <= 0 || this.persistenceService.userOmmTokenBalanceDetails == null;
+  }
+
+  onSignInClick(): void {
+    this.modalService.showNewModal(ModalType.SIGN_IN);
+  }
+
+  getMarketRewards(): number {
+    return this.persistenceService.userOmmRewards?.reserve.total ?? 0;
+  }
+
+  getStakingRewards(): number {
+    return this.persistenceService.userOmmRewards?.staking.total ?? 0;
+  }
+
+  getLiquidityRewards(): number {
+    return this.persistenceService.userOmmRewards?.liquidity.total ?? 0;
   }
 
   userHasStakedToPool(poolData: UserPoolData): boolean {
@@ -110,6 +247,34 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
     }
 
     return false;
+  }
+
+  getStakingApy(): number {
+    return this.calculationService.calculateStakingApy();
+  }
+
+  getUserOmmStakingDailyRewards(): number {
+    return this.calculationService.calculateDailyUsersOmmStakingRewards();
+  }
+
+  userHasOmmTokens(): boolean {
+    return (this.persistenceService.userOmmTokenBalanceDetails?.totalBalance ?? 0) > 0;
+  }
+
+  userHasStaked(): boolean {
+    return this.persistenceService.getUsersStakedOmmBalance() > 0;
+  }
+
+  isMaxStaked(): boolean {
+    return this.sliderStake?.noUiSlider?.options.range.max === this.userOmmTokenBalanceDetails?.stakedBalance;
+  }
+
+  isUnstaking(): boolean {
+    return this.persistenceService.getUserUnstakingOmmBalance() > 0;
+  }
+
+  getUserOmmStakingDailyRewardsUSD(): number {
+    return this.calculationService.calculateUserOmmStakingDailyRewardsUSD();
   }
 
   userHasLpTokenAvailableOrHasStaked(poolId: number): boolean {
@@ -149,6 +314,10 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
     return this.calculationService.calculateDailyRewardsAllPools();
   }
 
+  getTotalPoolsStaked(): number {
+    return this.calculationService.calculateTotalPoolsStaked();
+  }
+
   getDailyRewardsUserPools(): number {
     return this.calculationService.calculateDailyRewardsUserPools();
   }
@@ -163,6 +332,10 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
 
   getTotalLiquidityUSD(): number {
     return this.calculationService.getAllPoolTotalLiquidityUSD();
+  }
+
+  getTotalPoolsLiquidityOmm(): number {
+    return this.calculationService.getAllPoolTotalLiquidityOmm();
   }
 
   getUserLiquidityUSD(): number {

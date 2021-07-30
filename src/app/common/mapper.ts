@@ -14,6 +14,7 @@ import {DistributionPercentages} from "../models/DistributionPercentages";
 import {PoolStats, PoolStatsInterface} from "../models/PoolStats";
 import {TotalPoolInterface, UserPoolDataInterface} from "../models/Poolnterfaces";
 import {UserPoolData} from "../models/UserPoolData";
+import {AllAssetDistPercentages, LiquidityAllAsset, ReserveAllAsset, StakingAllAsset} from "../models/AllAssetDisPercentages";
 
 export class Mapper {
 
@@ -77,6 +78,30 @@ export class Mapper {
       Utils.hexToNormalisedNumber(ommRewards.total)
     );
     log.debug("mapUserOmmRewards after: ", res);
+
+    return res;
+  }
+
+  public static mapAllAssetDistPercentages(value: AllAssetDistPercentages): AllAssetDistPercentages {
+    log.debug("mapAllAssetDistPercentages value: ", value);
+    const res = new AllAssetDistPercentages(
+      new LiquidityAllAsset(
+        Utils.hexToNormalisedNumber(value.liquidity["OMM/SICX"]),
+        Utils.hexToNormalisedNumber(value.liquidity["OMM/USDS"]),
+        Utils.hexToNormalisedNumber(value.liquidity["OMM/IUSDC"])
+      ),
+      new StakingAllAsset(
+        Utils.hexToNormalisedNumber(value.staking.OMM)
+      ),
+      new ReserveAllAsset(
+        Utils.hexToNormalisedNumber(value.reserve.oUSDS),
+        Utils.hexToNormalisedNumber(value.reserve.dUSDS),
+        Utils.hexToNormalisedNumber(value.reserve.dICX),
+        Utils.hexToNormalisedNumber(value.reserve.oICX),
+        Utils.hexToNormalisedNumber(value.reserve.oIUSDC),
+        Utils.hexToNormalisedNumber(value.reserve.dIUSDC)
+      ));
+    log.debug("mapAllAssetDistPercentages after: ", res);
 
     return res;
   }

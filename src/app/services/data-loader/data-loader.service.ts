@@ -319,6 +319,15 @@ export class DataLoaderService {
     });
   }
 
+  public loadAllAssetDistPercentages(): void {
+    this.scoreService.getAllAssetsRewardDistributionPercentages().then(res => {
+      this.persistenceService.allAssetDistPercentages = res;
+    }).catch(e => {
+      log.error("Error in loadAllAssetDistPercentages()");
+      log.error(e);
+    });
+  }
+
   public loadTokenDistributionPerDay(): Promise<void> {
     return this.scoreService.getTokenDistributionPerDay().then(res => {
       this.persistenceService.tokenDistributionPerDay = res;

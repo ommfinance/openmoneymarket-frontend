@@ -43,6 +43,7 @@ export class ScoreMethodNames {
   public static GET_OMM_REWARDS_PER_USER = "getRewards";
   public static GET_OMM_TOKEN_BALANCE_DETAILS = "details_balanceOf";
   public static GET_DIST_PERCENTAGE_ALL_POOLS = "distPercentageOfAllLP";
+  public static GET_ALL_ASSET_DIST_PERCENTAGE = "allAssetDistPercentage";
 
   /**
    * OmmToken SCORE
