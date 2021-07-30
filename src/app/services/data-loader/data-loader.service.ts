@@ -301,8 +301,7 @@ export class DataLoaderService {
   public loadOmmTokenPriceUSD(): void {
     log.debug("loadOmmTokenPriceUSD..");
     this.scoreService.getReferenceData("OMM").then(res => {
-      log.debug("Token price from oracle = " + res);
-      this.persistenceService.ommPriceUSD = res;
+      this.stateChangeService.ommPriceUpdate(res);
     }). catch(e => {
       log.debug("Failed to fetch OMM price");
       log.error(e);
@@ -321,9 +320,18 @@ export class DataLoaderService {
 
   public loadAllAssetDistPercentages(): void {
     this.scoreService.getAllAssetsRewardDistributionPercentages().then(res => {
-      this.persistenceService.allAssetDistPercentages = res;
+      this.stateChangeService.allAssetDistPercentagesUpdate(res);
     }).catch(e => {
       log.error("Error in loadAllAssetDistPercentages()");
+      log.error(e);
+    });
+  }
+
+  public loadDailyRewardsAllReservesPools(): void {
+    this.scoreService.getDailyRewardsDistributions().then(res => {
+      this.persistenceService.dailyRewardsAllPoolsReserves = res;
+    }).catch(e => {
+      log.error("Error in loadDailyRewardsAllReservesPools()");
       log.error(e);
     });
   }
@@ -451,6 +459,8 @@ export class DataLoaderService {
   public loadCoreAsyncData(): void {
     this.loadOmmTokenPriceUSD();
     this.loadDistributionPercentages();
+    this.loadAllAssetDistPercentages();
+    this.loadDailyRewardsAllReservesPools();
     this.loadAllPoolsDistPercentages();
     this.loadMinOmmStakeAmount();
   }

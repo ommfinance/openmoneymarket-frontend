@@ -19,6 +19,7 @@ import {PoolData} from "../../models/PoolData";
 import {UserPoolData} from "../../models/UserPoolData";
 import {PoolsDistPercentages} from "../../models/PoolsDistPercentages";
 import {AllAssetDistPercentages} from "../../models/AllAssetDisPercentages";
+import {DailyRewardsAllReservesPools} from "../../models/DailyRewardsAllReservesPools";
 
 @Injectable({
   providedIn: 'root'
@@ -58,6 +59,7 @@ export class PersistenceService {
   public loanOriginationFeePercentage = 0.001;
   public distributionPercentages?: DistributionPercentages;
   public allAssetDistPercentages?: AllAssetDistPercentages;
+  public dailyRewardsAllPoolsReserves?: DailyRewardsAllReservesPools;
 
   public prepList?: PrepList;
   public yourVotesPrepList: YourPrepVote[] = [];

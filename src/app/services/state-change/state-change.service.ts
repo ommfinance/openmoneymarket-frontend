@@ -14,6 +14,7 @@ import {YourPrepVote} from "../../models/YourPrepVote";
 import log from "loglevel";
 import {PoolData} from "../../models/PoolData";
 import {UserPoolData} from "../../models/UserPoolData";
+import {AllAssetDistPercentages} from "../../models/AllAssetDisPercentages";
 
 @Injectable({
   providedIn: 'root'
@@ -88,6 +89,12 @@ export class StateChangeService {
   private onPoolClick: Subject<UserPoolData | PoolData> = new Subject<UserPoolData | PoolData>();
   onPoolClick$: Observable<UserPoolData | PoolData> = this.onPoolClick.asObservable();
 
+  private allAssetDistPercentagesChange: Subject<AllAssetDistPercentages> = new Subject<AllAssetDistPercentages>();
+  allAssetDistPercentagesChange$: Observable<AllAssetDistPercentages> = this.allAssetDistPercentagesChange.asObservable();
+
+  private ommPriceChange: Subject<number> = new Subject<number>();
+  ommPriceChange$: Observable<number> = this.ommPriceChange.asObservable();
+
   /**
    * Subscribable subject for monitoring the user debt changes for each asset
    */
@@ -131,6 +138,16 @@ export class StateChangeService {
         }
       });
     });
+  }
+
+  public allAssetDistPercentagesUpdate(value: AllAssetDistPercentages): void {
+    this.persistenceService.allAssetDistPercentages = value;
+    this.allAssetDistPercentagesChange.next(value);
+  }
+
+  public ommPriceUpdate(value: number): void {
+    this.persistenceService.ommPriceUSD = value;
+    this.ommPriceChange.next(value);
   }
 
   public poolClickCUpdate(pool: PoolData | UserPoolData): void {

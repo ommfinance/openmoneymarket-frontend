@@ -593,9 +593,9 @@ export class CalculationsService {
   }
 
   /** Formulae: Daily OMM staking rewards* User's OMM staked/Total OMM staked */
-  public calculateDailyUsersOmmStakingRewards(): number {
+  public calculateDailyUsersOmmStakingRewards(stakedOmm?: number): number {
     const dailyOmmStakingRewards = this.calculateDailyOmmStakingRewards();
-    const usersOmmStaked = this.persistenceService.getUsersStakedOmmBalance();
+    const usersOmmStaked = stakedOmm ? stakedOmm : this.persistenceService.getUsersStakedOmmBalance();
     const totalOmmStaked = this.persistenceService.totalStakedOmm;
 
     if (dailyOmmStakingRewards === 0 || usersOmmStaked === 0 || totalOmmStaked === 0) {
@@ -605,9 +605,10 @@ export class CalculationsService {
     return dailyOmmStakingRewards * usersOmmStaked / totalOmmStaked;
   }
 
-  public calculateUserOmmStakingDailyRewardsUSD(): number {
-    return this.calculateDailyUsersOmmStakingRewards() * this.persistenceService.ommPriceUSD;
+  public calculateUserOmmStakingDailyRewardsUSD(stakedOmm?: number): number {
+    return this.calculateDailyUsersOmmStakingRewards(stakedOmm) * this.persistenceService.ommPriceUSD;
   }
+
 
   /** Calculate total supplied for base and quote token of pool in USD */
   public calculatePoolTotalSuppliedUSD(poolData: PoolData): number {

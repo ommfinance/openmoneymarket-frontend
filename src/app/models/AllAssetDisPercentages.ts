@@ -2,16 +2,17 @@ export class AllAssetDistPercentages {
   liquidity: LiquidityAllAsset;
   staking: StakingAllAsset;
   reserve: ReserveAllAsset;
+  total: number;
 
-
-  constructor(liquidity: LiquidityAllAsset, staking: StakingAllAsset, reserve: ReserveAllAsset) {
+  constructor(liquidity: LiquidityAllAsset, staking: StakingAllAsset, reserve: ReserveAllAsset, total: number) {
     this.liquidity = liquidity;
     this.staking = staking;
     this.reserve = reserve;
+    this.total = total;
   }
 
   public getClone(): AllAssetDistPercentages {
-    return new AllAssetDistPercentages(this.liquidity, this.staking, this.reserve);
+    return new AllAssetDistPercentages(this.liquidity, this.staking, this.reserve, this.total);
   }
 }
 
@@ -19,19 +20,23 @@ export class LiquidityAllAsset {
   "OMM/SICX": number;
   "OMM/USDS": number;
   "OMM/IUSDC": number;
+  total: number;
 
-  constructor(ommSicx: number, ommUsds: number, ommIusdc: number) {
+  constructor(ommSicx: number, ommUsds: number, ommIusdc: number, total: number) {
     this["OMM/SICX"] = ommSicx;
     this["OMM/USDS"] = ommUsds;
     this["OMM/IUSDC"] = ommIusdc;
+    this.total = total;
   }
 }
 
 export class StakingAllAsset {
   OMM: number;
+  total: number;
 
-  constructor(OMM: number) {
+  constructor(OMM: number, total: number) {
     this.OMM = OMM;
+    this.total = total;
   }
 }
 
@@ -42,15 +47,16 @@ export class ReserveAllAsset {
   oICX: number;
   oIUSDC: number;
   dIUSDC: number;
+  total: number;
 
-
-  constructor(oUSDS: number, dUSDS: number, dICX: number, oICX: number, oIUSDC: number, dIUSDC: number) {
+  constructor(oUSDS: number, dUSDS: number, dICX: number, oICX: number, oIUSDC: number, dIUSDC: number, total: number) {
     this.oUSDS = oUSDS;
     this.dUSDS = dUSDS;
     this.dICX = dICX;
     this.oICX = oICX;
     this.oIUSDC = oIUSDC;
     this.dIUSDC = dIUSDC;
+    this.total = total;
   }
 }
 

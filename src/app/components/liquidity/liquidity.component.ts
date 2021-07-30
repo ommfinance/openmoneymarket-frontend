@@ -16,6 +16,7 @@ import {ModalAction} from "../../models/ModalAction";
 import {StakingAction} from "../../models/StakingAction";
 import {NotificationService} from "../../services/notification/notification.service";
 import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
+import {DailyRewardsAllReservesPools} from "../../models/DailyRewardsAllReservesPools";
 
 declare var $: any;
 declare var noUiSlider: any;
@@ -31,12 +32,16 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
   toggleAllPoolsEl: any; @ViewChild("toggAllPools") set b(b: ElementRef) {this.toggleAllPoolsEl = b.nativeElement; }
   private ommStakeAmount?: any; @ViewChild("ommStk")set c(ommStake: ElementRef) {this.ommStakeAmount = ommStake.nativeElement; }
   private sliderStake!: any; @ViewChild("stkSlider")set d(sliderStake: ElementRef) {this.sliderStake = sliderStake.nativeElement; }
+  stakeDailyRewEl: any; @ViewChild("stkDailyRew")set e(a: ElementRef) {this.stakeDailyRewEl = a.nativeElement; }
+  stakeDailyRewElUSD: any; @ViewChild("stkDailyRewUSD") set f(b: ElementRef) {this.stakeDailyRewElUSD = b.nativeElement; }
 
   public activeLiquidityOverview: ActiveLiquidityOverview = this.userLoggedIn() ? ActiveLiquidityOverview.YOUR_LIQUIDITY :
     ActiveLiquidityOverview.ALL_LIQUIDITY;
   public activeLiquidityPoolView: ActiveLiquidityPoolsView = ActiveLiquidityPoolsView.ALL_POOLS;
 
   userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
+
+  stakeAdjustActive = false;
 
   constructor(public persistenceService: PersistenceService,
               private stateChangeService: StateChangeService,
@@ -59,6 +64,9 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
   }
 
   onClaimOmmRewardsClick(): void {
+    this.onStakeAdjustCancelClick();
+    this.stakeAdjustActive = false;
+
     const rewards = this.roundDownTo2Decimals(this.persistenceService.userOmmRewards?.total ?? 0);
 
     if (rewards <= 0) {
@@ -79,6 +87,8 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
     this.subscribeToLoginChange();
     this.subscribeToOmmTokenBalanceChange();
     this.subscribeToUserModalActionChange();
+    this.subscribeToAllAssetDistPercentagesChange();
+    this.subscribeToOmmPriceChange();
   }
 
   private subscribeToOmmTokenBalanceChange(): void {
@@ -106,6 +116,18 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
     });
   }
 
+  private subscribeToAllAssetDistPercentagesChange(): void {
+    this.stateChangeService.allAssetDistPercentagesChange$.subscribe((res) => {
+      this.setStakingDailyRewards();
+    });
+  }
+
+  private subscribeToOmmPriceChange(): void {
+    this.stateChangeService.ommPriceChange$.subscribe((res) => {
+      this.setStakingDailyRewards();
+    });
+  }
+
   private subscribeToLoginChange(): void {
     this.stateChangeService.loginChange.subscribe(wallet => {
       if (wallet) {
@@ -116,6 +138,12 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
         // user logout
         this.onAllLiquidityClick();
         this.onAllPoolsClick();
+
+        // Staking values
+        this.setText(this.stakeDailyRewEl, this.toDollarUSLocaleString(this.roundDownTo2Decimals(
+          this.getDailyOmmRewards()))  + " OMM");
+        this.setText(this.stakeDailyRewElUSD, this.toDollarUSLocaleString(this.roundDownTo2Decimals(
+          this.getDailyOmmRewardsUSD())));
       }
     });
   }
@@ -148,6 +176,13 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
     // On stake slider update
     this.sliderStake.noUiSlider.on('update', (values: any, handle: any) => {
       const value = +values[handle];
+
+      if (this.stakeDailyRewEl && this.stakeDailyRewElUSD) {
+        this.setText(this.stakeDailyRewEl, this.toDollarUSLocaleString(this.roundDownTo2Decimals(
+          this.calculationService.calculateDailyUsersOmmStakingRewards(value)))  + " OMM");
+        this.setText(this.stakeDailyRewElUSD, this.toDollarUSLocaleString(this.roundDownTo2Decimals(
+          this.calculationService.calculateUserOmmStakingDailyRewardsUSD(value))));
+      }
 
       if (this.userOmmTokenBalanceDetails) {
         this.userOmmTokenBalanceDetails.stakedBalance = value;
@@ -191,6 +226,8 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
 
   // On "Stake" click
   onStakeAdjustClick(): void {
+    this.stakeAdjustActive = true;
+
     $(".stake-omm-actions-adjust").removeClass('hide');
     $(".stake-omm-actions-default").addClass('hide');
     this.sliderStake.removeAttribute("disabled");
@@ -198,6 +235,8 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
 
   // On "Cancel Stake" click
   onStakeAdjustCancelClick(): void {
+    this.stakeAdjustActive = false;
+
     $(".stake-omm-actions-adjust").addClass('hide');
     $(".stake-omm-actions-default").removeClass('hide');
 
@@ -257,6 +296,18 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
     return this.calculationService.calculateDailyUsersOmmStakingRewards();
   }
 
+  getDailyOmmRewards(): number {
+    if (this.userLoggedIn()) {
+      return this.getUserOmmStakingDailyRewards();
+    } else {
+      return this.calculationService.calculateDailyOmmStakingRewards();
+    }
+  }
+
+  getDailyOmmRewardsUSD(): number {
+    return this.calculationService.calculateDailyOmmStakingRewards() * this.persistenceService.ommPriceUSD;
+  }
+
   userHasOmmTokens(): boolean {
     return (this.persistenceService.userOmmTokenBalanceDetails?.totalBalance ?? 0) > 0;
   }
@@ -310,12 +361,20 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
     return this.calculationService.calculateUserDailyRewardsForPool(poolData) * this.persistenceService.ommPriceUSD;
   }
 
-  getDailyRewardsAllPools(): number {
-    return this.calculationService.calculateDailyRewardsAllPools();
+  getTotalDailyRewards(): number {
+    return this.persistenceService.dailyRewardsAllPoolsReserves?.total ?? 0;
   }
 
-  getTotalPoolsStaked(): number {
-    return this.calculationService.calculateTotalPoolsStaked();
+  getDailyMarketRewards(): number {
+    return this.persistenceService.dailyRewardsAllPoolsReserves?.reserve.total ?? 0;
+  }
+
+  getDailyStakingRewards(): number {
+    return this.persistenceService.dailyRewardsAllPoolsReserves?.staking.total ?? 0;
+  }
+
+  getDailyLiquidityRewards(): number {
+    return this.persistenceService.dailyRewardsAllPoolsReserves?.liquidity.total ?? 0;
   }
 
   getDailyRewardsUserPools(): number {
@@ -382,11 +441,21 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
   }
 
   onPoolClick(poolData: UserPoolData | PoolData): void {
+    this.stakeAdjustActive = false;
+    this.onStakeAdjustCancelClick();
+
     // commit event to state change
     this.stateChangeService.poolClickCUpdate(poolData);
 
     $(`.pool.${poolData.getPairClassName()}`).toggleClass('active');
     $(`.pool-${poolData.getPairClassName()}-expanded`).slideToggle();
+  }
+
+  setStakingDailyRewards(): void {
+    this.setText(this.stakeDailyRewEl, this.toDollarUSLocaleString(this.roundDownTo2Decimals(
+      this.getDailyOmmRewards()))  + " OMM");
+    this.setText(this.stakeDailyRewElUSD, this.toDollarUSLocaleString(this.roundDownTo2Decimals(
+      this.getDailyOmmRewardsUSD())));
   }
 
 }
