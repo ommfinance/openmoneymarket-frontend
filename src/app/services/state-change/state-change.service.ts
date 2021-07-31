@@ -211,6 +211,7 @@ export class StateChangeService {
   }
 
   public updateTotalStakedOmm(totalStakedOmm: number): void {
+    this.persistenceService.totalStakedOmm = totalStakedOmm;
     this.totalOmmStakedChange.next(totalStakedOmm);
   }
 
