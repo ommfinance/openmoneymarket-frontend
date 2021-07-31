@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {BaseClass} from "../base-class";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {ActiveLiquidityOverview, ActiveLiquidityPoolsView} from "../../models/ActiveViews";
@@ -16,7 +16,6 @@ import {ModalAction} from "../../models/ModalAction";
 import {StakingAction} from "../../models/StakingAction";
 import {NotificationService} from "../../services/notification/notification.service";
 import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
-import {DailyRewardsAllReservesPools} from "../../models/DailyRewardsAllReservesPools";
 
 declare var $: any;
 declare var noUiSlider: any;
@@ -63,6 +62,10 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
     this.cd.detectChanges();
   }
 
+  /**
+   * Click event handlers
+   */
+
   onClaimOmmRewardsClick(): void {
     this.onStakeAdjustCancelClick();
     this.stakeAdjustActive = false;
@@ -79,9 +82,103 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
       before, after, rewards, undefined, new ClaimOmmDetails(this.persistenceService.userOmmRewards)));
   }
 
-  getUserOmmRewardsBalance(): number {
-    return this.persistenceService.userOmmRewards?.total ?? 0;
+  onConfirmStakeClick(): void {
+    log.debug(`onConfirmStakeClick Omm stake amount = ${this.userOmmTokenBalanceDetails?.stakedBalance}`);
+    const before = this.roundDownToZeroDecimals(this.persistenceService.getUsersStakedOmmBalance());
+    log.debug("before = ", before);
+    const after = this.roundDownToZeroDecimals(this.userOmmTokenBalanceDetails?.stakedBalance ?? 0);
+    log.debug("after = ", after);
+    const diff = Utils.subtractDecimalsWithPrecision(after, before, 0);
+    log.debug("Diff = ", diff);
+
+    // if before and after equal show notification
+    if (before === after) {
+      this.notificationService.showNewNotification("No change in staked value.");
+      return;
+    }
+
+    const voteAction = new StakingAction(before, after, Math.abs(diff));
+
+    if (diff > 0) {
+      if (this.persistenceService.minOmmStakeAmount > diff) {
+        this.notificationService.showNewNotification(`Stake amount must be greater than ${this.persistenceService.minOmmStakeAmount}`);
+      } else {
+        this.modalService.showNewModal(ModalType.STAKE_OMM_TOKENS, undefined, voteAction);
+      }
+    } else {
+      this.modalService.showNewModal(ModalType.UNSTAKE_OMM_TOKENS, undefined, voteAction);
+    }
   }
+
+  // On "Stake" click
+  onStakeAdjustClick(): void {
+    this.onStakeAdjustCancelClick();
+    this.collapseAllPoolTables();
+    this.stakeAdjustActive = true;
+
+    $(".stake-omm-actions-adjust").removeClass('hide');
+    $(".stake-omm-actions-default").addClass('hide');
+    this.sliderStake.removeAttribute("disabled");
+  }
+
+  // On "Cancel Stake" click
+  onStakeAdjustCancelClick(): void {
+    this.stakeAdjustActive = false;
+
+    $(".stake-omm-actions-adjust").addClass('hide');
+    $(".stake-omm-actions-default").removeClass('hide');
+
+    // Set your stake slider to the initial value
+    this.sliderStake.setAttribute("disabled", "");
+    this.sliderStake.noUiSlider.set(this.persistenceService.getUsersStakedOmmBalance());
+  }
+
+  onSignInClick(): void {
+    this.modalService.showNewModal(ModalType.SIGN_IN);
+  }
+
+  onYourLiquidityClick(): void {
+    this.activeLiquidityOverview = ActiveLiquidityOverview.YOUR_LIQUIDITY;
+  }
+
+  onAllLiquidityClick(): void {
+    this.activeLiquidityOverview = ActiveLiquidityOverview.ALL_LIQUIDITY;
+  }
+
+  onYourPoolsClick(): void {
+    this.onStakeAdjustCancelClick();
+    this.collapseAllPoolTables();
+    this.activeLiquidityPoolView = ActiveLiquidityPoolsView.YOUR_POOLS;
+  }
+
+  onAllPoolsClick(): void {
+    this.onStakeAdjustCancelClick();
+    this.collapseAllPoolTables();
+    this.activeLiquidityPoolView = ActiveLiquidityPoolsView.ALL_POOLS;
+  }
+
+  collapseAllPoolTables(): void {
+    // collapse all pools tables
+    this.getAllPoolsData().forEach(poolData => {
+      $(`.pool.${poolData.getPairClassName()}`).removeClass('active');
+      $(`.pool-${poolData.getPairClassName()}-expanded`).slideUp();
+    });
+  }
+
+  onPoolClick(poolData: UserPoolData | PoolData): void {
+    this.stakeAdjustActive = false;
+    this.onStakeAdjustCancelClick();
+
+    // commit event to state change
+    this.stateChangeService.poolClickCUpdate(poolData);
+
+    $(`.pool.${poolData.getPairClassName()}`).toggleClass('active');
+    $(`.pool-${poolData.getPairClassName()}-expanded`).slideToggle();
+  }
+
+  /**
+   * Subscriptions
+   */
 
   private registerSubscriptions(): void {
     this.subscribeToLoginChange();
@@ -112,7 +209,7 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
     // User confirmed the modal action
     this.stateChangeService.userModalActionChange.subscribe((modalAction?: ModalAction) => {
       this.onStakeAdjustCancelClick();
-      this.collapseTables();
+      this.collapseAllPoolTables();
     });
   }
 
@@ -144,6 +241,10 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
       }
     });
   }
+
+  /**
+   * Getters, setters and checks
+   */
 
   initStakeSlider(): void {
     this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails?.getClone();
@@ -187,68 +288,15 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
     });
   }
 
-  onConfirmStakeClick(): void {
-    log.debug(`onConfirmStakeClick Omm stake amount = ${this.userOmmTokenBalanceDetails?.stakedBalance}`);
-    const before = this.roundDownToZeroDecimals(this.persistenceService.getUsersStakedOmmBalance());
-    log.debug("before = ", before);
-    const after = this.roundDownToZeroDecimals(this.userOmmTokenBalanceDetails?.stakedBalance ?? 0);
-    log.debug("after = ", after);
-    const diff = Utils.subtractDecimalsWithPrecision(after, before, 0);
-    log.debug("Diff = ", diff);
-
-    // if before and after equal show notification
-    if (before === after) {
-      this.notificationService.showNewNotification("No change in staked value.");
-      return;
-    }
-
-    const voteAction = new StakingAction(before, after, Math.abs(diff));
-
-    if (diff > 0) {
-      if (this.persistenceService.minOmmStakeAmount > diff) {
-        this.notificationService.showNewNotification(`Stake amount must be greater than ${this.persistenceService.minOmmStakeAmount}`);
-      } else {
-        this.modalService.showNewModal(ModalType.STAKE_OMM_TOKENS, undefined, voteAction);
-      }
-    } else {
-      this.modalService.showNewModal(ModalType.UNSTAKE_OMM_TOKENS, undefined, voteAction);
-    }
-  }
-
   getYourStakeMax(): number {
     // sliders max is sum of staked + available balance
     return Utils.addDecimalsPrecision(this.persistenceService.getUsersStakedOmmBalance(),
       this.persistenceService.getUsersAvailableOmmBalance());
   }
 
-  // On "Stake" click
-  onStakeAdjustClick(): void {
-    this.stakeAdjustActive = true;
-
-    $(".stake-omm-actions-adjust").removeClass('hide');
-    $(".stake-omm-actions-default").addClass('hide');
-    this.sliderStake.removeAttribute("disabled");
-  }
-
-  // On "Cancel Stake" click
-  onStakeAdjustCancelClick(): void {
-    this.stakeAdjustActive = false;
-
-    $(".stake-omm-actions-adjust").addClass('hide');
-    $(".stake-omm-actions-default").removeClass('hide');
-
-    // Set your stake slider to the initial value
-    this.sliderStake.setAttribute("disabled", "");
-    this.sliderStake.noUiSlider.set(this.persistenceService.getUsersStakedOmmBalance());
-  }
-
   shouldHideClaimBtn(): boolean {
     const userOmmRewardsTotal = this.persistenceService.userOmmRewards?.total ?? 0;
     return userOmmRewardsTotal <= 0 || this.persistenceService.userOmmTokenBalanceDetails == null;
-  }
-
-  onSignInClick(): void {
-    this.modalService.showNewModal(ModalType.SIGN_IN);
   }
 
   getMarketRewards(): number {
@@ -378,36 +426,12 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
     return this.persistenceService.dailyRewardsAllPoolsReserves?.liquidity.total ?? 0;
   }
 
-  getDailyRewardsUserPools(): number {
-    return this.calculationService.calculateDailyRewardsUserPools();
-  }
-
   getDailyRewardsUSD(poolData: PoolData): number {
     return this.calculationService.calculateDailyRewardsForPool(poolData) * this.persistenceService.ommPriceUSD;
   }
 
   getLiquidityApy(poolData: PoolData): number {
     return this.calculationService.calculatePoolLiquidityApy(poolData);
-  }
-
-  getTotalLiquidityUSD(): number {
-    return this.calculationService.getAllPoolTotalLiquidityUSD();
-  }
-
-  getTotalPoolsLiquidityOmm(): number {
-    return this.calculationService.getAllPoolTotalLiquidityOmm();
-  }
-
-  getUserLiquidityUSD(): number {
-    return this.calculationService.getUserTotalLiquidityUSD();
-  }
-
-  getAverageApy(): number {
-    return this.calculationService.getAllPoolsAverageApy();
-  }
-
-  getUserAverageApy(): number {
-    return this.calculationService.getUserPoolsAverageApy();
   }
 
   isAllPoolsActive(): boolean {
@@ -418,45 +442,15 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
     return this.activeLiquidityOverview === ActiveLiquidityOverview.ALL_LIQUIDITY;
   }
 
-  onYourLiquidityClick(): void {
-    this.activeLiquidityOverview = ActiveLiquidityOverview.YOUR_LIQUIDITY;
-  }
-
-  onAllLiquidityClick(): void {
-    this.activeLiquidityOverview = ActiveLiquidityOverview.ALL_LIQUIDITY;
-  }
-
-  onYourPoolsClick(): void {
-    this.activeLiquidityPoolView = ActiveLiquidityPoolsView.YOUR_POOLS;
-  }
-
-  onAllPoolsClick(): void {
-    this.activeLiquidityPoolView = ActiveLiquidityPoolsView.ALL_POOLS;
-  }
-
-  collapseTables(): void {
-    this.getAllPoolsData().forEach(poolData => {
-      $(`.pool.${poolData.getPairClassName()}`).removeClass('active');
-      $(`.pool-${poolData.getPairClassName()}-expanded`).slideUp();
-    });
-  }
-
-  onPoolClick(poolData: UserPoolData | PoolData): void {
-    this.stakeAdjustActive = false;
-    this.onStakeAdjustCancelClick();
-
-    // commit event to state change
-    this.stateChangeService.poolClickCUpdate(poolData);
-
-    $(`.pool.${poolData.getPairClassName()}`).toggleClass('active');
-    $(`.pool-${poolData.getPairClassName()}-expanded`).slideToggle();
-  }
-
   setStakingDailyRewards(): void {
     this.setText(this.stakeDailyRewEl, this.toDollarUSLocaleString(this.roundDownTo2Decimals(
       this.getDailyOmmRewards()))  + " OMM");
     this.setText(this.stakeDailyRewElUSD, this.toDollarUSLocaleString(this.roundDownTo2Decimals(
       this.getDailyOmmRewardsUSD())));
+  }
+
+  getUserOmmRewardsBalance(): number {
+    return this.persistenceService.userOmmRewards?.total ?? 0;
   }
 
 }
