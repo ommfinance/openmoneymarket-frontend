@@ -217,7 +217,7 @@
     <!-- If no pools or no LP tokens-->
     <div *ngIf="userLoggedIn() && !userHasStakedToAnyPool() && !isAllPoolsActive()" class="grid" style="max-width: 500px; margin: 50px auto;">
       <div class="grid-cell">
-        <p>Supply liquidity on <a href="{{isProduction() ? 'https://app.balanced.network/trade' :'https://balanced.network/demo/trade/'}}" target="_blank">Balanced</a>, then stake your LP tokens here to earn OMM. Includes the risk of impermanent loss, so it’s best for advanced users. <a
+        <p>Supply liquidity on <a href="{{isProduction() ? 'https://app.balanced.network/trade' :'https://omm.balanced.network/trade'}}" target="_blank">Balanced</a>, then stake your LP tokens here to earn OMM. Includes the risk of impermanent loss, so it’s best for advanced users. <a
           href="https://docs.omm.finance/user-guide/liquidity" target="_blank">Learn more.</a></p>
       </div>
     </div>
@@ -253,7 +253,7 @@
                   <div class="grid border-top">
                     <div class="grid-cell text-center content">
                       <h2>Stake LP tokens</h2>
-                      <p>Supply liquidity on <a href="{{isProduction() ? 'https://app.balanced.network/trade' :'https://balanced.network/demo/trade/'}}" target="_blank"
+                      <p>Supply liquidity on <a href="{{isProduction() ? 'https://app.balanced.network/trade' :'https://omm.balanced.network/trade'}}" target="_blank"
                       >Balanced</a>, then<br>stake your LP tokens here to earn OMM.</p>
                       <div id="slider-stake" disabled></div>
 
@@ -301,7 +301,7 @@
                 <div class="grid border-top">
                   <div class="grid-cell text-center content">
                     <h2>Stake LP tokens</h2>
-                    <p>Supply liquidity on <a href="{{isProduction() ? 'https://app.balanced.network/trade' :'https://balanced.network/demo/trade/'}}"
+                    <p>Supply liquidity on <a href="{{isProduction() ? 'https://app.balanced.network/trade' :'https://omm.balanced.network/trade'}}"
                                               target="_blank">Balanced</a>, then<br>stake your LP tokens here to earn OMM.</p>
 
                     <app-pool-stake-slider #stakeSlider *ngIf="userLoggedIn() && userHasLpTokenAvailableOrHasStaked(poolData.poolId)" [poolIdSet]="poolData.poolId"> </app-pool-stake-slider>

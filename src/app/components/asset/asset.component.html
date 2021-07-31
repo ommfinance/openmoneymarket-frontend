@@ -215,7 +215,7 @@
 
       <div *ngIf="isAssetIcx()" class="notice">
         <p class="label">When you borrow or withdraw, you'll receive staked ICX (sICX). You can swap sICX for ICX on <a href="{{isProduction()
-        ? 'https://app.balanced.network/trade' :'https://balanced.network/demo/trade/'}}" target="_blank">Balanced</a>.</p>
+        ? 'https://app.balanced.network/trade' :'https://omm.balanced.network/trade'}}" target="_blank">Balanced</a>.</p>
         <!-- If ICX is unstaking -->
         <p *ngIf="getUserTotalUnstakeAmount() > 0 && getUserClaimableIcxAmount() == 0" class="label" style="margin-top: 7px;">{{roundDownTo2Decimals(getUserTotalUnstakeAmount()) | usFormat}} ICX is unstaking.</p>
         <!-- If some ICX is ready to claim -->
