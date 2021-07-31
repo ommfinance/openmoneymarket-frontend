@@ -25,6 +25,8 @@ import {DistributionPercentages} from "../../models/DistributionPercentages";
 import {PoolStats, PoolStatsInterface} from "../../models/PoolStats";
 import {TotalPoolInterface, UserPoolDataInterface} from "../../models/Poolnterfaces";
 import {PoolsDistPercentages} from "../../models/PoolsDistPercentages";
+import {AllAssetDistPercentages} from "../../models/AllAssetDisPercentages";
+import {DailyRewardsAllReservesPools} from "../../models/DailyRewardsAllReservesPools";
 
 
 @Injectable({
@@ -540,6 +542,36 @@ export class ScoreService {
     log.debug("getPoolsRewardDistributionPercentages:", res);
 
     return res;
+  }
+
+  /**
+   * @description Get all assets reward distribution percentage
+   * @return AllAssetDistPercentages
+   */
+  public async getAllAssetsRewardDistributionPercentages(): Promise<AllAssetDistPercentages> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Rewards,
+      ScoreMethodNames.GET_ALL_ASSET_DIST_PERCENTAGE, {}, IconTransactionType.READ);
+
+    const res: AllAssetDistPercentages = await this.iconApiService.iconService.call(tx).execute();
+
+    return Mapper.mapAllAssetDistPercentages(res);
+  }
+
+  /**
+   * @description Get daily reward distribution for all reserve and pools
+   * @return DailyRewardsAllReservesPools
+   */
+  public async getDailyRewardsDistributions(): Promise<DailyRewardsAllReservesPools> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Rewards,
+      ScoreMethodNames.GET_DAILY_REWARDS_RESERVES_POOLS, {}, IconTransactionType.READ);
+
+    const res: DailyRewardsAllReservesPools = await this.iconApiService.iconService.call(tx).execute();
+
+    return Mapper.mapDailyRewardsAllReservesPools(res);
   }
 
   /**

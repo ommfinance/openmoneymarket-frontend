@@ -551,6 +551,11 @@ export class CalculationsService {
     return this.persistenceService.userPools.reduce((a, poolData) => a + this.calculateUserDailyRewardsForPool(poolData), 0);
   }
 
+  /** Formula: Sum (Daily rewards_Liquidity Pools2 across 3 pools) */
+  public calculateTotalPoolsStaked(): number {
+    return this.persistenceService.allPools.reduce((a, poolData) => a + poolData.totalStakedBalance, 0);
+  }
+
   /** Formula: Daily rewards * OMM price * 365/Total supplied in $ value */
   public calculatePoolLiquidityApy(poolData: PoolData): number {
     const dailyRewards = this.calculateDailyRewardsForPool(poolData);
@@ -563,6 +568,55 @@ export class CalculationsService {
 
     return dailyRewards * ommPrice * 365 / totalSuppliedUSD;
   }
+
+  /** Calculate total supplied for base token (OMM) of pool */
+  public calculatePoolTotalSuppliedOmm(poolData: PoolData): number {
+    return this.calculatePoolTotalSupplied(poolData, true);
+  }
+
+  public calculateDailyOmmStakingRewards(): number {
+    // log.debug("calculateDailyOmmStakingRewards:");
+    const dailyOmmDistribution = this.persistenceService.tokenDistributionPerDay;
+    const stakingOmmDistPercentage = this.persistenceService.allAssetDistPercentages?.staking.OMM ?? 0;
+    // log.debug("dailyOmmDistribution = " + dailyOmmDistribution);
+    // log.debug("stakingOmmDistPercentage = " + stakingOmmDistPercentage);
+
+    return dailyOmmDistribution * stakingOmmDistPercentage;
+  }
+
+  /** Formulae: Daily OMM staking rewards * 365/Total OMM staked */
+  public calculateStakingApy(): number {
+    // log.debug("calculateStakingApy:");
+    const dailyOmmStakingRewards = this.calculateDailyOmmStakingRewards();
+    const totalStakedOmm = this.persistenceService.totalStakedOmm;
+    // log.debug("dailyOmmStakingRewards = " + dailyOmmStakingRewards);
+    // log.debug("totalStakedOmm = " + totalStakedOmm);
+
+
+    if (dailyOmmStakingRewards === 0 || totalStakedOmm === 0) {
+      return 0;
+    }
+
+    return dailyOmmStakingRewards * 365 * 100 / totalStakedOmm;
+  }
+
+  /** Formulae: Daily OMM staking rewards* User's OMM staked/Total OMM staked */
+  public calculateDailyUsersOmmStakingRewards(stakedOmm?: number): number {
+    const dailyOmmStakingRewards = this.calculateDailyOmmStakingRewards();
+    const usersOmmStaked = stakedOmm ? stakedOmm : this.persistenceService.getUsersStakedOmmBalance();
+    const totalOmmStaked = this.persistenceService.totalStakedOmm;
+
+    if (dailyOmmStakingRewards === 0 || usersOmmStaked === 0 || totalOmmStaked === 0) {
+      return 0;
+    }
+
+    return dailyOmmStakingRewards * usersOmmStaked / totalOmmStaked;
+  }
+
+  public calculateUserOmmStakingDailyRewardsUSD(stakedOmm?: number): number {
+    return this.calculateDailyUsersOmmStakingRewards(stakedOmm) * this.persistenceService.ommPriceUSD;
+  }
+
 
   /** Calculate total supplied for base and quote token of pool in USD */
   public calculatePoolTotalSuppliedUSD(poolData: PoolData): number {
@@ -591,9 +645,19 @@ export class CalculationsService {
     return this.persistenceService.allPools.reduce((a, poolData) => a + this.calculatePoolTotalSuppliedUSD(poolData), 0);
   }
 
+  /** Formula: Sum(Total supplied assets across 3 pools in $ value) */
+  public getAllPoolTotalLiquidityOmm(): number {
+    return this.persistenceService.allPools.reduce((a, poolData) => a + this.calculatePoolTotalSuppliedOmm(poolData), 0);
+  }
+
   /** Formula: Sum(you've supplied assets across 3 pools in $ value) */
   public getUserTotalLiquidityUSD(): number {
     return this.persistenceService.userPools.reduce((a, poolData) => a + this.calculateUserPoolTotalSuppliedUSD(poolData), 0);
+  }
+
+  /** Formula: Sum(you've supplied assets across 3 pools in $ value) */
+  public getUserTotalPoolOmmStaked(): number {
+    return this.persistenceService.userPools.reduce((a, poolData) => a + poolData.userStakedBalance, 0);
   }
 
   /** Formula: Sum(Liquidity APY (all pools) * Total supplied assets in $ value)/(Total liquidity) */

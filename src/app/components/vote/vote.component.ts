@@ -62,11 +62,10 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
               private dataLoaderService: DataLoaderService,
               private cd: ChangeDetectorRef) {
     super(persistenceService);
-
-    this.initSubscriptions();
   }
 
   ngOnInit(): void {
+    this.initSubscriptions();
   }
 
   ngAfterViewInit(): void {
@@ -329,8 +328,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   userHasOmmTokens(): boolean {
-    const userOmmTokenBalance = this.persistenceService.userOmmTokenBalanceDetails?.totalBalance ?? 0;
-    return userOmmTokenBalance > 0;
+    return (this.persistenceService.userOmmTokenBalanceDetails?.totalBalance ?? 0) > 0;
   }
 
   userHasStaked(): boolean {
@@ -459,7 +457,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     return contributorsMap.get(address) ?? false;
   }
 
-  getYourVoteMax(): number {
+  getYourStakeMax(): number {
     // sliders max is sum of staked + available balance
     return Utils.addDecimalsPrecision(this.persistenceService.getUsersStakedOmmBalance(),
         this.persistenceService.getUsersAvailableOmmBalance());

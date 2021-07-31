@@ -5,54 +5,58 @@
       <div class="grid-cell">
         <h2>Overview</h2>
         <ul class="toggle" [ngStyle]="hideElement(!userLoggedIn())">
-          <li id="toggle-your-liquidity" class="{{!isAllLiquidityOverviewActive() ? 'active': ''}}" (click)="onYourLiquidityClick()">Your liquidity</li>
-          <li id="toggle-all-liquidity" class="{{isAllLiquidityOverviewActive() ? 'active': ''}}" (click)="onAllLiquidityClick()">All liquidity</li>
+          <li id="toggle-your-liquidity" class="{{!isAllLiquidityOverviewActive() ? 'active': ''}}" (click)="onYourLiquidityClick()">Your rewards</li>
+          <li id="toggle-all-liquidity" class="{{isAllLiquidityOverviewActive() ? 'active': ''}}" (click)="onAllLiquidityClick()">All rewards</li>
         </ul>
       </div>
     </div>
 
     <!-- Your liquidity -->
     <div id="your-liquidity" class="grid panel" [ngStyle]="hideElement(isAllLiquidityOverviewActive() || !userLoggedIn())">
-      <!-- Supplied -->
-      <div class="grid-cell">
-        <div class="grid">
-          <!-- You've supplied -->
-          <div class="grid-cell text-center">
-            <dl class="metadata">
-              <dt>Your liquidity</dt>
-              <dd>{{toDollarUSLocaleString(getUserLiquidityUSD() | roundDown2Dec)}}</dd>
-            </dl>
-          </div>
-
-          <!-- Your supply APY -->
-          <div class="grid-cell text-center">
-            <dl class="metadata">
-              <dt>Liquidity APY</dt>
-              <dd class="text-green">{{to2DecimalRoundedOffPercentString(getUserAverageApy())}}</dd>
-            </dl>
-          </div>
-        </div>
+      <!-- Claim rewards -->
+      <div class="grid-cell text-center border-right" [ngStyle]="hideElement(shouldHideClaimBtn())">
+        <p class="label">{{getUserOmmRewardsBalance() | roundDown2Dec | usFormat}} Omm Tokens</p>
+        <a href="javascript:void(0);" class="button modal-trigger" style="margin-top: 5px;" data-modal="modal-claim-rewards"
+           (click)="onClaimOmmRewardsClick()" >Claim rewards</a>
       </div>
 
-      <!-- Rewards -->
-      <div class="grid-cell">
-        <div class="grid">
-          <!-- Your daily rewards -->
-          <div class="grid-cell text-center border-right">
-            <dl class="metadata">
-              <dt>Daily rewards</dt>
-              <dd class="value-borrowed-total">{{getDailyRewardsUserPools() | roundOff2Dec | usFormat}} {{getDailyRewardsUserPools() > 0 ? "OMM":""}}</dd>
-            </dl>
-          </div>
+      <!-- Market rewards -->
+      <div class="grid-cell text-center">
+        <dl class="metadata">
+          <dt>Markets
+            <span class="tooltip expanded-risk-tooltip">
+              <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+              <div class="tooltip-content"><p>The amount you've earned by supplying or borrowing assets since you last claimed.</p></div>
+            </span>
+          </dt>
+          <dd>{{getMarketRewards() | roundOff2Dec | usFormat}} <span class="label">{{getMarketRewards() > 0 ? "OMM" :  ""}}</span></dd>
+        </dl>
+      </div>
 
-          <!-- Your borrow APY -->
-          <div class="grid-cell text-center">
-            <dl class="metadata">
-              <dt>{{formatNumberToUSLocaleString(roundDownTo2Decimals(getUserOmmRewardsBalance()))}} OMM available</dt>
-              <dd><a href="javascript:void(0);" (click)="onClaimOmmRewardsClick()" class="button modal-trigger" style="margin-top: 0;" data-modal="modal-claim-rewards">Claim rewards</a></dd>
-            </dl>
-          </div>
-        </div>
+      <!-- Staking rewards -->
+      <div class="grid-cell text-center">
+        <dl class="metadata">
+          <dt>Staking
+            <span class="tooltip expanded-risk-tooltip">
+              <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+              <div class="tooltip-content"><p>The amount you've earned by staking OMM since you last claimed.</p></div>
+            </span>
+          </dt>
+          <dd style="opacity: 0.5;">{{getStakingRewards() | roundOff2Dec | usFormat}}</dd>
+        </dl>
+      </div>
+
+      <!-- Liquidity rewards -->
+      <div class="grid-cell text-center">
+        <dl class="metadata">
+          <dt>Liquidity
+            <span class="tooltip expanded-risk-tooltip">
+              <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+              <div class="tooltip-content"><p>The amount you've earned by staking LP tokens since you last claimed.</p></div>
+            </span>
+          </dt>
+          <dd>{{getLiquidityRewards() | roundOff2Dec | usFormat}} <span class="label">{{getLiquidityRewards() > 0 ? "OMM" :  ""}}</span></dd>
+        </dl>
       </div>
     </div>
 
@@ -60,21 +64,140 @@
     <div id="all-liquidity" class="grid panel" [ngStyle]="hideElement(!isAllLiquidityOverviewActive())">
       <div class="grid-cell text-center border-right">
         <dl class="metadata">
-          <dt>Total liquidity</dt>
-          <dd>{{toDollarUSLocaleString(getTotalLiquidityUSD() | roundOff2Dec)}}</dd>
-        </dl>
-      </div>
-      <div class="grid-cell text-center border-right">
-        <dl class="metadata">
-          <dt>Average APY</dt>
-          <dd class="text-green">{{to2DecimalRoundedOffPercentString(getAverageApy())}}</dd>
+          <dt>Total daily rewards</dt>
+          <dd>{{getTotalDailyRewards() | roundOff2Dec | usFormat}} <span class="label">{{getTotalDailyRewards() > 0 ? "OMM":""}}</span></dd>
         </dl>
       </div>
       <div class="grid-cell text-center">
         <dl class="metadata">
-          <dt>Daily rewards</dt>
-          <dd>{{getDailyRewardsAllPools() | roundOff2Dec | usFormat}} {{getDailyRewardsAllPools() > 0 ? "OMM":""}}</dd>
+          <dt>Markets
+            <span class="tooltip expanded-risk-tooltip">
+              <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+              <div class="tooltip-content"><p>Supply or borrow from a market to earn these rewards.</p></div>
+            </span>
+          </dt>
+          <dd>{{getDailyMarketRewards() | roundOff2Dec | usFormat}} <span class="label">{{getDailyMarketRewards() > 0 ? "OMM":""}}</span></dd>
         </dl>
+      </div>
+      <div class="grid-cell text-center">
+        <dl class="metadata">
+          <dt>Staking
+            <span class="tooltip expanded-risk-tooltip">
+            <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+            <div class="tooltip-content"><p>Stake Omm Tokens to earn these rewards.</p></div>
+          </span>
+          </dt>
+          <dd>{{getDailyStakingRewards() | roundOff2Dec | usFormat}} <span class="label">{{getDailyStakingRewards() > 0 ? "OMM":""}}</span></dd>
+        </dl>
+      </div>
+      <div class="grid-cell text-center">
+        <dl class="metadata">
+          <dt>Liquidity
+            <span class="tooltip expanded-risk-tooltip">
+              <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+              <div class="tooltip-content"><p>Supply OMM liquidity on Balanced, then stake your LP tokens here to earn rewards.</p></div>
+            </span>
+          </dt>
+          <dd>{{getDailyLiquidityRewards() | roundOff2Dec | usFormat}} <span class="label">{{getDailyLiquidityRewards() > 0 ? "OMM":""}}</span></dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section id="staking-overview">
+    <h2>Staking</h2>
+    <!-- Container -->
+    <div class="grid panel">
+      <!-- Omm stake -->
+      <div id="omm-stake" class="grid-cell">
+        <!-- Title -->
+        <h3>Omm stake</h3>
+
+        <!-- Stake slider -->
+        <div id="slider-omm-stake" disabled #stkSlider [ngStyle]="hideElement(!userLoggedIn() || !userHasOmmTokens())"></div>
+
+        <!-- Message (If no OMM in wallet) -->
+        <p class="label text-center " [ngStyle]="hideElement(!userLoggedIn() || userHasOmmTokens())">Earn or buy Omm Tokens,<br>then stake them here to earn more OMM.</p>
+
+        <!-- Message (If not signed in) -->
+        <div id="message-vote-logged-out" class="grid" [ngStyle]="hideElement(userLoggedIn())">
+          <div class="grid-cell">
+            <p>Sign in to stake Omm Tokens.</p>
+            <a href="javascript:void(0);" class="button" (click)="onSignInClick()">Sign in</a>
+          </div>
+        </div>
+
+        <!-- Stake actions -->
+        <div class="grid" [ngStyle]="hideElement(!userLoggedIn() || !userHasOmmTokens())">
+          <div class="grid-cell text-center">
+            <!-- Actions to show by default -->
+            <div *ngIf="!userHasStaked()" class="grid grid-center stake-omm-actions-default actions-default">
+              <div class="grid-cell text-center">
+                <a href="javascript:void(0);" class="button" id="stake-adjust-omm" (click)="onStakeAdjustClick()">Stake Omm Tokens</a>
+              </div>
+            </div>
+
+            <!-- Actions to show if already staked -->
+            <div *ngIf="userHasStaked() && !isMaxStaked() && !stakeAdjustActive" class="grid grid-center stake-omm-actions-default actions-default">
+              <div class="grid-cell text-center">
+                <a href="javascript:void(0);" (click)="onStakeAdjustClick()" class="button">Adjust stake</a>
+              </div>
+            </div>
+
+            <!-- Actions to show if max staked -->
+            <div *ngIf="userHasStaked() && isMaxStaked() && !stakeAdjustActive" class="grid grid-center actions-default">
+              <div class="grid-cell text-center">
+                <a href="javascript:void(0);" class="button" (click)="onStakeAdjustClick()">Unstake Omm Tokens</a>
+              </div>
+            </div>
+
+            <!-- Actions to show when adjust class is active -->
+            <div class="grid grid-center stake-omm-actions-adjust hide">
+              <div class="grid-cell text-right">
+                <a id="stake-omm-actions-adjust-cancel" href="javascript:void(0);" (click)="onStakeAdjustCancelClick()" class="cancel">Cancel</a>
+              </div>
+              <div class="grid-cell text-left">
+                <a href="javascript:void(0);" (click)="onConfirmStakeClick()" class="button">Confirm</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stake -->
+          <div class="grid-cell text-center">
+            <dl class="metadata">
+              <dt>Your stake</dt>
+              <dd><span class="value-omm-stake-amount" #ommStk>{{userOmmTokenBalanceDetails?.stakedBalance | usFormat
+                }}</span> / {{getYourStakeMax() | usFormat}} OMM</dd>
+            </dl>
+
+            <!-- Message (If unstaking) -->
+            <p *ngIf="isUnstaking()" class="label" style="margin-top: 5px;">{{this.persistenceService.getUserUnstakingOmmBalance() | usFormat}} OMM unstaking</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Staking metadata -->
+      <div id="staking-apy" class="grid-cell">
+        <div id="staking-apy-data" class="grid-cell border-bottom text-center">
+          <dl class="metadata">
+            <dt>Staking APY</dt>
+            <dd>{{to2DecimalRoundedOffPercentString(getStakingApy())}}</dd>
+          </dl>
+        </div>
+        <div class="grid">
+          <div class="grid-cell">
+            <dl class="metadata text-center">
+              <dt>Daily rewards</dt>
+              <dd class="omm-stake-rewards" #stkDailyRew>{{getDailyOmmRewards() | roundOff2Dec | usFormat}} {{getUserOmmStakingDailyRewards() > 0 ? "OMM":""}}</dd>
+            </dl>
+          </div>
+          <div class="grid-cell">
+            <dl class="metadata text-center">
+              <dt>USD value</dt>
+              <dd class="omm-stake-rewards-value" #stkDailyRewUSD>{{this.toDollarUSLocaleString(getDailyOmmRewardsUSD() | roundOff2Dec)}}</dd>
+            </dl>
+          </div>
+        </div>
       </div>
     </div>
   </section>

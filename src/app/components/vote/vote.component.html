@@ -65,12 +65,12 @@
             <dl class="metadata">
               <dt>Your stake</dt>
               <input type="text" name="omm-stake" class="{{voteOverviewEditMode ? 'active' : 'hide'}}" id="stake-input" #stakeInput (input)="onInputStakeOmmChange()">
-              <dd><span class="value-omm-stake-amount" #ommStk>{{formatNumberToUSLocaleString(userOmmTokenBalanceDetails?.stakedBalance)
-                }}</span> / {{formatNumberToUSLocaleString(getYourVoteMax())}} OMM</dd>
+              <dd><span class="value-omm-stake-amount" #ommStk>{{userOmmTokenBalanceDetails?.stakedBalance | usFormat
+                }}</span> / {{getYourStakeMax() | usFormat}} OMM</dd>
             </dl>
 
             <!-- Message (If un-staking) -->
-            <p *ngIf="isUnstaking()" class="label" style="margin-top: 5px;">{{this.persistenceService.getUserUnstakingOmmBalance()}} OMM unstaking</p>
+            <p *ngIf="isUnstaking()" class="label" style="margin-top: 5px;">{{this.persistenceService.getUserUnstakingOmmBalance() | usFormat}} OMM unstaking</p>
 
           </div>
         </div>
@@ -81,7 +81,7 @@
         <div id="vote-conversion" class="grid-cell border-bottom text-center">
           <dl class="metadata">
             <dt>Voting power</dt>
-            <dd>1 OMM = {{votingPower}} ICX</dd>
+            <dd>1 OMM = {{votingPower | usFormat}} ICX</dd>
           </dl>
         </div>
         <div class="grid">

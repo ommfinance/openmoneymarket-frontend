@@ -298,43 +298,67 @@ export class DataLoaderService {
     });
   }
 
-  public loadOmmTokenPriceUSD(): void {
-    log.debug("loadOmmTokenPriceUSD..");
-    this.scoreService.getReferenceData("OMM").then(res => {
-      log.debug("Token price from oracle = " + res);
-      this.persistenceService.ommPriceUSD = res;
-    }). catch(e => {
+  public async loadOmmTokenPriceUSD(): Promise<void> {
+    try {
+      log.debug("loadOmmTokenPriceUSD..");
+      const res = await this.scoreService.getReferenceData("OMM");
+      this.stateChangeService.ommPriceUpdate(res);
+    } catch (e) {
       log.debug("Failed to fetch OMM price");
       log.error(e);
-    });
+    }
   }
 
-  public loadDistributionPercentages(): void {
-    this.scoreService.getDistPercentages().then(res => {
+  public async loadDistributionPercentages(): Promise<void> {
+    try {
+      const res = await this.scoreService.getDistPercentages();
       this.persistenceService.distributionPercentages = res;
-      log.debug("Loaded distributionPercentages:", res);
-    }).catch(e => {
+    } catch (e) {
       log.error("Error in loadDistributionPercentages()");
       log.error(e);
-    });
+    }
   }
 
-  public loadTokenDistributionPerDay(): Promise<void> {
-    return this.scoreService.getTokenDistributionPerDay().then(res => {
+  public async loadAllAssetDistPercentages(): Promise<void> {
+    try {
+      const res = await this.scoreService.getAllAssetsRewardDistributionPercentages();
+      this.stateChangeService.allAssetDistPercentagesUpdate(res);
+    } catch (e) {
+      log.error("Error in loadAllAssetDistPercentages()");
+      log.error(e);
+    }
+  }
+
+  public async loadDailyRewardsAllReservesPools(): Promise<void> {
+    try {
+      const res = await this.scoreService.getDailyRewardsDistributions();
+      this.persistenceService.dailyRewardsAllPoolsReserves = res;
+    } catch (e) {
+      log.error("Error in loadDailyRewardsAllReservesPools()");
+      log.error(e);
+    }
+  }
+
+  public async loadTokenDistributionPerDay(): Promise<void> {
+    try {
+      const res = await this.scoreService.getTokenDistributionPerDay();
       this.persistenceService.tokenDistributionPerDay = res;
-    });
+    } catch (e) {
+      log.error("Error in loadTokenDistributionPerDay:");
+      log.error(e);
+    }
   }
 
-  public loadTotalStakedOmm(): Promise<void> {
-    return this.scoreService.getTotalStakedOmm().then(res => {
-      this.persistenceService.totalStakedOmm = res;
-
+  public async loadTotalStakedOmm(): Promise<void> {
+    try {
+      const res = await this.scoreService.getTotalStakedOmm();
       log.debug("getTotalStakedOmm (mapped): ", res);
+
       this.stateChangeService.updateTotalStakedOmm(res);
-    }).catch(e => {
+    } catch (e) {
       log.error("Error in loadTotalStakedOmm:");
       log.error(e);
-    });
+    }
   }
 
   public async loadPrepList(start: number = 1, end: number = 100): Promise<void> {
@@ -399,6 +423,11 @@ export class DataLoaderService {
     this.loadCoreAsyncData();
 
     await Promise.all([
+      this.loadOmmTokenPriceUSD(),
+      this.loadDistributionPercentages(),
+      this.loadAllAssetDistPercentages(),
+      this.loadDailyRewardsAllReservesPools(),
+      this.loadAllPoolsDistPercentages(),
       this.loadAllReserveData(),
       this.loadAllReservesConfigData(),
       this.loadTokenDistributionPerDay(),
@@ -440,9 +469,6 @@ export class DataLoaderService {
    * Load core data async without waiting
    */
   public loadCoreAsyncData(): void {
-    this.loadOmmTokenPriceUSD();
-    this.loadDistributionPercentages();
-    this.loadAllPoolsDistPercentages();
     this.loadMinOmmStakeAmount();
   }
 

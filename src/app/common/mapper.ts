@@ -14,6 +14,13 @@ import {DistributionPercentages} from "../models/DistributionPercentages";
 import {PoolStats, PoolStatsInterface} from "../models/PoolStats";
 import {TotalPoolInterface, UserPoolDataInterface} from "../models/Poolnterfaces";
 import {UserPoolData} from "../models/UserPoolData";
+import {AllAssetDistPercentages, LiquidityAllAsset, ReserveAllAsset, StakingAllAsset} from "../models/AllAssetDisPercentages";
+import {
+  DailyRewardsAllReservesPools,
+  LiquidityDailyRewards,
+  ReserveDailyRewards,
+  StakingDailyRewards
+} from "../models/DailyRewardsAllReservesPools";
 
 export class Mapper {
 
@@ -77,6 +84,63 @@ export class Mapper {
       Utils.hexToNormalisedNumber(ommRewards.total)
     );
     log.debug("mapUserOmmRewards after: ", res);
+
+    return res;
+  }
+
+  public static mapAllAssetDistPercentages(value: AllAssetDistPercentages): AllAssetDistPercentages {
+    log.debug("mapAllAssetDistPercentages value: ", value);
+    const res = new AllAssetDistPercentages(
+      new LiquidityAllAsset(
+        Utils.hexToNormalisedNumber(value.liquidity["OMM/SICX"]),
+        Utils.hexToNormalisedNumber(value.liquidity["OMM/USDS"]),
+        Utils.hexToNormalisedNumber(value.liquidity["OMM/IUSDC"]),
+        Utils.hexToNormalisedNumber(value.liquidity.total),
+      ),
+      new StakingAllAsset(
+        Utils.hexToNormalisedNumber(value.staking.OMM),
+        Utils.hexToNormalisedNumber(value.staking.total)
+      ),
+      new ReserveAllAsset(
+        Utils.hexToNormalisedNumber(value.reserve.oUSDS),
+        Utils.hexToNormalisedNumber(value.reserve.dUSDS),
+        Utils.hexToNormalisedNumber(value.reserve.dICX),
+        Utils.hexToNormalisedNumber(value.reserve.oICX),
+        Utils.hexToNormalisedNumber(value.reserve.oIUSDC),
+        Utils.hexToNormalisedNumber(value.reserve.dIUSDC),
+        Utils.hexToNormalisedNumber(value.reserve.total)
+      ),
+      Utils.hexToNormalisedNumber(value.total));
+    log.debug("mapAllAssetDistPercentages after: ", res);
+
+    return res;
+  }
+
+  public static mapDailyRewardsAllReservesPools(value: DailyRewardsAllReservesPools): DailyRewardsAllReservesPools {
+    log.debug("mapDailyRewardsAllReservesPools value: ", value);
+    const res = new DailyRewardsAllReservesPools(
+      new LiquidityDailyRewards(
+        Utils.hexToNormalisedNumber(value.liquidity["OMM/SICX"]),
+        Utils.hexToNormalisedNumber(value.liquidity["OMM/USDS"]),
+        Utils.hexToNormalisedNumber(value.liquidity["OMM/IUSDC"]),
+        Utils.hexToNormalisedNumber(value.liquidity.total),
+      ),
+      new StakingDailyRewards(
+        Utils.hexToNormalisedNumber(value.staking.OMM),
+        Utils.hexToNormalisedNumber(value.staking.total)
+      ),
+      new ReserveDailyRewards(
+        Utils.hexToNormalisedNumber(value.reserve.oUSDS),
+        Utils.hexToNormalisedNumber(value.reserve.dUSDS),
+        Utils.hexToNormalisedNumber(value.reserve.dICX),
+        Utils.hexToNormalisedNumber(value.reserve.oICX),
+        Utils.hexToNormalisedNumber(value.reserve.oIUSDC),
+        Utils.hexToNormalisedNumber(value.reserve.dIUSDC),
+        Utils.hexToNormalisedNumber(value.reserve.total)
+      ),
+      Utils.hexToNormalisedNumber(value.total),
+      Utils.hexToNumber(value.day));
+    log.debug("mapDailyRewardsAllReservesPools after: ", res);
 
     return res;
   }
