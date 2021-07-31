@@ -194,8 +194,7 @@
           <div class="grid-cell">
             <dl class="metadata text-center">
               <dt>USD value</dt>
-              <dd class="omm-stake-rewards-value" #stkDailyRewUSD>{{this.toDollarUSLocaleString(userLoggedIn() ?
-                this.getUserOmmStakingDailyRewardsUSD() : getDailyOmmRewardsUSD() | roundOff2Dec)}}</dd>
+              <dd class="omm-stake-rewards-value" #stkDailyRewUSD>{{this.toDollarUSLocaleString(getDailyOmmRewardsUSD() | roundOff2Dec)}}</dd>
             </dl>
           </div>
         </div>

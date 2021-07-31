@@ -139,11 +139,8 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
         this.onAllLiquidityClick();
         this.onAllPoolsClick();
 
-        // Staking values
-        this.setText(this.stakeDailyRewEl, this.toDollarUSLocaleString(this.roundDownTo2Decimals(
-          this.getDailyOmmRewards()))  + " OMM");
-        this.setText(this.stakeDailyRewElUSD, this.toDollarUSLocaleString(this.roundDownTo2Decimals(
-          this.getDailyOmmRewardsUSD())));
+        // Reset staking values
+        this.setStakingDailyRewards();
       }
     });
   }
@@ -305,7 +302,11 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
   }
 
   getDailyOmmRewardsUSD(): number {
-    return this.calculationService.calculateDailyOmmStakingRewards() * this.persistenceService.ommPriceUSD;
+    if (this.userLoggedIn()) {
+      return this.getUserOmmStakingDailyRewardsUSD();
+    } else {
+      return this.calculationService.calculateDailyOmmStakingRewards() * this.persistenceService.ommPriceUSD;
+    }
   }
 
   userHasOmmTokens(): boolean {
