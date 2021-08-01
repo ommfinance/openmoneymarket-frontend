@@ -19,7 +19,6 @@ describe('CalculationsService', () => {
   });
 
   it('Test borrowOmmApyFormula USDS', () => {
-    const borrowRate = 0.0575;
     const ommPriceUSD = 2;
     const ommTokenDistribution = 1000000;
     const totalInterestOverAYear = 825000;
@@ -32,12 +31,11 @@ describe('CalculationsService', () => {
       totalBorrows: 5000000
     };
 
-    expect(service.borrowOmmApyFormula(lendingBorrowingPortion, borrowRate, totalInterestOverAYear, ommTokenDistribution, ommPriceUSD,
+    expect(service.borrowOmmApyFormula(lendingBorrowingPortion, totalInterestOverAYear, ommTokenDistribution, ommPriceUSD,
       reserveData as ReserveData)).toBeCloseTo(2.920, 2);
   });
 
   it('Test supplyOmmApyFormula USDS', () => {
-    const supplyRate = 0.0259;
     const ommPriceUSD = 2;
     const ommTokenDistribution = 1000000;
     const totalInterestOverAYear = 825000;
@@ -50,7 +48,7 @@ describe('CalculationsService', () => {
       totalLiquidity: 10000000
     };
 
-    expect(service.supplyOmmApyFormula(lendingBorrowingPortion, supplyRate, totalInterestOverAYear, ommTokenDistribution, ommPriceUSD,
+    expect(service.supplyOmmApyFormula(lendingBorrowingPortion, totalInterestOverAYear, ommTokenDistribution, ommPriceUSD,
       reserveData as ReserveData)).toBeCloseTo(1.46, 2);
   });
 });

@@ -76,16 +76,15 @@ export class CalculationsService {
       const tokenDistributionPerDay = this.persistenceService.tokenDistributionPerDay;
       const lendingBorrowingPortion = this.persistenceService.distributionPercentages?.lendingBorrow ?? 0;
 
-      return this.supplyOmmApyFormula(lendingBorrowingPortion, liquidityRate, totalInterestOverAYear, tokenDistributionPerDay,
-        this.persistenceService.ommPriceUSD,
-        reserveData);
+      return this.supplyOmmApyFormula(lendingBorrowingPortion, totalInterestOverAYear, tokenDistributionPerDay,
+        this.persistenceService.ommPriceUSD, reserveData);
     } else {
       log.debug("res is ZERO (reserveData not found)");
       return 0;
     }
   }
 
-  public supplyOmmApyFormula(lendingBorrowingPortion: number, liquidityRate: number, totalInterestOverAYear: number,
+  public supplyOmmApyFormula(lendingBorrowingPortion: number, totalInterestOverAYear: number,
                              tokenDistributionPerDay: number, ommPriceUSD: number, reserveData: ReserveData): number {
     return (lendingBorrowingPortion * tokenDistributionPerDay * ommPriceUSD * reserveData.rewardPercentage
       * reserveData.lendingPercentage * 365) / (reserveData.totalLiquidity * reserveData.exchangePrice);
