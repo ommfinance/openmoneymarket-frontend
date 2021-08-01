@@ -597,7 +597,7 @@ export class CalculationsService {
       return 0;
     }
 
-    return dailyOmmStakingRewards * 365 * 100 / totalStakedOmm;
+    return dailyOmmStakingRewards * 365 / totalStakedOmm;
   }
 
   /** Formulae: Daily OMM staking rewards* User's OMM staked/Total OMM staked */
