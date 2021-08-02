@@ -71,7 +71,6 @@ export class CalculationsService {
     const reserveData = this.persistenceService.getAssetReserveData(assetTag);
 
     if (reserveData) {
-      const liquidityRate = this.persistenceService.getAssetReserveData(assetTag)?.liquidityRate ?? 0;
       const totalInterestOverAYear = this.supplyTotalInterestOverAYear();
       const tokenDistributionPerDay = this.persistenceService.tokenDistributionPerDay;
       const lendingBorrowingPortion = this.persistenceService.distributionPercentages?.lendingBorrow ?? 0;
@@ -79,7 +78,7 @@ export class CalculationsService {
       return this.supplyOmmApyFormula(lendingBorrowingPortion, totalInterestOverAYear, tokenDistributionPerDay,
         this.persistenceService.ommPriceUSD, reserveData);
     } else {
-      log.debug("res is ZERO (reserveData not found)");
+      log.debug("calculateSupplyApyWithOmmRewards: res is ZERO (reserveData not found)");
       return 0;
     }
   }

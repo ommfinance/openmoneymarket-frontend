@@ -72,7 +72,6 @@
                 <label class="label available">Available</label>
                 <input type="text" title="{{asset.tag}} available to supply" #inpSuppAvail id="input-supply-available"
                        class="input-supply-available" disabled value="0">
-                <p *ngIf="shouldShowUnstaking()" class="label">{{roundDownTo2Decimals(persistenceService.userUnstakingInfo?.totalAmount) | usFormat}} ICX unstaking</p>
               </div>
             </div>
 
