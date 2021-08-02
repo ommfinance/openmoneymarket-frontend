@@ -275,7 +275,7 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
       const value = +values[handle];
 
       if (this.stakeDailyRewEl) {
-        this.setText(this.stakeDailyRewEl, this.toDollarUSLocaleString(this.roundDownTo2Decimals(
+        this.setText(this.stakeDailyRewEl, this.formatNumberToUSLocaleString(this.roundDownTo2Decimals(
           this.calculationService.calculateDailyUsersOmmStakingRewards(value)))  + " OMM");
       }
 
@@ -436,7 +436,7 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
   }
 
   setStakingDailyRewards(): void {
-    this.setText(this.stakeDailyRewEl, this.toDollarUSLocaleString(this.roundDownTo2Decimals(
+    this.setText(this.stakeDailyRewEl, this.formatNumberToUSLocaleString(this.roundDownTo2Decimals(
       this.getDailyOmmRewards()))  + " OMM");
   }
 
