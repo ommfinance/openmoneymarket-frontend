@@ -2104,8 +2104,8 @@ ul.pagination li:hover {
 *
 */
 
-.list tbody tr.usds td:first-of-type {
-  background-image: url(../img/logo/usds.png);
+.list tbody tr.usdb td:first-of-type {
+  background-image: url(../img/logo/usdb.png);
   background-repeat: no-repeat;
   background-position: 36px center;
   background-size: 29px;
@@ -2115,12 +2115,6 @@ ul.pagination li:hover {
   background-repeat: no-repeat;
   background-position: 33px center;
   background-size: 35px;
-}
-.list tbody tr.usdc td:first-of-type {
-  background-image: url(../img/logo/usdc.png);
-  background-repeat: no-repeat;
-  background-position: 36px center;
-  background-size: 29px;
 }
 
 /*
@@ -2505,6 +2499,12 @@ input[type="text"].input-borrow-available {
 * Overview
 *
 */
+
+/* Overview toggles */
+
+.overview-toggles {
+
+}
 
 /* Metdata font size */
 
@@ -3045,6 +3045,12 @@ input[type="text"].input-borrow-available {
   font-size: 16px;
 }
 
+#your-liquidity .tooltip-content,
+#all-liquidity .tooltip-content {
+  left: -145px;
+  bottom: 60px;
+}
+
 
 /*
 *
@@ -3091,6 +3097,13 @@ input[type="text"].input-borrow-available {
 }
 .stake-omm-actions-adjust {
   margin-top: 10px;
+}
+#message-stake-logged-out p {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+#message-stake-no-omm {
+  margin-top: 35px;
 }
 
 /* Omm stake slider */
@@ -3146,6 +3159,7 @@ input[type="text"].input-borrow-available {
   }
   body {
     width: 95%;
+    margin-bottom: 100px;
   }
 
   /* Layout */
@@ -3163,11 +3177,27 @@ input[type="text"].input-borrow-available {
     max-width: 100%;
     margin-bottom: 25px;
   }
+
+  /* Navigation */
+
+  .navigation {
+    position: fixed;
+    padding: 15px 25px;
+    border-radius: 35px;
+    background-color: #ffffff;
+    box-shadow: 0 2.8px 2.2px rgba(174, 196, 215, 0.034), 0 6.7px 5.3px rgba(174, 196, 215, 0.048), 0 12.5px 10px rgba(174, 196, 215, 0.06), 0 22.3px 17.9px rgba(174, 196, 215, 0.072), 0 41.8px 33.4px rgba(174, 196, 215, 0.086), 0 100px 80px rgba(174, 196, 215, 0.12);
+    margin-left: -197px;
+    bottom: 25px;
+    left: 50%;
+    width: 395px;
+    z-index: 9999;
+  }
   .navigation ul {
     width: 100%;
   }
   .navigation ul li {
     display: inline-block;
+    margin-bottom: 0;
   }
 
   /* Reset the left padding */
@@ -3195,22 +3225,47 @@ input[type="text"].input-borrow-available {
   section {
     margin-bottom: 50px;
   }
+  input[type=text] {
+    padding: 10px 20px;
+  }
 
   /* Modules */
 
   .search {
     max-width: 100%;
   }
+  .navigation {
+    padding: 10px 20px;
+    margin-left: -160px;
+    width: 320px;
+  }
   .navigation ul li {
-    list-style-type: none;
-    margin-bottom: 50px;
+    width: 90px;
   }
   .navigation ul li a {
-    height: 45px;
+    height: initial;
+    padding: 5px;
+    font-size: 14px;
+    border-radius: 20px;
+  }
+  .navigation ul li a .grid-center {
+    flex-direction: column;
+  }
+  .navigation ul li a svg,
+  .navigation ul li a img {
+    margin-right: initial;
+    width: 20px;
+  }
+  .navigation ul li a:hover, .navigation ul li a.active {
+    box-shadow: 0 2.8px 2.2px rgba(174, 196, 215, 0.134), 0 6.7px 5.3px rgba(174, 196, 215, 0.148), 0 12.5px 10px rgba(174, 196, 215, 0.16), 0 22.3px 17.9px rgba(174, 196, 215, 0.172), 0 41.8px 33.4px rgba(174, 196, 215, 0.186), 0 100px 80px rgba(174, 196, 215, 0.22);
   }
 
   /* Layout */
 
+  .header {
+    margin-top: 25px;
+    margin-bottom: 25px;
+  }
   .header > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) {
     display: none;
   }
@@ -3223,8 +3278,27 @@ input[type="text"].input-borrow-available {
     max-width: 100%;
     width: 75%;
   }
+  .header .wallet-content {
+    min-width: 233px;
+  }
 
   /* Home */
+
+  /* Overview toggles */
+
+  .overview-toggles {
+    flex-direction: column;
+  }
+  #apr-toggle {
+    float: left;
+    margin-top: 25px;
+  }
+  .apr-label {
+    float: left;
+    margin-top: 26px;
+    margin-right: initial;
+    margin-left: 10px;
+  }
 
   #your-overview-content,
   #market-overview-content,
@@ -3332,15 +3406,72 @@ input[type="text"].input-borrow-available {
   }
   #your-liquidity.grid.panel .grid-cell.border-right {
     border-right: none;
+    border-top: 1px solid #d3d9e7;
+    margin-top: 0;
+    padding-top: 25px;
+    margin-bottom: 0;
   }
   #staking-overview .grid.panel {
-    flex-direction: column-reverse;
+    flex-direction: column;
   }
   #staking-overview #staking-apy {
-    margin-bottom: 35px;
+    padding-top: 35px;
     margin-left: 0;
     padding-left: 0;
     border-left: none;
+    border-top: 1px solid #d3d9e7;
+    margin-bottom: 0;
+  }
+  #staking-overview #omm-stake .actions-default .button {
+    margin-top: -4px;
+  }
+  #your-liquidity > .grid-cell,
+  #all-liquidity > .grid-cell {
+    margin-bottom: 25px;
+  }
+  #all-liquidity > .grid-cell:first-of-type {
+    margin-bottom: 0;
+  }
+  #all-liquidity > .grid-cell.border-right {
+    border-right: none;
+    border-top: 1px solid #d3d9e7;
+    padding-top: 15px;
+  }
+  #omm-stake {
+    padding-bottom: 35px;
+  }
+  #all-liquidity {
+    flex-direction: column-reverse;
+  }
+  #your-pools {
+
+  }
+  .liquidity thead tr th:nth-of-type(2),
+  .liquidity thead tr th:nth-of-type(3),
+  .liquidity thead tr th:nth-of-type(4),
+  .liquidity thead tr th:nth-of-type(5) {
+    display: none;
+  }
+  .liquidity tbody tr td:nth-of-type(2),
+  .liquidity tbody tr td:nth-of-type(3),
+  .liquidity tbody tr td:nth-of-type(4),
+  .liquidity tbody tr td:nth-of-type(5) {
+    display: none;
+  }
+  table.list.liquidity tbody tr.pool td:first-of-type {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    padding-top: 25px;
+    padding-bottom: 25px;
+  }
+  table.list.liquidity tbody tr.pool.active td:first-of-type {
+    border-bottom-right-radius: 0
+  }
+  #staking-overview #staking-apy #staking-apy-data {
+    border-bottom: none;
+  }
+  .pool-expanded .content {
+    margin: 25px 35px;
   }
 }
 
