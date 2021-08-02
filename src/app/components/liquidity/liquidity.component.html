@@ -114,13 +114,13 @@
         <h3>Omm stake</h3>
 
         <!-- Stake slider -->
-        <div id="slider-omm-stake" disabled #stkSlider [ngStyle]="hideElement(!userLoggedIn() || !userHasOmmTokens())"></div>
+        <div id="slider-omm-stake" disabled class="" #stkSlider [ngStyle]="hideElement(!userLoggedIn() || !userHasOmmTokens())"></div>
 
         <!-- Message (If no OMM in wallet) -->
-        <p class="label text-center " [ngStyle]="hideElement(!userLoggedIn() || userHasOmmTokens())">Earn or buy Omm Tokens,<br>then stake them here to earn more OMM.</p>
+        <p class="label text-center" id="message-stake-no-omm" [ngStyle]="hideElement(!userLoggedIn() || userHasOmmTokens())">Earn or buy Omm Tokens,<br>then stake them here to earn more OMM.</p>
 
         <!-- Message (If not signed in) -->
-        <div id="message-vote-logged-out" class="grid" [ngStyle]="hideElement(userLoggedIn())">
+        <div id="message-stake-logged-out" class="grid" [ngStyle]="hideElement(userLoggedIn())">
           <div class="grid-cell">
             <p>Sign in to stake Omm Tokens.</p>
             <a href="javascript:void(0);" class="button" (click)="onSignInClick()">Sign in</a>
@@ -180,21 +180,21 @@
       <div id="staking-apy" class="grid-cell">
         <div id="staking-apy-data" class="grid-cell border-bottom text-center">
           <dl class="metadata">
-            <dt>Staking APY</dt>
-            <dd>{{to2DecimalRoundedOffPercentString(getStakingApy())}}</dd>
+            <dt>{{userLoggedIn() ? "Your daily rewards" : "Daily rewards"}}</dt>
+            <dd class="omm-stake-rewards" #stkDailyRew>{{getDailyOmmRewards() | roundOff2Dec | usFormat}} {{getDailyOmmRewards() > 0 ? "OMM":""}}</dd>
           </dl>
         </div>
         <div class="grid">
           <div class="grid-cell">
             <dl class="metadata text-center">
-              <dt>Daily rewards</dt>
-              <dd class="omm-stake-rewards" #stkDailyRew>{{getDailyOmmRewards() | roundOff2Dec | usFormat}} {{getUserOmmStakingDailyRewards() > 0 ? "OMM":""}}</dd>
+              <dt>Staking APY</dt>
+              <dd class="text-green">{{to2DecimalRoundedOffPercentString(getStakingApy())}}</dd>
             </dl>
           </div>
           <div class="grid-cell">
             <dl class="metadata text-center">
-              <dt>USD value</dt>
-              <dd class="omm-stake-rewards-value" #stkDailyRewUSD>{{this.toDollarUSLocaleString(getDailyOmmRewardsUSD() | roundOff2Dec)}}</dd>
+              <dt>Total staked</dt>
+              <dd>{{getTotalStaked() | roundOff2Dec | usFormat}} {{getTotalStaked() > 0 ? "OMM":""}}</dd>
             </dl>
           </div>
         </div>
@@ -240,7 +240,7 @@
               <td><span class="text-dark">{{getUserSuppliedBase(poolData) | roundOff2Dec | usFormat}} OMM</span><br>
                 <span class="label">{{getUserSuppliedQuote(poolData) | roundOff2Dec | usFormat}} {{poolData.getQuoteAssetName()}}</span></td>
               <td><span class="text-dark">{{poolData.userStakedBalance | roundDown2Dec | usFormat}}</span><br>
-                <span class="label">{{poolData.userAvailableBalance | roundDown2Dec | usFormat}} unstaked</span></td>
+                <span class="label">{{poolData.userAvailableBalance | roundDown2Dec | usFormat}} available</span></td>
               <td><span class="text-dark">{{getUserDailyRewards(poolData) | roundOff2Dec | usFormat}} OMM</span><br>
                 <span class="label">{{toDollarUSLocaleString(getUserDailyRewardsUSD(poolData) | roundOff2Dec)}}</span></td>
               <td class="text-green">{{to2DecimalRoundedOffPercentString(getLiquidityApy(poolData))}}</td>

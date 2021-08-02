@@ -32,7 +32,6 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
   private ommStakeAmount?: any; @ViewChild("ommStk")set c(ommStake: ElementRef) {this.ommStakeAmount = ommStake.nativeElement; }
   private sliderStake!: any; @ViewChild("stkSlider")set d(sliderStake: ElementRef) {this.sliderStake = sliderStake.nativeElement; }
   stakeDailyRewEl: any; @ViewChild("stkDailyRew")set e(a: ElementRef) {this.stakeDailyRewEl = a.nativeElement; }
-  stakeDailyRewElUSD: any; @ViewChild("stkDailyRewUSD") set f(b: ElementRef) {this.stakeDailyRewElUSD = b.nativeElement; }
 
   public activeLiquidityOverview: ActiveLiquidityOverview = this.userLoggedIn() ? ActiveLiquidityOverview.YOUR_LIQUIDITY :
     ActiveLiquidityOverview.ALL_LIQUIDITY;
@@ -275,11 +274,9 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
     this.sliderStake.noUiSlider.on('update', (values: any, handle: any) => {
       const value = +values[handle];
 
-      if (this.stakeDailyRewEl && this.stakeDailyRewElUSD) {
+      if (this.stakeDailyRewEl) {
         this.setText(this.stakeDailyRewEl, this.toDollarUSLocaleString(this.roundDownTo2Decimals(
           this.calculationService.calculateDailyUsersOmmStakingRewards(value)))  + " OMM");
-        this.setText(this.stakeDailyRewElUSD, this.toDollarUSLocaleString(this.roundDownTo2Decimals(
-          this.calculationService.calculateUserOmmStakingDailyRewardsUSD(value))));
       }
 
       if (this.userOmmTokenBalanceDetails) {
@@ -349,14 +346,6 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
     }
   }
 
-  getDailyOmmRewardsUSD(): number {
-    if (this.userLoggedIn()) {
-      return this.getUserOmmStakingDailyRewardsUSD();
-    } else {
-      return this.calculationService.calculateDailyOmmStakingRewards() * this.persistenceService.ommPriceUSD;
-    }
-  }
-
   userHasOmmTokens(): boolean {
     return (this.persistenceService.userOmmTokenBalanceDetails?.totalBalance ?? 0) > 0;
   }
@@ -388,6 +377,10 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
 
   getUserSuppliedBase(poolData: UserPoolData): number {
     return this.calculationService.calculateUserPoolSupplied(poolData);
+  }
+
+  getTotalStaked(): number {
+    return this.persistenceService.totalStakedOmm;
   }
 
   getTotalSuppliedQuote(poolData: PoolData): number {
@@ -445,8 +438,6 @@ export class LiquidityComponent extends BaseClass implements OnInit, AfterViewIn
   setStakingDailyRewards(): void {
     this.setText(this.stakeDailyRewEl, this.toDollarUSLocaleString(this.roundDownTo2Decimals(
       this.getDailyOmmRewards()))  + " OMM");
-    this.setText(this.stakeDailyRewElUSD, this.toDollarUSLocaleString(this.roundDownTo2Decimals(
-      this.getDailyOmmRewardsUSD())));
   }
 
   getUserOmmRewardsBalance(): number {
