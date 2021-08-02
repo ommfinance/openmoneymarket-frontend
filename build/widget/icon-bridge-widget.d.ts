@@ -94,6 +94,8 @@ export declare class IconBridgeWidget extends LitElement {
     private onTransactionClick;
     private getTransactionsHtml;
     private hasSomeTokenTransactions;
+    private getOneAvailableToken;
+    private getAvailableTokens;
     private getTransactionDetailHtml;
     render(): import("lit-element").TemplateResult;
     private getTransactionNavHtml;
