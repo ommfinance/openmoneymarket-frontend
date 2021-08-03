@@ -164,7 +164,20 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     });
   }
 
+  collapsePoolTablesSlideUp(poolData: UserPoolData | PoolData): void {
+    // Collapse pools other than the one clicked up
+    this.getAllPoolsData().forEach(pool => {
+      if (pool.poolId !== poolData.poolId) {
+        $(`.pool.${pool.getPairClassName()}`).removeClass('active');
+        $(`.pool-${pool.getPairClassName()}-expanded`).slideUp();
+      }
+    });
+  }
+
   onPoolClick(poolData: UserPoolData | PoolData): void {
+    // collapse other pools expanded up
+    this.collapsePoolTablesSlideUp(poolData);
+
     this.stakeAdjustActive = false;
     this.onStakeAdjustCancelClick();
 
