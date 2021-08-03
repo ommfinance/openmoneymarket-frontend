@@ -22,10 +22,10 @@ declare var noUiSlider: any;
 
 @Component({
   selector: 'app-liquidity',
-  templateUrl: './liquidity.component.html',
-  styleUrls: ['./liquidity.component.css']
+  templateUrl: './rewards.component.html',
+  styleUrls: ['./rewards.component.css']
 })
-export class LiquidityComponent extends BaseClass implements OnInit, AfterViewInit {
+export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit {
 
   toggleYourPoolsEl: any; @ViewChild("toggYourPools")set a(a: ElementRef) {this.toggleYourPoolsEl = a.nativeElement; }
   toggleAllPoolsEl: any; @ViewChild("toggAllPools") set b(b: ElementRef) {this.toggleAllPoolsEl = b.nativeElement; }

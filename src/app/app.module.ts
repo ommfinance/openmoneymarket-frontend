@@ -17,7 +17,7 @@ import log from "loglevel";
 import { VoteComponent } from './components/vote/vote.component';
 import { MainComponent } from './components/main/main.component';
 import {HttpClientModule} from "@angular/common/http";
-import { LiquidityComponent } from './components/liquidity/liquidity.component';
+import { RewardsComponent } from './components/rewards/rewards.component';
 import { UsFormatPipe } from './pipes/us-format.pipe';
 import { RoundOff2DecPipe } from './pipes/round-off-2-dec.pipe';
 import { RoundDown2DecPipe } from './pipes/round-down-2-dec.pipe';
@@ -37,7 +37,7 @@ log.setLevel(environment.production ? "error" : "debug");
     AssetComponent,
     VoteComponent,
     MainComponent,
-    LiquidityComponent,
+    RewardsComponent,
     UsFormatPipe,
     RoundOff2DecPipe,
     RoundDown2DecPipe,
