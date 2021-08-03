@@ -22,7 +22,6 @@ describe('CalculationsService', () => {
   it('Test borrowOmmApyFormula USDS', () => {
     const ommPriceUSD = 2;
     const ommTokenDistribution = 1000000;
-    const totalInterestOverAYear = 825000;
     const lendingBorrowingPortion = 0.1;
 
     const reserveData = {
@@ -32,7 +31,7 @@ describe('CalculationsService', () => {
       totalBorrows: 5000000
     };
 
-    expect(service.borrowOmmApyFormula(lendingBorrowingPortion, totalInterestOverAYear, ommTokenDistribution, ommPriceUSD,
+    expect(service.borrowOmmApyFormula(lendingBorrowingPortion, ommTokenDistribution, ommPriceUSD,
       reserveData as ReserveData, AssetTag.USDS)).toBeCloseTo(2.920, 2);
   });
 
