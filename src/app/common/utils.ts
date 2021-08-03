@@ -138,6 +138,10 @@ export class Utils {
     return value / todayRate;
   }
 
+  public static convertICXToSICXPrice(icxPrice: number, sICXRate: number): number {
+    return icxPrice / sICXRate;
+  }
+
   public static convertSICXToICX(sICXvalue: number, sIcxToIcxRate: number): number {
     return sICXvalue * sIcxToIcxRate;
   }

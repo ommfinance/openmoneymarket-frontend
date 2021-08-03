@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { CalculationsService } from './calculations.service';
 import {HttpClientTestingModule} from "@angular/common/http/testing";
 import {ReserveData} from "../../models/AllReservesData";
+import {AssetTag} from "../../models/Asset";
 
 describe('CalculationsService', () => {
   let service: CalculationsService;
@@ -32,7 +33,7 @@ describe('CalculationsService', () => {
     };
 
     expect(service.borrowOmmApyFormula(lendingBorrowingPortion, totalInterestOverAYear, ommTokenDistribution, ommPriceUSD,
-      reserveData as ReserveData)).toBeCloseTo(2.920, 2);
+      reserveData as ReserveData, AssetTag.USDS)).toBeCloseTo(2.920, 2);
   });
 
   it('Test supplyOmmApyFormula USDS', () => {
@@ -49,6 +50,6 @@ describe('CalculationsService', () => {
     };
 
     expect(service.supplyOmmApyFormula(lendingBorrowingPortion, totalInterestOverAYear, ommTokenDistribution, ommPriceUSD,
-      reserveData as ReserveData)).toBeCloseTo(1.46, 2);
+      reserveData as ReserveData, AssetTag.USDS)).toBeCloseTo(1.46, 2);
   });
 });

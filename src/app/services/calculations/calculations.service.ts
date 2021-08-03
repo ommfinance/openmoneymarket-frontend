@@ -53,7 +53,7 @@ export class CalculationsService {
       const lendingBorrowingPortion = this.persistenceService.distributionPercentages?.lendingBorrow ?? 0;
 
       return this.borrowOmmApyFormula(lendingBorrowingPortion, totalInterestOverAYear, tokenDistributionPerDay,
-        this.persistenceService.ommPriceUSD, reserveData);
+        this.persistenceService.ommPriceUSD, reserveData, assetTag);
     } else {
       return 0;
     }
@@ -62,9 +62,13 @@ export class CalculationsService {
   // Borrow OMM rewards APY: Token Distribution for that day (1M) * OMM Token Price * reserve portion * reserve borrowing * 365
   // / (reserve supplied * reserve price from Oracle)
   public borrowOmmApyFormula(lendingBorrowingPortion: number, totalInterestOverAYear: number,
-                             tokenDistributionPerDay: number, ommPriceUSD: number, reserveData: ReserveData): number {
+                             tokenDistributionPerDay: number, ommPriceUSD: number, reserveData: ReserveData, assetTag: AssetTag): number {
+    // if reserve is ICX, convert ICX exchange price to sICX
+    const exchangePrice = assetTag === AssetTag.ICX ? Utils.convertICXToSICXPrice(reserveData.exchangePrice, reserveData.sICXRate)
+      : reserveData.exchangePrice;
+
     return (lendingBorrowingPortion * tokenDistributionPerDay * ommPriceUSD * reserveData.rewardPercentage
-      * reserveData.borrowingPercentage * 365) / (reserveData.totalBorrows * reserveData.exchangePrice);
+      * reserveData.borrowingPercentage * 365) / (reserveData.totalBorrows * exchangePrice);
   }
 
   public calculateSupplyApyWithOmmRewards(assetTag: AssetTag): number {
@@ -76,7 +80,7 @@ export class CalculationsService {
       const lendingBorrowingPortion = this.persistenceService.distributionPercentages?.lendingBorrow ?? 0;
 
       return this.supplyOmmApyFormula(lendingBorrowingPortion, totalInterestOverAYear, tokenDistributionPerDay,
-        this.persistenceService.ommPriceUSD, reserveData);
+        this.persistenceService.ommPriceUSD, reserveData, assetTag);
     } else {
       log.debug("calculateSupplyApyWithOmmRewards: res is ZERO (reserveData not found)");
       return 0;
@@ -84,9 +88,13 @@ export class CalculationsService {
   }
 
   public supplyOmmApyFormula(lendingBorrowingPortion: number, totalInterestOverAYear: number,
-                             tokenDistributionPerDay: number, ommPriceUSD: number, reserveData: ReserveData): number {
+                             tokenDistributionPerDay: number, ommPriceUSD: number, reserveData: ReserveData, assetTag: AssetTag): number {
+    // if reserve is ICX, convert ICX exchange price to sICX
+    const exchangePrice = assetTag === AssetTag.ICX ? Utils.convertICXToSICXPrice(reserveData.exchangePrice, reserveData.sICXRate)
+      : reserveData.exchangePrice;
+
     return (lendingBorrowingPortion * tokenDistributionPerDay * ommPriceUSD * reserveData.rewardPercentage
-      * reserveData.lendingPercentage * 365) / (reserveData.totalLiquidity * reserveData.exchangePrice);
+      * reserveData.lendingPercentage * 365) / (reserveData.totalLiquidity * exchangePrice);
   }
 
   /**
