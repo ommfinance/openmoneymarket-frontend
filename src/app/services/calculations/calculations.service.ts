@@ -560,23 +560,16 @@ export class CalculationsService {
   }
 
   public calculateDailyOmmStakingRewards(): number {
-    // log.debug("calculateDailyOmmStakingRewards:");
     const dailyOmmDistribution = this.persistenceService.tokenDistributionPerDay;
     const stakingOmmDistPercentage = this.persistenceService.allAssetDistPercentages?.staking.OMM ?? 0;
-    // log.debug("dailyOmmDistribution = " + dailyOmmDistribution);
-    // log.debug("stakingOmmDistPercentage = " + stakingOmmDistPercentage);
 
     return dailyOmmDistribution * stakingOmmDistPercentage;
   }
 
   /** Formulae: Daily OMM staking rewards * 365/Total OMM staked */
   public calculateStakingApy(): number {
-    // log.debug("calculateStakingApy:");
     const dailyOmmStakingRewards = this.calculateDailyOmmStakingRewards();
     const totalStakedOmm = this.persistenceService.totalStakedOmm;
-    // log.debug("dailyOmmStakingRewards = " + dailyOmmStakingRewards);
-    // log.debug("totalStakedOmm = " + totalStakedOmm);
-
 
     if (dailyOmmStakingRewards === 0 || totalStakedOmm === 0) {
       return 0;
