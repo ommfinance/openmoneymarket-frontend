@@ -49,10 +49,9 @@ export class CalculationsService {
 
     if (reserveData) {
       const tokenDistributionPerDay = this.persistenceService.tokenDistributionPerDay;
-      const totalInterestOverAYear = this.borrowTotalInterestOverAYear();
       const lendingBorrowingPortion = this.persistenceService.distributionPercentages?.lendingBorrow ?? 0;
 
-      return this.borrowOmmApyFormula(lendingBorrowingPortion, totalInterestOverAYear, tokenDistributionPerDay,
+      return this.borrowOmmApyFormula(lendingBorrowingPortion, tokenDistributionPerDay,
         this.persistenceService.ommPriceUSD, reserveData, assetTag);
     } else {
       return 0;
@@ -61,8 +60,8 @@ export class CalculationsService {
 
   // Borrow OMM rewards APY: Token Distribution for that day (1M) * OMM Token Price * reserve portion * reserve borrowing * 365
   // / (reserve supplied * reserve price from Oracle)
-  public borrowOmmApyFormula(lendingBorrowingPortion: number, totalInterestOverAYear: number,
-                             tokenDistributionPerDay: number, ommPriceUSD: number, reserveData: ReserveData, assetTag: AssetTag): number {
+  public borrowOmmApyFormula(lendingBorrowingPortion: number, tokenDistributionPerDay: number, ommPriceUSD: number,
+                             reserveData: ReserveData, assetTag: AssetTag): number {
     // if reserve is ICX, convert ICX exchange price to sICX
     const exchangePrice = assetTag === AssetTag.ICX ? Utils.convertICXToSICXPrice(reserveData.exchangePrice, reserveData.sICXRate)
       : reserveData.exchangePrice;
