@@ -54,11 +54,11 @@ export class ScoreService {
    * @description Get Token Distribution per day
    * @return  Token distribution per day in number
    */
-  public async getTokenDistributionPerDay(): Promise<number> {
+  public async getTokenDistributionPerDay(day: number): Promise<number> {
     this.checkerService.checkAllAddressesLoaded();
 
     const params = {
-      _day: "0x1",
+      _day: IconConverter.toHex(day),
     };
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Rewards,
