@@ -20,35 +20,28 @@ describe('CalculationsService', () => {
   });
 
   it('Test borrowOmmApyFormula USDS', () => {
-    const ommPriceUSD = 2;
-    const ommTokenDistribution = 1000000;
-    const lendingBorrowingPortion = 0.1;
+    const ommPriceUSD = 6.89;
+    const dailyBorrowRewards = 8000;
 
     const reserveData = {
-      rewardPercentage: 0.4,
-      borrowingPercentage: 0.5,
       exchangePrice: 1,
-      totalBorrows: 5000000
+      totalBorrows: 1032.858237900987
     };
 
-    expect(service.borrowOmmApyFormula(lendingBorrowingPortion, ommTokenDistribution, ommPriceUSD,
-      reserveData as ReserveData, AssetTag.USDS)).toBeCloseTo(2.920, 2);
+    expect(service.borrowOmmApyFormula(dailyBorrowRewards, ommPriceUSD, reserveData as ReserveData, AssetTag.USDS))
+      .toBeCloseTo(19478.7621976915, 2);
   });
 
   it('Test supplyOmmApyFormula USDS', () => {
-    const ommPriceUSD = 2;
-    const ommTokenDistribution = 1000000;
-    const totalInterestOverAYear = 825000;
-    const lendingBorrowingPortion = 0.1;
+    const ommPriceUSD = 6.89;
+    const dailySupplyRewards = 8000;
 
     const reserveData = {
-      rewardPercentage: 0.4,
-      lendingPercentage: 0.5,
       exchangePrice: 1,
-      totalLiquidity: 10000000
+      totalLiquidity: 2159.455452592119
     };
 
-    expect(service.supplyOmmApyFormula(lendingBorrowingPortion, totalInterestOverAYear, ommTokenDistribution, ommPriceUSD,
-      reserveData as ReserveData, AssetTag.USDS)).toBeCloseTo(1.46, 2);
+    expect(service.supplyOmmApyFormula(dailySupplyRewards, ommPriceUSD, reserveData as ReserveData, AssetTag.USDS))
+      .toBeCloseTo(9316.608025347428, 2);
   });
 });

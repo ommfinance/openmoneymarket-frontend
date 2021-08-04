@@ -500,7 +500,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       const supplyDiff = Utils.subtractDecimalsWithPrecision(value, this.getUserSuppliedAssetBalance());
 
       // Update asset-user's supply omm rewards
-      this.setText(this.suppRewardsEl, ommPrefixPlusFormat.to(this.calculationService.calculateUserSupplyOmmReward(
+      this.setText(this.suppRewardsEl, ommPrefixPlusFormat.to(this.calculationService.calculateUserDailySupplyOmmReward(
         this.asset.tag, value)));
 
       // update risk data
@@ -564,7 +564,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         this.getDailyBorrowInterest(value)));
 
       // Update asset-user's borrow omm rewards
-      this.setText(this.borrRewardsEl, ommPrefixPlusFormat.to(this.calculationService.calculateUserBorrowOmmReward(
+      this.setText(this.borrRewardsEl, ommPrefixPlusFormat.to(this.calculationService.calculateUserDailyBorrowOmmReward(
         this.asset.tag, value)));
 
       if (this.inputBorrow.value > 0) {
