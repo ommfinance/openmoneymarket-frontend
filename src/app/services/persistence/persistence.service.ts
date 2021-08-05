@@ -55,7 +55,7 @@ export class PersistenceService {
   public totalStakedOmm = 0;
   public ommPriceUSD = -1; // -1 indicates that ommPriceUSD is not set
 
-  public tokenDistributionPerDay = 1000000;
+  public tokenDistributionPerDay = 0;
   public loanOriginationFeePercentage = 0.001;
   public distributionPercentages?: DistributionPercentages;
   public allAssetDistPercentages?: AllAssetDistPercentages;

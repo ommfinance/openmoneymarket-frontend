@@ -95,6 +95,9 @@ export class StateChangeService {
   private ommPriceChange: Subject<number> = new Subject<number>();
   ommPriceChange$: Observable<number> = this.ommPriceChange.asObservable();
 
+  private tokenDistributionPerDayChange: Subject<number> = new Subject<number>();
+  tokenDistributionPerDayChange$: Observable<number> = this.tokenDistributionPerDayChange.asObservable();
+
   /**
    * Subscribable subject for monitoring the user debt changes for each asset
    */
@@ -143,6 +146,11 @@ export class StateChangeService {
   public allAssetDistPercentagesUpdate(value: AllAssetDistPercentages): void {
     this.persistenceService.allAssetDistPercentages = value;
     this.allAssetDistPercentagesChange.next(value);
+  }
+
+  public tokenDistributionPerDayUpdate(value: number): void {
+    this.persistenceService.tokenDistributionPerDay = value;
+    this.tokenDistributionPerDayChange.next(value);
   }
 
   public ommPriceUpdate(value: number): void {

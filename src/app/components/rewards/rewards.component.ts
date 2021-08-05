@@ -41,6 +41,9 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
 
   stakeAdjustActive = false;
 
+  dailyOmmRewards = 0;
+  yourDailyRewards = 0;
+
   constructor(public persistenceService: PersistenceService,
               private stateChangeService: StateChangeService,
               private modalService: ModalService,
@@ -197,6 +200,7 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     this.subscribeToOmmTokenBalanceChange();
     this.subscribeToUserModalActionChange();
     this.subscribeToAllAssetDistPercentagesChange();
+    this.subscribeToTokenDistributionPerDayChange();
     this.subscribeToOmmPriceChange();
   }
 
@@ -227,6 +231,12 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
 
   private subscribeToAllAssetDistPercentagesChange(): void {
     this.stateChangeService.allAssetDistPercentagesChange$.subscribe((res) => {
+      this.setStakingDailyRewards();
+    });
+  }
+
+  private subscribeToTokenDistributionPerDayChange(): void {
+    this.stateChangeService.tokenDistributionPerDayChange$.subscribe((res) => {
       this.setStakingDailyRewards();
     });
   }
@@ -287,7 +297,7 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     this.sliderStake.noUiSlider.on('update', (values: any, handle: any) => {
       const value = +values[handle];
 
-      if (this.stakeDailyRewEl) {
+      if (this.stakeDailyRewEl && this.userLoggedIn()) {
         this.setText(this.stakeDailyRewEl, this.formatNumberToUSLocaleString(this.roundDownTo2Decimals(
           this.calculationService.calculateDailyUsersOmmStakingRewards(value)))  + " OMM");
       }
@@ -353,9 +363,9 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
 
   getDailyOmmRewards(): number {
     if (this.userLoggedIn()) {
-      return this.getUserOmmStakingDailyRewards();
+      return this.yourDailyRewards;
     } else {
-      return this.calculationService.calculateDailyOmmStakingRewards();
+      return this.dailyOmmRewards;
     }
   }
 
@@ -449,8 +459,8 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   }
 
   setStakingDailyRewards(): void {
-    this.setText(this.stakeDailyRewEl, this.formatNumberToUSLocaleString(this.roundDownTo2Decimals(
-      this.getDailyOmmRewards()))  + " OMM");
+    this.dailyOmmRewards = this.calculationService.calculateDailyOmmStakingRewards();
+    this.yourDailyRewards = this.getUserOmmStakingDailyRewards();
   }
 
   getUserOmmRewardsBalance(): number {

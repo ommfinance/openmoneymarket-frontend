@@ -343,7 +343,7 @@ export class DataLoaderService {
 
   public async loadTokenDistributionPerDay(day: number): Promise<void> {
     try {
-      this.persistenceService.tokenDistributionPerDay = await this.scoreService.getTokenDistributionPerDay(day);
+      this.stateChangeService.tokenDistributionPerDayUpdate((await this.scoreService.getTokenDistributionPerDay(day)));
     } catch (e) {
       log.error("Error in loadTokenDistributionPerDay:");
       log.error(e);

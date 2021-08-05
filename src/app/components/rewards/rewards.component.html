@@ -181,7 +181,7 @@
         <div id="staking-apy-data" class="grid-cell border-bottom text-center">
           <dl class="metadata">
             <dt>{{userLoggedIn() ? "Your daily rewards" : "Daily rewards"}}</dt>
-            <dd class="omm-stake-rewards" #stkDailyRew>{{getDailyOmmRewards() | roundOff2Dec | usFormat}} {{getDailyOmmRewards() > 0 ? "OMM":""}}</dd>
+            <dd class="omm-stake-rewards" #stkDailyRew>{{this.getDailyOmmRewards() | roundOff2Dec | usFormat}} {{this.getDailyOmmRewards()  > 0 ? "OMM":""}}</dd>
           </dl>
         </div>
         <div class="grid">
