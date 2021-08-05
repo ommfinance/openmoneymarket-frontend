@@ -249,7 +249,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         // set slider value
         this.setSupplySliderValue(value);
       }
-    }, 500 );
+    }, 1250 );
   }
 
   /**
@@ -267,7 +267,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         // set slider value
         this.setBorrowSliderValue(value);
       }
-    }, 500 );
+    }, 1250 );
   }
 
 
