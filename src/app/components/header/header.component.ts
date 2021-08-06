@@ -60,8 +60,10 @@ export class HeaderComponent extends BaseClass implements OnInit {
     this.modalService.showNewModal(ModalType.SIGN_IN);
   }
 
-  onRefreshClick(): void {
+  async onRefreshClick(): Promise<void> {
+    this.notificationService.showNewNotification("Refreshing data...");
     if (this.persistenceService.activeWallet) {
+      await this.dataLoaderService.loadCoreData();
       this.loginService.walletLogin(this.persistenceService.activeWallet).then(() => {
         this.notificationService.showNewNotification("Successfully refreshed the data.");
       }).catch(() => {
