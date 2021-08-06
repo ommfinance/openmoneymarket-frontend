@@ -20,28 +20,65 @@ describe('CalculationsService', () => {
   });
 
   it('Test borrowOmmApyFormula USDS', () => {
-    const ommPriceUSD = 6.89;
+    const ommPriceUSD = 7.34;
     const dailyBorrowRewards = 8000;
+    const usdsPrice = 1;
 
     const reserveData = {
-      exchangePrice: 1,
-      totalBorrows: 1032.858237900987
+      exchangePrice: usdsPrice,
+      totalBorrows: 1032.86
     };
 
     expect(service.borrowOmmApyFormula(dailyBorrowRewards, ommPriceUSD, reserveData as ReserveData, AssetTag.USDS))
-      .toBeCloseTo(19478.7621976915, 2);
+      .toBeCloseTo(20750.92, 2);
+  });
+
+  it('Test borrowOmmApyFormula ICX', () => {
+    const ommPriceUSD = 7.34;
+    const dailyBorrowRewards = 800;
+    const icxPrice = 1.06;
+    const borrowAmount = 979.39;
+    const sICXRate = 1.0377358491;
+
+    const reserveData = {
+      exchangePrice: icxPrice,
+      totalBorrows: borrowAmount,
+      sICXRate
+    };
+
+    expect(service.borrowOmmApyFormula(dailyBorrowRewards, ommPriceUSD, reserveData as ReserveData, AssetTag.ICX))
+      .toBeCloseTo(1989.438695, 2);
   });
 
   it('Test supplyOmmApyFormula USDS', () => {
-    const ommPriceUSD = 6.89;
+    const ommPriceUSD = 7.34;
     const dailySupplyRewards = 8000;
+    const usdsPrice = 1;
+    const supplyAmount = 2159.46;
 
     const reserveData = {
-      exchangePrice: 1,
-      totalLiquidity: 2159.455452592119
+      exchangePrice: usdsPrice,
+      totalLiquidity: supplyAmount
     };
 
     expect(service.supplyOmmApyFormula(dailySupplyRewards, ommPriceUSD, reserveData as ReserveData, AssetTag.USDS))
-      .toBeCloseTo(9316.608025347428, 2);
+      .toBeCloseTo(9925.073861057857, 2);
+  });
+
+  it('Test supplyOmmApyFormula ICX', () => {
+    const ommPriceUSD = 7.34;
+    const dailySupplyRewards = 7200;
+    const icxPrice = 1.06;
+    const supplyAmount = 16037.36;
+    const sICXRate = 1.0377358491;
+
+    const reserveData = {
+      exchangePrice: icxPrice,
+      totalLiquidity: supplyAmount,
+      sICXRate
+    };
+
+    expect(service.supplyOmmApyFormula(dailySupplyRewards, ommPriceUSD, reserveData as ReserveData, AssetTag.USDS))
+      .toBeCloseTo(1134.7042391864052, 2);
   });
 });

@@ -63,6 +63,8 @@ export class CalculationsService {
     const exchangePrice = assetTag === AssetTag.ICX ? Utils.convertICXToSICXPrice(reserveData.exchangePrice, reserveData.sICXRate)
       : reserveData.exchangePrice;
 
+    log.debug("Exchange price = " + exchangePrice);
+
     return (dailyReserveBorrowRewards * ommPriceUSD * 365) / (reserveData.totalBorrows * exchangePrice);
   }
 

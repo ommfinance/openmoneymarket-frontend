@@ -139,7 +139,7 @@ export class Utils {
   }
 
   public static convertICXToSICXPrice(icxPrice: number, sICXRate: number): number {
-    return icxPrice / sICXRate;
+    return icxPrice * sICXRate;
   }
 
   public static convertSICXToICX(sICXvalue: number, sIcxToIcxRate: number): number {
