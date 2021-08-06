@@ -480,7 +480,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       let value = this.deformatAssetValue(values[handle]);
 
       // in case of ICX leave 1 ICX for the fees
-      if (this.asset.tag === AssetTag.ICX && value > this.supplySliderMaxValue() - 1) {
+      if (this.isAssetIcx() && value > this.supplySliderMaxValue() - 1) {
         value = this.supplySliderMaxValue() - 1;
       }
 
@@ -501,7 +501,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
       // Update asset-user's supply omm rewards
       this.setText(this.suppRewardsEl, ommPrefixPlusFormat.to(this.calculationService.calculateUserDailySupplyOmmReward(
-        this.asset.tag, value)));
+        this.asset.tag, this.isAssetIcx() ? this.convertFromICXTosICX(value) : value)));
 
       // update risk data
       let totalRisk;
