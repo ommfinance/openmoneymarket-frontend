@@ -9,3 +9,31 @@ export const contributorsMap = new Map([
   ["hx28c08b299995a88756af64374e13db2240bc3142", true], // PARROT9
   ["hx231a795d1c719b9edf35c46b9daa4e0b5a1e83aa", true] // iBriz - ICONOsphere
 ]);
+
+export class Times {
+  /** Class containing times (seconds, minutes, ..) in seconds, milliseconds and methods to retrieve arbitrary time in it */
+  public static readonly SECOND_IN_MILLISECONDS = 1000;
+  public static readonly MINUTE_IN_MILLISECONDS = 60000;
+  public static readonly HOUR_IN_MILLISECONDS = 3600000;
+  public static readonly DAY_IN_MILLISECONDS = 86400000;
+
+  public static readonly MINUTE_IN_SECONDS = 60;
+  public static readonly HOUR_IN_SECONDS = 3600;
+  public static readonly DAY_IN_SECONDS = 86400;
+
+  public static secondsInMilliseconds(seconds: number): number {
+    return seconds * Times.SECOND_IN_MILLISECONDS;
+  }
+
+  public static minutesInMilliseconds(minutes: number): number {
+    return minutes * Times.MINUTE_IN_MILLISECONDS;
+  }
+
+  public static minutesInSeconds(minutes: number): number {
+    return minutes * Times.MINUTE_IN_SECONDS;
+  }
+
+  public static daysInSeconds(days: number): number {
+    return days * Times.DAY_IN_SECONDS;
+  }
+}

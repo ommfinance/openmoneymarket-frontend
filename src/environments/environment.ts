@@ -11,7 +11,10 @@ export const environment = {
   ledgerBip32Path: "44'/4801368'/0'/0'",
   GOVERNANCE_ADDRESS: "cx0000000000000000000000000000000000000001",
   IISS_API: "cx0000000000000000000000000000000000000000",
-  NID: 3
+  NID: 3,
+  REWARDS_ACCRUE_START: 1628312400, // unix timestamp from when rewards accrue will start
+  REWARDS_CLAIMABLE_START: 1628917200, // unix timestamp from when rewards are going to be claimable
+  ACTIVATE_REWARDS_TIMESTAMPS: false, // boolean flag deciding if above two timestamp should be respected
 };
 
 /*

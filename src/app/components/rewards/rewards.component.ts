@@ -16,6 +16,9 @@ import {ModalAction} from "../../models/ModalAction";
 import {StakingAction} from "../../models/StakingAction";
 import {NotificationService} from "../../services/notification/notification.service";
 import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
+import {environment} from "../../../environments/environment";
+import {ReloaderService} from "../../services/reloader/reloader.service";
+import {Times} from "../../common/constants";
 
 declare var $: any;
 declare var noUiSlider: any;
@@ -49,7 +52,8 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
               private modalService: ModalService,
               private calculationService: CalculationsService,
               private notificationService: NotificationService,
-              private cd: ChangeDetectorRef) {
+              private cd: ChangeDetectorRef,
+              public reloaderService: ReloaderService) {
     super(persistenceService);
   }
 
@@ -300,8 +304,9 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
       const value = +values[handle];
 
       if (this.stakeDailyRewEl && this.userLoggedIn()) {
-        this.setText(this.stakeDailyRewEl, this.formatNumberToUSLocaleString(this.roundDownTo2Decimals(
-          this.calculationService.calculateDailyUsersOmmStakingRewards(value)))  + " OMM");
+        const dailyUsersOmmStakingRewards = this.calculationService.calculateDailyUsersOmmStakingRewards(value);
+        this.setText(this.stakeDailyRewEl, this.formatNumberToUSLocaleString(this.roundDownTo2Decimals(dailyUsersOmmStakingRewards))
+          + (dailyUsersOmmStakingRewards > 0 ? " OMM" : ""));
       }
 
       if (this.userOmmTokenBalanceDetails) {
@@ -321,6 +326,36 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     return userOmmRewardsTotal <= 0 || this.persistenceService.userOmmTokenBalanceDetails == null;
   }
 
+  rewardsAccrueStartDateHasPassed(): boolean {
+    return environment.REWARDS_ACCRUE_START < this.reloaderService.currentTimestamp;
+  }
+
+  rewardsClaimStartDateHasPassed(): boolean {
+    return environment.REWARDS_CLAIMABLE_START < this.reloaderService.currentTimestamp;
+  }
+
+  rewardsTimeStampsActivated(): boolean {
+    return environment.ACTIVATE_REWARDS_TIMESTAMPS;
+  }
+
+  getTimeUntilClaimStart(): string {
+    const secondsUntilStart = environment.REWARDS_CLAIMABLE_START - this.reloaderService.currentTimestamp;
+    const daysUntilStart = Math.floor(secondsUntilStart / Times.DAY_IN_SECONDS);
+
+    if (daysUntilStart === 0) {
+      const hoursUntilStart = Math.floor(secondsUntilStart / Times.HOUR_IN_SECONDS);
+
+      if (hoursUntilStart === 0) {
+        const minutesUntilStart = Math.floor(secondsUntilStart / Times.MINUTE_IN_SECONDS);
+        return minutesUntilStart + " minutes";
+      } else {
+        return hoursUntilStart + " hours";
+      }
+    } else {
+      return daysUntilStart + " days";
+    }
+  }
+
   getMarketRewards(): number {
     return this.persistenceService.userOmmRewards?.reserve.total ?? 0;
   }
@@ -338,11 +373,11 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   }
 
   getAllPoolsData(): PoolData[] {
-    return this.persistenceService.allPools;
+    return this.persistenceService.allPools ?? [];
   }
 
   getUserPoolsData(): UserPoolData[] {
-    return this.persistenceService.userPools;
+    return this.persistenceService.userPools ?? [];
   }
 
   userHasStakedToAnyPool(): boolean {
