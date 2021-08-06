@@ -4,6 +4,7 @@ import { CalculationsService } from './calculations.service';
 import {HttpClientTestingModule} from "@angular/common/http/testing";
 import {ReserveData} from "../../models/AllReservesData";
 import {AssetTag} from "../../models/Asset";
+import {UserReserveData} from "../../models/UserReserveData";
 
 describe('CalculationsService', () => {
   let service: CalculationsService;
@@ -81,4 +82,56 @@ describe('CalculationsService', () => {
     expect(service.supplyOmmApyFormula(dailySupplyRewards, ommPriceUSD, reserveData as ReserveData, AssetTag.USDS))
       .toBeCloseTo(1134.7042391864052, 2);
   });
+
+  it('Test userBorrowOmmRewardsFormula USDS', () => {
+    const dailyBorrowRewards = 8000;
+    const borrowAmount = 1032.86;
+    const userBorrowAmount = 50.02;
+
+    const reserveData = {
+      totalBorrows: borrowAmount,
+    } as ReserveData;
+
+    const userReserveData = {
+      currentBorrowBalance: userBorrowAmount,
+    } as UserReserveData;
+
+    expect(service.userBorrowOmmRewardsFormula(dailyBorrowRewards, reserveData, userReserveData))
+      .toBeCloseTo(387.4290804174816, 2);
+  });
+
+  it('Test userBorrowOmmRewardsFormula iUSDC', () => {
+    const dailyBorrowRewards = 8000;
+    const borrowAmount = 935.01;
+    const userBorrowAmount = 50.01;
+
+    const reserveData = {
+      totalBorrows: borrowAmount,
+    } as ReserveData;
+
+    const userReserveData = {
+      currentBorrowBalance: userBorrowAmount,
+    } as UserReserveData;
+
+    expect(service.userBorrowOmmRewardsFormula(dailyBorrowRewards, reserveData, userReserveData))
+      .toBeCloseTo(427.8884718, 2);
+  });
+
+  it('Test userSupplyOmmRewardsFormula sICX', () => {
+    const dailySupplyRewards = 7200;
+    const supplyAmount = 16037.36;
+    const userSupplyAmount = 901.74;
+
+    const reserveData = {
+      totalLiquidity: supplyAmount,
+    } as ReserveData;
+
+    const userReserveData = {
+      currentOTokenBalance: userSupplyAmount,
+    } as UserReserveData;
+
+    expect(service.userSupplyOmmRewardsFormula(dailySupplyRewards, reserveData, userReserveData))
+      .toBeCloseTo(404.837704, 2);
+  });
+
 });
