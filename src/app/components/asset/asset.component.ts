@@ -480,7 +480,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       let value = this.deformatAssetValue(values[handle]);
 
       // in case of ICX leave 1 ICX for the fees
-      if (this.asset.tag === AssetTag.ICX && value > this.supplySliderMaxValue() - 1) {
+      if (this.isAssetIcx() && value > this.supplySliderMaxValue() - 1) {
         value = this.supplySliderMaxValue() - 1;
       }
 
@@ -500,8 +500,8 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       const supplyDiff = Utils.subtractDecimalsWithPrecision(value, this.getUserSuppliedAssetBalance());
 
       // Update asset-user's supply omm rewards
-      this.setText(this.suppRewardsEl, ommPrefixPlusFormat.to(this.calculationService.calculateUserSupplyOmmReward(
-        this.asset.tag, value)));
+      this.setText(this.suppRewardsEl, ommPrefixPlusFormat.to(this.calculationService.calculateUserDailySupplyOmmReward(
+        this.asset.tag, this.isAssetIcx() ? this.convertFromICXTosICX(value) : value)));
 
       // update risk data
       let totalRisk;
@@ -564,7 +564,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         this.getDailyBorrowInterest(value)));
 
       // Update asset-user's borrow omm rewards
-      this.setText(this.borrRewardsEl, ommPrefixPlusFormat.to(this.calculationService.calculateUserBorrowOmmReward(
+      this.setText(this.borrRewardsEl, ommPrefixPlusFormat.to(this.calculationService.calculateUserDailyBorrowOmmReward(
         this.asset.tag, value)));
 
       if (this.inputBorrow.value > 0) {

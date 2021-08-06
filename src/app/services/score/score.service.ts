@@ -54,8 +54,10 @@ export class ScoreService {
    * @description Get Token Distribution per day
    * @return  Token distribution per day in number
    */
-  public async getTokenDistributionPerDay(day: number): Promise<number> {
+  public async getTokenDistributionPerDay(day?: number): Promise<number> {
     this.checkerService.checkAllAddressesLoaded();
+
+    day = day ? day : await this.getRewardsDay();
 
     const params = {
       _day: IconConverter.toHex(day),
@@ -69,6 +71,19 @@ export class ScoreService {
     log.debug("getTokenDistributionPerDay: ", res);
 
     return Utils.hexToNormalisedNumber(res);
+  }
+
+  public async getRewardsDay(): Promise<number> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Rewards,
+      ScoreMethodNames.GET_DAY, {}, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getRewardsDay: ", res);
+
+    return Utils.hexToNumber(res);
   }
 
   /**

@@ -48,11 +48,9 @@ export class CalculationsService {
     const reserveData = this.persistenceService.getAssetReserveData(assetTag);
 
     if (reserveData) {
-      const tokenDistributionPerDay = this.persistenceService.tokenDistributionPerDay;
-      const lendingBorrowingPortion = this.persistenceService.distributionPercentages?.lendingBorrow ?? 0;
-
-      return this.borrowOmmApyFormula(lendingBorrowingPortion, tokenDistributionPerDay,
-        this.persistenceService.ommPriceUSD, reserveData, assetTag);
+      const dailyBorrowRewards = this.persistenceService.dailyRewardsAllPoolsReserves?.reserve.getDailyBorrowRewardsForReserve(assetTag)
+        ?? 0;
+      return this.borrowOmmApyFormula(dailyBorrowRewards, this.persistenceService.ommPriceUSD, reserveData, assetTag);
     } else {
       return 0;
     }
@@ -60,40 +58,35 @@ export class CalculationsService {
 
   // Borrow OMM rewards APY: Token Distribution for that day (1M) * OMM Token Price * reserve portion * reserve borrowing * 365
   // / (reserve supplied * reserve price from Oracle)
-  public borrowOmmApyFormula(lendingBorrowingPortion: number, tokenDistributionPerDay: number, ommPriceUSD: number,
-                             reserveData: ReserveData, assetTag: AssetTag): number {
+  public borrowOmmApyFormula(dailyReserveBorrowRewards: number, ommPriceUSD: number, reserveData: ReserveData, assetTag: AssetTag): number {
     // if reserve is ICX, convert ICX exchange price to sICX
     const exchangePrice = assetTag === AssetTag.ICX ? Utils.convertICXToSICXPrice(reserveData.exchangePrice, reserveData.sICXRate)
       : reserveData.exchangePrice;
 
-    return (lendingBorrowingPortion * tokenDistributionPerDay * ommPriceUSD * reserveData.rewardPercentage
-      * reserveData.borrowingPercentage * 365) / (reserveData.totalBorrows * exchangePrice);
+    log.debug("Exchange price = " + exchangePrice);
+
+    return (dailyReserveBorrowRewards * ommPriceUSD * 365) / (reserveData.totalBorrows * exchangePrice);
   }
 
   public calculateSupplyApyWithOmmRewards(assetTag: AssetTag): number {
     const reserveData = this.persistenceService.getAssetReserveData(assetTag);
 
     if (reserveData) {
-      const totalInterestOverAYear = this.supplyTotalInterestOverAYear();
-      const tokenDistributionPerDay = this.persistenceService.tokenDistributionPerDay;
-      const lendingBorrowingPortion = this.persistenceService.distributionPercentages?.lendingBorrow ?? 0;
-
-      return this.supplyOmmApyFormula(lendingBorrowingPortion, totalInterestOverAYear, tokenDistributionPerDay,
-        this.persistenceService.ommPriceUSD, reserveData, assetTag);
+      const dailySupplyRewards = this.persistenceService.dailyRewardsAllPoolsReserves?.reserve.getDailySupplyRewardsForReserve(assetTag)
+        ?? 0;
+      return this.supplyOmmApyFormula(dailySupplyRewards, this.persistenceService.ommPriceUSD, reserveData, assetTag);
     } else {
       log.debug("calculateSupplyApyWithOmmRewards: res is ZERO (reserveData not found)");
       return 0;
     }
   }
 
-  public supplyOmmApyFormula(lendingBorrowingPortion: number, totalInterestOverAYear: number,
-                             tokenDistributionPerDay: number, ommPriceUSD: number, reserveData: ReserveData, assetTag: AssetTag): number {
+  public supplyOmmApyFormula(dailySupplyRewards: number, ommPriceUSD: number, reserveData: ReserveData, assetTag: AssetTag): number {
     // if reserve is ICX, convert ICX exchange price to sICX
     const exchangePrice = assetTag === AssetTag.ICX ? Utils.convertICXToSICXPrice(reserveData.exchangePrice, reserveData.sICXRate)
       : reserveData.exchangePrice;
 
-    return (lendingBorrowingPortion * tokenDistributionPerDay * ommPriceUSD * reserveData.rewardPercentage
-      * reserveData.lendingPercentage * 365) / (reserveData.totalLiquidity * exchangePrice);
+    return (dailySupplyRewards * ommPriceUSD * 365) / (reserveData.totalLiquidity * exchangePrice);
   }
 
   /**
@@ -343,8 +336,8 @@ export class CalculationsService {
   }
 
   public calculateUserTotalOmmRewards(): number {
-    return Object.values(AssetTag).reduce((a, assetTag) => a + (this.calculateUserSupplyOmmReward(assetTag)
-      + this.calculateUserBorrowOmmReward(assetTag)), 0);
+    return Object.values(AssetTag).reduce((a, assetTag) => a + (this.calculateUserDailySupplyOmmReward(assetTag)
+      + this.calculateUserDailyBorrowOmmReward(assetTag)), 0);
   }
 
   /**
@@ -352,15 +345,15 @@ export class CalculationsService {
    * @param assetTag - Tag (ticker) of the asset
    * @param supplied - Optional parameter for dynamic calculations based on supplied change (slider)
    */
-  public calculateUserSupplyOmmReward(assetTag: AssetTag, supplied?: number): number {
+  public calculateUserDailySupplyOmmReward(assetTag: AssetTag, supplied?: number): number {
     const reserveData = this.persistenceService.getAssetReserveData(assetTag);
     const userReserveData = this.persistenceService.getUserAssetReserve(assetTag);
 
     if (reserveData && userReserveData) {
-      const tokenDistributionPerDay = this.persistenceService.tokenDistributionPerDay;
-      const lendingBorrowingPortion = this.persistenceService.distributionPercentages?.lendingBorrow ?? 0;
+      const dailySupplyRewards = this.persistenceService.dailyRewardsAllPoolsReserves?.reserve.getDailySupplyRewardsForReserve(assetTag)
+        ?? 0;
 
-      return this.userSupplyOmmRewardsFormula(lendingBorrowingPortion,  tokenDistributionPerDay, reserveData, userReserveData, supplied);
+      return this.userSupplyOmmRewardsFormula(dailySupplyRewards, reserveData, userReserveData, supplied);
     } else {
       return 0;
     }
@@ -368,10 +361,9 @@ export class CalculationsService {
 
   // Lending/Borrowing Portion (0.1) * Token Distribution for that day (1M) * reserve portion (0.4)
   // * reserve Lending (0.5) * User's reserve supplied balance/Total reserve supplied balance)
-  public userSupplyOmmRewardsFormula(lendingBorrowingPortion: number, tokenDistributionPerDay: number, reserveData: ReserveData,
-                                     userReserveData: UserReserveData, supplied?: number): number {
-    return (lendingBorrowingPortion * tokenDistributionPerDay * reserveData.rewardPercentage * reserveData.lendingPercentage
-      * (supplied ? supplied : userReserveData.currentOTokenBalance)) / reserveData.totalLiquidity;
+  public userSupplyOmmRewardsFormula(dailySupplyRewards: number, reserveData: ReserveData, userReserveData: UserReserveData,
+                                     supplied?: number): number {
+    return (dailySupplyRewards * (supplied ? supplied : userReserveData.currentOTokenBalance)) / reserveData.totalLiquidity;
   }
 
   /**
@@ -379,15 +371,14 @@ export class CalculationsService {
    * @param assetTag - Tag (ticker) of the asset
    * @param borrowed - Optional parameter for dynamic calculations based on borrow change (slider)
    */
-  public calculateUserBorrowOmmReward(assetTag: AssetTag, borrowed?: number): number {
+  public calculateUserDailyBorrowOmmReward(assetTag: AssetTag, borrowed?: number): number {
     const reserveData = this.persistenceService.getAssetReserveData(assetTag);
     const userReserveData = this.persistenceService.getUserAssetReserve(assetTag);
 
     if (reserveData && userReserveData) {
-      const tokenDistributionPerDay = this.persistenceService.tokenDistributionPerDay;
-      const lendingBorrowingPortion = this.persistenceService.distributionPercentages?.lendingBorrow ?? 0;
-
-      return this.userBorrowOmmRewardsFormula(lendingBorrowingPortion,  tokenDistributionPerDay, reserveData, userReserveData, borrowed);
+      const dailyBorrowRewards = this.persistenceService.dailyRewardsAllPoolsReserves?.reserve.getDailyBorrowRewardsForReserve(assetTag)
+        ?? 0;
+      return this.userBorrowOmmRewardsFormula(dailyBorrowRewards, reserveData, userReserveData, borrowed);
     } else {
       return 0;
     }
@@ -395,10 +386,9 @@ export class CalculationsService {
 
   // Lending/Borrowing Portion (0.1) * Token Distribution for that day (1M) * reserve portion (0.4)
   // * reserve Borrowing (0.5) * User's reserve borrowd balance/Total reserve borrowed balance)
-  public userBorrowOmmRewardsFormula(lendingBorrowingPortion: number, tokenDistributionPerDay: number, reserveData: ReserveData,
-                                     userReserveData: UserReserveData, borrowed?: number): number {
-    return (lendingBorrowingPortion * tokenDistributionPerDay * reserveData.rewardPercentage * reserveData.borrowingPercentage
-      * (borrowed ? borrowed : userReserveData.currentBorrowBalance)) / reserveData.totalBorrows;
+  public userBorrowOmmRewardsFormula(dailyBorrowRewards: number, reserveData: ReserveData, userReserveData: UserReserveData,
+                                     borrowed?: number): number {
+    return (dailyBorrowRewards * (borrowed ? borrowed : userReserveData.currentBorrowBalance)) / reserveData.totalBorrows;
   }
 
   public getTotalAvgSupplyApy(ommApyIncluded = false): number {

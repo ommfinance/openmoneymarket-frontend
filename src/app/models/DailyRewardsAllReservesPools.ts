@@ -1,3 +1,5 @@
+import {AssetTag} from "./Asset";
+
 export class DailyRewardsAllReservesPools {
   liquidity: LiquidityDailyRewards;
   staking: StakingDailyRewards;
@@ -59,6 +61,32 @@ export class ReserveDailyRewards {
     this.oIUSDC = oIUSDC;
     this.dIUSDC = dIUSDC;
     this.total = total;
+  }
+
+  getDailySupplyRewardsForReserve(assetTag: AssetTag): number {
+    switch (assetTag) {
+      case AssetTag.ICX:
+        return this.oICX;
+      case AssetTag.USDS:
+        return this.oUSDS;
+      case AssetTag.USDC:
+        return this.oIUSDC;
+      default:
+        return 0;
+    }
+  }
+
+  getDailyBorrowRewardsForReserve(assetTag: AssetTag): number {
+    switch (assetTag) {
+      case AssetTag.ICX:
+        return this.dICX;
+      case AssetTag.USDS:
+        return this.dUSDS;
+      case AssetTag.USDC:
+        return this.dIUSDC;
+      default:
+        return 0;
+    }
   }
 }
 

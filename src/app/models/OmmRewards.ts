@@ -1,3 +1,5 @@
+import {AssetTag} from "./Asset";
+
 export class OmmRewards {
   liquidity: Liquidity;
   staking: Staking;
@@ -49,7 +51,6 @@ export class Reserve {
   oIUSDC: number;
   dIUSDC: number;
   total: number;
-
 
   constructor(oUSDS: number, dUSDS: number, dICX: number, oICX: number, oIUSDC: number, dIUSDC: number, total: number) {
     this.oUSDS = oUSDS;
