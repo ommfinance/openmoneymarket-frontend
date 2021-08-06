@@ -333,15 +333,13 @@ export class DataLoaderService {
     try {
       const res = await this.scoreService.getDailyRewardsDistributions();
       this.persistenceService.dailyRewardsAllPoolsReserves = res;
-
-      await this.loadTokenDistributionPerDay(res.day);
     } catch (e) {
       log.error("Error in loadDailyRewardsAllReservesPools()");
       log.error(e);
     }
   }
 
-  public async loadTokenDistributionPerDay(day: number): Promise<void> {
+  public async loadTokenDistributionPerDay(day?: number): Promise<void> {
     try {
       this.persistenceService.tokenDistributionPerDay = await this.scoreService.getTokenDistributionPerDay(day);
     } catch (e) {
@@ -424,6 +422,7 @@ export class DataLoaderService {
     this.loadCoreAsyncData();
 
     await Promise.all([
+      this.loadTokenDistributionPerDay(),
       this.loadOmmTokenPriceUSD(),
       this.loadDistributionPercentages(),
       this.loadAllAssetDistPercentages(),
