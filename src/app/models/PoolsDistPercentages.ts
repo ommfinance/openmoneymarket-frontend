@@ -13,7 +13,7 @@ export class PoolsDistPercentages {
     const hexDistPercentage = this.liquidity[poolId.toString()];
 
     if (!hexDistPercentage) {
-      log.error("Failed to retrieve distribution percentage for pool " + poolId);
+      log.warn("Failed to retrieve distribution percentage for pool " + poolId);
       return 0;
     }
 

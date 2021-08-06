@@ -16,7 +16,6 @@ import {UserPoolData} from "../../models/UserPoolData";
   providedIn: 'root'
 })
 export class CalculationsService {
-  className = "[CalculationsService]";
 
   constructor(private persistenceService: PersistenceService,
               private stateChangeService: StateChangeService) { }
@@ -558,7 +557,7 @@ export class CalculationsService {
 
   public calculateDailyOmmStakingRewards(): number {
     const dailyOmmDistribution = this.persistenceService.tokenDistributionPerDay;
-    const stakingOmmDistPercentage = this.persistenceService.allAssetDistPercentages?.staking.OMM ?? 0;
+    const stakingOmmDistPercentage = this.persistenceService.allAssetDistPercentages?.staking?.OMM ?? 0;
 
     return dailyOmmDistribution * stakingOmmDistPercentage;
   }
@@ -581,7 +580,7 @@ export class CalculationsService {
     const usersOmmStaked = stakedOmm ? stakedOmm : this.persistenceService.getUsersStakedOmmBalance();
     const totalOmmStaked = this.persistenceService.totalStakedOmm;
 
-    if (dailyOmmStakingRewards === 0 || usersOmmStaked === 0 || totalOmmStaked === 0) {
+    if (dailyOmmStakingRewards <= 0 || usersOmmStaked <= 0 || totalOmmStaked <= 0) {
       return 0;
     }
 

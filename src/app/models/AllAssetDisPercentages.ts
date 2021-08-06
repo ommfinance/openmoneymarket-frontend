@@ -1,10 +1,10 @@
 export class AllAssetDistPercentages {
-  liquidity: LiquidityAllAsset;
-  staking: StakingAllAsset;
+  liquidity?: LiquidityAllAsset;
+  staking?: StakingAllAsset;
   reserve: ReserveAllAsset;
   total: number;
 
-  constructor(liquidity: LiquidityAllAsset, staking: StakingAllAsset, reserve: ReserveAllAsset, total: number) {
+  constructor(reserve: ReserveAllAsset, total: number, liquidity?: LiquidityAllAsset, staking?: StakingAllAsset) {
     this.liquidity = liquidity;
     this.staking = staking;
     this.reserve = reserve;
@@ -12,7 +12,7 @@ export class AllAssetDistPercentages {
   }
 
   public getClone(): AllAssetDistPercentages {
-    return new AllAssetDistPercentages(this.liquidity, this.staking, this.reserve, this.total);
+    return new AllAssetDistPercentages(this.reserve, this.total, this.liquidity, this.staking);
   }
 }
 

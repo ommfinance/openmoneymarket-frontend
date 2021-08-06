@@ -1,13 +1,12 @@
-import {AssetTag} from "./Asset";
 
 export class OmmRewards {
-  liquidity: Liquidity;
-  staking: Staking;
+  liquidity?: Liquidity;
+  staking?: Staking;
   reserve: Reserve;
   total: number;
 
 
-  constructor(liquidity: Liquidity, staking: Staking, reserve: Reserve, total: number) {
+  constructor(reserve: Reserve, total: number, liquidity?: Liquidity, staking?: Staking) {
     this.liquidity = liquidity;
     this.staking = staking;
     this.reserve = reserve;
@@ -15,7 +14,7 @@ export class OmmRewards {
   }
 
   public getClone(): OmmRewards {
-    return new OmmRewards(this.liquidity, this.staking, this.reserve, this.total);
+    return new OmmRewards(this.reserve, this.total, this.liquidity, this.staking);
   }
 }
 

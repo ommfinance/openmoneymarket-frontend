@@ -60,6 +60,8 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   ngAfterViewInit(): void {
     this.initStakeSlider();
 
+    this.setStakingDailyRewards();
+
     // call cd after to avoid ExpressionChangedAfterItHasBeenCheckedError
     this.cd.detectChanges();
   }
@@ -324,11 +326,11 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   }
 
   getStakingRewards(): number {
-    return this.persistenceService.userOmmRewards?.staking.total ?? 0;
+    return this.persistenceService.userOmmRewards?.staking?.total ?? 0;
   }
 
   getLiquidityRewards(): number {
-    return this.persistenceService.userOmmRewards?.liquidity.total ?? 0;
+    return this.persistenceService.userOmmRewards?.liquidity?.total ?? 0;
   }
 
   userHasStakedToPool(poolData: UserPoolData): boolean {
@@ -435,11 +437,11 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   }
 
   getDailyStakingRewards(): number {
-    return this.persistenceService.dailyRewardsAllPoolsReserves?.staking.total ?? 0;
+    return this.persistenceService.dailyRewardsAllPoolsReserves?.staking?.total ?? 0;
   }
 
   getDailyLiquidityRewards(): number {
-    return this.persistenceService.dailyRewardsAllPoolsReserves?.liquidity.total ?? 0;
+    return this.persistenceService.dailyRewardsAllPoolsReserves?.liquidity?.total ?? 0;
   }
 
   getDailyRewardsUSD(poolData: PoolData): number {

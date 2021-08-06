@@ -62,7 +62,7 @@ export class BaseClass {
   }
 
   public formatNumberToUSLocaleString(num?: number | string, defaultZero = false): string {
-    if (!num || (+num) === 0) { return defaultZero ? "0" : "-"; }
+    if (!num || (+num) <= 0) { return defaultZero ? "0" : "-"; }
     if (typeof num === 'string') {
       return Utils.formatNumberToUSLocaleString(+num);
     } else {
@@ -71,12 +71,12 @@ export class BaseClass {
   }
 
   public toDollarUSLocaleString(num?: number | string, defaultZero = false): string {
-    if (!num || (+num) === 0) { return defaultZero ? "0" : "-"; }
+    if (!num || (+num) <= 0) { return defaultZero ? "0" : "-"; }
     return `$${this.formatNumberToUSLocaleString(num)}`;
   }
 
   public to2DecimalRoundedOffPercentString(num?: number | string): string {
-    if (!num || (+num) === 0) { return "-"; }
+    if (!num || (+num) <= 0) { return "-"; }
 
     // convert in to percentage
     num = +num * 100;

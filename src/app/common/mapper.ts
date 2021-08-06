@@ -62,16 +62,6 @@ export class Mapper {
   public static mapUserOmmRewards(ommRewards: OmmRewards): OmmRewards {
     log.debug("mapUserOmmRewards before: ", ommRewards);
     const res = new OmmRewards(
-      new Liquidity(
-        Utils.hexToNormalisedNumber(ommRewards.liquidity["OMM/SICX"]),
-        Utils.hexToNormalisedNumber(ommRewards.liquidity["OMM/USDS"]),
-        Utils.hexToNormalisedNumber(ommRewards.liquidity["OMM/IUSDC"]),
-        Utils.hexToNormalisedNumber(ommRewards.liquidity.total)
-      ),
-      new Staking(
-        Utils.hexToNormalisedNumber(ommRewards.staking.OMM),
-        Utils.hexToNormalisedNumber(ommRewards.staking.total)
-      ),
       new Reserve(
         Utils.hexToNormalisedNumber(ommRewards.reserve.oUSDS),
         Utils.hexToNormalisedNumber(ommRewards.reserve.dUSDS),
@@ -81,7 +71,19 @@ export class Mapper {
         Utils.hexToNormalisedNumber(ommRewards.reserve.dIUSDC),
         Utils.hexToNormalisedNumber(ommRewards.reserve.total)
       ),
-      Utils.hexToNormalisedNumber(ommRewards.total)
+      Utils.hexToNormalisedNumber(ommRewards.total),
+      ommRewards.liquidity ?
+      new Liquidity(
+        Utils.hexToNormalisedNumber(ommRewards.liquidity["OMM/SICX"]),
+        Utils.hexToNormalisedNumber(ommRewards.liquidity["OMM/USDS"]),
+        Utils.hexToNormalisedNumber(ommRewards.liquidity["OMM/IUSDC"]),
+        Utils.hexToNormalisedNumber(ommRewards.liquidity.total)
+      ) : undefined,
+      ommRewards.staking ?
+      new Staking(
+        Utils.hexToNormalisedNumber(ommRewards.staking.OMM),
+        Utils.hexToNormalisedNumber(ommRewards.staking.total)
+      ) : undefined,
     );
     log.debug("mapUserOmmRewards after: ", res);
 
@@ -91,16 +93,6 @@ export class Mapper {
   public static mapAllAssetDistPercentages(value: AllAssetDistPercentages): AllAssetDistPercentages {
     log.debug("mapAllAssetDistPercentages value: ", value);
     const res = new AllAssetDistPercentages(
-      new LiquidityAllAsset(
-        Utils.hexToNormalisedNumber(value.liquidity["OMM/SICX"]),
-        Utils.hexToNormalisedNumber(value.liquidity["OMM/USDS"]),
-        Utils.hexToNormalisedNumber(value.liquidity["OMM/IUSDC"]),
-        Utils.hexToNormalisedNumber(value.liquidity.total),
-      ),
-      new StakingAllAsset(
-        Utils.hexToNormalisedNumber(value.staking.OMM),
-        Utils.hexToNormalisedNumber(value.staking.total)
-      ),
       new ReserveAllAsset(
         Utils.hexToNormalisedNumber(value.reserve.oUSDS),
         Utils.hexToNormalisedNumber(value.reserve.dUSDS),
@@ -110,7 +102,19 @@ export class Mapper {
         Utils.hexToNormalisedNumber(value.reserve.dIUSDC),
         Utils.hexToNormalisedNumber(value.reserve.total)
       ),
-      Utils.hexToNormalisedNumber(value.total));
+      Utils.hexToNormalisedNumber(value.total),
+      value.liquidity ?
+        new LiquidityAllAsset(
+          Utils.hexToNormalisedNumber(value.liquidity["OMM/SICX"]),
+          Utils.hexToNormalisedNumber(value.liquidity["OMM/USDS"]),
+          Utils.hexToNormalisedNumber(value.liquidity["OMM/IUSDC"]),
+          Utils.hexToNormalisedNumber(value.liquidity.total),
+        ) : undefined,
+      value.staking ?
+      new StakingAllAsset(
+        Utils.hexToNormalisedNumber(value.staking.OMM),
+        Utils.hexToNormalisedNumber(value.staking.total)
+      ) : undefined);
     log.debug("mapAllAssetDistPercentages after: ", res);
 
     return res;
@@ -119,16 +123,6 @@ export class Mapper {
   public static mapDailyRewardsAllReservesPools(value: DailyRewardsAllReservesPools): DailyRewardsAllReservesPools {
     log.debug("mapDailyRewardsAllReservesPools value: ", value);
     const res = new DailyRewardsAllReservesPools(
-      new LiquidityDailyRewards(
-        Utils.hexToNormalisedNumber(value.liquidity["OMM/SICX"]),
-        Utils.hexToNormalisedNumber(value.liquidity["OMM/USDS"]),
-        Utils.hexToNormalisedNumber(value.liquidity["OMM/IUSDC"]),
-        Utils.hexToNormalisedNumber(value.liquidity.total),
-      ),
-      new StakingDailyRewards(
-        Utils.hexToNormalisedNumber(value.staking.OMM),
-        Utils.hexToNormalisedNumber(value.staking.total)
-      ),
       new ReserveDailyRewards(
         Utils.hexToNormalisedNumber(value.reserve.oUSDS),
         Utils.hexToNormalisedNumber(value.reserve.dUSDS),
@@ -139,7 +133,19 @@ export class Mapper {
         Utils.hexToNormalisedNumber(value.reserve.total)
       ),
       Utils.hexToNormalisedNumber(value.total),
-      Utils.hexToNumber(value.day));
+      Utils.hexToNumber(value.day),
+      value.liquidity ?
+      new LiquidityDailyRewards(
+        Utils.hexToNormalisedNumber(value.liquidity["OMM/SICX"]),
+        Utils.hexToNormalisedNumber(value.liquidity["OMM/USDS"]),
+        Utils.hexToNormalisedNumber(value.liquidity["OMM/IUSDC"]),
+        Utils.hexToNormalisedNumber(value.liquidity.total),
+      ) : undefined,
+      value.staking ?
+      new StakingDailyRewards(
+        Utils.hexToNormalisedNumber(value.staking.OMM),
+        Utils.hexToNormalisedNumber(value.staking.total)
+      ) : undefined);
     log.debug("mapDailyRewardsAllReservesPools after: ", res);
 
     return res;

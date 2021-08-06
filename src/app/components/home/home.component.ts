@@ -319,6 +319,10 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   }
 
   getOmmPriceUSD(): string {
-    return `($${this.formatNumberToUSLocaleString(Utils.roundOffTo2Decimals(this.persistenceService.ommPriceUSD))})`;
+    if (this.persistenceService.ommPriceUSD <= 0) {
+      return "";
+    } else {
+      return `($${this.formatNumberToUSLocaleString(Utils.roundOffTo2Decimals(this.persistenceService.ommPriceUSD))})`;
+    }
   }
 }

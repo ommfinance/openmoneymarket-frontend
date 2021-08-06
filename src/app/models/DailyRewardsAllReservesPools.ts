@@ -1,13 +1,13 @@
 import {AssetTag} from "./Asset";
 
 export class DailyRewardsAllReservesPools {
-  liquidity: LiquidityDailyRewards;
-  staking: StakingDailyRewards;
+  liquidity?: LiquidityDailyRewards;
+  staking?: StakingDailyRewards;
   reserve: ReserveDailyRewards;
   total: number;
   day: number;
 
-  constructor(liquidity: LiquidityDailyRewards, staking: StakingDailyRewards, reserve: ReserveDailyRewards, total: number, day: number) {
+  constructor(reserve: ReserveDailyRewards, total: number, day: number, liquidity?: LiquidityDailyRewards, staking?: StakingDailyRewards) {
     this.liquidity = liquidity;
     this.staking = staking;
     this.reserve = reserve;
@@ -16,7 +16,7 @@ export class DailyRewardsAllReservesPools {
   }
 
   public getClone(): DailyRewardsAllReservesPools {
-    return new DailyRewardsAllReservesPools(this.liquidity, this.staking, this.reserve, this.total, this.day);
+    return new DailyRewardsAllReservesPools(this.reserve, this.total, this.day, this.liquidity, this.staking);
   }
 }
 
