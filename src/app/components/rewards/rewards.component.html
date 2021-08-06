@@ -42,7 +42,7 @@
               <div class="tooltip-content"><p>The amount you've earned by staking OMM since you last claimed.</p></div>
             </span>
           </dt>
-          <dd style="opacity: 0.5;">{{getStakingRewards() | roundOff2Dec | usFormat}}</dd>
+          <dd>{{getStakingRewards() | roundOff2Dec | usFormat}} <span class="label">{{getStakingRewards() > 0 ? "OMM" :  ""}}</span></dd>
         </dl>
       </div>
 
