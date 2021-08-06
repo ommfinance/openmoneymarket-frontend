@@ -13,51 +13,74 @@
 
     <!-- Your liquidity -->
     <div id="your-liquidity" class="grid panel" [ngStyle]="hideElement(isAllLiquidityOverviewActive() || !userLoggedIn())">
-      <!-- Claim rewards -->
-      <div class="grid-cell text-center border-right" [ngStyle]="hideElement(shouldHideClaimBtn())">
-        <p class="label">{{getUserOmmRewardsBalance() | roundDown2Dec | usFormat}} Omm Tokens</p>
-        <a href="javascript:void(0);" class="button modal-trigger" style="margin-top: 5px;" data-modal="modal-claim-rewards"
-           (click)="onClaimOmmRewardsClick()" >Claim rewards</a>
-      </div>
 
-      <!-- Market rewards -->
-      <div class="grid-cell text-center">
-        <dl class="metadata">
-          <dt>Markets
-            <span class="tooltip expanded-risk-tooltip">
+      <ng-container *ngIf="rewardsTimeStampsActivated() && !rewardsAccrueStartDateHasPassed() && false">
+        <!-- If the timestamp of omm rewards accrue is not yet passed -->
+        <div class="grid-cell text-center">
+          <dt>Omm rewards will start accruing in 24 hours.</dt>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="!rewardsTimeStampsActivated() || rewardsAccrueStartDateHasPassed() || true">
+
+        <ng-container *ngIf="rewardsTimeStampsActivated() && !rewardsClaimStartDateHasPassed()">
+          <div class="grid-cell text-center border-right">
+            <dl class="metadata">
+              <dt>Claimable in {{getTimeUntilClaimStart()}}
+              </dt>
+              <dd>{{getUserOmmRewardsBalance() | roundOff2Dec | usFormat}} <span class="label">{{getUserOmmRewardsBalance() > 0 ? "OMM" :  ""}}</span></dd>
+            </dl>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="!rewardsTimeStampsActivated() || rewardsClaimStartDateHasPassed()">
+          <!-- Claim rewards -->
+          <div class="grid-cell text-center border-right" [ngStyle]="hideElement(shouldHideClaimBtn())">
+            <p class="label">{{getUserOmmRewardsBalance() | roundDown2Dec | usFormat}} Omm Tokens</p>
+            <a href="javascript:void(0);" class="button modal-trigger" style="margin-top: 5px;" data-modal="modal-claim-rewards"
+               (click)="onClaimOmmRewardsClick()" >Claim rewards</a>
+          </div>
+        </ng-container>
+
+        <!-- Market rewards -->
+        <div class="grid-cell text-center">
+          <dl class="metadata">
+            <dt>Markets
+              <span class="tooltip expanded-risk-tooltip">
               <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
               <div class="tooltip-content"><p>The amount you've earned by supplying or borrowing assets since you last claimed.</p></div>
             </span>
-          </dt>
-          <dd>{{getMarketRewards() | roundOff2Dec | usFormat}} <span class="label">{{getMarketRewards() > 0 ? "OMM" :  ""}}</span></dd>
-        </dl>
-      </div>
+            </dt>
+            <dd>{{getMarketRewards() | roundOff2Dec | usFormat}} <span class="label">{{getMarketRewards() > 0 ? "OMM" :  ""}}</span></dd>
+          </dl>
+        </div>
 
-      <!-- Staking rewards -->
-      <div class="grid-cell text-center">
-        <dl class="metadata">
-          <dt>Staking
-            <span class="tooltip expanded-risk-tooltip">
+        <!-- Staking rewards -->
+        <div class="grid-cell text-center">
+          <dl class="metadata">
+            <dt>Staking
+              <span class="tooltip expanded-risk-tooltip">
               <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
               <div class="tooltip-content"><p>The amount you've earned by staking OMM since you last claimed.</p></div>
             </span>
-          </dt>
-          <dd>{{getStakingRewards() | roundOff2Dec | usFormat}} <span class="label">{{getStakingRewards() > 0 ? "OMM" :  ""}}</span></dd>
-        </dl>
-      </div>
+            </dt>
+            <dd>{{getStakingRewards() | roundOff2Dec | usFormat}} <span class="label">{{getStakingRewards() > 0 ? "OMM" :  ""}}</span></dd>
+          </dl>
+        </div>
 
-      <!-- Liquidity rewards -->
-      <div class="grid-cell text-center">
-        <dl class="metadata">
-          <dt>Liquidity
-            <span class="tooltip expanded-risk-tooltip">
+        <!-- Liquidity rewards -->
+        <div class="grid-cell text-center">
+          <dl class="metadata">
+            <dt>Liquidity
+              <span class="tooltip expanded-risk-tooltip">
               <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
               <div class="tooltip-content"><p>The amount you've earned by staking LP tokens since you last claimed.</p></div>
             </span>
-          </dt>
-          <dd>{{getLiquidityRewards() | roundOff2Dec | usFormat}} <span class="label">{{getLiquidityRewards() > 0 ? "OMM" :  ""}}</span></dd>
-        </dl>
-      </div>
+            </dt>
+            <dd>{{getLiquidityRewards() | roundOff2Dec | usFormat}} <span class="label">{{getLiquidityRewards() > 0 ? "OMM" :  ""}}</span></dd>
+          </dl>
+        </div>
+      </ng-container>
     </div>
 
     <!-- All liquidity -->
@@ -203,7 +226,7 @@
   </section>
 
   <!-- Liquidity pools -->
-  <section class="overview">
+  <section class="overview" [ngStyle]="hideElement(getAllPoolsData().length === 0)">
     <div class="grid">
       <div class="grid-cell">
         <h2>Liquidity pools</h2>

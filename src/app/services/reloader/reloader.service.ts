@@ -3,6 +3,7 @@ import {DataLoaderService} from "../data-loader/data-loader.service";
 import {PersistenceService} from "../persistence/persistence.service";
 import {StateChangeService} from "../state-change/state-change.service";
 import log from "loglevel";
+import {Times} from "../../common/constants";
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +13,8 @@ import log from "loglevel";
  */
 export class ReloaderService {
 
+  // TODO: implement reloading of core and user data so that UI is not getting bugged.
+
   // base intervals
   public allReservesDataInterval: any;
   public allReservesConfigInterval: any;
@@ -19,11 +22,21 @@ export class ReloaderService {
   // user intervals
   public userSpecificDataInterval: any;
 
+  public currentTimestamp: number = + new Date();
+
   constructor(private dataLoaderService: DataLoaderService,
               private persistenceService: PersistenceService,
               private stateChangeService: StateChangeService) {
     // this.initLoginChangeListener();
     // this.registerBaseIntervals();
+
+    // refresh current timestamp every 10 second
+    this.refreshCurrentTimestamp();
+    setInterval(() => this.refreshCurrentTimestamp() , Times.secondsInMilliseconds(10));
+  }
+
+  refreshCurrentTimestamp(): void {
+    this.currentTimestamp = Math.floor(new Date().getTime() / 1000);
   }
 
   private initLoginChangeListener(): void {
