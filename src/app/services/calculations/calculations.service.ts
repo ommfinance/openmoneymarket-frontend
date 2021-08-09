@@ -362,7 +362,13 @@ export class CalculationsService {
   // * reserve Lending (0.5) * User's reserve supplied balance/Total reserve supplied balance)
   public userSupplyOmmRewardsFormula(dailySupplyRewards: number, reserveData: ReserveData, userReserveData: UserReserveData,
                                      supplied?: number): number {
-    return (dailySupplyRewards * (supplied ? supplied : userReserveData.currentOTokenBalance)) / reserveData.totalLiquidity;
+    // check if is dynamic supply value or not
+    const amountBeingSupplied = supplied ? supplied : userReserveData.currentOTokenBalance;
+
+    // if it is a dynamic supply amount add it to the total liquidity and subtract the current supplied
+    const totalReserveLiquidity = supplied ? supplied + reserveData.totalLiquidity - userReserveData.currentOTokenBalance
+      : reserveData.totalLiquidity;
+    return dailySupplyRewards * amountBeingSupplied / totalReserveLiquidity;
   }
 
   /**
@@ -387,7 +393,14 @@ export class CalculationsService {
   // * reserve Borrowing (0.5) * User's reserve borrowd balance/Total reserve borrowed balance)
   public userBorrowOmmRewardsFormula(dailyBorrowRewards: number, reserveData: ReserveData, userReserveData: UserReserveData,
                                      borrowed?: number): number {
-    return (dailyBorrowRewards * (borrowed ? borrowed : userReserveData.currentBorrowBalance)) / reserveData.totalBorrows;
+    // check if is dynamic borrow value or not
+    const amountBeingBorrowed = borrowed ? borrowed : userReserveData.currentBorrowBalance;
+
+    // if it is a dynamic borrow amount add it to the total liquidity and subtract the current borrowed
+    const totalReserveBorrowed = borrowed ? borrowed + reserveData.totalBorrows - userReserveData.currentBorrowBalance
+      : reserveData.totalBorrows;
+
+    return dailyBorrowRewards * amountBeingBorrowed / totalReserveBorrowed;
   }
 
   public getTotalAvgSupplyApy(ommApyIncluded = false): number {
@@ -466,7 +479,6 @@ export class CalculationsService {
   }
 
   public calculateBorrowFee(amount?: number): number {
-    log.debug("calculateBorrowFee..");
 
     if (!amount) {
       return 0;
@@ -474,7 +486,6 @@ export class CalculationsService {
 
     const loanOriginationFeePercentage = this.persistenceService.loanOriginationFeePercentage ?? 0.001;
 
-    log.debug(`amount=${amount}, feePercentage=${loanOriginationFeePercentage} borrowFee=${amount * loanOriginationFeePercentage}`);
     return Utils.multiplyDecimalsPrecision(amount, loanOriginationFeePercentage, 5);
   }
 
