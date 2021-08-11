@@ -2343,6 +2343,15 @@ input[type="text"].input-borrow-available {
   margin-left: 30px;
 }
 
+.tooltip.tooltip-small .tooltip-icon {
+  width: 12px;
+  margin-bottom: 2px;
+  margin-left: 5px;
+}
+#tooltip-icx-sicx .tooltip-content {
+  width: 235px;
+  margin-left: -170px;
+}
 
 /* ==========================================================================
 	Legend
@@ -2710,8 +2719,8 @@ input[type="text"].input-borrow-available {
 /* Risk message */
 
 #risk .risk-message-noassets {
-  margin-top: 15px;
-  margin-bottom: 15px;
+  margin-top: 18px;
+  margin-bottom: 12px;
 }
 
 /* Risk warning */
@@ -2812,10 +2821,11 @@ input[type="text"].input-borrow-available {
 }
 #vote-overview input[type="text"] {
   border: 2px solid #d3d9e7;
-  max-width: 70%;
+  max-width: 70px;
   margin-bottom: 5px;
   text-align: center;
   color: #49546a;
+  padding: 6px;
   transition: border 0.3s ease;
 }
 #vote-overview input[type="text"]:hover,
@@ -2825,6 +2835,7 @@ input[type="text"].input-borrow-available {
 }
 #vote-overview #omm-stake .actions-adjust.active {
   margin-top: 25px;
+  max-width: 170px;
 }
 
 /* Vote message for when logged out */
@@ -2932,6 +2943,9 @@ input[type="text"].input-borrow-available {
 #your-votes .list.vote > tbody > tr > td:nth-child(1) > .grid > .grid-cell:first-of-type {
   max-width: 125px;
   padding-right: 20px;
+}
+#your-votes.adjust .list.vote > tbody > tr > td:nth-child(1) > .grid > .grid-cell:first-of-type {
+  width: 300px;
 }
 #your-votes .list.vote > tbody > tr > td:nth-child(2) {
   width: 300px;
@@ -3106,6 +3120,20 @@ input[type="text"].input-borrow-available {
   margin-top: 35px;
 }
 
+#staking-overview input[type="text"] {
+  border: 2px solid #d3d9e7;
+  max-width: 70px;
+  margin-bottom: 5px;
+  text-align: center;
+  color: #49546a;
+  padding: 6px;
+  transition: border 0.3s ease;
+}
+.stake-omm-actions-adjust {
+  margin-top: 25px;
+  max-width: 170px;
+}
+
 /* Omm stake slider */
 
 #staking-overview #omm-stake .noUi-target {
@@ -3184,7 +3212,7 @@ input[type="text"].input-borrow-available {
     position: fixed;
     padding: 15px 25px;
     border-radius: 35px;
-    background-color: #ffffff;
+    background-color: #edeff4;
     box-shadow: 0 2.8px 2.2px rgba(174, 196, 215, 0.034), 0 6.7px 5.3px rgba(174, 196, 215, 0.048), 0 12.5px 10px rgba(174, 196, 215, 0.06), 0 22.3px 17.9px rgba(174, 196, 215, 0.072), 0 41.8px 33.4px rgba(174, 196, 215, 0.086), 0 100px 80px rgba(174, 196, 215, 0.12);
     margin-left: -197px;
     bottom: 25px;
@@ -3394,6 +3422,12 @@ input[type="text"].input-borrow-available {
     border-top-right-radius: 10px;
     border-bottom-right-radius: 10px;
   }
+  #p-rep-tooltip .tooltip-content {
+    min-width: initial;
+    width: 270px;
+    bottom: 40px;
+    left: -90px;
+  }
 
   /*
   *
@@ -3489,5 +3523,9 @@ input[type="text"].input-borrow-available {
   .sign-in-options .grid-cell img {
     height: 40px;
   }
-
+  #risk #tooltip-risk .tooltip-content {
+    width: 205px;
+    margin-left: 0;
+    margin-bottom: -33px;
+  }
 }
