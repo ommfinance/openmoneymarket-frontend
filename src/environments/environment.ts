@@ -6,7 +6,7 @@ export const environment = {
   production: false,
   iconRpcUrl: "https://bicon.net.solidwallet.io/api/v3",
   iconDebugRpcUrl: "https://bicon.net.solidwallet.io/api/debug/v3",
-  ADDRESS_PROVIDER_SCORE: 'cxc39e0e3c228dba62db922776936cc784a9727733',
+  ADDRESS_PROVIDER_SCORE: 'cxeb820fe7a5470eb52bcd5fa6cdd3a4480a2de0d8',
   BALANCED_DEX_SCORE: "cx399dea56cf199b1c9e43bead0f6a284bdecfbf62",
   ledgerBip32Path: "44'/4801368'/0'/0'",
   GOVERNANCE_ADDRESS: "cx0000000000000000000000000000000000000001",
