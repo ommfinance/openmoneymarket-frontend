@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {PersistenceService} from "../persistence/persistence.service";
-import {AssetTag} from "../../models/Asset";
+import {AssetTag, CollateralAssetTag} from "../../models/Asset";
 import {UserAction} from "../../models/UserAction";
 import {ReserveData} from "../../models/AllReservesData";
 import {StateChangeService} from "../state-change/state-change.service";
@@ -148,6 +148,7 @@ export class CalculationsService {
 
   // calculate the total risk percentage based on the user health factor or user action
   public calculateTotalRisk(assetTag?: AssetTag, diff?: number, userAction?: UserAction, updateState = true): number {
+
     let res: number;
     if (assetTag && diff && userAction != null) {
       res = this.calculateTotalRiskDynamic(assetTag, diff, userAction);
@@ -200,7 +201,11 @@ export class CalculationsService {
     const liquidationThreshold = this.persistenceService.getAverageLiquidationThreshold();
 
     const assetReserve = this.persistenceService.getAssetReserveData(assetTag);
-    const assetExchangePrice = assetReserve?.exchangePrice ?? 0;
+    let assetExchangePrice = assetReserve?.exchangePrice ?? 0;
+
+    if (assetTag === AssetTag.ICX) {
+      assetExchangePrice = Utils.convertICXToSICXPrice(assetExchangePrice, this.persistenceService.sIcxToIcxRate());
+    }
 
     switch (userAction) {
       case UserAction.SUPPLY:
@@ -269,15 +274,17 @@ export class CalculationsService {
    * @param supplied - optional parameter to provide current supplied value (e.g. for dynamic slider changes)
    * @return users asset supply interest (in USD) for a day
    */
-  public calculateUsersDailySupplyInterestForAsset(assetTag: AssetTag, supplied?: number): number {
+  public calculateUsersDailySupplyInterestForAsset(assetTag: AssetTag | CollateralAssetTag, supplied?: number): number {
     let currentOTokenBalanceUSD = this.persistenceService.getUserSuppliedAssetUSDBalance(assetTag);
 
     const exchangePrice = this.persistenceService.getAssetExchangePrice(assetTag);
+
     if (supplied) {
       currentOTokenBalanceUSD = supplied * exchangePrice;
     }
 
-    const liquidityRate = this.persistenceService.getUserAssetReserve(assetTag)?.liquidityRate ?? 0;
+    const liquidityRate = this.persistenceService.getUserAssetReserveLiquidityRate(assetTag);
+
     // "easy route" formula
     const res = currentOTokenBalanceUSD * liquidityRate * (1 / 365);
 
@@ -344,7 +351,7 @@ export class CalculationsService {
    * @param assetTag - Tag (ticker) of the asset
    * @param supplied - Optional parameter for dynamic calculations based on supplied change (slider)
    */
-  public calculateUserDailySupplyOmmReward(assetTag: AssetTag, supplied?: number): number {
+  public calculateUserDailySupplyOmmReward(assetTag: AssetTag | CollateralAssetTag, supplied?: number): number {
     const reserveData = this.persistenceService.getAssetReserveData(assetTag);
     const userReserveData = this.persistenceService.getUserAssetReserve(assetTag);
 

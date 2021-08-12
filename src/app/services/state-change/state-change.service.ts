@@ -98,6 +98,9 @@ export class StateChangeService {
   private tokenDistributionPerDayChange: Subject<number> = new Subject<number>();
   tokenDistributionPerDayChange$: Observable<number> = this.tokenDistributionPerDayChange.asObservable();
 
+  private sIcxSelectedChange: Subject<boolean> = new Subject<boolean>();
+  sIcxSelectedChange$: Observable<boolean> = this.sIcxSelectedChange.asObservable();
+
   /**
    * Subscribable subject for monitoring the user debt changes for each asset
    */
@@ -160,6 +163,10 @@ export class StateChangeService {
 
   public poolClickCUpdate(pool: PoolData | UserPoolData): void {
     this.onPoolClick.next(pool);
+  }
+
+  public sIcxSelectedUpdate(sIcxSelected: boolean): void {
+    this.sIcxSelectedChange.next(sIcxSelected);
   }
 
   public poolsDataUpdate(poolsData: PoolData[]): void {

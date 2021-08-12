@@ -8,7 +8,7 @@ import {
   percentageFormat
 } from "../../common/formats";
 import {CalculationsService} from "../../services/calculations/calculations.service";
-import {Asset, AssetTag, assetToCollateralAssetTag} from "../../models/Asset";
+import {Asset, AssetTag, assetToCollateralAssetTag, CollateralAssetTag} from "../../models/Asset";
 import log from "loglevel";
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import {PersistenceService} from "../../services/persistence/persistence.service";
@@ -21,6 +21,7 @@ import {NotificationService} from "../../services/notification/notification.serv
 import {UserAction} from "../../models/UserAction";
 import {Utils} from "../../common/utils";
 import {ActiveViews} from "../../models/ActiveViews";
+import {ICX_SUPPLY_BUFFER} from "../../common/constants";
 
 declare var $: any;
 
@@ -83,6 +84,9 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   totalRisk = 0;
 
+  // flag for icx / sICX toggle handling
+  sIcxSelected = false;
+
   constructor(private slidersService: SlidersService,
               public calculationService: CalculationsService,
               private stateChangeService: StateChangeService,
@@ -100,7 +104,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.initSupplySliderlogic();
     this.initBorrowSliderLogic();
     this.initSubscribedValues();
-    this.subscribeToTotalRiskChange();
   }
 
   ommApyCheckedChange(): void {
@@ -129,13 +132,11 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.removeInputRedBorderClass();
 
     // Reset user asset sliders
-    this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag), true);
+    this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag), !this.sIcxSelected);
     this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
+
     this.sliderSupply.setAttribute("disabled", "");
     this.sliderBorrow.setAttribute("disabled", "");
-
-    // Reset risk data
-    this.updateRiskData();
 
     // Disable asset-user inputs
     this.disableInputs();
@@ -184,7 +185,9 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     /** Enable Supply inputs of asset-user */
     this.inputSupply.removeAttribute("disabled");
     this.sliderSupply.removeAttribute("disabled");
-    this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag), true);
+
+    // set supply slider value
+    this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag), !this.sIcxSelected);
   }
 
 
@@ -224,14 +227,11 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.removeInputRedBorderClass();
 
     // Reset user asset sliders
-    this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag), true);
+    this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag), !this.sIcxSelected);
     this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
 
     // disable inputs
     this.disableInputs();
-
-    // Reset risk data
-    this.updateRiskData();
   }
 
   /**
@@ -299,10 +299,11 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     log.debug(`amount = ${amount}`);
     const risk = this.getCurrentDynamicRisk();
 
+    const asset = this.sIcxSelected ? Asset.getAdjustedAsset(CollateralAssetTag.sICX, this.asset) : this.asset;
     if (supplyAmountDiff > 0) {
-      this.modalService.showNewModal(ModalType.SUPPLY, new AssetAction(this.asset, currentlySupplied, after, amount, risk));
+      this.modalService.showNewModal(ModalType.SUPPLY, new AssetAction(asset, currentlySupplied, after, amount, risk));
     } else if (supplyAmountDiff < 0) {
-      this.modalService.showNewModal(ModalType.WITHDRAW, new AssetAction(this.asset, currentlySupplied, after, amount, risk));
+      this.modalService.showNewModal(ModalType.WITHDRAW, new AssetAction(asset, currentlySupplied, after, amount, risk));
     } else {
       this.notificationService.showNewNotification("No change in supplied value.");
       return;
@@ -388,6 +389,21 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
     // handle user account data change
     this.subscribeToUserAccountDataChange();
+
+    // handle sIcxSelected change
+    this.subscribeTosIcxSelectedChange();
+
+    // handle total risk change
+    this.subscribeToTotalRiskChange();
+  }
+
+  private subscribeTosIcxSelectedChange(): void {
+    if (this.asset.tag === AssetTag.ICX) {
+      this.stateChangeService.sIcxSelectedChange$.subscribe(sIcxSelected => {
+        this.sIcxSelected = sIcxSelected;
+        this.updateSupplySlider(this.persistenceService.getUserAssetReserve(this.asset.tag));
+      });
+    }
   }
 
   private subscribeToTotalRiskChange(): void {
@@ -416,21 +432,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.stateChangeService.userReserveChangeMap.get(this.asset.tag)!.subscribe((reserve: UserReserveData) => {
       log.debug(`${this.asset.tag} user reserve changed to: `, reserve);
 
-      // update input supply available value to new users asset reserve balance
-      const supplyAvailable = this.roundDownTo2Decimals(this.persistenceService.getUserAssetBalance(this.asset.tag));
-      this.inputSupplyAvailable.value = assetFormat(this.asset.tag).to(supplyAvailable);
-
-      // update supply slider value
-      this.setSupplySliderValue(reserve.currentOTokenBalance, true);
-
-      // update asset supply slider max value to  -> supplied + supplied available
-      let max = Utils.addDecimalsPrecision(this.convertSICXToICXIfAssetIsICX(reserve.currentOTokenBalance), supplyAvailable);
-      this.sliderSupply.noUiSlider.updateOptions({
-        range: {
-          min: 0,
-          max: max === 0 ? 1 : max // min and max must not equal
-        }
-      });
+      this.updateSupplySlider(reserve);
 
       // set borrowed available value
       const borrowAvailable = this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag);
@@ -440,7 +442,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       this.setBorrowSliderValue(reserve.currentBorrowBalance);
 
       // update asset borrow slider max value to  -> borrowed + borrow available
-      max = Utils.addDecimalsPrecision(this.convertSICXToICXIfAssetIsICX(reserve.currentBorrowBalance), borrowAvailable);
+      let max = Utils.addDecimalsPrecision(this.convertSICXToICXIfAssetIsICX(reserve.currentBorrowBalance), borrowAvailable);
       max = this.getMaxBorrowAvailable(max);
       this.sliderBorrow.noUiSlider.updateOptions({
         range: {
@@ -449,6 +451,39 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         }
       });
     });
+  }
+
+  private updateSupplySlider(reserve?: UserReserveData): void {
+    if (!reserve) {
+      return;
+    }
+
+    // update input supply available value to new users asset reserve balance
+    let supplyAvailable = 0;
+
+    if (this.sIcxSelected) {
+      supplyAvailable = this.roundDownTo2Decimals(this.persistenceService.getUserAssetCollateralBalance(assetToCollateralAssetTag(
+        this.asset.tag)));
+    } else {
+      supplyAvailable = this.roundDownTo2Decimals(this.persistenceService.getUserAssetBalance(this.asset.tag));
+    }
+
+    this.inputSupplyAvailable.value = assetFormat(this.sIcxSelected ? assetToCollateralAssetTag(
+      this.asset.tag) : this.asset.tag).to(supplyAvailable);
+
+    // update asset supply slider max value to  -> supplied + supplied available
+    const oTokenBalance = this.sIcxSelected ? reserve.currentOTokenBalance
+      : this.convertSICXToICXIfAssetIsICX(reserve.currentOTokenBalance);
+    const max = Utils.addDecimalsPrecision(oTokenBalance, supplyAvailable);
+    this.sliderSupply.noUiSlider.updateOptions({
+      range: {
+        min: 0,
+        max: max === 0 ? 1 : max // min and max must not equal
+      }
+    });
+
+    // update supply slider value
+    this.setSupplySliderValue(reserve.currentOTokenBalance, !this.sIcxSelected);
   }
 
   public subscribeToUserBalanceChange(): void {
@@ -477,31 +512,44 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   initSupplySliderlogic(): void {
     // On asset-user supply slider update (Your markets)
     this.sliderSupply.noUiSlider.on('update', (values: any, handle: any) => {
-      let value = this.deformatAssetValue(values[handle]);
+      let value = this.deformatAssetValue(values[handle], this.sIcxSelected);
 
-      // in case of ICX leave 1 ICX for the fees
-      if (this.isAssetIcx() && value > this.supplySliderMaxValue() - 1) {
-        value = this.supplySliderMaxValue() - 1;
+      // in case of ICX leave 2 ICX for the fees
+      if (!this.sIcxSelected && this.isAssetIcx() && value > this.supplySliderMaxValue() - ICX_SUPPLY_BUFFER && value > ICX_SUPPLY_BUFFER) {
+        value = this.supplySliderMaxValue() - ICX_SUPPLY_BUFFER;
       }
 
       // ensure it is rounded down
       value = this.roundDownTo2Decimals(value);
 
+      const assetTag = this.sIcxSelected ? CollateralAssetTag.sICX : this.asset.tag;
+
       // Update supplied text box
-      this.inputSupply.value = assetFormat(this.asset.tag).to(value);
+      this.inputSupply.value = assetFormat(assetTag).to(value);
 
       // Update asset-user available text box
-      this.inputSupplyAvailable.value = assetFormat(this.asset.tag).to(Utils.subtractDecimalsWithPrecision(
-        this.supplySliderMaxValue(), value));
+      const supplyAvailable = Utils.subtractDecimalsWithPrecision(this.supplySliderMaxValue(), value);
+      this.inputSupplyAvailable.value = assetFormat(assetTag).to(supplyAvailable);
 
       // Update asset-user's supply interest
-      this.setText(this.suppInterestEl, assetPrefixPlusFormat(this.asset.tag).to(this.getDailySupplyInterest(value)));
+      this.setText(this.suppInterestEl, assetPrefixPlusFormat(assetTag).to(this.getDailySupplyInterest(assetTag, value)));
 
-      const supplyDiff = Utils.subtractDecimalsWithPrecision(value, this.getUserSuppliedAssetBalance());
+      // convert ICX to sICX
+      let convertedValue = 0;
+      if (this.sIcxSelected) {
+        convertedValue = value;
+      } else {
+        // round up to 2 decimals if converting from ICX to sICX because of rounded down value
+        convertedValue = this.isAssetIcx() ? this.roundUpTo2Decimals(this.convertFromICXTosICX(value)) : value;
+      }
+
+      const userSuppliedAssetBalance = this.roundDownTo2Decimals(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
+
+      const supplyDiff = Utils.subtractDecimalsWithPrecision(convertedValue, userSuppliedAssetBalance);
 
       // Update asset-user's supply omm rewards
-      this.setText(this.suppRewardsEl, ommPrefixPlusFormat.to(this.calculationService.calculateUserDailySupplyOmmReward(
-        this.asset.tag, this.isAssetIcx() ? this.convertFromICXTosICX(value) : value)));
+      this.setText(this.suppRewardsEl, ommPrefixPlusFormat.to(this.calculationService.calculateUserDailySupplyOmmReward(this.asset.tag,
+        convertedValue)));
 
       // update risk data
       let totalRisk;
@@ -654,7 +702,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   private setSupplySliderValue(value: number, convert = false): void {
     let res: number;
-    // if asset is ICX, convert sICX -> ICX
+    // if asset is ICX, convert sICX -> ICX if convert flag is true
     if (convert && this.isAssetIcx()) {
       res = this.roundDownTo2Decimals(this.convertSICXToICX(value));
     } else {
@@ -664,7 +712,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     // if value is greater than slider max, update the sliders max and set the value
     if (res > this.supplySliderMaxValue()) {
       this.sliderSupply.noUiSlider.updateOptions({range: { min: 0, max: res }});
-      this.sliderSupply.noUiSlider.set(res);
     }
 
     this.sliderSupply.noUiSlider.set(res);
@@ -681,10 +728,14 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.sliderBorrow.noUiSlider.set(res);
   }
 
-  getUserSuppliedAssetBalance(): number {
-    let res = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag);
+  getUserSuppliedAssetBalance(assetTag?: AssetTag | CollateralAssetTag): number {
+    if (!assetTag) {
+      assetTag = this.asset.tag;
+    }
 
-    if (this.isAssetIcx()) {
+    let res = this.persistenceService.getUserSuppliedAssetBalance(assetTag);
+
+    if (!this.sIcxSelected && this.isAssetIcx(assetTag)) {
       res = this.convertSICXToICX(res);
     }
 
@@ -696,10 +747,18 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   getUserSuppliableBalanceUSD(): number {
+    if (this.sIcxSelected) {
+      const balance =  this.persistenceService.getUserAssetCollateralBalance(CollateralAssetTag.sICX);
+      const exchangePrice = this.persistenceService.getAssetExchangePrice(CollateralAssetTag.sICX);
+      return balance * exchangePrice;
+    }
     return this.persistenceService.getUserAssetUSDBalance(this.asset.tag);
   }
 
   getUserSuppliableBalance(): number {
+    if (this.sIcxSelected) {
+      return this.persistenceService.getUserAssetCollateralBalance(CollateralAssetTag.sICX);
+    }
     return this.persistenceService.getUserAssetBalance(this.asset.tag);
   }
 
@@ -715,8 +774,8 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     }
   }
 
-  getDailySupplyInterest(amountBeingSupplied?: number): number {
-    return this.calculationService.calculateUsersDailySupplyInterestForAsset(this.asset.tag, amountBeingSupplied);
+  getDailySupplyInterest(assetTag: AssetTag | CollateralAssetTag, amountBeingSupplied?: number): number {
+    return this.calculationService.calculateUsersDailySupplyInterestForAsset(assetTag, amountBeingSupplied);
   }
 
   getDailyBorrowInterest(amountBeingBorrowed?: number): number {
@@ -804,7 +863,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   disableAndResetSupplySlider(): void {
     // Disable asset-user supply sliders (Your markets)
-    this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag), true);
+    this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag), !this.sIcxSelected);
     this.sliderSupply.setAttribute("disabled", "");
   }
 
@@ -877,7 +936,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   getTotalLiquidity(): number {
     const res = this.persistenceService.getAssetReserveData(this.asset.tag)?.totalLiquidity ?? 0;
-    if (this.isAssetIcx()) {
+    if (this.isAssetIcx() && !this.sIcxSelected) {
       return this.convertSICXToICX(res);
     } else {
       return res;
@@ -987,7 +1046,11 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     }
   }
 
-  isAssetIcx(): boolean {
+  isAssetIcx(assetTag?: AssetTag | CollateralAssetTag): boolean {
+    if (assetTag) {
+      return assetTag === AssetTag.ICX;
+    }
+
     return this.asset.tag === AssetTag.ICX;
   }
 
@@ -996,5 +1059,22 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     const claimableIcx = this.getUserClaimableIcxAmount();
     const after = Utils.addDecimalsPrecision(currentIcxBalance, claimableIcx);
     this.modalService.showNewModal(ModalType.CLAIM_ICX, new AssetAction(this.asset, currentIcxBalance, after, claimableIcx));
+  }
+
+  onIcxToggleClick(): void {
+    this.stateChangeService.sIcxSelectedUpdate(false);
+
+  }
+
+  onSIcxToggleClick(): void {
+    this.stateChangeService.sIcxSelectedUpdate(true);
+  }
+
+  supplyAssetTag(): AssetTag | CollateralAssetTag {
+    if (this.sIcxSelected) {
+      return CollateralAssetTag.sICX;
+    } else {
+      return this.asset.tag;
+    }
   }
 }

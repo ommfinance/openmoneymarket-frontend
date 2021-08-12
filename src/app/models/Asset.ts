@@ -1,26 +1,34 @@
-import log from "loglevel";
-
 export class Asset {
   className: AssetClass; // e.g. "usdb"
   name: AssetName; // e.g. "Bridge Dollars
-  tag: AssetTag; // e.g. USDb
+  tag: AssetTag | CollateralAssetTag; // e.g. USDb
 
   constructor(className: AssetClass, name: AssetName, tag: AssetTag) {
     this.className = className;
     this.name = name;
     this.tag = tag;
   }
+
+  public static getAdjustedAsset(collateralAsset: CollateralAssetTag, asset: Asset): Asset {
+    if (collateralAsset === CollateralAssetTag.sICX) {
+      return new Asset(AssetClass.sICX, AssetName.sICX , CollateralAssetTag.sICX);
+    } else {
+      return asset;
+    }
+  }
 }
 
 export enum AssetClass {
   USDS = "usds",
   ICX = "icx",
+  sICX = "sicx",
   USDC = "usdc"
 }
 
 export enum AssetName {
   USDS = "Stably USD",
   ICX = "ICON",
+  sICX = "Staked ICON",
   USDC = "ICON USD Coin"
 }
 
@@ -66,6 +74,19 @@ export function assetToCollateralAssetTag(assetTag: AssetTag): CollateralAssetTa
       return CollateralAssetTag.USDS;
     default:
       throw new Error("Invalid AssetTag provided to assetToCollateralAssetTag method!");
+  }
+}
+
+export function collateralTagToAssetTag(assetTag: CollateralAssetTag): AssetTag {
+  switch (assetTag) {
+    case CollateralAssetTag.sICX:
+      return AssetTag.ICX;
+    case CollateralAssetTag.USDC:
+      return AssetTag.USDC;
+    case CollateralAssetTag.USDS:
+      return AssetTag.USDS;
+    default:
+      throw new Error("Invalid CollateralAssetTag provided to collateralTagToAssetTag method!");
   }
 }
 
