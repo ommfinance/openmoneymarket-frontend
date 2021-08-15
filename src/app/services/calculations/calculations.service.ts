@@ -607,6 +607,10 @@ export class CalculationsService {
   public calculatePoolQuoteAndBaseSuppliedInUSD(poolData: PoolData): number {
     const quoteAssetTag = AssetTag.constructFromPoolPairName(poolData.poolStats.name);
 
+    if (!quoteAssetTag) {
+      return 0;
+    }
+
     const totalSuppliedBaseUSD = this.calculatePoolTotalSupplied(poolData, true) * this.persistenceService.ommPriceUSD;
     const totalSuppliedQuoteUSD = this.calculatePoolTotalSupplied(poolData, false) *
       this.persistenceService.getAssetExchangePrice(quoteAssetTag);
@@ -618,6 +622,10 @@ export class CalculationsService {
   public calculatePoolTotalSuppliedInUSD(poolData: PoolData): number {
     const quoteAssetTag = AssetTag.constructFromPoolPairName(poolData.poolStats.name);
 
+    if (!quoteAssetTag) {
+      return 0;
+    }
+
     return this.calculatePoolTotalSupplied(poolData, false) *
       this.persistenceService.getAssetExchangePrice(quoteAssetTag) * 2;
   }
@@ -625,6 +633,10 @@ export class CalculationsService {
   /** Calculate user total supplied for base and quote token of pool in USD */
   public calculateUserPoolTotalSuppliedUSD(poolData: UserPoolData): number {
     const quoteAssetTag = AssetTag.constructFromPoolPairName(poolData.poolStats.name);
+
+    if (!quoteAssetTag) {
+      return 0;
+    }
 
     const totalSuppliedBaseUSD = this.calculateUserPoolSupplied(poolData, true) * this.persistenceService.ommPriceUSD;
     const totalSuppliedQuoteUSD = this.calculateUserPoolSupplied(poolData, false) *
