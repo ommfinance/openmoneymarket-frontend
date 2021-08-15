@@ -304,7 +304,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   addYourVotePrep(prep: Prep): void {
     if (this.yourVotesPrepList.length >= 5) {
-      this.notificationService.showNewNotification("You can only vote for 5 preps.");
+      this.notificationService.showNewNotification("You can't vote for more than 5 P-Reps");
     } else if (this.prepAlreadyInYourVotes(prep)) {
       this.notificationService.showNewNotification("Prep already in your votes.");
     } else {
