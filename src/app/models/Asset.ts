@@ -40,8 +40,9 @@ export class AssetTag {
   }
 
   /** construct AssetTag from pool name by parsing quote asset (base asset is always OMM) */
-  static constructFromPoolPairName(name: string): AssetTag {
-    const splitString = name.replace(" ", "").replace(/[0-9]/g, '').split("/");
+  static constructFromPoolPairName(name: string): AssetTag | undefined {
+    const splitString = name?.replace(" ", "").replace(/[0-9]/g, '').split("/")
+      ?? ["", ""];
     return this.fromString(splitString[1]);
   }
 }
