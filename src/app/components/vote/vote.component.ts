@@ -409,22 +409,23 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   private fillYourVotePercentages(yourVotesPrepList: YourPrepVote[]): void {
     if (yourVotesPrepList.length === 0) { return; }
 
-    let percentage = Utils.divideDecimalsPrecision(1, yourVotesPrepList.length);
+    let percentage = Utils.divideDecimalsPrecision(1, yourVotesPrepList.length, 4);
 
     const percentageSumIs100 = this.percentageSumIs100(percentage, yourVotesPrepList.length);
 
     for (let i = 0; i < yourVotesPrepList.length; i++) {
       if (i === yourVotesPrepList.length - 1 && !percentageSumIs100) {
+
         percentage = Utils.addDecimalsPrecision(percentage, Utils.subtractDecimalsWithPrecision(1,
-          Utils.multiplyDecimalsPrecision(percentage, yourVotesPrepList.length)));
+          Utils.multiplyDecimalsPrecision(percentage, yourVotesPrepList.length, 4), 4), 4);
       }
 
-      yourVotesPrepList[i].percentage = Utils.multiplyDecimalsPrecision(percentage, 100);
+      yourVotesPrepList[i].percentage = Utils.multiplyDecimalsPrecision(percentage, 100, 4);
     }
   }
 
   private percentageSumIs100(percentage: number, count: number): boolean {
-    return Utils.multiplyDecimalsPrecision(percentage, count) === 1;
+    return Utils.multiplyDecimalsPrecision(percentage, count, 4) === 1;
   }
 
   getDelegationAmount(yourPrepVote: YourPrepVote): number {

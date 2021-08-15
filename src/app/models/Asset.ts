@@ -13,20 +13,20 @@ export class Asset {
 }
 
 export enum AssetClass {
-  USDS = "usds",
   ICX = "icx",
+  USDS = "usds",
   USDC = "usdc"
 }
 
 export enum AssetName {
-  USDS = "Stably USD",
   ICX = "ICON",
+  USDS = "Stably USD",
   USDC = "ICON USD Coin"
 }
 
 export class AssetTag {
-  static USDS = "USDS";
   static ICX = "ICX";
+  static USDS = "USDS";
   static USDC = "IUSDC";
 
   static fromString(value: string): AssetTag {
@@ -71,8 +71,8 @@ export function assetToCollateralAssetTag(assetTag: AssetTag): CollateralAssetTa
 }
 
 export const supportedAssetsMap: Map<AssetTag, Asset> = new Map([
-  [AssetTag.USDS, new Asset(AssetClass.USDS, AssetName.USDS, AssetTag.USDS)],
   [AssetTag.ICX, new Asset(AssetClass.ICX, AssetName.ICX , AssetTag.ICX)],
+  [AssetTag.USDS, new Asset(AssetClass.USDS, AssetName.USDS, AssetTag.USDS)],
   [AssetTag.USDC, new Asset(AssetClass.USDC, AssetName.USDC , AssetTag.USDC)],
 ]);
 
