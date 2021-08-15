@@ -9,7 +9,7 @@ import {ScoreService} from "../score/score.service";
 import {Utils} from "../../common/utils";
 import {CheckerService} from "../checker/checker.service";
 import log from "loglevel";
-import {AssetTag} from "../../models/Asset";
+import {AssetTag, CollateralAssetTag, collateralTagToAssetTag} from "../../models/Asset";
 import {TransactionDispatcherService} from "../transaction-dispatcher/transaction-dispatcher.service";
 
 
@@ -26,7 +26,7 @@ export class SupplyService {
               private transactionDispatcherService: TransactionDispatcherService) {
   }
 
-  public supplyAsset(amount: number, assetTag: AssetTag, notificationMessage: string): void {
+  public supplyAsset(amount: number, assetTag: AssetTag | CollateralAssetTag, notificationMessage: string): void {
     let tx;
     amount = Utils.roundDownTo2Decimals(amount);
 
@@ -42,11 +42,11 @@ export class SupplyService {
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
-  private buildDepositIRC2(amount: number, assetTag: AssetTag): any {
+  private buildDepositIRC2(amount: number, assetTag: AssetTag | CollateralAssetTag): any {
     this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
 
     log.debug(`Deposit ${assetTag} amount = ` + amount);
-    const decimals = this.persistenceService.allReserves!.getReserveData(assetTag).decimals;
+    const decimals = this.persistenceService.allReserves!.getReserveData(collateralTagToAssetTag(assetTag)).decimals;
 
     const params = {
       _to: this.persistenceService.allAddresses!.systemContract.LendingPool,
