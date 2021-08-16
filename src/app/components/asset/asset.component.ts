@@ -535,7 +535,19 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       this.setText(this.suppInterestEl, assetPrefixPlusFormat(assetTag).to(this.getDailySupplyInterest(assetTag, value)));
 
       // convert ICX to sICX
-      const convertedValue = this.sIcxSelected ? this.roundDownTo2Decimals(this.convertSICXToICX(value)) : value;
+      let convertedValue = value;
+
+      if (this.sIcxSelected) {
+        let icxValue = 0;
+        if (value.toFixed(0) === this.persistenceService.getUserAssetReserve(this.asset.tag)?.currentOTokenBalance.toFixed(0)) {
+          icxValue = this.roundDownTo2Decimals(this.convertSICXToICX(this.persistenceService.getUserAssetReserve(this.asset.tag)
+            ?.currentOTokenBalance ?? 0));
+        } else {
+          icxValue = this.roundDownTo2Decimals(this.convertSICXToICX(value));
+        }
+
+        convertedValue = icxValue;
+      }
 
       const userSuppliedAssetBalance = this.roundDownTo2Decimals(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
 
