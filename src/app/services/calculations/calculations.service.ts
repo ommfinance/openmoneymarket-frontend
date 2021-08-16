@@ -352,6 +352,10 @@ export class CalculationsService {
    * @param supplied - Optional parameter for dynamic calculations based on supplied change (slider)
    */
   public calculateUserDailySupplyOmmReward(assetTag: AssetTag | CollateralAssetTag, supplied?: number): number {
+    if (supplied && assetTag === AssetTag.ICX) {
+      supplied = Utils.convertICXTosICX(supplied, this.persistenceService.sIcxToIcxRate());
+    }
+
     const reserveData = this.persistenceService.getAssetReserveData(assetTag);
     const userReserveData = this.persistenceService.getUserAssetReserve(assetTag);
 
