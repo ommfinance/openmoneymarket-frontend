@@ -114,6 +114,15 @@ export class VoteService {
   }
 
   prepareDelegations(yourVotesPrepList: YourPrepVote[]): {_address: string, _votes_in_per: string}[] {
+    // handle 3 votes by putting high precision 1/3 hex-es with last being rounded up at 18 decimal point
+    if (yourVotesPrepList.length === 3) {
+      return [
+        {_address: yourVotesPrepList[0].address, _votes_in_per: "0x4a03ce68d215555"},
+        {_address: yourVotesPrepList[1].address, _votes_in_per: "0x4a03ce68d215555"},
+        {_address: yourVotesPrepList[2].address, _votes_in_per: "0x4a03ce68d215556"}
+      ];
+    }
+
     const delegations: {_address: string, _votes_in_per: string}[] = [];
 
     yourVotesPrepList.forEach(yourVote  => {
