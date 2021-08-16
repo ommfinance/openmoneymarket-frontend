@@ -337,7 +337,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   userVotingPower(): number {
     if (this.userLoggedIn()) {
-      return this.votingPower * (this.userOmmTokenBalanceDetails?.stakedBalance ?? 0);
+      return this.votingPower * this.persistenceService.getUsersStakedOmmBalance();
     } else {
       return 0;
     }

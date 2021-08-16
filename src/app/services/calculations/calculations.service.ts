@@ -123,17 +123,34 @@ export class CalculationsService {
     }
   }
 
+  /** Formulae: Omm's Voting Power/Total staked OMM tokens */
   public votingPower(): number {
-    const totalIcxStakedByOMM = this.persistenceService.getAssetReserveData(AssetTag.ICX)?.totalLiquidity ?? 0;
+    const ommVotingPower = this.ommVotingPower();
     const totalStakedOmm = this.persistenceService.totalStakedOmm;
 
-    if (totalIcxStakedByOMM === 0 || totalStakedOmm === 0) {
+    if (ommVotingPower === 0 || totalStakedOmm === 0) {
       return 0;
     }
 
-    const res = Utils.divideDecimalsPrecision(totalIcxStakedByOMM, totalStakedOmm);
+    return Utils.roundDownTo2Decimals(Utils.divideDecimalsPrecision(ommVotingPower, totalStakedOmm));
+  }
 
-    return Utils.roundDownTo2Decimals(Utils.convertSICXToICX(res, this.persistenceService.sIcxToIcxRate()));
+  /** (totalLiquidity of sICX - totalborrow of sICX) * (sICX/ICX ratio) */
+  public ommVotingPower(): number {
+    const totalLiquiditySicx = this.persistenceService.getAssetReserveData(AssetTag.ICX)?.totalLiquidity ?? 0;
+    const totalborrowSicx = this.persistenceService.getAssetReserveData(AssetTag.ICX)?.totalBorrows ?? 0;
+    const sIcxIcxRatio = this.persistenceService.sIcxToIcxRate();
+
+    return Utils.roundDownTo2Decimals((totalLiquiditySicx - totalborrowSicx) * sIcxIcxRatio);
+  }
+
+  /** Formulae: Omm's Voting Power/Total staked OMM tokens * user’s staked OMM token */
+  public usersVotingPower(): number {
+    const ommVotingPower = this.ommVotingPower();
+    const totalStakedOmm = this.persistenceService.totalStakedOmm;
+    const userStakedOmmToken = this.persistenceService.getUsersStakedOmmBalance();
+
+    return Utils.roundDownTo2Decimals(ommVotingPower / totalStakedOmm * userStakedOmmToken);
   }
 
   public calculateAssetSupplySliderMax(assetTag: AssetTag): number {
