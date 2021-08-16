@@ -29,7 +29,7 @@ export enum AssetClass {
 export enum AssetName {
   ICX = "ICON",
   USDS = "Stably USD",
-  sICX = "Staked ICON",
+  sICX = "ICON",
   USDC = "ICON USD Coin"
 }
 
