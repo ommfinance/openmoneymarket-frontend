@@ -13,13 +13,15 @@ export declare enum SupportedTokens {
     USDS = "USDS",
     ICX = "ICX",
     sICX = "sICX",
-    IUSDC = "IUSDC"
+    IUSDC = "IUSDC",
+    OMM = "OMM"
 }
 export declare enum OracleTokenNames {
     USDS = "USDS",
     IUSDC = "USDC",
     ICX = "ICX",
     sICX = "sICX",
+    OMM = "OMM",
     USD = "USD"
 }
 export declare class Tokens {
@@ -29,6 +31,7 @@ export interface TokenRates {
     USDS: BigNumber | '-';
     IUSDC: BigNumber | '-';
     sICX: BigNumber | '-';
+    OMM: BigNumber | '-';
     ICX: BigNumber | '-';
 }
 //# sourceMappingURL=Tokens.d.ts.map

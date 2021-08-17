@@ -1,32 +1,41 @@
-import log from "loglevel";
 
 export class Asset {
   className: AssetClass; // e.g. "usdb"
   name: AssetName; // e.g. "Bridge Dollars
-  tag: AssetTag; // e.g. USDb
+  tag: AssetTag | CollateralAssetTag; // e.g. USDb
 
   constructor(className: AssetClass, name: AssetName, tag: AssetTag) {
     this.className = className;
     this.name = name;
     this.tag = tag;
   }
+
+  public static getAdjustedAsset(collateralAsset: CollateralAssetTag, asset: Asset): Asset {
+    if (collateralAsset === CollateralAssetTag.sICX) {
+      return new Asset(AssetClass.sICX, AssetName.sICX , CollateralAssetTag.sICX);
+    } else {
+      return asset;
+    }
+  }
 }
 
 export enum AssetClass {
-  USDS = "usds",
   ICX = "icx",
+  USDS = "usds",
+  sICX = "sicx",
   USDC = "usdc"
 }
 
 export enum AssetName {
-  USDS = "Stably USD",
   ICX = "ICON",
+  USDS = "Stably USD",
+  sICX = "ICON",
   USDC = "ICON USD Coin"
 }
 
 export class AssetTag {
-  static USDS = "USDS";
   static ICX = "ICX";
+  static USDS = "USDS";
   static USDC = "IUSDC";
 
   static fromString(value: string): AssetTag {
@@ -40,8 +49,9 @@ export class AssetTag {
   }
 
   /** construct AssetTag from pool name by parsing quote asset (base asset is always OMM) */
-  static constructFromPoolPairName(name: string): AssetTag {
-    const splitString = name.replace(" ", "").replace(/[0-9]/g, '').split("/");
+  static constructFromPoolPairName(name: string): AssetTag | undefined {
+    const splitString = name?.replace(" ", "").replace(/[0-9]/g, '').split("/")
+      ?? ["", ""];
     return this.fromString(splitString[1]);
   }
 }
@@ -69,9 +79,22 @@ export function assetToCollateralAssetTag(assetTag: AssetTag): CollateralAssetTa
   }
 }
 
+export function collateralTagToAssetTag(assetTag: CollateralAssetTag): AssetTag {
+  switch (assetTag) {
+    case CollateralAssetTag.sICX:
+      return AssetTag.ICX;
+    case CollateralAssetTag.USDC:
+      return AssetTag.USDC;
+    case CollateralAssetTag.USDS:
+      return AssetTag.USDS;
+    default:
+      throw new Error("Invalid CollateralAssetTag provided to collateralTagToAssetTag method!");
+  }
+}
+
 export const supportedAssetsMap: Map<AssetTag, Asset> = new Map([
-  [AssetTag.USDS, new Asset(AssetClass.USDS, AssetName.USDS, AssetTag.USDS)],
   [AssetTag.ICX, new Asset(AssetClass.ICX, AssetName.ICX , AssetTag.ICX)],
+  [AssetTag.USDS, new Asset(AssetClass.USDS, AssetName.USDS, AssetTag.USDS)],
   [AssetTag.USDC, new Asset(AssetClass.USDC, AssetName.USDC , AssetTag.USDC)],
 ]);
 

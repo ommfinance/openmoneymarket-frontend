@@ -10,6 +10,9 @@ export const contributorsMap = new Map([
   ["hx231a795d1c719b9edf35c46b9daa4e0b5a1e83aa", true] // iBriz - ICONOsphere
 ]);
 
+// how much ICX should be left when user is supplying
+export const ICX_SUPPLY_BUFFER = 2;
+
 export class Times {
   /** Class containing times (seconds, minutes, ..) in seconds, milliseconds and methods to retrieve arbitrary time in it */
   public static readonly SECOND_IN_MILLISECONDS = 1000;

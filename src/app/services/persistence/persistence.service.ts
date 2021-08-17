@@ -164,8 +164,13 @@ export class PersistenceService {
     return balance * exchangePrice;
   }
 
-  public getAssetExchangePrice(assetTag: AssetTag): number {
-    return this.getAssetReserveData(assetTag)?.exchangePrice ?? 1;
+  public getAssetExchangePrice(assetTag: AssetTag | CollateralAssetTag): number {
+    if (assetTag === CollateralAssetTag.sICX) {
+      const sIcxRate = this.getAssetReserveData(AssetTag.ICX)?.sICXRate ?? 0;
+      return Utils.convertICXToSICXPrice(this.getAssetReserveData(AssetTag.ICX)?.exchangePrice ?? 0, sIcxRate);
+    }
+
+    return this.getAssetReserveData(assetTag)?.exchangePrice ?? 0;
   }
 
   public sIcxToIcxRate(): number {
@@ -176,7 +181,11 @@ export class PersistenceService {
     return this.userReserves?.reserveMap.get(assetTag)?.currentOTokenBalance ?? 0;
   }
 
-  public getUserSuppliedAssetUSDBalance(assetTag: AssetTag): number {
+  public getUserSuppliedAssetUSDBalance(assetTag: AssetTag | CollateralAssetTag): number {
+    if (assetTag === CollateralAssetTag.sICX) {
+      return this.getUserAssetCollateralBalance(assetTag);
+    }
+
     return this.userReserves?.reserveMap.get(assetTag)?.currentOTokenBalanceUSD ?? 0;
   }
 
@@ -194,6 +203,13 @@ export class PersistenceService {
 
   public getUserAssetReserve(assetTag: AssetTag): UserReserveData | undefined {
     return this.userReserves?.reserveMap.get(assetTag);
+  }
+
+  public getUserAssetReserveLiquidityRate(assetTag: AssetTag | CollateralAssetTag): number {
+    if (assetTag === CollateralAssetTag.sICX) {
+      return this.getUserAssetReserve(AssetTag.ICX)?.liquidityRate ?? 0;
+    }
+    return this.getUserAssetReserve(assetTag)?.liquidityRate ?? 0;
   }
 
   public getAssetReserveData(assetTag: AssetTag): ReserveData | undefined {

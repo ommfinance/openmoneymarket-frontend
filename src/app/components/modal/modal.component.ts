@@ -124,6 +124,7 @@ export class ModalComponent extends BaseClass implements OnInit {
         default:
           // check if it is ICX withdraw action and show corresponding specific view / modal
           if (this.isIcxWithdraw(activeModalChange)) {
+            this.withdrawOption = activeModalChange.assetAction?.asset.tag === CollateralAssetTag.sICX ? "keep" : "unstake";
             this.setActiveModal(this.iconWithdrawModal.nativeElement, activeModalChange);
           } else {
             this.setActiveModal(this.assetActionModal.nativeElement, activeModalChange);
@@ -264,7 +265,8 @@ export class ModalComponent extends BaseClass implements OnInit {
   }
 
   isIcxWithdraw(activeModalChange: ModalAction): boolean {
-    return activeModalChange.modalType === ModalType.WITHDRAW && activeModalChange.assetAction?.asset.tag === AssetTag.ICX;
+    return activeModalChange.modalType === ModalType.WITHDRAW && (activeModalChange.assetAction?.asset.tag === AssetTag.ICX
+      || activeModalChange.assetAction?.asset.tag === CollateralAssetTag.sICX);
   }
 
   isBorrow(): boolean {
@@ -373,16 +375,16 @@ export class ModalComponent extends BaseClass implements OnInit {
     const assetTag = this.activeModalChange!.assetAction!.asset.tag;
     switch (this.activeModalChange?.modalType) {
       case ModalType.BORROW:
-        this.borrowService.borrowAsset(this.activeModalChange!.assetAction!.amount, assetTag, `Borrowing ${assetTag}...`);
+        this.borrowService.borrowAsset(this.activeModalChange.assetAction!.amount, assetTag, `Borrowing ${assetTag}...`);
         break;
       case ModalType.SUPPLY:
-        this.supplyService.supplyAsset(this.activeModalChange!.assetAction!.amount, assetTag, `Supplying ${assetTag}...`);
+        this.supplyService.supplyAsset(this.activeModalChange.assetAction!.amount, assetTag, `Supplying ${assetTag}...`);
         break;
       case ModalType.REPAY:
-        this.repayService.repayAsset(this.activeModalChange!, assetTag, `Repaying ${assetTag}...`);
+        this.repayService.repayAsset(this.activeModalChange, assetTag, `Repaying ${assetTag}...`);
         break;
       case ModalType.WITHDRAW:
-        const amount = this.activeModalChange!.assetAction!.after === 0 ? -1 : this.activeModalChange!.assetAction!.amount;
+        const amount = this.activeModalChange.assetAction!.after === 0 ? -1 : this.activeModalChange.assetAction!.amount;
         this.withdrawService.withdrawAsset(amount, assetTag, this.waitForUnstakingIcx(),
           `Withdrawing ${assetTag}...`);
         break;
@@ -435,4 +437,15 @@ export class ModalComponent extends BaseClass implements OnInit {
     return this.calculationService.calculateBorrowFee(this.activeModalChange?.assetAction?.amount);
   }
 
+  getAssetActionAmount(): number {
+    return this.activeModalChange?.assetAction?.amount ?? 0;
+  }
+
+  assetActionAssetTag(): AssetTag | CollateralAssetTag {
+    return this.activeModalChange?.assetAction?.asset.tag ?? "";
+  }
+
+  assetIsCollateralSIcx(): boolean {
+    return this.activeModalChange?.assetAction?.asset.tag === CollateralAssetTag.sICX;
+  }
 }

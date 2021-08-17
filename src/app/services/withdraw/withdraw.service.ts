@@ -8,7 +8,7 @@ import {ScoreMethodNames} from "../../common/score-method-names";
 import {IconTransactionType} from "../../models/IconTransactionType";
 import {CheckerService} from "../checker/checker.service";
 import log from "loglevel";
-import {AssetTag} from "../../models/Asset";
+import {AssetTag, CollateralAssetTag} from "../../models/Asset";
 import {Utils} from "../../common/utils";
 import {TransactionDispatcherService} from "../transaction-dispatcher/transaction-dispatcher.service";
 
@@ -33,6 +33,9 @@ export class WithdrawService {
 
     switch (assetTag) {
       case AssetTag.ICX:
+        tx = this.buildWithdrawIcxTx(amount, waitForUnstaking);
+        break;
+      case CollateralAssetTag.sICX:
         tx = this.buildWithdrawIcxTx(amount, waitForUnstaking);
         break;
       default:

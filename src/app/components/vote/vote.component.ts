@@ -304,7 +304,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   addYourVotePrep(prep: Prep): void {
     if (this.yourVotesPrepList.length >= 5) {
-      this.notificationService.showNewNotification("You can only vote for 5 preps.");
+      this.notificationService.showNewNotification("You can't vote for more than 5 P-Reps");
     } else if (this.prepAlreadyInYourVotes(prep)) {
       this.notificationService.showNewNotification("Prep already in your votes.");
     } else {
@@ -337,7 +337,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   userVotingPower(): number {
     if (this.userLoggedIn()) {
-      return this.votingPower * (this.userOmmTokenBalanceDetails?.stakedBalance ?? 0);
+      return this.votingPower * this.persistenceService.getUsersStakedOmmBalance();
     } else {
       return 0;
     }
@@ -409,26 +409,16 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   private fillYourVotePercentages(yourVotesPrepList: YourPrepVote[]): void {
     if (yourVotesPrepList.length === 0) { return; }
 
-    let percentage = Utils.divideDecimalsPrecision(1, yourVotesPrepList.length);
+    const percentage = Utils.divideDecimalsPrecision(1, yourVotesPrepList.length, 2);
 
-    const percentageSumIs100 = this.percentageSumIs100(percentage, yourVotesPrepList.length);
-
-    for (let i = 0; i < yourVotesPrepList.length; i++) {
-      if (i === yourVotesPrepList.length - 1 && !percentageSumIs100) {
-        percentage = Utils.addDecimalsPrecision(percentage, Utils.subtractDecimalsWithPrecision(1,
-          Utils.multiplyDecimalsPrecision(percentage, yourVotesPrepList.length)));
-      }
-
-      yourVotesPrepList[i].percentage = Utils.multiplyDecimalsPrecision(percentage, 100);
-    }
-  }
-
-  private percentageSumIs100(percentage: number, count: number): boolean {
-    return Utils.multiplyDecimalsPrecision(percentage, count) === 1;
+    yourVotesPrepList.forEach(yourVote => {
+      yourVote.percentage = Utils.multiplyDecimalsPrecision(percentage, 100, 2);
+    });
   }
 
   getDelegationAmount(yourPrepVote: YourPrepVote): number {
-    return Utils.roundOffTo2Decimals(this.persistenceService.getUsersStakedOmmBalance() * (yourPrepVote.percentage / 100) * 1.3);
+    return Utils.roundOffTo2Decimals(this.persistenceService.getUsersStakedOmmBalance() * (yourPrepVote.percentage / 100)
+      * this.votingPower);
   }
 
   // TODO: in case we want infinity scrolling for preps list

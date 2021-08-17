@@ -6,7 +6,7 @@
   <!-- Your asset state -->
   <ng-container *ngIf="!isAllMarketViewActive() && !isAssetAvailable()">
     <td><span class="value-supplied">{{this.toDollarUSLocaleString(this.persistenceService.getUserAssetReserve(asset.tag)?.currentOTokenBalanceUSD | roundOff2Dec)}}</span><br>
-      <span class="value-supplied label">{{getUserSuppliedAssetBalance() | usFormat}} {{asset.tag}}</span></td>
+      <span class="value-supplied label">{{getUserSuppliedAssetBalance() | usFormat}} {{supplyAssetTag()}}</span></td>
     <td class="text-green">{{to2DecimalRoundedOffPercentString(getUserSupplyApy())}}</td> <!-- Supply APY-->
     <td><span class="value-borrowed">{{this.toDollarUSLocaleString(this.persistenceService.getUserAssetReserve(asset.tag)?.currentBorrowBalanceUSD | roundOff2Dec)}}</span><br>
       <span class="value-borrowed label">{{getUserBorrowedAssetBalance() | usFormat}} {{getBorrowAssetTagAdjusted()}}</span></td>
@@ -16,14 +16,14 @@
   <!-- Asset available state -->
   <ng-container *ngIf="!isAllMarketViewActive() && isAssetAvailable()">
     <td colspan="2" class="text-right">{{this.toDollarUSLocaleString(getUserSuppliableBalanceUSD() | roundOff2Dec)}}
-      <br><span class="label">{{getUserSuppliableBalance() | roundOff2Dec | usFormat}} {{asset.tag}}</span></td>
+      <br><span class="label">{{getUserSuppliableBalance() | roundOff2Dec | usFormat}} {{supplyAssetTag()}}</span></td>
     <td colspan="2" class="text-right"><span class="text-green">{{to2DecimalRoundedOffPercentString(getUserSupplyApy())}} APY</span></td> <!-- Supply APY -->
   </ng-container>
 
   <!-- All markets state -->
   <ng-container *ngIf="isAllMarketViewActive()">
     <td><span>{{this.toDollarUSLocaleString(this.persistenceService.getAssetReserveData(asset.tag)?.totalLiquidityUSD | roundOff2Dec)}}</span><br>
-      <span class="label">{{getTotalLiquidity() | roundOff2Dec | usFormat}} {{asset.tag}}</span></td>
+      <span class="label">{{getTotalLiquidity() | roundOff2Dec | usFormat}} {{supplyAssetTag()}}</span></td>
     <td class="text-green">{{to2DecimalRoundedOffPercentString(getMarketSupplyRate())}}</td> <!-- Supply APY -->
     <td>{{this.toDollarUSLocaleString(this.persistenceService.getAssetReserveData(asset.tag)?.totalBorrowsUSD | roundOff2Dec)}}<br>
       <span class="label">{{getTotalAssetBorrows() | roundOff2Dec | usFormat}} {{getBorrowAssetTagAdjusted()}}</span></td>
@@ -43,6 +43,19 @@
           <div class="grid grid-center title">
             <div class="grid-cell">
               <h2>Supply</h2>
+
+              <!-- Toggle for ICX / sICX -->
+              <ng-container *ngIf="isAssetIcx() && userLoggedIn()">
+                <ul class="toggle">
+                  <li [ngClass]="!sIcxSelected ? 'active' : ''" (click)="onIcxToggleClick()">ICX</li>
+                  <li [ngClass]="sIcxSelected ? 'active' : ''" (click)="onSIcxToggleClick()">sICX</li>
+                </ul>
+                <span id="tooltip-icx-sicx" class="tooltip tooltip-small">
+                <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+                <div class="tooltip-content"><p>View your market details in ICX or sICX. They use the same Supplied value, but the Available amount is based on your wallet balance for each.</p></div>
+              </span>
+              </ng-container>
+
             </div>
             <div class="grid-cell text-right">
               <p class="supply-apy">{{to2DecimalRoundedOffPercentString(getMarketSupplyRate())}} APY</p>

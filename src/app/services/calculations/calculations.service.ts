@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {PersistenceService} from "../persistence/persistence.service";
-import {AssetTag} from "../../models/Asset";
+import {AssetTag, CollateralAssetTag} from "../../models/Asset";
 import {UserAction} from "../../models/UserAction";
 import {ReserveData} from "../../models/AllReservesData";
 import {StateChangeService} from "../state-change/state-change.service";
@@ -123,17 +123,34 @@ export class CalculationsService {
     }
   }
 
+  /** Formulae: Omm's Voting Power/Total staked OMM tokens */
   public votingPower(): number {
-    const totalIcxStakedByOMM = this.persistenceService.getAssetReserveData(AssetTag.ICX)?.totalLiquidity ?? 0;
+    const ommVotingPower = this.ommVotingPower();
     const totalStakedOmm = this.persistenceService.totalStakedOmm;
 
-    if (totalIcxStakedByOMM === 0 || totalStakedOmm === 0) {
+    if (ommVotingPower === 0 || totalStakedOmm === 0) {
       return 0;
     }
 
-    const res = Utils.divideDecimalsPrecision(totalIcxStakedByOMM, totalStakedOmm);
+    return Utils.roundDownTo2Decimals(Utils.divideDecimalsPrecision(ommVotingPower, totalStakedOmm));
+  }
 
-    return Utils.roundDownTo2Decimals(Utils.convertSICXToICX(res, this.persistenceService.sIcxToIcxRate()));
+  /** (totalLiquidity of sICX - totalborrow of sICX) * (sICX/ICX ratio) */
+  public ommVotingPower(): number {
+    const totalLiquiditySicx = this.persistenceService.getAssetReserveData(AssetTag.ICX)?.totalLiquidity ?? 0;
+    const totalborrowSicx = this.persistenceService.getAssetReserveData(AssetTag.ICX)?.totalBorrows ?? 0;
+    const sIcxIcxRatio = this.persistenceService.sIcxToIcxRate();
+
+    return Utils.roundDownTo2Decimals((totalLiquiditySicx - totalborrowSicx) * sIcxIcxRatio);
+  }
+
+  /** Formulae: Omm's Voting Power/Total staked OMM tokens * user’s staked OMM token */
+  public usersVotingPower(): number {
+    const ommVotingPower = this.ommVotingPower();
+    const totalStakedOmm = this.persistenceService.totalStakedOmm;
+    const userStakedOmmToken = this.persistenceService.getUsersStakedOmmBalance();
+
+    return Utils.roundDownTo2Decimals(ommVotingPower / totalStakedOmm * userStakedOmmToken);
   }
 
   public calculateAssetSupplySliderMax(assetTag: AssetTag): number {
@@ -148,6 +165,7 @@ export class CalculationsService {
 
   // calculate the total risk percentage based on the user health factor or user action
   public calculateTotalRisk(assetTag?: AssetTag, diff?: number, userAction?: UserAction, updateState = true): number {
+
     let res: number;
     if (assetTag && diff && userAction != null) {
       res = this.calculateTotalRiskDynamic(assetTag, diff, userAction);
@@ -200,7 +218,11 @@ export class CalculationsService {
     const liquidationThreshold = this.persistenceService.getAverageLiquidationThreshold();
 
     const assetReserve = this.persistenceService.getAssetReserveData(assetTag);
-    const assetExchangePrice = assetReserve?.exchangePrice ?? 0;
+    let assetExchangePrice = assetReserve?.exchangePrice ?? 0;
+
+    if (assetTag === AssetTag.ICX) {
+      assetExchangePrice = Utils.convertICXToSICXPrice(assetExchangePrice, this.persistenceService.sIcxToIcxRate());
+    }
 
     switch (userAction) {
       case UserAction.SUPPLY:
@@ -269,15 +291,17 @@ export class CalculationsService {
    * @param supplied - optional parameter to provide current supplied value (e.g. for dynamic slider changes)
    * @return users asset supply interest (in USD) for a day
    */
-  public calculateUsersDailySupplyInterestForAsset(assetTag: AssetTag, supplied?: number): number {
+  public calculateUsersDailySupplyInterestForAsset(assetTag: AssetTag | CollateralAssetTag, supplied?: number): number {
     let currentOTokenBalanceUSD = this.persistenceService.getUserSuppliedAssetUSDBalance(assetTag);
 
     const exchangePrice = this.persistenceService.getAssetExchangePrice(assetTag);
+
     if (supplied) {
       currentOTokenBalanceUSD = supplied * exchangePrice;
     }
 
-    const liquidityRate = this.persistenceService.getUserAssetReserve(assetTag)?.liquidityRate ?? 0;
+    const liquidityRate = this.persistenceService.getUserAssetReserveLiquidityRate(assetTag);
+
     // "easy route" formula
     const res = currentOTokenBalanceUSD * liquidityRate * (1 / 365);
 
@@ -344,7 +368,11 @@ export class CalculationsService {
    * @param assetTag - Tag (ticker) of the asset
    * @param supplied - Optional parameter for dynamic calculations based on supplied change (slider)
    */
-  public calculateUserDailySupplyOmmReward(assetTag: AssetTag, supplied?: number): number {
+  public calculateUserDailySupplyOmmReward(assetTag: AssetTag | CollateralAssetTag, supplied?: number): number {
+    if (supplied && assetTag === AssetTag.ICX) {
+      supplied = Utils.convertICXTosICX(supplied, this.persistenceService.sIcxToIcxRate());
+    }
+
     const reserveData = this.persistenceService.getAssetReserveData(assetTag);
     const userReserveData = this.persistenceService.getUserAssetReserve(assetTag);
 
@@ -607,6 +635,10 @@ export class CalculationsService {
   public calculatePoolQuoteAndBaseSuppliedInUSD(poolData: PoolData): number {
     const quoteAssetTag = AssetTag.constructFromPoolPairName(poolData.poolStats.name);
 
+    if (!quoteAssetTag) {
+      return 0;
+    }
+
     const totalSuppliedBaseUSD = this.calculatePoolTotalSupplied(poolData, true) * this.persistenceService.ommPriceUSD;
     const totalSuppliedQuoteUSD = this.calculatePoolTotalSupplied(poolData, false) *
       this.persistenceService.getAssetExchangePrice(quoteAssetTag);
@@ -618,6 +650,10 @@ export class CalculationsService {
   public calculatePoolTotalSuppliedInUSD(poolData: PoolData): number {
     const quoteAssetTag = AssetTag.constructFromPoolPairName(poolData.poolStats.name);
 
+    if (!quoteAssetTag) {
+      return 0;
+    }
+
     return this.calculatePoolTotalSupplied(poolData, false) *
       this.persistenceService.getAssetExchangePrice(quoteAssetTag) * 2;
   }
@@ -625,6 +661,10 @@ export class CalculationsService {
   /** Calculate user total supplied for base and quote token of pool in USD */
   public calculateUserPoolTotalSuppliedUSD(poolData: UserPoolData): number {
     const quoteAssetTag = AssetTag.constructFromPoolPairName(poolData.poolStats.name);
+
+    if (!quoteAssetTag) {
+      return 0;
+    }
 
     const totalSuppliedBaseUSD = this.calculateUserPoolSupplied(poolData, true) * this.persistenceService.ommPriceUSD;
     const totalSuppliedQuoteUSD = this.calculateUserPoolSupplied(poolData, false) *
