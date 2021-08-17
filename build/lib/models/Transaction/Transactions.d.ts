@@ -6,6 +6,7 @@ export declare class Transactions {
     icxTransactions: IcxTransaction[];
     iusdcTransactions: Irc2TokenTransaction[];
     sicxTransactions: Irc2TokenTransaction[];
-    constructor(bridgeTransactions: BridgeTransaction[], icxTransactions: IcxTransaction[], iusdcTransactions: Irc2TokenTransaction[], sicxTransactions: Irc2TokenTransaction[]);
+    ommTransactions: Irc2TokenTransaction[];
+    constructor(bridgeTransactions: BridgeTransaction[], icxTransactions: IcxTransaction[], iusdcTransactions: Irc2TokenTransaction[], sicxTransactions: Irc2TokenTransaction[], ommTransactions: Irc2TokenTransaction[]);
 }
 //# sourceMappingURL=Transactions.d.ts.map
