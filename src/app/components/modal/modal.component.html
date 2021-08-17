@@ -137,11 +137,6 @@
     <h3 class="text-center label">Claim Omm rewards?</h3>
     <p class="text-bold text-center value-rewards-modal">{{roundDownTo2Decimals(activeModalChange?.assetAction?.amount) | usFormat}} OMM</p>
 
-    <ng-container *ngIf="activeModalHasLiquidityRewards()">
-      <p class="text-center"><span class="text-bold">Omm rewards:</span> {{roundDownTo2Decimals(activeModalChange?.assetAction?.details?.ommRewards?.staking?.OMM) | usFormat}} OMM</p>
-      <p class="text-center"><span class="text-bold">Liquidity rewards:</span> {{roundDownTo2Decimals(activeModalChange?.assetAction?.details?.ommRewards?.liquidity?.total) | usFormat}} OMM</p>
-    </ng-container>
-
     <!-- Before & after -->
     <div class="grid before-after">
       <div class="grid-cell text-center border-right">
