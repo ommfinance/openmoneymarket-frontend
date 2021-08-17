@@ -349,13 +349,16 @@ export class ModalComponent extends BaseClass implements OnInit {
   onPoolStakingClick(): void {
     // store activeModalChange in local storage
     this.localStorageService.persistModalAction(this.activeModalChange!);
+    const action = this.activeModalChange!.stakingAction;
+    const poolId = action?.payload.poolId;
 
     switch (this.activeModalChange?.modalType) {
       case ModalType.POOL_STAKE:
-        this.stakeLpService.stakeLp(this.activeModalChange!.stakingAction?.payload, this.activeModalChange!.stakingAction!.amount, "Staking LP Tokens...");
+        const amount = action?.payload.max ? this.persistenceService.getUserPoolStakedAvailableBalance(poolId) : action!.amount;
+        this.stakeLpService.stakeLp(poolId, amount, "Staking LP Tokens...");
         break;
       case ModalType.POOL_UNSTAKE:
-        this.stakeLpService.unstakeLp(this.activeModalChange!.stakingAction?.payload, this.activeModalChange!.stakingAction!.amount, "Starting unstaking process...");
+        this.stakeLpService.unstakeLp(poolId, action!.amount, "Starting unstaking process...");
         break;
       default:
         throw new OmmError(` onGovernanceModalConfirmClick() -> Invalid modal type: ${this.activeModalChange?.modalType}`);
