@@ -1,12 +1,13 @@
 import {UserAction} from "./UserAction";
 import {AssetTag} from "./Asset";
+import BigNumber from "bignumber.js";
 
 export class RiskCalculationData {
   assetTag: AssetTag;
-  amount: number;
+  amount: BigNumber;
   action: UserAction;
 
-  constructor(assetTag: AssetTag, amount: number, action: UserAction) {
+  constructor(assetTag: AssetTag, amount: BigNumber, action: UserAction) {
     this.assetTag = assetTag;
     this.amount = amount;
     this.action = action;

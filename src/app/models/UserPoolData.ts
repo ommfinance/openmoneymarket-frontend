@@ -1,15 +1,17 @@
 import {PoolStats} from "./PoolStats";
+import BigNumber from "bignumber.js";
 
 export class UserPoolData {
-  poolId: number;
-  totalStakedBalance: number;
-  userAvailableBalance: number;
-  userStakedBalance: number;
-  userTotalBalance: number;
+  poolId: BigNumber;
+  totalStakedBalance: BigNumber;
+  userAvailableBalance: BigNumber;
+  userStakedBalance: BigNumber;
+  userTotalBalance: BigNumber;
   poolStats: PoolStats;
 
 
-  constructor(poolId: number, totalStakedBalance: number, userAvailableBalance: number, userStakedBalance: number, userTotalBalance: number,
+  constructor(poolId: BigNumber, totalStakedBalance: BigNumber, userAvailableBalance: BigNumber, userStakedBalance: BigNumber,
+              userTotalBalance: BigNumber,
               poolStats: PoolStats) {
     this.poolId = poolId;
     this.totalStakedBalance = totalStakedBalance;

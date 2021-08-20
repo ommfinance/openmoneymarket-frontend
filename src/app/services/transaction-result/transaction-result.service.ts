@@ -121,7 +121,7 @@ export class TransactionResultService {
 
     if (modalAction.assetAction) {
       const assetAction = modalAction.assetAction;
-      assetAction.amount = Utils.roundDownTo2Decimals(assetAction.amount);
+      assetAction.amount = assetAction.amount.dp(2);
 
       switch (modalAction.modalType) {
         case ModalType.SUPPLY:
@@ -144,7 +144,7 @@ export class TransactionResultService {
       }
     } else if (modalAction.stakingAction) {
       const voteAction = modalAction.stakingAction;
-      voteAction.amount = Utils.roundDownTo2Decimals(voteAction.amount);
+      voteAction.amount = voteAction.amount.dp(2);
 
       switch (modalAction.modalType) {
         case ModalType.STAKE_OMM_TOKENS:

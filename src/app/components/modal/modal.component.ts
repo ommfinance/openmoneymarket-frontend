@@ -29,6 +29,8 @@ import {IconexWallet} from "../../models/wallets/IconexWallet";
 import {ClaimIcxService} from "../../services/claim-icx/claim-icx.service";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {StakeLpService} from "../../services/stake-lp/stake-lp.service";
+import {Utils} from "../../common/utils";
+import BigNumber from "bignumber.js";
 
 
 @Component({
@@ -258,7 +260,7 @@ export class ModalComponent extends BaseClass implements OnInit {
 
   riskGreaterThanZero(): boolean {
     if (this.activeModalChange?.assetAction?.risk) {
-      return this.activeModalChange.assetAction.risk > 0;
+      return this.activeModalChange.assetAction.risk.isGreaterThan(Utils.ZERO);
     } else {
       return false;
     }
@@ -281,8 +283,8 @@ export class ModalComponent extends BaseClass implements OnInit {
     return this.activeModalChange?.modalType === ModalType.WITHDRAW && this.activeModalChange.assetAction?.asset.tag === AssetTag.ICX;
   }
 
-  ledgerIcxBalance(wallet: LedgerWallet): number {
-    return wallet.balances.get(AssetTag.ICX) ?? 0;
+  ledgerIcxBalance(wallet: LedgerWallet): BigNumber {
+    return wallet.balances.get(AssetTag.ICX) ?? new BigNumber("0");
   }
 
   getModalActionName(): string {
@@ -307,7 +309,7 @@ export class ModalComponent extends BaseClass implements OnInit {
     switch (this.activeModalChange?.modalType) {
       case ModalType.UPDATE_PREP_SELECTION:
         this.transactionDispatcherService.dispatchTransaction(this.voteService.buildUpdateUserDelegationPreferencesTx(
-          this.activeModalChange!.voteAction!.yourVotesPrepList), "Allocating votes...");
+          this.activeModalChange.voteAction!.yourVotesPrepList), "Allocating votes...");
         break;
       case ModalType.REMOVE_ALL_VOTES:
         this.transactionDispatcherService.dispatchTransaction(this.voteService.buildRemoveAllVotes(),
@@ -387,7 +389,8 @@ export class ModalComponent extends BaseClass implements OnInit {
         this.repayService.repayAsset(this.activeModalChange, assetTag, `Repaying ${assetTag}...`);
         break;
       case ModalType.WITHDRAW:
-        const amount = this.activeModalChange.assetAction!.after === 0 ? -1 : this.activeModalChange.assetAction!.amount;
+        const amount = this.activeModalChange.assetAction!.after.isZero() ? new BigNumber("-1") :
+          this.activeModalChange.assetAction!.amount;
         this.withdrawService.withdrawAsset(amount, assetTag, this.waitForUnstakingIcx(),
           `Withdrawing ${assetTag}...`);
         break;
@@ -416,8 +419,8 @@ export class ModalComponent extends BaseClass implements OnInit {
   }
 
   activeModalHasLiquidityRewards(): boolean {
-    const liquidityRewards = this.activeModalChange?.assetAction?.details?.ommRewards?.liquidity?.total ?? 0;
-    return liquidityRewards > 0;
+    const liquidityRewards = this.activeModalChange?.assetAction?.details?.ommRewards?.liquidity?.total ?? new BigNumber("0");
+    return liquidityRewards.isGreaterThan(Utils.ZERO);
   }
 
   getAdjustedAssetTag(): AssetTag | CollateralAssetTag | undefined {
@@ -436,12 +439,12 @@ export class ModalComponent extends BaseClass implements OnInit {
     }
   }
 
-  getBorrowFee(): number {
+  getBorrowFee(): BigNumber {
     return this.calculationService.calculateBorrowFee(this.activeModalChange?.assetAction?.amount);
   }
 
-  getAssetActionAmount(): number {
-    return this.activeModalChange?.assetAction?.amount ?? 0;
+  getAssetActionAmount(): BigNumber {
+    return this.activeModalChange?.assetAction?.amount ?? new BigNumber("0");
   }
 
   assetActionAssetTag(): AssetTag | CollateralAssetTag {

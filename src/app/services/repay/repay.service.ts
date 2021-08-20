@@ -13,6 +13,7 @@ import {TransactionDispatcherService} from "../transaction-dispatcher/transactio
 import {ScoreService} from "../score/score.service";
 import {LocalStorageService} from "../local-storage/local-storage.service";
 import {ModalAction} from "../../models/ModalAction";
+import BigNumber from "bignumber.js";
 
 @Injectable({
   providedIn: 'root'
@@ -30,11 +31,11 @@ export class RepayService {
 
   public repayAsset(modalAction: ModalAction, assetTag: AssetTag, notificationMessage: string): void {
     let amount = modalAction.assetAction!.amount;
-    amount = Utils.roundDownTo2Decimals(amount);
+    amount = amount.dp(2);
 
     // fetch users debt amount from SCORE if it is full repayment
-    if (modalAction.assetAction?.after === 0) {
-      this.getUserDebt(assetTag, amount).then((debt: number) => {
+    if (modalAction.assetAction?.after.isZero()) {
+      this.getUserDebt(assetTag, amount).then((debt: BigNumber) => {
         // round up debt to 2 decimals in order to try to avoid the dust
         debt = Utils.roundUpTo2Decimals(debt);
         log.debug("debt being repaid = " + debt);
@@ -58,7 +59,7 @@ export class RepayService {
     }
   }
 
-  public getUserDebt(assetTag: AssetTag, amount: number): Promise<number> {
+  public getUserDebt(assetTag: AssetTag, amount: BigNumber): Promise<BigNumber> {
     return this.scoreService.getUserDebt(assetTag).then(res => {
       log.debug(`getUserDebt for ${assetTag} = ${res}`);
       return res;
@@ -69,7 +70,7 @@ export class RepayService {
     });
   }
 
-    private buildRepayAssetTx(amount: number, assetTag: AssetTag): any {
+    private buildRepayAssetTx(amount: BigNumber, assetTag: AssetTag): any {
     this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
 
     const decimals = this.persistenceService.allReserves!.getReserveData(assetTag).decimals;

@@ -1,13 +1,14 @@
 import log from "loglevel";
+import BigNumber from "bignumber.js";
 
 export class PrepList {
   prepAddressToNameMap: Map<string, string>;
-  totalDelegated: number;
-  totalStake: number;
+  totalDelegated: BigNumber;
+  totalStake: BigNumber;
   preps: Prep[];
 
 
-  constructor(totalDelegated: number, totalStake: number, preps: Prep[]) {
+  constructor(totalDelegated: BigNumber, totalStake: BigNumber, preps: Prep[]) {
     this.totalDelegated = totalDelegated;
     this.totalStake = totalStake;
     this.preps = preps;
@@ -21,14 +22,14 @@ export class PrepList {
 export class Prep {
   address: string;
   name: string;
-  stake: number;
-  delegated: number;
-  irep: number;
+  stake: BigNumber;
+  delegated: BigNumber;
+  irep: BigNumber;
   details: string;
   logoUrl = "assets/img/icon/profile.svg";
 
 
-  constructor(address: string, name: string, stake: number, delegated: number, irep: number, details: string,
+  constructor(address: string, name: string, stake: BigNumber, delegated: BigNumber, irep: BigNumber, details: string,
               logoUrl: string = "assets/img/icon/profile.svg") {
     this.address = address;
     this.name = name;

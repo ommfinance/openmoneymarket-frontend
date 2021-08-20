@@ -10,6 +10,7 @@ import {Utils} from "../../common/utils";
 import {NotificationService} from "../../services/notification/notification.service";
 import {ModalAction} from "../../models/ModalAction";
 import log from "loglevel";
+import BigNumber from "bignumber.js";
 
 declare var noUiSlider: any;
 
@@ -31,11 +32,11 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
 
   poolData: UserPoolData | undefined;
 
-  poolId!: number;
+  poolId!: BigNumber;
 
-  @Input() set poolIdSet(id: number) {
+  @Input() set poolIdSet(id: BigNumber) {
     this.poolId = id;
-    this.poolData = this.persistenceService.userPoolsDataMap.get(id);
+    this.poolData = this.persistenceService.userPoolsDataMap.get(id.toString());
   }
 
   constructor(public persistenceService: PersistenceService,
@@ -53,7 +54,7 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
   ngAfterViewInit(): void {
     log.debug("Pool " + this.poolId + "ngAfterViewInit userPoolsDataMap: ", this.persistenceService.userPoolsDataMap);
 
-    this.poolData = this.persistenceService.userPoolsDataMap.get(this.poolId);
+    this.poolData = this.persistenceService.userPoolsDataMap.get(this.poolId.toString());
     this.initSlider();
     this.setCurrentStaked();
 
@@ -62,20 +63,20 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
   }
 
   onConfirmClick(): void {
-    const before = this.roundDownTo2Decimals(this.persistenceService.getUserPoolStakedBalance(this.poolId));
-    const after = this.roundDownTo2Decimals(this.inputStakedEl.value);
-    const diff = Utils.subtractDecimalsWithPrecision(after, before, 2);
+    const before = this.persistenceService.getUserPoolStakedBalance(this.poolId).dp(2);
+    const after = new BigNumber(this.inputStakedEl.value);
+    const diff = Utils.subtract(after, before);
 
     // if before and after equal show notification
-    if (before === after) {
+    if (before.isEqualTo(after)) {
       this.notificationService.showNewNotification("No change in staked value.");
       return;
     }
 
-    const isMax = after >= this.sliderMaxValue();
-    const stakingAction = new StakingAction(before, after, Math.abs(diff), {poolId: this.poolId, max: isMax});
+    const isMax = after.isGreaterThanOrEqualTo(this.sliderMaxValue());
+    const stakingAction = new StakingAction(before, after, diff.abs(), {poolId: this.poolId, max: isMax});
 
-    if (diff > 0) {
+    if (diff.isGreaterThan(Utils.ZERO)) {
       this.modalService.showNewModal(ModalType.POOL_STAKE, undefined, stakingAction);
     } else {
       this.modalService.showNewModal(ModalType.POOL_UNSTAKE, undefined, stakingAction);
@@ -105,7 +106,7 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
     this.stateChangeService.userPoolsDataChange$.subscribe(() => {
       log.debug("Pool " + this.poolData?.getPrettyName() + "userPoolsDataChange$ userPoolsDataMap: ",
         this.persistenceService.userPoolsDataMap);
-      this.poolData = this.persistenceService.userPoolsDataMap.get(this.poolId);
+      this.poolData = this.persistenceService.userPoolsDataMap.get(this.poolId.toString());
       this.initSlider();
       this.setCurrentStaked();
     });
@@ -115,7 +116,7 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
     this.delay(() => {
       const value = this.getInputStakedValue();
 
-      if (value > this.getStakeMax()) {
+      if (value.isGreaterThan(this.getStakeMax())) {
         this.inputStakedEl.classList.add("red-border");
       } else {
         // reset border color if it passes the check
@@ -126,9 +127,9 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
     }, 500 );
   }
 
-  setCurrentStaked(value?: number): void {
-    value = value ? value : (this.persistenceService.userPoolsDataMap.get(this.poolId)?.userStakedBalance ?? 0);
-    log.debug("setCurrentStaked value = " + value);
+  setCurrentStaked(value?: BigNumber): void {
+    value = value ? value : (this.persistenceService.userPoolsDataMap.get(this.poolId.toString())?.userStakedBalance
+      ?? new BigNumber("0")).dp(2);
 
     // update slider value
     if (this.sliderEl?.noUiSlider) {
@@ -138,16 +139,15 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
     }
   }
 
-  private setStakeSliderValue(value: number): void {
-    const res = this.roundDownTo2Decimals(value);
+  private setStakeSliderValue(value: BigNumber): void {
+    const res = value.dp(2);
 
     // if value is greater than slider max, update the sliders max and set the value
-    if (res > this.sliderMaxValue()) {
-      this.sliderEl.noUiSlider.updateOptions({range: { min: 0, max: res }});
-      this.sliderEl.noUiSlider.set(res);
+    if (res.isGreaterThan(this.sliderMaxValue())) {
+      this.sliderEl.noUiSlider.updateOptions({range: { min: 0, max: res.dp(2).toNumber() }});
     }
 
-    this.sliderEl.noUiSlider.set(res);
+    this.sliderEl.noUiSlider.set(res.dp(2).toNumber());
   }
 
   initSlider(): void {
@@ -161,14 +161,14 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
         connect: 'lower',
         range: {
           min: [0],
-          max: [max === 0 ? 1 : max]
+          max: [max.isZero() ? 1 : max.toNumber()]
         },
       });
     }
 
     // On stake slider update
     this.sliderEl?.noUiSlider.on('update', (values: any, handle: any) => {
-      this.inputStakedEl.value = this.roundDownTo2Decimals(+values[handle]);
+      this.inputStakedEl.value = (new BigNumber(values[handle])).dp(2).toNumber();
     });
   }
 
@@ -187,21 +187,21 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
     this.removeClass(this.restStateEl, "hide");
   }
 
-  sliderMaxValue(): number {
-    return this.sliderEl?.noUiSlider?.options.range.max ?? 1;
+  sliderMaxValue(): BigNumber {
+    return new BigNumber(this.sliderEl?.noUiSlider?.options.range.max ?? 1).dp(2);
   }
 
-  getStakeMax(): number {
+  getStakeMax(): BigNumber {
     // sliders max is sum of staked + available balance
-    const res = this.roundDownTo2Decimals(Utils.addDecimalsPrecision(this.persistenceService.getUserPoolStakedBalance(this.poolId),
-      this.persistenceService.getUserPoolStakedAvailableBalance(this.poolId)));
+    const res = Utils.add(this.persistenceService.getUserPoolStakedBalance(this.poolId),
+      this.persistenceService.getUserPoolStakedAvailableBalance(this.poolId)).dp(2);
 
     log.debug(`[pool=${this.poolId}] getStakeMax: `, res);
 
     return res;
   }
 
-  getInputStakedValue(): number {
-    return this.roundDownTo2Decimals(this.inputStakedEl?.value ?? 0);
+  getInputStakedValue(): BigNumber {
+    return (new BigNumber(this.inputStakedEl?.value ?? new BigNumber("0"))).dp(2);
   }
 }

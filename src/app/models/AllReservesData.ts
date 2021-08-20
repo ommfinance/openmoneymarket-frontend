@@ -1,5 +1,6 @@
 import {AssetTag, CollateralAssetTag} from "./Asset";
 import {OmmError} from "../core/errors/OmmError";
+import BigNumber from "bignumber.js";
 
 export class AllReservesData {
   USDS: ReserveData;
@@ -49,40 +50,41 @@ export class AllReservesData {
 }
 
 export class ReserveData {
-  totalLiquidity: number;
-  availableLiquidity: number;
-  totalLiquidityUSD: number;
-  availableLiquidityUSD: number;
-  totalBorrows: number;
-  totalBorrowsUSD: number;
-  liquidityRate: number;
-  borrowRate: number;
+  totalLiquidity: BigNumber;
+  availableLiquidity: BigNumber;
+  totalLiquidityUSD: BigNumber;
+  availableLiquidityUSD: BigNumber;
+  totalBorrows: BigNumber;
+  totalBorrowsUSD: BigNumber;
+  liquidityRate: BigNumber;
+  borrowRate: BigNumber;
   oTokenAddress: string;
-  exchangePrice: number;
-  lastUpdateTimestamp: number;
-  baseLTVasCollateral: number;
-  borrowCumulativeIndex: number;
-  borrowingEnabled: number;
-  decimals: number;
-  isActive: number;
-  isFreezed: number;
-  liquidationBonus: number;
-  liquidationThreshold: number;
-  liquidityCumulativeIndex: number;
+  exchangePrice: BigNumber;
+  lastUpdateTimestamp: BigNumber;
+  baseLTVasCollateral: BigNumber;
+  borrowCumulativeIndex: BigNumber;
+  borrowingEnabled: BigNumber;
+  decimals: BigNumber;
+  isActive: BigNumber;
+  isFreezed: BigNumber;
+  liquidationBonus: BigNumber;
+  liquidationThreshold: BigNumber;
+  liquidityCumulativeIndex: BigNumber;
   reserveAddress: string;
-  sICXRate: number;
-  usageAsCollateralEnabled: number;
-  rewardPercentage: number;
-  lendingPercentage: number;
-  borrowingPercentage: number;
+  sICXRate: BigNumber;
+  usageAsCollateralEnabled: BigNumber;
+  rewardPercentage: BigNumber;
+  lendingPercentage: BigNumber;
+  borrowingPercentage: BigNumber;
 
 
-  constructor(totalLiquidity: number, availableLiquidity: number, totalLiquidityUSD: number, availableLiquidityUSD: number,
-              totalBorrows: number, totalBorrowsUSD: number, liquidityRate: number, borrowRate: number, oTokenAddress: string,
-              exchangePrice: number, lastUpdateTimestamp: number, baseLTVasCollateral: number, borrowCumulativeIndex: number,
-              borrowingEnabled: number, decimals: number, isActive: number, isFreezed: number, liquidationBonus: number,
-              liquidationThreshold: number, liquidityCumulativeIndex: number, reserveAddress: string, sICXRate: number,
-              usageAsCollateralEnabled: number, rewardPercentage: number, lendingPercentage: number, borrowingPercentage: number) {
+  constructor(totalLiquidity: BigNumber, availableLiquidity: BigNumber, totalLiquidityUSD: BigNumber, availableLiquidityUSD: BigNumber,
+              totalBorrows: BigNumber, totalBorrowsUSD: BigNumber, liquidityRate: BigNumber, borrowRate: BigNumber, oTokenAddress: string,
+              exchangePrice: BigNumber, lastUpdateTimestamp: BigNumber, baseLTVasCollateral: BigNumber, borrowCumulativeIndex: BigNumber,
+              borrowingEnabled: BigNumber, decimals: BigNumber, isActive: BigNumber, isFreezed: BigNumber, liquidationBonus: BigNumber,
+              liquidationThreshold: BigNumber, liquidityCumulativeIndex: BigNumber, reserveAddress: string, sICXRate: BigNumber,
+              usageAsCollateralEnabled: BigNumber, rewardPercentage: BigNumber, lendingPercentage: BigNumber,
+              borrowingPercentage: BigNumber) {
     this.totalLiquidity = totalLiquidity;
     this.availableLiquidity = availableLiquidity;
     this.totalLiquidityUSD = totalLiquidityUSD;

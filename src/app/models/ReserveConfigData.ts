@@ -1,15 +1,17 @@
+import BigNumber from "bignumber.js";
+
 export class ReserveConfigData {
-  baseLTVasCollateral: number;
-  borrowingEnabled: number;
-  decimals: number;
-  isActive: number;
-  liquidationBonus: number;
-  liquidationThreshold: number;
-  usageAsCollateralEnabled: number;
+  baseLTVasCollateral: BigNumber;
+  borrowingEnabled: BigNumber;
+  decimals: BigNumber;
+  isActive: BigNumber;
+  liquidationBonus: BigNumber;
+  liquidationThreshold: BigNumber;
+  usageAsCollateralEnabled: BigNumber;
 
 
-  constructor(baseLTVasCollateral: number, decimals: number, liquidationThreshold: number, liquidationBonus: number,
-              usageAsCollateralEnabled: number, borrowingEnabled: number, isActive: number) {
+  constructor(baseLTVasCollateral: BigNumber, decimals: BigNumber, liquidationThreshold: BigNumber, liquidationBonus: BigNumber,
+              usageAsCollateralEnabled: BigNumber, borrowingEnabled: BigNumber, isActive: BigNumber) {
     this.baseLTVasCollateral = baseLTVasCollateral;
     this.decimals = decimals;
     this.liquidationThreshold = liquidationThreshold;

@@ -11,6 +11,8 @@ import {IconexWallet} from "./models/wallets/IconexWallet";
 import {LedgerWallet} from "./models/wallets/LedgerWallet";
 import log from "loglevel";
 import {LoginService} from "./services/login/login.service";
+import {Utils} from "./common/utils";
+import {BigNumber} from "bignumber.js";
 
 declare var $: any;
 
@@ -34,6 +36,7 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
               private reloaderService: ReloaderService,
               private localStorageService: LocalStorageService) {
     super(persistenceService);
+
     // register Iconex handler
     window.addEventListener("ICONEX_RELAY_RESPONSE", (e: any) => this.iconexApiService.iconexEventHandler(e));
     this.attachedListener = true;

@@ -1,19 +1,21 @@
+import BigNumber from "bignumber.js";
+
 export class UserAccountData {
-  availableBorrowsUSD: number;
-  borrowingPower: number;
-  currentLiquidationThreshold: number;
-  currentLtv: number;
-  healthFactor: number;
-  healthFactorBelowThreshold: number;
-  totalBorrowBalanceUSD: number;
-  totalCollateralBalanceUSD: number;
-  totalFeesUSD: number;
-  totalLiquidityBalanceUSD: number;
+  availableBorrowsUSD: BigNumber;
+  borrowingPower: BigNumber;
+  currentLiquidationThreshold: BigNumber;
+  currentLtv: BigNumber;
+  healthFactor: BigNumber;
+  healthFactorBelowThreshold: BigNumber;
+  totalBorrowBalanceUSD: BigNumber;
+  totalCollateralBalanceUSD: BigNumber;
+  totalFeesUSD: BigNumber;
+  totalLiquidityBalanceUSD: BigNumber;
 
 
-  constructor(availableBorrowsUSD: number, borrowingPower: number, currentLiquidationThreshold: number, currentLtv: number,
-              healthFactor: number, healthFactorBelowThreshold: number, totalBorrowBalanceUSD: number, totalCollateralBalanceUSD: number,
-              totalFeesUSD: number, totalLiquidityBalanceUSD: number) {
+  constructor(availableBorrowsUSD: BigNumber, borrowingPower: BigNumber, currentLiquidationThreshold: BigNumber, currentLtv: BigNumber,
+              healthFactor: BigNumber, healthFactorBelowThreshold: BigNumber, totalBorrowBalanceUSD: BigNumber,
+              totalCollateralBalanceUSD: BigNumber, totalFeesUSD: BigNumber, totalLiquidityBalanceUSD: BigNumber) {
     this.availableBorrowsUSD = availableBorrowsUSD;
     this.borrowingPower = borrowingPower;
     this.currentLiquidationThreshold = currentLiquidationThreshold;

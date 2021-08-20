@@ -15,6 +15,7 @@ import log from "loglevel";
 import {PoolData} from "../../models/PoolData";
 import {UserPoolData} from "../../models/UserPoolData";
 import {AllAssetDistPercentages} from "../../models/AllAssetDisPercentages";
+import BigNumber from "bignumber.js";
 
 @Injectable({
   providedIn: 'root'
@@ -32,16 +33,16 @@ export class StateChangeService {
   /**
    * Map containing subscribable Subjects for each of the Asset (e.g. USDb, ICX, ..)
    */
-  public userBalanceChangeMap: Map<AssetTag, Subject<number>> = new Map([
-    [AssetTag.USDS, new Subject<number>()],
-    [AssetTag.ICX, new Subject<number>()],
-    [AssetTag.USDC, new Subject<number>()],
+  public userBalanceChangeMap: Map<AssetTag, Subject<BigNumber>> = new Map([
+    [AssetTag.USDS, new Subject<BigNumber>()],
+    [AssetTag.ICX, new Subject<BigNumber>()],
+    [AssetTag.USDC, new Subject<BigNumber>()],
   ]);
 
-  public userCollateralBalanceChangeMap: Map<CollateralAssetTag, Subject<number>> = new Map([
-    [CollateralAssetTag.USDS, new Subject<number>()],
-    [CollateralAssetTag.sICX, new Subject<number>()],
-    [CollateralAssetTag.USDC, new Subject<number>()],
+  public userCollateralBalanceChangeMap: Map<CollateralAssetTag, Subject<BigNumber>> = new Map([
+    [CollateralAssetTag.USDS, new Subject<BigNumber>()],
+    [CollateralAssetTag.sICX, new Subject<BigNumber>()],
+    [CollateralAssetTag.USDC, new Subject<BigNumber>()],
   ]);
 
   /**
@@ -60,7 +61,7 @@ export class StateChangeService {
 
   public userOmmRewardsChange: Subject<OmmRewards> = new Subject<OmmRewards>();
   public userOmmTokenBalanceDetailsChange: Subject<OmmTokenBalanceDetails> = new Subject<OmmTokenBalanceDetails>();
-  public totalOmmStakedChange: Subject<number> = new Subject<number>();
+  public totalOmmStakedChange: Subject<BigNumber> = new Subject<BigNumber>();
 
   public yourVotesPrepChange: Subject<YourPrepVote[]> = new Subject<YourPrepVote[]>();
   public prepListChange: Subject<PrepList> = new Subject<PrepList>();
@@ -75,7 +76,7 @@ export class StateChangeService {
   /**
    * Subscribable subject for monitoring the user total risk changes
    */
-  public userTotalRiskChange: Subject<number> = new Subject<number>();
+  public userTotalRiskChange: Subject<BigNumber> = new Subject<BigNumber>();
 
   /**
    * Subscribable subject for monitoring the pools data
@@ -92,11 +93,11 @@ export class StateChangeService {
   private allAssetDistPercentagesChange: Subject<AllAssetDistPercentages> = new Subject<AllAssetDistPercentages>();
   allAssetDistPercentagesChange$: Observable<AllAssetDistPercentages> = this.allAssetDistPercentagesChange.asObservable();
 
-  private ommPriceChange: Subject<number> = new Subject<number>();
-  ommPriceChange$: Observable<number> = this.ommPriceChange.asObservable();
+  private ommPriceChange: Subject<BigNumber> = new Subject<BigNumber>();
+  ommPriceChange$: Observable<BigNumber> = this.ommPriceChange.asObservable();
 
-  private tokenDistributionPerDayChange: Subject<number> = new Subject<number>();
-  tokenDistributionPerDayChange$: Observable<number> = this.tokenDistributionPerDayChange.asObservable();
+  private tokenDistributionPerDayChange: Subject<BigNumber> = new Subject<BigNumber>();
+  tokenDistributionPerDayChange$: Observable<BigNumber> = this.tokenDistributionPerDayChange.asObservable();
 
   private sIcxSelectedChange: Subject<boolean> = new Subject<boolean>();
   sIcxSelectedChange$: Observable<boolean> = this.sIcxSelectedChange.asObservable();
@@ -104,15 +105,15 @@ export class StateChangeService {
   /**
    * Subscribable subject for monitoring the user debt changes for each asset
    */
-  public userDebtMapChange: Map<AssetTag, Subject<number | undefined>> = new Map([
-    [AssetTag.USDS, new Subject<number | undefined>()],
-    [AssetTag.ICX, new Subject<number | undefined>()],
-    [AssetTag.USDC, new Subject<number | undefined>()],
+  public userDebtMapChange: Map<AssetTag, Subject<BigNumber | undefined>> = new Map([
+    [AssetTag.USDS, new Subject<BigNumber | undefined>()],
+    [AssetTag.ICX, new Subject<BigNumber | undefined>()],
+    [AssetTag.USDC, new Subject<BigNumber | undefined>()],
   ]);
 
 
   constructor(private persistenceService: PersistenceService) {
-    this.userBalanceChangeMap.forEach((subject: Subject<number>, key: AssetTag) => {
+    this.userBalanceChangeMap.forEach((subject: Subject<BigNumber>, key: AssetTag) => {
       subject.subscribe(value => {
         if (this.persistenceService.activeWallet) {
           this.persistenceService.activeWallet.balances.set(key, value);
@@ -120,7 +121,7 @@ export class StateChangeService {
       });
     });
 
-    this.userCollateralBalanceChangeMap.forEach((subject: Subject<number>, key: CollateralAssetTag) => {
+    this.userCollateralBalanceChangeMap.forEach((subject: Subject<BigNumber>, key: CollateralAssetTag) => {
       subject.subscribe(value => {
         if (this.persistenceService.activeWallet) {
           this.persistenceService.activeWallet.collateralBalances.set(key, value);
@@ -136,8 +137,8 @@ export class StateChangeService {
       });
     });
 
-    this.userDebtMapChange.forEach((subject: Subject<number | undefined>, assetTag: AssetTag) => {
-      subject.subscribe((value: number | undefined) => {
+    this.userDebtMapChange.forEach((subject: Subject<BigNumber | undefined>, assetTag: AssetTag) => {
+      subject.subscribe((value: BigNumber | undefined) => {
         if (this.persistenceService.activeWallet) {
           log.debug(`Loaded asset ${assetTag} debt ${value}...`);
           this.persistenceService.userDebt.set(assetTag, value);
@@ -151,12 +152,12 @@ export class StateChangeService {
     this.allAssetDistPercentagesChange.next(value);
   }
 
-  public tokenDistributionPerDayUpdate(value: number): void {
+  public tokenDistributionPerDayUpdate(value: BigNumber): void {
     this.persistenceService.tokenDistributionPerDay = value;
     this.tokenDistributionPerDayChange.next(value);
   }
 
-  public ommPriceUpdate(value: number): void {
+  public ommPriceUpdate(value: BigNumber): void {
     this.persistenceService.ommPriceUSD = value;
     this.ommPriceChange.next(value);
   }
@@ -183,21 +184,21 @@ export class StateChangeService {
     this.loginChange.next(wallet);
   }
 
-  public updateUserTotalRisk(totalRisk: number): void {
+  public updateUserTotalRisk(totalRisk: BigNumber): void {
     this.persistenceService.userTotalRisk = totalRisk;
     this.userTotalRiskChange.next(totalRisk);
   }
 
-  public updateUserAssetBalance(balance: number, assetTag: AssetTag): void {
+  public updateUserAssetBalance(balance: BigNumber, assetTag: AssetTag): void {
     this.persistenceService.activeWallet!.balances.set(assetTag, balance);
     this.userBalanceChangeMap.get(assetTag)!.next(balance);
   }
 
-  public updateUserCollateralAssetBalance(balance: number, assetTag: CollateralAssetTag): void {
+  public updateUserCollateralAssetBalance(balance: BigNumber, assetTag: CollateralAssetTag): void {
     this.userCollateralBalanceChangeMap.get(assetTag)!.next(balance);
   }
 
-  public updateUserDebt(debt: number, assetTag: AssetTag): void {
+  public updateUserDebt(debt: BigNumber, assetTag: AssetTag): void {
     this.userDebtMapChange.get(assetTag)!.next(debt);
   }
 
@@ -225,7 +226,7 @@ export class StateChangeService {
     this.prepListChange.next(prepList);
   }
 
-  public updateTotalStakedOmm(totalStakedOmm: number): void {
+  public updateTotalStakedOmm(totalStakedOmm: BigNumber): void {
     this.persistenceService.totalStakedOmm = totalStakedOmm;
     this.totalOmmStakedChange.next(totalStakedOmm);
   }

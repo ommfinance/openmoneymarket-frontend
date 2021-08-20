@@ -13,16 +13,18 @@ export class LocalStorageService {
   localStorage: Storage;
   changes$ = new Subject();
 
+  lastModalAction?: ModalAction;
+
   constructor() {
     this.localStorage   = window.localStorage;
   }
 
   persistModalAction(modalAction: ModalAction): void {
-    this.set("modal.action", modalAction);
+    this.lastModalAction = modalAction;
   }
 
   getLastModalAction(): ModalAction | undefined {
-    return this.get("modal.action");
+    return this.lastModalAction;
   }
 
   persistWalletLogin(wallet: BridgeWallet | IconexWallet | LedgerWallet): void {

@@ -13,6 +13,7 @@ import {environment} from "../../../environments/environment";
 import {Mapper} from "../../common/mapper";
 import {Prep} from "../../models/Preps";
 import {YourPrepVote} from "../../models/YourPrepVote";
+import BigNumber from "bignumber.js";
 
 @Injectable({
   providedIn: 'root'
@@ -25,16 +26,16 @@ export class VoteService {
               private checkerService: CheckerService,
               private transactionDispatcherService: TransactionDispatcherService) { }
 
-  public stakeOmm(amount: number, notificationMessage: string): void {
-    amount = Utils.roundDownTo2Decimals(amount);
+  public stakeOmm(amount: BigNumber, notificationMessage: string): void {
+    amount = amount.dp(2);
     const tx = this.buildStakeOmmTx(amount);
 
     log.debug(`Stake OMM TX: `, tx);
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
-  public unstakeOmm(amount: number, notificationMessage: string): void {
-    amount = Utils.roundDownTo2Decimals(amount);
+  public unstakeOmm(amount: BigNumber, notificationMessage: string): void {
+    amount = amount.dp(2);
     const tx = this.buildUnstakeOmmTx(amount);
 
     log.debug(`Unstake OMM TX: `, tx);
@@ -46,7 +47,7 @@ export class VoteService {
    * **Note**: if the user tries to increase the stake, ”_value” should be previous staked balance + amount being additionally staked
    * @return  Stake Omm Tokens transaction
    */
-  private buildStakeOmmTx(amount: number): any {
+  private buildStakeOmmTx(amount: BigNumber): any {
     this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
 
     log.debug(`Stake Omm amount = ` + amount);
@@ -64,7 +65,7 @@ export class VoteService {
    * @description Build Transaction for un-staking Omm Tokens
    * @return  Un-stake Omm Tokens transaction
    */
-  private buildUnstakeOmmTx(amount: number): any {
+  private buildUnstakeOmmTx(amount: BigNumber): any {
     this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
 
     log.debug(`Un-stake Omm amount = ` + amount);
@@ -82,7 +83,7 @@ export class VoteService {
    * @description Build Icon transaction to remove all of the users votes
    * @return Icon tx
    */
-  public buildRemoveAllVotes(): Promise<number> {
+  public buildRemoveAllVotes(): Promise<any> {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const params = {
