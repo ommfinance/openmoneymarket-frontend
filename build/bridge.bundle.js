@@ -66,7 +66,7 @@
                 `}))}
             </tbody>
             </table>
-          `}}}hasSomeTokenTransactions(e){return!(e==S.SupportedTokens.ICX&&0==this.transactions.icxTransactions.length||e==S.SupportedTokens.USDS&&0==this.transactions.bridgeTransactions.length||e==S.SupportedTokens.IUSDC&&0==this.transactions.iusdcTransactions.length||e==S.SupportedTokens.sICX&&0==this.transactions.sicxTransactions.length)}getOneAvailableToken(){for(let[e,t]of this.userTokensMap)if(t.balance>0)return t;return this.userTokensMap.get(S.SupportedTokens.USDS)}getAvailableTokens(){const e=new Map(this.userTokensMap);for(let[t,r]of e)0==(null==r?void 0:r.balance)&&r.tag!==S.SupportedTokens.USDS&&e.delete(t);return e}getTransactionDetailHtml(){var e,t,r,i,o,a,s,c,u,d,l,f,h,p,A,b,y,v,w,M;let I=n.html``;this.selectedTransaction instanceof g.BridgeTransaction&&((null===(e=this.selectedTransaction)||void 0===e?void 0:e.type)==g.TransactionType.DEPOSITED?I=n.html`<div class="grid margin-top-15 padding-bottom-15 border-bottom">
+          `}}}hasSomeTokenTransactions(e){return!(e==S.SupportedTokens.ICX&&0==this.transactions.icxTransactions.length||e==S.SupportedTokens.USDS&&0==this.transactions.bridgeTransactions.length||e==S.SupportedTokens.IUSDC&&0==this.transactions.iusdcTransactions.length||e==S.SupportedTokens.sICX&&0==this.transactions.sicxTransactions.length||e==S.SupportedTokens.OMM&&0==this.transactions.ommTransactions.length)}getOneAvailableToken(){for(let[e,t]of this.userTokensMap)if(t.balance>0)return t;return this.userTokensMap.get(S.SupportedTokens.USDS)}getAvailableTokens(){const e=new Map(this.userTokensMap);for(let[t,r]of e)0==(null==r?void 0:r.balance)&&r.tag!==S.SupportedTokens.USDS&&e.delete(t);return e}getTransactionDetailHtml(){var e,t,r,i,o,a,s,c,u,d,l,f,h,p,A,b,y,v,w,M;let I=n.html``;this.selectedTransaction instanceof g.BridgeTransaction&&((null===(e=this.selectedTransaction)||void 0===e?void 0:e.type)==g.TransactionType.DEPOSITED?I=n.html`<div class="grid margin-top-15 padding-bottom-15 border-bottom">
                       <div class="grid-cell">
                         <p class="text-center margin-bottom-5">Deposited using <span class="text-bold">
                         ${(null===(t=this.selectedTransaction)||void 0===t?void 0:t.depositTransaction)?m.CodeLists.fundsTransferTypeToPretty.get(this.selectedTransaction.depositTransaction.fundsTransferType):"-"}
@@ -414,6 +414,7 @@
                             <p class="margin-top-15 margin-bottom-15"><a @click="${this.onCopyAddressClick}" class="button" id="copy-addr-btn">Copy address</a></p>
                           </div>
                         </div>
+                        <p class="label-outline test-wallet">This is a test wallet. Do not send any real assets to this address.</p>
                       </div>
                       
                         <!-- Transaction detail view -->
