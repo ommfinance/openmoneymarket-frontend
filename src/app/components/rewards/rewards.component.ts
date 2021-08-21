@@ -177,7 +177,7 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   collapsePoolTablesSlideUp(poolData: UserPoolData | PoolData): void {
     // Collapse pools other than the one clicked up
     this.getAllPoolsData().forEach(pool => {
-      if (pool.poolId !== poolData.poolId) {
+      if (!pool.poolId.isEqualTo(poolData.poolId)) {
         $(`.pool.${pool.getPairClassName()}`).removeClass('active');
         $(`.pool-${pool.getPairClassName()}-expanded`).slideUp();
       }
@@ -324,7 +324,7 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
 
   shouldHideClaimBtn(): boolean {
     const userOmmRewardsTotal = this.persistenceService.userOmmRewards?.total ?? new BigNumber("0");
-    return userOmmRewardsTotal.isLessThanOrEqualTo(Utils.ZERO) || this.persistenceService.userOmmTokenBalanceDetails == null;
+    return userOmmRewardsTotal.isLessThanOrEqualTo(Utils.ZERO) || !this.persistenceService.userOmmTokenBalanceDetails;
   }
 
   rewardsAccrueStartDateHasPassed(): boolean {
@@ -373,12 +373,25 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     return poolData.userStakedBalance.isGreaterThan(Utils.ZERO);
   }
 
+  userHasAvailableStakeToPool(poolData: UserPoolData): boolean {
+    return poolData.userAvailableBalance.isGreaterThan(Utils.ZERO);
+  }
+
   getAllPoolsData(): PoolData[] {
     return this.persistenceService.allPools ?? [];
   }
 
   getUserPoolsData(): UserPoolData[] {
     return this.persistenceService.userPools ?? [];
+  }
+
+  getUserStakedPoolsData(): UserPoolData[] {
+    return this.persistenceService.userPools?.filter(pool => pool.userStakedBalance.isGreaterThan(Utils.ZERO));
+  }
+
+  getUserPoolsAvailableData(): UserPoolData[] {
+    return this.persistenceService.userPools?.filter(pool => pool.userAvailableBalance.isGreaterThan(Utils.ZERO)
+      && pool.userStakedBalance.isZero());
   }
 
   userHasStakedToAnyPool(): boolean {
@@ -416,7 +429,7 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   }
 
   isMaxStaked(): boolean {
-    return this.sliderStake?.noUiSlider?.options.range.max === this.userOmmTokenBalanceDetails?.stakedBalance;
+    return new BigNumber(this.sliderStake?.noUiSlider?.options.range.max).isEqualTo(this.userOmmTokenBalanceDetails?.stakedBalance ?? -1);
   }
 
   isUnstaking(): boolean {

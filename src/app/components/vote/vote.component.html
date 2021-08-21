@@ -10,7 +10,7 @@
         <h3>Omm stake</h3>
 
         <!-- Stake slider -->
-        <div id="slider-stake" disabled #stkSlider [ngStyle]="hideElement(!userLoggedIn() || !userHasOmmTokens())"></div>
+        <div class="slider-stake" disabled #stkSlider [ngStyle]="hideElement(!userLoggedIn() || !userHasOmmTokens())"></div>
 
         <!-- Message (If user has no Omm tokens) -->
         <p class="label text-center grid-cell-center" style="margin-top: 25px" [ngStyle]="hideElement(!userLoggedIn() || userHasOmmTokens())">You have no Omm Tokens.<br>Supply or borrow to earn them.</p>
