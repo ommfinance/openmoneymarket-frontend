@@ -2846,19 +2846,19 @@ input[type="text"].input-borrow-available {
 
 /* Omm stake slider */
 
-#vote-overview #omm-stake #slider-stake {
+#vote-overview #omm-stake .slider-stake {
   margin-top: 25px;
   margin-bottom: 25px;
 }
-#vote-overview #omm-stake #slider-stake .noUi-target {
+#vote-overview #omm-stake .slider-stake .noUi-target {
   background: -moz-linear-gradient( 180deg, rgb(0,211,194, 0.25) 0%, rgb(63,157,213, 0.25) 100%);
   background: -webkit-linear-gradient( 180deg, rgb(0,211,194, 0.25) 0%, rgb(63,157,213, 0.25) 100%);
   background: -ms-linear-gradient( 180deg, rgb(0,211,194, 0.25) 0%, rgb(63,157,213, 0.25) 100%);
 }
-#vote-overview #omm-stake #slider-stake .noUi-horizontal .noUi-handle {
+#vote-overview #omm-stake .slider-stake .noUi-horizontal .noUi-handle {
   border: 3px solid #2ca9b7;
 }
-#vote-overview #omm-stake #slider-stake .noUi-connect {
+#vote-overview #omm-stake .slider-stake .noUi-connect {
   background: -moz-linear-gradient( 180deg, rgb(0,211,194) 0%, rgb(63,157,213) 100%);
   background: -webkit-linear-gradient( 180deg, rgb(0,211,194) 0%, rgb(63,157,213) 100%);
   background: -ms-linear-gradient( 180deg, rgb(0,211,194) 0%, rgb(63,157,213) 100%);

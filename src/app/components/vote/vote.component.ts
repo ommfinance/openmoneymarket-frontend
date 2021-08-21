@@ -258,7 +258,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     log.debug("Diff = ", diff);
 
     // if before and after equal show notification
-    if (before === after) {
+    if (before.isEqualTo(after)) {
       this.notificationService.showNewNotification("No change in staked value.");
       return;
     }
@@ -358,7 +358,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   isMaxStaked(): boolean {
-    return this.sliderStake?.noUiSlider?.options.range.max === this.userOmmTokenBalanceDetails?.stakedBalance;
+    return new BigNumber(this.sliderStake?.noUiSlider?.options.range.max).isEqualTo(this.userOmmTokenBalanceDetails?.stakedBalance ?? -1);
   }
 
   isUnstaking(): boolean {
