@@ -1,6 +1,5 @@
 import {Utils} from "../common/utils";
 import {Asset, AssetTag, supportedAssetsMap} from "../models/Asset";
-import {assetFormat} from "../common/formats";
 import {BigNumber} from "bignumber.js";
 import {PersistenceService} from "../services/persistence/persistence.service";
 import {environment} from "../../environments/environment";
@@ -17,6 +16,7 @@ export class BaseClass {
   public supportedAssetsMap = supportedAssetsMap;
   public AssetTag = AssetTag;
   public supportedAssets: Asset[] = Array.from(supportedAssetsMap.values());
+  public ZERO = new BigNumber("0");
 
   public delay = (() => {
     let timer: any;
@@ -26,88 +26,53 @@ export class BaseClass {
     };
   })();
 
-  // public formatNumberToNdigits(num?: number | string, digits: number = 2): string {
-  //   if (!num || (+num) === 0) { return "-"; }
-  //   if (typeof num === 'string') {
-  //     return Utils.formatNumberToNdigits(+num, digits);
-  //   } else {
-  //     return Utils.formatNumberToNdigits(num, digits);
-  //   }
-  // }
-
-  // public toDollar2digitsString(num?: number | string): string {
-  //   if (!num || (+num) === 0) { return "-"; }
-  //   return `$${this.formatNumberToNdigits(num)}`;
-  // }
-
-  public roundOffToCustomDecimals(value: number | BigNumber | string | undefined, decimals: number): number {
-    if (!value) {
-      return 0;
-    }
-    return Utils.roundOffToCustomDecimals(value, decimals);
-  }
-
-  public roundDownTo2Decimals(value: number | BigNumber | string | undefined): number {
-    if (!value) {
-      return 0;
+  public roundDownTo2Decimals(value: BigNumber | string | undefined): string {
+    if (!value || !(new BigNumber(value).isFinite())) {
+      return "0";
     }
     return Utils.roundDownTo2Decimals(value);
   }
 
-  public roundUpTo2Decimals(value: number | BigNumber | string | undefined): number {
-    if (!value) {
-      return 0;
+  public roundUpTo2Decimals(value: BigNumber | string | undefined): BigNumber {
+    if (!value || !(new BigNumber(value).isFinite())) {
+      return new BigNumber("0");
     }
     return Utils.roundUpTo2Decimals(value);
   }
 
-  public roundDownToZeroDecimals(value: number | BigNumber | string | undefined): number {
-    if (!value) {
-      return 0;
+  public roundDownToZeroDecimals(value: BigNumber | string | undefined): string {
+    if (!value || !(new BigNumber(value).isFinite())) {
+      return "0";
     }
     return Utils.roundDownToZeroDecimals(value);
   }
 
-  public formatNumberToUSLocaleString(num?: number | string, defaultZero = false): string {
-    if (!num || (+num) <= 0) { return defaultZero ? "0" : "-"; }
+  public formatNumberToUSLocaleString(num?: BigNumber | string, defaultZero = false): string {
+    if (!num || !(new BigNumber(num).isFinite()) || (+num) <= 0) { return defaultZero ? "0" : "-"; }
     if (typeof num === 'string') {
-      return Utils.formatNumberToUSLocaleString(+num);
+      return Utils.formatNumberToUSLocaleString(new BigNumber(num));
     } else {
       return Utils.formatNumberToUSLocaleString(num);
     }
   }
 
-  public toDollarUSLocaleString(num?: number | string, defaultZero = false): string {
-    if (!num || (+num) <= 0) { return defaultZero ? "0" : "-"; }
+  public toDollarUSLocaleString(num?: BigNumber | string, defaultZero = false): string {
+    if (!num || !(new BigNumber(num).isFinite()) || (+num) <= 0) { return defaultZero ? "0" : "-"; }
     return `$${this.formatNumberToUSLocaleString(num)}`;
   }
 
-  public to2DecimalRoundedOffPercentString(num?: number | string): string {
-    if (!num || (+num) <= 0) { return "-"; }
+  public to2DecimalRoundedOffPercentString(num?: BigNumber | string): string {
+    if (!num || !(new BigNumber(num).isFinite()) || (+num) <= 0) { return "-"; }
 
     // convert in to percentage
-    num = +num * 100;
+    num = new BigNumber(num).multipliedBy(new BigNumber("100"));
 
     // handle values smaller than 0.01%
-    if (num < 0.01) {
-      Utils.handleSmallDecimal(num);
+    if (num < new BigNumber("0.01")) {
+      return Utils.handleSmallDecimal(num);
     }
 
     return `${(this.formatNumberToUSLocaleString(Utils.roundOffTo2Decimals(num)))}%`;
-  }
-
-  public fromUSDbFormatToNumber(value: any): number {
-    if (!value) {
-      return 0;
-    }
-    return +assetFormat(AssetTag.USDS).from(value);
-  }
-
-  public fromNumberToUSDbFormat(value: number): string {
-    if (!value) {
-      return "- USDb";
-    }
-    return assetFormat(AssetTag.USDS).to(value);
   }
 
   public hideElement(hide: boolean): any {
@@ -126,13 +91,13 @@ export class BaseClass {
     return {display: show ? 'block' : 'none'};
   }
 
-  public convertFromICXTosICX(ICXvalue: number | undefined): number {
-    if (!ICXvalue) { return 0; }
-    return ICXvalue / this.persistenceService.sIcxToIcxRate();
+  public convertFromICXTosICX(ICXvalue: BigNumber | undefined): BigNumber {
+    if (!ICXvalue || !(new BigNumber(ICXvalue).isFinite())) { return new BigNumber("0"); }
+    return ICXvalue.dividedBy(this.persistenceService.sIcxToIcxRate());
   }
 
-  public convertSICXToICX(sICXvalue: number): number {
-    return sICXvalue * this.persistenceService.sIcxToIcxRate();
+  public convertSICXToICX(sICXvalue: BigNumber): BigNumber {
+    return sICXvalue.multipliedBy(this.persistenceService.sIcxToIcxRate());
   }
 
   public listIsNotNullOrEmpty(list?: any[]): boolean {
@@ -163,12 +128,12 @@ export class BaseClass {
     return htmlElement.textContent ?? "";
   }
 
-  makeAbsolute(value: number): number {
-    return Math.abs(value);
+  makeAbsolute(value: BigNumber): BigNumber {
+    return value.abs();
   }
 
-  isNegative(value: number): boolean {
-    return value < 0;
+  isNegative(value: BigNumber): boolean {
+    return value.isNegative();
   }
 
   isProduction(): boolean {

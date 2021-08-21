@@ -19,6 +19,7 @@ import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
 import {environment} from "../../../environments/environment";
 import {ReloaderService} from "../../services/reloader/reloader.service";
 import {Times} from "../../common/constants";
+import BigNumber from "bignumber.js";
 
 declare var $: any;
 declare var noUiSlider: any;
@@ -44,8 +45,8 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
 
   stakeAdjustActive = false;
 
-  dailyOmmRewards = 0;
-  yourDailyRewards = 0;
+  dailyOmmRewards = new BigNumber("0");
+  yourDailyRewards = new BigNumber("0");
 
   constructor(public persistenceService: PersistenceService,
               private stateChangeService: StateChangeService,
@@ -78,37 +79,37 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     this.onStakeAdjustCancelClick();
     this.stakeAdjustActive = false;
 
-    const rewards = this.roundDownTo2Decimals(this.persistenceService.userOmmRewards?.total ?? 0);
+    const rewards = (this.persistenceService.userOmmRewards?.total ?? new BigNumber("0")).dp(2);
 
-    if (rewards <= 0) {
+    if (rewards.isLessThanOrEqualTo(Utils.ZERO)) {
       return;
     }
 
-    const before = this.roundDownTo2Decimals(this.persistenceService.userOmmTokenBalanceDetails?.totalBalance ?? 0);
-    const after = Utils.addDecimalsPrecision(before, rewards);
+    const before = (this.persistenceService.userOmmTokenBalanceDetails?.totalBalance ?? new BigNumber("0")).dp(2);
+    const after = Utils.add(before, rewards);
     this.modalService.showNewModal(ModalType.CLAIM_OMM_REWARDS, new AssetAction(new Asset(AssetClass.USDS, AssetName.USDS, AssetTag.USDS),
       before, after, rewards, undefined, new ClaimOmmDetails(this.persistenceService.userOmmRewards)));
   }
 
   onConfirmStakeClick(): void {
     log.debug(`onConfirmStakeClick Omm stake amount = ${this.userOmmTokenBalanceDetails?.stakedBalance}`);
-    const before = this.roundDownToZeroDecimals(this.persistenceService.getUsersStakedOmmBalance());
+    const before = this.persistenceService.getUsersStakedOmmBalance().dp(0);
     log.debug("before = ", before);
-    const after = this.roundDownToZeroDecimals(this.userOmmTokenBalanceDetails?.stakedBalance ?? 0);
+    const after = (this.userOmmTokenBalanceDetails?.stakedBalance ?? new BigNumber("0")).dp(0);
     log.debug("after = ", after);
-    const diff = Utils.subtractDecimalsWithPrecision(after, before, 0);
+    const diff = Utils.subtract(after, before);
     log.debug("Diff = ", diff);
 
     // if before and after equal show notification
-    if (before === after) {
+    if (before.isEqualTo(after)) {
       this.notificationService.showNewNotification("No change in staked value.");
       return;
     }
 
-    const voteAction = new StakingAction(before, after, Math.abs(diff));
+    const voteAction = new StakingAction(before, after, diff.abs());
 
-    if (diff > 0) {
-      if (this.persistenceService.minOmmStakeAmount > diff) {
+    if (diff.isGreaterThan(Utils.ZERO)) {
+      if (this.persistenceService.minOmmStakeAmount.isGreaterThan(diff)) {
         this.notificationService.showNewNotification(`Stake amount must be greater than ${this.persistenceService.minOmmStakeAmount}`);
       } else {
         this.modalService.showNewModal(ModalType.STAKE_OMM_TOKENS, undefined, voteAction);
@@ -138,7 +139,7 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
 
     // Set your stake slider to the initial value
     this.sliderStake.setAttribute("disabled", "");
-    this.sliderStake.noUiSlider.set(this.persistenceService.getUsersStakedOmmBalance());
+    this.sliderStake.noUiSlider.set(this.persistenceService.getUsersStakedOmmBalance().toNumber());
   }
 
   onSignInClick(): void {
@@ -215,15 +216,15 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
       this.userOmmTokenBalanceDetails = res.getClone();
 
       // sliders max is sum of staked + available balance
-      const sliderMax = Utils.addDecimalsPrecision(this.persistenceService.getUsersStakedOmmBalance(),
+      const sliderMax = Utils.add(this.persistenceService.getUsersStakedOmmBalance(),
         this.persistenceService.getUsersAvailableOmmBalance());
 
       this.sliderStake.noUiSlider.updateOptions({
-        start: [this.userOmmTokenBalanceDetails.stakedBalance],
-        range: { min: 0, max: sliderMax > 0 ? sliderMax : 1 }
+        start: [this.userOmmTokenBalanceDetails.stakedBalance.dp(0).toNumber()],
+        range: { min: 0, max: sliderMax.isGreaterThan(Utils.ZERO) ? sliderMax.dp(0).toNumber() : 1 }
       });
 
-      this.sliderStake.noUiSlider.set(this.userOmmTokenBalanceDetails.stakedBalance);
+      this.sliderStake.noUiSlider.set(this.userOmmTokenBalanceDetails.stakedBalance.dp(0).toNumber());
     });
   }
 
@@ -278,7 +279,7 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails?.getClone();
     const currentUserOmmStakedBalance = this.persistenceService.getUsersStakedOmmBalance();
     const userOmmAvailableBalance = this.persistenceService.getUsersAvailableOmmBalance();
-    const max = Utils.addDecimalsPrecision(currentUserOmmStakedBalance, userOmmAvailableBalance);
+    const max = Utils.add(currentUserOmmStakedBalance, userOmmAvailableBalance).dp(0);
 
     // create Stake slider
     if (this.sliderStake) {
@@ -288,7 +289,7 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
         connect: 'lower',
         range: {
           min: [0],
-          max: [max === 0 ? 1 : max]
+          max: [max.isZero() ? 1 : max.toNumber()]
         },
         step: 1,
       });
@@ -296,17 +297,17 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
 
     // slider slider value if user Omm token balances are already loaded
     if (this.userOmmTokenBalanceDetails) {
-      this.sliderStake.noUiSlider.set(this.roundDownToZeroDecimals(this.userOmmTokenBalanceDetails.stakedBalance));
+      this.sliderStake.noUiSlider.set(this.userOmmTokenBalanceDetails.stakedBalance.dp(0).toNumber());
     }
 
     // On stake slider update
     this.sliderStake.noUiSlider.on('update', (values: any, handle: any) => {
-      const value = +values[handle];
+      const value = new BigNumber(values[handle]);
 
       if (this.stakeDailyRewEl && this.userLoggedIn()) {
         const dailyUsersOmmStakingRewards = this.calculationService.calculateDailyUsersOmmStakingRewards(value);
-        this.setText(this.stakeDailyRewEl, this.formatNumberToUSLocaleString(this.roundDownTo2Decimals(dailyUsersOmmStakingRewards))
-          + (dailyUsersOmmStakingRewards > 0 ? " OMM" : ""));
+        this.setText(this.stakeDailyRewEl, this.formatNumberToUSLocaleString(dailyUsersOmmStakingRewards.dp(2))
+          + (dailyUsersOmmStakingRewards.isGreaterThan(Utils.ZERO) ? " OMM" : ""));
       }
 
       if (this.userOmmTokenBalanceDetails) {
@@ -315,15 +316,15 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     });
   }
 
-  getYourStakeMax(): number {
+  getYourStakeMax(): BigNumber {
     // sliders max is sum of staked + available balance
-    return Utils.addDecimalsPrecision(this.persistenceService.getUsersStakedOmmBalance(),
+    return Utils.add(this.persistenceService.getUsersStakedOmmBalance(),
       this.persistenceService.getUsersAvailableOmmBalance());
   }
 
   shouldHideClaimBtn(): boolean {
-    const userOmmRewardsTotal = this.persistenceService.userOmmRewards?.total ?? 0;
-    return userOmmRewardsTotal <= 0 || this.persistenceService.userOmmTokenBalanceDetails == null;
+    const userOmmRewardsTotal = this.persistenceService.userOmmRewards?.total ?? new BigNumber("0");
+    return userOmmRewardsTotal.isLessThanOrEqualTo(Utils.ZERO) || this.persistenceService.userOmmTokenBalanceDetails == null;
   }
 
   rewardsAccrueStartDateHasPassed(): boolean {
@@ -356,20 +357,20 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     }
   }
 
-  getMarketRewards(): number {
-    return this.persistenceService.userOmmRewards?.reserve.total ?? 0;
+  getMarketRewards(): BigNumber {
+    return this.persistenceService.userOmmRewards?.reserve.total ?? new BigNumber("0");
   }
 
-  getStakingRewards(): number {
-    return this.persistenceService.userOmmRewards?.staking?.total ?? 0;
+  getStakingRewards(): BigNumber {
+    return this.persistenceService.userOmmRewards?.staking?.total ?? new BigNumber("0");
   }
 
-  getLiquidityRewards(): number {
-    return this.persistenceService.userOmmRewards?.liquidity?.total ?? 0;
+  getLiquidityRewards(): BigNumber {
+    return this.persistenceService.userOmmRewards?.liquidity?.total ?? new BigNumber("0");
   }
 
   userHasStakedToPool(poolData: UserPoolData): boolean {
-    return poolData.userStakedBalance > 0;
+    return poolData.userStakedBalance.isGreaterThan(Utils.ZERO);
   }
 
   getAllPoolsData(): PoolData[] {
@@ -382,7 +383,7 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
 
   userHasStakedToAnyPool(): boolean {
     for (const poolData of this.getUserPoolsData()) {
-      if (poolData.userStakedBalance > 0) {
+      if (poolData.userStakedBalance.isGreaterThan(Utils.ZERO)) {
         return true;
       }
     }
@@ -390,15 +391,15 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     return false;
   }
 
-  getStakingApy(): number {
+  getStakingApy(): BigNumber {
     return this.calculationService.calculateStakingApy();
   }
 
-  getUserOmmStakingDailyRewards(): number {
+  getUserOmmStakingDailyRewards(): BigNumber {
     return this.calculationService.calculateDailyUsersOmmStakingRewards();
   }
 
-  getDailyOmmRewards(): number {
+  getDailyOmmRewards(): BigNumber {
     if (this.userLoggedIn()) {
       return this.yourDailyRewards;
     } else {
@@ -407,11 +408,11 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   }
 
   userHasOmmTokens(): boolean {
-    return (this.persistenceService.userOmmTokenBalanceDetails?.totalBalance ?? 0) > 0;
+    return (this.persistenceService.userOmmTokenBalanceDetails?.totalBalance ?? Utils.ZERO).isGreaterThan(Utils.ZERO);
   }
 
   userHasStaked(): boolean {
-    return this.persistenceService.getUsersStakedOmmBalance() > 0;
+    return this.persistenceService.getUsersStakedOmmBalance().isGreaterThan(Utils.ZERO);
   }
 
   isMaxStaked(): boolean {
@@ -419,71 +420,71 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   }
 
   isUnstaking(): boolean {
-    return this.persistenceService.getUserUnstakingOmmBalance() > 0;
+    return this.persistenceService.getUserUnstakingOmmBalance().isGreaterThan(Utils.ZERO);
   }
 
-  getUserOmmStakingDailyRewardsUSD(): number {
+  getUserOmmStakingDailyRewardsUSD(): BigNumber {
     return this.calculationService.calculateUserOmmStakingDailyRewardsUSD();
   }
 
-  userHasLpTokenAvailableOrHasStaked(poolId: number): boolean {
-    return this.persistenceService.getUserPoolStakedAvailableBalance(poolId) > 0
-      || this.persistenceService.getUserPoolStakedBalance(poolId) > 0;
+  userHasLpTokenAvailableOrHasStaked(poolId: BigNumber): boolean {
+    return this.persistenceService.getUserPoolStakedAvailableBalance(poolId).isGreaterThan(Utils.ZERO)
+      || this.persistenceService.getUserPoolStakedBalance(poolId).isGreaterThan(Utils.ZERO);
   }
 
-  getTotalSuppliedBase(poolData: PoolData): number {
+  getTotalSuppliedBase(poolData: PoolData): BigNumber {
     return this.calculationService.calculatePoolTotalSupplied(poolData);
   }
 
-  getUserSuppliedBase(poolData: UserPoolData): number {
+  getUserSuppliedBase(poolData: UserPoolData): BigNumber {
     return this.calculationService.calculateUserPoolSupplied(poolData);
   }
 
-  getTotalStaked(): number {
+  getTotalStaked(): BigNumber {
     return this.persistenceService.totalStakedOmm;
   }
 
-  getTotalSuppliedQuote(poolData: PoolData): number {
+  getTotalSuppliedQuote(poolData: PoolData): BigNumber {
     return this.calculationService.calculatePoolTotalSupplied(poolData, false);
   }
 
-  getUserSuppliedQuote(poolData: UserPoolData): number {
+  getUserSuppliedQuote(poolData: UserPoolData): BigNumber {
     return this.calculationService.calculateUserPoolSupplied(poolData, false);
   }
 
-  getDailyRewards(poolData: PoolData): number {
+  getDailyRewards(poolData: PoolData): BigNumber {
     return this.calculationService.calculateDailyRewardsForPool(poolData);
   }
 
-  getUserDailyRewards(poolData: UserPoolData): number {
+  getUserDailyRewards(poolData: UserPoolData): BigNumber {
     return this.calculationService.calculateUserDailyRewardsForPool(poolData);
   }
 
-  getUserDailyRewardsUSD(poolData: UserPoolData): number {
-    return this.calculationService.calculateUserDailyRewardsForPool(poolData) * this.persistenceService.ommPriceUSD;
+  getUserDailyRewardsUSD(poolData: UserPoolData): BigNumber {
+    return this.calculationService.calculateUserDailyRewardsForPool(poolData).multipliedBy(this.persistenceService.ommPriceUSD);
   }
 
-  getTotalDailyRewards(): number {
-    return this.persistenceService.dailyRewardsAllPoolsReserves?.total ?? 0;
+  getTotalDailyRewards(): BigNumber {
+    return this.persistenceService.dailyRewardsAllPoolsReserves?.total ?? new BigNumber("0");
   }
 
-  getDailyMarketRewards(): number {
-    return this.persistenceService.dailyRewardsAllPoolsReserves?.reserve.total ?? 0;
+  getDailyMarketRewards(): BigNumber {
+    return this.persistenceService.dailyRewardsAllPoolsReserves?.reserve.total ?? new BigNumber("0");
   }
 
-  getDailyStakingRewards(): number {
-    return this.persistenceService.dailyRewardsAllPoolsReserves?.staking?.total ?? 0;
+  getDailyStakingRewards(): BigNumber {
+    return this.persistenceService.dailyRewardsAllPoolsReserves?.staking?.total ?? new BigNumber("0");
   }
 
-  getDailyLiquidityRewards(): number {
-    return this.persistenceService.dailyRewardsAllPoolsReserves?.liquidity?.total ?? 0;
+  getDailyLiquidityRewards(): BigNumber {
+    return this.persistenceService.dailyRewardsAllPoolsReserves?.liquidity?.total ?? new BigNumber("0");
   }
 
-  getDailyRewardsUSD(poolData: PoolData): number {
-    return this.calculationService.calculateDailyRewardsForPool(poolData) * this.persistenceService.ommPriceUSD;
+  getDailyRewardsUSD(poolData: PoolData): BigNumber {
+    return this.calculationService.calculateDailyRewardsForPool(poolData).multipliedBy(this.persistenceService.ommPriceUSD);
   }
 
-  getLiquidityApy(poolData: PoolData): number {
+  getLiquidityApy(poolData: PoolData): BigNumber {
     return this.calculationService.calculatePoolLiquidityApy(poolData);
   }
 
@@ -500,8 +501,8 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     this.yourDailyRewards = this.getUserOmmStakingDailyRewards();
   }
 
-  getUserOmmRewardsBalance(): number {
-    return this.persistenceService.userOmmRewards?.total ?? 0;
+  getUserOmmRewardsBalance(): BigNumber {
+    return this.persistenceService.userOmmRewards?.total ?? new BigNumber("0");
   }
 
 }

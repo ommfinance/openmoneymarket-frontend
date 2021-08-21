@@ -6,6 +6,7 @@ import {environment} from "../../../environments/environment";
 import {IconTransactionType} from "../../models/IconTransactionType";
 import log from "loglevel";
 import {HttpClient} from "@angular/common/http";
+import BigNumber from "bignumber.js";
 
 
 @Injectable({
@@ -23,7 +24,7 @@ export class IconApiService {
     this.iconService = new IconService(this.httpProvider);
   }
 
-  async getIcxBalance(address: string): Promise<number> {
+  async getIcxBalance(address: string): Promise<BigNumber> {
     if (!address) {
       throw new Error("getIcxBalance -> address empty or null!");
     }
@@ -35,13 +36,13 @@ export class IconApiService {
       return await this.iconService.getTransactionResult(txHash).execute();
   }
 
-  public convertNumberToHex(value: number): string {
+  public convertNumberToHex(value: BigNumber): string {
     return IconConverter.toHex((IconConverter.toBigNumber(value)));
   }
 
 
   public buildTransaction(from: string, to: string, method: string, params: any, transactionType: IconTransactionType,
-                          value?: number): any {
+                          value?: BigNumber): any {
     let tx = null;
     const timestamp = (new Date()).getTime() * 1000;
     const nonce = IconConverter.toHex(IconConverter.toBigNumber(1));
@@ -94,7 +95,7 @@ export class IconApiService {
     return tx;
   }
 
-  public async estimateStepCost(tx: any): Promise<number | undefined> {
+  public async estimateStepCost(tx: any): Promise<BigNumber | undefined> {
     const estimateStepCostPromise =  this.http.post<number>(environment.iconDebugRpcUrl, {
       jsonrpc: "2.0",
       method: "debug_estimateStep",

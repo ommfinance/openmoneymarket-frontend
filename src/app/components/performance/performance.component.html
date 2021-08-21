@@ -25,15 +25,15 @@
       <div class="grid-cell text-center">
         <dl class="metadata">
           <dt>Supply interest</dt>
-          <dd class="value-supply-interest-total" #suppInterest>+ ${{supplyInterest * getDropDownOptionMultiplier() | roundOff2Dec}}</dd>
+          <dd class="value-supply-interest-total" #suppInterest>+ ${{supplyInterestMultipliedByDays() | roundOff2Dec}}</dd>
         </dl>
       </div>
 
       <!-- Borrow interest -->
-      <div class="grid-cell text-center borrow-interest-container" [ngStyle]="hideElement(borrowInterest == 0)">
+      <div class="grid-cell text-center borrow-interest-container" [ngStyle]="hideElement(borrowInterest.isZero())">
         <dl class="metadata">
           <dt>Borrow interest</dt>
-          <dd class="value-borrow-interest-total" #borrInterest>- ${{borrowInterest * getDropDownOptionMultiplier() | roundOff2Dec}}</dd>
+          <dd class="value-borrow-interest-total" #borrInterest>- ${{borrowInterestMultipliedByDays() | roundOff2Dec}}</dd>
         </dl>
       </div>
 
@@ -41,7 +41,7 @@
       <div class="grid-cell text-center">
         <dl class="metadata">
           <dt>Omm rewards</dt>
-          <dd><span class="value-rewards-total">+ {{(ommRewards * getDropDownOptionMultiplier()) | roundOff2Dec | usFormat}}</span>
+          <dd><span class="value-rewards-total">+ {{ommRewardsMultipliedByDays() | roundOff2Dec | usFormat}}</span>
             <span class="label" style="font-size: 12px;letter-spacing: 1px;margin-left: 5px;">OMM</span></dd>
         </dl>
       </div>

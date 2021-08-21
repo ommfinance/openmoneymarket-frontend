@@ -1,7 +1,9 @@
-export class RiskData {
-  riskTotal: number;
+import BigNumber from "bignumber.js";
 
-  constructor(riskTotal: number) {
+export class RiskData {
+  riskTotal: BigNumber;
+
+  constructor(riskTotal: BigNumber) {
     this.riskTotal = riskTotal;
   }
 }

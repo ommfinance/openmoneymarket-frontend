@@ -1,15 +1,16 @@
 import {Asset} from "./Asset";
 import {OmmRewards} from "./OmmRewards";
+import BigNumber from "bignumber.js";
 
 export class AssetAction {
   asset: Asset;
-  before: number;
-  after: number;
-  amount: number;
-  risk?: number;
+  before: BigNumber;
+  after: BigNumber;
+  amount: BigNumber;
+  risk?: BigNumber;
   details?: ClaimOmmDetails;
 
-  constructor(asset: Asset, before: number, after: number, amount: number, risk?: number, details?: ClaimOmmDetails) {
+  constructor(asset: Asset, before: BigNumber, after: BigNumber, amount: BigNumber, risk?: BigNumber, details?: ClaimOmmDetails) {
     this.asset = asset;
     this.before = before;
     this.after = after;

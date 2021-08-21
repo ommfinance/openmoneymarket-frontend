@@ -1,15 +1,14 @@
 import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {ModalType} from "../../models/ModalType";
 import {ModalService} from "../../services/modal/modal.service";
 import {UserReserveData} from "../../models/UserReserveData";
 import {StateChangeService} from "../../services/state-change/state-change.service";
-import {Asset, AssetClass, AssetName, AssetTag} from "../../models/Asset";
+import {AssetTag} from "../../models/Asset";
 import {BaseClass} from "../base-class";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {PersistenceService} from "../../services/persistence/persistence.service";
-import {AssetAction, ClaimOmmDetails} from "../../models/AssetAction";
 import {PerformanceDropDownOption} from "../../models/PerformanceDropDownOption";
 import {Utils} from "../../common/utils";
+import BigNumber from "bignumber.js";
 
 declare var $: any;
 
@@ -23,9 +22,9 @@ export class PerformanceComponent extends BaseClass implements OnInit, AfterView
   @ViewChild('suppInterest', { static: true }) supplyInterestEl!: ElementRef;
   @ViewChild('borrInterest', { static: true }) borrowInterestEl!: ElementRef;
 
-  supplyInterest = 0;
-  borrowInterest = 0;
-  ommRewards = 0;
+  supplyInterest = new BigNumber("0");
+  borrowInterest = new BigNumber("0");
+  ommRewards = new BigNumber("0");
 
   dropDownOptions = [...Object.values(PerformanceDropDownOption)];
   selectedDropDownOption = this.dropDownOptions[0].toLowerCase();
@@ -74,6 +73,20 @@ export class PerformanceComponent extends BaseClass implements OnInit, AfterView
   updateOmmRewards(): void {
     this.ommRewards = this.calculationService.calculateUserTotalOmmRewards();
   }
+
+  borrowInterestMultipliedByDays(): BigNumber {
+    return this.borrowInterest.multipliedBy(this.getDropDownOptionMultiplier());
+  }
+
+  supplyInterestMultipliedByDays(): BigNumber {
+    return this.supplyInterest.multipliedBy(this.getDropDownOptionMultiplier());
+  }
+
+  ommRewardsMultipliedByDays(): BigNumber {
+    return this.ommRewards.multipliedBy(this.getDropDownOptionMultiplier());
+  }
+
+
 
   onTimeSelectorClick(): void {
     $("#time-selector").toggleClass("active");

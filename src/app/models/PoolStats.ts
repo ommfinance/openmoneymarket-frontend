@@ -1,7 +1,10 @@
+import BigNumber from "bignumber.js";
+
 export class PoolStats {
 
-  constructor(base: number, quote: number, baseToken: string, quoteToken: string, totalSupply: number, price: number, name: string,
-              baseDecimals: number, quoteDecimals: number, minQuote: number) {
+  constructor(base: BigNumber, quote: BigNumber, baseToken: string, quoteToken: string, totalSupply: BigNumber, price: BigNumber,
+              name: string,
+              baseDecimals: BigNumber, quoteDecimals: BigNumber, minQuote: BigNumber) {
     this.base = base;
     this.quote = quote;
     this.baseToken = baseToken;
@@ -13,37 +16,37 @@ export class PoolStats {
     this.quoteDecimals = quoteDecimals;
     this.minQuote = minQuote;
   }
-  base: number;
-  quote: number;
+  base: BigNumber;
+  quote: BigNumber;
   baseToken: string;
   quoteToken: string;
-  totalSupply: number;
-  price: number;
+  totalSupply: BigNumber;
+  price: BigNumber;
   name: string;
-  baseDecimals: number;
-  quoteDecimals: number;
-  minQuote: number;
+  baseDecimals: BigNumber;
+  quoteDecimals: BigNumber;
+  minQuote: BigNumber;
 
-  public static getPoolPrecision(baseDecimals: number, quoteDecimals: number): number {
-    return (baseDecimals + quoteDecimals) / 2;
+  public static getPoolPrecision(baseDecimals: BigNumber, quoteDecimals: BigNumber): BigNumber {
+    return (baseDecimals.plus(quoteDecimals)).dividedBy(new BigNumber("2"));
   }
 
-  getPrecision(): number {
-    return (this.baseDecimals + this.quoteDecimals) / 2;
+  getPrecision(): BigNumber {
+    return (this.baseDecimals.plus(this.quoteDecimals)).dividedBy(new BigNumber("2"));
   }
 }
 
 export interface PoolStatsInterface {
-  base: number;
-  quote: number;
+  base: BigNumber;
+  quote: BigNumber;
   base_token: string;
   quote_token: string;
-  total_supply: number;
-  price: number;
+  total_supply: BigNumber;
+  price: BigNumber;
   name: string;
-  base_decimals: number;
-  quote_decimals: number;
-  min_quote: number;
+  base_decimals: BigNumber;
+  quote_decimals: BigNumber;
+  min_quote: BigNumber;
 }
 
 

@@ -28,6 +28,7 @@ import {UserReserveData} from "../../models/UserReserveData";
 import {ModalAction} from "../../models/ModalAction";
 import {BridgeWidgetService} from "../../services/bridge-widget/bridge-widget.service";
 import {Utils} from "../../common/utils";
+import BigNumber from "bignumber.js";
 
 @Component({
   selector: 'app-home',
@@ -157,7 +158,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   private subscribeToUserAssetBalanceChange(): void {
     // for each user asset subscribe to its balance change
     Object.values(AssetTag).forEach(assetTag => {
-      this.stateChangeService.userBalanceChangeMap.get(assetTag)!.subscribe((newBalance: number) => {
+      this.stateChangeService.userBalanceChangeMap.get(assetTag)!.subscribe((newBalance: BigNumber) => {
         // reload the asset lists
         this.loadAssetLists();
       });
@@ -319,7 +320,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   }
 
   getOmmPriceUSD(): string {
-    if (this.persistenceService.ommPriceUSD <= 0) {
+    if (this.persistenceService.ommPriceUSD.isLessThanOrEqualTo(new BigNumber("0"))) {
       return "";
     } else {
       return `($${this.formatNumberToUSLocaleString(Utils.roundOffTo2Decimals(this.persistenceService.ommPriceUSD))})`;

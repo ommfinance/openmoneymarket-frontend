@@ -21,6 +21,7 @@ import {
   ReserveDailyRewards,
   StakingDailyRewards
 } from "../models/DailyRewardsAllReservesPools";
+import {BigNumber} from "bignumber.js";
 
 export class Mapper {
 
@@ -34,7 +35,7 @@ export class Mapper {
     );
   }
 
-  public static mapUserReserve(reserve: UserReserveData, decimals: number = 18): UserReserveData {
+  public static mapUserReserve(reserve: UserReserveData, decimals: BigNumber = new BigNumber("18")): UserReserveData {
     log.debug("mapUserReserve before: ", reserve);
     const res = new UserReserveData(
       Utils.hexToNormalisedNumber(reserve.borrowRate),
@@ -273,7 +274,7 @@ export class Mapper {
       res.push(new YourPrepVote(
         delegation._address,
         prepAddressToNameMap?.get(delegation._address) ?? "Unknown",
-        Utils.multiplyDecimalsPrecision(Utils.hexToNormalisedNumber(delegation._votes_in_per), 100)));
+        Utils.multiply(Utils.hexToNormalisedNumber(delegation._votes_in_per), new BigNumber("100"))));
     });
 
     return res;
@@ -298,8 +299,8 @@ export class Mapper {
   }
 
   public static mapUserIcxUnstakeData(unstakeIcxData: UnstakeIcxData[]): UnstakeInfo {
-    let totalAmount = 0;
-    unstakeIcxData.forEach(u => totalAmount += Utils.hexToNormalisedNumber(u.amount));
+    let totalAmount = new BigNumber("0");
+    unstakeIcxData.forEach(u => totalAmount = totalAmount.plus(Utils.hexToNormalisedNumber(u.amount)));
     return new UnstakeInfo(totalAmount, unstakeIcxData);
   }
 
@@ -312,7 +313,7 @@ export class Mapper {
     });
   }
 
-  public static mapUserPoolData(poolsData: UserPoolDataInterface, decimals: number, poolStats: PoolStats): UserPoolData {
+  public static mapUserPoolData(poolsData: UserPoolDataInterface, decimals: BigNumber, poolStats: PoolStats): UserPoolData {
     return new UserPoolData(
       Utils.hexToNumber(poolsData.poolID),
       Utils.hexToNormalisedNumber(poolsData.totalStakedBalance, decimals),

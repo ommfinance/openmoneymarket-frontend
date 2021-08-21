@@ -5,6 +5,7 @@ import {CalculationsService} from "../../services/calculations/calculations.serv
 import {BaseClass} from "../base-class";
 import {UserAccountData} from "../../models/UserAccountData";
 import {AssetComponent} from "../asset/asset.component";
+import BigNumber from "bignumber.js";
 
 declare var noUiSlider: any;
 declare var wNumb: any;
@@ -27,7 +28,7 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
   @Input() userAssetComponents!: QueryList<AssetComponent>;
 
   sliderRisk?: any;
-  totalRisk = 0;
+  totalRisk = new BigNumber("0");
 
   constructor(private stateChangeService: StateChangeService,
               public persistenceService: PersistenceService,
@@ -85,6 +86,6 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
 
   updateViewRiskData(): void {
     // Update the risk slider
-    this.sliderRisk.noUiSlider.set(this.totalRisk * 100);
+    this.sliderRisk.noUiSlider.set(this.totalRisk.multipliedBy(new BigNumber("100")).dp(2).toNumber());
   }
 }

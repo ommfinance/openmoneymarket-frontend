@@ -20,6 +20,7 @@ import {UserPoolData} from "../../models/UserPoolData";
 import {PoolsDistPercentages} from "../../models/PoolsDistPercentages";
 import {AllAssetDistPercentages} from "../../models/AllAssetDisPercentages";
 import {DailyRewardsAllReservesPools} from "../../models/DailyRewardsAllReservesPools";
+import BigNumber from "bignumber.js";
 
 @Injectable({
   providedIn: 'root'
@@ -37,26 +38,26 @@ export class PersistenceService {
 
   public allPools: PoolData[] = [];
   public allPoolsDistPercentages?: PoolsDistPercentages;
-  public allPoolsDataMap: Map<number, PoolData> = new Map<number, PoolData>();
+  public allPoolsDataMap: Map<string, PoolData> = new Map<string, PoolData>();
 
   public userPools: UserPoolData[] = [];
-  public userPoolsDataMap: Map<number, UserPoolData> = new Map<number, UserPoolData>();
+  public userPoolsDataMap: Map<string, UserPoolData> = new Map<string, UserPoolData>();
 
   public userReserves: UserReserves = new UserReserves();
-  public userTotalRisk = 0;
+  public userTotalRisk = new BigNumber("0");
 
   public userAccountData?: UserAccountData;
   public userOmmRewards?: OmmRewards;
   public userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
   public userUnstakingInfo?: UnstakeInfo;
-  public userClaimableIcx?: number;
-  public userDebt: Map<CollateralAssetTag, number | undefined> = new Map<CollateralAssetTag, number | undefined>();
-  public minOmmStakeAmount = 1;
-  public totalStakedOmm = 0;
-  public ommPriceUSD = -1; // -1 indicates that ommPriceUSD is not set
+  public userClaimableIcx?: BigNumber;
+  public userDebt: Map<CollateralAssetTag, BigNumber | undefined> = new Map<CollateralAssetTag, BigNumber | undefined>();
+  public minOmmStakeAmount = new BigNumber("1");
+  public totalStakedOmm = new BigNumber("0");
+  public ommPriceUSD = new BigNumber("-1"); // -1 indicates that ommPriceUSD is not set
 
-  public tokenDistributionPerDay = 0;
-  public loanOriginationFeePercentage = 0.001;
+  public tokenDistributionPerDay = new BigNumber("0");
+  public loanOriginationFeePercentage = new BigNumber("0.001");
   public distributionPercentages?: DistributionPercentages;
   public allAssetDistPercentages?: AllAssetDistPercentages;
   public dailyRewardsAllPoolsReserves?: DailyRewardsAllReservesPools;
@@ -78,60 +79,60 @@ export class PersistenceService {
     this.userOmmTokenBalanceDetails = undefined;
     this.userOmmRewards = undefined;
     this.userAccountData = undefined;
-    this.userTotalRisk = 0;
+    this.userTotalRisk = new BigNumber("0");
     this.userReserves = new UserReserves();
   }
 
-  public getDistPercentageOfPool(poolId: number): number {
-    return this.allPoolsDistPercentages?.getDistPercentageForPool(poolId) ?? 0;
+  public getDistPercentageOfPool(poolId: BigNumber): BigNumber {
+    return this.allPoolsDistPercentages?.getDistPercentageForPool(poolId) ?? new BigNumber("0");
   }
 
-  public getUserPoolStakedBalance(poolId: number): number {
-    return this.userPoolsDataMap.get(poolId)?.userStakedBalance ?? 0;
+  public getUserPoolStakedBalance(poolId: BigNumber): BigNumber {
+    return this.userPoolsDataMap.get(poolId.toString())?.userStakedBalance ?? new BigNumber("0");
   }
 
-  public getUserPoolStakedAvailableBalance(poolId: number): number {
-    return this.userPoolsDataMap.get(poolId)?.userAvailableBalance ?? 0;
+  public getUserPoolStakedAvailableBalance(poolId: BigNumber): BigNumber {
+    return this.userPoolsDataMap.get(poolId.toString())?.userAvailableBalance ?? new BigNumber("0");
   }
 
-  public getUserPoolTotalBalance(poolId: number): number {
-    return this.userPoolsDataMap.get(poolId)?.userTotalBalance ?? 0;
+  public getUserPoolTotalBalance(poolId: BigNumber): BigNumber {
+    return this.userPoolsDataMap.get(poolId.toString())?.userTotalBalance ?? new BigNumber("0");
   }
 
-  public getUserTotalUnstakeAmount(): number {
-    return this.userUnstakingInfo?.totalAmount ?? 0;
+  public getUserTotalUnstakeAmount(): BigNumber {
+    return this.userUnstakingInfo?.totalAmount ?? new BigNumber("0");
   }
 
-  public getLtvForReserve(assetTag: AssetTag): number {
-    return this.getAssetReserveData(assetTag)?.baseLTVasCollateral ?? 0;
+  public getLtvForReserve(assetTag: AssetTag): BigNumber {
+    return this.getAssetReserveData(assetTag)?.baseLTVasCollateral ?? new BigNumber("0");
   }
 
-  public getTotalAssetBorrows(assetTag: AssetTag): number {
-    return this.getAssetReserveData(assetTag)?.totalBorrows ?? 0;
+  public getTotalAssetBorrows(assetTag: AssetTag): BigNumber {
+    return this.getAssetReserveData(assetTag)?.totalBorrows ?? new BigNumber("0");
   }
 
   public getReserveAddressByAssetTag(assetTag: AssetTag): string | undefined {
     return this.allAddresses?.collateralAddress(assetTag);
   }
 
-  public getDecimalsForReserve(assetTag: AssetTag): number | undefined {
+  public getDecimalsForReserve(assetTag: AssetTag): BigNumber | undefined {
     return this.allReserves?.getReserveData(assetTag).decimals;
   }
 
-  public getUserAssetDebt(assetTag: AssetTag): number {
-    return this.userDebt.get(assetTag) ?? 0;
+  public getUserAssetDebt(assetTag: AssetTag): BigNumber {
+    return this.userDebt.get(assetTag) ?? new BigNumber("0");
   }
 
-  public getUsersStakedOmmBalance(): number {
-    return Utils.roundDownToZeroDecimals(this.userOmmTokenBalanceDetails?.stakedBalance ?? 0);
+  public getUsersStakedOmmBalance(): BigNumber {
+    return (this.userOmmTokenBalanceDetails?.stakedBalance ?? new BigNumber("0")).dp(0);
   }
 
-  public getUsersAvailableOmmBalance(): number {
-    return Utils.roundDownToZeroDecimals(this.userOmmTokenBalanceDetails?.availableBalance ?? 0);
+  public getUsersAvailableOmmBalance(): BigNumber {
+    return (this.userOmmTokenBalanceDetails?.availableBalance ?? new BigNumber("0")).dp(0);
   }
 
-  public getUserUnstakingOmmBalance(): number {
-    return Utils.roundDownToZeroDecimals(this.userOmmTokenBalanceDetails?.unstakingBalance ?? 0);
+  public getUserUnstakingOmmBalance(): BigNumber {
+    return (this.userOmmTokenBalanceDetails?.unstakingBalance ?? new BigNumber("0")).dp(0);
   }
 
   publicGetActiveIconAddress(): string | undefined {
@@ -146,179 +147,130 @@ export class PersistenceService {
     return this.activeWallet instanceof IconexWallet;
   }
 
-  public getUserUSDbBalance(): number {
-    return this.activeWallet?.balances.get(AssetTag.USDS) ?? 0;
+  public getUserAssetBalance(assetTag: AssetTag): BigNumber {
+    return this.activeWallet?.balances.get(assetTag) ?? new BigNumber("0");
   }
 
-  public getUserAssetBalance(assetTag: AssetTag): number {
-    return this.activeWallet?.balances.get(assetTag) ?? 0;
+  public getUserAssetCollateralBalance(collateralAssetTag: CollateralAssetTag): BigNumber {
+    return this.activeWallet?.collateralBalances.get(collateralAssetTag) ?? new BigNumber("0");
   }
 
-  public getUserAssetCollateralBalance(collateralAssetTag: CollateralAssetTag): number {
-    return this.activeWallet?.collateralBalances.get(collateralAssetTag) ?? 0;
+  public getUserAssetUSDBalance(assetTag: AssetTag): BigNumber {
+    const balance = this.activeWallet?.balances.get(assetTag) ?? new BigNumber("0");
+    const exchangePrice = this.getAssetExchangePrice(assetTag) ?? new BigNumber("0");
+    return balance.multipliedBy(exchangePrice);
   }
 
-  public getUserAssetUSDBalance(assetTag: AssetTag): number {
-    const balance = this.activeWallet?.balances.get(assetTag) ?? 0;
-    const exchangePrice = this.getAssetExchangePrice(assetTag) ?? 0;
-    return balance * exchangePrice;
-  }
-
-  public getAssetExchangePrice(assetTag: AssetTag | CollateralAssetTag): number {
+  public getAssetExchangePrice(assetTag: AssetTag | CollateralAssetTag): BigNumber {
     if (assetTag === CollateralAssetTag.sICX) {
-      const sIcxRate = this.getAssetReserveData(AssetTag.ICX)?.sICXRate ?? 0;
-      return Utils.convertICXToSICXPrice(this.getAssetReserveData(AssetTag.ICX)?.exchangePrice ?? 0, sIcxRate);
+      const sIcxRate = this.sIcxToIcxRate();
+      return Utils.convertICXToSICXPrice(this.getAssetReserveData(AssetTag.ICX)?.exchangePrice ?? new BigNumber("0"), sIcxRate);
     }
 
-    return this.getAssetReserveData(assetTag)?.exchangePrice ?? 0;
+    return this.getAssetReserveData(assetTag)?.exchangePrice ?? new BigNumber("0");
   }
 
-  public sIcxToIcxRate(): number {
-    return this.getAssetReserveData(AssetTag.ICX)?.sICXRate ?? 1;
+  public sIcxToIcxRate(): BigNumber {
+    return this.getAssetReserveData(AssetTag.ICX)?.sICXRate ?? new BigNumber("1");
   }
 
-  public getUserSuppliedAssetBalance(assetTag: AssetTag): number {
-    return this.userReserves?.reserveMap.get(assetTag)?.currentOTokenBalance ?? 0;
+  public getUserSuppliedAssetBalance(assetTag: AssetTag): BigNumber {
+    return this.userReserves?.reserveMap.get(assetTag)?.currentOTokenBalance ?? new BigNumber("0");
   }
 
-  public getUserSuppliedAssetUSDBalance(assetTag: AssetTag | CollateralAssetTag): number {
+  public getUserSuppliedAssetUSDBalance(assetTag: AssetTag | CollateralAssetTag): BigNumber {
     if (assetTag === CollateralAssetTag.sICX) {
       return this.getUserAssetCollateralBalance(assetTag);
     }
 
-    return this.userReserves?.reserveMap.get(assetTag)?.currentOTokenBalanceUSD ?? 0;
+    return this.userReserves?.reserveMap.get(assetTag)?.currentOTokenBalanceUSD ?? new BigNumber("0");
   }
 
-  public getUserBorrowedAssetBalance(assetTag: AssetTag): number {
-    return this.userReserves?.reserveMap.get(assetTag)?.currentBorrowBalance ?? 0;
+  public getUserBorrowedAssetBalance(assetTag: AssetTag): BigNumber {
+    return this.userReserves?.reserveMap.get(assetTag)?.currentBorrowBalance ?? new BigNumber("0");
   }
 
-  public getUserBorrowedAssetUSDBalance(assetTag: AssetTag): number {
-    return this.userReserves?.reserveMap.get(assetTag)?.currentBorrowBalanceUSD ?? 0;
-  }
-
-  public getUserIcxBalance(): number {
-    return this.activeWallet?.balances.get(AssetTag.ICX) ?? 0;
+  public getUserBorrowedAssetUSDBalance(assetTag: AssetTag): BigNumber {
+    return this.userReserves?.reserveMap.get(assetTag)?.currentBorrowBalanceUSD ?? new BigNumber("0");
   }
 
   public getUserAssetReserve(assetTag: AssetTag): UserReserveData | undefined {
     return this.userReserves?.reserveMap.get(assetTag);
   }
 
-  public getUserAssetReserveLiquidityRate(assetTag: AssetTag | CollateralAssetTag): number {
+  public getUserAssetReserveLiquidityRate(assetTag: AssetTag | CollateralAssetTag): BigNumber {
     if (assetTag === CollateralAssetTag.sICX) {
-      return this.getUserAssetReserve(AssetTag.ICX)?.liquidityRate ?? 0;
+      return this.getUserAssetReserve(AssetTag.ICX)?.liquidityRate ?? new BigNumber("0");
     }
-    return this.getUserAssetReserve(assetTag)?.liquidityRate ?? 0;
+    return this.getUserAssetReserve(assetTag)?.liquidityRate ?? new BigNumber("0");
   }
 
   public getAssetReserveData(assetTag: AssetTag): ReserveData | undefined {
     return this.allReserves?.getReserveData(assetTag);
   }
 
-  public getTotalSuppliedUSD(): number {
-    let totalSupplied = 0;
+  public getTotalSuppliedUSD(): BigNumber {
+    let totalSupplied = new BigNumber("0");
     if (!this.allReserves) {
       return totalSupplied;
     }
     Object.values(this.allReserves).forEach((property: ReserveData) => {
-      totalSupplied += property.totalLiquidityUSD;
+      totalSupplied = totalSupplied.plus(property.totalLiquidityUSD);
     });
     return totalSupplied;
   }
 
-  public getTotalBorrowedUSD(): number {
-    let totalBorrowed = 0;
+  public getTotalBorrowedUSD(): BigNumber {
+    let totalBorrowed = new BigNumber("0");
     if (!this.allReserves) {
       return totalBorrowed;
     }
     Object.values(this.allReserves).forEach((property: ReserveData) => {
-      totalBorrowed += property.totalBorrowsUSD;
+      totalBorrowed = totalBorrowed.plus(property.totalBorrowsUSD);
     });
     return totalBorrowed;
   }
 
-  public getUserTotalSuppliedUSD(): number {
-    let totalSupplied = 0;
+  public getUserTotalSuppliedUSD(): BigNumber {
+    let totalSupplied = new BigNumber("0");
     if (!this.userReserves) {
       return totalSupplied;
     }
     this.userReserves.reserveMap.forEach((reserve: UserReserveData | undefined) => {
-      totalSupplied += reserve?.currentOTokenBalanceUSD ?? 0;
+      totalSupplied = totalSupplied.plus((reserve?.currentOTokenBalanceUSD ?? new BigNumber("0")));
     });
     return totalSupplied;
   }
 
-  public getUserTotalBorrowedUSD(): number {
-    let totalBorrowed = 0;
+  public getUserTotalBorrowedUSD(): BigNumber {
+    let totalBorrowed = new BigNumber("0");
     if (!this.userReserves) {
       return totalBorrowed;
     }
     this.userReserves.reserveMap.forEach((reserve: UserReserveData | undefined) => {
-      totalBorrowed += reserve?.currentBorrowBalanceUSD ?? 0;
+      totalBorrowed = totalBorrowed.plus((reserve?.currentBorrowBalanceUSD ?? new BigNumber("0")));
     });
     return totalBorrowed;
   }
 
-  public getUserAvgSupplyApy(): number {
-    let counter = 0;
-    let total = 0;
-
-    this.userReserves.reserveMap.forEach((reserve: UserReserveData | undefined) => {
-      total += reserve?.liquidityRate ?? 0;
-      counter++;
-    });
-
-    return counter === 0 || total === 0 ? 0 : total / counter;
-  }
-
-  public getUserAvgBorrowApy(): number {
-    let counter = 0;
-    let total = 0;
-
-    this.userReserves.reserveMap.forEach((reserve: UserReserveData | undefined) => {
-      total += reserve?.borrowRate ?? 0;
-      counter++;
-    });
-
-    return counter === 0 || total === 0 ? 0 : total / counter;
-  }
-
-  public getYourSupplyApy(): number {
-    let supplyApySum = 0;
-    let supplySum = 0;
-    let supplied;
-    let supplyApy;
-
-    // Sum(My supply amount for each asset * Supply APY for each asset)
-    this.userReserves.reserveMap.forEach(reserve => {
-      supplied = reserve?.currentOTokenBalanceUSD ?? 0;
-      supplyApy = reserve?.liquidityRate ?? 0;
-      supplyApySum += supplied * supplyApy;
-      supplySum += supplied;
-    });
-
-    return supplyApySum / supplySum;
-  }
-
-  public getAverageLiquidationThreshold(): number {
-    let counter = 0;
-    let total = 0;
+  public getAverageLiquidationThreshold(): BigNumber {
+    let counter = new BigNumber("0");
+    let total = new BigNumber("0");
 
     if (!this.allReserves) {
       return total;
     }
 
-    Object.values(this.allReserves!).forEach((property: ReserveData) => {
-      total += property.liquidationThreshold;
-      counter++;
+    Object.values(this.allReserves).forEach((property: ReserveData) => {
+      total = total.plus(property.liquidationThreshold);
+      counter = counter.plus(new BigNumber("1"));
     });
-    return total / counter;
+    return total.dividedBy(counter);
   }
 
   public userHasNotBorrowedAnyAsset(): boolean {
-    for (const value of this.userReserves!.reserveMap.values()) {
-      if (value && value!.currentBorrowBalance > 0) {
+    for (const value of this.userReserves.reserveMap.values()) {
+      if (value && value.currentBorrowBalance.isGreaterThan(Utils.ZERO)) {
         return false;
       }
     }
@@ -326,8 +278,8 @@ export class PersistenceService {
   }
 
   public userHasNotSuppliedAnyAsset(): boolean {
-    for (const value of this.userReserves!.reserveMap.values()) {
-      if (value && value!.currentOTokenBalance > 0) {
+    for (const value of this.userReserves.reserveMap.values()) {
+      if (value && value.currentOTokenBalance.isGreaterThan(Utils.ZERO)) {
         return false;
       }
     }
@@ -350,22 +302,22 @@ export class PersistenceService {
   }
 
   public userAssetSuppliedIsZero(assetTag: AssetTag): boolean {
-    return (this.getUserSuppliedAssetBalance(assetTag) ?? 0) === 0;
+    return (this.getUserSuppliedAssetBalance(assetTag) ?? new BigNumber("0")).isZero();
   }
 
   isAssetAvailable(assetTag: AssetTag): boolean {
-    const supplied = this.getUserSuppliedAssetBalance(assetTag) ?? 0;
-    const balance = this.getUserAssetBalance(assetTag) ?? 0;
+    const supplied = this.getUserSuppliedAssetBalance(assetTag) ?? new BigNumber("0");
+    const balance = this.getUserAssetBalance(assetTag) ?? new BigNumber("0");
 
-    return supplied === 0 && balance > 0;
+    return supplied.isZero() && balance.isGreaterThan(Utils.ZERO);
   }
 
   public userAssetBorrowedIsZero(assetTag: AssetTag): boolean {
-    return (this.getUserBorrowedAssetBalance(assetTag) ?? 0) === 0;
+    return (this.getUserBorrowedAssetBalance(assetTag) ?? new BigNumber("0")).isZero();
   }
 
   public userAssetBalanceIsZero(assetTag: AssetTag): boolean {
-    return (this.activeWallet?.balances.get(assetTag) ?? 0) === 0;
+    return (this.activeWallet?.balances.get(assetTag) ?? new BigNumber("0")).isZero();
   }
 
   public isAssetSuppliedBorrowedBalanceZero(assetTag: AssetTag): boolean {

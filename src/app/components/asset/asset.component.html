@@ -9,7 +9,7 @@
       <span class="value-supplied label">{{getUserSuppliedAssetBalance() | usFormat}} {{supplyAssetTag()}}</span></td>
     <td class="text-green">{{to2DecimalRoundedOffPercentString(getUserSupplyApy())}}</td> <!-- Supply APY-->
     <td><span class="value-borrowed">{{this.toDollarUSLocaleString(this.persistenceService.getUserAssetReserve(asset.tag)?.currentBorrowBalanceUSD | roundOff2Dec)}}</span><br>
-      <span class="value-borrowed label">{{getUserBorrowedAssetBalance() | usFormat}} {{getBorrowAssetTagAdjusted()}}</span></td>
+      <span class="value-borrowed label">{{getUserBorrowedAssetBalance() | roundDown2Dec | usFormat}} {{getBorrowAssetTagAdjusted()}}</span></td>
     <td class="{{isNegative(getUserBorrowApy()) ? 'text-purple' : 'text-green'}}">{{to2DecimalRoundedOffPercentString(makeAbsolute(getUserBorrowApy()))}}</td><!-- Borrow APY -->
   </ng-container>
 
@@ -229,13 +229,13 @@
         <p class="label">When you borrow or withdraw, you'll receive staked ICX (sICX). You can swap sICX for ICX on <a href="{{isProduction()
         ? 'https://app.balanced.network/trade' :'https://omm.balanced.network/trade'}}" target="_blank">Balanced</a>.</p>
         <!-- If ICX is unstaking -->
-        <p *ngIf="getUserTotalUnstakeAmount() > 0 && getUserClaimableIcxAmount() == 0" class="label" style="margin-top: 7px;">{{roundDownTo2Decimals(getUserTotalUnstakeAmount()) | usFormat}} ICX is unstaking.</p>
+        <p *ngIf="getUserTotalUnstakeAmount().isGreaterThan(ZERO) && getUserClaimableIcxAmount().isZero()" class="label" style="margin-top: 7px;">{{getUserTotalUnstakeAmount() | roundDown2Dec | usFormat}} ICX is unstaking.</p>
         <!-- If some ICX is ready to claim -->
-        <p *ngIf="getUserTotalUnstakeAmount() > 0 && getUserClaimableIcxAmount() > 0" class="label" style="margin-top: 7px;">{{roundDownTo2Decimals(getUserTotalUnstakeAmount()) | usFormat}} ICX is unstaking. <a
-          href="javascript:void(0);" (click)="onClaimIcxClick()" class="modal-trigger" data-modal="modal-claim-icx">{{roundDownTo2Decimals(getUserClaimableIcxAmount()) | usFormat}} ICX is ready to claim</a>.</p>
+        <p *ngIf="getUserTotalUnstakeAmount().isGreaterThan(ZERO) && getUserClaimableIcxAmount().isGreaterThan(ZERO)" class="label" style="margin-top: 7px;">{{getUserTotalUnstakeAmount() | roundDown2Dec | usFormat}} ICX is unstaking. <a
+          href="javascript:void(0);" (click)="onClaimIcxClick()" class="modal-trigger" data-modal="modal-claim-icx">{{getUserClaimableIcxAmount() | roundDown2Dec | usFormat}} ICX is ready to claim</a>.</p>
         <!-- If all ICX is ready to claim -->
-        <p *ngIf="getUserTotalUnstakeAmount() == 0 && getUserClaimableIcxAmount() > 0" class="label" style="margin-top: 7px;">
-          <a href="javascript:void(0);" (click)="onClaimIcxClick()" class="modal-trigger" data-modal="modal-claim-icx">{{roundDownTo2Decimals(getUserClaimableIcxAmount()) | usFormat}} ICX is ready to claim</a>.</p>
+        <p *ngIf="getUserTotalUnstakeAmount().isZero() && getUserClaimableIcxAmount().isGreaterThan(ZERO)" class="label" style="margin-top: 7px;">
+          <a href="javascript:void(0);" (click)="onClaimIcxClick()" class="modal-trigger" data-modal="modal-claim-icx">{{getUserClaimableIcxAmount() | roundDown2Dec | usFormat}} ICX is ready to claim</a>.</p>
       </div>
 
     </div>

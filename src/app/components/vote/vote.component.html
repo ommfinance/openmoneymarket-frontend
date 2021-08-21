@@ -88,14 +88,14 @@
           <div class="grid-cell">
             <dl class="metadata text-center">
               <dt>Your voting power</dt>
-              <dd><span class="value-icx-stake-amount">{{userLoggedIn() && userVotingPower() > 0 ?
-                roundDownTo2Decimals(userVotingPower()) : "-"}}</span>{{userVotingPower() > 0 ? " ICX" : ""}}</dd>
+              <dd><span class="value-icx-stake-amount">{{userLoggedIn() && userVotingPower().isGreaterThan(ZERO) ?
+                (userVotingPower() | roundDown2Dec) : "-"}}</span>{{userVotingPower().isGreaterThan(ZERO) ? " ICX" : ""}}</dd>
             </dl>
           </div>
           <div class="grid-cell">
             <dl class="metadata text-center">
               <dt>Omm's voting power</dt>
-              <dd>{{roundDownTo2Decimals(ommVotingPower())}} ICX</dd>
+              <dd>{{ommVotingPower() | roundDown2Dec}} ICX</dd>
             </dl>
           </div>
         </div>
@@ -135,7 +135,7 @@
                 </div>
               </td>
               <td></td>
-              <td>{{yourPrepVote.percentage}}%<br><span class="label">{{getDelegationAmount(yourPrepVote)}} ICX</span></td>
+              <td>{{yourPrepVote.percentage.toFixed(2)}}%<br><span class="label">{{getDelegationAmount(yourPrepVote)}} ICX</span></td>
             </tr>
 
             <!-- Spacer -->
@@ -222,7 +222,7 @@
                 </td>
                 <td>${{getPrepsUSDReward(prep)}}<br>
                   <span class="label">{{getPrepsIcxReward(prep)}} ICX</span></td>
-                <td>{{to2DecimalRoundedOffPercentString(prep!.delegated / searchedPrepList!.totalDelegated)}}<br>
+                <td>{{to2DecimalRoundedOffPercentString(getDelegatedPercent(prep))}}<br>
                   <span class="label">{{formatNumberToUSLocaleString(prep!.delegated.toFixed(0))}}</span></td>
               </tr>
               <!-- Spacer -->

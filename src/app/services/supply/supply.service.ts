@@ -11,6 +11,7 @@ import {CheckerService} from "../checker/checker.service";
 import log from "loglevel";
 import {AssetTag, CollateralAssetTag, collateralTagToAssetTag} from "../../models/Asset";
 import {TransactionDispatcherService} from "../transaction-dispatcher/transaction-dispatcher.service";
+import BigNumber from "bignumber.js";
 
 
 @Injectable({
@@ -26,9 +27,9 @@ export class SupplyService {
               private transactionDispatcherService: TransactionDispatcherService) {
   }
 
-  public supplyAsset(amount: number, assetTag: AssetTag | CollateralAssetTag, notificationMessage: string): void {
+  public supplyAsset(amount: BigNumber, assetTag: AssetTag | CollateralAssetTag, notificationMessage: string): void {
     let tx;
-    amount = Utils.roundDownTo2Decimals(amount);
+    amount = amount.dp(2);
 
     switch (assetTag) {
       case AssetTag.ICX:
@@ -42,7 +43,7 @@ export class SupplyService {
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
-  private buildDepositIRC2(amount: number, assetTag: AssetTag | CollateralAssetTag): any {
+  private buildDepositIRC2(amount: BigNumber, assetTag: AssetTag | CollateralAssetTag): any {
     this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
 
     log.debug(`Deposit ${assetTag} amount = ` + amount);
@@ -60,7 +61,7 @@ export class SupplyService {
       this.persistenceService.allAddresses!.collateralAddress(assetTag), ScoreMethodNames.TRANSFER, params, IconTransactionType.WRITE);
   }
 
-  private buildDepositIcxTx(amount: number): any {
+  private buildDepositIcxTx(amount: BigNumber): any {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     log.debug("Deposit ICX amount = " + amount);

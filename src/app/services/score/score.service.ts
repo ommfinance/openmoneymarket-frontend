@@ -20,13 +20,13 @@ import {IconAmount, IconConverter} from "icon-sdk-js";
 import {YourPrepVote} from "../../models/YourPrepVote";
 import {DelegationPreference} from "../../models/DelegationPreference";
 import {UnstakeInfo} from "../../models/UnstakeInfo";
-import {BalancedDexPools, balDexPoolsPriceDecimalsMap} from "../../models/BalancedDexPools";
 import {DistributionPercentages} from "../../models/DistributionPercentages";
 import {PoolStats, PoolStatsInterface} from "../../models/PoolStats";
 import {TotalPoolInterface, UserPoolDataInterface} from "../../models/Poolnterfaces";
 import {PoolsDistPercentages} from "../../models/PoolsDistPercentages";
 import {AllAssetDistPercentages} from "../../models/AllAssetDisPercentages";
 import {DailyRewardsAllReservesPools} from "../../models/DailyRewardsAllReservesPools";
+import BigNumber from "bignumber.js";
 
 
 @Injectable({
@@ -54,7 +54,7 @@ export class ScoreService {
    * @description Get Token Distribution per day
    * @return  Token distribution per day in number
    */
-  public async getTokenDistributionPerDay(day?: number): Promise<number> {
+  public async getTokenDistributionPerDay(day?: BigNumber): Promise<BigNumber> {
     this.checkerService.checkAllAddressesLoaded();
 
     day = day ? day : await this.getRewardsDay();
@@ -73,7 +73,7 @@ export class ScoreService {
     return Utils.hexToNormalisedNumber(res);
   }
 
-  public async getRewardsDay(): Promise<number> {
+  public async getRewardsDay(): Promise<BigNumber> {
     this.checkerService.checkAllAddressesLoaded();
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Rewards,
@@ -90,7 +90,7 @@ export class ScoreService {
    * @description Get reference data (price)
    * @return  Number quoted price (e.g. USD)
    */
-  public async getReferenceData(base: string, quote: string = "USD"): Promise<number> {
+  public async getReferenceData(base: string, quote: string = "USD"): Promise<BigNumber> {
     this.checkerService.checkAllAddressesLoaded();
 
     const params = {
@@ -169,7 +169,7 @@ export class ScoreService {
    * @description Get the claimable ICX amount for user.
    * @return  number
    */
-  public async getUserClaimableIcx(): Promise<number> {
+  public async getUserClaimableIcx(): Promise<BigNumber> {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const params = {
@@ -188,7 +188,7 @@ export class ScoreService {
    * @description Get total staked Omm
    * @return  total staked Omm normalised number
    */
-  public async getTotalStakedOmm(): Promise<number> {
+  public async getTotalStakedOmm(): Promise<BigNumber> {
     this.checkerService.checkAllAddressesLoaded();
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.OmmToken,
@@ -254,7 +254,7 @@ export class ScoreService {
    * @description Get real time debt of user for specific reserve, i.e. how much user has to repay
    * @return debt number
    */
-  public async getUserDebt(assetTag: AssetTag): Promise<number> {
+  public async getUserDebt(assetTag: AssetTag): Promise<BigNumber> {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const params = {
@@ -294,7 +294,7 @@ export class ScoreService {
    * @description Get today sicx to icx conversion rate
    * @return today sICX to ICX conversion rate as number
    */
-  public async getTodayRate(): Promise<number> {
+  public async getTodayRate(): Promise<BigNumber> {
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Staking,
       ScoreMethodNames.GET_TODAY_RATE, {}, IconTransactionType.READ);
 
@@ -308,7 +308,7 @@ export class ScoreService {
    * @description Get loan origination fee percentage
    * @return number representing origination fee percentage
    */
-  public async getLoanOriginationFeePercentage(): Promise<number> {
+  public async getLoanOriginationFeePercentage(): Promise<BigNumber> {
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.LendingPoolDataProvider,
       ScoreMethodNames.GET_LOAN_ORIGINATION_FEE_PERCENTAGE, {}, IconTransactionType.READ);
 
@@ -374,7 +374,7 @@ export class ScoreService {
    * @description Get OMM token minimum stake amount
    * @return  Minimum OMM token stake amount
    */
-  public async getOmmTokenMinStakeAmount(): Promise<number> {
+  public async getOmmTokenMinStakeAmount(): Promise<BigNumber> {
     this.checkerService.checkAllAddressesLoaded();
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.OmmToken,
@@ -387,30 +387,10 @@ export class ScoreService {
     return Utils.hexToNormalisedNumber(res);
   }
 
-  /**
-   * @description Get OMM token USD price
-   * @return  number OMM token price in USD
-   */
-  public async getOmmTokenPriceUSD(poolName: BalancedDexPools): Promise<number> {
-
-    const params = {
-      _name: poolName
-    };
-
-    const tx = this.iconApiService.buildTransaction("",  environment.BALANCED_DEX_SCORE,
-      ScoreMethodNames.GET_PRICE_BY_NAME, params, IconTransactionType.READ);
-
-    const res = await this.iconApiService.iconService.call(tx).execute();
-
-    log.debug("getOmmTokenPriceUSD: ", res);
-
-    return Utils.hexToNormalisedNumber(res, balDexPoolsPriceDecimalsMap.get(poolName));
-  }
-
-  public async getUserAssetBalance(assetTag: AssetTag): Promise<number> {
+  public async getUserAssetBalance(assetTag: AssetTag): Promise<BigNumber> {
     log.debug(`Fetching user balance for ${assetTag}...`);
 
-    let balance: number;
+    let balance: BigNumber;
     if (AssetTag.ICX === assetTag) {
       balance = await this.iconApiService.getIcxBalance(this.persistenceService.activeWallet!.address);
     } else {
@@ -426,7 +406,7 @@ export class ScoreService {
     return balance;
   }
 
-  public async getUserCollateralAssetBalance(assetTag: CollateralAssetTag): Promise<number> {
+  public async getUserCollateralAssetBalance(assetTag: CollateralAssetTag): Promise<BigNumber> {
     log.debug(`Fetching user collateral balance for ${assetTag}...`);
 
     const balance = await this.getIRC2TokenBalance(assetTag);
@@ -441,7 +421,7 @@ export class ScoreService {
     return balance;
   }
 
-  private async getIRC2TokenBalance(assetTag: AssetTag | CollateralAssetTag): Promise<number> {
+  private async getIRC2TokenBalance(assetTag: AssetTag | CollateralAssetTag): Promise<BigNumber> {
     this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
 
     const decimals = this.persistenceService.allReserves!.getReserveData(assetTag).decimals;
@@ -527,7 +507,7 @@ export class ScoreService {
    * @description Get stats for specific pool
    * @return  PoolStats
    */
-  public async getPoolStats(poolId: number): Promise<PoolStats> {
+  public async getPoolStats(poolId: BigNumber): Promise<PoolStats> {
     const params = {
       _id: IconConverter.toHex(poolId)
     };
@@ -591,9 +571,9 @@ export class ScoreService {
 
   /**
    * @description Get total amount of token in pool
-   * @return  number
+   * @return  BigNumber
    */
-  public async getPoolTotal(poolId: number, token: string, decimals: number): Promise<number> {
+  public async getPoolTotal(poolId: BigNumber, token: string, decimals: BigNumber): Promise<BigNumber> {
     const params = {
       _id: IconConverter.toHex(poolId),
       _token: token
