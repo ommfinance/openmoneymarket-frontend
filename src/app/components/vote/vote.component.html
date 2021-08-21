@@ -81,7 +81,7 @@
         <div id="vote-conversion" class="grid-cell border-bottom text-center">
           <dl class="metadata">
             <dt>Voting power</dt>
-            <dd>1 OMM = {{votingPower | usFormat}} ICX</dd>
+            <dd>1 OMM = {{this.calculationsService.votingPower() | usFormat}} ICX</dd>
           </dl>
         </div>
         <div class="grid">

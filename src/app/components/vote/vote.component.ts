@@ -47,7 +47,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   private ommStakeAmount?: any;
 
   userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
-  votingPower = this.calculationsService.votingPower();
 
   // current state variables
   yourVotesEditMode = false;
@@ -83,7 +82,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     this.subscribeToUserModalActionChange();
     this.subscribeToModalActionResult();
     this.subscribeToYourVotesPrepChange();
-    this.subscribeToReserveDataChange();
   }
 
   // values that should be reset on re-init
@@ -92,13 +90,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     this.voteOverviewEditMode = false;
 
     this.yourVotesPrepList = [...this.persistenceService.yourVotesPrepList];
-    this.votingPower = this.calculationsService.votingPower();
-  }
-
-  private subscribeToReserveDataChange(): void {
-    this.stateChangeService.totalOmmStakedChange.subscribe(() => {
-      this.votingPower = this.calculationsService.votingPower();
-    });
   }
 
   private subscribeToModalActionResult(): void {
@@ -158,9 +149,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       // assign staked balance to the current slider value
       log.debug(`subscribeToOmmTokenBalanceChange setting this.sliderStake to value :`, this.userOmmTokenBalanceDetails.stakedBalance);
       this.sliderStake.noUiSlider.set(this.userOmmTokenBalanceDetails.stakedBalance.dp(0).toNumber());
-
-      // calculate voting power
-      this.votingPower = this.calculationsService.votingPower();
     });
   }
 
@@ -345,10 +333,14 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   userVotingPower(): BigNumber {
     if (this.userLoggedIn()) {
-      return this.votingPower.multipliedBy(this.persistenceService.getUsersStakedOmmBalance());
+      return this.votingPower().multipliedBy(this.persistenceService.getUsersStakedOmmBalance());
     } else {
       return new BigNumber("0");
     }
+  }
+
+  votingPower(): BigNumber {
+    return this.calculationsService.votingPower();
   }
 
   ommVotingPower(): BigNumber {
@@ -426,7 +418,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   getDelegationAmount(yourPrepVote: YourPrepVote): BigNumber {
     return (this.persistenceService.getUsersStakedOmmBalance().multipliedBy((yourPrepVote.percentage
-      .dividedBy(new BigNumber("100"))).multipliedBy(this.votingPower))).dp(2);
+      .dividedBy(new BigNumber("100"))).multipliedBy(this.votingPower()))).dp(2);
   }
 
   // TODO: in case we want infinity scrolling for preps list
