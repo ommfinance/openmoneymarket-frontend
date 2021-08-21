@@ -22,3 +22,7 @@
   font-size: 20px;
   color: #7a8294;
 }
+
+.stake-omm-actions-adjust .button {
+  margin-top: 0 !important;
+}

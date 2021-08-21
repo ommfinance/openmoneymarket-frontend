@@ -175,7 +175,7 @@
             </div>
 
             <!-- Actions to show when adjust class is active -->
-            <div class="grid grid-center stake-omm-actions-adjust hide">
+            <div class="grid grid-center stake-omm-actions-adjust {{stakeAdjustActive ? '' : 'hide'}}">
               <div class="grid-cell text-right">
                 <a id="stake-omm-actions-adjust-cancel" href="javascript:void(0);" (click)="onStakeAdjustCancelClick()" class="cancel">Cancel</a>
               </div>
@@ -189,8 +189,8 @@
           <div class="grid-cell text-center">
             <dl class="metadata">
               <dt>Your stake</dt>
-              <dd><span class="value-omm-stake-amount" #ommStk>{{userOmmTokenBalanceDetails?.stakedBalance | usFormat
-                }}</span> / {{getYourStakeMax() | usFormat}} OMM</dd>
+              <dd><input id="stake-input" type="text" name="" class="{{stakeAdjustActive ? 'active' : 'hide'}}" #stakeInput (input)="onInputStakeOmmChange()"><span
+                class="value-omm-stake-amount {{stakeAdjustActive ? 'hide' : ''}}" #ommStkAmount>{{userOmmTokenBalanceDetails?.stakedBalance | usFormat}}</span> / {{getYourStakeMax() | usFormat}} OMM</dd>
             </dl>
 
             <!-- Message (If unstaking) -->

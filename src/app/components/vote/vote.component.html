@@ -29,14 +29,14 @@
           <div class="grid-cell text-center">
 
             <!-- Actions to show by default -->
-            <div *ngIf="!userHasStaked()" class="grid grid-center actions-default">
+            <div *ngIf="!userHasStaked()" class="grid grid-center stake-omm-actions-default actions-default">
               <div class="grid-cell text-center">
-                <a href="javascript:void(0);" class="button" id="stake-adjust" (click)="onStakeAdjustClick()">Stake Omm Tokens</a>
+                <a href="javascript:void(0);" class="button" id="stake-adjust-omm" (click)="onStakeAdjustClick()">Stake Omm Tokens</a>
               </div>
             </div>
 
             <!-- Actions to show if already staked -->
-            <div *ngIf="userHasStaked() && !isMaxStaked()" class="grid grid-center actions-default">
+            <div *ngIf="userHasStaked() && !isMaxStaked()" class="grid grid-center stake-omm-actions-default actions-default">
               <div class="grid-cell text-center">
                 <a href="javascript:void(0);" class="button" (click)="onStakeAdjustClick()">Adjust stake</a>
               </div>
@@ -50,12 +50,14 @@
             </div>
 
             <!-- Actions to show when adjust class is active -->
-            <div class="grid grid-center actions-adjust">
+
+            <!-- Actions to show when adjust class is active -->
+            <div class="grid grid-center stake-omm-actions-adjust {{voteOverviewEditMode ? '' : 'hide'}}">
               <div class="grid-cell text-right">
-                <a href="javascript:void(0);" id="stake-adjust-cancel" class="cancel" (click)="onStakeAdjustCancelClick()">Cancel</a>
+                <a id="stake-omm-actions-adjust-cancel" href="javascript:void(0);" (click)="onStakeAdjustCancelClick()" class="cancel">Cancel</a>
               </div>
               <div class="grid-cell text-left">
-                <a href="javascript:void(0);" class="button modal-trigger" data-modal="modal-confirm-stake" (click)="onConfirmStakeClick()">Confirm</a>
+                <a href="javascript:void(0);" (click)="onConfirmStakeClick()" class="button margin-top-0">Confirm</a>
               </div>
             </div>
           </div>
@@ -64,14 +66,12 @@
           <div class="grid-cell text-center">
             <dl class="metadata">
               <dt>Your stake</dt>
-              <input type="text" name="omm-stake" class="{{voteOverviewEditMode ? 'active' : 'hide'}}" id="stake-input" #stakeInput (input)="onInputStakeOmmChange()">
-              <dd><span class="value-omm-stake-amount" #ommStk>{{userOmmTokenBalanceDetails?.stakedBalance | usFormat
-                }}</span> / {{getYourStakeMax() | usFormat}} OMM</dd>
+              <dd><input id="stake-input" type="text" name="omm-stake" class="{{voteOverviewEditMode ? 'active' : 'hide'}}" #stakeInput (input)="onInputStakeOmmChange()"><span
+                class="value-omm-stake-amount {{voteOverviewEditMode ? 'hide' : ''}}">{{userOmmTokenBalanceDetails?.stakedBalance | usFormat}}</span> / {{getYourStakeMax() | usFormat}} OMM</dd>
             </dl>
 
             <!-- Message (If un-staking) -->
             <p *ngIf="isUnstaking()" class="label" style="margin-top: 5px;">{{this.persistenceService.getUserUnstakingOmmBalance() | usFormat}} OMM unstaking</p>
-
           </div>
         </div>
       </div>
