@@ -20,6 +20,7 @@ import {environment} from "../../../environments/environment";
 import {ReloaderService} from "../../services/reloader/reloader.service";
 import {Times} from "../../common/constants";
 import BigNumber from "bignumber.js";
+import {normalFormat} from "../../common/formats";
 
 declare var $: any;
 declare var noUiSlider: any;
@@ -33,9 +34,10 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
 
   toggleYourPoolsEl: any; @ViewChild("toggYourPools")set a(a: ElementRef) {this.toggleYourPoolsEl = a.nativeElement; }
   toggleAllPoolsEl: any; @ViewChild("toggAllPools") set b(b: ElementRef) {this.toggleAllPoolsEl = b.nativeElement; }
-  private ommStakeAmount?: any; @ViewChild("ommStk")set c(ommStake: ElementRef) {this.ommStakeAmount = ommStake.nativeElement; }
+  private inputStakeOmm!: any; @ViewChild("stakeInput")set c(c: ElementRef) {this.inputStakeOmm = c.nativeElement; }
   private sliderStake!: any; @ViewChild("stkSlider")set d(sliderStake: ElementRef) {this.sliderStake = sliderStake.nativeElement; }
   stakeDailyRewEl: any; @ViewChild("stkDailyRew")set e(a: ElementRef) {this.stakeDailyRewEl = a.nativeElement; }
+  private stakeAmount!: any; @ViewChild("ommStkAmount")set f(f: ElementRef) {this.stakeAmount = f.nativeElement; }
 
   public activeLiquidityOverview: ActiveLiquidityOverview = this.userLoggedIn() ? ActiveLiquidityOverview.YOUR_LIQUIDITY :
     ActiveLiquidityOverview.ALL_LIQUIDITY;
@@ -125,7 +127,6 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     this.collapseAllPoolTables();
     this.stakeAdjustActive = true;
 
-    $(".stake-omm-actions-adjust").removeClass('hide');
     $(".stake-omm-actions-default").addClass('hide');
     this.sliderStake.removeAttribute("disabled");
   }
@@ -134,8 +135,8 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   onStakeAdjustCancelClick(): void {
     this.stakeAdjustActive = false;
 
-    $(".stake-omm-actions-adjust").addClass('hide');
     $(".stake-omm-actions-default").removeClass('hide');
+
 
     // Set your stake slider to the initial value
     this.sliderStake.setAttribute("disabled", "");
@@ -196,6 +197,16 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
 
     $(`.pool.${poolData.getPairClassName()}`).toggleClass('active');
     $(`.pool-${poolData.getPairClassName()}-expanded`).slideToggle();
+  }
+
+  // Stake input updates the slider
+  onInputStakeOmmChange(): void {
+    log.debug("onInputStakeOmmChange: " + this.inputStakeOmm.value);
+    if (+this.inputStakeOmm.value) {
+      this.sliderStake.noUiSlider.set(normalFormat.from(this.inputStakeOmm.value));
+    } else {
+      this.sliderStake.noUiSlider.set(normalFormat.from("0"));
+    }
   }
 
   /**
@@ -309,6 +320,9 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
         this.setText(this.stakeDailyRewEl, this.formatNumberToUSLocaleString(dailyUsersOmmStakingRewards.dp(2))
           + (dailyUsersOmmStakingRewards.isGreaterThan(Utils.ZERO) ? " OMM" : ""));
       }
+
+      // Update Omm stake input text box
+      this.inputStakeOmm.value = normalFormat.to(parseFloat(values[handle]));
 
       if (this.userOmmTokenBalanceDetails) {
         this.userOmmTokenBalanceDetails.stakedBalance = value;

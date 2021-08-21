@@ -43,9 +43,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   @ViewChild("stakeInput")set stakeInputSetter(stakeInput: ElementRef) {this.inputStakeOmm = stakeInput.nativeElement; }
   private inputStakeOmm!: any;
 
-  @ViewChild("ommStk")set ommStakeAmountSetter(ommStake: ElementRef) {this.ommStakeAmount = ommStake.nativeElement; }
-  private ommStakeAmount?: any;
-
   userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
 
   // current state variables
@@ -238,7 +235,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   onConfirmStakeClick(): void {
     log.debug(`onConfirmStakeClick Omm stake amount = ${this.userOmmTokenBalanceDetails?.stakedBalance}`);
-    const before = this.persistenceService.getUsersStakedOmmBalance().dp(0);
+    const before = this.persistenceService.getUsersStakedOmmBalance();
     log.debug("before = ", before);
     const after = (this.userOmmTokenBalanceDetails?.stakedBalance ?? new BigNumber("0")).dp(0);
     log.debug("after = ", after);
