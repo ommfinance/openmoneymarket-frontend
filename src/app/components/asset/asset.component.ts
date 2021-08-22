@@ -972,15 +972,12 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   borrowUsed(): BigNumber {
-    const collateralAssetTag = assetToCollateralAssetTag(this.asset.tag);
-    const userCollateralAssetBalance = this.persistenceService.getUserAssetCollateralBalance(collateralAssetTag);
-
+    const userCollateralAssetBalance = this.persistenceService.getUserAssetCollateralBalance(assetToCollateralAssetTag(this.asset.tag));
     const userAssetDebt = this.persistenceService.getUserAssetDebt(this.asset.tag);
 
     // if user has balance of collateral asset greater than the debt he has to repay return 0
     // else return the amount that is outstanding (debt - balance)
-    return userCollateralAssetBalance.isGreaterThanOrEqualTo(userAssetDebt) ? new BigNumber("0") :
-      Utils.subtract(userAssetDebt, userCollateralAssetBalance);
+    return userCollateralAssetBalance.gte(userAssetDebt) ? new BigNumber("0") : userAssetDebt.minus(userCollateralAssetBalance);
   }
 
   // check if users balance is less than amount he has to repay
@@ -989,9 +986,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       return false;
     }
 
-    const collateralAssetTag = assetToCollateralAssetTag(this.asset.tag);
-
-    return this.persistenceService.getUserAssetCollateralBalance(collateralAssetTag).isLessThan(
+    return this.persistenceService.getUserAssetCollateralBalance(assetToCollateralAssetTag(this.asset.tag)).isLessThan(
       this.persistenceService.getUserAssetDebt(this.asset.tag));
   }
 
