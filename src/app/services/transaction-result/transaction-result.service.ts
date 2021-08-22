@@ -11,6 +11,7 @@ import {ModalAction, ModalActionsResult, ModalStatus} from "../../models/ModalAc
 import {ModalType} from "../../models/ModalType";
 import {StateChangeService} from "../state-change/state-change.service";
 import {Utils} from "../../common/utils";
+import {BORROW_MAX_ERROR_REGEX} from "../../common/constants";
 
 @Injectable({
   providedIn: 'root'
@@ -174,6 +175,12 @@ export class TransactionResultService {
 
   public showFailedActionNotification(failedTxMessage: string, modalAction?: ModalAction): void {
     if (!modalAction) {
+      return;
+    }
+
+    // handle Borrow max error
+    if ((BORROW_MAX_ERROR_REGEX).test(failedTxMessage.toLowerCase())) {
+      this.notificationService.showNewNotification(`This market has less than 10% liquidity. Borrow a smaller amount or try again later.`);
       return;
     }
 
