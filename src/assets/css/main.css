@@ -146,9 +146,10 @@ p {
   margin: 0;
 }
 a {
-  color: #2ca9b7;
+  color: #369fbf;
   font-size: 14px;
   text-decoration: none;
+  transition: color 0.3s ease;
 }
 input[type=text] {
   width: 100%;
@@ -224,6 +225,7 @@ textarea {
 .header .refresh {
   display: inline-block;
   transform: translateY(-5px);
+  margin-left: 5px;
 }
 .header .refresh .refresh-button {
   padding: 5px 10px;
@@ -2105,10 +2107,10 @@ ul.pagination li:hover {
 */
 
 .list tbody tr.usdb td:first-of-type {
-  background-image: url(../img/logo/usdb.png);
+  background-image: url(../img/logo/usds.png);
   background-repeat: no-repeat;
-  background-position: 36px center;
-  background-size: 29px;
+  background-position: 32px center;
+  background-size: 39px;
 }
 .list tbody tr.icx td:first-of-type {
   background-image: url(../img/logo/icx.svg);
@@ -3110,7 +3112,8 @@ input[type="text"].input-borrow-available {
   margin-top: 0;
 }
 .stake-omm-actions-adjust {
-  margin-top: 10px;
+  margin-top: 25px;
+  max-width: 170px;
 }
 #message-stake-logged-out p {
   margin-top: 10px;
