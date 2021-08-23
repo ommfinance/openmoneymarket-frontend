@@ -8,7 +8,7 @@ export const environment = {
   GOVERNANCE_ADDRESS: "cx0000000000000000000000000000000000000001",
   IISS_API: "cx0000000000000000000000000000000000000000",
   NID: 1,
-  REWARDS_ACCRUE_START: 1629781200, // unix timestamp from when rewards accrue will start
-  REWARDS_CLAIMABLE_START: 1630213200, // unix timestamp from when rewards are going to be claimable
-  ACTIVATE_REWARDS_TIMESTAMPS: false, // boolean flag deciding if above two timestamp should be respected
+  REWARDS_ACCRUE_START: 1629954000, // unix timestamp from when rewards accrue will start
+  REWARDS_CLAIMABLE_START: 1630386000, // unix timestamp from when rewards are going to be claimable
+  ACTIVATE_REWARDS_TIMESTAMPS: true, // boolean flag deciding if above two timestamp should be respected
 };
