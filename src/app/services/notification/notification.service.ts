@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {Subject} from "rxjs";
 import {NotificationAction, NotificationType} from "../../models/NotificationAction";
 import log from "loglevel";
+import {NOTIFICATION_TIMEOUT} from "../../common/constants";
 
 declare var classie: any;
 
@@ -42,7 +43,7 @@ export class NotificationService {
       classie.add(notification, 'active');
       this.activeNotification = notification;
 
-      setTimeout(() => this.hideActiveNotification(), 5000);
+      setTimeout(() => this.hideActiveNotification(), NOTIFICATION_TIMEOUT);
     }
   }
 

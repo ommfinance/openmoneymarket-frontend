@@ -10,6 +10,7 @@ declare var wNumb: any;
 // %
 export const normalFormat = wNumb({
   decimals: 0,
+  thousand: ',',
 });
 
 // %

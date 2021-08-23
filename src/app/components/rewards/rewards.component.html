@@ -40,6 +40,11 @@
             <a href="javascript:void(0);" class="button modal-trigger" style="margin-top: 5px;" data-modal="modal-claim-rewards"
                (click)="onClaimOmmRewardsClick()" >Claim rewards</a>
           </div>
+
+          <!-- No rewards to claim -->
+          <div class="grid-cell text-center border-right" [ngStyle]="hideElement(!shouldHideClaimBtn())">
+            <p style="margin-top: 25px;" class="label">No rewards to claim</p>
+          </div>
         </ng-container>
 
         <!-- Market rewards -->
@@ -51,7 +56,7 @@
               <div class="tooltip-content"><p>The amount you've earned by supplying or borrowing assets since you last claimed.</p></div>
             </span>
             </dt>
-            <dd>{{getMarketRewards() | roundOff2Dec | usFormat}} <span class="label">{{getMarketRewards().isGreaterThan(ZERO) ? "OMM" :  ""}}</span></dd>
+            <dd [ngStyle]="{opacity: getMarketRewards().gt(ZERO) ? null : 0.5}">{{getMarketRewards() | roundOff2Dec | usFormat}} <span class="label">{{getMarketRewards().gt(ZERO) ? "OMM" :  ""}}</span></dd>
           </dl>
         </div>
 
@@ -64,7 +69,7 @@
               <div class="tooltip-content"><p>The amount you've earned by staking OMM since you last claimed.</p></div>
             </span>
             </dt>
-            <dd>{{getStakingRewards() | roundOff2Dec | usFormat}} <span class="label">{{getStakingRewards().isGreaterThan(ZERO) ? "OMM" :  ""}}</span></dd>
+            <dd [ngStyle]="{opacity: getStakingRewards().gt(ZERO) ? null : 0.5}">{{getStakingRewards() | roundOff2Dec | usFormat}} <span class="label">{{getStakingRewards().isGreaterThan(ZERO) ? "OMM" :  ""}}</span></dd>
           </dl>
         </div>
 
@@ -77,7 +82,7 @@
               <div class="tooltip-content"><p>The amount you've earned by staking LP tokens since you last claimed.</p></div>
             </span>
             </dt>
-            <dd>{{getLiquidityRewards() | roundOff2Dec | usFormat}} <span class="label">{{getLiquidityRewards().isGreaterThan(ZERO) ? "OMM" :  ""}}</span></dd>
+            <dd [ngStyle]="{opacity: getLiquidityRewards().gt(ZERO) ? null : 0.5}">{{getLiquidityRewards() | roundOff2Dec | usFormat}} <span class="label">{{getLiquidityRewards().isGreaterThan(ZERO) ? "OMM" :  ""}}</span></dd>
           </dl>
         </div>
       </ng-container>
@@ -238,12 +243,9 @@
     </div>
 
     <!-- If no pools or no LP tokens-->
-    <div *ngIf="userLoggedIn() && !userHasStakedToAnyPool() && !isAllPoolsActive()" class="grid" style="max-width: 500px; margin: 50px auto;">
-      <div class="grid-cell">
-        <p>Supply liquidity on <a href="{{isProduction() ? 'https://app.balanced.network/trade' :'https://omm.balanced.network/trade'}}" target="_blank">Balanced</a>, then stake your LP tokens here to earn OMM. Includes the risk of impermanent loss, so it’s best for advanced users. <a
-          href="https://docs.omm.finance/user-guide/liquidity" target="_blank">Learn more.</a></p>
-      </div>
-    </div>
+    <p *ngIf="userLoggedIn() && !userHasStakedToAnyPool() && !isAllPoolsActive()" class="text-center" style="margin-top: 50px; max-width: 430px; margin-left: auto; margin-right: auto;"
+    >You don’t have any LP tokens. Supply Omm assets to a liquidity pool on <a href="{{isProduction() ? 'https://app.balanced.network/trade' :'https://omm.balanced.network/trade'}}" target="_blank" style="font-size: 16px;">Balanced</a>, then come back here.<br>
+      <br>Includes the risk of impermanent loss, so it’s best for advanced users. <a href="https://docs.omm.finance/user-guide/liquidity" target="_blank" style="font-size: 16px;">Learn more.</a></p>
 
     <table id="your-pools" class="list liquidity" [ngClass]="isAllPoolsActive() || !userLoggedIn() || !userHasStakedToAnyPool() ? 'hide':''">
       <thead>
