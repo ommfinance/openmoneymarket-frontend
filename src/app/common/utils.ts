@@ -198,4 +198,35 @@ export class Utils {
       return value === 0;
     }
   }
+
+  public static countDecimals(value: number): number {
+    if (!value) {
+      return 0;
+    }
+
+    if (Math.floor(value) === value) {
+      return 0;
+    }
+
+    const split = value.toString().split(".");
+    if (!split || !split[1]) {
+      return 0;
+    }
+
+    return split[1].length || 0;
+  }
+
+  public static debounce(fn: any, delay: number): any {
+    let timeout: NodeJS.Timeout;
+
+    return () => {
+      const context = this;
+      const args = arguments;
+
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        fn.apply(context, args);
+      }, delay || 250);
+    };
+  }
 }

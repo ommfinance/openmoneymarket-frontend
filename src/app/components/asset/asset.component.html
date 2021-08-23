@@ -78,13 +78,23 @@
             <div class="grid legend">
               <div class="grid-cell">
                 <label class="label supplied">Supplied</label>
-                <input type="text" title="{{asset.tag}} supplied" id="input-supply" #inputSupply class="input-supply"
-                       disabled="" value="0" (keyup)="onInputSupplyLostFocus()">
+                <p class="input-supply-default value-supplied" [ngStyle]="hideElement(this.inputSupplyActive)">{{inputSupply?.value}} {{supplyAssetTag()}}</p>
+
+                <div class="input-asset-supply" [ngStyle]="hideElement(!this.inputSupplyActive)">
+                  <span class="ticker">{{supplyAssetTag()}}</span>
+                  <input type="text" title="{{supplyAssetTag()}} supplied" id="input-supply" #inputSupply class="input-supply" disabled="" value="0" (keyup)="onInputSupplyLostFocus()"
+                         [ngStyle]="{'padding-right': getInputPadding(true, supplyAssetTag().toString(), inputSupplyEl)}">
+                </div>
               </div>
               <div class="grid-cell">
                 <label class="label available">Available</label>
-                <input type="text" title="{{asset.tag}} available to supply" #inpSuppAvail id="input-supply-available"
-                       class="input-supply-available" disabled value="0">
+                <p class="input-supply-default value-supplied-available" [ngStyle]="hideElement(this.inputSupplyActive)">{{inputSupplyAvailable?.value}} {{supplyAssetTag()}}</p>
+
+                <div class="input-asset-supply" [ngStyle]="hideElement(!this.inputSupplyActive)">
+                  <span class="ticker">{{supplyAssetTag()}}</span>
+                  <input type="text" title="{{supplyAssetTag()}} available to supply" id="input-supply-available" #inpSuppAvail class="input-supply" disabled value="0"
+                         [ngStyle]="{'padding-right': getInputPadding(true, supplyAssetTag().toString(), inputSupplyAvailable)}">
+                </div>
               </div>
             </div>
 
@@ -167,11 +177,23 @@
             <div class="grid legend">
               <div class="grid-cell">
                 <label class="label borrowed">Borrowed</label>
-                <input type="text" title="{{asset.tag}} borrowed" id="input-borrow" class="input-borrow" #inputBorrow disabled value="0" (keyup)="onInputBorrowLostFocus()">
+                <p class="input-borrow-default value-borrowed" [ngStyle]="hideElement(this.inputBorrowActive)">{{inputBorrow?.value}} {{getBorrowAssetTagAdjusted()}}</p>
+
+                <div class="input-asset-borrow" [ngStyle]="hideElement(!this.inputBorrowActive)">
+                  <span class="ticker">{{getBorrowAssetTagAdjusted()}}</span>
+                  <input type="text" title="{{getBorrowAssetTagAdjusted()}} borrowed" id="input-borrow" #inputBorrow class="input-borrow" disabled value="0" (keyup)="onInputBorrowLostFocus()"
+                         [ngStyle]="{'padding-right': getInputPadding(false, getBorrowAssetTagAdjusted().toString(), inputBorrowEl)}">
+                </div>
               </div>
               <div class="grid-cell">
                 <label class="label available">Available</label>
-                <input type="text" title="{{asset.tag}} available to borrow" #inpBorrAvail id="input-borrow-available" class="input-borrow-available" disabled value="0">
+                <p class="input-borrow-default value-borrowed-available" [ngStyle]="hideElement(this.inputBorrowActive)">{{inputBorrowAvailable?.value}} {{getBorrowAssetTagAdjusted()}}</p>
+
+                <div class="input-asset-borrow" [ngStyle]="hideElement(!this.inputBorrowActive)">
+                  <span class="ticker">{{getBorrowAssetTagAdjusted()}}</span>
+                  <input type="text" title="{{getBorrowAssetTagAdjusted()}} available to borrow" id="input-borrow-available" #inpBorrAvail class="input-borrow" disabled value="0"
+                         [ngStyle]="{'padding-right': getInputPadding(false, getBorrowAssetTagAdjusted().toString(), inputBorrowAvailable)}">
+                </div>
               </div>
             </div>
 

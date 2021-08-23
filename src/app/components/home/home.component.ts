@@ -88,7 +88,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     this.loadAssetLists();
 
     if (this.userLoggedIn()) {
-      this.onYourMarketsClick();
+      this.onYourMarketsClick(true);
     }
 
     // call cd after to avoid ExpressionChangedAfterItHasBeenCheckedError
@@ -208,7 +208,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     this.disableAndResetAssetsSupplyAndBorrowSliders();
   }
 
-  onYourMarketsClick(): void {
+  onYourMarketsClick(login: boolean = false): void {
     // set active market view
     this.activeMarketView = ActiveViews.USER_MARKET;
 
@@ -216,7 +216,9 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     this.loadAssetLists();
 
     // collapse assets tables
-    this.collapseTableUserAssets();
+    if (!login) {
+      this.collapseTableUserAssets();
+    }
 
     /** Set everything to default */
 
@@ -227,7 +229,9 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     this.showDefaultActions();
 
     // disable and reset supply and borrow sliders
-    this.disableAndResetAssetsSupplyAndBorrowSliders();
+    if (!login) {
+      this.disableAndResetAssetsSupplyAndBorrowSliders();
+    }
 
     // Disable asset-user inputs (Your markets)
     this.disableAssetsInputs();
