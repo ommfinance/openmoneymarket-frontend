@@ -562,20 +562,18 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       let convertedValue = bigNumValue;
 
       if (this.sIcxSelected) {
-        let icxValue;
-        if (bigNumValue.toFixed(0) === this.persistenceService.getUserAssetReserve(this.asset.tag)?.currentOTokenBalance.toFixed(0)) {
-          icxValue = this.convertSICXToICX(this.persistenceService.getUserAssetReserve(this.asset.tag)
-            ?.currentOTokenBalance ?? new BigNumber("0")).dp(2);
+        let sIcx;
+        if (bigNumValue.toFixed(0) === this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag).toFixed(0)) {
+          sIcx = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag);
         } else {
-          icxValue = this.convertSICXToICX(bigNumValue).dp(2);
+          sIcx = bigNumValue;
         }
-
-        convertedValue = icxValue;
+        convertedValue = sIcx;
+      } else if (!this.sIcxSelected && this.isAssetIcx()) {
+        convertedValue = this.convertFromICXTosICX(bigNumValue);
       }
 
-      const userSuppliedAssetBalance = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag).dp(2);
-
-      const supplyDiff = convertedValue.minus(userSuppliedAssetBalance);
+      const supplyDiff = convertedValue.minus(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
 
       // Update asset-user's supply omm rewards
       this.setText(this.suppRewardsEl, ommPrefixPlusFormat.to(this.calculationService.calculateUserDailySupplyOmmReward(this.asset.tag,
