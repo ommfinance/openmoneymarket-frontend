@@ -1,10 +1,12 @@
+import BigNumber from "bignumber.js";
+
 export class AllAssetDistPercentages {
   liquidity?: LiquidityAllAsset;
   staking?: StakingAllAsset;
   reserve: ReserveAllAsset;
-  total: number;
+  total: BigNumber;
 
-  constructor(reserve: ReserveAllAsset, total: number, liquidity?: LiquidityAllAsset, staking?: StakingAllAsset) {
+  constructor(reserve: ReserveAllAsset, total: BigNumber, liquidity?: LiquidityAllAsset, staking?: StakingAllAsset) {
     this.liquidity = liquidity;
     this.staking = staking;
     this.reserve = reserve;
@@ -17,12 +19,12 @@ export class AllAssetDistPercentages {
 }
 
 export class LiquidityAllAsset {
-  "OMM/SICX": number;
-  "OMM/USDS": number;
-  "OMM/IUSDC": number;
-  total: number;
+  "OMM/SICX": BigNumber;
+  "OMM/USDS": BigNumber;
+  "OMM/IUSDC": BigNumber;
+  total: BigNumber;
 
-  constructor(ommSicx: number, ommUsds: number, ommIusdc: number, total: number) {
+  constructor(ommSicx: BigNumber, ommUsds: BigNumber, ommIusdc: BigNumber, total: BigNumber) {
     this["OMM/SICX"] = ommSicx;
     this["OMM/USDS"] = ommUsds;
     this["OMM/IUSDC"] = ommIusdc;
@@ -31,25 +33,26 @@ export class LiquidityAllAsset {
 }
 
 export class StakingAllAsset {
-  OMM: number;
-  total: number;
+  OMM: BigNumber;
+  total: BigNumber;
 
-  constructor(OMM: number, total: number) {
+  constructor(OMM: BigNumber, total: BigNumber) {
     this.OMM = OMM;
     this.total = total;
   }
 }
 
 export class ReserveAllAsset {
-  oUSDS: number;
-  dUSDS: number;
-  dICX: number;
-  oICX: number;
-  oIUSDC: number;
-  dIUSDC: number;
-  total: number;
+  oUSDS: BigNumber;
+  dUSDS: BigNumber;
+  dICX: BigNumber;
+  oICX: BigNumber;
+  oIUSDC: BigNumber;
+  dIUSDC: BigNumber;
+  total: BigNumber;
 
-  constructor(oUSDS: number, dUSDS: number, dICX: number, oICX: number, oIUSDC: number, dIUSDC: number, total: number) {
+  constructor(oUSDS: BigNumber, dUSDS: BigNumber, dICX: BigNumber, oICX: BigNumber, oIUSDC: BigNumber, dIUSDC: BigNumber,
+              total: BigNumber) {
     this.oUSDS = oUSDS;
     this.dUSDS = dUSDS;
     this.dICX = dICX;

@@ -28,7 +28,7 @@
             <dl class="metadata">
               <dt>Claimable in {{getTimeUntilClaimStart()}}
               </dt>
-              <dd>{{getUserOmmRewardsBalance() | roundOff2Dec | usFormat}} <span class="label">{{getUserOmmRewardsBalance() > 0 ? "OMM" :  ""}}</span></dd>
+              <dd>{{getUserOmmRewardsBalance() | roundOff2Dec | usFormat}} <span class="label">{{getUserOmmRewardsBalance().isGreaterThan(ZERO) ? "OMM" :  ""}}</span></dd>
             </dl>
           </div>
         </ng-container>
@@ -39,6 +39,11 @@
             <p class="label">{{getUserOmmRewardsBalance() | roundDown2Dec | usFormat}} Omm Tokens</p>
             <a href="javascript:void(0);" class="button modal-trigger" style="margin-top: 5px;" data-modal="modal-claim-rewards"
                (click)="onClaimOmmRewardsClick()" >Claim rewards</a>
+          </div>
+
+          <!-- No rewards to claim -->
+          <div class="grid-cell text-center border-right" [ngStyle]="hideElement(!shouldHideClaimBtn())">
+            <p style="margin-top: 25px;" class="label">No rewards to claim</p>
           </div>
         </ng-container>
 
@@ -51,7 +56,7 @@
               <div class="tooltip-content"><p>The amount you've earned by supplying or borrowing assets since you last claimed.</p></div>
             </span>
             </dt>
-            <dd>{{getMarketRewards() | roundOff2Dec | usFormat}} <span class="label">{{getMarketRewards() > 0 ? "OMM" :  ""}}</span></dd>
+            <dd [ngStyle]="{opacity: getMarketRewards().gt(ZERO) ? null : 0.5}">{{getMarketRewards() | roundOff2Dec | usFormat}} <span class="label">{{getMarketRewards().gt(ZERO) ? "OMM" :  ""}}</span></dd>
           </dl>
         </div>
 
@@ -64,7 +69,7 @@
               <div class="tooltip-content"><p>The amount you've earned by staking OMM since you last claimed.</p></div>
             </span>
             </dt>
-            <dd>{{getStakingRewards() | roundOff2Dec | usFormat}} <span class="label">{{getStakingRewards() > 0 ? "OMM" :  ""}}</span></dd>
+            <dd [ngStyle]="{opacity: getStakingRewards().gt(ZERO) ? null : 0.5}">{{getStakingRewards() | roundOff2Dec | usFormat}} <span class="label">{{getStakingRewards().isGreaterThan(ZERO) ? "OMM" :  ""}}</span></dd>
           </dl>
         </div>
 
@@ -77,7 +82,7 @@
               <div class="tooltip-content"><p>The amount you've earned by staking LP tokens since you last claimed.</p></div>
             </span>
             </dt>
-            <dd>{{getLiquidityRewards() | roundOff2Dec | usFormat}} <span class="label">{{getLiquidityRewards() > 0 ? "OMM" :  ""}}</span></dd>
+            <dd [ngStyle]="{opacity: getLiquidityRewards().gt(ZERO) ? null : 0.5}">{{getLiquidityRewards() | roundOff2Dec | usFormat}} <span class="label">{{getLiquidityRewards().isGreaterThan(ZERO) ? "OMM" :  ""}}</span></dd>
           </dl>
         </div>
       </ng-container>
@@ -88,7 +93,7 @@
       <div class="grid-cell text-center border-right">
         <dl class="metadata">
           <dt>Total daily rewards</dt>
-          <dd>{{getTotalDailyRewards() | roundOff2Dec | usFormat}} <span class="label">{{getTotalDailyRewards() > 0 ? "OMM":""}}</span></dd>
+          <dd>{{getTotalDailyRewards() | roundOff2Dec | usFormat}} <span class="label">{{getTotalDailyRewards().isGreaterThan(ZERO) ? "OMM":""}}</span></dd>
         </dl>
       </div>
       <div class="grid-cell text-center">
@@ -99,7 +104,7 @@
               <div class="tooltip-content"><p>Supply or borrow from a market to earn these rewards.</p></div>
             </span>
           </dt>
-          <dd>{{getDailyMarketRewards() | roundOff2Dec | usFormat}} <span class="label">{{getDailyMarketRewards() > 0 ? "OMM":""}}</span></dd>
+          <dd>{{getDailyMarketRewards() | roundOff2Dec | usFormat}} <span class="label">{{getDailyMarketRewards().isGreaterThan(ZERO) ? "OMM":""}}</span></dd>
         </dl>
       </div>
       <div class="grid-cell text-center">
@@ -110,7 +115,7 @@
             <div class="tooltip-content"><p>Stake Omm Tokens to earn these rewards.</p></div>
           </span>
           </dt>
-          <dd>{{getDailyStakingRewards() | roundOff2Dec | usFormat}} <span class="label">{{getDailyStakingRewards() > 0 ? "OMM":""}}</span></dd>
+          <dd>{{getDailyStakingRewards() | roundOff2Dec | usFormat}} <span class="label">{{getDailyStakingRewards().isGreaterThan(ZERO) ? "OMM":""}}</span></dd>
         </dl>
       </div>
       <div class="grid-cell text-center">
@@ -121,7 +126,7 @@
               <div class="tooltip-content"><p>Supply OMM liquidity on Balanced, then stake your LP tokens here to earn rewards.</p></div>
             </span>
           </dt>
-          <dd>{{getDailyLiquidityRewards() | roundOff2Dec | usFormat}} <span class="label">{{getDailyLiquidityRewards() > 0 ? "OMM":""}}</span></dd>
+          <dd>{{getDailyLiquidityRewards() | roundOff2Dec | usFormat}} <span class="label">{{getDailyLiquidityRewards().isGreaterThan(ZERO) ? "OMM":""}}</span></dd>
         </dl>
       </div>
     </div>
@@ -175,7 +180,7 @@
             </div>
 
             <!-- Actions to show when adjust class is active -->
-            <div class="grid grid-center stake-omm-actions-adjust hide">
+            <div class="grid grid-center stake-omm-actions-adjust {{stakeAdjustActive ? '' : 'hide'}}">
               <div class="grid-cell text-right">
                 <a id="stake-omm-actions-adjust-cancel" href="javascript:void(0);" (click)="onStakeAdjustCancelClick()" class="cancel">Cancel</a>
               </div>
@@ -189,8 +194,8 @@
           <div class="grid-cell text-center">
             <dl class="metadata">
               <dt>Your stake</dt>
-              <dd><span class="value-omm-stake-amount" #ommStk>{{userOmmTokenBalanceDetails?.stakedBalance | usFormat
-                }}</span> / {{getYourStakeMax() | usFormat}} OMM</dd>
+              <dd><input id="stake-input" type="text" name="" class="{{stakeAdjustActive ? 'active' : 'hide'}}" #stakeInput (input)="onInputStakeOmmChange()"><span
+                class="value-omm-stake-amount {{stakeAdjustActive ? 'hide' : ''}}" #ommStkAmount>{{userOmmTokenBalanceDetails?.stakedBalance | usFormat}}</span> / {{getYourStakeMax() | usFormat}} OMM</dd>
             </dl>
 
             <!-- Message (If unstaking) -->
@@ -204,7 +209,7 @@
         <div id="staking-apy-data" class="grid-cell border-bottom text-center">
           <dl class="metadata">
             <dt>{{userLoggedIn() ? "Your daily rewards" : "Daily rewards"}}</dt>
-            <dd class="omm-stake-rewards" #stkDailyRew>{{this.getDailyOmmRewards() | roundOff2Dec | usFormat}} {{this.getDailyOmmRewards()  > 0 ? "OMM":""}}</dd>
+            <dd class="omm-stake-rewards" #stkDailyRew>{{this.getDailyOmmRewards() | roundOff2Dec | usFormat}} {{this.getDailyOmmRewards().isGreaterThan(ZERO) ? "OMM":""}}</dd>
           </dl>
         </div>
         <div class="grid">
@@ -217,7 +222,7 @@
           <div class="grid-cell">
             <dl class="metadata text-center">
               <dt>Total staked</dt>
-              <dd>{{getTotalStaked() | roundOff2Dec | usFormat}} {{getTotalStaked() > 0 ? "OMM":""}}</dd>
+              <dd>{{getTotalStaked() | roundOff2Dec | usFormat}} {{getTotalStaked().isGreaterThan(ZERO) ? "OMM":""}}</dd>
             </dl>
           </div>
         </div>
@@ -238,12 +243,9 @@
     </div>
 
     <!-- If no pools or no LP tokens-->
-    <div *ngIf="userLoggedIn() && !userHasStakedToAnyPool() && !isAllPoolsActive()" class="grid" style="max-width: 500px; margin: 50px auto;">
-      <div class="grid-cell">
-        <p>Supply liquidity on <a href="{{isProduction() ? 'https://app.balanced.network/trade' :'https://omm.balanced.network/trade'}}" target="_blank">Balanced</a>, then stake your LP tokens here to earn OMM. Includes the risk of impermanent loss, so it’s best for advanced users. <a
-          href="https://docs.omm.finance/user-guide/liquidity" target="_blank">Learn more.</a></p>
-      </div>
-    </div>
+    <p *ngIf="userLoggedIn() && !userHasStakedToAnyPool() && !isAllPoolsActive()" class="text-center" style="margin-top: 50px; max-width: 430px; margin-left: auto; margin-right: auto;"
+    >You don’t have any LP tokens. Supply Omm assets to a liquidity pool on <a href="{{isProduction() ? 'https://app.balanced.network/trade' :'https://omm.balanced.network/trade'}}" target="_blank" style="font-size: 16px;">Balanced</a>, then come back here.<br>
+      <br>Includes the risk of impermanent loss, so it’s best for advanced users. <a href="https://docs.omm.finance/user-guide/liquidity" target="_blank" style="font-size: 16px;">Learn more.</a></p>
 
     <table id="your-pools" class="list liquidity" [ngClass]="isAllPoolsActive() || !userLoggedIn() || !userHasStakedToAnyPool() ? 'hide':''">
       <thead>
@@ -256,9 +258,9 @@
       </tr>
       </thead>
       <tbody>
-        <ng-container *ngFor="let poolData of getUserPoolsData(); last as isLast;">
+        <ng-container *ngFor="let poolData of getUserStakedPoolsData(); last as isLast;">
           <ng-container *ngIf="userHasStakedToPool(poolData)">
-            <tr class="pool {{poolData.getPairClassName()}}" #yourPool (click)="onPoolClick(poolData)">
+            <tr class="pool {{poolData.getPairClassName()}}" (click)="onPoolClick(poolData)">
               <td class="text-dark">{{poolData.getPrettyName()}}</td>
               <td><span class="text-dark">{{getUserSuppliedBase(poolData) | roundOff2Dec | usFormat}} OMM</span><br>
                 <span class="label">{{getUserSuppliedQuote(poolData) | roundOff2Dec | usFormat}} {{poolData.getQuoteAssetName()}}</span></td>
@@ -278,9 +280,9 @@
                       <h2>Stake LP tokens</h2>
                       <p>Supply liquidity on <a href="{{isProduction() ? 'https://app.balanced.network/trade' :'https://omm.balanced.network/trade'}}" target="_blank"
                       >Balanced</a>, then<br>stake your LP tokens here to earn OMM.</p>
-                      <div id="slider-stake" disabled></div>
+                      <div class="slider-stake" disabled></div>
 
-                      <app-pool-stake-slider #stakeSlider *ngIf="userLoggedIn() && userHasLpTokenAvailableOrHasStaked(poolData.poolId)" [poolIdSet]="poolData.poolId"></app-pool-stake-slider>
+                      <app-pool-stake-slider *ngIf="userLoggedIn() && userHasLpTokenAvailableOrHasStaked(poolData.poolId)" [poolIdSet]="poolData.poolId"></app-pool-stake-slider>
 
                     </div>
                   </div>
@@ -290,7 +292,54 @@
           </ng-container>
 
           <!-- Spacer -->
-          <tr *ngIf="!isLast" class="spacer"></tr>
+          <tr *ngIf="!isLast || getUserPoolsAvailableData().length > 0" class="spacer"></tr>
+        </ng-container>
+
+        <!-- User available Assets (hide if user market view is not active) -->
+        <ng-container *ngIf="getUserPoolsAvailableData().length > 0">
+
+          <!-- Available to supply -->
+          <tr class="available-to-supply">
+            <td colspan="5">
+              <div class="grid">
+                <div class="grid-cell">
+                  <p class="separator-full text-center"><span>Available to stake</span></p>
+                </div>
+              </div>
+            </td>
+          </tr>
+
+          <ng-container *ngFor="let poolData of getUserPoolsAvailableData(); last as isLast;">
+            <ng-container *ngIf="userHasAvailableStakeToPool(poolData)">
+              <tr class="pool {{poolData.getPairClassName()}}" (click)="onPoolClick(poolData)">
+                <td class="text-dark">{{poolData.getPrettyName()}}</td>
+                <td colspan="2"><span class="text-dark">{{poolData.userAvailableBalance | roundDown2Dec | usFormat}} LP tokens</span></td>
+                <td colspan="2" class="text-green">{{to2DecimalRoundedOffPercentString(getLiquidityApy(poolData))}}</td>
+              </tr>
+
+              <!-- Pool expanded -->
+              <tr class="expanded">
+                <td colspan="5">
+                  <div class="pool-expanded pool-{{poolData.getPairClassName()}}-expanded hide">
+                    <div class="grid border-top">
+                      <div class="grid-cell text-center content">
+                        <h2>Stake LP tokens</h2>
+                        <p>Supply liquidity on <a href="{{isProduction() ? 'https://app.balanced.network/trade' :'https://omm.balanced.network/trade'}}" target="_blank"
+                        >Balanced</a>, then<br>stake your LP tokens here to earn OMM.</p>
+                        <div class="slider-stake" disabled></div>
+
+                        <app-pool-stake-slider *ngIf="userLoggedIn() && userHasLpTokenAvailableOrHasStaked(poolData.poolId)" [poolIdSet]="poolData.poolId"></app-pool-stake-slider>
+
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </ng-container>
+
+            <!-- Spacer -->
+            <tr *ngIf="!isLast" class="spacer"></tr>
+          </ng-container>
         </ng-container>
       </tbody>
     </table>

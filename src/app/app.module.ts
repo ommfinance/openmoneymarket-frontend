@@ -22,6 +22,23 @@ import { UsFormatPipe } from './pipes/us-format.pipe';
 import { RoundOff2DecPipe } from './pipes/round-off-2-dec.pipe';
 import { RoundDown2DecPipe } from './pipes/round-down-2-dec.pipe';
 import { PoolStakeSliderComponent } from './components/pool-stake-slider/pool-stake-slider.component';
+import BigNumber from "bignumber.js";
+
+// Big Number configs
+const fmt = {
+  prefix: '',
+  decimalSeparator: '.',
+  groupSeparator: ',',
+  groupSize: 3,
+  secondaryGroupSize: 0,
+  fractionGroupSeparator: ' ',
+  fractionGroupSize: 0,
+  suffix: '',
+};
+
+BigNumber.config({ FORMAT: fmt, ROUNDING_MODE: BigNumber.ROUND_DOWN, DECIMAL_PLACES: 18 });
+BigNumber.set({ ROUNDING_MODE: BigNumber.ROUND_DOWN }); // equivalent
+
 // set logging level
 log.setLevel(environment.production ? "error" : "debug");
 

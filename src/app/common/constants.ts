@@ -13,6 +13,12 @@ export const contributorsMap = new Map([
 // how much ICX should be left when user is supplying
 export const ICX_SUPPLY_BUFFER = 2;
 
+// notification timeout
+export const NOTIFICATION_TIMEOUT = 5000; // ms
+
+// Regexes
+export const BORROW_MAX_ERROR_REGEX = new RegExp('amount\\s+requested.*is\\s+more\\s+than\\s+the.*');
+
 export class Times {
   /** Class containing times (seconds, minutes, ..) in seconds, milliseconds and methods to retrieve arbitrary time in it */
   public static readonly SECOND_IN_MILLISECONDS = 1000;

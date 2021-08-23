@@ -28,6 +28,7 @@ import {UserReserveData} from "../../models/UserReserveData";
 import {ModalAction} from "../../models/ModalAction";
 import {BridgeWidgetService} from "../../services/bridge-widget/bridge-widget.service";
 import {Utils} from "../../common/utils";
+import BigNumber from "bignumber.js";
 
 @Component({
   selector: 'app-home',
@@ -87,7 +88,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     this.loadAssetLists();
 
     if (this.userLoggedIn()) {
-      this.onYourMarketsClick();
+      this.onYourMarketsClick(true);
     }
 
     // call cd after to avoid ExpressionChangedAfterItHasBeenCheckedError
@@ -157,7 +158,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   private subscribeToUserAssetBalanceChange(): void {
     // for each user asset subscribe to its balance change
     Object.values(AssetTag).forEach(assetTag => {
-      this.stateChangeService.userBalanceChangeMap.get(assetTag)!.subscribe((newBalance: number) => {
+      this.stateChangeService.userBalanceChangeMap.get(assetTag)!.subscribe((newBalance: BigNumber) => {
         // reload the asset lists
         this.loadAssetLists();
       });
@@ -207,7 +208,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     this.disableAndResetAssetsSupplyAndBorrowSliders();
   }
 
-  onYourMarketsClick(): void {
+  onYourMarketsClick(login: boolean = false): void {
     // set active market view
     this.activeMarketView = ActiveViews.USER_MARKET;
 
@@ -215,7 +216,9 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     this.loadAssetLists();
 
     // collapse assets tables
-    this.collapseTableUserAssets();
+    if (!login) {
+      this.collapseTableUserAssets();
+    }
 
     /** Set everything to default */
 
@@ -226,7 +229,9 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     this.showDefaultActions();
 
     // disable and reset supply and borrow sliders
-    this.disableAndResetAssetsSupplyAndBorrowSliders();
+    if (!login) {
+      this.disableAndResetAssetsSupplyAndBorrowSliders();
+    }
 
     // Disable asset-user inputs (Your markets)
     this.disableAssetsInputs();
@@ -319,7 +324,7 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   }
 
   getOmmPriceUSD(): string {
-    if (this.persistenceService.ommPriceUSD <= 0) {
+    if (this.persistenceService.ommPriceUSD.isLessThanOrEqualTo(new BigNumber("0"))) {
       return "";
     } else {
       return `($${this.formatNumberToUSLocaleString(Utils.roundOffTo2Decimals(this.persistenceService.ommPriceUSD))})`;

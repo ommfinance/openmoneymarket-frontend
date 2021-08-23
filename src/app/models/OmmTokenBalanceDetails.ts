@@ -1,15 +1,15 @@
-import {Utils} from "../common/utils";
+import BigNumber from "bignumber.js";
 
 export class OmmTokenBalanceDetails {
-  totalBalance: number;
-  availableBalance: number;
-  stakedBalance: number;
-  unstakingBalance: number;
-  unstakingTimeInMills: number;
+  totalBalance: BigNumber;
+  availableBalance: BigNumber;
+  stakedBalance: BigNumber;
+  unstakingBalance: BigNumber;
+  unstakingTimeInMills: BigNumber;
 
 
-  constructor(totalBalance: number, availableBalance: number, stakedBalance: number, unstakingBalance: number,
-              unstakingTimeInMills: number) {
+  constructor(totalBalance: BigNumber, availableBalance: BigNumber, stakedBalance: BigNumber, unstakingBalance: BigNumber,
+              unstakingTimeInMills: BigNumber) {
     this.totalBalance = totalBalance;
     this.availableBalance = availableBalance;
     this.stakedBalance = stakedBalance;
@@ -19,10 +19,10 @@ export class OmmTokenBalanceDetails {
 
   public getClone(): OmmTokenBalanceDetails {
     return new OmmTokenBalanceDetails(
-      Utils.roundDownToZeroDecimals(this.totalBalance),
-      Utils.roundDownToZeroDecimals(this.availableBalance),
-      Utils.roundDownToZeroDecimals(this.stakedBalance),
-      Utils.roundDownToZeroDecimals(this.unstakingBalance),
+      this.totalBalance.dp(0),
+      this.availableBalance.dp(0),
+      this.stakedBalance.dp(0),
+      this.unstakingBalance.dp(0),
       this.unstakingTimeInMills
     );
   }

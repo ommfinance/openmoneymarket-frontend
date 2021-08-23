@@ -1,14 +1,15 @@
 import IconService from 'icon-sdk-js';
 import {BigNumber} from "bignumber.js";
-import bigDecimal from "js-big-decimal";
 import {AssetTag} from "../models/Asset";
 import {BridgeWidgetAction} from "../models/BridgeWidgetAction";
 import log from "loglevel";
 
 export class Utils {
 
-  public static handleSmallDecimal(num: number): string {
-    if (num >= 0.005) {
+  public static ZERO = new BigNumber("0");
+
+  public static handleSmallDecimal(num: BigNumber): string {
+    if (num.isGreaterThanOrEqualTo(new BigNumber("0.005"))) {
       //  Round 0.005% and above up to 0.01%
       return "<0.01%";
     } else {
@@ -17,42 +18,24 @@ export class Utils {
     }
   }
 
-  // Returns number divided by the 10^decimals and rounded down to 2 decimal places
-  public static hexTo2DecimalRoundedOff(value: number | string, decimals: number = 18): number {
-    if (!value) {
-      return 0;
-    }
-    if (typeof value === "string") {
-      // return rounded down to 2 decimals places number
-      return +Utils.roundOffTo2Decimals(new BigNumber(value, 16).dividedBy(Math.pow(10, decimals)));
-    } else {
-      // return rounded down to 2 decimals places number
-      return +Utils.roundOffTo2Decimals(new BigNumber(value).dividedBy(Math.pow(10, decimals)));
-    }
-  }
-
   // Returns number divided by the 10^decimals
-  public static hexToNormalisedNumber(value: number | string, decimals: number = 18): number {
-    if (!value) {
-      return 0;
-    }
-    if (typeof value === "string") {
-      return +(new BigNumber(value, 16).dividedBy(Math.pow(10, decimals)));
+  public static hexToNormalisedNumber(value: BigNumber | string, decimals: BigNumber = new BigNumber("18")): BigNumber {
+    if (!value || !(new BigNumber(value).isFinite())) {
+      return new BigNumber("0");
+    } else if (typeof value === "string") {
+      return new BigNumber(value, 16).dividedBy(new BigNumber("10").pow(decimals));
     } else {
-      return +(new BigNumber(value).dividedBy(Math.pow(10, decimals)));
+      return value.dividedBy(new BigNumber("10").pow(decimals));
     }
   }
 
-  public static hexToNumber(value: string | number): number {
-    if (!value) {
-      return 0;
-    }
-    if (typeof value === "string") {
-      // return rounded down to 2 decimals places number
-      return +Utils.roundDownTo2Decimals(new BigNumber(value, 16));
-    }
-    else {
-      return value;
+  public static hexToNumber(value: string | BigNumber): BigNumber {
+    if (!value || !(new BigNumber(value).isFinite())) {
+      return new BigNumber("0");
+    } else if (typeof value === "string") {
+      return new BigNumber(value, 16);
+    } else {
+      return new BigNumber(value);
     }
   }
 
@@ -82,112 +65,90 @@ export class Utils {
     return (num / si[i].value).toFixed(digits).replace(rx, "$1") + si[i].symbol;
   }
 
-  public static formatNumberToUSLocaleString(num: number): string {
-    return num.toLocaleString('en-US');
+  public static formatNumberToUSLocaleString(num: BigNumber): string {
+    return num.toNumber().toLocaleString('en-US');
   }
 
-  public static normalisedAmountToBaseAmountString(amount: number, decimals: number = 18): string {
-    return new BigNumber(amount).multipliedBy(Math.pow(10, decimals)).toFixed();
+  public static normalisedAmountToBaseAmountString(amount: BigNumber, decimals: BigNumber = new BigNumber("18")): string {
+    return amount.multipliedBy(new BigNumber("10").pow(decimals)).toFixed();
   }
 
-  public static roundOffToCustomDecimals(value: number | BigNumber | string, decimals: number): number {
+  public static roundOffTo2Decimals(value: BigNumber | string): string {
     if (value instanceof BigNumber) {
-      return +(value.toFixed(decimals, BigNumber.ROUND_HALF_CEIL));
+      return value.toFixed(2, BigNumber.ROUND_HALF_CEIL);
     } else {
-      return +(new BigNumber(value).toFixed(decimals, BigNumber.ROUND_HALF_CEIL));
+      return (new BigNumber(value).toFixed(2, BigNumber.ROUND_HALF_CEIL));
     }
   }
 
-  public static roundOffTo2Decimals(value: number | BigNumber | string): number {
+  public static roundDownTo2Decimals(value: BigNumber | string | undefined): string {
+    if (!value || !(new BigNumber(value).isFinite())) {
+      return "0";
+    } else if (value instanceof BigNumber) {
+      return value.toFixed(2, BigNumber.ROUND_DOWN);
+    } else {
+      return new BigNumber(value).toFixed(2, BigNumber.ROUND_DOWN);
+    }
+  }
+
+  public static roundUpTo2Decimals(value: BigNumber | string): BigNumber {
     if (value instanceof BigNumber) {
-      return +(value.toFixed(2, BigNumber.ROUND_HALF_CEIL));
+      return new BigNumber(value.toFixed(2, BigNumber.ROUND_UP));
     } else {
-      return +(new BigNumber(value).toFixed(2, BigNumber.ROUND_HALF_CEIL));
+      return new BigNumber(new BigNumber(value).toFixed(2, BigNumber.ROUND_UP));
     }
   }
 
-  public static roundDownTo2Decimals(value: number | BigNumber | string | undefined): number {
-    if (!value) {
-      return 0;
-    }
-
+  public static roundDownToZeroDecimals(value: BigNumber | string): string {
     if (value instanceof BigNumber) {
-      return +(value.toFixed(2, BigNumber.ROUND_DOWN));
+      return value.toFixed(0, BigNumber.ROUND_DOWN);
     } else {
-      return +(new BigNumber(value).toFixed(2, BigNumber.ROUND_DOWN));
+      return new BigNumber(value).toFixed(0, BigNumber.ROUND_DOWN);
     }
   }
 
-  public static roundUpTo2Decimals(value: number | BigNumber | string): number {
-    if (value instanceof BigNumber) {
-      return +(value.toFixed(2, BigNumber.ROUND_UP));
-    } else {
-      return +(new BigNumber(value).toFixed(2, BigNumber.ROUND_UP));
-    }
+  public static convertICXTosICX(value: BigNumber, todayRate: BigNumber): BigNumber {
+    return value.dividedBy(todayRate);
   }
 
-  public static roundDownToZeroDecimals(value: number | BigNumber | string): number {
-    if (value instanceof BigNumber) {
-      return +(value.toFixed(0, BigNumber.ROUND_DOWN));
-    } else {
-      return +(new BigNumber(value).toFixed(0, BigNumber.ROUND_DOWN));
-    }
+  public static convertICXToSICXPrice(icxPrice: BigNumber, sICXRate: BigNumber = new BigNumber("0")): BigNumber {
+    return icxPrice.multipliedBy(sICXRate);
   }
 
-  public static convertICXTosICX(value: number, todayRate: number): number {
-    return value / todayRate;
+  public static convertSICXToICX(sICXvalue: BigNumber, sIcxToIcxRate: BigNumber): BigNumber {
+    return sICXvalue.multipliedBy(sIcxToIcxRate);
   }
 
-  public static convertICXToSICXPrice(icxPrice: number, sICXRate: number): number {
-    return icxPrice * sICXRate;
-  }
-
-  public static convertSICXToICX(sICXvalue: number, sIcxToIcxRate: number): number {
-    return sICXvalue * sIcxToIcxRate;
-  }
-
-  public static convertIfICXTosICX(value: number, todayRate: number, assetTag: AssetTag): number {
+  public static convertIfICXTosICX(value: BigNumber, todayRate: BigNumber, assetTag: AssetTag): BigNumber {
     if (assetTag === AssetTag.ICX) {
-      return value / todayRate;
+      return value.dividedBy(todayRate);
     } else {
       return value;
     }
   }
 
-  public static convertIfSICXToICX(value: number, sIcxToIcxRate: number, assetTag: AssetTag): number {
+  public static convertIfSICXToICX(value: BigNumber, sIcxToIcxRate: BigNumber, assetTag: AssetTag): BigNumber {
     if (assetTag === AssetTag.ICX) {
-      return value * sIcxToIcxRate;
+      return value.multipliedBy(sIcxToIcxRate);
     } else {
       return value;
     }
   }
 
-  public static subtractDecimalsWithPrecision(val1: number, val2: number, precision: number = 2): number {
-    return +(new bigDecimal(val1.toString()).subtract(new bigDecimal(val2.toString()))).round(precision,
-      bigDecimal.RoundingModes.DOWN).getValue();
+  public static subtract(val1: BigNumber, val2: BigNumber): BigNumber {
+    return val1.minus(val2);
   }
 
-  public static addDecimalsPrecision(val1: number = 0, val2: number = 0, precision: number = 2): number {
-    return +(new bigDecimal(val1.toString()).add(new bigDecimal(val2.toString()))).round(precision,
-      bigDecimal.RoundingModes.DOWN).getValue();
+  public static add(val1: BigNumber, val2: BigNumber): BigNumber {
+    return val1.plus(val2);
   }
 
-  public static divideDecimalsPrecision(val1: number, val2: number, precision: number = 2): number {
-    if (val1 === 0 || val2 === 0) {
-      return 0;
-    }
-
-    return +(new bigDecimal(val1.toString()).divide(new bigDecimal(val2.toString()), precision))
-      .round(precision, bigDecimal.RoundingModes.DOWN).getValue();
+  public static divide(val1: BigNumber, val2: BigNumber): BigNumber {
+    return val1.dividedBy(val2);
   }
 
-  public static multiplyDecimalsPrecision(val1: number, val2: number, precision: number = 2): number {
-    if (val1 === 0 || val2 === 0) {
-      return 0;
-    }
-
-    return +(new bigDecimal(val1.toString()).multiply(new bigDecimal(val2.toString())))
-      .round(precision, bigDecimal.RoundingModes.DOWN).getValue();
+  public static multiply(val1: BigNumber, val2: BigNumber): BigNumber {
+    return val1.multipliedBy(val2);
   }
 
   public static formatIconAddressToShort(address: string): string {
@@ -215,19 +176,57 @@ export class Utils {
     window.dispatchEvent(event);
   }
 
-  public static makeNegativeNumber(value: number | string): number {
-    if (value === 0) {
-      return 0;
+  public static makeNegativeNumber(value: BigNumber | string): BigNumber {
+    const bigNum = new BigNumber(value);
+    if (bigNum.isZero() || !bigNum.isFinite()) {
+      return new BigNumber("0");
     }
 
     if (typeof value === "string") {
-      return -Math.abs(+value);
+      return (new BigNumber(value)).abs().negated();
     } else {
-      return -Math.abs(value);
+      return value.abs().negated();
     }
   }
 
-  public static isUndefinedOrZero(value?: number): boolean {
-    return (!value) || value === 0;
+  public static isUndefinedOrZero(value?: number | BigNumber): boolean {
+    if (!value) {
+      return false;
+    } else if (value instanceof BigNumber) {
+      return value.isZero();
+    } else {
+      return value === 0;
+    }
+  }
+
+  public static countDecimals(value: number): number {
+    if (!value) {
+      return 0;
+    }
+
+    if (Math.floor(value) === value) {
+      return 0;
+    }
+
+    const split = value.toString().split(".");
+    if (!split || !split[1]) {
+      return 0;
+    }
+
+    return split[1].length || 0;
+  }
+
+  public static debounce(fn: any, delay: number): any {
+    let timeout: NodeJS.Timeout;
+
+    return () => {
+      const context = this;
+      const args = arguments;
+
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        fn.apply(context, args);
+      }, delay || 250);
+    };
   }
 }

@@ -1,10 +1,12 @@
-export class DistributionPercentages {
-  daoFund: number;
-  liquidityProvider: number;
-  lendingBorrow: number;
-  worker: number;
+import BigNumber from "bignumber.js";
 
-  constructor(daoFund: number, lp: number, lendingBorrow: number, worker: number) {
+export class DistributionPercentages {
+  daoFund: BigNumber;
+  liquidityProvider: BigNumber;
+  lendingBorrow: BigNumber;
+  worker: BigNumber;
+
+  constructor(daoFund: BigNumber, lp: BigNumber, lendingBorrow: BigNumber, worker: BigNumber) {
     this.daoFund = daoFund;
     this.liquidityProvider = lp;
     this.lendingBorrow = lendingBorrow;

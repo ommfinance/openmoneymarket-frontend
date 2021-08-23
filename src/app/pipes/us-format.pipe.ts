@@ -13,11 +13,7 @@ export class UsFormatPipe implements PipeTransform {
 
   public formatNumberToUSLocaleString(num?: number | string | BigNumber, defaultZero = false): string {
     if (!num || (+num) === 0) { return defaultZero ? "0" : "-"; }
-    if (typeof num === 'string' || num instanceof BigNumber) {
-      return Utils.formatNumberToUSLocaleString(+num);
-    } else {
-      return Utils.formatNumberToUSLocaleString(num);
-    }
+    return Utils.formatNumberToUSLocaleString(new BigNumber(num));
   }
 
 }

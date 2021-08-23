@@ -1,12 +1,14 @@
+import BigNumber from "bignumber.js";
+
 export interface TotalPoolInterface {
-  poolID: number;
-  totalStakedBalance: number;
+  poolID: BigNumber;
+  totalStakedBalance: BigNumber;
 }
 
 export interface UserPoolDataInterface {
-  poolID: number;
-  totalStakedBalance: number;
-  userAvailableBalance: number;
-  userStakedBalance: number;
-  userTotalBalance: number;
+  poolID: BigNumber;
+  totalStakedBalance: BigNumber;
+  userAvailableBalance: BigNumber;
+  userStakedBalance: BigNumber;
+  userTotalBalance: BigNumber;
 }

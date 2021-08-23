@@ -7,13 +7,13 @@ import {Utils} from "../common/utils";
 })
 export class RoundOff2DecPipe implements PipeTransform {
 
-  transform(value: number | BigNumber | string | undefined): number {
+  transform(value: BigNumber | string | undefined): string {
     return this.roundOffTo2Decimals(value);
   }
 
-  private roundOffTo2Decimals(value: number | BigNumber | string | undefined): number {
+  private roundOffTo2Decimals(value: BigNumber | string | undefined): string {
     if (!value) {
-      return 0;
+      return "0";
     }
     return Utils.roundOffTo2Decimals(value);
   }

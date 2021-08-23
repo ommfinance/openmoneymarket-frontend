@@ -1,12 +1,13 @@
+import BigNumber from "bignumber.js";
 
 export class OmmRewards {
   liquidity?: Liquidity;
   staking?: Staking;
   reserve: Reserve;
-  total: number;
+  total: BigNumber;
 
 
-  constructor(reserve: Reserve, total: number, liquidity?: Liquidity, staking?: Staking) {
+  constructor(reserve: Reserve, total: BigNumber, liquidity?: Liquidity, staking?: Staking) {
     this.liquidity = liquidity;
     this.staking = staking;
     this.reserve = reserve;
@@ -19,12 +20,12 @@ export class OmmRewards {
 }
 
 export class Liquidity {
-  "OMM/SICX": number;
-  "OMM/USDS": number;
-  "OMM/IUSDC": number;
-  total: number;
+  "OMM/SICX": BigNumber;
+  "OMM/USDS": BigNumber;
+  "OMM/IUSDC": BigNumber;
+  total: BigNumber;
 
-  constructor(ommSicx: number, ommUsds: number, ommIusdc: number, total: number) {
+  constructor(ommSicx: BigNumber, ommUsds: BigNumber, ommIusdc: BigNumber, total: BigNumber) {
     this["OMM/SICX"] = ommSicx;
     this["OMM/USDS"] = ommUsds;
     this["OMM/IUSDC"] = ommIusdc;
@@ -33,25 +34,26 @@ export class Liquidity {
 }
 
 export class Staking {
-  OMM: number;
-  total: number;
+  OMM: BigNumber;
+  total: BigNumber;
 
-  constructor(OMM: number, total: number) {
+  constructor(OMM: BigNumber, total: BigNumber) {
     this.OMM = OMM;
     this.total = total;
   }
 }
 
 export class Reserve {
-  oUSDS: number;
-  dUSDS: number;
-  dICX: number;
-  oICX: number;
-  oIUSDC: number;
-  dIUSDC: number;
-  total: number;
+  oUSDS: BigNumber;
+  dUSDS: BigNumber;
+  dICX: BigNumber;
+  oICX: BigNumber;
+  oIUSDC: BigNumber;
+  dIUSDC: BigNumber;
+  total: BigNumber;
 
-  constructor(oUSDS: number, dUSDS: number, dICX: number, oICX: number, oIUSDC: number, dIUSDC: number, total: number) {
+  constructor(oUSDS: BigNumber, dUSDS: BigNumber, dICX: BigNumber, oICX: BigNumber, oIUSDC: BigNumber, dIUSDC: BigNumber,
+              total: BigNumber) {
     this.oUSDS = oUSDS;
     this.dUSDS = dUSDS;
     this.dICX = dICX;

@@ -23,6 +23,7 @@ import {PoolData} from "../../models/PoolData";
 import {UserPoolData} from "../../models/UserPoolData";
 import {Utils} from "../../common/utils";
 import {PoolsDistPercentages} from "../../models/PoolsDistPercentages";
+import BigNumber from "bignumber.js";
 
 @Injectable({
   providedIn: 'root'
@@ -105,7 +106,7 @@ export class DataLoaderService {
       log.debug("loadPoolsData:", poolsData);
 
       // get stats for each pool
-      this.persistenceService.allPoolsDataMap = new Map<number, PoolData>(); // re-init map to trigger state changes
+      this.persistenceService.allPoolsDataMap = new Map<string, PoolData>(); // re-init map to trigger state changes
       for (const poolData of poolsData) {
         const poolStats = await this.scoreService.getPoolStats(poolData.poolID);
         log.debug("getPoolStats for " + poolData.poolID + " AFTER mapping:", poolStats);
@@ -114,7 +115,7 @@ export class DataLoaderService {
           , poolStats);
         // push combined pool and stats to response array and persistence map
         poolsDataRes.push(newPoolData);
-        this.persistenceService.allPoolsDataMap.set(poolData.poolID, newPoolData);
+        this.persistenceService.allPoolsDataMap.set(poolData.poolID.toString(), newPoolData);
       }
 
       this.stateChangeService.poolsDataUpdate(poolsDataRes);
@@ -141,9 +142,11 @@ export class DataLoaderService {
       log.debug("loadUserPoolsData:", userPoolsData);
 
       // get stats for each pool from persistence pool map
-      this.persistenceService.userPoolsDataMap = new Map<number, UserPoolData>(); // re-init map to trigger state changes
+      this.persistenceService.userPoolsDataMap = new Map<string, UserPoolData>(); // re-init map to trigger state changes
       for (const userPoolData of userPoolsData) {
-        const poolStats = this.persistenceService.allPoolsDataMap.get(Utils.hexToNumber(userPoolData.poolID))?.poolStats;
+        log.debug("allPoolsDataMap:", this.persistenceService.allPoolsDataMap);
+        log.debug("poolId = ", Utils.hexToNumber(userPoolData.poolID));
+        const poolStats = this.persistenceService.allPoolsDataMap.get(Utils.hexToNumber(userPoolData.poolID).toString())?.poolStats;
 
         if (!poolStats) {
           log.error("Could not find pool stats for pool " + Utils.hexToNumber(userPoolData.poolID));
@@ -153,7 +156,7 @@ export class DataLoaderService {
         const newUserPoolData = Mapper.mapUserPoolData(userPoolData, poolStats.getPrecision(), poolStats);
 
         userPoolsDataRes.push(newUserPoolData);
-        this.persistenceService.userPoolsDataMap.set(newUserPoolData.poolId, newUserPoolData);
+        this.persistenceService.userPoolsDataMap.set(newUserPoolData.poolId.toString(), newUserPoolData);
       }
 
       this.stateChangeService.userPoolsDataUpdate(userPoolsDataRes);
@@ -339,7 +342,7 @@ export class DataLoaderService {
     }
   }
 
-  public async loadTokenDistributionPerDay(day?: number): Promise<void> {
+  public async loadTokenDistributionPerDay(day?: BigNumber): Promise<void> {
     try {
       this.stateChangeService.tokenDistributionPerDayUpdate((await this.scoreService.getTokenDistributionPerDay(day)));
     } catch (e) {

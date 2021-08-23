@@ -1,13 +1,15 @@
 import {AssetTag} from "./Asset";
+import BigNumber from "bignumber.js";
 
 export class DailyRewardsAllReservesPools {
   liquidity?: LiquidityDailyRewards;
   staking?: StakingDailyRewards;
   reserve: ReserveDailyRewards;
-  total: number;
-  day: number;
+  total: BigNumber;
+  day: BigNumber;
 
-  constructor(reserve: ReserveDailyRewards, total: number, day: number, liquidity?: LiquidityDailyRewards, staking?: StakingDailyRewards) {
+  constructor(reserve: ReserveDailyRewards, total: BigNumber, day: BigNumber, liquidity?: LiquidityDailyRewards,
+              staking?: StakingDailyRewards) {
     this.liquidity = liquidity;
     this.staking = staking;
     this.reserve = reserve;
@@ -21,12 +23,12 @@ export class DailyRewardsAllReservesPools {
 }
 
 export class LiquidityDailyRewards {
-  "OMM/SICX": number;
-  "OMM/USDS": number;
-  "OMM/IUSDC": number;
-  total: number;
+  "OMM/SICX": BigNumber;
+  "OMM/USDS": BigNumber;
+  "OMM/IUSDC": BigNumber;
+  total: BigNumber;
 
-  constructor(ommSicx: number, ommUsds: number, ommIusdc: number, total: number) {
+  constructor(ommSicx: BigNumber, ommUsds: BigNumber, ommIusdc: BigNumber, total: BigNumber) {
     this["OMM/SICX"] = ommSicx;
     this["OMM/USDS"] = ommUsds;
     this["OMM/IUSDC"] = ommIusdc;
@@ -35,25 +37,26 @@ export class LiquidityDailyRewards {
 }
 
 export class StakingDailyRewards {
-  OMM: number;
-  total: number;
+  OMM: BigNumber;
+  total: BigNumber;
 
-  constructor(OMM: number, total: number) {
+  constructor(OMM: BigNumber, total: BigNumber) {
     this.OMM = OMM;
     this.total = total;
   }
 }
 
 export class ReserveDailyRewards {
-  oUSDS: number;
-  dUSDS: number;
-  dICX: number;
-  oICX: number;
-  oIUSDC: number;
-  dIUSDC: number;
-  total: number;
+  oUSDS: BigNumber;
+  dUSDS: BigNumber;
+  dICX: BigNumber;
+  oICX: BigNumber;
+  oIUSDC: BigNumber;
+  dIUSDC: BigNumber;
+  total: BigNumber;
 
-  constructor(oUSDS: number, dUSDS: number, dICX: number, oICX: number, oIUSDC: number, dIUSDC: number, total: number) {
+  constructor(oUSDS: BigNumber, dUSDS: BigNumber, dICX: BigNumber, oICX: BigNumber, oIUSDC: BigNumber, dIUSDC: BigNumber,
+              total: BigNumber) {
     this.oUSDS = oUSDS;
     this.dUSDS = dUSDS;
     this.dICX = dICX;
@@ -63,7 +66,7 @@ export class ReserveDailyRewards {
     this.total = total;
   }
 
-  getDailySupplyRewardsForReserve(assetTag: AssetTag): number {
+  getDailySupplyRewardsForReserve(assetTag: AssetTag): BigNumber {
     switch (assetTag) {
       case AssetTag.ICX:
         return this.oICX;
@@ -72,11 +75,11 @@ export class ReserveDailyRewards {
       case AssetTag.USDC:
         return this.oIUSDC;
       default:
-        return 0;
+        return new BigNumber("0");
     }
   }
 
-  getDailyBorrowRewardsForReserve(assetTag: AssetTag): number {
+  getDailyBorrowRewardsForReserve(assetTag: AssetTag): BigNumber {
     switch (assetTag) {
       case AssetTag.ICX:
         return this.dICX;
@@ -85,7 +88,7 @@ export class ReserveDailyRewards {
       case AssetTag.USDC:
         return this.dIUSDC;
       default:
-        return 0;
+        return new BigNumber("0");
     }
   }
 }

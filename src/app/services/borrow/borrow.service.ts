@@ -10,7 +10,7 @@ import log from "loglevel";
 import {AssetTag} from "../../models/Asset";
 import {BridgeWidgetService} from "../bridge-widget/bridge-widget.service";
 import {TransactionDispatcherService} from "../transaction-dispatcher/transaction-dispatcher.service";
-import {Utils} from "../../common/utils";
+import BigNumber from "bignumber.js";
 
 @Injectable({
   providedIn: 'root'
@@ -25,15 +25,15 @@ export class BorrowService {
               private transactionDispatcherService: TransactionDispatcherService) {
   }
 
-  public borrowAsset(amount: number, assetTag: AssetTag, notificationMessage: string): void {
-    amount = Utils.roundDownTo2Decimals(amount);
+  public borrowAsset(amount: BigNumber, assetTag: AssetTag, notificationMessage: string): void {
+    amount = amount.dp(2);
     const tx = this.buildBorrowAssetTx(amount, assetTag);
 
     log.debug(`borrow ${assetTag} TX: `, tx);
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
-  private buildBorrowAssetTx(amount: number, assetTag: AssetTag): any {
+  private buildBorrowAssetTx(amount: BigNumber, assetTag: AssetTag): any {
     this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
 
     const decimals = this.persistenceService.allReserves!.getReserveData(assetTag).decimals;

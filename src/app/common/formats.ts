@@ -10,6 +10,13 @@ declare var wNumb: any;
 // %
 export const normalFormat = wNumb({
   decimals: 0,
+  thousand: ',',
+});
+
+// 000,000.00
+export const usLocale = wNumb({
+  decimals: 2,
+  thousand: ',',
 });
 
 // %

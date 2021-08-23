@@ -39,7 +39,7 @@ export class TransactionDispatcherService {
       log.debug("Estimated cost for ", tx, " is ", estimatedStepCost);
 
       if (estimatedStepCost) {
-        tx.stepLimit = this.iconApiService.convertNumberToHex(Math.round(estimatedStepCost * 1.1));
+        tx.stepLimit = this.iconApiService.convertNumberToHex(estimatedStepCost);
       }
 
       if (this.persistenceService.activeWallet instanceof IconexWallet) {

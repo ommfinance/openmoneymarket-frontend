@@ -1,27 +1,29 @@
 import {AssetTag} from "./Asset";
+import BigNumber from "bignumber.js";
 
 export class UserReserveData {
-  borrowRate: number;
-  currentBorrowBalance: number;
-  currentBorrowBalanceUSD: number;
-  currentOTokenBalance: number;
-  currentOTokenBalanceUSD: number;
-  exchangeRate: number;
-  lastUpdateTimestamp: number;
-  liquidityRate: number;
-  originationFee: number;
-  principalBorrowBalance: number;
-  principalBorrowBalanceUSD: number;
-  principalOTokenBalance: number;
-  principalOTokenBalanceUSD: number;
-  useAsCollateral: number;
-  userBorrowCumulativeIndex: number;
-  userLiquidityIndex: number;
+  borrowRate: BigNumber;
+  currentBorrowBalance: BigNumber;
+  currentBorrowBalanceUSD: BigNumber;
+  currentOTokenBalance: BigNumber;
+  currentOTokenBalanceUSD: BigNumber;
+  exchangeRate: BigNumber;
+  lastUpdateTimestamp: BigNumber;
+  liquidityRate: BigNumber;
+  originationFee: BigNumber;
+  principalBorrowBalance: BigNumber;
+  principalBorrowBalanceUSD: BigNumber;
+  principalOTokenBalance: BigNumber;
+  principalOTokenBalanceUSD: BigNumber;
+  useAsCollateral: BigNumber;
+  userBorrowCumulativeIndex: BigNumber;
+  userLiquidityIndex: BigNumber;
 
-  constructor(borrowRate: number, currentBorrowBalance: number, currentBorrowBalanceUSD: number, currentOTokenBalance: number,
-              currentOTokenBalanceUSD: number, exchangeRate: number, lastUpdateTimestamp: number, liquidityRate: number,
-              originationFee: number, principalBorrowBalance: number, principalBorrowBalanceUSD: number, principalOTokenBalance: number,
-              principalOTokenBalanceUSD: number, useAsCollateral: number, userBorrowCumulativeIndex: number, userLiquidityIndex: number) {
+  constructor(borrowRate: BigNumber, currentBorrowBalance: BigNumber, currentBorrowBalanceUSD: BigNumber, currentOTokenBalance: BigNumber,
+              currentOTokenBalanceUSD: BigNumber, exchangeRate: BigNumber, lastUpdateTimestamp: BigNumber, liquidityRate: BigNumber,
+              originationFee: BigNumber, principalBorrowBalance: BigNumber, principalBorrowBalanceUSD: BigNumber,
+              principalOTokenBalance: BigNumber, principalOTokenBalanceUSD: BigNumber, useAsCollateral: BigNumber,
+              userBorrowCumulativeIndex: BigNumber, userLiquidityIndex: BigNumber) {
     this.borrowRate = borrowRate;
     this.currentBorrowBalance = currentBorrowBalance;
     this.currentBorrowBalanceUSD = currentBorrowBalanceUSD;
