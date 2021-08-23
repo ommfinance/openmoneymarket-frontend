@@ -1,12 +1,6 @@
 import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {SlidersService} from "../../services/sliders/sliders.service";
-import {
-  assetFormat,
-  assetPrefixMinusFormat,
-  assetPrefixPlusFormat,
-  ommPrefixPlusFormat,
-  percentageFormat
-} from "../../common/formats";
+import {assetPrefixMinusFormat, assetPrefixPlusFormat, ommPrefixPlusFormat, percentageFormat, usLocale} from "../../common/formats";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {Asset, AssetTag, assetToCollateralAssetTag, CollateralAssetTag} from "../../models/Asset";
 import log from "loglevel";
@@ -56,10 +50,10 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   @ViewChild("assetYour")set e(assetEl: ElementRef) { this.assetYourEl = assetEl.nativeElement; }
   marketExpandedEl: any;
   @ViewChild("marketExpandedEl")set f(marketExpandedEl: ElementRef) {this.marketExpandedEl = marketExpandedEl.nativeElement; }
-  inputSupply: any;
-  @ViewChild("inputSupply")set g(inputSupply: ElementRef) { this.inputSupply = inputSupply.nativeElement; }
-  inputBorrow: any;
-  @ViewChild("inputBorrow")set h(inputBorrow: ElementRef) { this.inputBorrow = inputBorrow.nativeElement; }
+  inputSupplyEl: any;
+  @ViewChild("inputSupply")set g(inputSupply: ElementRef) { this.inputSupplyEl = inputSupply.nativeElement; }
+  inputBorrowEl: any;
+  @ViewChild("inputBorrow")set h(inputBorrow: ElementRef) { this.inputBorrowEl = inputBorrow.nativeElement; }
   inputSupplyAvailable: any;
   @ViewChild("inpSuppAvail")set i(inputSupplyAvailable: ElementRef) { this.inputSupplyAvailable = inputSupplyAvailable.nativeElement; }
   inputBorrowAvailable: any;
@@ -87,6 +81,10 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   // flag for icx / sICX toggle handling
   sIcxSelected = false;
+
+  // flag for supply and borrow input state
+  inputSupplyActive = false;
+  inputBorrowActive = false;
 
   constructor(private slidersService: SlidersService,
               public calculationService: CalculationsService,
@@ -123,6 +121,9 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * On Adjust cancel click
    */
   onAdjustCancelClick(): void {
+    this.inputSupplyActive = false;
+    this.inputBorrowActive = false;
+
     // Reset actions
     this.showDefaultActions();
 
@@ -147,6 +148,9 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * Borrow adjust
    */
   onBorrowAdjustClick(): void {
+    this.inputSupplyActive = false;
+    this.inputBorrowActive = true;
+
     /** Setup actions */
     this.addClass(this.borrowEl, "adjust");
     this.removeClass(this.supplyEl, "adjust");
@@ -169,6 +173,9 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * Supply adjust
    */
   onSupplyAdjustClick(): void {
+    this.inputSupplyActive = true;
+    this.inputBorrowActive = false;
+
     /** Setup actions */
     this.addClass(this.supplyEl, "adjust");
     this.removeClass(this.borrowEl, "adjust");
@@ -184,7 +191,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.resetBorrowInputs();
 
     /** Enable Supply inputs of asset-user */
-    this.inputSupply.removeAttribute("disabled");
+    this.inputSupplyEl.removeAttribute("disabled");
     this.sliderSupply.removeAttribute("disabled");
 
     // set supply slider value
@@ -196,6 +203,9 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * Asset expand logic
    */
   onAssetClick(): void {
+    this.inputSupplyActive = false;
+    this.inputBorrowActive = false;
+
     // reset sliders
     this.disableAndResetSupplySlider();
     this.disableAndResetBorrowSlider();
@@ -243,10 +253,10 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       const value = this.getInputSupplyValue();
 
       if (value.isGreaterThan(this.supplySliderMaxValue())) {
-        this.inputSupply.classList.add("red-border");
+        this.inputSupplyEl.classList.add("red-border");
       } else {
         // reset border color if it passes the check
-        this.inputSupply.classList.remove("red-border");
+        this.inputSupplyEl.classList.remove("red-border");
         // set slider value
         this.setSupplySliderValue(value);
       }
@@ -260,11 +270,22 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.delay(() => {
       const value = this.getInputBorrowValue();
 
+      // stop slider on min (do not allow to go below "Used" repayment a.k.a user available balance of asset)
+      const borrowUsed = this.getBorrowUsed();
+      if (!borrowUsed.isZero()) {
+        if (value.isLessThan(borrowUsed)) {
+          const newValue = borrowUsed.dp(2);
+          this.inputBorrowEl.value = Utils.formatNumberToUSLocaleString(borrowUsed);
+          this.sliderBorrow.noUiSlider.set(newValue.toNumber());
+          return;
+        }
+      }
+
       if (value.isGreaterThan(this.borrowSliderMaxValue())) {
-        this.inputBorrow.classList.add("red-border");
+        this.inputBorrowEl.classList.add("red-border");
       } else {
         // reset border color if it passes the check
-        this.inputBorrow.classList.remove("red-border");
+        this.inputBorrowEl.classList.remove("red-border");
         // set slider value
         this.setBorrowSliderValue(value);
       }
@@ -323,9 +344,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     // check that borrowed value is not greater than max
     const max = this.borrowSliderMaxValue();
     if (value.isGreaterThan(max)) {
-      log.error("Borrow value = ", value);
-      log.error("Max value = ", max);
-
       value = max;
       this.setBorrowSliderValue(value);
       return;
@@ -434,14 +452,14 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     if (!reserve) {
       // set borrowed available value
       const borrowAvailable = this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag);
-      this.inputBorrowAvailable.value = assetFormat(this.asset.tag).to(borrowAvailable.dp(2).toNumber());
+      this.inputBorrowAvailable.value = Utils.formatNumberToUSLocaleString(borrowAvailable.dp(2));
 
       // update asset borrow slider max value to  -> borrowed + borrow available
       max = this.getMaxBorrowAvailable(this.getUserBorrowedAssetBalance().plus(borrowAvailable).dp(2));
     } else {
       // set borrowed available value
       const borrowAvailable = this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag);
-      this.inputBorrowAvailable.value = assetFormat(this.asset.tag).to(borrowAvailable.dp(2).toNumber());
+      this.inputBorrowAvailable.value = Utils.formatNumberToUSLocaleString(borrowAvailable.dp(2));
 
       // update asset borrow slider max value to  -> borrowed + borrow available
       max = this.getMaxBorrowAvailable(this.SICXToICXIfAssetIsICX(reserve.currentBorrowBalance).plus(borrowAvailable));
@@ -474,8 +492,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       supplyAvailable = this.persistenceService.getUserAssetBalance(this.asset.tag);
     }
 
-    this.inputSupplyAvailable.value = assetFormat(this.sIcxSelected ? assetToCollateralAssetTag(
-      this.asset.tag) : this.asset.tag).to(supplyAvailable.dp(2).toNumber());
+    this.inputSupplyAvailable.value = Utils.formatNumberToUSLocaleString(supplyAvailable.dp(2));
 
     // update asset supply slider max value to  -> supplied + supplied available
     const oTokenBalance = this.sIcxSelected ? reserve.currentOTokenBalance : this.SICXToICXIfAssetIsICX(reserve.currentOTokenBalance);
@@ -499,7 +516,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       newBalance = newBalance.dp(2);
 
       if (this.sliderSupply) {
-        this.inputSupplyAvailable.value = assetFormat(this.asset.tag).to(newBalance.toNumber());
+        this.inputSupplyAvailable.value = Utils.formatNumberToUSLocaleString(newBalance);
 
         const max = Utils.add(newBalance, this.getUserSuppliedAssetBalance());
         this.sliderSupply.noUiSlider.updateOptions({
@@ -518,7 +535,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   initSupplySliderlogic(): void {
     // On asset-user supply slider update (Your markets)
     this.sliderSupply.noUiSlider.on('update', (values: any, handle: any) => {
-      let value = this.deformatAssetValue(values[handle], this.sIcxSelected);
+      let value = +usLocale.from(values[handle]);
 
       // in case of ICX leave 2 ICX for the fees
       const sliderMinusBuffer = this.supplySliderMaxValue().minus(ICX_SUPPLY_BUFFER).dp(2).toNumber();
@@ -528,15 +545,14 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
       const assetTag = this.sIcxSelected ? CollateralAssetTag.sICX : this.asset.tag;
 
-      // Update supplied text box
-      this.inputSupply.value = assetFormat(assetTag).to(value);
-
       // BigNumber value used in calculations
       const bigNumValue = new BigNumber(value);
 
+      // Update supplied text box
+      this.inputSupplyEl.value = Utils.formatNumberToUSLocaleString(bigNumValue);
+
       // Update asset-user available text box
-      const supplyAvailable = this.supplySliderMaxValue().minus(bigNumValue).dp(2).toNumber();
-      this.inputSupplyAvailable.value = assetFormat(assetTag).to(supplyAvailable);
+      this.inputSupplyAvailable.value = Utils.formatNumberToUSLocaleString(this.supplySliderMaxValue().minus(bigNumValue).dp(2));
 
       // Update asset-user's supply interest
       this.setText(this.suppInterestEl, assetPrefixPlusFormat(assetTag).to(this.getDailySupplyInterest(assetTag, bigNumValue)
@@ -603,24 +619,26 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   initBorrowSliderLogic(): void {
     // On asset-user borrow slider update (Your markets)
     this.sliderBorrow.noUiSlider.on('update', (values: any, handle: any) => {
-      const value = this.deformatAssetValue(values[handle], true);
+      const deformatedValue = usLocale.from(values[handle]);
+
       // BigNumber value used in calculations
-      const bigNumValue = new BigNumber(value);
+      const bigNumValue = new BigNumber(deformatedValue);
 
       // stop slider on min (do not allow to go below "Used" repayment a.k.a user available balance of asset)
-      if (this.isAssetBorrowUsed()) {
-        const borrowUsed = this.borrowUsed();
-        if (bigNumValue.isLessThan(borrowUsed)) {
-          return this.setBorrowSliderValue(borrowUsed);
-        }
+      const borrowUsed = this.getBorrowUsed();
+      if (!borrowUsed.isZero() && bigNumValue.isLessThan(borrowUsed)) {
+        this.sliderBorrow.noUiSlider.set(borrowUsed.dp(2).toNumber());
+        return;
       }
 
+      const value = +deformatedValue;
+
       // Update asset-user borrowed text box
-      this.inputBorrow.value = assetFormat(assetToCollateralAssetTag(this.asset.tag)).to(value);
+      this.inputBorrowEl.value = Utils.formatNumberToUSLocaleString(bigNumValue);
 
       // Update asset-user available text box
-      this.inputBorrowAvailable.value = assetFormat(assetToCollateralAssetTag(this.asset.tag)).to(Utils.subtract(
-        this.borrowSliderMaxValue(), bigNumValue).dp(2).toNumber());
+      this.inputBorrowAvailable.value = Utils.formatNumberToUSLocaleString(Utils.subtract(this.borrowSliderMaxValue(),
+        bigNumValue).dp(2));
 
       // Update asset-user's borrow interest
       this.setText(this.borrInterestEl, assetPrefixMinusFormat(assetToCollateralAssetTag(this.asset.tag)).to(
@@ -730,8 +748,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     }
 
     this.sliderSupply.noUiSlider.set(res.toNumber());
-
-    log.debug("setSupplySliderValue max = " + this.supplySliderMaxValue());
   }
 
   private setBorrowSliderValue(value: BigNumber): void {
@@ -760,7 +776,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   getUserBorrowedAssetBalance(): BigNumber {
-    return this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag);
+    return this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag).dp(2);
   }
 
   getUserSuppliableBalanceUSD(): BigNumber {
@@ -869,12 +885,12 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   resetBorrowInputs(): void {
-    $(this.inputBorrow).attr('disabled', 'disabled');
+    $(this.inputBorrowEl).attr('disabled', 'disabled');
     $(this.inputBorrowAvailable).attr('disabled', 'disabled');
   }
 
   resetSupplyInputs(): void {
-    $(this.inputSupply).attr('disabled', 'disabled');
+    $(this.inputSupplyEl).attr('disabled', 'disabled');
     $(this.inputSupplyAvailable).attr('disabled', 'disabled');
   }
 
@@ -893,14 +909,14 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   disableInputs(): void {
     // Disable asset-user inputs (Your markets)
-    $(this.inputSupply).attr('disabled', 'disabled');
+    $(this.inputSupplyEl).attr('disabled', 'disabled');
     $(this.inputSupplyAvailable).attr('disabled', 'disabled');
-    $(this.inputBorrow).attr('disabled', 'disabled');
+    $(this.inputBorrowEl).attr('disabled', 'disabled');
     $(this.inputBorrowAvailable).attr('disabled', 'disabled');
   }
 
   enableAssetBorrow(): void {
-    this.inputBorrow.removeAttribute("disabled");
+    this.inputBorrowEl.removeAttribute("disabled");
     this.sliderBorrow.removeAttribute("disabled");
     this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
   }
@@ -923,8 +939,8 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   removeInputRedBorderClass(): void {
     // Remove red border class on input
-    this.removeClass(this.inputSupply, "red-border");
-    this.removeClass(this.inputBorrow, "red-border");
+    this.removeClass(this.inputSupplyEl, "red-border");
+    this.removeClass(this.inputBorrowEl, "red-border");
   }
 
   updateRiskData(assetTag?: AssetTag, diff?: BigNumber, userAction?: UserAction, updateState = true): BigNumber {
@@ -967,11 +983,11 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
     // return in percentage how much is "used", i.e. how much in percentage user still has to repay
     // user can not scroll below this percentage on repayment / borrow slider
-    const borrowUsed = this.borrowUsed();
+    const borrowUsed = this.getBorrowUsed();
     return borrowUsed.isZero() ? new BigNumber("0") : borrowUsed.dividedBy(this.borrowSliderMaxValue()).multipliedBy(new BigNumber("100"));
   }
 
-  borrowUsed(): BigNumber {
+  getBorrowUsed(): BigNumber {
     const userCollateralAssetBalance = this.persistenceService.getUserAssetCollateralBalance(assetToCollateralAssetTag(this.asset.tag));
     const userAssetDebt = this.persistenceService.getUserAssetDebt(this.asset.tag);
 
@@ -982,7 +998,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   // check if users balance is less than amount he has to repay
   isAssetBorrowUsed(): boolean {
-    if (this.getUserBorrowedAssetBalance().isLessThanOrEqualTo(Utils.ZERO)){
+    if (this.getUserBorrowedAssetBalance().eq(Utils.ZERO)){
       return false;
     }
 
@@ -995,19 +1011,11 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   getInputBorrowValue(): BigNumber {
-    return new BigNumber(assetFormat(this.asset.tag).from(this.inputBorrow?.value ?? "0"));
+    return new BigNumber(usLocale.from(this.inputBorrowEl?.value ?? "0"));
   }
 
   getInputSupplyValue(): BigNumber {
-    return new BigNumber(assetFormat(this.asset.tag).from(this.inputSupply.value));
-  }
-
-  deformatAssetValue(value: any, convertToCollateralAsset = false): number {
-    if (convertToCollateralAsset) {
-      return assetFormat(assetToCollateralAssetTag(this.asset.tag)).from(value);
-    } else {
-      return assetFormat(this.asset.tag).from(value);
-    }
+    return new BigNumber(usLocale.from(this.inputSupplyEl.value));
   }
 
   shouldShowUnstaking(): boolean {
@@ -1057,6 +1065,24 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     } else {
       return this.asset.tag.toString();
     }
+  }
+
+  getInputPadding(inputSupply: boolean, tag?: string, el?: any): string {
+    if (!tag || !el) {
+      return "45px";
+    }
+
+    const decimals = Utils.countDecimals(el?.value);
+    const unit = 5;
+    const base = inputSupply ? 40 : 35;
+
+    const res =  base + (tag.length * unit + (tag.length > 3 ? 5 : -10));
+
+    if (tag === "sICX") {
+      return "55px";
+    }
+
+    return decimals > 0 ? res + 5 + "px" : res + 3 + "px";
   }
 
   isAssetIcx(assetTag?: AssetTag | CollateralAssetTag): boolean {

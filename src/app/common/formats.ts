@@ -13,6 +13,12 @@ export const normalFormat = wNumb({
   thousand: ',',
 });
 
+// 000,000.00
+export const usLocale = wNumb({
+  decimals: 2,
+  thousand: ',',
+});
+
 // %
 export const percentageFormat = wNumb({
   decimals: 0,
