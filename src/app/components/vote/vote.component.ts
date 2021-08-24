@@ -462,4 +462,8 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     }
     return false;
   }
+
+  errorHandlerPrepLogo($event: any): void {
+    $event.target.src = "assets/img/icon/profile.svg";
+  }
 }
