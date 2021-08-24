@@ -391,7 +391,7 @@ export class DataLoaderService {
     const url = `https://iconwat.ch/logos/${address}.png`;
 
     try {
-      if (this.imageExists(url)) {
+      if (await this.imageExists(url)) {
         return url;
       } else {
         return undefined;
@@ -402,13 +402,9 @@ export class DataLoaderService {
     }
   }
 
-  private imageExists(url: string): boolean {
-    const http = new XMLHttpRequest();
-
-    http.open('HEAD', url, false);
-    http.send();
-
-    return http.status < 400;
+  private async imageExists(url: string): Promise<boolean> {
+    const res = await this.http.get(url, { observe: 'response' }).toPromise();
+    return res.status < 400;
   }
 
   public async afterUserActionReload(): Promise<void> {
