@@ -57,10 +57,10 @@ export class ScoreService {
   public async getTokenDistributionPerDay(day?: BigNumber): Promise<BigNumber> {
     this.checkerService.checkAllAddressesLoaded();
 
-    day = day ? day : await this.getRewardsDay();
+    day = day ? IconConverter.toHex(day) : await this.getRewardsDay();
 
     const params = {
-      _day: IconConverter.toHex(day),
+      _day: day,
     };
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Rewards,
@@ -73,7 +73,7 @@ export class ScoreService {
     return Utils.hexToNormalisedNumber(res);
   }
 
-  public async getRewardsDay(): Promise<BigNumber> {
+  public async getRewardsDay(): Promise<string> {
     this.checkerService.checkAllAddressesLoaded();
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Rewards,
@@ -83,7 +83,7 @@ export class ScoreService {
 
     log.debug("getRewardsDay: ", res);
 
-    return Utils.hexToNumber(res);
+    return res;
   }
 
   /**

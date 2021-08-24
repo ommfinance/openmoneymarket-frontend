@@ -371,11 +371,7 @@ export class DataLoaderService {
       // fetch logos
       try {
         Promise.all(prepList.preps?.map(async (prep) => {
-          if (environment.production) {
-            prep.setLogoUrl(this.getLogoIconwatchApiUrl(prep.address));
-          } else {
-            prep.setLogoUrl(await this.getLogoUrl(prep.details));
-          }
+          prep.setLogoUrl(await this.getLogoUrl(prep.address));
         }));
       } catch (e) {
         log.debug("Failed to fetch all logos");
@@ -389,33 +385,30 @@ export class DataLoaderService {
     }
   }
 
-  private getLogoIconwatchApiUrl(address: string): string {
-    return `https://iconwat.ch/logos/${address}.png`;
-  }
+  private async getLogoUrl(address: string): Promise<string | undefined> {
+    if (!address) { return undefined; }
 
-  private async getLogoUrl(jsonUrl: string | undefined): Promise<string | undefined> {
-    if (!jsonUrl) { return undefined; }
+    const url = `https://iconwat.ch/logos/${address}.png`;
 
     try {
-      const logoUrlPromise = this.http.get<any>(jsonUrl).toPromise();
-      const resJson: any = await logoUrlPromise;
-      const logo256PngUrl = resJson?.representative?.logo?.logo_256;
-      const logo1024PngUrl = resJson?.representative?.logo?.logo_1024;
-      const logoSvgUrl = resJson?.representative?.logo?.logo_svg;
-
-      if (logo256PngUrl) {
-        return logo256PngUrl;
-       } else if (logoSvgUrl) {
-         return logoSvgUrl;
-       } else if (logo1024PngUrl) {
-        return logo1024PngUrl;
+      if (this.imageExists(url)) {
+        return url;
       } else {
         return undefined;
       }
     } catch (e) {
-      log.error("Error occurred in API call to " + jsonUrl);
+      log.error("Error occurred in API call to " + url);
       return undefined;
     }
+  }
+
+  private imageExists(url: string): boolean {
+    const http = new XMLHttpRequest();
+
+    http.open('HEAD', url, false);
+    http.send();
+
+    return http.status < 400;
   }
 
   public async afterUserActionReload(): Promise<void> {
