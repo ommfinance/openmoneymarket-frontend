@@ -24,6 +24,7 @@ import {UserPoolData} from "../../models/UserPoolData";
 import {Utils} from "../../common/utils";
 import {PoolsDistPercentages} from "../../models/PoolsDistPercentages";
 import BigNumber from "bignumber.js";
+import {environment} from "../../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
@@ -370,7 +371,11 @@ export class DataLoaderService {
       // fetch logos
       try {
         Promise.all(prepList.preps?.map(async (prep) => {
-          prep.setLogoUrl(await this.getLogoUrl(prep.details));
+          if (environment.production) {
+            prep.setLogoUrl(this.getLogoIconwatchApiUrl(prep.address));
+          } else {
+            prep.setLogoUrl(await this.getLogoUrl(prep.details));
+          }
         }));
       } catch (e) {
         log.debug("Failed to fetch all logos");
@@ -384,21 +389,25 @@ export class DataLoaderService {
     }
   }
 
+  private getLogoIconwatchApiUrl(address: string): string {
+    return `https://iconwat.ch/logos/${address}.png`;
+  }
+
   private async getLogoUrl(jsonUrl: string | undefined): Promise<string | undefined> {
     if (!jsonUrl) { return undefined; }
 
     try {
       const logoUrlPromise = this.http.get<any>(jsonUrl).toPromise();
       const resJson: any = await logoUrlPromise;
-      const logoSvgUrl = resJson?.representative?.logo?.logo_svg;
       const logo256PngUrl = resJson?.representative?.logo?.logo_256;
       const logo1024PngUrl = resJson?.representative?.logo?.logo_1024;
+      const logoSvgUrl = resJson?.representative?.logo?.logo_svg;
 
-      if (logoSvgUrl) {
-        return logoSvgUrl;
-      } else if (logo256PngUrl) {
+      if (logo256PngUrl) {
         return logo256PngUrl;
-      } else if (logo1024PngUrl) {
+       } else if (logoSvgUrl) {
+         return logoSvgUrl;
+       } else if (logo1024PngUrl) {
         return logo1024PngUrl;
       } else {
         return undefined;
