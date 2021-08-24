@@ -627,7 +627,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   initBorrowSliderLogic(): void {
     // On asset-user borrow slider update (Your markets)
     this.sliderBorrow.noUiSlider.on('update', (values: any, handle: any) => {
-      log.debug("initBorrowSliderLogic...");
       const deformatedValue = +usLocale.from(values[handle]);
 
       // if the value is same as previous return
@@ -646,9 +645,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         this.sliderBorrow.noUiSlider.set(borrowUsed.dp(2).toNumber());
         return;
       }
-
-      log.debug("after borrowed used set...");
-
 
       const value = +deformatedValue;
 

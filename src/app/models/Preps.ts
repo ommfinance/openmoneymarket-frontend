@@ -41,7 +41,6 @@ export class Prep {
   }
 
   setLogoUrl(logoUrl: string | undefined): void {
-    log.debug("Setting logo url:", logoUrl);
     this.logoUrl = logoUrl ? logoUrl : "assets/img/icon/profile.svg";
   }
 
