@@ -24,6 +24,7 @@ import {UserPoolData} from "../../models/UserPoolData";
 import {Utils} from "../../common/utils";
 import {PoolsDistPercentages} from "../../models/PoolsDistPercentages";
 import BigNumber from "bignumber.js";
+import {environment} from "../../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
@@ -369,9 +370,14 @@ export class DataLoaderService {
 
       // fetch logos
       try {
-        Promise.all(prepList.preps?.map(async (prep) => {
-          prep.setLogoUrl(await this.getLogoUrl(prep.details));
-        }));
+        // Promise.all(prepList.preps?.map(async (prep) => {
+          // prep.setLogoUrl(await this.getLogoUrl(prep.address));
+        // }));
+
+        prepList.preps?.forEach(prep => {
+          prep.setLogoUrl(`https://iconwat.ch/logos/${prep.address}.png`);
+        });
+
       } catch (e) {
         log.debug("Failed to fetch all logos");
       }
@@ -384,29 +390,26 @@ export class DataLoaderService {
     }
   }
 
-  private async getLogoUrl(jsonUrl: string | undefined): Promise<string | undefined> {
-    if (!jsonUrl) { return undefined; }
+  private async getLogoUrl(address: string): Promise<string | undefined> {
+    if (!address) { return undefined; }
+
+    const url = `https://iconwat.ch/logos/${address}.png`;
 
     try {
-      const logoUrlPromise = this.http.get<any>(jsonUrl).toPromise();
-      const resJson: any = await logoUrlPromise;
-      const logoSvgUrl = resJson?.representative?.logo?.logo_svg;
-      const logo256PngUrl = resJson?.representative?.logo?.logo_256;
-      const logo1024PngUrl = resJson?.representative?.logo?.logo_1024;
-
-      if (logoSvgUrl) {
-        return logoSvgUrl;
-      } else if (logo256PngUrl) {
-        return logo256PngUrl;
-      } else if (logo1024PngUrl) {
-        return logo1024PngUrl;
+      if (await this.imageExists(url)) {
+        return url;
       } else {
         return undefined;
       }
     } catch (e) {
-      log.error("Error occurred in API call to " + jsonUrl);
+      log.error("Error occurred in API call to " + url);
       return undefined;
     }
+  }
+
+  private async imageExists(url: string): Promise<boolean> {
+    const res = await this.http.get(url, { observe: 'response' }).toPromise();
+    return res.status < 400;
   }
 
   public async afterUserActionReload(): Promise<void> {

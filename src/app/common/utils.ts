@@ -81,6 +81,14 @@ export class Utils {
     }
   }
 
+  public static roundOffTo0Decimals(value: BigNumber | string): string {
+    if (value instanceof BigNumber) {
+      return value.toFixed(0, BigNumber.ROUND_HALF_CEIL);
+    } else {
+      return (new BigNumber(value).toFixed(0, BigNumber.ROUND_HALF_CEIL));
+    }
+  }
+
   public static roundDownTo2Decimals(value: BigNumber | string | undefined): string {
     if (!value || !(new BigNumber(value).isFinite())) {
       return "0";

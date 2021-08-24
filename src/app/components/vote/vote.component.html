@@ -210,7 +210,7 @@
                     <div class="grid-cell">
                       <div class="plus" [ngStyle]="hideElement(!userLoggedIn() || prepIsInYourVotes(prep))" (click)="addYourVotePrep(prep)">+</div>
                       <div class="minus" [ngStyle]="hideElement(!userLoggedIn() || !prepIsInYourVotes(prep) || !yourVotesEditMode)" (click)="removeYourVotePrepByAddress(prep)">–</div>
-                      <img [src]="prep.logoUrl">
+                      <img [src]="prep.logoUrl" (error)="errorHandlerPrepLogo($event)">
                     </div>
                     <div class="grid-cell">
                       {{prep.name}}

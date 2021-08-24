@@ -86,6 +86,9 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   inputSupplyActive = false;
   inputBorrowActive = false;
 
+  prevBorrowSliderSetValue?: number;
+  prevSupplySliderSetValue?: number;
+
   constructor(private slidersService: SlidersService,
               public calculationService: CalculationsService,
               private stateChangeService: StateChangeService,
@@ -537,6 +540,13 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.sliderSupply.noUiSlider.on('update', (values: any, handle: any) => {
       let value = +usLocale.from(values[handle]);
 
+      // if the value is same as previous return
+      if (this.prevSupplySliderSetValue && value === this.prevSupplySliderSetValue) {
+        return;
+      } else {
+        this.prevSupplySliderSetValue = value;
+      }
+
       // in case of ICX leave 2 ICX for the fees
       const sliderMinusBuffer = this.supplySliderMaxValue().minus(ICX_SUPPLY_BUFFER).dp(2).toNumber();
       if (!this.sIcxSelected && this.isAssetIcx() && value > sliderMinusBuffer && value > ICX_SUPPLY_BUFFER) {
@@ -617,7 +627,14 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   initBorrowSliderLogic(): void {
     // On asset-user borrow slider update (Your markets)
     this.sliderBorrow.noUiSlider.on('update', (values: any, handle: any) => {
-      const deformatedValue = usLocale.from(values[handle]);
+      const deformatedValue = +usLocale.from(values[handle]);
+
+      // if the value is same as previous return
+      if (this.prevBorrowSliderSetValue && deformatedValue === this.prevBorrowSliderSetValue) {
+        return;
+      } else {
+        this.prevBorrowSliderSetValue = deformatedValue;
+      }
 
       // BigNumber value used in calculations
       const bigNumValue = new BigNumber(deformatedValue);

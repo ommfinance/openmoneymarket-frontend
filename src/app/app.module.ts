@@ -23,6 +23,7 @@ import { RoundOff2DecPipe } from './pipes/round-off-2-dec.pipe';
 import { RoundDown2DecPipe } from './pipes/round-down-2-dec.pipe';
 import { PoolStakeSliderComponent } from './components/pool-stake-slider/pool-stake-slider.component';
 import BigNumber from "bignumber.js";
+import {RoundOff0DecPipe} from "./pipes/round-off-0-dec.pipe";
 
 // Big Number configs
 const fmt = {
@@ -58,6 +59,7 @@ log.setLevel(environment.production ? "error" : "debug");
     UsFormatPipe,
     RoundOff2DecPipe,
     RoundDown2DecPipe,
+    RoundOff0DecPipe,
     PoolStakeSliderComponent
   ],
   imports: [
