@@ -13,6 +13,7 @@ import {TransactionResultService} from "../transaction-result/transaction-result
 import {LocalStorageService} from "../local-storage/local-storage.service";
 import {IconexId} from "../../models/IconexId";
 import log from "loglevel";
+import BigNumber from "bignumber.js";
 
 @Injectable({
   providedIn: 'root'
@@ -39,7 +40,7 @@ export class TransactionDispatcherService {
       log.debug("Estimated cost for ", tx, " is ", estimatedStepCost);
 
       if (estimatedStepCost) {
-        tx.stepLimit = this.iconApiService.convertNumberToHex(estimatedStepCost);
+        tx.stepLimit = this.iconApiService.convertNumberToHex(estimatedStepCost.multipliedBy(new BigNumber("1.3")));
       }
 
       if (this.persistenceService.activeWallet instanceof IconexWallet) {
