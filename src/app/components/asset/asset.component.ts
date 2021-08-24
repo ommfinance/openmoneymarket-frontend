@@ -639,6 +639,13 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       // BigNumber value used in calculations
       const bigNumValue = new BigNumber(deformatedValue);
 
+      // Update asset-user borrowed text box
+      this.inputBorrowEl.value = Utils.formatNumberToUSLocaleString(bigNumValue);
+
+      // Update asset-user available text box
+      this.inputBorrowAvailable.value = Utils.formatNumberToUSLocaleString(Utils.subtract(this.borrowSliderMaxValue(),
+        bigNumValue).dp(2));
+
       // stop slider on min (do not allow to go below "Used" repayment a.k.a user available balance of asset)
       const borrowUsed = this.getBorrowUsed();
       if (!borrowUsed.isZero() && bigNumValue.isLessThan(borrowUsed)) {
@@ -646,14 +653,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         return;
       }
 
-      const value = +deformatedValue;
-
-      // Update asset-user borrowed text box
-      this.inputBorrowEl.value = Utils.formatNumberToUSLocaleString(bigNumValue);
-
-      // Update asset-user available text box
-      this.inputBorrowAvailable.value = Utils.formatNumberToUSLocaleString(Utils.subtract(this.borrowSliderMaxValue(),
-        bigNumValue).dp(2));
+      const value = deformatedValue;
 
       // Update asset-user's borrow interest
       this.setText(this.borrInterestEl, assetPrefixMinusFormat(assetToCollateralAssetTag(this.asset.tag)).to(
