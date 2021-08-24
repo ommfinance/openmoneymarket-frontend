@@ -642,7 +642,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       // stop slider on min (do not allow to go below "Used" repayment a.k.a user available balance of asset)
       const borrowUsed = this.getBorrowUsed();
       if (!borrowUsed.isZero() && bigNumValue.isLessThan(borrowUsed)) {
-        const newBorrowedVal = borrowUsed.dp(2);
+        const newBorrowedVal = borrowUsed.dp(2, BigNumber.ROUND_UP);
         // Update asset-user borrowed text box
         this.inputBorrowEl.value = Utils.formatNumberToUSLocaleString(newBorrowedVal);
 
