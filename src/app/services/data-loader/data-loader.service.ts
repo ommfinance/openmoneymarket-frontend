@@ -370,9 +370,14 @@ export class DataLoaderService {
 
       // fetch logos
       try {
-        Promise.all(prepList.preps?.map(async (prep) => {
-          prep.setLogoUrl(await this.getLogoUrl(prep.address));
-        }));
+        // Promise.all(prepList.preps?.map(async (prep) => {
+          // prep.setLogoUrl(await this.getLogoUrl(prep.address));
+        // }));
+
+        prepList.preps?.forEach(prep => {
+          prep.setLogoUrl(`https://iconwat.ch/logos/${prep.address}.png`);
+        });
+
       } catch (e) {
         log.debug("Failed to fetch all logos");
       }
