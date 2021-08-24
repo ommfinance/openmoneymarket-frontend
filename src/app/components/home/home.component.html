@@ -74,7 +74,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Total supplied</dt>
-                  <dd>{{this.toDollarUSLocaleString(this.persistenceService.getTotalSuppliedUSD() | roundOff2Dec)}}</dd>
+                  <dd>{{this.toDollarUSLocaleString(this.persistenceService.getTotalSuppliedUSD() | roundOff0Dec)}}</dd>
                 </dl>
               </div>
 
@@ -95,7 +95,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Total borrowed</dt>
-                  <dd>{{this.toDollarUSLocaleString(this.persistenceService.getTotalBorrowedUSD() | roundOff2Dec)}}</dd>
+                  <dd>{{this.toDollarUSLocaleString(this.persistenceService.getTotalBorrowedUSD() | roundOff0Dec)}}</dd>
                 </dl>
               </div>
 
