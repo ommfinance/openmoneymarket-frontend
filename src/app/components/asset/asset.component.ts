@@ -642,11 +642,16 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       // stop slider on min (do not allow to go below "Used" repayment a.k.a user available balance of asset)
       const borrowUsed = this.getBorrowUsed();
       if (!borrowUsed.isZero() && bigNumValue.isLessThan(borrowUsed)) {
-        this.sliderBorrow.noUiSlider.set(borrowUsed.dp(2).toNumber());
+        const newBorrowedVal = borrowUsed.dp(2, BigNumber.ROUND_UP);
+        // Update asset-user borrowed text box
+        this.inputBorrowEl.value = Utils.formatNumberToUSLocaleString(newBorrowedVal);
+
+        // Update asset-user available text box
+        this.inputBorrowAvailable.value = Utils.formatNumberToUSLocaleString(Utils.subtract(this.borrowSliderMaxValue(),
+          newBorrowedVal).dp(2));
+        this.sliderBorrow.noUiSlider.set(newBorrowedVal.toNumber());
         return;
       }
-
-      const value = +deformatedValue;
 
       // Update asset-user borrowed text box
       this.inputBorrowEl.value = Utils.formatNumberToUSLocaleString(bigNumValue);
@@ -654,6 +659,8 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       // Update asset-user available text box
       this.inputBorrowAvailable.value = Utils.formatNumberToUSLocaleString(Utils.subtract(this.borrowSliderMaxValue(),
         bigNumValue).dp(2));
+
+      const value = deformatedValue;
 
       // Update asset-user's borrow interest
       this.setText(this.borrInterestEl, assetPrefixMinusFormat(assetToCollateralAssetTag(this.asset.tag)).to(
