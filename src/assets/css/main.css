@@ -2240,8 +2240,9 @@ input[type="text"].input-borrow-available {
   max-width: 125px;
   padding-right: 20px;
 }
+.list.p-reps tbody tr td:nth-of-type(3),
 .list.p-reps tbody tr td:last-child {
-  max-width: 90px;
+  width: 150px;
 }
 .list.p-reps tbody {
   color: #49546a;
@@ -2647,7 +2648,8 @@ input[type="text"].input-borrow-available {
     display: none;
   }
   .list.p-reps tbody tr td:first-of-type {
-    width: 95px;
+    padding-left: 50px;
+    width: 70px;
   }
   #vote-power {
     padding-left: 0;
