@@ -16,7 +16,7 @@
           <input id="apr-toggle-checkbox" type="checkbox" [(ngModel)]="ommApyChecked" (change)="ommApyToggleChanged()">
           <span class="switch-slider round"></span>
         </label>
-        <p class="label apr-label" #aprLabel>{{ommApyChecked ? "APY with OMM" : "APY without OMM"}} {{getOmmPriceUSD()}}</p>
+        <p class="label apr-label" #aprLabel>{{ommApyChecked ? "Rates with OMM" : "Rates without OMM"}} {{getOmmPriceUSD()}}</p>
       </div>
     </div>
 
@@ -54,10 +54,10 @@
             </dl>
           </div>
 
-          <!-- Your borrow APY -->
+          <!-- Your borrow APR -->
           <div class="grid-cell text-center">
             <dl class="metadata">
-              <dt>Your borrow APY</dt>
+              <dt>Your borrow APR</dt>
               <dd class="{{isNegative(this.calculationService.getYourBorrowApy(ommApyChecked)) ? 'text-purple' : 'text-green'}} value-borrowed-apy">{{to2DecimalRoundedOffPercentString(makeAbsolute(this.calculationService.getYourBorrowApy(ommApyChecked)))}}</dd> <!-- Borrow APY -->
             </dl>
           </div>
@@ -81,7 +81,7 @@
               <!-- Total supply APY -->
               <div class="grid-cell text-center">
                 <dl class="metadata">
-                  <dt>Total supply APY</dt>
+                  <dt>Avg supply APY</dt>
                   <dd class="text-green">{{to2DecimalRoundedOffPercentString(this.calculationService.getTotalAvgSupplyApy(ommApyChecked))}}</dd>
                 </dl>
               </div>
@@ -102,7 +102,7 @@
               <!-- Total borrow APY -->
               <div class="grid-cell text-center">
                 <dl class="metadata">
-                  <dt>Total borrow APY</dt>
+                  <dt>Avg borrow APR</dt>
                   <dd class="{{isNegative(this.calculationService.getTotalAvgBorrowApy(ommApyChecked)) ? 'text-purple' : 'text-green'}}">{{to2DecimalRoundedOffPercentString(makeAbsolute(this.calculationService.getTotalAvgBorrowApy(ommApyChecked)))}}</dd> <!-- Borrow APY -->
                 </dl>
               </div>
@@ -157,7 +157,7 @@
                             }}</p></div>
 												</span></th>
               <th>You've borrowed</th>
-              <th>Borrow APY <span class="borrow-apy-tooltip tooltip">
+              <th>Borrow APR <span class="borrow-apy-tooltip tooltip">
 													<span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
 													<div class="tooltip-content"><p class="borrow-apy-tooltip-content">{{
                             ommApyChecked ? "The amount you’ll owe from interest, minus the OMM you’ll earn, if you supply an asset for 1 year. Rates vary based on supply and demand.":
@@ -177,7 +177,7 @@
                             }}</p></div>
 												</span></th>
               <th>Total borrowed</th>
-              <th>Borrow APY <span class="borrow-apy-tooltip tooltip">
+              <th>Borrow APR <span class="borrow-apy-tooltip tooltip">
 													<span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
 													<div class="tooltip-content"><p class="borrow-apy-tooltip-content">{{
                             ommApyChecked ? "The amount you’ll owe from interest, minus the OMM you’ll earn, if you supply an asset for 1 year. Rates vary based on supply and demand.":
