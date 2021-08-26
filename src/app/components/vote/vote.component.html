@@ -220,10 +220,10 @@
                     </div>
                   </div>
                 </td>
-                <td>${{getPrepsUSDReward(prep)}}<br>
-                  <span class="label">{{getPrepsIcxReward(prep)}} ICX</span></td>
+                <td>${{getPrepsUSDReward(prep, i) | roundOff0Dec | usFormat}}<br>
+                  <span class="label">{{getPrepsIcxReward(prep, i) | roundOff0Dec | usFormat}} ICX</span></td>
                 <td>{{to2DecimalRoundedOffPercentString(getDelegatedPercent(prep))}}<br>
-                  <span class="label">{{formatNumberToUSLocaleString(prep!.delegated.toFixed(0))}}</span></td>
+                  <span class="label">{{prep!.delegated  | roundOff0Dec | usFormat}}</span></td>
               </tr>
               <!-- Spacer -->
               <tr *ngIf="!isLast" class="spacer"></tr>

@@ -429,15 +429,14 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   //   }
   // }
 
-  getPrepsUSDReward(prep: Prep): string {
-    const prepsIcxReward = this.calculationsService.calculatePrepsIcxReward(prep, this.searchedPrepList);
+  getPrepsUSDReward(prep: Prep, index: number): BigNumber {
+    const prepsIcxReward = this.getPrepsIcxReward(prep, index);
     const icxExchangePrice = this.persistenceService.getAssetExchangePrice(AssetTag.ICX);
-    return this.formatNumberToUSLocaleString((prepsIcxReward.multipliedBy(icxExchangePrice)).toFixed(0));
+    return prepsIcxReward.multipliedBy(icxExchangePrice);
   }
 
-  getPrepsIcxReward(prep: Prep): string {
-    const prepsIcxReward = this.calculationsService.calculatePrepsIcxReward(prep, this.searchedPrepList).toFixed(0);
-    return this.formatNumberToUSLocaleString(prepsIcxReward);
+  getPrepsIcxReward(prep: Prep, index: number): BigNumber {
+    return this.calculationsService.calculatePrepsIcxReward(prep, this.searchedPrepList, index);
   }
 
   isPrepOmmContributor(address: string): boolean {
