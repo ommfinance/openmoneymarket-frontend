@@ -20,9 +20,9 @@ export class LogoutService {
     private localStorageService: LocalStorageService
   ) { }
 
-  signOutUser(): void {
+  signOutUser(keepBridgeSession: boolean = false): void {
     // if Bridge wallet commit request to Bridge to sign out
-    if (this.persistenceService.bridgeWalletActive()) {
+    if (!keepBridgeSession && this.persistenceService.bridgeWalletActive()) {
       this.signOutBridgeUser();
     }
 
