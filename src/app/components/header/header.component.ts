@@ -64,7 +64,7 @@ export class HeaderComponent extends BaseClass implements OnInit {
     this.notificationService.showNewNotification("Refreshing data...");
     if (this.persistenceService.activeWallet) {
       await this.dataLoaderService.loadCoreData();
-      this.loginService.walletLogin(this.persistenceService.activeWallet).then(() => {
+      this.loginService.walletLogin(this.persistenceService.activeWallet, false, true).then(() => {
         this.notificationService.showNewNotification("Successfully refreshed the data.");
       }).catch(() => {
         this.notificationService.showNewNotification("Failed to refreshed the data.");

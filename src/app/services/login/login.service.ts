@@ -30,9 +30,10 @@ export class LoginService {
     private logoutService: LogoutService
   ) { }
 
-  public async walletLogin(wallet: IconexWallet | BridgeWallet | LedgerWallet, relogin: boolean = false): Promise<void> {
+  public async walletLogin(wallet: IconexWallet | BridgeWallet | LedgerWallet, relogin: boolean = false, keepBridgeSession: boolean = false
+  ): Promise<void> {
     // clear old login
-    this.logoutService.signOutUser();
+    this.logoutService.signOutUser(keepBridgeSession);
 
     this.persistenceService.activeWallet = wallet;
 
