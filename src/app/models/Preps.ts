@@ -4,10 +4,12 @@ export class PrepList {
   prepAddressToNameMap: Map<string, string>;
   totalDelegated: BigNumber;
   totalStake: BigNumber;
+  avgIRep: BigNumber;
   preps: Prep[];
 
 
-  constructor(totalDelegated: BigNumber, totalStake: BigNumber, preps: Prep[]) {
+  constructor(totalDelegated: BigNumber, totalStake: BigNumber, preps: Prep[], avgIRep: BigNumber) {
+    this.avgIRep = avgIRep;
     this.totalDelegated = totalDelegated;
     this.totalStake = totalStake;
     this.preps = preps;

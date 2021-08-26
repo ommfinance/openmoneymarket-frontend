@@ -34,7 +34,8 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   prepList?: PrepList = this.persistenceService.prepList;
   yourVotesPrepList: YourPrepVote[] = this.persistenceService.yourVotesPrepList;
 
-  searchedPrepList: PrepList = this.persistenceService.prepList ?? new PrepList(new BigNumber("0"), new BigNumber("0"), []);
+  searchedPrepList: PrepList = this.persistenceService.prepList ?? new PrepList(new BigNumber("0"), new BigNumber("0"), [],
+    new BigNumber("0"));
   searchInput = "";
 
   @ViewChild("stkSlider")set sliderStakeSetter(sliderStake: ElementRef) {this.sliderStake = sliderStake.nativeElement; }
@@ -381,13 +382,13 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
     if (this.searchInput.trim() === "") {
       log.debug("this.searchInput.trim() === ");
-      this.searchedPrepList = this.prepList ?? new PrepList(new BigNumber("0"), new BigNumber("0"), []);
+      this.searchedPrepList = this.prepList ?? new PrepList(new BigNumber("0"), new BigNumber("0"), [], new BigNumber("0"));
 
       log.debug(`searchedPrepList:`);
       log.debug(this.searchedPrepList);
     } else {
       if (this.prepList) {
-        this.searchedPrepList = new PrepList(this.prepList.totalDelegated, this.prepList.totalStake, []);
+        this.searchedPrepList = new PrepList(this.prepList.totalDelegated, this.prepList.totalStake, [], this.prepList.avgIRep);
         const searchedPreps: Prep[] = [];
 
         this.prepList?.preps.forEach(prep => {
@@ -436,7 +437,11 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   getPrepsIcxReward(prep: Prep, index: number): BigNumber {
-    return this.calculationsService.calculatePrepsIcxReward(prep, this.searchedPrepList, index);
+    if (!this.prepList) {
+      return new BigNumber("0");
+    }
+
+    return this.calculationsService.calculatePrepsIcxReward(prep, this.prepList, index);
   }
 
   isPrepOmmContributor(address: string): boolean {

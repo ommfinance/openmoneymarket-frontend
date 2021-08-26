@@ -526,7 +526,7 @@ export class CalculationsService {
   }
 
   public calculatePrepsIcxReward(prep: Prep, prepList: PrepList, index: number): BigNumber {
-    const blockValidationRewards = prep.irep.dividedBy(new BigNumber("2"));
+    const blockValidationRewards = prepList.avgIRep.dividedBy(new BigNumber("2"));
 
     const delegationRate = prep.delegated.dividedBy(prepList.totalDelegated);
 
