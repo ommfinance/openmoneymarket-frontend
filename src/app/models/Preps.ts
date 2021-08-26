@@ -1,4 +1,3 @@
-import log from "loglevel";
 import BigNumber from "bignumber.js";
 
 export class PrepList {
