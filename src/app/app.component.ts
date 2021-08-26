@@ -11,8 +11,6 @@ import {IconexWallet} from "./models/wallets/IconexWallet";
 import {LedgerWallet} from "./models/wallets/LedgerWallet";
 import log from "loglevel";
 import {LoginService} from "./services/login/login.service";
-import {Utils} from "./common/utils";
-import {BigNumber} from "bignumber.js";
 
 declare var $: any;
 

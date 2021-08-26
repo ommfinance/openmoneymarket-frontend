@@ -525,14 +525,14 @@ export class CalculationsService {
     return amount.multipliedBy(loanOriginationFeePercentage);
   }
 
-  public calculatePrepsIcxReward(prep: Prep, prepList: PrepList): BigNumber {
+  public calculatePrepsIcxReward(prep: Prep, prepList: PrepList, index: number): BigNumber {
     const blockValidationRewards = prep.irep.dividedBy(new BigNumber("2"));
 
     const delegationRate = prep.delegated.dividedBy(prepList.totalDelegated);
 
-    const representativeRewards = prep.irep.dividedBy(new BigNumber("2")).multipliedBy(new BigNumber("100")).multipliedBy(delegationRate);
+    const representativeRewards = blockValidationRewards.multipliedBy(new BigNumber("100")).multipliedBy(delegationRate);
 
-    return blockValidationRewards.plus(representativeRewards);
+    return index < 22 ? blockValidationRewards.plus(representativeRewards) : representativeRewards;
   }
 
 
