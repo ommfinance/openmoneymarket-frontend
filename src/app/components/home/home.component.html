@@ -12,11 +12,11 @@
       </div>
 
       <div class="grid-cell">
-        <label id="apr-toggle">
-          <input id="apr-toggle-checkbox" type="checkbox" [(ngModel)]="ommApyChecked" (change)="ommApyToggleChanged()">
-          <span class="switch-slider round"></span>
-        </label>
-        <p class="label apr-label" #aprLabel>{{ommApyChecked ? "Rates with OMM" : "Rates without OMM"}} {{getOmmPriceUSD()}}</p>
+          <label *ngIf="shouldShowOmmPriceAndToggle()" id="apr-toggle">
+            <input id="apr-toggle-checkbox" type="checkbox" [(ngModel)]="ommApyChecked" (change)="ommApyToggleChanged()">
+            <span class="switch-slider round"></span>
+          </label>
+          <p class="label apr-label" #aprLabel>{{ommApyChecked ? "Rates with OMM" : "Rates without OMM"}} {{getOmmPriceUSD()}}</p>
       </div>
     </div>
 

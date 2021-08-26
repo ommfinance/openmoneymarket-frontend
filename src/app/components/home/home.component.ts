@@ -29,6 +29,8 @@ import {ModalAction} from "../../models/ModalAction";
 import {BridgeWidgetService} from "../../services/bridge-widget/bridge-widget.service";
 import {Utils} from "../../common/utils";
 import BigNumber from "bignumber.js";
+import {environment} from "../../../environments/environment";
+import {ReloaderService} from "../../services/reloader/reloader.service";
 
 @Component({
   selector: 'app-home',
@@ -73,7 +75,8 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
               public calculationService: CalculationsService,
               private cd: ChangeDetectorRef,
               private stateChangeService: StateChangeService,
-              private bridgeWidgetService: BridgeWidgetService) {
+              private bridgeWidgetService: BridgeWidgetService,
+              private reloaderService: ReloaderService) {
     super(persistenceService);
   }
 
@@ -324,10 +327,15 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   }
 
   getOmmPriceUSD(): string {
-    if (this.persistenceService.ommPriceUSD.isLessThanOrEqualTo(new BigNumber("0"))) {
+    if (!this.shouldShowOmmPriceAndToggle() || this.persistenceService.ommPriceUSD.isLessThanOrEqualTo(new BigNumber("0"))) {
       return "";
     } else {
       return `($${this.formatNumberToUSLocaleString(Utils.roundOffTo2Decimals(this.persistenceService.ommPriceUSD))})`;
     }
+  }
+
+  // show OMM price and toggle only if timestamps are not active or time to show has passed
+  shouldShowOmmPriceAndToggle(): boolean {
+    return !environment.ACTIVATE_REWARDS_TIMESTAMPS || environment.REWARDS_CLAIMABLE_START < this.reloaderService.currentTimestamp;
   }
 }
