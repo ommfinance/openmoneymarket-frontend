@@ -245,10 +245,21 @@ export class Mapper {
       ));
     });
 
+    let stakeIrepSum = new BigNumber("0");
+    let total = new BigNumber("0");
+
+    preps.slice(0, 22).forEach(prep => {
+      stakeIrepSum = stakeIrepSum.plus(prep.irep.multipliedBy(prep.delegated));
+      total = total.plus(prep.delegated);
+    });
+
+    const avgIRep = stakeIrepSum.dividedBy(total);
+
     const res = new PrepList(
       Utils.hexToNormalisedNumber(prepList.totalDelegated),
       Utils.hexToNormalisedNumber(prepList.totalStake),
-      preps
+      preps,
+      avgIRep
     );
 
     log.debug("prepList after: ", res);

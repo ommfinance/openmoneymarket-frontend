@@ -377,7 +377,6 @@ export class DataLoaderService {
         prepList.preps?.forEach(prep => {
           prep.setLogoUrl(`https://iconwat.ch/logos/${prep.address}.png`);
         });
-
       } catch (e) {
         log.debug("Failed to fetch all logos");
       }
