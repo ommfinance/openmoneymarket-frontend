@@ -6,8 +6,6 @@ export declare const environment: {
     BRIDGE_SCORE_ADDRESS: string;
     SICX_SCORE_ADDRESS: string;
     IUSDC_SCORE_ADDRESS: string;
-    OMM_SCORE_ADDRESS: string;
-    OMM_PRICE_SCORE_ADDRESS: string;
     BAND_SCORE_ADDRESS: string;
     STAKING_SCORE_ADDRESS: string;
     PRIME_TRUST_CREDIT_CARD_WIDGET_URL: string;

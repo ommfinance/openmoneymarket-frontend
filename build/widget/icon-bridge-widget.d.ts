@@ -78,6 +78,8 @@ export declare class IconBridgeWidget extends LitElement {
     private hideWidget;
     private onMenuTriggerClick;
     private onOverlayClick;
+    private _handleSignInKeyDown;
+    private _handleChangeEmailKeyDown;
     private updateEmail;
     private handleTokenTransfer;
     private emailChange;
