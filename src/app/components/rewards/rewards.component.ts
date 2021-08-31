@@ -547,6 +547,6 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   }
 
   shouldHideYourPoolsHeader(): boolean {
-    return this.isAllPoolsActive() || this.userHasStakedAnyPool();
+    return this.isAllPoolsActive() || !this.userHasStakedAnyPool();
   }
 }
