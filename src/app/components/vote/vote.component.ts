@@ -325,6 +325,10 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     return (this.persistenceService.userOmmTokenBalanceDetails?.totalBalance ?? new BigNumber("0")).isGreaterThan(Utils.ZERO);
   }
 
+  userHasMoreThanOneOmmToken(): boolean {
+    return (this.persistenceService.userOmmTokenBalanceDetails?.totalBalance ?? new BigNumber("0")).isGreaterThan(new BigNumber("1"));
+  }
+
   userHasStaked(): boolean {
     return this.persistenceService.getUsersStakedOmmBalance().isGreaterThan(Utils.ZERO);
   }
