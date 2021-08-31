@@ -10,11 +10,13 @@
         <h3>Omm stake</h3>
 
         <!-- Stake slider -->
-        <div class="slider-stake" disabled #stkSlider [ngStyle]="hideElement(!userLoggedIn() || !userHasOmmTokens())"></div>
+        <div class="slider-stake" disabled #stkSlider [ngStyle]="hideElement(!userLoggedIn() || !userHasOmmTokens() || !userHasMoreThanOneOmmToken())"></div>
 
         <!-- Message (If user has no Omm tokens) -->
         <p class="label text-center grid-cell-center" style="margin-top: 25px" [ngStyle]="hideElement(!userLoggedIn() || userHasOmmTokens())">You have no Omm Tokens.<br>Supply or borrow to earn them.</p>
 
+        <!-- Message (If user has less than 1 OMM token) -->
+        <p class="label text-center grid-cell-center" style="margin-top: 25px" [ngStyle]="hideElement(!userLoggedIn() || !userHasOmmTokens() || userHasMoreThanOneOmmToken())">You need at least 1 Omm Token in your wallet before you can stake.</p>
 
         <!-- Message (If not logged in) -->
         <div id="message-vote-logged-out" class="grid" [ngStyle]="hideElement(userLoggedIn())">
@@ -25,7 +27,7 @@
         </div>
 
         <!-- Stake actions -->
-        <div class="grid" [ngStyle]="hideElement(!userLoggedIn() || !userHasOmmTokens())">
+        <div class="grid" [ngStyle]="hideElement(!userLoggedIn() || !userHasOmmTokens() || !userHasMoreThanOneOmmToken())">
           <div class="grid-cell text-center">
 
             <!-- Actions to show by default -->
