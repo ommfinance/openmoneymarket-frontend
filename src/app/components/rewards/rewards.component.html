@@ -142,10 +142,10 @@
         <h3>Omm stake</h3>
 
         <!-- Stake slider -->
-        <div id="slider-omm-stake" disabled class="" #stkSlider [ngStyle]="hideElement(!userLoggedIn() || !userHasOmmTokens())"></div>
+        <div id="slider-omm-stake" disabled class="" #stkSlider [ngStyle]="hideElement(!userLoggedIn() || !userHasOmmTokens() || !userHasMoreThanOneOmmToken())"></div>
 
         <!-- Message (If no OMM in wallet) -->
-        <p class="label text-center" id="message-stake-no-omm" [ngStyle]="hideElement(!userLoggedIn() || userHasOmmTokens())">Earn or buy Omm Tokens,<br>then stake them here to earn more OMM.</p>
+        <p class="label text-center" id="message-stake-no-omm" [ngStyle]="hideElement(!userLoggedIn() || userHasOmmTokens() || userHasMoreThanOneOmmToken())">Earn or buy Omm Tokens,<br>then stake them here to earn more OMM.</p>
 
         <!-- Message (If not signed in) -->
         <div id="message-stake-logged-out" class="grid" [ngStyle]="hideElement(userLoggedIn())">
@@ -156,7 +156,7 @@
         </div>
 
         <!-- Stake actions -->
-        <div class="grid" [ngStyle]="hideElement(!userLoggedIn() || !userHasOmmTokens())">
+        <div class="grid" [ngStyle]="hideElement(!userLoggedIn() || !userHasOmmTokens() || !userHasMoreThanOneOmmToken())">
           <div class="grid-cell text-center">
             <!-- Actions to show by default -->
             <div *ngIf="!userHasStaked()" class="grid grid-center stake-omm-actions-default actions-default">
