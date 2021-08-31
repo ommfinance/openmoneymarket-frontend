@@ -418,6 +418,16 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     return false;
   }
 
+  userHasStakedAnyPool(): boolean {
+    for (const poolData of this.getUserPoolsData()) {
+      if (poolData.userStakedBalance.isGreaterThan(Utils.ZERO)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   getStakingApy(): BigNumber {
     return this.calculationService.calculateStakingApy();
   }
@@ -536,4 +546,7 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     return this.persistenceService.userOmmRewards?.total ?? new BigNumber("0");
   }
 
+  shouldHideYourPoolsHeader(): boolean {
+    return this.isAllPoolsActive() || this.userHasStakedAnyPool();
+  }
 }
