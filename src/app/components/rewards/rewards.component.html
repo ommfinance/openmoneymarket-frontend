@@ -147,6 +147,9 @@
         <!-- Message (If no OMM in wallet) -->
         <p class="label text-center" id="message-stake-no-omm" [ngStyle]="hideElement(!userLoggedIn() || userHasOmmTokens() || userHasMoreThanOneOmmToken())">Earn or buy Omm Tokens,<br>then stake them here to earn more OMM.</p>
 
+        <!-- Message (If user has less than 1 OMM token) -->
+        <p class="label text-center grid-cell-center" style="margin-top: 35px" [ngStyle]="hideElement(!userLoggedIn() || !userHasOmmTokens() || userHasMoreThanOneOmmToken())">You need at least 1 Omm Token in your wallet before you can stake.</p>
+
         <!-- Message (If not signed in) -->
         <div id="message-stake-logged-out" class="grid" [ngStyle]="hideElement(userLoggedIn())">
           <div class="grid-cell">
