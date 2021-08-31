@@ -408,9 +408,9 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
       && pool.userStakedBalance.isZero());
   }
 
-  userHasStakedToAnyPool(): boolean {
+  userHasStakedOrAvailableToAnyPool(): boolean {
     for (const poolData of this.getUserPoolsData()) {
-      if (poolData.userStakedBalance.isGreaterThan(Utils.ZERO)) {
+      if (poolData.userStakedBalance.isGreaterThan(Utils.ZERO) || poolData.userAvailableBalance.isGreaterThan(Utils.ZERO)) {
         return true;
       }
     }
