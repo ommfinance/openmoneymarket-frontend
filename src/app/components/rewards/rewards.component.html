@@ -246,11 +246,11 @@
     </div>
 
     <!-- If no pools or no LP tokens-->
-    <p *ngIf="userLoggedIn() && !userHasStakedToAnyPool() && !isAllPoolsActive()" class="text-center" style="margin-top: 50px; max-width: 430px; margin-left: auto; margin-right: auto;"
+    <p *ngIf="userLoggedIn() && !userHasStakedOrAvailableToAnyPool() && !isAllPoolsActive()" class="text-center" style="margin-top: 50px; max-width: 430px; margin-left: auto; margin-right: auto;"
     >You don’t have any LP tokens. Supply Omm assets to a liquidity pool on <a href="{{isProduction() ? 'https://app.balanced.network/trade' :'https://omm.balanced.network/trade'}}" target="_blank" style="font-size: 16px;">Balanced</a>, then come back here.<br>
       <br>Includes the risk of impermanent loss, so it’s best for advanced users. <a href="https://docs.omm.finance/user-guide/liquidity" target="_blank" style="font-size: 16px;">Learn more.</a></p>
 
-    <table id="your-pools" class="list liquidity" [ngClass]="isAllPoolsActive() || !userLoggedIn() || !userHasStakedToAnyPool() ? 'hide':''">
+    <table id="your-pools" class="list liquidity" [ngClass]="isAllPoolsActive() || !userLoggedIn() || !userHasStakedOrAvailableToAnyPool() ? 'hide':''">
       <thead>
       <tr>
         <th>Pool</th>
