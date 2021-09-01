@@ -91,13 +91,13 @@
             <dl class="metadata text-center">
               <dt>Your voting power</dt>
               <dd><span class="value-icx-stake-amount">{{userLoggedIn() && userVotingPower().isGreaterThan(ZERO) ?
-                (userVotingPower() | roundDown2Dec) : "-"}}</span>{{userVotingPower().isGreaterThan(ZERO) ? " ICX" : ""}}</dd>
+                (userVotingPower() | roundDown2Dec | usFormat) : "-"}}</span>{{userVotingPower().isGreaterThan(ZERO) ? " ICX" : ""}}</dd>
             </dl>
           </div>
           <div class="grid-cell">
             <dl class="metadata text-center">
               <dt>Omm's voting power</dt>
-              <dd>{{ommVotingPower() | roundDown2Dec}} ICX</dd>
+              <dd>{{ommVotingPower() | roundDown2Dec | usFormat}} ICX</dd>
             </dl>
           </div>
         </div>
