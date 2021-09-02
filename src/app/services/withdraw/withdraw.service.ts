@@ -37,7 +37,7 @@ export class WithdrawService {
         tx = this.buildWithdrawIcxTx(amount, waitForUnstaking);
         break;
       case CollateralAssetTag.sICX:
-        tx = this.buildWithdrawIcxTx(amount, waitForUnstaking);
+        tx = this.buildWithdrawIcxTx(amount, waitForUnstaking, false);
         break;
       default:
         tx = this.buildWithdrawIrc2AssetTx(amount, assetTag);
@@ -61,14 +61,16 @@ export class WithdrawService {
       this.persistenceService.allAddresses!.systemContract.LendingPool, ScoreMethodNames.REDEEM, params, IconTransactionType.WRITE);
   }
 
-  private buildWithdrawIcxTx(amount: BigNumber, waitForUnstaking = false): any {
+  private buildWithdrawIcxTx(amount: BigNumber, waitForUnstaking: boolean, convertToSICX = true): any {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     if (!amount.isEqualTo(new BigNumber("-1"))) {
-      // convert amount from ICX value to sICX
-      log.debug("Withdraw amount before conversion to sICX = " + amount);
-      amount = Utils.convertICXTosICX(amount, this.persistenceService.getAssetReserveData(AssetTag.ICX)!.sICXRate);
-      log.debug("Withdraw amount after conversion to sICX = " + amount);
+      if (convertToSICX) {
+        // convert amount from ICX value to sICX
+        log.debug("Withdraw amount before conversion to sICX = " + amount);
+        amount = Utils.convertICXTosICX(amount, this.persistenceService.getAssetReserveData(AssetTag.ICX)!.sICXRate);
+        log.debug("Withdraw amount after conversion to sICX = " + amount);
+      }
     }
 
     const params = {
