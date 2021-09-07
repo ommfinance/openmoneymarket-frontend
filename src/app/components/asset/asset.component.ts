@@ -698,7 +698,14 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         $('.value-risk-total').text("Max");
         $('.borrow-risk-warning').css("display", "flex");
       } else if (totalRisk.isGreaterThan(new BigNumber("0.75"))) {
-        this.addClass(this.borrowAction2El, "hide");
+        // if user is trying to borrow more hide buttons
+        if (borrowDiff.isNegative()) {
+          this.addClass(this.borrowAction2El, "hide");
+        } else {
+          if ($(this.borrowEl).hasClass("adjust")) {
+            this.removeClass(this.borrowAction2El, "hide");
+          }
+        }
         $('.borrow-risk-warning').css("display", "flex");
         $('.value-risk-total').text(percentageFormat.to(totalRisk.multipliedBy(new BigNumber("100")).dp(2).toNumber()));
       } else {
