@@ -1,7 +1,9 @@
 import BigNumber from "bignumber.js";
+import {defaultPrepLogoUrl} from "../common/constants";
 
 export class PrepList {
   prepAddressToNameMap: Map<string, string>;
+  prepAddressToLogoUrlMap: Map<string, string>;
   totalDelegated: BigNumber;
   totalStake: BigNumber;
   avgIRep: BigNumber;
@@ -17,6 +19,10 @@ export class PrepList {
     preps.forEach(prep => {
       this.prepAddressToNameMap.set(prep.address, prep.name);
     });
+    this.prepAddressToLogoUrlMap = new Map<string, string>();
+    preps.forEach(prep => {
+      this.prepAddressToLogoUrlMap.set(prep.address, prep.logoUrl);
+    });
   }
 }
 
@@ -27,11 +33,11 @@ export class Prep {
   delegated: BigNumber;
   irep: BigNumber;
   details: string;
-  logoUrl = "assets/img/icon/profile.svg";
+  logoUrl = defaultPrepLogoUrl;
 
 
   constructor(address: string, name: string, stake: BigNumber, delegated: BigNumber, irep: BigNumber, details: string,
-              logoUrl: string = "assets/img/icon/profile.svg") {
+              logoUrl: string = defaultPrepLogoUrl) {
     this.address = address;
     this.name = name;
     this.stake = stake;
@@ -42,7 +48,7 @@ export class Prep {
   }
 
   setLogoUrl(logoUrl: string | undefined): void {
-    this.logoUrl = logoUrl ? logoUrl : "assets/img/icon/profile.svg";
+    this.logoUrl = logoUrl ? logoUrl : defaultPrepLogoUrl;
   }
 
 }
