@@ -223,6 +223,7 @@ export class StateChangeService {
   }
 
   public updatePrepList(prepList: PrepList): void {
+    this.persistenceService.prepList = prepList;
     this.prepListChange.next(prepList);
   }
 

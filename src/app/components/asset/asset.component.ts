@@ -490,16 +490,18 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     let supplyAvailable;
 
     if (this.sIcxSelected) {
-      supplyAvailable = this.persistenceService.getUserAssetCollateralBalance(assetToCollateralAssetTag(this.asset.tag));
+      supplyAvailable = this.persistenceService.getUserAssetCollateralBalance(assetToCollateralAssetTag(this.asset.tag)).dp(2);
     } else {
-      supplyAvailable = this.persistenceService.getUserAssetBalance(this.asset.tag);
+      supplyAvailable = this.persistenceService.getUserAssetBalance(this.asset.tag).dp(2);
     }
 
-    this.inputSupplyAvailable.value = Utils.formatNumberToUSLocaleString(supplyAvailable.dp(2));
+    this.inputSupplyAvailable.value = Utils.formatNumberToUSLocaleString(supplyAvailable);
 
     // update asset supply slider max value to  -> supplied + supplied available
-    const oTokenBalance = this.sIcxSelected ? reserve.currentOTokenBalance : this.SICXToICXIfAssetIsICX(reserve.currentOTokenBalance);
+    const oTokenBalance = this.sIcxSelected ? reserve.currentOTokenBalance.dp(2)
+      : this.SICXToICXIfAssetIsICX(reserve.currentOTokenBalance).dp(2);
     const max = oTokenBalance.plus(supplyAvailable);
+
     this.sliderSupply.noUiSlider.updateOptions({
       range: {
         min: 0,
