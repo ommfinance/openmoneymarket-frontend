@@ -18,7 +18,7 @@ import {Utils} from "../../common/utils";
 import {DataLoaderService} from "../../services/data-loader/data-loader.service";
 import {VoteAction} from "../../models/VoteAction";
 import {AssetTag} from "../../models/Asset";
-import {contributorsMap} from "../../common/constants";
+import {contributorsMap, defaultPrepLogoUrl} from "../../common/constants";
 import {normalFormat} from "../../common/formats";
 import BigNumber from "bignumber.js";
 
@@ -462,6 +462,10 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
         this.persistenceService.getUsersAvailableOmmBalance());
   }
 
+  getLogoUrl(address: string): string {
+    return this.persistenceService.prepList?.prepAddressToLogoUrlMap.get(address) ?? defaultPrepLogoUrl;
+  }
+
   prepIsInYourVotes(prep: Prep): boolean {
     for (const p of this.yourVotesPrepList) {
       if (p.address === prep.address) {
@@ -472,6 +476,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   errorHandlerPrepLogo($event: any): void {
-    $event.target.src = "assets/img/icon/profile.svg";
+    $event.target.src = defaultPrepLogoUrl;
   }
 }

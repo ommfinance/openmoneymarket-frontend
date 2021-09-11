@@ -129,10 +129,13 @@
                 <div class="grid grid-center">
                   <div class="grid-cell">
                     <div class="minus" (click)="removeYourVotePrepByIndex(i)">–</div>
-                    <img src="assets/img/icon/profile.svg">
+                    <img [src]="getLogoUrl(yourPrepVote.address)" (error)="errorHandlerPrepLogo($event)">
                   </div>
                   <div class="grid-cell">
                     {{yourPrepVote.name}}
+                    <ng-container *ngIf="isPrepOmmContributor(yourPrepVote.address)">
+                      <br><span class="label contributor">Omm contributor</span>
+                    </ng-container>
                   </div>
                 </div>
               </td>
