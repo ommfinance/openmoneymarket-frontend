@@ -455,17 +455,20 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     if (!reserve) {
       // set borrowed available value
       const borrowAvailable = this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag);
-      this.inputBorrowAvailable.value = Utils.formatNumberToUSLocaleString(borrowAvailable.dp(2));
+      this.inputBorrowAvailable.value = Utils.formatNumberToUSLocaleString(borrowAvailable.isNegative() ? new BigNumber("0")
+        : borrowAvailable.dp(2));
 
       // update asset borrow slider max value to  -> borrowed + borrow available
       max = this.getMaxBorrowAvailable(this.getUserBorrowedAssetBalance().plus(borrowAvailable).dp(2));
     } else {
       // set borrowed available value
       const borrowAvailable = this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag);
-      this.inputBorrowAvailable.value = Utils.formatNumberToUSLocaleString(borrowAvailable.dp(2));
+      this.inputBorrowAvailable.value = Utils.formatNumberToUSLocaleString(borrowAvailable.isNegative() ? new BigNumber("0")
+        : borrowAvailable.dp(2));
 
       // update asset borrow slider max value to  -> borrowed + borrow available
-      max = this.getMaxBorrowAvailable(this.SICXToICXIfAssetIsICX(reserve.currentBorrowBalance).plus(borrowAvailable));
+      max = borrowAvailable.isNegative() ? borrowAvailable : this.getMaxBorrowAvailable(this.SICXToICXIfAssetIsICX(
+        reserve.currentBorrowBalance).plus(borrowAvailable));
     }
 
     this.sliderBorrow.noUiSlider.updateOptions({
@@ -965,7 +968,8 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   borrowSliderMaxValue(): BigNumber {
-    return new BigNumber(this.sliderBorrow?.noUiSlider?.options.range.max ?? "0");
+    const res = new BigNumber(this.sliderBorrow?.noUiSlider?.options.range.max ?? "0");
+    return res.isNegative() ? new BigNumber("0") : res;
   }
 
   removeInputRedBorderClass(): void {
