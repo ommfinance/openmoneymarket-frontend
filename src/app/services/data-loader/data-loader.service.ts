@@ -368,47 +368,23 @@ export class DataLoaderService {
     try {
       const prepList = await this.scoreService.getListOfPreps(start, end);
 
-      // fetch logos
+      // set logos
       try {
-        // Promise.all(prepList.preps?.map(async (prep) => {
-          // prep.setLogoUrl(await this.getLogoUrl(prep.address));
-        // }));
-
+        let logoUrl;
         prepList.preps?.forEach(prep => {
-          prep.setLogoUrl(`https://iconwat.ch/logos/${prep.address}.png`);
+          logoUrl = environment.production ? `https://iconwat.ch/logos/${prep.address}.png` : "assets/img/logo/icx.svg";
+          prepList.prepAddressToLogoUrlMap.set(prep.address, logoUrl);
+          prep.setLogoUrl(logoUrl);
         });
       } catch (e) {
         log.debug("Failed to fetch all logos");
       }
 
-      this.persistenceService.prepList = prepList;
       this.stateChangeService.updatePrepList(prepList);
     } catch (e) {
       log.error("Failed to load prep list... Details:");
       log.error(e);
     }
-  }
-
-  private async getLogoUrl(address: string): Promise<string | undefined> {
-    if (!address) { return undefined; }
-
-    const url = `https://iconwat.ch/logos/${address}.png`;
-
-    try {
-      if (await this.imageExists(url)) {
-        return url;
-      } else {
-        return undefined;
-      }
-    } catch (e) {
-      log.error("Error occurred in API call to " + url);
-      return undefined;
-    }
-  }
-
-  private async imageExists(url: string): Promise<boolean> {
-    const res = await this.http.get(url, { observe: 'response' }).toPromise();
-    return res.status < 400;
   }
 
   public async afterUserActionReload(): Promise<void> {
