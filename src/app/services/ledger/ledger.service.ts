@@ -19,6 +19,7 @@ import {OmmError} from "../../core/errors/OmmError";
 export class LedgerService {
 
   private icx?: TransportWebHID;
+  private transport: any;
 
   private LIST_NUM = 5;
 
@@ -54,6 +55,7 @@ export class LedgerService {
     try {
       const walletList = [];
 
+      log.debug("getLedgerWallets initialiseTransport..");
       await this.initialiseTransport();
 
       for (let i = index * this.LIST_NUM; i < index * this.LIST_NUM + this.LIST_NUM; i++) {
@@ -105,12 +107,18 @@ export class LedgerService {
   }
 
   async initialiseTransport(): Promise<void> {
-    if (!this.icx) {
-      const transport = await TransportWebHID.create();
-      transport.setDebugMode(false);
-      transport.setExchangeTimeout(60000); // 60 seconds
+    if (this.transport?.device?.opened) {
+      this.transport.close();
+      this.icx = undefined;
+    }
 
-      this.icx = new Icx(transport);
+    if (!this.icx) {
+      this.transport = await TransportWebHID.create();
+      if (this.transport.setDebugMode) {
+        this.transport.setDebugMode(false);
+      }
+
+      this.icx = new Icx(this.transport);
     }
   }
 
