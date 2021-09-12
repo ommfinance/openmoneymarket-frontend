@@ -702,7 +702,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         this.addClass(this.borrowAction2El, "hide");
         $('.value-risk-total').text("Max");
         $('.borrow-risk-warning').css("display", "flex");
-      } else if (totalRisk.isGreaterThan(new BigNumber("0.75"))) {
+      } else if (totalRisk.isGreaterThan(new BigNumber("0.78"))) {
         // if user is trying to borrow more hide buttons
         if (borrowDiff.isNegative()) {
           this.addClass(this.borrowAction2El, "hide");
@@ -746,12 +746,12 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     }
 
     // Change text to red if over 75
-    if (totalRisk.isGreaterThan(new BigNumber("0.75"))) {
+    if (totalRisk.isGreaterThan(new BigNumber("0.78"))) {
       valueRiskTotal.addClass("alert");
     }
 
     // Change text to normal if under 75
-    if (totalRisk.isLessThan(new BigNumber("0.75"))) {
+    if (totalRisk.isLessThan(new BigNumber("0.78"))) {
       valueRiskTotal.removeClass("alert");
     }
   }

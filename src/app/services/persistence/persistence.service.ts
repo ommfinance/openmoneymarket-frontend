@@ -268,6 +268,21 @@ export class PersistenceService {
     return total.dividedBy(counter);
   }
 
+  public getAverageLtv(): BigNumber {
+    let counter = new BigNumber("0");
+    let total = new BigNumber("0");
+
+    if (!this.allReserves) {
+      return total;
+    }
+
+    Object.values(this.allReserves).forEach((property: ReserveData) => {
+      total = total.plus(property.baseLTVasCollateral);
+      counter = counter.plus(new BigNumber("1"));
+    });
+    return total.dividedBy(counter);
+  }
+
   public userHasNotBorrowedAnyAsset(): boolean {
     for (const value of this.userReserves.reserveMap.values()) {
       if (value && value.currentBorrowBalance.isGreaterThan(Utils.ZERO)) {
