@@ -301,7 +301,8 @@ export class CalculationsService {
       exchangePrice = Utils.convertICXToSICXPrice(exchangePrice, this.persistenceService.sIcxToIcxRate());
     }
 
-    return (availableBorrowUSD.dividedBy(exchangePrice)).multipliedBy(new BigNumber("0.99")).dp(2);
+    const buffer = new BigNumber("0.9996");
+    return (availableBorrowUSD.dividedBy(exchangePrice)).multipliedBy(buffer).dp(2);
   }
 
   /**
