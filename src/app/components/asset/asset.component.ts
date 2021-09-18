@@ -105,7 +105,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.initSliders();
     this.initSupplySliderlogic();
     this.initBorrowSliderLogic();
-    this.initSubscribedValues();
+    this.registerSubscriptions();
   }
 
   ommApyCheckedChange(): void {
@@ -402,7 +402,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   /**
    * Handle variable/state changes for subscribed assets
    */
-  initSubscribedValues(): void {
+  registerSubscriptions(): void {
     // handle user assets balance changes
     this.subscribeToUserBalanceChange();
 
@@ -437,16 +437,51 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   public subscribeToUserAccountDataChange(): void {
     this.stateChangeService.userAccountDataChange.subscribe(() => {
+      this.updateSupplyData();
+      this.updateBorrowData();
       this.updateBorrowSlider();
     });
   }
 
   public subscribeToUserAssetReserveChange(): void {
     this.stateChangeService.userReserveChangeMap.get(this.asset.tag)!.subscribe((reserve: UserReserveData) => {
+      this.updateSupplyData();
+      this.updateBorrowData();
       this.updateSupplySlider(reserve);
-
       this.updateBorrowSlider(reserve);
     });
+  }
+
+  // update supply data (daily rewards, etc..) values
+  updateSupplyData(): void {
+    const bigNumValue = Utils.convertIfSICXToICX(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag),
+      this.persistenceService.sIcxToIcxRate(), this.asset.tag).dp(2);
+
+    // Update asset-user's supply interest
+    this.updateDailySupplyInterest(bigNumValue);
+
+    // convert ICX to sICX if needed
+    const convertedValue = this.convertSuppliedValue(bigNumValue);
+
+    // Update asset-user's supply omm rewards
+    this.updateUserDailySupplyOmmReward(convertedValue);
+
+    // handle risk calculation
+    this.handleSupplyTotalRisk(convertedValue);
+  }
+
+  // update borrow data (daily rewards, etc..) values
+  updateBorrowData(borrowed: BigNumber = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag)): void {
+    // Update asset-user's borrow interest
+    this.setText(this.borrInterestEl, assetPrefixMinusFormat(assetToCollateralAssetTag(this.asset.tag)).to(
+      this.getDailyBorrowInterest(borrowed).dp(2).toNumber()));
+
+    // Update asset-user's borrow omm rewards
+    this.setText(this.borrRewardsEl, ommPrefixPlusFormat.to(this.calculationService.calculateUserDailyBorrowOmmReward(
+      this.asset.tag, borrowed).dp(2).toNumber()));
+
+    // update risk data
+    this.handleBorrowTotalRisk(borrowed);
   }
 
   updateBorrowSlider(reserve?: UserReserveData): void {
@@ -558,8 +593,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         value = sliderMinusBuffer;
       }
 
-      const assetTag = this.sIcxSelected ? CollateralAssetTag.sICX : this.asset.tag;
-
       // BigNumber value used in calculations
       const bigNumValue = new BigNumber(value);
 
@@ -570,60 +603,78 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       this.inputSupplyAvailable.value = Utils.formatNumberToUSLocaleString(this.supplySliderMaxValue().minus(bigNumValue).dp(2));
 
       // Update asset-user's supply interest
-      this.setText(this.suppInterestEl, assetPrefixPlusFormat(assetTag).to(this.getDailySupplyInterest(assetTag, bigNumValue)
-        .dp(2).toNumber()));
+      this.updateDailySupplyInterest(bigNumValue);
 
-      // convert ICX to sICX
-      let convertedValue = bigNumValue;
-
-      if (this.sIcxSelected) {
-        let sIcx;
-        if (bigNumValue.toFixed(0) === this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag).toFixed(0)) {
-          sIcx = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag);
-        } else {
-          sIcx = bigNumValue;
-        }
-        convertedValue = sIcx;
-      } else if (!this.sIcxSelected && this.isAssetIcx()) {
-        convertedValue = this.convertFromICXTosICX(bigNumValue);
-      }
-
-      const supplyDiff = convertedValue.minus(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
+      // convert ICX to sICX if needed
+      const convertedValue = this.convertSuppliedValue(bigNumValue);
 
       // Update asset-user's supply omm rewards
-      this.setText(this.suppRewardsEl, ommPrefixPlusFormat.to(this.calculationService.calculateUserDailySupplyOmmReward(this.asset.tag,
-        convertedValue).dp(2).toNumber()));
+      this.updateUserDailySupplyOmmReward(convertedValue);
 
-      // update risk data
-      let totalRisk;
-      if (supplyDiff.isGreaterThan(Utils.ZERO)) {
-        totalRisk = this.updateRiskData(this.asset.tag, supplyDiff , UserAction.SUPPLY, false);
-      } else if (supplyDiff.isLessThan(Utils.ZERO)) {
-        totalRisk = this.updateRiskData(this.asset.tag, supplyDiff.abs() , UserAction.REDEEM, false);
-      } else {
-        totalRisk = this.updateRiskData();
-      }
-
-      this.setTmpRiskAndColor(totalRisk);
-
-      // if total risk over 100%
-      if (totalRisk.isGreaterThan(new BigNumber("0.99"))) {
-        this.addClass(this.supplyAction2El, "hide");
-        $('.value-risk-total').text("Max");
-        $('.supply-risk-warning').css("display", "flex");
-      } else {
-        if ($(this.supplyEl).hasClass("adjust")) {
-          this.addClass(this.supplyAction1El, "hide");
-          this.removeClass(this.supplyAction2El, "hide");
-          $('.supply-risk-warning').css("display", "none");
-        } else {
-          this.removeClass(this.supplyAction1El, "hide");
-          this.addClass(this.supplyAction2El, "hide");
-          $('.supply-risk-warning').css("display", "none");
-        }
-      }
-
+      // handle risk calculation
+      this.handleSupplyTotalRisk(convertedValue);
     });
+  }
+
+  updateUserDailySupplyOmmReward(convertedValue: BigNumber): void {
+    this.setText(this.suppRewardsEl, ommPrefixPlusFormat.to(this.calculationService.calculateUserDailySupplyOmmReward(this.asset.tag,
+      convertedValue).dp(2).toNumber()));
+  }
+
+  convertSuppliedValue(bigNumValue: BigNumber): BigNumber {
+    if (this.sIcxSelected) {
+      let sIcx;
+      if (bigNumValue.toFixed(0) === this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag).toFixed(0)) {
+        sIcx = this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag);
+      } else {
+        sIcx = bigNumValue;
+      }
+      return sIcx;
+    } else if (!this.sIcxSelected && this.isAssetIcx()) {
+      return this.convertFromICXTosICX(bigNumValue);
+    } else {
+      return bigNumValue;
+    }
+  }
+
+  updateDailySupplyInterest(bigNumValue: BigNumber): void {
+    const assetTag = this.sIcxSelected ? CollateralAssetTag.sICX : this.asset.tag;
+    // Update asset-user's supply interest
+    this.setText(this.suppInterestEl, assetPrefixPlusFormat(assetTag).to(this.getDailySupplyInterest(assetTag, bigNumValue)
+      .dp(2).toNumber()));
+  }
+
+  handleSupplyTotalRisk(suppliedValue: BigNumber): void {
+    const supplyDiff = suppliedValue.minus(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag));
+
+    // update risk data
+    let totalRisk;
+    if (supplyDiff.isGreaterThan(Utils.ZERO)) {
+      totalRisk = this.updateRiskData(this.asset.tag, supplyDiff , UserAction.SUPPLY, false);
+    } else if (supplyDiff.isLessThan(Utils.ZERO)) {
+      totalRisk = this.updateRiskData(this.asset.tag, supplyDiff.abs() , UserAction.REDEEM, false);
+    } else {
+      totalRisk = this.updateRiskData();
+    }
+
+    this.setTmpRiskAndColor(totalRisk);
+
+    // if total risk over 100%
+    if (totalRisk.isGreaterThan(new BigNumber("0.99"))) {
+      this.addClass(this.supplyAction2El, "hide");
+      $('.value-risk-total').text("Max");
+      $('.supply-risk-warning').css("display", "flex");
+    } else {
+      if ($(this.supplyEl).hasClass("adjust")) {
+        this.addClass(this.supplyAction1El, "hide");
+        this.removeClass(this.supplyAction2El, "hide");
+        $('.supply-risk-warning').css("display", "none");
+      } else {
+        this.removeClass(this.supplyAction1El, "hide");
+        this.addClass(this.supplyAction2El, "hide");
+        $('.supply-risk-warning').css("display", "none");
+      }
+    }
   }
 
   /**
@@ -646,6 +697,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
       // stop slider on min (do not allow to go below "Used" repayment a.k.a user available balance of asset)
       const borrowUsed = this.getBorrowUsed();
+
       if (!borrowUsed.isZero() && bigNumValue.isLessThan(borrowUsed)) {
         const newBorrowedVal = borrowUsed.dp(2, BigNumber.ROUND_UP);
         // Update asset-user borrowed text box
@@ -665,69 +717,61 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       this.inputBorrowAvailable.value = Utils.formatNumberToUSLocaleString(Utils.subtract(this.borrowSliderMaxValue(),
         bigNumValue).dp(2));
 
-      const value = deformatedValue;
+      this.updateBorrowData(bigNumValue);
+    });
+  }
 
-      // Update asset-user's borrow interest
-      this.setText(this.borrInterestEl, assetPrefixMinusFormat(assetToCollateralAssetTag(this.asset.tag)).to(
-        this.getDailyBorrowInterest(bigNumValue).dp(2).toNumber()));
+  private handleBorrowTotalRisk(newBorrowBalance: BigNumber): void {
+    if (newBorrowBalance.gte(Utils.ZERO)) {
+      // show risk data
+      $('.risk-container').css("display", "block");
 
-      // Update asset-user's borrow omm rewards
-      this.setText(this.borrRewardsEl, ommPrefixPlusFormat.to(this.calculationService.calculateUserDailyBorrowOmmReward(
-        this.asset.tag, bigNumValue).dp(2).toNumber()));
+      // Hide risk message
+      $('.risk-message-noassets').css("display", "none");
+    }
 
-      if (value > 0) {
-        // show risk data
-        $('.risk-container').css("display", "block");
+    const borrowDiff = Utils.subtract(this.getUserBorrowedAssetBalance(), newBorrowBalance);
 
-        // Hide risk message
-        $('.risk-message-noassets').css("display", "none");
-      }
+    let totalRisk;
+    if (borrowDiff.isGreaterThan(Utils.ZERO)) {
+      totalRisk = this.updateRiskData(this.asset.tag, borrowDiff , UserAction.REPAY, false);
+    } else if (borrowDiff.isLessThan(Utils.ZERO)) {
+      totalRisk = this.updateRiskData(this.asset.tag, borrowDiff.abs() , UserAction.BORROW, false);
+    } else {
+      totalRisk = this.updateRiskData();
+    }
 
-      const borrowDiff = Utils.subtract(this.getUserBorrowedAssetBalance(), bigNumValue);
+    this.setTmpRiskAndColor(totalRisk);
 
-      // update risk data
-      let totalRisk;
-      if (borrowDiff.isGreaterThan(Utils.ZERO)) {
-        totalRisk = this.updateRiskData(this.asset.tag, borrowDiff , UserAction.REPAY, false);
-      } else if (borrowDiff.isLessThan(Utils.ZERO)) {
-        totalRisk = this.updateRiskData(this.asset.tag, borrowDiff.abs() , UserAction.BORROW, false);
-      } else {
-        totalRisk = this.updateRiskData();
-      }
-
-      this.setTmpRiskAndColor(totalRisk);
-
-      // if total risk over 100%
-      if (totalRisk.isGreaterThan(new BigNumber("0.99"))) {
+    // if total risk over 100%
+    if (totalRisk.isGreaterThan(new BigNumber("0.99"))) {
+      this.addClass(this.borrowAction2El, "hide");
+      $('.value-risk-total').text("Max");
+      $('.borrow-risk-warning').css("display", "flex");
+    } else if (totalRisk.isGreaterThan(new BigNumber("0.78"))) {
+      // if user is trying to borrow more hide buttons
+      if (borrowDiff.isNegative()) {
         this.addClass(this.borrowAction2El, "hide");
-        $('.value-risk-total').text("Max");
-        $('.borrow-risk-warning').css("display", "flex");
-      } else if (totalRisk.isGreaterThan(new BigNumber("0.78"))) {
-        // if user is trying to borrow more hide buttons
-        if (borrowDiff.isNegative()) {
-          this.addClass(this.borrowAction2El, "hide");
-        } else {
-          if ($(this.borrowEl).hasClass("adjust")) {
-            this.removeClass(this.borrowAction2El, "hide");
-          }
-        }
-        $('.borrow-risk-warning').css("display", "flex");
-        $('.value-risk-total').text(percentageFormat.to(totalRisk.multipliedBy(new BigNumber("100")).dp(2).toNumber()));
       } else {
         if ($(this.borrowEl).hasClass("adjust")) {
-          this.addClass(this.borrowAction1El, "hide");
           this.removeClass(this.borrowAction2El, "hide");
-          $('.borrow-risk-warning').css("display", "none");
-        } else {
-          this.removeClass(this.borrowAction1El, "hide");
-          this.addClass(this.borrowAction2El, "hide");
-          $('.borrow-risk-warning').css("display", "none");
         }
-
-        $('.value-risk-total').text(percentageFormat.to(totalRisk.multipliedBy(new BigNumber("100")).dp(2).toNumber()));
+      }
+      $('.borrow-risk-warning').css("display", "flex");
+      $('.value-risk-total').text(percentageFormat.to(totalRisk.multipliedBy(new BigNumber("100")).dp(2).toNumber()));
+    } else {
+      if ($(this.borrowEl).hasClass("adjust")) {
+        this.addClass(this.borrowAction1El, "hide");
+        this.removeClass(this.borrowAction2El, "hide");
+        $('.borrow-risk-warning').css("display", "none");
+      } else {
+        this.removeClass(this.borrowAction1El, "hide");
+        this.addClass(this.borrowAction2El, "hide");
+        $('.borrow-risk-warning').css("display", "none");
       }
 
-    });
+      $('.value-risk-total').text(percentageFormat.to(totalRisk.multipliedBy(new BigNumber("100")).dp(2).toNumber()));
+    }
   }
 
   setTmpRiskAndColor(totalRisk: BigNumber): void {
