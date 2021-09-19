@@ -390,9 +390,11 @@ export class DataLoaderService {
   public async afterUserActionReload(): Promise<void> {
     // reload all reserves and user asset-user reserve data
     await Promise.all([
+      this.loadOmmTokenPriceUSD(),
       this.loadAllReserveData(),
       this.loadAllReservesConfigData(),
       this.loadTotalStakedOmm(),
+      this.loadPrepList(),
       this.loadPoolsData(),
     ]);
 
