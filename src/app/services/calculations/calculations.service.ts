@@ -231,7 +231,6 @@ export class CalculationsService {
 
     switch (userAction) {
       case UserAction.SUPPLY:
-
         // if user add more collateral, add USD value of amount to the total collateral balance USD
         totalCollateralBalanceUSD = totalCollateralBalanceUSD.plus(amount.multipliedBy(assetExchangePrice));
         break;
@@ -241,9 +240,8 @@ export class CalculationsService {
         break;
       case UserAction.BORROW:
         // if user takes out the loan (borrow) update the origination fee and add amount to the total borrow balance
-        const originationFee = this.persistenceService.getUserAssetReserve(assetTag)?.originationFee ?? new BigNumber("0");
         const originationFeePercentage = this.persistenceService.loanOriginationFeePercentage ?? new BigNumber("0.001");
-        totalFeeUSD = totalFeeUSD.plus(amount.multipliedBy(assetExchangePrice).multipliedBy(originationFeePercentage).plus(originationFee));
+        totalFeeUSD = totalFeeUSD.plus(amount.multipliedBy(assetExchangePrice).multipliedBy(originationFeePercentage));
         totalBorrowBalanceUSD = totalBorrowBalanceUSD.plus(amount.multipliedBy(assetExchangePrice));
         break;
       case UserAction.REPAY:
@@ -251,13 +249,20 @@ export class CalculationsService {
         totalBorrowBalanceUSD = totalBorrowBalanceUSD.minus(amount.multipliedBy(assetExchangePrice));
     }
 
-    let res = totalBorrowBalanceUSD.dividedBy(((totalCollateralBalanceUSD.minus(totalFeeUSD)).multipliedBy(liquidationThreshold)));
+    let res = (new BigNumber("1")).dividedBy(this.calculateHealthFactor(totalCollateralBalanceUSD, totalBorrowBalanceUSD, totalFeeUSD,
+      liquidationThreshold));
 
     if (res.isLessThan(Utils.ZERO)) {
       res = new BigNumber("1");
     }
 
     return res;
+  }
+
+  public calculateHealthFactor(totalCollateralUSD: BigNumber, totalBorrowUSD: BigNumber, totalFeeUSD: BigNumber,
+                               averageLiquidationThreshold: BigNumber)
+    : BigNumber {
+    return ((totalCollateralUSD.minus(totalFeeUSD)).multipliedBy(averageLiquidationThreshold)).dividedBy(totalBorrowUSD);
   }
 
   /**
@@ -269,14 +274,20 @@ export class CalculationsService {
     // Formulae: borrowsAllowedUSD = Sum((CollateralBalanceUSD per reserve - totalFeesUSD per reserve) * LTV per reserve)
     let borrowsAllowedUSD = new BigNumber("0");
 
+    const averageLtv = this.persistenceService.getAverageLtv();
     this.persistenceService.userReserves.reserveMap.forEach((userReserveData, tag) => {
       if (userReserveData) {
         const collateralBalanceUSD = userReserveData.currentOTokenBalanceUSD;
         const originationFee = userReserveData.originationFee;
-        const totalReserveFeesUSD = originationFee.multipliedBy(userReserveData?.exchangeRate);
-        const reserveLtv = this.persistenceService.getLtvForReserve(tag);
 
-        borrowsAllowedUSD = borrowsAllowedUSD.plus((collateralBalanceUSD.minus(totalReserveFeesUSD)).multipliedBy(reserveLtv));
+        let assetExchangePrice = userReserveData?.exchangeRate;
+        if (tag === AssetTag.ICX) {
+          assetExchangePrice = Utils.convertICXToSICXPrice(assetExchangePrice, this.persistenceService.sIcxToIcxRate());
+        }
+
+        const totalReserveFeesUSD = originationFee.multipliedBy(assetExchangePrice);
+
+        borrowsAllowedUSD = borrowsAllowedUSD.plus((collateralBalanceUSD.minus(totalReserveFeesUSD)).multipliedBy(averageLtv));
       }
     });
 
@@ -285,10 +296,13 @@ export class CalculationsService {
     // the amount user can borrow in USD across all the collaterals
     const availableBorrowUSD = borrowsAllowedUSD.minus(totalBorrowBalanceUSD);
     // exchange price of the asset (reserve) extracted from the ReserveData
-    const exchangePrice = this.persistenceService.getAssetReserveData(assetTag)?.exchangePrice ?? new BigNumber("-1");
+    let exchangePrice = this.persistenceService.getAssetReserveData(assetTag)?.exchangePrice ?? new BigNumber("-1");
+    if (assetTag === AssetTag.ICX) {
+      exchangePrice = Utils.convertICXToSICXPrice(exchangePrice, this.persistenceService.sIcxToIcxRate());
+    }
 
-    log.debug("calculateAvailableBorrowForAsset " + assetTag + " = " + (availableBorrowUSD.dividedBy(exchangePrice)).dp(2).toString());
-    return (availableBorrowUSD.dividedBy(exchangePrice)).dp(2);
+    const buffer = new BigNumber("0.9996");
+    return (availableBorrowUSD.dividedBy(exchangePrice)).multipliedBy(buffer).dp(2);
   }
 
   /**
