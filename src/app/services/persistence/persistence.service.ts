@@ -131,7 +131,7 @@ export class PersistenceService {
     return (this.userOmmTokenBalanceDetails?.availableBalance ?? new BigNumber("0")).dp(0);
   }
 
-  public getUserUnstakingOmmBalance(): BigNumber {
+  public getUserUnstakingOmmBalance0Rounded(): BigNumber {
     return (this.userOmmTokenBalanceDetails?.unstakingBalance ?? new BigNumber("0")).dp(0);
   }
 

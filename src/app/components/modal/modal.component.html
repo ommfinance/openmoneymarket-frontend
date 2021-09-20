@@ -92,6 +92,24 @@
   </div>
 </div>
 
+<!-- Modal: Confirm Omm Token cancel unstake -->
+<div class="modal" id="modal-cancel-unstake" #cancelUnstake>
+  <div class="modal-content">
+    <!-- Title -->
+    <h3 class="text-center label">Restake Omm Tokens?</h3>
+    <p class="text-center">{{activeModalChange?.stakingAction?.amount | usFormat}} OMM</p>
+
+    <!-- Unstaking message -->
+    <p class="label text-center">This will cancel the unstaking process.</p>
+
+    <!-- Modal actions -->
+    <div class="modal-actions">
+      <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Go back</a>
+      <a href="javascript:void(0);" class="button" (click)="onRestakeConfirmClick()">Restake</a>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: Add P-Rep selection -->
 <div class="modal" id="modal-add-preps" #updateVotes>
   <div class="modal-content">

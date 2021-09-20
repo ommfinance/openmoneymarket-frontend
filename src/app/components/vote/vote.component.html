@@ -73,7 +73,8 @@
             </dl>
 
             <!-- Message (If un-staking) -->
-            <p *ngIf="isUnstaking()" class="label" style="margin-top: 5px;">{{this.persistenceService.getUserUnstakingOmmBalance() | usFormat}} OMM unstaking</p>
+            <p *ngIf="isUnstaking()" class="label" style="margin-top: 5px;">{{this.persistenceService.getUserUnstakingOmmBalance0Rounded() | usFormat}} OMM unstaking. <a
+              href="javascript:void(0);" (click)="onCancelUnstakingClick()">Cancel</a></p>
           </div>
         </div>
       </div>

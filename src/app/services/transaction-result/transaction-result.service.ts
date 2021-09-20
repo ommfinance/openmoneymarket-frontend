@@ -154,6 +154,9 @@ export class TransactionResultService {
         case ModalType.UNSTAKE_OMM_TOKENS:
           this.notificationService.showNewNotification(`${voteAction.amount} OMM unstaking.`);
           break;
+        case ModalType.CANCEL_UNSTAKE_OMM_TOKENS:
+          this.notificationService.showNewNotification(`${voteAction.amount} Omm Tokens restaked.`);
+          break;
         case ModalType.POOL_STAKE:
           this.notificationService.showNewNotification(`${voteAction.amount} LP tokens staked.`);
           break;
@@ -214,6 +217,9 @@ export class TransactionResultService {
           break;
         case ModalType.UNSTAKE_OMM_TOKENS:
           this.notificationService.showNewNotification(`Couldn't unstake Omm Tokens. ${failedTxMessage} Try again.`);
+          break;
+        case ModalType.CANCEL_UNSTAKE_OMM_TOKENS:
+          this.notificationService.showNewNotification(`Couldn't restake Omm Tokens. ${failedTxMessage} Try again.`);
           break;
         case ModalType.POOL_STAKE:
           this.notificationService.showNewNotification(`Couldn't stake LP Tokens. ${failedTxMessage} Try again.`);
