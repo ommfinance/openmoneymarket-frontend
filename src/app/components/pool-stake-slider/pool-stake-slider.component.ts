@@ -74,7 +74,8 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
     }
 
     const isMax = after.isGreaterThanOrEqualTo(this.sliderMaxValue());
-    const stakingAction = new StakingAction(before, after, diff.abs(), {poolId: this.poolId, max: isMax});
+    const isMin = after.isLessThanOrEqualTo(Utils.ZERO);
+    const stakingAction = new StakingAction(before, after, diff.abs(), {poolId: this.poolId, max: isMax, min: isMin});
 
     if (diff.isGreaterThan(Utils.ZERO)) {
       this.modalService.showNewModal(ModalType.POOL_STAKE, undefined, stakingAction);
