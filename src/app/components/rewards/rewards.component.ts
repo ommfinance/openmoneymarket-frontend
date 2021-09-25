@@ -93,6 +93,12 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
       before, after, rewards, undefined, new ClaimOmmDetails(this.persistenceService.userOmmRewards)));
   }
 
+  // On OMM un-staking cancel click
+  onCancelUnstakingClick(): void {
+    const stakingAction = new StakingAction(Utils.ZERO, Utils.ZERO, this.persistenceService.getUserUnstakingOmmBalance0Rounded());
+    this.modalService.showNewModal(ModalType.CANCEL_UNSTAKE_OMM_TOKENS, undefined, stakingAction);
+  }
+
   onConfirmStakeClick(): void {
     log.debug(`onConfirmStakeClick Omm stake amount = ${this.userOmmTokenBalanceDetails?.stakedBalance}`);
     const before = this.persistenceService.getUsersStakedOmmBalance().dp(0);
@@ -461,7 +467,7 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   }
 
   isUnstaking(): boolean {
-    return this.persistenceService.getUserUnstakingOmmBalance().isGreaterThan(Utils.ZERO);
+    return this.persistenceService.getUserUnstakingOmmBalance0Rounded().isGreaterThan(Utils.ZERO);
   }
 
   getUserOmmStakingDailyRewardsUSD(): BigNumber {

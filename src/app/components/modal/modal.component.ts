@@ -43,6 +43,7 @@ export class ModalComponent extends BaseClass implements OnInit {
   @ViewChild('signInModal', { static: true }) signInModal!: ElementRef;
   @ViewChild('stakeOmm', { static: true }) stakeOmmTokensModal!: ElementRef;
   @ViewChild('unstakeOmm', { static: true }) unstakeOmmTokensModal!: ElementRef;
+  @ViewChild('cancelUnstake', { static: true }) cancelUnstakeOmmTokensModal!: ElementRef;
   @ViewChild('updateVotes', { static: true }) updatePrepModal!: ElementRef;
   @ViewChild('rmvPrep', { static: true }) removePrepModal!: ElementRef;
   @ViewChild('assetActionModal', { static: true }) assetActionModal!: ElementRef;
@@ -110,6 +111,9 @@ export class ModalComponent extends BaseClass implements OnInit {
           break;
         case ModalType.UNSTAKE_OMM_TOKENS:
           this.setActiveModal(this.unstakeOmmTokensModal.nativeElement, activeModalChange);
+          break;
+        case ModalType.CANCEL_UNSTAKE_OMM_TOKENS:
+          this.setActiveModal(this.cancelUnstakeOmmTokensModal.nativeElement, activeModalChange);
           break;
         case ModalType.UPDATE_PREP_SELECTION:
           this.setActiveModal(this.updatePrepModal.nativeElement, activeModalChange);
@@ -348,19 +352,34 @@ export class ModalComponent extends BaseClass implements OnInit {
     this.modalService.hideActiveModal();
   }
 
+  onRestakeConfirmClick(): void {
+    // store activeModalChange in local storage
+    this.localStorageService.persistModalAction(this.activeModalChange!);
+
+    this.voteService.cancelUnstakeOmm(this.activeModalChange!.stakingAction!.amount, "Restaking Omm Tokens…");
+
+    // commit modal action change
+    this.stateChangeService.updateUserModalAction(this.activeModalChange!);
+
+    // hide current modal
+    this.modalService.hideActiveModal();
+  }
+
   onPoolStakingClick(): void {
     // store activeModalChange in local storage
     this.localStorageService.persistModalAction(this.activeModalChange!);
     const action = this.activeModalChange!.stakingAction;
     const poolId = action?.payload.poolId;
+    let amount;
 
     switch (this.activeModalChange?.modalType) {
       case ModalType.POOL_STAKE:
-        const amount = action?.payload.max ? this.persistenceService.getUserPoolStakedAvailableBalance(poolId) : action!.amount;
+        amount = action?.payload.max ? this.persistenceService.getUserPoolStakedAvailableBalance(poolId) : action!.amount;
         this.stakeLpService.stakeLp(poolId, amount, "Staking LP Tokens...");
         break;
       case ModalType.POOL_UNSTAKE:
-        this.stakeLpService.unstakeLp(poolId, action!.amount, "Starting unstaking process...");
+        amount = action?.payload.min ? this.persistenceService.getUserPoolStakedBalance(poolId) : action!.amount;
+        this.stakeLpService.unstakeLp(poolId, amount, "Starting unstaking process...");
         break;
       default:
         throw new OmmError(` onGovernanceModalConfirmClick() -> Invalid modal type: ${this.activeModalChange?.modalType}`);
