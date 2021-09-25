@@ -202,6 +202,12 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     this.modalService.showNewModal(ModalType.SIGN_IN);
   }
 
+  // On OMM un-staking cancel click
+  onCancelUnstakingClick(): void {
+    const stakingAction = new StakingAction(Utils.ZERO, Utils.ZERO, this.persistenceService.getUserUnstakingOmmBalance0Rounded());
+    this.modalService.showNewModal(ModalType.CANCEL_UNSTAKE_OMM_TOKENS, undefined, stakingAction);
+  }
+
   // On "Stake" click
   onStakeAdjustClick(): void {
     // Add "adjust" class
@@ -356,7 +362,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   isUnstaking(): boolean {
-    return this.persistenceService.getUserUnstakingOmmBalance().isGreaterThan(Utils.ZERO);
+    return this.persistenceService.getUserUnstakingOmmBalance0Rounded().isGreaterThan(Utils.ZERO);
   }
 
   userHasVotedForPrep(): boolean {

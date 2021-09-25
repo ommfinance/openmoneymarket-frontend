@@ -42,6 +42,13 @@ export class VoteService {
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
+  public cancelUnstakeOmm(amount: BigNumber, notificationMessage: string): void {
+    const tx = this.buildCancelUnstakeOmmTx(amount);
+
+    log.debug(`Cancel Unstake OMM TX: `, tx);
+    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
+  }
+
   /**
    * @description Build Transaction for staking Omm Tokens
    * **Note**: if the user tries to increase the stake, ”_value” should be previous staked balance + amount being additionally staked
@@ -77,6 +84,24 @@ export class VoteService {
 
     return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
       this.persistenceService.allAddresses!.systemContract.LendingPool, ScoreMethodNames.UNSTAKE_OMM, params, IconTransactionType.WRITE);
+  }
+
+  /**
+   * @description Build Transaction to cancel un-staking of Omm Tokens
+   * @return  Cancel Un-stake Omm Tokens transaction
+   */
+  private buildCancelUnstakeOmmTx(amount: BigNumber): any {
+    this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
+
+    log.debug(`Cancel Un-stake Omm amount = ` + amount);
+    const decimals = 18;
+
+    const params = {
+      _value: IconConverter.toHex(IconAmount.of(amount, decimals).toLoop()),
+    };
+
+    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
+      this.persistenceService.allAddresses!.systemContract.OmmToken, ScoreMethodNames.CANCEL_UNSTAKE_OMM, params, IconTransactionType.WRITE);
   }
 
   /**
