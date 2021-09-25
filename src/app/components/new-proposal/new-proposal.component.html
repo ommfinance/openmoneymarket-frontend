@@ -1,0 +1,58 @@
+<main>
+  <!-- Breadcrumbs -->
+  <div class="breadcrumbs vote">
+    <ol>
+      <li><a href="javascript:void(0);" routerLink="/vote" class="animation-underline">Vote</a> <span class="label"> &gt; </span> </li>
+      <li>New proposal</li>
+    </ol>
+  </div>
+
+  <div class="grid">
+    <div class="grid-cell">
+      <h2>Proposal type: Text</h2>
+    </div>
+  </div>
+
+  <!-- Text proposal -->
+  <section id="new-proposal-text" class="panel proposal-type-1-content new-proposal">
+    <!-- Container -->
+    <div class="grid">
+      <div class="grid-cell">
+        <div class="grid grid-center title">
+          <div class="grid-cell">
+            <h3 class="">Title</h3>
+          </div>
+          <div class="grid-cell text-right">
+            <p class="label">0/100</p>
+          </div>
+        </div>
+        <input type="text" placeholder="" class="" required="">
+
+        <div class="grid grid-center title">
+          <div class="grid-cell">
+            <h3>Forum link</h3>
+          </div>
+        </div>
+        <input type="text" placeholder="" class="" required="">
+
+        <div class="grid grid-center title">
+          <div class="grid-cell">
+            <h3>Description</h3>
+          </div>
+          <div class="grid-cell text-right">
+            <p class="label">0/500</p>
+          </div>
+        </div>
+        <textarea placeholder="" type="text"></textarea>
+
+        <p class="label message text-center">It costs 100 OMM to submit a proposal.</p>
+
+        <div class="grid text-center">
+          <div class="grid-cell">
+            <p><a href="#" class="button modal-trigger" data-modal="modal-submit-proposal">Submit</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
