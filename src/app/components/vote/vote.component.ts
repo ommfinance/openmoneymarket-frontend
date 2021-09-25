@@ -191,7 +191,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   // Stake input updates the slider
   onInputStakeOmmChange(): void {
     log.debug("onInputStakeOmmChange: " + this.inputStakeOmm.value);
-    if (+this.inputStakeOmm.value) {
+    if (+normalFormat.from(this.inputStakeOmm.value)) {
       this.sliderStake.noUiSlider.set(normalFormat.from(this.inputStakeOmm.value));
     } else {
       this.sliderStake.noUiSlider.set(normalFormat.from("0"));
