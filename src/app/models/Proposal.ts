@@ -55,6 +55,10 @@ export class Proposal {
       + `voteSnapshot = ${this.voteSnapshot} \n`;
   }
 
+  public proposalIsOver(reloaderService: ReloaderService): boolean {
+    return this.endDay < reloaderService.currentTimestampMicro;
+  }
+
   public getPercentageVoted(): BigNumber {
     return this.forVotes.plus(this.against);
   }

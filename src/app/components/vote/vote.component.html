@@ -114,7 +114,7 @@
         <h2>Latest proposals</h2><span class="label"><a href="javascript:void(0);" routerLink="/vote/all-proposals" class="animation-underline">View all</a></span>
       </div>
       <div class="grid-cell">
-        <a href="javascript:void(0);" routerLink="/vote/new-proposal" class="button">New proposal</a>
+        <a *ngIf="userLoggedIn()" href="javascript:void(0);" routerLink="/vote/new-proposal" class="button">New proposal</a>
       </div>
     </div>
 

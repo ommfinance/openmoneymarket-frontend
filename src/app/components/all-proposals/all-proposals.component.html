@@ -6,7 +6,7 @@
         <h2>Proposals</h2>
       </div>
       <div class="grid-cell text-right">
-        <a href="javascript:void(0);" routerLink="/vote/new-proposal" class="button">New proposal</a>
+        <a *ngIf="userLoggedIn()" href="javascript:void(0);" routerLink="/vote/new-proposal" class="button">New proposal</a>
       </div>
     </div>
 

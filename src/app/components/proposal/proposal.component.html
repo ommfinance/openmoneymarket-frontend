@@ -35,7 +35,7 @@
           </div>
         </div>
       </div>
-      <div class="grid-cell text-right button-container">
+      <div *ngIf="!getProposal()?.proposalIsOver(reloaderService) && userLoggedIn()" class="grid-cell text-right button-container">
         <a href="javascript:void(0);" class="button modal-trigger" data-modal="modal-vote-approve" (click)="onApproveClick()">Approve</a>
       </div>
     </div>
@@ -57,7 +57,7 @@
           </div>
         </div>
       </div>
-      <div class="grid-cell text-right button-container">
+      <div *ngIf="!getProposal()?.proposalIsOver(reloaderService) && userLoggedIn()" class="grid-cell text-right button-container">
         <a href="javascript:void(0);" class="button modal-trigger purple" data-modal="modal-vote-reject" (click)="onRejectClick()">Reject</a>
       </div>
     </div>
