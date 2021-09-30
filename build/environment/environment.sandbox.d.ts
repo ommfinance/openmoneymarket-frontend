@@ -19,5 +19,6 @@ export declare const environment: {
     THREE_DS_WIDGET_ID: string;
     STABLY_DEPOSIT_URL: string;
     STABLY_WITHDRAW_URL: string;
+    LOGS_URL: string;
 };
 //# sourceMappingURL=environment.sandbox.d.ts.map
