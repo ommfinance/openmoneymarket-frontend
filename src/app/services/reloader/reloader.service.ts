@@ -4,6 +4,8 @@ import {PersistenceService} from "../persistence/persistence.service";
 import {StateChangeService} from "../state-change/state-change.service";
 import log from "loglevel";
 import {Times} from "../../common/constants";
+import {Utils} from "../../common/utils";
+import BigNumber from "bignumber.js";
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +24,8 @@ export class ReloaderService {
   // user intervals
   public userSpecificDataInterval: any;
 
-  public currentTimestamp: number = + new Date();
+  public currentTimestamp: number = Math.floor(new Date().getTime() / 1000);
+  public currentTimestampMicro: BigNumber = Utils.timestampNowMicroseconds();
 
   constructor(private dataLoaderService: DataLoaderService,
               private persistenceService: PersistenceService,
@@ -37,6 +40,7 @@ export class ReloaderService {
 
   refreshCurrentTimestamp(): void {
     this.currentTimestamp = Math.floor(new Date().getTime() / 1000);
+    this.currentTimestampMicro = Utils.timestampNowMicroseconds();
   }
 
   private initLoginChangeListener(): void {

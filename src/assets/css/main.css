@@ -2292,6 +2292,12 @@ input[type="text"].input-borrow-available {
   border: 2px solid #d3d9e7;
   margin-top: 5px;
   margin-bottom: 25px;
+  transition: border 0.3s ease;
+}
+.new-proposal input[type="text"]:focus,
+.new-proposal input[type="text"]:hover {
+  border: 2px solid #2ca9b7;
+  transition: border 0.2s ease;
 }
 .new-proposal textarea {
   margin-top: 5px;

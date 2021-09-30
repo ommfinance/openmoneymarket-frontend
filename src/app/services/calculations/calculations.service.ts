@@ -546,7 +546,7 @@ export class CalculationsService {
 
     const representativeRewards = blockValidationRewards.multipliedBy(new BigNumber("100")).multipliedBy(delegationRate);
 
-    return index < 22 ? blockValidationRewards.plus(representativeRewards) : representativeRewards;
+    return (index < 22 ? blockValidationRewards.plus(representativeRewards) : representativeRewards).dividedBy(30);
   }
 
 

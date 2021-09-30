@@ -10,47 +10,24 @@
       </div>
     </div>
 
-    <a href="javascript:void(0);" routerLink="/vote/proposal" class="grid proposal panel">
-      <div class="grid-cell">
-        <h3>OIP7: Allocate more OMM to the DAO fund & incentivize the borrowers.</h3>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus non semper sapien, ut congue nisl. Aenean vel dui eget odio tempor pulvinar. Morbi mauris odio, aliquet nec varius quis, congue quis sem. Pellentesque vitae nisi quis est laoreet volutpat...</p>
+    <ng-container *ngFor="let proposal of getProposalList(); last as isLast;">
+      <a href="javascript:void(0);" routerLink="/vote/proposal" class="grid proposal panel" (click)="onProposalClick(proposal)">
+        <div class="grid-cell">
+          <h3>{{proposal.name}}</h3>
+          <p>{{proposal.description}}</p>
 
-        <div class="grid proposal-metadata border-top">
-          <div class="grid-cell">
-            <span class="label"><img src="assets/img/icon/clock.svg">3 days, 7 hours left</span> <span class="label"><img src="assets/img/icon/chart.svg">16% voted</span> <span class="label"><img src="assets/img/icon/users.svg">748 voters</span><div class="green-square"></div><span class="label">25%</span>
-            <div class="purple-square"></div><span class="label">12%</span>
+          <div class="grid proposal-metadata border-top">
+            <div class="grid-cell">
+              <span class="label"><img [src]="proposal.getStatusImgSrc()">{{proposal.getProposalState(reloaderService)}}</span>
+              <span class="label"><img src="assets/img/icon/chart.svg">{{to2DecimalRoundedOffPercentString(proposal.getPercentageVoted(), true)}} voted</span>
+              <span class="label"><img src="assets/img/icon/users.svg">{{proposal.forVoterCount.plus(proposal.againstVoterCount) | usFormat}} voters</span>
+              <div class="green-square"></div><span class="label">{{to2DecimalRoundedOffPercentString(proposal.forVotes, true)}}</span>
+              <div class="purple-square"></div><span class="label">{{to2DecimalRoundedOffPercentString(proposal.against, true)}}</span>
+            </div>
           </div>
         </div>
-      </div>
-    </a>
-
-    <a href="javascript:void(0);" routerLink="/vote/proposal" class="grid proposal panel">
-      <div class="grid-cell">
-        <h3>OIP6: Adjust the Rebalancing Threshold to +-3%</h3>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus non semper sapien, ut congue nisl. Aenean vel dui eget odio tempor pulvinar. Morbi mauris odio, aliquet nec varius quis, congue quis sem. Pellentesque vitae nisi quis est laoreet volutpat...</p>
-
-        <div class="grid proposal-metadata border-top">
-          <div class="grid-cell">
-            <span class="label"><img src="assets/img/icon/tick-circle-green.svg">Enacted</span> <span class="label"><img src="assets/img/icon/chart.svg">16% voted</span> <span class="label"><img src="assets/img/icon/users.svg">748 voters</span><div class="green-square"></div><span class="label">25%</span>
-            <div class="purple-square"></div><span class="label">12%</span>
-          </div>
-        </div>
-      </div>
-    </a>
-
-    <a href="javascript:void(0);" routerLink="/vote/proposal" class="grid proposal panel">
-      <div class="grid-cell">
-        <h3>OIP5: Increase origination fee to 1.15%</h3>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus non semper sapien, ut congue nisl. Aenean vel dui eget odio tempor pulvinar. Morbi mauris odio, aliquet nec varius quis, congue quis sem. Pellentesque vitae nisi quis est laoreet volutpat...</p>
-
-        <div class="grid proposal-metadata border-top">
-          <div class="grid-cell">
-            <span class="label"><img src="assets/img/icon/cross-circle-purple.svg">Failed</span> <span class="label"><img src="assets/img/icon/chart.svg">16% voted</span> <span class="label"><img src="assets/img/icon/users.svg">748 voters</span><div class="green-square"></div><span class="label">25%</span>
-            <div class="purple-square"></div><span class="label">12%</span>
-          </div>
-        </div>
-      </div>
-    </a>
+      </a>
+    </ng-container>
   </section>
 </main>
 

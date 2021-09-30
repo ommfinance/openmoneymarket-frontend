@@ -285,6 +285,15 @@ export class DataLoaderService {
     });
   }
 
+  public async loadUsersVotingWeight(): Promise<void> {
+    try {
+      this.persistenceService.userVotingWeight = await  this.scoreService.getUserVotingWeight();
+      log.debug(`Users voting weight = ${this.persistenceService.userVotingWeight}`);
+    } catch (e) {
+      log.error("Error in loadUsersVotingWeight", e);
+    }
+  }
+
   public loadLoanOriginationFeePercentage(): Promise<void> {
     return this.scoreService.getLoanOriginationFeePercentage().then(res => {
       this.persistenceService.loanOriginationFeePercentage = res;
@@ -364,6 +373,44 @@ export class DataLoaderService {
     }
   }
 
+  public async loadVoteDefinitionFee(): Promise<void> {
+    try {
+      const res = await this.scoreService.getVoteDefinitionFee();
+      log.debug("getVoteDefinitionFee (mapped): ", res);
+
+      this.stateChangeService.updateVoteDefinitionFee(res);
+    } catch (e) {
+      log.error("Error in loadVoteDefinitionFee:");
+      log.error(e);
+    }
+  }
+
+  public async loadTotalOmmSupply(): Promise<void> {
+    try {
+      const res = await this.scoreService.getTotalOmmSupply();
+      log.debug("loadTotalOmmSupply (mapped): ", res);
+
+      this.persistenceService.totalSuppliedOmm = res;
+    } catch (e) {
+      log.error("Error in loadTotalOmmSupply:");
+      log.error(e);
+    }
+  }
+
+  public async loadProposalList(): Promise<void> {
+    try {
+      const res = await this.scoreService.getProposalList();
+
+      log.debug("loadProposalList (mapped): ");
+      res.forEach(p => log.debug(p.toString()));
+      this.stateChangeService.updateProposalsList(res);
+    } catch (e) {
+      log.error("Error in loadProposalList:");
+      log.error(e);
+    }
+  }
+
+
   public async loadPrepList(start: number = 1, end: number = 100): Promise<void> {
     try {
       const prepList = await this.scoreService.getListOfPreps(start, end);
@@ -416,7 +463,10 @@ export class DataLoaderService {
       this.loadLoanOriginationFeePercentage(),
       this.loadTotalStakedOmm(),
       this.loadPrepList(),
-      this.loadPoolsData()
+      this.loadPoolsData(),
+      this.loadVoteDefinitionFee(),
+      this.loadProposalList(),
+      this.loadTotalOmmSupply()
     ]);
   }
 
@@ -431,7 +481,8 @@ export class DataLoaderService {
       this.loadUserDelegations(),
       this.loadUserUnstakingInfo(),
       this.loadUserClaimableIcx(),
-      this.loadUserPoolsData()
+      this.loadUserPoolsData(),
+      this.loadUsersVotingWeight()
     ]);
   }
 

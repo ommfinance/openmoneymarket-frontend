@@ -14,6 +14,7 @@ import {Mapper} from "../../common/mapper";
 import {Prep} from "../../models/Preps";
 import {YourPrepVote} from "../../models/YourPrepVote";
 import BigNumber from "bignumber.js";
+import {CreateProposal} from "../../models/Proposal";
 
 @Injectable({
   providedIn: 'root'
@@ -25,6 +26,13 @@ export class VoteService {
               private iconexApiService: IconexApiService,
               private checkerService: CheckerService,
               private transactionDispatcherService: TransactionDispatcherService) { }
+
+  public castVote(proposalId: BigNumber, approved: boolean, notificationMessage: string): void {
+    const tx = this.buildCastVote(proposalId, approved);
+
+    log.debug(`Cast vote TX: `, tx);
+    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
+  }
 
   public stakeOmm(amount: BigNumber, notificationMessage: string): void {
     amount = amount.dp(2);
@@ -101,7 +109,70 @@ export class VoteService {
     };
 
     return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
-      this.persistenceService.allAddresses!.systemContract.OmmToken, ScoreMethodNames.CANCEL_UNSTAKE_OMM, params, IconTransactionType.WRITE);
+      this.persistenceService.allAddresses!.systemContract.OmmToken, ScoreMethodNames.CANCEL_UNSTAKE_OMM, params,
+      IconTransactionType.WRITE);
+  }
+
+  /**
+   * @description Build Create a proposal tx
+   * @return  Icon transaction
+   */
+  public createProposal(proposal: CreateProposal ): any {
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
+    const to = this.persistenceService.allAddresses!.systemContract.Governance;
+    const value = IconConverter.toHex(IconAmount.of(proposal.voteDefinitionFee, 18).toLoop());
+    const data = IconConverter.fromUtf8(`{ "method": "defineVote", "params": { "name": "${
+      proposal.title}", "description": "${ // "unique name of the proposal"
+      proposal.description}", "vote_start": ${ // "description of the proposal"
+      proposal.voteStart.toString()}, "snapshot": ${ // voting start timestamp in microseconds
+      proposal.snapshot.toString()}}}`);
+
+    const params = {
+      _to: to,
+      _value: value,
+      _data: data
+    };
+
+    const tx =  this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
+      this.persistenceService.allAddresses!.systemContract.OmmToken,  ScoreMethodNames.TRANSFER, params, IconTransactionType.WRITE);
+
+    log.debug("createProposal tx = ", tx);
+
+    return tx;
+  }
+
+  /**
+   * @description Cast vote on proposal
+   * @return Icon tx
+   */
+  public buildCastVote(proposalId: BigNumber, approve: boolean): Promise<any> {
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
+    const params = {
+      vote_index: IconConverter.toHex(proposalId),
+      vote: approve ? "0x1" : "0x0"
+    };
+
+    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
+      this.persistenceService.allAddresses!.systemContract.Governance,
+      ScoreMethodNames.CAST_VOTE, params, IconTransactionType.WRITE);
+  }
+
+  /**
+   * @description Cancel vote on proposal
+   * @return Icon tx
+   */
+  public buildCancelVoteOnProposal(proposalId: BigNumber): Promise<any> {
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
+    const params = {
+      vote_index: IconConverter.toHex(proposalId),
+    };
+
+    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!.address,
+      this.persistenceService.allAddresses!.systemContract.Governance,
+      ScoreMethodNames.CANCEL_VOTE_ON_PROPOSAL, params, IconTransactionType.WRITE);
   }
 
   /**

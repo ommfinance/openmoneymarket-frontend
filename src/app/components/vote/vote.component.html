@@ -119,38 +119,18 @@
     </div>
 
     <div class="grid cards">
-      <a href="javascript:void(0);" routerLink="/vote/proposal" class="grid-cell panel">
-        <h3>OIP7: Allocate more OMM to the DAO fund & incentivize the...</h3>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce sagittis non ligula vitae...</p>
+      <ng-container *ngFor="let proposal of getLatestProposals(); last as isLast;">
+        <a href="javascript:void(0);" routerLink="/vote/proposal" class="grid-cell panel" (click)="onProposalClick(proposal)">
+          <h3>{{proposal.name}}</h3>
+          <p>{{proposal.description}}</p>
 
-        <div class="grid proposal-metadata border-top">
-          <img class="time" src="assets/img/icon/clock.svg"><span class="label">3 days</span>
-          <div class="green-square"></div><span class="label">25%</span>
-          <div class="purple-square"></div><span class="label">12%</span>
-        </div>
-      </a>
-
-      <a href="javascript:void(0);" routerLink="/vote/proposal" class="grid-cell panel">
-        <h3>OIP6: Adjust the Rebalancing Threshold to +-3%</h3>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce sagittis non ligula vitae...</p>
-
-        <div class="grid proposal-metadata border-top">
-          <img class="time" src="assets/img/icon/tick-circle-green.svg"><span class="label">Enacted</span>
-          <div class="green-square"></div><span class="label">25%</span>
-          <div class="purple-square"></div><span class="label">12%</span>
-        </div>
-      </a>
-
-      <a href="javascript:void(0);" routerLink="/vote/proposal" class="grid-cell panel">
-        <h3>OIP5: Increase origination fee to 1.15%</h3>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce sagittis non ligula vitae...</p>
-
-        <div class="grid proposal-metadata border-top">
-          <img class="time" src="assets/img/icon/cross-circle-purple.svg"><span class="label">Failed</span>
-          <div class="green-square"></div><span class="label">25%</span>
-          <div class="purple-square"></div><span class="label">12%</span>
-        </div>
-      </a>
+          <div class="grid proposal-metadata border-top">
+            <img class="time" src="assets/img/icon/clock.svg"><span class="label">{{proposal.getProposalState(reloaderService, true)}}</span>
+            <div class="green-square"></div><span class="label">{{to2DecimalRoundedOffPercentString(proposal.forVotes, true)}}</span>
+            <div class="purple-square"></div><span class="label">{{to2DecimalRoundedOffPercentString(proposal.against, true)}}</span>
+          </div>
+        </a>
+      </ng-container>
     </div>
   </section>
 

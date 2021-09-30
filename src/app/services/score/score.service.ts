@@ -27,6 +27,8 @@ import {PoolsDistPercentages} from "../../models/PoolsDistPercentages";
 import {AllAssetDistPercentages} from "../../models/AllAssetDisPercentages";
 import {DailyRewardsAllReservesPools} from "../../models/DailyRewardsAllReservesPools";
 import BigNumber from "bignumber.js";
+import {Vote, VotersCount} from "../../models/Vote";
+import {Proposal} from "../../models/Proposal";
 
 
 @Injectable({
@@ -587,6 +589,174 @@ export class ScoreService {
     log.debug("getPoolTotal for " + poolId + ":" + token + ":", res);
 
     return Utils.hexToNormalisedNumber(res, decimals);
+  }
+
+  /**
+   * @description Get the proposal list
+   * @return  VotersCount - the numbers represent voters
+   */
+  public async getProposalList(batchSize?: BigNumber, offset: BigNumber = new BigNumber("0")): Promise<Proposal[]> {
+    if (!batchSize) {
+      batchSize = await this.getNumberOfProposals();
+    }
+
+    const params = {
+      batch_size: IconConverter.toHex(batchSize),
+      offset: IconConverter.toHex(offset)
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Governance,
+      ScoreMethodNames.GET_PROPOSALS, params, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug(`getProposalList =`);
+    res.forEach((p: any) => log.debug(p));
+
+    return Mapper.mapProposalList(res);
+  }
+
+  /**
+   * @description Get voters count for vote
+   * @return  VotersCount - the numbers represent voters
+   */
+  public async getVotersCount(voteIndex: BigNumber): Promise<VotersCount> {
+    const params = {
+      vote_index: IconConverter.toHex(voteIndex),
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Governance,
+      ScoreMethodNames.GET_VOTERS_COUNT, params, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug(`getVotersCount = ${res}`);
+
+    return Mapper.mapVotersCount(res);
+  }
+
+  /**
+   * @description Get votes of users
+   * @return  Vote - the numbers represents OMM tokens in EXA
+   */
+  public async getVotesOfUsers(voteIndex: BigNumber): Promise<Vote> {
+    const params = {
+      vote_index: IconConverter.toHex(voteIndex),
+      user: this.persistenceService.activeWallet!.address
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Governance,
+      ScoreMethodNames.GET_VOTES_OF_USER, params, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug(`getVotesOfUsers = ${res}`);
+
+    return Mapper.mapUserVote(res);
+  }
+
+  /**
+   * @description Get users voting weight
+   * @return  BigNumber
+   */
+  public async getUsersVotingWeight(day: BigNumber | number = Date.now()): Promise<BigNumber> {
+    // for day provide timestamp in microseconds
+    const params = {
+      day: IconConverter.toHex(day),
+      address: this.persistenceService.activeWallet!.address
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Governance,
+      ScoreMethodNames.GET_USERS_VOTING_WEIGHT, params, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug(`getUsersVotingWeight = ${res}`);
+
+    return Utils.hexToNormalisedNumber(res);
+  }
+
+  /**
+   * @description Get number of proposals
+   * @return  BigNumber
+   */
+  public async getNumberOfProposals(day: BigNumber | number = Date.now()): Promise<BigNumber> {
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Governance,
+      ScoreMethodNames.GET_PROPOSAL_COUNT, {}, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug(`getNumberOfProposals = ${res}`);
+
+    return Utils.hexToNumber(res);
+  }
+
+  /**
+   * @description Get vote definition fee
+   * @return  BigNumber - amount of omm as  fee required for creating a proposal
+   */
+  public async getVoteDefinitionFee(): Promise<BigNumber> {
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Governance,
+      ScoreMethodNames.GET_VOTE_DEFINITION_FEE, {}, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug(`getVoteDefinitionFee = ${res}`);
+
+    return Utils.hexToNormalisedNumber(res);
+  }
+
+  /**
+   * @description Get users voting weight
+   * @return  BigNumber - Users voting weight in OMM token number denomination
+   */
+  public async getUserVotingWeight(): Promise<BigNumber> {
+
+    const params = {
+      _day: Utils.timestampNowMicroseconds(),
+      _address: this.persistenceService.activeWallet?.address
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Governance,
+      ScoreMethodNames.MY_VOTING_WEIGHT, params, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug(`getUserVotingWeight = ${res}`);
+
+    return Utils.hexToNormalisedNumber(res);
+  }
+
+  /**
+   * @description Get total staked OMM at certain timestamp
+   * @return  BigNumber - Users voting weight in OMM token number denomination
+   */
+  public async getTotalStakedOmmAt(timestamp: BigNumber = Utils.timestampNowMicroseconds()): Promise<BigNumber> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const params = {
+      _timestamp: timestamp,
+    };
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Governance,
+      ScoreMethodNames.TOTAL_STAKED_OMM_AT, params, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug(`getTotalStakedOmmAt = ${res}`);
+
+    return Utils.hexToNormalisedNumber(res);
+  }
+
+  public async getTotalOmmSupply(): Promise<BigNumber> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.OmmToken,
+      ScoreMethodNames.TOTAL_SUPPLY, {}, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    return Utils.hexToNormalisedNumber(res);
   }
 
 }

@@ -16,6 +16,7 @@ import {PoolData} from "../../models/PoolData";
 import {UserPoolData} from "../../models/UserPoolData";
 import {AllAssetDistPercentages} from "../../models/AllAssetDisPercentages";
 import BigNumber from "bignumber.js";
+import {Proposal} from "../../models/Proposal";
 
 @Injectable({
   providedIn: 'root'
@@ -62,6 +63,8 @@ export class StateChangeService {
   public userOmmRewardsChange: Subject<OmmRewards> = new Subject<OmmRewards>();
   public userOmmTokenBalanceDetailsChange: Subject<OmmTokenBalanceDetails> = new Subject<OmmTokenBalanceDetails>();
   public totalOmmStakedChange: Subject<BigNumber> = new Subject<BigNumber>();
+  public voteDefinitionFeeChange: Subject<BigNumber> = new Subject<BigNumber>();
+  public proposalListChange: Subject<Proposal[]> = new Subject<Proposal[]>();
 
   public yourVotesPrepChange: Subject<YourPrepVote[]> = new Subject<YourPrepVote[]>();
   public prepListChange: Subject<PrepList> = new Subject<PrepList>();
@@ -230,6 +233,16 @@ export class StateChangeService {
   public updateTotalStakedOmm(totalStakedOmm: BigNumber): void {
     this.persistenceService.totalStakedOmm = totalStakedOmm;
     this.totalOmmStakedChange.next(totalStakedOmm);
+  }
+
+  public updateVoteDefinitionFee(voteDefinitionFee: BigNumber): void {
+    this.persistenceService.voteDefinitionFee = voteDefinitionFee;
+    this.voteDefinitionFeeChange.next(voteDefinitionFee);
+  }
+
+  public updateProposalsList(proposalList: Proposal[]): void {
+    this.persistenceService.proposalList = [...proposalList];
+    this.proposalListChange.next(proposalList);
   }
 
   public updateUserModalAction(modalAction: ModalAction): void {
