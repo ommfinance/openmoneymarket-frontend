@@ -83,9 +83,11 @@ export class NewProposalComponent implements OnInit {
       return;
     } else if (!Utils.textContainsDomain(ommForumDomain, this.forumLink)) {
       this.notificationService.showNewNotification(`Forum link must be linked to ${ommForumDomain}.`);
+      return;
     } else if (!this.userHasEnoughOmmStaked()) {
       this.notificationService.showNewNotification(`Stake at least ${this.persistenceService.getMinOmmStakedRequiredForProposal()
       } OMM if you want to propose a change.`);
+      return;
     }
 
     // TODO save forum link to the omm.api

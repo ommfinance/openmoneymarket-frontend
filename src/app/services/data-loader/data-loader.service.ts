@@ -455,6 +455,7 @@ export class DataLoaderService {
       this.loadTotalStakedOmm(),
       this.loadPrepList(),
       this.loadPoolsData(),
+      this.loadProposalList()
     ]);
 
     await this.loadUserSpecificData();
