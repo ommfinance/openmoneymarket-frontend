@@ -266,8 +266,8 @@ export class ModalComponent extends BaseClass implements OnInit {
 
     const proposal = this.activeModalChange?.governanceAction?.newProposal!;
     const now = Utils.timestampNowMicroseconds();
-    proposal.snapshot = Utils.addSecondsToTimestamp(now, 7);
-    proposal.voteStart = Utils.addSecondsToTimestamp(now, 8);
+    proposal.snapshot = Utils.addSecondsToTimestamp(now, 13);
+    proposal.voteStart = Utils.addSecondsToTimestamp(now, 15);
 
 
     this.transactionDispatcherService.dispatchTransaction(this.voteService.createProposal(proposal), "Submitting proposal...");
