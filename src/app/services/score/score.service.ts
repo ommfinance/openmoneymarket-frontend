@@ -707,6 +707,21 @@ export class ScoreService {
   }
 
   /**
+   * @description Get vote definition criteria
+   * @return  BigNumber - percentage representing vote definition criteria
+   */
+  public async getVoteDefinitionCriteria(): Promise<BigNumber> {
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Governance,
+      ScoreMethodNames.GET_OMM_VOTE_DEFINITION_CRITERION, {}, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug(`getVoteDefinitionCriteria = ${res}`);
+
+    return Utils.hexToNormalisedNumber(res);
+  }
+
+  /**
    * @description Get users voting weight
    * @return  BigNumber - Users voting weight in OMM token number denomination
    */

@@ -385,6 +385,18 @@ export class DataLoaderService {
     }
   }
 
+  public async loadVoteDefinitionCriterion(): Promise<void> {
+    try {
+      const res = await this.scoreService.getVoteDefinitionCriteria();
+      log.debug("loadVoteDefinitionCriterion (mapped): ", res);
+
+      this.stateChangeService.updateVoteDefinitionCriterion(res);
+    } catch (e) {
+      log.error("Error in loadVoteDefinitionCriterion:");
+      log.error(e);
+    }
+  }
+
   public async loadTotalOmmSupply(): Promise<void> {
     try {
       const res = await this.scoreService.getTotalOmmSupply();
@@ -465,6 +477,7 @@ export class DataLoaderService {
       this.loadPrepList(),
       this.loadPoolsData(),
       this.loadVoteDefinitionFee(),
+      this.loadVoteDefinitionCriterion(),
       this.loadProposalList(),
       this.loadTotalOmmSupply()
     ]);

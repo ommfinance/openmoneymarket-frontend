@@ -85,6 +85,7 @@ export class ScoreMethodNames {
   public static CAST_VOTE = "castVote";
   public static CANCEL_VOTE_ON_PROPOSAL = "cancelVote";
   public static MY_VOTING_WEIGHT = "myVotingWeight";
+  public static GET_OMM_VOTE_DEFINITION_CRITERION = "getOmmVoteDefinitionCriterion";
 
   /**
    * Staking SCORE

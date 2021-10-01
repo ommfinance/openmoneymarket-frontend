@@ -65,6 +65,7 @@ export class PersistenceService {
   public dailyRewardsAllPoolsReserves?: DailyRewardsAllReservesPools;
 
   public voteDefinitionFee = new BigNumber("0");
+  public voteDefinitionCriterion = new BigNumber("0");
   public proposalList: Proposal[] = [];
   public userVotingWeight: BigNumber = new BigNumber("0");
 
@@ -90,7 +91,7 @@ export class PersistenceService {
   }
 
   getMinOmmStakedRequiredForProposal(): BigNumber {
-    return this.totalSuppliedOmm.multipliedBy(new BigNumber("0.01"));
+    return this.totalSuppliedOmm.multipliedBy(this.voteDefinitionCriterion);
   }
 
   public getDistPercentageOfPool(poolId: BigNumber): BigNumber {

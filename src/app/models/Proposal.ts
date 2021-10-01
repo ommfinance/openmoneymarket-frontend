@@ -1,6 +1,7 @@
 import BigNumber from "bignumber.js";
 import {Times} from "../common/constants";
 import {ReloaderService} from "../services/reloader/reloader.service";
+import log from "loglevel";
 
 export class Proposal {
   against: BigNumber;
@@ -110,9 +111,11 @@ export class Proposal {
             res += daysUntilStart.isEqualTo(1) ? `${daysUntilStart} day` : `${daysUntilStart} days`;
             if (!hoursUntilStart.isZero()) {
               res += hoursUntilStart.isEqualTo(1) ? `, ${hoursUntilStart} hour` : `, ${hoursUntilStart} hours`;
-            } else if (daysUntilStart.isZero() && hoursUntilStart.isZero()) {
-              res += minutesUntilStart.isEqualTo(1) ? `, ${minutesUntilStart} minute` : `, ${minutesUntilStart} minutes`;
             }
+          } else if (!hoursUntilStart.isZero()) {
+            res += hoursUntilStart.isEqualTo(1) ? `${hoursUntilStart} hour` : `${hoursUntilStart} hours`;
+          } else {
+            res += minutesUntilStart.isEqualTo(1) ? `${minutesUntilStart} minute` : `${minutesUntilStart} minutes`;
           }
         } else {
           if (!daysUntilStart.isZero()) {

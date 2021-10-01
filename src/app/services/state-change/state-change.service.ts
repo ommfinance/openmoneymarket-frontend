@@ -64,6 +64,7 @@ export class StateChangeService {
   public userOmmTokenBalanceDetailsChange: Subject<OmmTokenBalanceDetails> = new Subject<OmmTokenBalanceDetails>();
   public totalOmmStakedChange: Subject<BigNumber> = new Subject<BigNumber>();
   public voteDefinitionFeeChange: Subject<BigNumber> = new Subject<BigNumber>();
+  public voteDefinitionCriterionChange: Subject<BigNumber> = new Subject<BigNumber>();
   public proposalListChange: Subject<Proposal[]> = new Subject<Proposal[]>();
 
   public yourVotesPrepChange: Subject<YourPrepVote[]> = new Subject<YourPrepVote[]>();
@@ -238,6 +239,11 @@ export class StateChangeService {
   public updateVoteDefinitionFee(voteDefinitionFee: BigNumber): void {
     this.persistenceService.voteDefinitionFee = voteDefinitionFee;
     this.voteDefinitionFeeChange.next(voteDefinitionFee);
+  }
+
+  public updateVoteDefinitionCriterion(voteDefinitionCriterion: BigNumber): void {
+    this.persistenceService.voteDefinitionCriterion = voteDefinitionCriterion;
+    this.voteDefinitionCriterionChange.next(voteDefinitionCriterion);
   }
 
   public updateProposalsList(proposalList: Proposal[]): void {
