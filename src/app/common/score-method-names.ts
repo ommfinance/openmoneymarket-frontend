@@ -79,7 +79,7 @@ export class ScoreMethodNames {
   public static GET_PROPOSALS = "getProposals";
   public static GET_PROPOSAL_COUNT = "getProposalCount";
   public static GET_VOTERS_COUNT = "getVotersCount";
-  public static GET_VOTES_OF_USER = "getVotersOfUser";
+  public static GET_VOTES_OF_USER = "getVotesOfUser";
   public static GET_USERS_VOTING_WEIGHT = "myVotingWeight";
   public static GET_VOTE_DEFINITION_FEE = "getVoteDefinitionFee";
   public static CAST_VOTE = "castVote";

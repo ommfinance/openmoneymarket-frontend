@@ -495,6 +495,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   onProposalClick(proposal: Proposal): void {
-    this.proposalService.selectedProposal = proposal;
+    this.proposalService.setSelectedProposal(proposal);
   }
 }

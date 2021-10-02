@@ -2265,6 +2265,23 @@ input[type="text"].input-borrow-available {
   margin-right: 15px;
 }
 
+/* Proposal approved */
+
+.proposal-decision {
+  background-color: #edeff4;
+  border-radius: 10px;
+  padding: 25px;
+  margin-left: 50px;
+  height: 100px;
+  margin-top: 35px;
+}
+.proposal-decision img {
+  width: 40px;
+}
+.proposal-decision > .grid > .grid-cell:first-of-type {
+  max-width: 65px;
+}
+
 /* Breadcrumbs */
 
 .breadcrumbs ol li {
@@ -2958,6 +2975,15 @@ input[type="text"].input-borrow-available {
   #proposal-cards > .grid.grid-center > .grid-cell:last-of-type {
     text-align: left;
     margin-top: 15px;
+  }
+
+  .proposal-decision {
+    margin-left: 0;
+    height: initial;
+    margin-top: 35px;
+  }
+  .proposal-overview-metadata + .grid {
+    flex-direction: column;
   }
 
   /* Proposal cards */

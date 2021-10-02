@@ -25,7 +25,7 @@ export class AllProposalsComponent extends BaseClass implements OnInit {
   }
 
   onProposalClick(proposal: Proposal): void {
-    this.proposalService.selectedProposal = proposal;
+    this.proposalService.setSelectedProposal(proposal);
   }
 
 }

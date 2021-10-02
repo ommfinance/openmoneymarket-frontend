@@ -16,8 +16,6 @@ import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
 import {NotificationService} from "../notification/notification.service";
 import {ErrorCode, ErrorService} from "../error/error.service";
 import {CheckerService} from "../checker/checker.service";
-import {LocalStorageService} from "../local-storage/local-storage.service";
-import {HttpClient} from "@angular/common/http";
 import {UserAllReservesData, UserReserveData} from "../../models/UserReserveData";
 import {PoolData} from "../../models/PoolData";
 import {UserPoolData} from "../../models/UserPoolData";
@@ -25,6 +23,7 @@ import {Utils} from "../../common/utils";
 import {PoolsDistPercentages} from "../../models/PoolsDistPercentages";
 import BigNumber from "bignumber.js";
 import {environment} from "../../../environments/environment";
+import {Vote} from "../../models/Vote";
 
 @Injectable({
   providedIn: 'root'
@@ -37,9 +36,7 @@ export class DataLoaderService {
               private ommService: OmmService,
               private notificationService: NotificationService,
               private errorService: ErrorService,
-              private checkerService: CheckerService,
-              private localStorageService: LocalStorageService,
-              private http: HttpClient) {
+              private checkerService: CheckerService) {
 
   }
 
@@ -412,7 +409,6 @@ export class DataLoaderService {
   public async loadProposalList(): Promise<void> {
     try {
       const res = await this.scoreService.getProposalList();
-
       log.debug("loadProposalList (mapped): ");
       res.forEach(p => log.debug(p.toString()));
       this.stateChangeService.updateProposalsList(res);
@@ -420,6 +416,21 @@ export class DataLoaderService {
       log.error("Error in loadProposalList:");
       log.error(e);
     }
+  }
+
+  public async loadUserProposalVotes(): Promise<void> {
+    await Promise.all(this.persistenceService.proposalList.map( async (proposal) => {
+      try {
+        const vote: Vote = await this.scoreService.getVotesOfUsers(proposal.id);
+
+        if (vote.against.isGreaterThan(Utils.ZERO) || vote.for.isGreaterThan(Utils.ZERO)) {
+          this.persistenceService.userProposalVotes.set(proposal.id, vote);
+        }
+      } catch (e) {
+        log.error("Failed to get user vote for proposal ", proposal);
+        log.error(e);
+      }
+    }));
   }
 
 
@@ -455,7 +466,8 @@ export class DataLoaderService {
       this.loadTotalStakedOmm(),
       this.loadPrepList(),
       this.loadPoolsData(),
-      this.loadProposalList()
+      this.loadProposalList(),
+      this.loadUserProposalVotes()
     ]);
 
     await this.loadUserSpecificData();
@@ -496,7 +508,8 @@ export class DataLoaderService {
       this.loadUserUnstakingInfo(),
       this.loadUserClaimableIcx(),
       this.loadUserPoolsData(),
-      this.loadUsersVotingWeight()
+      this.loadUsersVotingWeight(),
+      this.loadUserProposalVotes()
     ]);
   }
 

@@ -610,9 +610,6 @@ export class ScoreService {
 
     const res = await this.iconApiService.iconService.call(tx).execute();
 
-    log.debug(`getProposalList =`);
-    res.forEach((p: any) => log.debug(p));
-
     return Mapper.mapProposalList(res);
   }
 
@@ -639,9 +636,11 @@ export class ScoreService {
    * @description Get votes of users
    * @return  Vote - the numbers represents OMM tokens in EXA
    */
-  public async getVotesOfUsers(voteIndex: BigNumber): Promise<Vote> {
+  public async getVotesOfUsers(proposalId?: BigNumber): Promise<Vote> {
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
     const params = {
-      vote_index: IconConverter.toHex(voteIndex),
+      vote_index: IconConverter.toHex(proposalId),
       user: this.persistenceService.activeWallet!.address
     };
 
@@ -649,8 +648,6 @@ export class ScoreService {
       ScoreMethodNames.GET_VOTES_OF_USER, params, IconTransactionType.READ);
 
     const res = await this.iconApiService.iconService.call(tx).execute();
-
-    log.debug(`getVotesOfUsers = ${res}`);
 
     return Mapper.mapUserVote(res);
   }

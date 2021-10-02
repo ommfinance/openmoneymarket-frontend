@@ -22,6 +22,7 @@ import {AllAssetDistPercentages} from "../../models/AllAssetDisPercentages";
 import {DailyRewardsAllReservesPools} from "../../models/DailyRewardsAllReservesPools";
 import BigNumber from "bignumber.js";
 import {Proposal} from "../../models/Proposal";
+import {Vote} from "../../models/Vote";
 
 @Injectable({
   providedIn: 'root'
@@ -68,6 +69,7 @@ export class PersistenceService {
   public voteDefinitionCriterion = new BigNumber("0");
   public proposalList: Proposal[] = [];
   public userVotingWeight: BigNumber = new BigNumber("0");
+  public userProposalVotes: Map<BigNumber, Vote> = new Map<BigNumber, Vote>();
 
   public prepList?: PrepList;
   public yourVotesPrepList: YourPrepVote[] = [];

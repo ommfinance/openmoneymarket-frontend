@@ -75,6 +75,7 @@ export class NewProposalComponent implements OnInit {
     if (!(this.fieldsValid() && this.userHasEnoughOmmStaked())) {
       return;
     }
+
     else if (!this.title) {
       this.notificationService.showNewNotification("Title must not be empty.");
       return;
@@ -85,7 +86,7 @@ export class NewProposalComponent implements OnInit {
       this.notificationService.showNewNotification("Forum link must not be empty.");
       return;
     } else if (!Utils.textContainsDomain(ommForumDomain, this.forumLink)) {
-      this.notificationService.showNewNotification(`Forum link must be linked to ${ommForumDomain}.`);
+      this.notificationService.showNewNotification(`Must link to a discussion on ${ommForumDomain}.`);
       return;
     } else if (!this.userHasEnoughOmmStaked()) {
       this.notificationService.showNewNotification(`Stake at least ${this.persistenceService.getMinOmmStakedRequiredForProposal()

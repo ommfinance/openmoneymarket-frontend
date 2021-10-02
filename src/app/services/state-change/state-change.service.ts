@@ -106,6 +106,9 @@ export class StateChangeService {
   private sIcxSelectedChange: Subject<boolean> = new Subject<boolean>();
   sIcxSelectedChange$: Observable<boolean> = this.sIcxSelectedChange.asObservable();
 
+  private selectedProposalChange: Subject<Proposal> = new Subject<Proposal>();
+  selectedProposalChange$: Observable<Proposal> = this.selectedProposalChange.asObservable();
+
   /**
    * Subscribable subject for monitoring the user debt changes for each asset
    */
@@ -172,6 +175,10 @@ export class StateChangeService {
 
   public sIcxSelectedUpdate(sIcxSelected: boolean): void {
     this.sIcxSelectedChange.next(sIcxSelected);
+  }
+
+  public selectedProposalUpdate(proposal: Proposal): void {
+    this.selectedProposalChange.next(proposal);
   }
 
   public poolsDataUpdate(poolsData: PoolData[]): void {
