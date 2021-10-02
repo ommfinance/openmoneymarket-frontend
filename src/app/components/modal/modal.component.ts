@@ -379,6 +379,9 @@ export class ModalComponent extends BaseClass implements OnInit {
   }
 
   onSubmitVoteClick(): void {
+    if (this.persistenceService.userVotingWeight.isLessThanOrEqualTo(0)) {
+      return;
+    }
     // store activeModalChange in local storage
     this.localStorageService.persistModalAction(this.activeModalChange!);
 
@@ -516,5 +519,9 @@ export class ModalComponent extends BaseClass implements OnInit {
 
   isProposalApprove(): boolean {
     return this.activeModalChange?.governanceAction?.approveProposal ?? false;
+  }
+
+  userHasEnoughOmmStaked(): boolean {
+    return this.persistenceService.getUsersStakedOmmBalance().gte(this.persistenceService.getMinOmmStakedRequiredForProposal());
   }
 }

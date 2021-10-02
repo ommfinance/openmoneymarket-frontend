@@ -75,6 +75,19 @@ export class BaseClass {
     return `${(this.formatNumberToUSLocaleString(Utils.roundOffTo2Decimals(num)))}%`;
   }
 
+  public to0DecimalRoundedDownPercentString(num?: BigNumber | string, defaultZero = false): string {
+    if (!num || !(new BigNumber(num).isFinite()) || (+num) <= 0) { return defaultZero ? "0%" : "-"; }
+
+    // convert in to percentage
+    num = new BigNumber(num).multipliedBy(new BigNumber("100"));
+
+    if (num.isLessThan(1)) {
+      return defaultZero ? "0%" : "-";
+    }
+
+    return `${(this.formatNumberToUSLocaleString(Utils.roundDownToZeroDecimals(num)))}%`;
+  }
+
   public hideElement(hide: boolean): any {
     return {display: hide ? 'none' : null};
   }

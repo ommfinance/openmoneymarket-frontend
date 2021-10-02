@@ -126,8 +126,8 @@
 
           <div class="grid proposal-metadata border-top">
             <img class="time" src="assets/img/icon/clock.svg"><span class="label">{{proposal.getProposalState(reloaderService, true)}}</span>
-            <div class="green-square"></div><span class="label">{{to2DecimalRoundedOffPercentString(proposal.forVotes, true)}}</span>
-            <div class="purple-square"></div><span class="label">{{to2DecimalRoundedOffPercentString(proposal.against, true)}}</span>
+            <div class="green-square"></div><span class="label">{{to0DecimalRoundedDownPercentString(proposal.forVotes, true)}}</span>
+            <div class="purple-square"></div><span class="label">{{to0DecimalRoundedDownPercentString(proposal.against, true)}}</span>
           </div>
         </a>
       </ng-container>

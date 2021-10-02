@@ -88,15 +88,15 @@ export class Proposal {
       case ProposalStatus.CANCELLED:
         return "Cancelled";
       case ProposalStatus.DEFEATED:
-        return "Defeated";
+        return "Rejected";
       case ProposalStatus.FAILED_EXECUTION:
         return "Failed Execution";
       case ProposalStatus.NO_QUORUM:
-        return "No Quorum";
+        return "No quorum";
       case ProposalStatus.EXECUTED:
-        return "Executed";
+        return "Enacted";
       case ProposalStatus.SUCCEEDED:
-        return "Succeeded";
+        return "Approved";
       default:
         const secondsUntilStart = (this.endDay.minus(reloaderService.currentTimestampMicro)).dividedBy(new BigNumber("1000000"))
           .dp(2);
@@ -117,6 +117,8 @@ export class Proposal {
           } else {
             res += minutesUntilStart.isEqualTo(1) ? `${minutesUntilStart} minute` : `${minutesUntilStart} minutes`;
           }
+
+          res += " left";
         } else {
           if (!daysUntilStart.isZero()) {
             res += daysUntilStart.isEqualTo(1) ? `${daysUntilStart} day` : `${daysUntilStart} days`;
@@ -127,7 +129,7 @@ export class Proposal {
           }
         }
 
-        return res + " left";
+        return res
     }
   }
 }

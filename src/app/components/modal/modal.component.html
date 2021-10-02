@@ -15,8 +15,12 @@
     <!-- Modal actions -->
     <div class="modal-actions">
       <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Cancel</a>
-      <a href="javascript:void(0);" class="button" (click)="onSubmitVoteClick()">Submit vote</a>
+      <a href="javascript:void(0);" class="button {{persistenceService.userVotingWeight.isLessThanOrEqualTo(0) ? '' : 'disabled'}}" (click)="onSubmitVoteClick()">Submit vote</a>
     </div>
+    <ng-container *ngIf="persistenceService.userVotingWeight.isLessThanOrEqualTo(0)">
+      <br>
+      <p class="label text-red text-center">Stake OMM to vote on this proposal.</p>
+    </ng-container>
   </div>
 </div>
 

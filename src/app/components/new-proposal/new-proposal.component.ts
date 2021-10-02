@@ -72,7 +72,10 @@ export class NewProposalComponent implements OnInit {
   }
 
   onSubmitClick(): void {
-    if (!this.title) {
+    if (!(this.fieldsValid() && this.userHasEnoughOmmStaked())) {
+      return;
+    }
+    else if (!this.title) {
       this.notificationService.showNewNotification("Title must not be empty.");
       return;
     } else if (!this.description) {
