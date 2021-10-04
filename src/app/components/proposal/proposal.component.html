@@ -98,7 +98,7 @@
             </div>
             <div class="grid-cell">
               <h3>You rejected <a href="javascript:void(0);" (click)="onChangeVoteClick()">Change vote</a></h3>
-              <p>Voting weight: {{persistenceService.userVotingWeight | roundOff2Dec | usFormat}} OMM</p>
+              <p>Voting weight: {{getUsersVotingWeightOnProposal() | roundOff2Dec | usFormat}} OMM</p>
             </div>
           </div>
         </div>
@@ -109,7 +109,7 @@
             </div>
             <div class="grid-cell">
               <h3>You approved <a href="javascript:void(0);" (click)="onChangeVoteClick()">Change vote</a></h3>
-              <p>Voting weight: {{persistenceService.userVotingWeight | roundOff2Dec | usFormat}} OMM</p>
+              <p>Voting weight: {{getUsersVotingWeightOnProposal() | roundOff2Dec | usFormat}} OMM</p>
             </div>
           </div>
         </div>

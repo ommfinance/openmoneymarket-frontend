@@ -96,6 +96,18 @@ export class ProposalComponent extends BaseClass implements OnInit, AfterViewIni
     });
   }
 
+  getUsersVotingWeightOnProposal(): BigNumber {
+    if (this.userVote) {
+      if (this.userVote.against.isFinite() && !this.userVote.against.isZero()) {
+        return this.userVote.against;
+      } else {
+        return this.userVote.for;
+      }
+    } else {
+      return new BigNumber("0");
+    }
+  }
+
   getForumLink(): string {
     const forumLink = this.persistenceService.proposalLinks.get(this.activeProposal?.name ?? "")?.forumLink;
 
