@@ -69,6 +69,7 @@ export class PersistenceService {
   public voteDefinitionFee = new BigNumber("0");
   public voteDefinitionCriterion = new BigNumber("0");
   public proposalList: Proposal[] = [];
+  public userVotingWeightForProposal: Map<BigNumber, BigNumber> = new Map<BigNumber, BigNumber>(); // proposalId to voting weight
   public proposalLinks: Map<string, ProposalLink> = new Map<string, ProposalLink>();
   public userVotingWeight: BigNumber = new BigNumber("0");
   public userProposalVotes: Map<BigNumber, Vote> = new Map<BigNumber, Vote>();

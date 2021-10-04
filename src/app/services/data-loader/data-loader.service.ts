@@ -24,6 +24,7 @@ import {PoolsDistPercentages} from "../../models/PoolsDistPercentages";
 import BigNumber from "bignumber.js";
 import {environment} from "../../../environments/environment";
 import {Vote} from "../../models/Vote";
+import {ReloaderService} from "../reloader/reloader.service";
 
 @Injectable({
   providedIn: 'root'
@@ -36,7 +37,8 @@ export class DataLoaderService {
               private ommService: OmmService,
               private notificationService: NotificationService,
               private errorService: ErrorService,
-              private checkerService: CheckerService) {
+              private checkerService: CheckerService,
+              private reloaderService: ReloaderService) {
 
   }
 
@@ -435,6 +437,15 @@ export class DataLoaderService {
   public async loadUserProposalVotes(): Promise<void> {
     await Promise.all(this.persistenceService.proposalList.map( async (proposal) => {
       try {
+        if (!proposal.proposalIsOver(this.reloaderService)) {
+          try {
+            const votingWeight = await this.scoreService.getUserVotingWeight(proposal.voteSnapshot);
+            this.persistenceService.userVotingWeightForProposal.set(proposal.id, votingWeight);
+          } catch (e) {
+            log.error(e);
+          }
+        }
+
         const vote: Vote = await this.scoreService.getVotesOfUsers(proposal.id);
 
         if (vote.against.isGreaterThan(Utils.ZERO) || vote.for.isGreaterThan(Utils.ZERO)) {

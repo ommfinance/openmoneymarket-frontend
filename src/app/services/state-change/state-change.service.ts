@@ -181,7 +181,7 @@ export class StateChangeService {
     this.sIcxSelectedChange.next(sIcxSelected);
   }
 
-  public selectedProposalUpdate(proposal: Proposal): void {
+  public selectedProposalUpdate(proposal: Proposal | undefined): void {
     this.selectedProposalChange.next(proposal);
   }
 

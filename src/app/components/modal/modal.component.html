@@ -1,6 +1,6 @@
 <!-- Modal: Vote approve -->
 <div class="modal" id="modal-vote-approve" #submitVote>
-  <div class="modal-content">
+  <div *ngIf="isGovernanceVoteModal()" class="modal-content">
     <!-- Overview -->
     <h3 class="label text-center">Submit vote?</h3>
 
@@ -10,14 +10,14 @@
 
 
     <!-- Message -->
-    <p class="text-center label" style="margin-top: 10px;">Voting weight: {{persistenceService.userVotingWeight | roundOff2Dec | usFormat}} OMM</p>
+    <p class="text-center label" style="margin-top: 10px;">Voting weight: {{userVotingWeight() | roundOff2Dec | usFormat}} OMM</p>
 
     <!-- Modal actions -->
     <div class="modal-actions">
       <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Cancel</a>
-      <a href="javascript:void(0);" class="button {{persistenceService.userVotingWeight.isLessThanOrEqualTo(0) ? 'disabled' : ''}}" (click)="onSubmitVoteClick()">Submit vote</a>
+      <a href="javascript:void(0);" class="button {{userVotingWeight().isLessThanOrEqualTo(0) ? 'disabled' : ''}}" (click)="onSubmitVoteClick()">Submit vote</a>
     </div>
-    <ng-container *ngIf="persistenceService.userVotingWeight.isLessThanOrEqualTo(0)">
+    <ng-container *ngIf="userVotingWeight().isLessThanOrEqualTo(0)">
       <br>
       <p class="label text-red text-center">Stake OMM to vote on this proposal.</p>
     </ng-container>

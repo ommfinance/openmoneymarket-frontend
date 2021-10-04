@@ -27,8 +27,7 @@ export class ReloaderService {
   public currentTimestamp: number = Math.floor(new Date().getTime() / 1000);
   public currentTimestampMicro: BigNumber = Utils.timestampNowMicroseconds();
 
-  constructor(private dataLoaderService: DataLoaderService,
-              private persistenceService: PersistenceService,
+  constructor(private persistenceService: PersistenceService,
               private stateChangeService: StateChangeService) {
     // this.initLoginChangeListener();
     // this.registerBaseIntervals();

@@ -11,7 +11,11 @@ export class ProposalService {
   private selectedProposal?: Proposal;
 
   constructor(private stateChangeService: StateChangeService,
-              private localstorageService: LocalStorageService) { }
+              private localstorageService: LocalStorageService) {
+    this.stateChangeService.loginChange.subscribe(wallet => {
+      this.stateChangeService.selectedProposalUpdate(this.getSelectedProposal());
+    });
+  }
 
   getSelectedProposal(): Proposal | undefined {
     return this.selectedProposal ? this.selectedProposal : this.localstorageService.getActiveProposal();

@@ -379,7 +379,7 @@ export class ModalComponent extends BaseClass implements OnInit {
   }
 
   onSubmitVoteClick(): void {
-    if (this.persistenceService.userVotingWeight.isLessThanOrEqualTo(0)) {
+    if (this.userVotingWeight().isLessThanOrEqualTo(0)) {
       return;
     }
     // store activeModalChange in local storage
@@ -519,6 +519,16 @@ export class ModalComponent extends BaseClass implements OnInit {
 
   isProposalApprove(): boolean {
     return this.activeModalChange?.governanceAction?.approveProposal ?? false;
+  }
+
+  isGovernanceVoteModal(): boolean {
+    return this.activeModalChange?.modalType === ModalType.CAST_VOTE;
+  }
+
+  userVotingWeight(): BigNumber {
+    return this.persistenceService.userVotingWeightForProposal.get(this.activeModalChange?.governanceAction?.proposalId
+      ?? new BigNumber(-1)) ?? new BigNumber("0");
+
   }
 
   userHasEnoughOmmStaked(): boolean {

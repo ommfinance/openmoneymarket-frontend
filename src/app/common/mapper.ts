@@ -367,7 +367,7 @@ export class Mapper {
         Utils.hexToNormalisedNumber(proposal.quorum),
         Utils.hexToNumber(proposal["start day"]),
         proposal.status,
-        Utils.hexToNormalisedNumber(proposal["vote snapshot"]),
+        Utils.hexToNumber(proposal["vote snapshot"]),
       );
     }).sort((a, b) => b.startDay.minus(a.startDay).toNumber());
   }

@@ -726,10 +726,10 @@ export class ScoreService {
    * @description Get users voting weight
    * @return  BigNumber - Users voting weight in OMM token number denomination
    */
-  public async getUserVotingWeight(): Promise<BigNumber> {
+  public async getUserVotingWeight(timestamp?: BigNumber): Promise<BigNumber> {
 
     const params = {
-      _day: Utils.timestampNowMicroseconds(),
+      _day: timestamp ? timestamp : Utils.timestampNowMicroseconds(),
       _address: this.persistenceService.activeWallet?.address
     };
 
