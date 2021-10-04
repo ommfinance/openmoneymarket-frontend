@@ -12,6 +12,9 @@ import {NotificationService} from "../notification/notification.service";
 import {LoginService} from "../login/login.service";
 import {IconexId} from "../../models/IconexId";
 import {ModalService} from "../modal/modal.service";
+import {ModalType} from "../../models/ModalType";
+import {ModalAction} from "../../models/ModalAction";
+import {LocalStorageService} from "../local-storage/local-storage.service";
 
 @Injectable({
   providedIn: "root"
@@ -29,7 +32,8 @@ export class IconexApiService {
               private dataLoaderService: DataLoaderService,
               private loginService: LoginService,
               private notificationService: NotificationService,
-              private modalService: ModalService) { }
+              private modalService: ModalService,
+              private localStorageService: LocalStorageService) { }
 
   public iconexEventHandler( e: any): void {
     const {type, payload} = e.detail;
@@ -66,6 +70,17 @@ export class IconexApiService {
         break;
       }
       case "CANCEL_JSON-RPC": {
+        // get last modal action from localstorage
+        const modalAction: ModalAction = this.localStorageService.getLastModalAction()!!;
+
+        if (modalAction.modalType === ModalType.SUBMIT_PROPOSAL) {
+          // delete proposal link if it fails to be submitted
+          const title = modalAction.governanceAction?.newProposal?.title ?? "";
+          this.scoreService.deleteProposalLink(title).subscribe(
+            () => log.debug("Successfully deleted proposal " + title),
+            (error => log.error(error)
+            ));
+        }
         throw new OmmError("ICONEX send transaction cancelled!");
       }
       default: {

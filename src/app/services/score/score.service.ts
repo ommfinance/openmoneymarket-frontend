@@ -29,6 +29,9 @@ import {DailyRewardsAllReservesPools} from "../../models/DailyRewardsAllReserves
 import BigNumber from "bignumber.js";
 import {Vote, VotersCount} from "../../models/Vote";
 import {Proposal} from "../../models/Proposal";
+import {ProposalLink} from "../../models/ProposalLink";
+import {Observable} from "rxjs";
+import {HttpClient} from "@angular/common/http";
 
 
 @Injectable({
@@ -39,7 +42,8 @@ export class ScoreService {
   constructor(private iconApiService: IconApiService,
               private persistenceService: PersistenceService,
               private checkerService: CheckerService,
-              private stateChangeService: StateChangeService) {
+              private stateChangeService: StateChangeService,
+              private http: HttpClient) {
   }
 
   /**
@@ -769,6 +773,18 @@ export class ScoreService {
     const res = await this.iconApiService.iconService.call(tx).execute();
 
     return Utils.hexToNormalisedNumber(res);
+  }
+
+  public saveProposalLinks(proposalLink: ProposalLink): Observable<void>  {
+    return this.http.post<void>(environment.ommRestApi + "/proposals", proposalLink);
+  }
+
+  public getProposalLinks(): Promise<ProposalLink[]>  {
+    return this.http.get<ProposalLink[]>(environment.ommRestApi + "/proposals").toPromise();
+  }
+
+  public deleteProposalLink(title: string): Observable<void>  {
+    return this.http.delete<void>(environment.ommRestApi + "/proposals/" + title);
   }
 
 }

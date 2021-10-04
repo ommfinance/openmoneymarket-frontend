@@ -100,7 +100,8 @@ export class NewProposalComponent implements OnInit {
       this.description,
       new BigNumber("0"),
       new BigNumber("0"),
-      this.voteDefinitionFee()
+      this.voteDefinitionFee(),
+      this.forumLink
     );
 
     const governanceAction = new GovernanceAction(proposal, false);

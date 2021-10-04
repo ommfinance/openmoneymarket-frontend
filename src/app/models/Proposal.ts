@@ -136,17 +136,20 @@ export class Proposal {
 export class CreateProposal {
   title: string;
   description: string;
+  forumLink: string;
   voteStart: BigNumber;
   snapshot: BigNumber;
   voteDefinitionFee: BigNumber;
 
 
-  constructor(title: string, description: string, voteStart: BigNumber, snapshot: BigNumber, voteDefinitionFee: BigNumber) {
+  constructor(title: string, description: string, voteStart: BigNumber, snapshot: BigNumber, voteDefinitionFee: BigNumber,
+              forumLink: string) {
     this.title = title;
     this.description = description;
     this.voteStart = voteStart;
     this.snapshot = snapshot;
     this.voteDefinitionFee = voteDefinitionFee;
+    this.forumLink = forumLink;
   }
 }
 

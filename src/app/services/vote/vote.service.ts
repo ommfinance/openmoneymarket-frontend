@@ -1,13 +1,11 @@
 import { Injectable } from '@angular/core';
 import {IconApiService} from "../icon-api/icon-api.service";
 import {PersistenceService} from "../persistence/persistence.service";
-import {IconexApiService} from "../iconex-api/iconex-api.service";
 import {CheckerService} from "../checker/checker.service";
 import {TransactionDispatcherService} from "../transaction-dispatcher/transaction-dispatcher.service";
 import {ScoreMethodNames} from "../../common/score-method-names";
 import {IconTransactionType} from "../../models/IconTransactionType";
 import log from "loglevel";
-import {Utils} from "../../common/utils";
 import {IconAmount, IconConverter} from "icon-sdk-js";
 import {environment} from "../../../environments/environment";
 import {Mapper} from "../../common/mapper";
@@ -23,7 +21,6 @@ export class VoteService {
 
   constructor(private iconApiService: IconApiService,
               private persistenceService: PersistenceService,
-              private iconexApiService: IconexApiService,
               private checkerService: CheckerService,
               private transactionDispatcherService: TransactionDispatcherService) { }
 
@@ -249,20 +246,5 @@ export class VoteService {
 
     return Mapper.mapPrep(prepList);
   }
-
-//   Get user delegation details
-// { “to” :  from response in 1a for delegation,
-// “method”: “getUserDelegationDetails”,
-// “params”:{“_user”:”hx123…….”}
-//
-// Example response
-// {
-// “hx9a5a9c116379ecb9e4aadb423955fc9351771aa5”: 500000000000000000,
-//  “hx9a5a9c116379ecb9e4aadb423955fc9351771aa6”: 500000000000000000
-// }
-// Note:for Percentage : 1% ~ 1 * 10**16
-
-
-
 
 }
