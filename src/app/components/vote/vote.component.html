@@ -122,7 +122,7 @@
       <ng-container *ngFor="let proposal of getLatestProposals(); last as isLast;">
         <a href="javascript:void(0);" routerLink="/vote/proposal" class="grid-cell panel" (click)="onProposalClick(proposal)">
           <h3>{{proposal.name}}</h3>
-          <p>{{proposal.description}}</p>
+          <p>{{proposal.getShortDescription()}}</p>
 
           <div class="grid proposal-metadata border-top">
             <img class="time" src="assets/img/icon/clock.svg"><span class="label">{{proposal.getProposalState(reloaderService, true)}}</span>

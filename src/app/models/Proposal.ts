@@ -55,6 +55,10 @@ export class Proposal {
       + `voteSnapshot = ${this.voteSnapshot} \n`;
   }
 
+  getShortDescription(): string {
+    return this.description.substring(0, 67) + "...";
+  }
+
   public proposalIsOver(reloaderService: ReloaderService): boolean {
     return this.endDay < reloaderService.currentTimestampMicro;
   }

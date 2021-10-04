@@ -182,7 +182,6 @@ export class TransactionResultService {
           this.notificationService.showNewNotification("Proposal submitted.");
           break;
         case ModalType.CAST_VOTE:
-          this.router.navigate(['/vote']);
           this.notificationService.showNewNotification("Vote cast.");
           break;
       }

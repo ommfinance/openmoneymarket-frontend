@@ -438,7 +438,7 @@ export class DataLoaderService {
         const vote: Vote = await this.scoreService.getVotesOfUsers(proposal.id);
 
         if (vote.against.isGreaterThan(Utils.ZERO) || vote.for.isGreaterThan(Utils.ZERO)) {
-          this.persistenceService.userProposalVotes.set(proposal.id, vote);
+          this.stateChangeService.userProposalVotesUpdate(proposal.id, vote);
         }
       } catch (e) {
         log.error("Failed to get user vote for proposal ", proposal);

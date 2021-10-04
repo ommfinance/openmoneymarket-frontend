@@ -14,7 +14,7 @@ export class ProposalService {
               private localstorageService: LocalStorageService) { }
 
   getSelectedProposal(): Proposal | undefined {
-    return this.selectedProposal;
+    return this.selectedProposal ? this.selectedProposal : this.localstorageService.getActiveProposal();
 }
 
   setSelectedProposal(proposal: Proposal): void {

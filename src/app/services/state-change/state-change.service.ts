@@ -17,6 +17,7 @@ import {UserPoolData} from "../../models/UserPoolData";
 import {AllAssetDistPercentages} from "../../models/AllAssetDisPercentages";
 import BigNumber from "bignumber.js";
 import {Proposal} from "../../models/Proposal";
+import {Vote} from "../../models/Vote";
 
 @Injectable({
   providedIn: 'root'
@@ -109,6 +110,9 @@ export class StateChangeService {
   private selectedProposalChange: Subject<Proposal> = new Subject<Proposal>();
   selectedProposalChange$: Observable<Proposal> = this.selectedProposalChange.asObservable();
 
+  private userProposalVotesChange: Subject<{proposalId: BigNumber, vote: Vote}> = new Subject<{proposalId: BigNumber, vote: Vote}>();
+  userProposalVotesChange$: Observable<{proposalId: BigNumber, vote: Vote}> = this.userProposalVotesChange.asObservable();
+
   /**
    * Subscribable subject for monitoring the user debt changes for each asset
    */
@@ -179,6 +183,11 @@ export class StateChangeService {
 
   public selectedProposalUpdate(proposal: Proposal): void {
     this.selectedProposalChange.next(proposal);
+  }
+
+  public userProposalVotesUpdate(proposalId: BigNumber, vote: Vote): void {
+    this.persistenceService.userProposalVotes.set(proposalId, vote);
+    this.userProposalVotesChange.next({proposalId, vote});
   }
 
   public poolsDataUpdate(poolsData: PoolData[]): void {

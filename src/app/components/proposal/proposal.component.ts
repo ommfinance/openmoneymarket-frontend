@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {Proposal} from "../../models/Proposal";
 import {ProposalService} from "../../services/proposal/proposal.service";
 import {PersistenceService} from "../../services/persistence/persistence.service";
@@ -21,8 +21,7 @@ import BigNumber from "bignumber.js";
 })
 export class ProposalComponent extends BaseClass implements OnInit, AfterViewInit {
 
-  activeProposal: Proposal | undefined = this.proposalService.getSelectedProposal() ? this.proposalService.getSelectedProposal()
-    : this.localstorageService.getActiveProposal();
+  activeProposal: Proposal | undefined = this.proposalService.getSelectedProposal();
   userVote?: Vote;
 
   constructor(private proposalService: ProposalService,
@@ -31,19 +30,44 @@ export class ProposalComponent extends BaseClass implements OnInit, AfterViewIni
               public reloaderService: ReloaderService,
               private stateChangeService: StateChangeService,
               private localstorageService: LocalStorageService,
-              private scoreService: ScoreService) {
+              private scoreService: ScoreService,
+              private cdRef: ChangeDetectorRef) {
       super(persistenceService);
   }
 
   ngOnInit(): void {
     this.subscribeToSelectedProposalChange();
     this.subscribeToModalActionResult();
+    this.subscribeToUserProposalVoteChange();
+    this.subscribeToProposalListChange();
   }
 
   ngAfterViewInit(): void {
     if (this.userLoggedIn() && this.activeProposal && !this.userVote) {
       this.scoreService.getVotesOfUsers(this.activeProposal.id).then(vote => this.userVote = vote).catch(e => log.error(e));
     }
+  }
+
+  subscribeToProposalListChange(): void {
+    this.stateChangeService.proposalListChange.subscribe((proposalList) => {
+      log.debug("proposalListChange..");
+      for (const proposal of proposalList) {
+        if (proposal.id.isEqualTo(this.proposalService.getSelectedProposal()?.id ?? -1)) {
+          this.activeProposal = proposal;
+          log.debug("Replaced activeProposal.. " + proposal.id);
+        }
+      }
+
+      this.cdRef.detectChanges();
+    });
+  }
+
+  subscribeToUserProposalVoteChange(): void {
+    this.stateChangeService.userProposalVotesChange$.subscribe((change) => {
+      if (this.userLoggedIn() && this.activeProposal?.id === change.proposalId) {
+        this.userVote = this.persistenceService.userProposalVotes.get(this.activeProposal.id);
+      }
+    });
   }
 
   subscribeToSelectedProposalChange(): void {
@@ -60,8 +84,12 @@ export class ProposalComponent extends BaseClass implements OnInit, AfterViewIni
 
   private subscribeToModalActionResult(): void {
     this.stateChangeService.userModalActionResult.subscribe(res => {
-      if (res.modalAction.modalType === ModalType.CAST_VOTE) {
+      if (res.modalAction.modalType === ModalType.CAST_VOTE && res.modalAction.governanceAction?.proposalId?.isEqualTo(
+        this.activeProposal?.id ?? -1)) {
         if (res.status === ModalStatus.CANCELLED) {
+          log.debug("proposal ModalStatus.CANCELLED");
+          log.debug(`this.activeProposal?.id = ${this.activeProposal?.id.toNumber()}`);
+          log.debug(`this.userVote = ${this.persistenceService.userProposalVotes.get(this.activeProposal?.id ?? new BigNumber("-1"))}`);
           this.userVote = this.persistenceService.userProposalVotes.get(this.activeProposal?.id ?? new BigNumber("-1"));
         }
       }
@@ -121,7 +149,11 @@ export class ProposalComponent extends BaseClass implements OnInit, AfterViewIni
   }
 
   onChangeVoteClick(): void {
-    this.userVote = undefined;
+    if (this.isVoteApproved()) {
+      this.onRejectClick();
+    } else if (this.isVoteRejected()) {
+      this.onApproveClick();
+    }
   }
 
 }
