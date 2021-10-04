@@ -482,7 +482,17 @@ export class DataLoaderService {
     }
   }
 
+  private refreshBridgeBalances(): void {
+    window.dispatchEvent(new CustomEvent("bri.widget", {
+      detail: {
+        action: 'refreshBalance'
+      }
+    }));
+  }
+
   public async afterUserActionReload(): Promise<void> {
+    this.refreshBridgeBalances();
+
     // reload all reserves and user asset-user reserve data
     await Promise.all([
       this.loadOmmTokenPriceUSD(),
