@@ -40,12 +40,22 @@ export class ProposalComponent extends BaseClass implements OnInit, AfterViewIni
     this.subscribeToModalActionResult();
     this.subscribeToUserProposalVoteChange();
     this.subscribeToProposalListChange();
+    this.subscribeToLoginChange();
   }
 
   ngAfterViewInit(): void {
     if (this.userLoggedIn() && this.activeProposal && !this.userVote) {
       this.scoreService.getVotesOfUsers(this.activeProposal.id).then(vote => this.userVote = vote).catch(e => log.error(e));
     }
+  }
+
+  subscribeToLoginChange(): void {
+    this.stateChangeService.loginChange.subscribe((wallet) => {
+      // logout
+      if (!wallet) {
+        this.userVote = undefined;
+      }
+    });
   }
 
   subscribeToProposalListChange(): void {
