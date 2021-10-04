@@ -42,6 +42,7 @@
     <button onclick="dispatchOpenBridgeEvent()">Open Bridge</button>
     <button onclick="dispatchCloseBridgeEvent()">Close Bridge</button>
     <button onclick="dispatchLogoutFromBridgeEvent()">Logout from Bridge</button>
+    <button onclick="refreshBalance()">RefreshBalance</button>
 
     <script>
         var bridgeUserLoggedIn = false;
@@ -113,6 +114,14 @@
 
         function handleWidgetRes(event) {
             console.log("handleWidgetRes:", event);
+        }
+
+        function refreshBalance() {
+            window.dispatchEvent(new CustomEvent("bri.widget", {
+                detail: {
+                    action: 'refreshBalance'
+                }
+            }))
         }
 
         // Handle Event Result
