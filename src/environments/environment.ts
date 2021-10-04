@@ -5,6 +5,7 @@
 export const environment = {
   production: false,
   iconRpcUrl: "https://bicon.net.solidwallet.io/api/v3",
+  ommRestApi: "https://omm-stats-api-dev-r8jdq.ondigitalocean.app/api/v1",
   iconDebugRpcUrl: "https://bicon.net.solidwallet.io/api/debug/v3",
   ADDRESS_PROVIDER_SCORE: 'cx7645df3f68fb032e925bf01f66c5e77129ef920b',
   BALANCED_DEX_SCORE: "cx399dea56cf199b1c9e43bead0f6a284bdecfbf62",

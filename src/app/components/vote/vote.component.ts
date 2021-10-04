@@ -21,6 +21,9 @@ import {AssetTag} from "../../models/Asset";
 import {contributorsMap, defaultPrepLogoUrl} from "../../common/constants";
 import {normalFormat} from "../../common/formats";
 import BigNumber from "bignumber.js";
+import {Proposal} from "../../models/Proposal";
+import {ProposalService} from "../../services/proposal/proposal.service";
+import {ReloaderService} from "../../services/reloader/reloader.service";
 
 declare var noUiSlider: any;
 
@@ -58,7 +61,9 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
               private notificationService: NotificationService,
               private sliderService: SlidersService,
               private dataLoaderService: DataLoaderService,
-              private cd: ChangeDetectorRef) {
+              private cd: ChangeDetectorRef,
+              private proposalService: ProposalService,
+              public reloaderService: ReloaderService) {
     super(persistenceService);
   }
 
@@ -429,6 +434,10 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       .dividedBy(new BigNumber("100"))).multipliedBy(this.votingPower()))).dp(2);
   }
 
+  getLatestProposals(): Proposal[] {
+    return this.persistenceService.proposalList.slice(0, 3);
+  }
+
   // TODO: in case we want infinity scrolling for preps list
   // @HostListener("window:scroll", [])
   // onScroll(): void {
@@ -483,5 +492,9 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   errorHandlerPrepLogo($event: any): void {
     $event.target.src = defaultPrepLogoUrl;
+  }
+
+  onProposalClick(proposal: Proposal): void {
+    this.proposalService.setSelectedProposal(proposal);
   }
 }

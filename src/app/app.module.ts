@@ -24,6 +24,9 @@ import { RoundDown2DecPipe } from './pipes/round-down-2-dec.pipe';
 import { PoolStakeSliderComponent } from './components/pool-stake-slider/pool-stake-slider.component';
 import BigNumber from "bignumber.js";
 import {RoundOff0DecPipe} from "./pipes/round-off-0-dec.pipe";
+import { AllProposalsComponent } from './components/all-proposals/all-proposals.component';
+import { NewProposalComponent } from './components/new-proposal/new-proposal.component';
+import { ProposalComponent } from './components/proposal/proposal.component';
 
 // Big Number configs
 const fmt = {
@@ -60,7 +63,10 @@ log.setLevel(environment.production ? "error" : "debug");
     RoundOff2DecPipe,
     RoundDown2DecPipe,
     RoundOff0DecPipe,
-    PoolStakeSliderComponent
+    PoolStakeSliderComponent,
+    AllProposalsComponent,
+    NewProposalComponent,
+    ProposalComponent
   ],
   imports: [
     BrowserModule,

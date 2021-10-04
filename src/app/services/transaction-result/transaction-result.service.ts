@@ -12,6 +12,7 @@ import {ModalType} from "../../models/ModalType";
 import {StateChangeService} from "../state-change/state-change.service";
 import {Utils} from "../../common/utils";
 import {BORROW_MAX_ERROR_REGEX} from "../../common/constants";
+import {Router} from "@angular/router";
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +25,8 @@ export class TransactionResultService {
               private dataLoaderService: DataLoaderService,
               private notificationService: NotificationService,
               private localStorageService: LocalStorageService,
-              private stateChangeService: StateChangeService) {
+              private stateChangeService: StateChangeService,
+              private router: Router) {
     window.addEventListener("bri.tx.result", (e) => this.processBridgeTransactionResult(e));
   }
 
@@ -173,6 +175,16 @@ export class TransactionResultService {
           this.notificationService.showNewNotification(`Votes removed.`);
           break;
       }
+    } else if (modalAction.governanceAction) {
+      switch (modalAction.modalType) {
+        case ModalType.SUBMIT_PROPOSAL:
+          this.router.navigate(['/vote']);
+          this.notificationService.showNewNotification("Proposal submitted.");
+          break;
+        case ModalType.CAST_VOTE:
+          this.notificationService.showNewNotification("Vote cast.");
+          break;
+      }
     }
   }
 
@@ -235,6 +247,22 @@ export class TransactionResultService {
           break;
         case ModalType.REMOVE_ALL_VOTES:
           this.notificationService.showNewNotification(`Couldn't remove your votes. ${failedTxMessage} Try again.`);
+          break;
+      }
+    } else if (modalAction.governanceAction) {
+      switch (modalAction.modalType) {
+        case ModalType.SUBMIT_PROPOSAL:
+          this.notificationService.showNewNotification(`Couldn't submit proposal. ${failedTxMessage} Try again.`);
+
+          // delete proposal link if it fails to be submitted
+          const title = modalAction.governanceAction.newProposal?.title ?? "";
+          this.scoreService.deleteProposalLink(title).subscribe(
+            (res) => log.error("Successfully deleted proposal " + title),
+            (error => log.error(error)
+            ));
+          break;
+        case ModalType.CAST_VOTE:
+          this.notificationService.showNewNotification(`Couldn't cast vote. ${failedTxMessage} Try again.`);
           break;
       }
     }

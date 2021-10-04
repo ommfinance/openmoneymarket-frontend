@@ -237,4 +237,28 @@ export class Utils {
       }, delay || 250);
     };
   }
+
+  public static timestampNowMilliseconds(): BigNumber {
+    return new BigNumber(Date.now());
+  }
+
+  public static timestampNowMicroseconds(): BigNumber {
+    return new BigNumber(Date.now()).multipliedBy(new BigNumber("1000"));
+  }
+
+  public static addDaysToTimestamp(timestamp: BigNumber, days: number): BigNumber {
+    const dayInMilliSeconds = new BigNumber("86400000000");
+    return timestamp.plus(dayInMilliSeconds.multipliedBy(days));
+  }
+
+  public static addSecondsToTimestamp(timestamp: BigNumber, seconds: number): BigNumber {
+    const microSecond = new BigNumber("1000000");
+    return timestamp.plus(microSecond.multipliedBy(seconds));
+  }
+
+  public static textContainsDomain(domain: string, text: string): boolean {
+    const regExp = new RegExp('^(?:https?:\\/\\/)?(?:[^@\\/\\n]+@)?(?:www\\.)?([^:\\/?\\n]+)');
+    const res = regExp.exec(text);
+    return res ? res[0].includes(domain) : false;
+  }
 }

@@ -54,7 +54,8 @@ export class ModalComponent extends BaseClass implements OnInit {
   @ViewChild('modalLoading', { static: true }) modalLoading!: ElementRef;
   @ViewChild('poolStakeModal', { static: true }) poolStakeModal!: ElementRef;
   @ViewChild('poolUnstakeModal', { static: true }) poolUnstakeModal!: ElementRef;
-
+  @ViewChild('submitProposal', { static: true }) submitProposalModal!: ElementRef;
+  @ViewChild('submitVote', { static: true }) submitVoteModal!: ElementRef;
 
   activeModalSubscription: Subscription;
   activeModal?: HTMLElement;
@@ -126,6 +127,15 @@ export class ModalComponent extends BaseClass implements OnInit {
           break;
         case ModalType.POOL_UNSTAKE:
           this.setActiveModal(this.poolUnstakeModal.nativeElement, activeModalChange);
+          break;
+        case ModalType.SUBMIT_PROPOSAL:
+          this.setActiveModal(this.submitProposalModal.nativeElement, activeModalChange);
+          break;
+        case ModalType.CAST_VOTE:
+          this.setActiveModal(this.submitVoteModal.nativeElement, activeModalChange);
+          break;
+        case ModalType.CANCEL_VOTE:
+          this.setActiveModal(this.submitVoteModal.nativeElement, activeModalChange);
           break;
         default:
           // check if it is ICX withdraw action and show corresponding specific view / modal
@@ -247,6 +257,22 @@ export class ModalComponent extends BaseClass implements OnInit {
     this.transactionDispatcherService.dispatchTransaction(this.ommService.buildClaimOmmRewardsTx(), "Claiming Omm Tokens...");
   }
 
+  onSubmitProposalClick(): void {
+    // store user action in local storage
+    this.localStorageService.persistModalAction(this.activeModalChange!);
+
+    // hide current modal
+    this.modalService.hideActiveModal();
+
+    const proposal = this.activeModalChange?.governanceAction?.newProposal!;
+
+    const now = Utils.timestampNowMicroseconds();
+    proposal.snapshot = Utils.addSecondsToTimestamp(now, 60);
+    proposal.voteStart = Utils.addSecondsToTimestamp(now, 62);
+
+    this.transactionDispatcherService.dispatchTransaction(this.voteService.createProposal(proposal), "Submitting proposal...");
+  }
+
   onClaimIcxClick(): void {
     // store user action in local storage
     this.localStorageService.persistModalAction(this.activeModalChange!);
@@ -347,6 +373,23 @@ export class ModalComponent extends BaseClass implements OnInit {
 
     // commit modal action change
     this.stateChangeService.updateUserModalAction(this.activeModalChange);
+
+    // hide current modal
+    this.modalService.hideActiveModal();
+  }
+
+  onSubmitVoteClick(): void {
+    if (this.userVotingWeight().isLessThanOrEqualTo(0)) {
+      return;
+    }
+    // store activeModalChange in local storage
+    this.localStorageService.persistModalAction(this.activeModalChange!);
+
+    const action = this.activeModalChange!.governanceAction!;
+    this.voteService.castVote(action.proposalId!, action.approveProposal!, "Casting your vote...");
+
+    // commit modal action change
+    this.stateChangeService.updateUserModalAction(this.activeModalChange!);
 
     // hide current modal
     this.modalService.hideActiveModal();
@@ -472,5 +515,23 @@ export class ModalComponent extends BaseClass implements OnInit {
 
   assetIsCollateralSIcx(): boolean {
     return this.activeModalChange?.assetAction?.asset.tag === CollateralAssetTag.sICX;
+  }
+
+  isProposalApprove(): boolean {
+    return this.activeModalChange?.governanceAction?.approveProposal ?? false;
+  }
+
+  isGovernanceVoteModal(): boolean {
+    return this.activeModalChange?.modalType === ModalType.CAST_VOTE;
+  }
+
+  userVotingWeight(): BigNumber {
+    return this.persistenceService.userVotingWeightForProposal.get(this.activeModalChange?.governanceAction?.proposalId
+      ?? new BigNumber(-1)) ?? new BigNumber("0");
+
+  }
+
+  userHasEnoughOmmStaked(): boolean {
+    return this.persistenceService.getUsersStakedOmmBalance().gte(this.persistenceService.getMinOmmStakedRequiredForProposal());
   }
 }

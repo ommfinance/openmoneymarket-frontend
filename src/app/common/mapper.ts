@@ -22,6 +22,8 @@ import {
   StakingDailyRewards
 } from "../models/DailyRewardsAllReservesPools";
 import {BigNumber} from "bignumber.js";
+import {Vote, VotersCount} from "../models/Vote";
+import {Proposal} from "../models/Proposal";
 
 export class Mapper {
 
@@ -333,5 +335,40 @@ export class Mapper {
       Utils.hexToNormalisedNumber(poolsData.userTotalBalance, decimals),
       poolStats
   );
+  }
+
+  public static mapUserVote(vote: any): Vote {
+    return new Vote(
+      Utils.hexToNormalisedNumber(vote.against),
+      Utils.hexToNormalisedNumber(vote.for)
+    );
+  }
+
+  public static mapVotersCount(votersCount: any): VotersCount {
+    return new VotersCount(
+      Utils.hexToNormalisedNumber(votersCount.against_voters),
+      Utils.hexToNormalisedNumber(votersCount.for_voters)
+    );
+  }
+
+  public static mapProposalList(proposals: any[]): Proposal[] {
+    return proposals.map(proposal => {
+      return new Proposal(
+        Utils.hexToNormalisedNumber(proposal.against),
+        Utils.hexToNumber(proposal.against_voter_count),
+        proposal.description,
+        Utils.hexToNumber(proposal["end day"]),
+        Utils.hexToNormalisedNumber(proposal.for),
+        Utils.hexToNumber(proposal.for_voter_count),
+        Utils.hexToNumber(proposal.id),
+        Utils.hexToNormalisedNumber(proposal.majority),
+        proposal.name,
+        proposal.proposer,
+        Utils.hexToNormalisedNumber(proposal.quorum),
+        Utils.hexToNumber(proposal["start day"]),
+        proposal.status,
+        Utils.hexToNumber(proposal["vote snapshot"]),
+      );
+    }).sort((a, b) => b.startDay.minus(a.startDay).toNumber());
   }
 }

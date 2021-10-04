@@ -21,6 +21,9 @@ import {PoolsDistPercentages} from "../../models/PoolsDistPercentages";
 import {AllAssetDistPercentages} from "../../models/AllAssetDisPercentages";
 import {DailyRewardsAllReservesPools} from "../../models/DailyRewardsAllReservesPools";
 import BigNumber from "bignumber.js";
+import {Proposal} from "../../models/Proposal";
+import {Vote} from "../../models/Vote";
+import {ProposalLink} from "../../models/ProposalLink";
 
 @Injectable({
   providedIn: 'root'
@@ -54,6 +57,7 @@ export class PersistenceService {
   public userDebt: Map<CollateralAssetTag, BigNumber | undefined> = new Map<CollateralAssetTag, BigNumber | undefined>();
   public minOmmStakeAmount = new BigNumber("1");
   public totalStakedOmm = new BigNumber("0");
+  public totalSuppliedOmm = new BigNumber("0");
   public ommPriceUSD = new BigNumber("-1"); // -1 indicates that ommPriceUSD is not set
 
   public tokenDistributionPerDay = new BigNumber("0");
@@ -61,6 +65,15 @@ export class PersistenceService {
   public distributionPercentages?: DistributionPercentages;
   public allAssetDistPercentages?: AllAssetDistPercentages;
   public dailyRewardsAllPoolsReserves?: DailyRewardsAllReservesPools;
+
+  public voteDefinitionFee = new BigNumber("0");
+  public voteDefinitionCriterion = new BigNumber("0");
+  public proposalList: Proposal[] = [];
+  public userVotingWeightForProposal: Map<BigNumber, BigNumber> = new Map<BigNumber, BigNumber>(); // proposalId to voting weight
+  public proposalLinks: Map<string, ProposalLink> = new Map<string, ProposalLink>();
+  public userVotingWeight: BigNumber = new BigNumber("0");
+  public userProposalVotes: Map<BigNumber, Vote> = new Map<BigNumber, Vote>();
+
 
   public prepList?: PrepList;
   public yourVotesPrepList: YourPrepVote[] = [];
@@ -81,6 +94,10 @@ export class PersistenceService {
     this.userAccountData = undefined;
     this.userTotalRisk = new BigNumber("0");
     this.userReserves = new UserReserves();
+  }
+
+  getMinOmmStakedRequiredForProposal(): BigNumber {
+    return this.totalSuppliedOmm.multipliedBy(this.voteDefinitionCriterion);
   }
 
   public getDistPercentageOfPool(poolId: BigNumber): BigNumber {
