@@ -2982,7 +2982,7 @@ input[type="text"].input-borrow-available {
     height: initial;
     margin-top: 35px;
   }
-  .proposal-overview-metadata + .grid {
+  #proposal-overview.voted .proposal-overview-metadata + .grid {
     flex-direction: column;
   }
 

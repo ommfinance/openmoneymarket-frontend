@@ -97,7 +97,7 @@ export class NewProposalComponent implements OnInit {
     // TODO save forum link to the omm.api
     const proposal = new CreateProposal(
       this.title,
-      this.description,
+      this.description.replace(/(\r\n|\n|\r)/gm, " "),
       new BigNumber("0"),
       new BigNumber("0"),
       this.voteDefinitionFee(),
