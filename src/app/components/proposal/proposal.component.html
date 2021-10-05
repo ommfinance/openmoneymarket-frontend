@@ -9,7 +9,7 @@
 
   <h2>{{activeProposal?.name}}</h2>
   <!-- Proposal overview -->
-  <section id="proposal-overview" class="panel">
+  <section id="proposal-overview" class="panel {{isVoteValid() ? 'voted' : ''}}">
     <!-- Container -->
     <div class="grid proposal-overview-metadata">
       <div class="grid-cell">
