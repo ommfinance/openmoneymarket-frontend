@@ -68,11 +68,17 @@ export class Proposal {
   }
 
   public getApprovedPercentage(): BigNumber {
-    return this.forVotes.dividedBy(this.getTotalVotePercentage());
+    if (!this.forVotes.isZero() && this.getTotalVotePercentage().isFinite() && !this.getTotalVotePercentage().isZero()) {
+      return this.forVotes.dividedBy(this.getTotalVotePercentage());
+    }
+    return new BigNumber("0");
   }
 
   public getRejectedPercentage(): BigNumber {
-    return this.against.dividedBy(this.getTotalVotePercentage());
+    if (!this.against.isZero() && this.getTotalVotePercentage().isFinite() && !this.getTotalVotePercentage().isZero()) {
+      return this.against.dividedBy(this.getTotalVotePercentage());
+    }
+    return new BigNumber("0");
   }
 
   public getStatusImgSrc(): string {
