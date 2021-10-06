@@ -13,7 +13,7 @@
     <!-- Container -->
     <div class="grid proposal-overview-metadata">
       <div class="grid-cell">
-        <span class="label"><img [src]="activeProposal?.getStatusImgSrc()">{{activeProposal?.getProposalState(reloaderService)}}</span> <span class="label"><img src="assets/img/icon/chart.svg">{{to2DecimalRoundedOffPercentString(activeProposal?.getPercentageVoted(), true)}} voted</span> <span class="label">
+        <span class="label"><img [src]="activeProposal?.getStatusImgSrc()">{{activeProposal?.getProposalState(reloaderService)}}</span> <span class="label"><img src="assets/img/icon/chart.svg">{{to2DecimalRoundedOffPercentString(activeProposal?.getTotalVotePercentage(), true)}} voted</span> <span class="label">
         <img src="assets/img/icon/users.svg">{{totalVoters()}} voters</span>
       </div>
     </div>
@@ -22,11 +22,11 @@
       <!-- Approve -->
       <div class="grid">
         <div class="grid-cell">
-          <p class="text-bold">Approve <span class="label">{{to2DecimalRoundedOffPercentString(activeProposal?.forVotes, true)}} ({{to2DecimalRoundedOffPercentString(activeProposal?.majority, true)}} required)</span></p>
+          <p class="text-bold">Approve <span class="label">{{to2DecimalRoundedOffPercentString(activeProposal?.getApprovedPercentage(), true)}} ({{to2DecimalRoundedOffPercentString(activeProposal?.majority, true)}} required)</span></p>
           <div id="slider-approve" disabled="" class="noUi-target noUi-ltr noUi-horizontal noUi-txt-dir-ltr">
             <div class="noUi-base">
               <div class="noUi-connects">
-                <div class="noUi-connect" [ngStyle]="{'transform': 'translate(0%) scale(' + activeProposal?.forVotes + ', 1)'}"></div>
+                <div class="noUi-connect" [ngStyle]="{'transform': 'translate(0%) scale(' + activeProposal?.getApprovedPercentage() + ', 1)'}"></div>
               </div>
               <div class="noUi-origin" style="transform: translate(-208.955%); z-index: 4;">
                 <div class="noUi-handle noUi-handle-lower" data-handle="0" tabindex="0" role="slider" aria-orientation="horizontal" aria-valuemin="0.0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="90">
@@ -44,11 +44,11 @@
       <!-- Reject -->
       <div class="grid" style="margin-top: 15px;">
         <div class="grid-cell">
-          <p class="text-bold">Reject <span class="label">{{to2DecimalRoundedOffPercentString(activeProposal?.against, true)}}</span></p>
+          <p class="text-bold">Reject <span class="label">{{to2DecimalRoundedOffPercentString(activeProposal?.getRejectedPercentage(), true)}}</span></p>
           <div id="slider-reject" disabled="" class="noUi-target noUi-ltr noUi-horizontal noUi-txt-dir-ltr">
             <div class="noUi-base">
               <div class="noUi-connects">
-                <div class="noUi-connect" [ngStyle]="{'transform': 'translate(0%) scale(' + activeProposal?.against + ', 1)'}"></div>
+                <div class="noUi-connect" [ngStyle]="{'transform': 'translate(0%) scale(' + activeProposal?.getRejectedPercentage() + ', 1)'}"></div>
               </div>
               <div class="noUi-origin" style="transform: translate(-791.045%); z-index: 4;">
                 <div class="noUi-handle noUi-handle-lower" data-handle="0" tabindex="0" role="slider" aria-orientation="horizontal" aria-valuemin="0.0" aria-valuemax="67.0" aria-valuenow="14.0" aria-valuetext="14.00">
@@ -70,9 +70,9 @@
           <!-- Approve -->
           <div class="grid">
             <div class="grid-cell">
-              <p class="text-bold">Approve <span class="label">{{to2DecimalRoundedOffPercentString(activeProposal?.forVotes, true)}} ({{to2DecimalRoundedOffPercentString(activeProposal?.majority, true)}} required)</span></p>
+              <p class="text-bold">Approve <span class="label">{{to2DecimalRoundedOffPercentString(activeProposal?.getApprovedPercentage(), true)}} ({{to2DecimalRoundedOffPercentString(activeProposal?.majority, true)}} required)</span></p>
               <div id="slider-approve" disabled="" class="noUi-target noUi-ltr noUi-horizontal noUi-txt-dir-ltr"><div class="noUi-base">
-                <div class="noUi-connects"><div class="noUi-connect" [ngStyle]="{'transform': 'translate(0%) scale(' + activeProposal?.forVotes + ', 1)'}"></div></div>
+                <div class="noUi-connects"><div class="noUi-connect" [ngStyle]="{'transform': 'translate(0%) scale(' + activeProposal?.getApprovedPercentage() + ', 1)'}"></div></div>
                 <div class="noUi-origin" style="transform: translate(-208.955%); z-index: 4;">
                   <div class="noUi-handle noUi-handle-lower" data-handle="0" tabindex="0" role="slider" aria-orientation="horizontal" aria-valuemin="0.0" aria-valuemax="67.0" aria-valuenow="53.0" aria-valuetext="53.00">
                     <div class="noUi-touch-area"></div>
@@ -83,9 +83,9 @@
           <!-- Reject -->
           <div class="grid" style="margin-top: 15px;">
             <div class="grid-cell">
-              <p class="text-bold">Reject <span class="label">{{to2DecimalRoundedOffPercentString(activeProposal?.against, true)}}</span></p>
+              <p class="text-bold">Reject <span class="label">{{to2DecimalRoundedOffPercentString(activeProposal?.getRejectedPercentage(), true)}}</span></p>
               <div id="slider-reject" disabled="" class="noUi-target noUi-ltr noUi-horizontal noUi-txt-dir-ltr"><div class="noUi-base">
-                <div class="noUi-connects"><div class="noUi-connect" [ngStyle]="{'transform': 'translate(0%) scale(' + activeProposal?.against + ', 1)'}"></div></div>
+                <div class="noUi-connects"><div class="noUi-connect" [ngStyle]="{'transform': 'translate(0%) scale(' + activeProposal?.getRejectedPercentage() + ', 1)'}"></div></div>
                 <div class="noUi-origin" style="transform: translate(-791.045%); z-index: 4;"><div class="noUi-handle noUi-handle-lower" data-handle="0" tabindex="0" role="slider" aria-orientation="horizontal" aria-valuemin="0.0" aria-valuemax="67.0" aria-valuenow="14.0" aria-valuetext="14.00">
                   <div class="noUi-touch-area"></div></div></div></div></div>
             </div>

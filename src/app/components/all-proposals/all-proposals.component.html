@@ -19,10 +19,10 @@
           <div class="grid proposal-metadata border-top">
             <div class="grid-cell">
               <span class="label"><img [src]="proposal.getStatusImgSrc()">{{proposal.getProposalState(reloaderService)}}</span>
-              <span class="label"><img src="assets/img/icon/chart.svg">{{to2DecimalRoundedOffPercentString(proposal.getPercentageVoted(), true)}} voted</span>
+              <span class="label"><img src="assets/img/icon/chart.svg">{{to2DecimalRoundedOffPercentString(proposal.getTotalVotePercentage(), true)}} voted</span>
               <span class="label"><img src="assets/img/icon/users.svg">{{proposal.forVoterCount.plus(proposal.againstVoterCount) | usFormat}} voters</span>
-              <div class="green-square"></div><span class="label">{{to2DecimalRoundedOffPercentString(proposal.forVotes, true)}}</span>
-              <div class="purple-square"></div><span class="label">{{to2DecimalRoundedOffPercentString(proposal.against, true)}}</span>
+              <div class="green-square"></div><span class="label">{{to2DecimalRoundedOffPercentString(proposal.getApprovedPercentage(), true)}}</span>
+              <div class="purple-square"></div><span class="label">{{to2DecimalRoundedOffPercentString(proposal.getRejectedPercentage(), true)}}</span>
             </div>
           </div>
         </div>

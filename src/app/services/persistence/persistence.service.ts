@@ -73,6 +73,7 @@ export class PersistenceService {
   public proposalLinks: Map<string, ProposalLink> = new Map<string, ProposalLink>();
   public userVotingWeight: BigNumber = new BigNumber("0");
   public userProposalVotes: Map<BigNumber, Vote> = new Map<BigNumber, Vote>();
+  public voteDuration = new BigNumber("-1");
 
 
   public prepList?: PrepList;

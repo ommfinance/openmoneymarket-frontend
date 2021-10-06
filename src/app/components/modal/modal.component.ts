@@ -534,4 +534,8 @@ export class ModalComponent extends BaseClass implements OnInit {
   userHasEnoughOmmStaked(): boolean {
     return this.persistenceService.getUsersStakedOmmBalance().gte(this.persistenceService.getMinOmmStakedRequiredForProposal());
   }
+
+  getVoteDuration(): string {
+    return Utils.getVoteDurationTime(this.persistenceService.voteDuration);
+  }
 }
