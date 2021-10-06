@@ -1707,23 +1707,24 @@ input[type="text"].input-borrow-available {
 
 /* Input default */
 
-.input-asset-supply {
+.input-asset-supply, .input-asset-borrow {
   position: relative;
 }
-.input-supply-default {
+.input-supply-default, .input-borrow-default {
   color: #49546a;
   margin-left: 30px;
   font-size: 18px;
   margin-top: 7px;
   margin-bottom: 7px;
 }
-.input-asset-supply .input-supply {
-  padding-right: 65px !important;
-}
+/*.input-asset-supply .input-supply, .input-asset-borrow .input-borrow  {*/
+/*  padding-right: 45px !important;*/
+/*}*/
+
 .ticker {
   position: absolute;
   right: 12px;
-  top: 16px;
+  top: 18px;
   color: #49546a;
   font-size: 18px;
 }
