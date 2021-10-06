@@ -63,8 +63,16 @@ export class Proposal {
     return this.endDay < reloaderService.currentTimestampMicro;
   }
 
-  public getPercentageVoted(): BigNumber {
+  public getTotalVotePercentage(): BigNumber {
     return this.forVotes.plus(this.against);
+  }
+
+  public getApprovedPercentage(): BigNumber {
+    return this.forVotes.dividedBy(this.getTotalVotePercentage());
+  }
+
+  public getRejectedPercentage(): BigNumber {
+    return this.against.dividedBy(this.getTotalVotePercentage());
   }
 
   public getStatusImgSrc(): string {
@@ -126,13 +134,13 @@ export class Proposal {
           if (!daysUntilStart.isZero()) {
             res += daysUntilStart.isEqualTo(1) ? `${daysUntilStart} day` : `${daysUntilStart} days`;
           } else if (!hoursUntilStart.isZero()) {
-            res += hoursUntilStart.isEqualTo(1) ? `, ${hoursUntilStart} hour` : `, ${hoursUntilStart} hours`;
+            res += hoursUntilStart.isEqualTo(1) ? `${hoursUntilStart} hour` : `${hoursUntilStart} hours`;
           } else {
-            res += minutesUntilStart.isEqualTo(1) ? `, ${minutesUntilStart} minute` : `, ${minutesUntilStart} minutes`;
+            res += minutesUntilStart.isEqualTo(1) ? `${minutesUntilStart} minute` : `${minutesUntilStart} minutes`;
           }
         }
 
-        return res
+        return res;
     }
   }
 }

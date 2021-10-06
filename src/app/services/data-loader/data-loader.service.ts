@@ -408,6 +408,18 @@ export class DataLoaderService {
     }
   }
 
+  public async loadVoteDuration(): Promise<void> {
+    try {
+      const res = await this.scoreService.getVoteDuration();
+      log.debug("loadVoteDuration (mapped): ", res);
+
+      this.persistenceService.voteDuration = res;
+    } catch (e) {
+      log.error("Error in loadVoteDuration:");
+      log.error(e);
+    }
+  }
+
   public async loadProposalList(): Promise<void> {
     try {
       const res = await this.scoreService.getProposalList();
@@ -529,7 +541,8 @@ export class DataLoaderService {
       this.loadVoteDefinitionCriterion(),
       this.loadProposalList(),
       this.loadProposalLinks(),
-      this.loadTotalOmmSupply()
+      this.loadTotalOmmSupply(),
+      this.loadVoteDuration()
     ]);
   }
 

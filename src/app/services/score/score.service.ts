@@ -744,6 +744,23 @@ export class ScoreService {
   }
 
   /**
+   * @description Get vote duration
+   * @return  BigNumber - Vote duration number
+   */
+  public async getVoteDuration(): Promise<BigNumber> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Governance,
+      ScoreMethodNames.GET_VOTE_DURATION, {}, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug(`getVoteDuration = ${res}`);
+
+    return Utils.hexToNumber(res);
+  }
+
+  /**
    * @description Get total staked OMM at certain timestamp
    * @return  BigNumber - Users voting weight in OMM token number denomination
    */

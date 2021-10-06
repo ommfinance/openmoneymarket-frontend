@@ -3,6 +3,7 @@ import {BigNumber} from "bignumber.js";
 import {AssetTag} from "../models/Asset";
 import {BridgeWidgetAction} from "../models/BridgeWidgetAction";
 import log from "loglevel";
+import {Times} from "./constants";
 
 export class Utils {
 
@@ -260,5 +261,25 @@ export class Utils {
     const regExp = new RegExp('^(?:https?:\\/\\/)?(?:[^@\\/\\n]+@)?(?:www\\.)?([^:\\/?\\n]+)');
     const res = regExp.exec(text);
     return res ? res[0].includes(domain) : false;
+  }
+
+  public static getVoteDurationTime(voteDurationMicro: BigNumber): string {
+    const secondsUntilStart = (voteDurationMicro).dividedBy(new BigNumber("1000000"))
+      .dp(2);
+    const daysUntilStart = secondsUntilStart.dividedBy(Times.DAY_IN_SECONDS).dp(0);
+
+    if (daysUntilStart.isZero()) {
+      const hoursUntilStart = secondsUntilStart.dividedBy(Times.HOUR_IN_SECONDS).dp(0);
+      if (hoursUntilStart.isZero()) {
+        const minutesUntilStart = secondsUntilStart.dividedBy(Times.MINUTE_IN_SECONDS).dp(0);
+        return minutesUntilStart.isEqualTo(1) ? `${minutesUntilStart} minute` : `${minutesUntilStart} minutes`;
+      } else {
+        return hoursUntilStart.isEqualTo(1) ? `${hoursUntilStart} hour` : `${hoursUntilStart} hours`;
+      }
+    } else {
+      return daysUntilStart.isEqualTo(1) ? `${daysUntilStart} day` : `${daysUntilStart} days`;
+    }
+
+
   }
 }
