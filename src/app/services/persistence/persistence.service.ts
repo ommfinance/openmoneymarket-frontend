@@ -204,7 +204,13 @@ export class PersistenceService {
     return this.userReserves?.reserveMap.get(assetTag)?.currentOTokenBalanceUSD ?? new BigNumber("0");
   }
 
-  public getUserBorrowedAssetBalance(assetTag: AssetTag): BigNumber {
+  public getUserBorrowedAssetBalancePlusOrigFee(assetTag: AssetTag): BigNumber {
+    const originationFee = this.userReserves?.reserveMap.get(assetTag)?.originationFee ?? new BigNumber("0");
+    const borrowBalance = this.userReserves?.reserveMap.get(assetTag)?.currentBorrowBalance ?? new BigNumber("0");
+    return originationFee.plus(borrowBalance);
+  }
+
+  public getUserBorrAssetBalance(assetTag: AssetTag): BigNumber {
     return this.userReserves?.reserveMap.get(assetTag)?.currentBorrowBalance ?? new BigNumber("0");
   }
 
@@ -346,7 +352,7 @@ export class PersistenceService {
   }
 
   public userAssetBorrowedIsZero(assetTag: AssetTag): boolean {
-    return (this.getUserBorrowedAssetBalance(assetTag) ?? new BigNumber("0")).isZero();
+    return (this.getUserBorrAssetBalance(assetTag) ?? new BigNumber("0")).isZero();
   }
 
   public userAssetBalanceIsZero(assetTag: AssetTag): boolean {
