@@ -857,6 +857,13 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     return this.persistenceService.getUserBorrowedAssetBalancePlusOrigFee(this.asset.tag).dp(2);
   }
 
+  getUserBorrowedAssetBalanceUSD(): BigNumber {
+    const reserve = this.persistenceService.getUserAssetReserve(this.asset.tag);
+    const borrowBalanceUSD = reserve?.currentBorrowBalanceUSD ?? new BigNumber("0");
+    const originationFeeUSD = reserve?.originationFee.multipliedBy(reserve?.exchangeRate) ?? new BigNumber("0");
+    return borrowBalanceUSD.plus(originationFeeUSD);
+  }
+
   getUserSuppliableBalanceUSD(): BigNumber {
     if (this.sIcxSelected) {
       const balance =  this.persistenceService.getUserAssetCollateralBalance(CollateralAssetTag.sICX);

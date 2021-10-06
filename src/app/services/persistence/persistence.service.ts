@@ -272,7 +272,10 @@ export class PersistenceService {
       return totalBorrowed;
     }
     this.userReserves.reserveMap.forEach((reserve: UserReserveData | undefined) => {
-      totalBorrowed = totalBorrowed.plus((reserve?.currentBorrowBalanceUSD ?? new BigNumber("0")));
+      const originationFee = reserve?.originationFee ?? new BigNumber("0");
+      const exchangeRate = reserve?.exchangeRate ?? new BigNumber("0");
+      const borrowBalanceUSD = reserve?.currentBorrowBalanceUSD ?? new BigNumber("0");
+      totalBorrowed = totalBorrowed.plus(borrowBalanceUSD).plus(originationFee.multipliedBy(exchangeRate));
     });
     return totalBorrowed;
   }
