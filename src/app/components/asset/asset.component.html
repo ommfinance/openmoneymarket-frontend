@@ -8,7 +8,7 @@
     <td><span class="value-supplied">{{this.toDollarUSLocaleString(this.persistenceService.getUserAssetReserve(asset.tag)?.currentOTokenBalanceUSD | roundOff2Dec)}}</span><br>
       <span class="value-supplied label">{{getUserSuppliedAssetBalance() | usFormat}} {{supplyAssetTag()}}</span></td>
     <td class="text-green">{{to2DecimalRoundedOffPercentString(getUserSupplyApy())}}</td> <!-- Supply APY-->
-    <td><span class="value-borrowed">{{this.toDollarUSLocaleString(this.persistenceService.getUserAssetReserve(asset.tag)?.currentBorrowBalanceUSD | roundOff2Dec)}}</span><br>
+    <td><span class="value-borrowed">{{this.toDollarUSLocaleString(getUserBorrowedAssetBalanceUSD() | roundOff2Dec)}}</span><br>
       <span class="value-borrowed label">{{getUserBorrowedAssetBalance() | roundDown2Dec | usFormat}} {{getBorrowAssetTagAdjusted()}}</span></td>
     <td class="{{isNegative(getUserBorrowApy()) ? 'text-purple' : 'text-green'}}">{{to2DecimalRoundedOffPercentString(makeAbsolute(getUserBorrowApy()))}}</td><!-- Borrow APY -->
   </ng-container>
