@@ -3,6 +3,7 @@ import {BigNumber} from "bignumber.js";
 import {AssetTag} from "../models/Asset";
 import {BridgeWidgetAction} from "../models/BridgeWidgetAction";
 import log from "loglevel";
+import {Times} from "./constants";
 
 export class Utils {
 
@@ -236,5 +237,49 @@ export class Utils {
         fn.apply(context, args);
       }, delay || 250);
     };
+  }
+
+  public static timestampNowMilliseconds(): BigNumber {
+    return new BigNumber(Date.now());
+  }
+
+  public static timestampNowMicroseconds(): BigNumber {
+    return new BigNumber(Date.now()).multipliedBy(new BigNumber("1000"));
+  }
+
+  public static addDaysToTimestamp(timestamp: BigNumber, days: number): BigNumber {
+    const dayInMilliSeconds = new BigNumber("86400000000");
+    return timestamp.plus(dayInMilliSeconds.multipliedBy(days));
+  }
+
+  public static addSecondsToTimestamp(timestamp: BigNumber, seconds: number): BigNumber {
+    const microSecond = new BigNumber("1000000");
+    return timestamp.plus(microSecond.multipliedBy(seconds));
+  }
+
+  public static textContainsDomain(domain: string, text: string): boolean {
+    const regExp = new RegExp('^(?:https?:\\/\\/)?(?:[^@\\/\\n]+@)?(?:www\\.)?([^:\\/?\\n]+)');
+    const res = regExp.exec(text);
+    return res ? res[0].includes(domain) : false;
+  }
+
+  public static getVoteDurationTime(voteDurationMicro: BigNumber): string {
+    const secondsUntilStart = (voteDurationMicro).dividedBy(new BigNumber("1000000"))
+      .dp(2);
+    const daysUntilStart = secondsUntilStart.dividedBy(Times.DAY_IN_SECONDS).dp(0);
+
+    if (daysUntilStart.isZero()) {
+      const hoursUntilStart = secondsUntilStart.dividedBy(Times.HOUR_IN_SECONDS).dp(0);
+      if (hoursUntilStart.isZero()) {
+        const minutesUntilStart = secondsUntilStart.dividedBy(Times.MINUTE_IN_SECONDS).dp(0);
+        return minutesUntilStart.isEqualTo(1) ? `${minutesUntilStart} minute` : `${minutesUntilStart} minutes`;
+      } else {
+        return hoursUntilStart.isEqualTo(1) ? `${hoursUntilStart} hour` : `${hoursUntilStart} hours`;
+      }
+    } else {
+      return daysUntilStart.isEqualTo(1) ? `${daysUntilStart} day` : `${daysUntilStart} days`;
+    }
+
+
   }
 }

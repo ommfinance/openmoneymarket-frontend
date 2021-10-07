@@ -66,6 +66,8 @@ interface DTokens {
 }
 
 interface SystemContract {
+  DEX: string;
+  Governance: string;
   LendingPool: string;
   LendingPoolDataProvider: string;
   Staking: string;

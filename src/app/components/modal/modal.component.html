@@ -1,3 +1,51 @@
+<!-- Modal: Vote approve -->
+<div class="modal" id="modal-vote-approve" #submitVote>
+  <div *ngIf="isGovernanceVoteModal()" class="modal-content">
+    <!-- Overview -->
+    <h3 class="label text-center">Submit vote?</h3>
+
+    <img *ngIf="!isProposalApprove()" src="assets/img/icon/cross-circle-purple.svg" style="width: 35px; display: block; margin: 0 auto;margin-top: 15px;margin-bottom: 5px;">
+    <img *ngIf="isProposalApprove()" src="assets/img/icon/tick-circle-green.svg" style="width: 35px; display: block; margin: 0 auto;margin-top: 15px;margin-bottom: 5px;">
+    <p class="text-dark text-center" style="font-size: 20px;">{{isProposalApprove() ? "Approve" : "Reject"}}</p>
+
+
+    <!-- Message -->
+    <p class="text-center label" style="margin-top: 10px;">Voting weight: {{userVotingWeight() | roundOff2Dec | usFormat}} OMM</p>
+
+    <!-- Modal actions -->
+    <div class="modal-actions">
+      <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Cancel</a>
+      <a href="javascript:void(0);" class="button {{userVotingWeight().isLessThanOrEqualTo(0) ? 'disabled' : ''}}" (click)="onSubmitVoteClick()">Submit vote</a>
+    </div>
+    <ng-container *ngIf="userVotingWeight().isLessThanOrEqualTo(0)">
+      <br>
+      <p class="label text-red text-center">Stake OMM to vote on this proposal.</p>
+    </ng-container>
+  </div>
+</div>
+
+<!-- Modal: Submit proposal -->
+<div class="modal" id="modal-submit-proposal" #submitProposal>
+  <div class="modal-content">
+    <!-- Title -->
+    <h3 class="text-center label">Submit proposal?</h3>
+    <p class="text-bold text-center">{{activeModalChange?.governanceAction?.newProposal?.voteDefinitionFee | roundOff2Dec | usFormat}} OMM</p>
+
+    <!-- When / Value -->
+    <div class="grid before-after" style="margin-bottom: 0px; margin-top: 10px;max-width: 220px;margin-left: auto;margin-right: auto;">
+      <div class="grid-cell text-center">
+        <p class="label">Voting will begin immediately, and end after {{getVoteDuration()}}.</p>
+      </div>
+    </div>
+
+    <!-- Modal actions -->
+    <div class="modal-actions">
+      <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Go back</a>
+      <a href="javascript:void(0);" class="button" (click)="onSubmitProposalClick()">Submit proposal</a>
+    </div>
+  </div>
+</div>
+
 <!-- Sign in modal -->
 <div class="modal" id="modal-sign-in" #signInModal>
   <div class="modal-content">

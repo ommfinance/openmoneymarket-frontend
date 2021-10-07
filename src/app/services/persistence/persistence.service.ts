@@ -21,6 +21,9 @@ import {PoolsDistPercentages} from "../../models/PoolsDistPercentages";
 import {AllAssetDistPercentages} from "../../models/AllAssetDisPercentages";
 import {DailyRewardsAllReservesPools} from "../../models/DailyRewardsAllReservesPools";
 import BigNumber from "bignumber.js";
+import {Proposal} from "../../models/Proposal";
+import {Vote} from "../../models/Vote";
+import {ProposalLink} from "../../models/ProposalLink";
 
 @Injectable({
   providedIn: 'root'
@@ -54,6 +57,7 @@ export class PersistenceService {
   public userDebt: Map<CollateralAssetTag, BigNumber | undefined> = new Map<CollateralAssetTag, BigNumber | undefined>();
   public minOmmStakeAmount = new BigNumber("1");
   public totalStakedOmm = new BigNumber("0");
+  public totalSuppliedOmm = new BigNumber("0");
   public ommPriceUSD = new BigNumber("-1"); // -1 indicates that ommPriceUSD is not set
 
   public tokenDistributionPerDay = new BigNumber("0");
@@ -61,6 +65,16 @@ export class PersistenceService {
   public distributionPercentages?: DistributionPercentages;
   public allAssetDistPercentages?: AllAssetDistPercentages;
   public dailyRewardsAllPoolsReserves?: DailyRewardsAllReservesPools;
+
+  public voteDefinitionFee = new BigNumber("0");
+  public voteDefinitionCriterion = new BigNumber("0");
+  public proposalList: Proposal[] = [];
+  public userVotingWeightForProposal: Map<BigNumber, BigNumber> = new Map<BigNumber, BigNumber>(); // proposalId to voting weight
+  public proposalLinks: Map<string, ProposalLink> = new Map<string, ProposalLink>();
+  public userVotingWeight: BigNumber = new BigNumber("0");
+  public userProposalVotes: Map<BigNumber, Vote> = new Map<BigNumber, Vote>();
+  public voteDuration = new BigNumber("-1");
+
 
   public prepList?: PrepList;
   public yourVotesPrepList: YourPrepVote[] = [];
@@ -81,6 +95,10 @@ export class PersistenceService {
     this.userAccountData = undefined;
     this.userTotalRisk = new BigNumber("0");
     this.userReserves = new UserReserves();
+  }
+
+  getMinOmmStakedRequiredForProposal(): BigNumber {
+    return this.totalSuppliedOmm.multipliedBy(this.voteDefinitionCriterion);
   }
 
   public getDistPercentageOfPool(poolId: BigNumber): BigNumber {
@@ -186,7 +204,13 @@ export class PersistenceService {
     return this.userReserves?.reserveMap.get(assetTag)?.currentOTokenBalanceUSD ?? new BigNumber("0");
   }
 
-  public getUserBorrowedAssetBalance(assetTag: AssetTag): BigNumber {
+  public getUserBorrowedAssetBalancePlusOrigFee(assetTag: AssetTag): BigNumber {
+    const originationFee = this.userReserves?.reserveMap.get(assetTag)?.originationFee ?? new BigNumber("0");
+    const borrowBalance = this.userReserves?.reserveMap.get(assetTag)?.currentBorrowBalance ?? new BigNumber("0");
+    return originationFee.plus(borrowBalance);
+  }
+
+  public getUserBorrAssetBalance(assetTag: AssetTag): BigNumber {
     return this.userReserves?.reserveMap.get(assetTag)?.currentBorrowBalance ?? new BigNumber("0");
   }
 
@@ -248,7 +272,10 @@ export class PersistenceService {
       return totalBorrowed;
     }
     this.userReserves.reserveMap.forEach((reserve: UserReserveData | undefined) => {
-      totalBorrowed = totalBorrowed.plus((reserve?.currentBorrowBalanceUSD ?? new BigNumber("0")));
+      const originationFee = reserve?.originationFee ?? new BigNumber("0");
+      const exchangeRate = reserve?.exchangeRate ?? new BigNumber("0");
+      const borrowBalanceUSD = reserve?.currentBorrowBalanceUSD ?? new BigNumber("0");
+      totalBorrowed = totalBorrowed.plus(borrowBalanceUSD).plus(originationFee.multipliedBy(exchangeRate));
     });
     return totalBorrowed;
   }
@@ -328,7 +355,7 @@ export class PersistenceService {
   }
 
   public userAssetBorrowedIsZero(assetTag: AssetTag): boolean {
-    return (this.getUserBorrowedAssetBalance(assetTag) ?? new BigNumber("0")).isZero();
+    return (this.getUserBorrAssetBalance(assetTag) ?? new BigNumber("0")).isZero();
   }
 
   public userAssetBalanceIsZero(assetTag: AssetTag): boolean {

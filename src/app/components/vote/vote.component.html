@@ -106,6 +106,34 @@
     </div>
   </section>
 
+  <!-- Proposals -->
+  <section id="proposal-cards">
+    <!-- Title -->
+    <div class="grid grid-center">
+      <div class="grid-cell">
+        <h2>Latest proposals</h2><span class="label"><a href="javascript:void(0);" routerLink="/vote/all-proposals" class="animation-underline">View all</a></span>
+      </div>
+      <div class="grid-cell">
+        <a *ngIf="userLoggedIn()" href="javascript:void(0);" routerLink="/vote/new-proposal" class="button">New proposal</a>
+      </div>
+    </div>
+
+    <div class="grid cards">
+      <ng-container *ngFor="let proposal of getLatestProposals(); last as isLast;">
+        <a href="javascript:void(0);" routerLink="/vote/proposal" class="grid-cell panel" (click)="onProposalClick(proposal)">
+          <h3>{{proposal.name}}</h3>
+          <p>{{proposal.getShortDescription()}}</p>
+
+          <div class="grid proposal-metadata border-top">
+            <img class="time" src="assets/img/icon/clock.svg"><span class="label">{{proposal.getProposalState(reloaderService, true)}}</span>
+            <div class="green-square"></div><span class="label">{{to0DecimalRoundedDownPercentString(proposal.getApprovedPercentage(), true)}}</span>
+            <div class="purple-square"></div><span class="label">{{to0DecimalRoundedDownPercentString(proposal.getRejectedPercentage(), true)}}</span>
+          </div>
+        </a>
+      </ng-container>
+    </div>
+  </section>
+
   <!-- Your votes -->
   <section id="your-votes" class="{{this.yourVotesEditMode ? 'adjust' : ''}}" [ngStyle]="hideElement(!userLoggedIn() || !userHasStaked())">
     <!-- Title -->

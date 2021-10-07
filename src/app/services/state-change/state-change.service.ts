@@ -16,6 +16,8 @@ import {PoolData} from "../../models/PoolData";
 import {UserPoolData} from "../../models/UserPoolData";
 import {AllAssetDistPercentages} from "../../models/AllAssetDisPercentages";
 import BigNumber from "bignumber.js";
+import {Proposal} from "../../models/Proposal";
+import {Vote} from "../../models/Vote";
 
 @Injectable({
   providedIn: 'root'
@@ -62,6 +64,9 @@ export class StateChangeService {
   public userOmmRewardsChange: Subject<OmmRewards> = new Subject<OmmRewards>();
   public userOmmTokenBalanceDetailsChange: Subject<OmmTokenBalanceDetails> = new Subject<OmmTokenBalanceDetails>();
   public totalOmmStakedChange: Subject<BigNumber> = new Subject<BigNumber>();
+  public voteDefinitionFeeChange: Subject<BigNumber> = new Subject<BigNumber>();
+  public voteDefinitionCriterionChange: Subject<BigNumber> = new Subject<BigNumber>();
+  public proposalListChange: Subject<Proposal[]> = new Subject<Proposal[]>();
 
   public yourVotesPrepChange: Subject<YourPrepVote[]> = new Subject<YourPrepVote[]>();
   public prepListChange: Subject<PrepList> = new Subject<PrepList>();
@@ -101,6 +106,12 @@ export class StateChangeService {
 
   private sIcxSelectedChange: Subject<boolean> = new Subject<boolean>();
   sIcxSelectedChange$: Observable<boolean> = this.sIcxSelectedChange.asObservable();
+
+  private selectedProposalChange: Subject<Proposal> = new Subject<Proposal>();
+  selectedProposalChange$: Observable<Proposal> = this.selectedProposalChange.asObservable();
+
+  private userProposalVotesChange: Subject<{proposalId: BigNumber, vote: Vote}> = new Subject<{proposalId: BigNumber, vote: Vote}>();
+  userProposalVotesChange$: Observable<{proposalId: BigNumber, vote: Vote}> = this.userProposalVotesChange.asObservable();
 
   /**
    * Subscribable subject for monitoring the user debt changes for each asset
@@ -170,6 +181,15 @@ export class StateChangeService {
     this.sIcxSelectedChange.next(sIcxSelected);
   }
 
+  public selectedProposalUpdate(proposal: Proposal | undefined): void {
+    this.selectedProposalChange.next(proposal);
+  }
+
+  public userProposalVotesUpdate(proposalId: BigNumber, vote: Vote): void {
+    this.persistenceService.userProposalVotes.set(proposalId, vote);
+    this.userProposalVotesChange.next({proposalId, vote});
+  }
+
   public poolsDataUpdate(poolsData: PoolData[]): void {
     this.persistenceService.allPools = [...poolsData];
     this.poolsDataChange.next(poolsData);
@@ -230,6 +250,21 @@ export class StateChangeService {
   public updateTotalStakedOmm(totalStakedOmm: BigNumber): void {
     this.persistenceService.totalStakedOmm = totalStakedOmm;
     this.totalOmmStakedChange.next(totalStakedOmm);
+  }
+
+  public updateVoteDefinitionFee(voteDefinitionFee: BigNumber): void {
+    this.persistenceService.voteDefinitionFee = voteDefinitionFee;
+    this.voteDefinitionFeeChange.next(voteDefinitionFee);
+  }
+
+  public updateVoteDefinitionCriterion(voteDefinitionCriterion: BigNumber): void {
+    this.persistenceService.voteDefinitionCriterion = voteDefinitionCriterion;
+    this.voteDefinitionCriterionChange.next(voteDefinitionCriterion);
+  }
+
+  public updateProposalsList(proposalList: Proposal[]): void {
+    this.persistenceService.proposalList = [...proposalList];
+    this.proposalListChange.next(proposalList);
   }
 
   public updateUserModalAction(modalAction: ModalAction): void {

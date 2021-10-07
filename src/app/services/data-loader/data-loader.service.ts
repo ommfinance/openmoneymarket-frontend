@@ -16,8 +16,6 @@ import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
 import {NotificationService} from "../notification/notification.service";
 import {ErrorCode, ErrorService} from "../error/error.service";
 import {CheckerService} from "../checker/checker.service";
-import {LocalStorageService} from "../local-storage/local-storage.service";
-import {HttpClient} from "@angular/common/http";
 import {UserAllReservesData, UserReserveData} from "../../models/UserReserveData";
 import {PoolData} from "../../models/PoolData";
 import {UserPoolData} from "../../models/UserPoolData";
@@ -25,6 +23,8 @@ import {Utils} from "../../common/utils";
 import {PoolsDistPercentages} from "../../models/PoolsDistPercentages";
 import BigNumber from "bignumber.js";
 import {environment} from "../../../environments/environment";
+import {Vote} from "../../models/Vote";
+import {ReloaderService} from "../reloader/reloader.service";
 
 @Injectable({
   providedIn: 'root'
@@ -38,8 +38,7 @@ export class DataLoaderService {
               private notificationService: NotificationService,
               private errorService: ErrorService,
               private checkerService: CheckerService,
-              private localStorageService: LocalStorageService,
-              private http: HttpClient) {
+              private reloaderService: ReloaderService) {
 
   }
 
@@ -285,6 +284,15 @@ export class DataLoaderService {
     });
   }
 
+  public async loadUsersVotingWeight(): Promise<void> {
+    try {
+      this.persistenceService.userVotingWeight = await  this.scoreService.getUserVotingWeight();
+      log.debug(`Users voting weight = ${this.persistenceService.userVotingWeight}`);
+    } catch (e) {
+      log.error("Error in loadUsersVotingWeight", e);
+    }
+  }
+
   public loadLoanOriginationFeePercentage(): Promise<void> {
     return this.scoreService.getLoanOriginationFeePercentage().then(res => {
       this.persistenceService.loanOriginationFeePercentage = res;
@@ -364,6 +372,105 @@ export class DataLoaderService {
     }
   }
 
+  public async loadVoteDefinitionFee(): Promise<void> {
+    try {
+      const res = await this.scoreService.getVoteDefinitionFee();
+      log.debug("getVoteDefinitionFee (mapped): ", res);
+
+      this.stateChangeService.updateVoteDefinitionFee(res);
+    } catch (e) {
+      log.error("Error in loadVoteDefinitionFee:");
+      log.error(e);
+    }
+  }
+
+  public async loadVoteDefinitionCriterion(): Promise<void> {
+    try {
+      const res = await this.scoreService.getVoteDefinitionCriteria();
+      log.debug("loadVoteDefinitionCriterion (mapped): ", res);
+
+      this.stateChangeService.updateVoteDefinitionCriterion(res);
+    } catch (e) {
+      log.error("Error in loadVoteDefinitionCriterion:");
+      log.error(e);
+    }
+  }
+
+  public async loadTotalOmmSupply(): Promise<void> {
+    try {
+      const res = await this.scoreService.getTotalOmmSupply();
+      log.debug("loadTotalOmmSupply (mapped): ", res);
+
+      this.persistenceService.totalSuppliedOmm = res;
+    } catch (e) {
+      log.error("Error in loadTotalOmmSupply:");
+      log.error(e);
+    }
+  }
+
+  public async loadVoteDuration(): Promise<void> {
+    try {
+      const res = await this.scoreService.getVoteDuration();
+      log.debug("loadVoteDuration (mapped): ", res);
+
+      this.persistenceService.voteDuration = res;
+    } catch (e) {
+      log.error("Error in loadVoteDuration:");
+      log.error(e);
+    }
+  }
+
+  public async loadProposalList(): Promise<void> {
+    try {
+      const res = await this.scoreService.getProposalList();
+      log.debug("loadProposalList (mapped): ");
+      res.forEach(p => log.debug(p.toString()));
+      this.stateChangeService.updateProposalsList(res);
+    } catch (e) {
+      log.error("Error in loadProposalList:");
+      log.error(e);
+    }
+  }
+
+  public async loadProposalLinks(): Promise<void> {
+    try {
+      const res = await this.scoreService.getProposalLinks();
+      log.debug("loadProposalLinks (mapped): ");
+      res.forEach(p => {
+        this.persistenceService.proposalLinks.set(p.title, p);
+        log.debug(p.toString());
+      });
+    } catch (e) {
+      log.error("Error in loadProposalLinks:");
+      log.error(e);
+    }
+  }
+
+  public async loadUserProposalVotes(): Promise<void> {
+    await Promise.all(this.persistenceService.proposalList.map( async (proposal) => {
+      try {
+        if (!proposal.proposalIsOver(this.reloaderService)) {
+          try {
+            const votingWeight = await this.scoreService.getUserVotingWeight(proposal.voteSnapshot);
+            this.persistenceService.userVotingWeightForProposal.set(proposal.id, votingWeight);
+          } catch (e) {
+            log.error(e);
+          }
+        }
+
+        const vote: Vote = await this.scoreService.getVotesOfUsers(proposal.id);
+
+        if (vote.against.isGreaterThan(Utils.ZERO) || vote.for.isGreaterThan(Utils.ZERO)) {
+          this.stateChangeService.userProposalVotesUpdate(proposal.id, vote);
+        }
+      } catch (e) {
+        log.error("Failed to get user vote for proposal ", proposal);
+        log.error(e);
+      }
+    }));
+  }
+
+
   public async loadPrepList(start: number = 1, end: number = 100): Promise<void> {
     try {
       const prepList = await this.scoreService.getListOfPreps(start, end);
@@ -387,7 +494,17 @@ export class DataLoaderService {
     }
   }
 
+  private refreshBridgeBalances(): void {
+    window.dispatchEvent(new CustomEvent("bri.widget", {
+      detail: {
+        action: 'refreshBalance'
+      }
+    }));
+  }
+
   public async afterUserActionReload(): Promise<void> {
+    this.refreshBridgeBalances();
+
     // reload all reserves and user asset-user reserve data
     await Promise.all([
       this.loadOmmTokenPriceUSD(),
@@ -396,6 +513,9 @@ export class DataLoaderService {
       this.loadTotalStakedOmm(),
       this.loadPrepList(),
       this.loadPoolsData(),
+      this.loadProposalList(),
+      this.loadProposalLinks(),
+      this.loadUserProposalVotes()
     ]);
 
     await this.loadUserSpecificData();
@@ -416,7 +536,13 @@ export class DataLoaderService {
       this.loadLoanOriginationFeePercentage(),
       this.loadTotalStakedOmm(),
       this.loadPrepList(),
-      this.loadPoolsData()
+      this.loadPoolsData(),
+      this.loadVoteDefinitionFee(),
+      this.loadVoteDefinitionCriterion(),
+      this.loadProposalList(),
+      this.loadProposalLinks(),
+      this.loadTotalOmmSupply(),
+      this.loadVoteDuration()
     ]);
   }
 
@@ -431,7 +557,9 @@ export class DataLoaderService {
       this.loadUserDelegations(),
       this.loadUserUnstakingInfo(),
       this.loadUserClaimableIcx(),
-      this.loadUserPoolsData()
+      this.loadUserPoolsData(),
+      this.loadUsersVotingWeight(),
+      this.loadUserProposalVotes()
     ]);
   }
 

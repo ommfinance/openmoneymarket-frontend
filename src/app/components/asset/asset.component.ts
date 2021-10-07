@@ -138,7 +138,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
     // Reset user asset sliders
     this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag), !this.sIcxSelected);
-    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
+    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalancePlusOrigFee(this.asset.tag));
 
     this.sliderSupply.setAttribute("disabled", "");
     this.sliderBorrow.setAttribute("disabled", "");
@@ -242,7 +242,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
     // Reset user asset sliders
     this.setSupplySliderValue(this.persistenceService.getUserSuppliedAssetBalance(this.asset.tag), !this.sIcxSelected);
-    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
+    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalancePlusOrigFee(this.asset.tag));
 
     // disable inputs
     this.disableInputs();
@@ -471,7 +471,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   // update borrow data (daily rewards, etc..) values
-  updateBorrowData(borrowed: BigNumber = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag)): void {
+  updateBorrowData(borrowed: BigNumber = this.persistenceService.getUserBorrowedAssetBalancePlusOrigFee(this.asset.tag)): void {
     // Update asset-user's borrow interest
     this.setText(this.borrInterestEl, assetPrefixMinusFormat(assetToCollateralAssetTag(this.asset.tag)).to(
       this.getDailyBorrowInterest(borrowed).dp(2).toNumber()));
@@ -854,7 +854,14 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   getUserBorrowedAssetBalance(): BigNumber {
-    return this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag).dp(2);
+    return this.persistenceService.getUserBorrowedAssetBalancePlusOrigFee(this.asset.tag).dp(2);
+  }
+
+  getUserBorrowedAssetBalanceUSD(): BigNumber {
+    const reserve = this.persistenceService.getUserAssetReserve(this.asset.tag);
+    const borrowBalanceUSD = reserve?.currentBorrowBalanceUSD ?? new BigNumber("0");
+    const originationFeeUSD = reserve?.originationFee.multipliedBy(reserve?.exchangeRate) ?? new BigNumber("0");
+    return borrowBalanceUSD.plus(originationFeeUSD);
   }
 
   getUserSuppliableBalanceUSD(): BigNumber {
@@ -909,7 +916,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     // take either suggested on or asset totalSupplied - totalBorrowed + currentBorrow
     const totalSupplied = this.persistenceService.getAssetReserveData(this.asset.tag)?.totalLiquidity ?? new BigNumber("0");
     const totalBorrowed = this.persistenceService.getAssetReserveData(this.asset.tag)?.totalBorrows ?? new BigNumber("0");
-    const currentBorrow = this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag) ?? new BigNumber("0");
+    const currentBorrow = this.persistenceService.getUserBorrowedAssetBalancePlusOrigFee(this.asset.tag) ?? new BigNumber("0");
     let availTotalBorrow = totalSupplied.minus(totalBorrowed).plus(currentBorrow);
 
     if (this.isAssetIcx()) {
@@ -958,7 +965,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   resetBorrowSliders(): void {
-    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
+    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalancePlusOrigFee(this.asset.tag));
     this.sliderBorrow.setAttribute("disabled", "");
   }
 
@@ -980,7 +987,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   disableAndResetBorrowSlider(): void {
     // Disable asset-user borrow sliders (Your markets)
-    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
+    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalancePlusOrigFee(this.asset.tag));
     this.sliderBorrow.setAttribute("disabled", "");
   }
 
@@ -996,7 +1003,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   enableAssetBorrow(): void {
     this.inputBorrowEl.removeAttribute("disabled");
     this.sliderBorrow.removeAttribute("disabled");
-    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalance(this.asset.tag));
+    this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalancePlusOrigFee(this.asset.tag));
   }
 
   hideAsset(): void {

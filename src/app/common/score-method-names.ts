@@ -56,6 +56,8 @@ export class ScoreMethodNames {
   public static GET_MIN_STAKE = "getMinimumStake";
   public static GET_TOTAL_STAKED_OMM = "total_staked_balance";
   public static TEST_MINT = "testMint";
+  public static TOTAL_STAKED_OMM_AT = "totalStakedBalanceOfAt";
+  public static TOTAL_SUPPLY = "totalSupply";
 
   /**
    * Balanced DEX SCORE
@@ -70,6 +72,21 @@ export class ScoreMethodNames {
   public static GET_USER_DELEGATION_DETAILS = "getUserDelegationDetails";
   public static UPDATE_DELEGATIONS = "updateDelegations";
   public static CLEAR_PREVIOUS_DELEGATIONS = "clearPrevious";
+
+  /**
+   * Governance SCORE
+   */
+  public static GET_PROPOSALS = "getProposals";
+  public static GET_PROPOSAL_COUNT = "getProposalCount";
+  public static GET_VOTERS_COUNT = "getVotersCount";
+  public static GET_VOTES_OF_USER = "getVotesOfUser";
+  public static GET_USERS_VOTING_WEIGHT = "myVotingWeight";
+  public static GET_VOTE_DEFINITION_FEE = "getVoteDefinitionFee";
+  public static CAST_VOTE = "castVote";
+  public static CANCEL_VOTE_ON_PROPOSAL = "cancelVote";
+  public static MY_VOTING_WEIGHT = "myVotingWeight";
+  public static GET_OMM_VOTE_DEFINITION_CRITERION = "getOmmVoteDefinitionCriterion";
+  public static GET_VOTE_DURATION = "getVoteDuration";
 
   /**
    * Staking SCORE

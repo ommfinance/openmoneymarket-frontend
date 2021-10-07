@@ -4,6 +4,9 @@ import {ModalAction} from "../../models/ModalAction";
 import {BridgeWallet} from "../../models/wallets/BridgeWallet";
 import {IconexWallet} from "../../models/wallets/IconexWallet";
 import {LedgerWallet} from "../../models/wallets/LedgerWallet";
+import {Proposal} from "../../models/Proposal";
+import log from "loglevel";
+import BigNumber from "bignumber.js";
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +24,21 @@ export class LocalStorageService {
 
   persistModalAction(modalAction: ModalAction): void {
     this.lastModalAction = modalAction;
+  }
+
+  persistActiveProposal(proposal: Proposal): void {
+    log.debug("persistActiveProposal: ", proposal);
+    this.set("proposal", proposal);
+  }
+
+  getActiveProposal(): Proposal | undefined {
+    const proposal: Proposal | undefined | "{}" = this.get("proposal");
+    log.debug("getActiveProposal proposal: ", proposal);
+    return proposal !== undefined && proposal !== "{}" ? new Proposal(
+      new BigNumber(proposal.against), new BigNumber(proposal.againstVoterCount), proposal.description, new BigNumber(proposal.endDay),
+      new BigNumber(proposal.forVotes), new BigNumber(proposal.forVoterCount), new BigNumber(proposal.id), new BigNumber(proposal.majority),
+      proposal.name, proposal.proposer, new BigNumber(proposal.quorum), new BigNumber(proposal.startDay), proposal.status,
+      proposal.voteSnapshot) : undefined;
   }
 
   getLastModalAction(): ModalAction | undefined {
