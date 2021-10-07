@@ -56,7 +56,11 @@ export class Proposal {
   }
 
   getShortDescription(): string {
-    return this.description.substring(0, 67) + "...";
+    if (this.description.length > 67) {
+      return this.description.substring(0, 67) + "...";
+    }
+
+    return this.description;
   }
 
   public proposalIsOver(reloaderService: ReloaderService): boolean {
