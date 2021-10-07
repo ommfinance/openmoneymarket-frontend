@@ -116,14 +116,6 @@ export declare class BridgeService {
      */
     getTxResult(txHash: string): Promise<any>;
     /**
-     * @description Build Icon Call transaction for withdrawal request specific
-     * @param {string} from - Icon address from which to send transaction
-     * @param {number} amount - Amount to be included in params
-     * @return {CallTransaction} Returns Icon SDK CallTransaction
-     * https://github.com/icon-project/icon-sdk-js#iconserviceiconbuildercalltransactionbuilder
-     */
-    buildWithdrawalRequestTransaction(from: string, amount: number): any;
-    /**
      * @description Change users Magic email
      * @param {string} email - The email of user.
      * @return {Promise<void>} Promise with empty response.

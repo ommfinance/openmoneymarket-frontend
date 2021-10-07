@@ -52,14 +52,14 @@ export declare class IconBridgeWidget extends LitElement {
     protected firstUpdated(_changedProperties: any): void;
     connectedCallback(): void;
     private handleBriWidgetEvent;
-    private reloadUsdsBalanceAndPaymentMethods;
     private showModalView;
     private setActiveModalView;
     private refreshBaseData;
     private establishIntervals;
     private clearIntervals;
     private loadUserUsdsBalance;
-    private loadUserTokens;
+    private loadUserToken;
+    private loadAllUserTokens;
     private loadTokenPrice;
     private signOut;
     private submitLoginForm;
@@ -93,6 +93,7 @@ export declare class IconBridgeWidget extends LitElement {
     private getTransactionsHtml;
     private hasSomeTokenTransactions;
     private getOneAvailableToken;
+    private updateTokenBalance;
     private getAvailableTokens;
     private getTransactionDetailHtml;
     render(): import("lit-element").TemplateResult;
