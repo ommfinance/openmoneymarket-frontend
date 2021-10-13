@@ -507,7 +507,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.sliderBorrow.noUiSlider.updateOptions({
       range: {
         min: 0,
-        max: max.isZero() ? 1 : max.dp(2).toNumber() // min and max must not equal
+        max: max.isZero() ? -1 : max.dp(2).toNumber() // min and max must not equal
       }
     });
 
@@ -541,7 +541,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.sliderSupply.noUiSlider.updateOptions({
       range: {
         min: 0,
-        max: max.isZero() ? 1 : max.dp(2).toNumber() // min and max must not equal
+        max: max.isZero() ? -1 : max.dp(2).toNumber() // min and max must not equal
       }
     });
 
@@ -563,7 +563,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         this.sliderSupply.noUiSlider.updateOptions({
           range: {
             min: 0,
-            max: max.isZero() ? 1 : max.dp(2).toNumber() // min and max must not equal
+            max: max.isZero() ? -1 : max.dp(2).toNumber() // min and max must not equal
           }
         });
       }
