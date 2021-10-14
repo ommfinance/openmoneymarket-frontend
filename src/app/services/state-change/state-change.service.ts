@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Observable, Subject} from "rxjs";
-import {UserReserveData} from "../../models/UserReserveData";
+import {UserReserveData, UserReserves} from "../../models/UserReserveData";
 import {PersistenceService} from "../persistence/persistence.service";
 import {AssetTag, CollateralAssetTag} from "../../models/Asset";
 import {IconexWallet} from "../../models/wallets/IconexWallet";
@@ -55,6 +55,10 @@ export class StateChangeService {
     [AssetTag.ICX, new Subject<UserReserveData>()],
     [AssetTag.USDC, new Subject<UserReserveData>()],
   ]);
+
+  private userAllReserveChange: Subject<UserReserves> = new Subject<UserReserves>();
+  userAllReserveChange$: Observable<UserReserves> = this.userAllReserveChange.asObservable();
+
 
   /**
    * Subscribable subject for user account data change
@@ -225,6 +229,11 @@ export class StateChangeService {
   public updateUserAssetReserve(reserve: UserReserveData, assetTag: AssetTag): void {
     this.userReserveChangeMap.get(assetTag)!.next(reserve);
   }
+
+  public updateUserAllReserve(userReserves: UserReserves): void {
+    this.userAllReserveChange.next(userReserves);
+  }
+
 
   public updateUserAccountData(userAccountData: UserAccountData): void {
     this.userAccountDataChange.next(userAccountData);

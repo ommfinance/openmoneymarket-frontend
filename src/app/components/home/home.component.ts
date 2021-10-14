@@ -108,22 +108,25 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     if (this.activeMarketView === ActiveViews.ALL_MARKET) {
       this.userAssets = [...this.supportedAssets];
     } else {
-      this.userAssets = [];
-      this.availableAssets = [];
+      const userAssetsTmp: Asset[] = [];
+      const availableAssetsTmp: Asset[]  = [];
 
       Array.from(this.supportedAssetsMap.values()).forEach(asset => {
         // if user is logged in, load his available and current assets
         if (this.userLoggedIn()) {
           // Asset that is supplied or borrowed should be in userAssets
           if (this.persistenceService.assetSuppliedOrBorrowed(asset.tag)) {
-            this.userAssets.push(asset);
+            userAssetsTmp.push(asset);
           }
           // check if asset is available to supply
           else if (this.persistenceService.isAssetAvailableToSupply(asset.tag)) {
-            this.availableAssets.push(asset);
+            availableAssetsTmp.push(asset);
           }
         }
       });
+
+      this.userAssets = [...userAssetsTmp];
+      this.availableAssets = [...availableAssetsTmp];
     }
   }
 
@@ -149,12 +152,9 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   }
 
   private subscribeToUserAssetReserveChange(): void {
-    // for each user asset subscribe to its reserve data change
-    Object.values(AssetTag).forEach(assetTag => {
-      this.stateChangeService.userReserveChangeMap.get(assetTag)!.subscribe((reserve: UserReserveData) => {
-        // reload the asset lists
-        this.loadAssetLists();
-      });
+    this.stateChangeService.userAllReserveChange$.subscribe(userReserves => {
+      // reload the asset lists
+      this.loadAssetLists();
     });
   }
 

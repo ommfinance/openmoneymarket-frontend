@@ -11,6 +11,5 @@ export const environment = {
   NID: 1,
   REWARDS_ACCRUE_START: 1629781200, // unix timestamp from when rewards accrue will start
   REWARDS_CLAIMABLE_START: 1630213200, // unix timestamp from when rewards are going to be claimable
-  ACTIVATE_REWARDS_TIMESTAMPS: false, // boolean flag deciding if above two timestamp should be respected
-  DISABLE_SICX_BORROW: false,
+  ACTIVATE_REWARDS_TIMESTAMPS: false // boolean flag deciding if above two timestamp should be respected
 };

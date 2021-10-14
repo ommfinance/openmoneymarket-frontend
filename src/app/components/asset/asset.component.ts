@@ -439,12 +439,14 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.stateChangeService.userAccountDataChange.subscribe(() => {
       this.updateSupplyData();
       this.updateBorrowData();
+      this.updateSupplySlider();
       this.updateBorrowSlider();
     });
   }
 
   public subscribeToUserAssetReserveChange(): void {
-    this.stateChangeService.userReserveChangeMap.get(this.asset.tag)!.subscribe((reserve: UserReserveData) => {
+    this.stateChangeService.userAllReserveChange$.subscribe((userReserves) => {
+      const reserve = userReserves.reserveMap.get(this.asset.tag);
       this.updateSupplyData();
       this.updateBorrowData();
       this.updateSupplySlider(reserve);
@@ -500,8 +502,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       this.setBorrowAvailableInput(borrowAvailable.isNegative() ? new BigNumber("0") : borrowAvailable.dp(2));
 
       // update asset borrow slider max value to  -> borrowed + borrow available
-      max = borrowAvailable.isNegative() ? borrowAvailable : this.getMaxBorrowAvailable(this.SICXToICXIfAssetIsICX(
-        reserve.currentBorrowBalance).plus(borrowAvailable));
+      max = borrowAvailable.isNegative() ? borrowAvailable : this.getMaxBorrowAvailable(reserve.currentBorrowBalance).plus(borrowAvailable);
     }
 
     this.sliderBorrow.noUiSlider.updateOptions({
@@ -921,11 +922,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     const totalSupplied = this.persistenceService.getAssetReserveData(this.asset.tag)?.totalLiquidity ?? new BigNumber("0");
     const totalBorrowed = this.persistenceService.getAssetReserveData(this.asset.tag)?.totalBorrows ?? new BigNumber("0");
     const currentBorrow = this.persistenceService.getUserBorrowedAssetBalancePlusOrigFee(this.asset.tag) ?? new BigNumber("0");
-    let availTotalBorrow = totalSupplied.minus(totalBorrowed).plus(currentBorrow);
-
-    if (this.isAssetIcx()) {
-      availTotalBorrow = this.convertSICXToICX(availTotalBorrow);
-    }
+    const availTotalBorrow = totalSupplied.minus(totalBorrowed).plus(currentBorrow);
 
     return BigNumber.min(suggestedMax, availTotalBorrow).dp(2);
   }
@@ -1008,6 +1005,10 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.inputBorrowEl.removeAttribute("disabled");
     this.sliderBorrow.removeAttribute("disabled");
     this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalancePlusOrigFee(this.asset.tag));
+  }
+
+  sIcxIsDisabled(): boolean {
+    return this.isAssetIcx() && this.getUserBorrowedAssetBalance().isZero();
   }
 
   hideAsset(): void {

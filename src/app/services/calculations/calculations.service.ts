@@ -273,7 +273,7 @@ export class CalculationsService {
    */
   public calculateAvailableBorrowForAsset(assetTag: AssetTag): BigNumber {
 
-    if (assetTag === AssetTag.ICX && environment.DISABLE_SICX_BORROW) {
+    if (assetTag === AssetTag.ICX) {
       return new BigNumber("0");
     }
 
