@@ -246,7 +246,7 @@
           </div>
 
           <!-- Borrow deny (Show if user can't borrow sICX) -->
-          <div class="borrow-deny hide" [ngStyle]="displayAsBlockOrHide(this.sIcxIsDisabled())">
+          <div class="borrow-deny hide" [ngStyle]="displayAsBlockOrHide(this.sIcxIsDisabled() && !this.persistenceService.userHasNotSuppliedAnyAsset())">
             <p class="text-center label message">ICON is unavailable to borrow.</p>
           </div>
 
