@@ -1,0 +1,13 @@
+<div *ngIf="showBanner" class="banner">
+  <div class="grid grid-center">
+    <div class="grid-cell">
+      <p class="label">The ICON borrow market has been deactivated. sICX borrowers won’t earn OMM, and will accrue interest at a rate of 120%. If you’ve borrowed sICX, you may want to repay it as soon as possible. <a href="https://forum.omm.finance/t/ice-airdrop-preparation-proposal/">Learn more about these changes.</a></p>
+    </div>
+    <div class="grid-cell text-right close">
+      <a href="javascript:void(0);" (click)="onBannerExitClick()">
+        <img src="assets/img/icon/cross.svg">
+      </a>
+    </div>
+  </div>
+
+</div>

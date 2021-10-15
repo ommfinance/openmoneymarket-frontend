@@ -629,7 +629,6 @@ h2 + .grid.panel {
   color: #49546a;
 }
 
-
 /*
 *
 * Toggle
@@ -673,6 +672,47 @@ ul.toggle li.active:after,
 ul.toggle li:hover:after {
   width: 100%;
   background: linear-gradient(to right, #3f9dd5 0%, #00d3c2 100%);
+}
+
+/*
+*
+* Banner
+*
+*/
+
+.banner {
+  position: relative;
+  margin-top: 25px;
+  padding: 15px 25px;
+  border-radius: 100px;
+  background-color: #f5f6f7;
+  box-shadow: 0 2.8px 2.2px rgba(174, 196, 215, 0.034), 0 6.7px 5.3px rgba(174, 196, 215, 0.048), 0 12.5px 10px rgba(174, 196, 215, 0.06), 0 22.3px 17.9px rgba(174, 196, 215, 0.072), 0 41.8px 33.4px rgba(174, 196, 215, 0.086), 0 100px 80px rgba(174, 196, 215, 0.12);
+}
+.banner .close {
+  max-width: 35px;
+}
+.banner .close img {
+  width: 25px;
+  cursor: pointer;
+}
+
+.banner:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  margin: -3px;
+  border-radius: 100px;
+  background: linear-gradient(40deg, #9d4df1, #00d3c2);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.banner:before {
+  opacity: 1;
+  transition: opacity 0.2s ease;
 }
 
 /*
@@ -2432,6 +2472,14 @@ input[type="text"].input-borrow-available {
   text-align: right;
 }
 
+/* Temp hide earnings */
+
+.list.p-reps thead tr th:nth-of-type(3),
+.list.p-reps tbody tr td:nth-of-type(3) {
+  display: none;
+}
+
+
 /*
 *
 * Your votes list
@@ -2821,6 +2869,12 @@ input[type="text"].input-borrow-available {
   }
   .navigation ul li a:hover, .navigation ul li a.active {
     box-shadow: 0 2.8px 2.2px rgba(174, 196, 215, 0.134), 0 6.7px 5.3px rgba(174, 196, 215, 0.148), 0 12.5px 10px rgba(174, 196, 215, 0.16), 0 22.3px 17.9px rgba(174, 196, 215, 0.172), 0 41.8px 33.4px rgba(174, 196, 215, 0.186), 0 100px 80px rgba(174, 196, 215, 0.22);
+  }
+  .banner {
+    border-radius: 10px;
+  }
+  .banner::before {
+    border-radius: 12px;
   }
 
   /* Layout */

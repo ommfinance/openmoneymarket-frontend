@@ -49,7 +49,7 @@ export class PerformanceComponent extends BaseClass implements OnInit, AfterView
 
   public subscribeToUserAssetReserveChange(): void {
     Object.values(AssetTag).forEach(assetTag => {
-      this.stateChangeService.userReserveChangeMap.get(assetTag)!.subscribe((reserve: UserReserveData) => {
+      this.stateChangeService.userAllReserveChange$.subscribe((userReserves) => {
         // update performance values
         this.updatePerformanceValues();
       });

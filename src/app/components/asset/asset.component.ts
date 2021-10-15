@@ -439,12 +439,14 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.stateChangeService.userAccountDataChange.subscribe(() => {
       this.updateSupplyData();
       this.updateBorrowData();
+      this.updateSupplySlider();
       this.updateBorrowSlider();
     });
   }
 
   public subscribeToUserAssetReserveChange(): void {
-    this.stateChangeService.userReserveChangeMap.get(this.asset.tag)!.subscribe((reserve: UserReserveData) => {
+    this.stateChangeService.userAllReserveChange$.subscribe((userReserves) => {
+      const reserve = userReserves.reserveMap.get(this.asset.tag);
       this.updateSupplyData();
       this.updateBorrowData();
       this.updateSupplySlider(reserve);
@@ -490,26 +492,23 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     if (!reserve) {
       // set borrowed available value
       const borrowAvailable = this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag);
-      this.inputBorrowAvailable.value = Utils.formatNumberToUSLocaleString(borrowAvailable.isNegative() ? new BigNumber("0")
-        : borrowAvailable.dp(2));
+      this.setBorrowAvailableInput(borrowAvailable.isNegative() ? new BigNumber("0") : borrowAvailable.dp(2));
 
       // update asset borrow slider max value to  -> borrowed + borrow available
       max = this.getMaxBorrowAvailable(this.getUserBorrowedAssetBalance().plus(borrowAvailable).dp(2));
     } else {
       // set borrowed available value
       const borrowAvailable = this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag);
-      this.inputBorrowAvailable.value = Utils.formatNumberToUSLocaleString(borrowAvailable.isNegative() ? new BigNumber("0")
-        : borrowAvailable.dp(2));
+      this.setBorrowAvailableInput(borrowAvailable.isNegative() ? new BigNumber("0") : borrowAvailable.dp(2));
 
       // update asset borrow slider max value to  -> borrowed + borrow available
-      max = borrowAvailable.isNegative() ? borrowAvailable : this.getMaxBorrowAvailable(this.SICXToICXIfAssetIsICX(
-        reserve.currentBorrowBalance).plus(borrowAvailable));
+      max = borrowAvailable.isNegative() ? borrowAvailable : this.getMaxBorrowAvailable(reserve.currentBorrowBalance).plus(borrowAvailable);
     }
 
     this.sliderBorrow.noUiSlider.updateOptions({
       range: {
         min: 0,
-        max: max.isZero() ? 1 : max.dp(2).toNumber() // min and max must not equal
+        max: max.isZero() ? -1 : max.dp(2).toNumber() // min and max must not equal
       }
     });
 
@@ -543,7 +542,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.sliderSupply.noUiSlider.updateOptions({
       range: {
         min: 0,
-        max: max.isZero() ? 1 : max.dp(2).toNumber() // min and max must not equal
+        max: max.isZero() ? -1 : max.dp(2).toNumber() // min and max must not equal
       }
     });
 
@@ -565,7 +564,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         this.sliderSupply.noUiSlider.updateOptions({
           range: {
             min: 0,
-            max: max.isZero() ? 1 : max.dp(2).toNumber() // min and max must not equal
+            max: max.isZero() ? -1 : max.dp(2).toNumber() // min and max must not equal
           }
         });
       }
@@ -704,8 +703,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         this.inputBorrowEl.value = Utils.formatNumberToUSLocaleString(newBorrowedVal);
 
         // Update asset-user available text box
-        this.inputBorrowAvailable.value = Utils.formatNumberToUSLocaleString(Utils.subtract(this.borrowSliderMaxValue(),
-          newBorrowedVal).dp(2));
+        this.setBorrowAvailableInput(Utils.subtract(this.borrowSliderMaxValue(), newBorrowedVal).dp(2));
         this.sliderBorrow.noUiSlider.set(newBorrowedVal.toNumber());
         return;
       }
@@ -714,8 +712,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       this.inputBorrowEl.value = Utils.formatNumberToUSLocaleString(bigNumValue);
 
       // Update asset-user available text box
-      this.inputBorrowAvailable.value = Utils.formatNumberToUSLocaleString(Utils.subtract(this.borrowSliderMaxValue(),
-        bigNumValue).dp(2));
+      this.setBorrowAvailableInput(Utils.subtract(this.borrowSliderMaxValue(), bigNumValue).dp(2));
 
       this.updateBorrowData(bigNumValue);
     });
@@ -839,6 +836,14 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.sliderBorrow.noUiSlider.set(res.toNumber());
   }
 
+  setBorrowAvailableInput(value: BigNumber): void {
+    if (value.isNegative()) {
+      value = new BigNumber("0");
+    }
+
+    this.inputBorrowAvailable.value =  Utils.formatNumberToUSLocaleString(value);
+  }
+
   getUserSuppliedAssetBalance(assetTag?: AssetTag | CollateralAssetTag): BigNumber {
     if (!assetTag) {
       assetTag = this.asset.tag;
@@ -917,11 +922,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     const totalSupplied = this.persistenceService.getAssetReserveData(this.asset.tag)?.totalLiquidity ?? new BigNumber("0");
     const totalBorrowed = this.persistenceService.getAssetReserveData(this.asset.tag)?.totalBorrows ?? new BigNumber("0");
     const currentBorrow = this.persistenceService.getUserBorrowedAssetBalancePlusOrigFee(this.asset.tag) ?? new BigNumber("0");
-    let availTotalBorrow = totalSupplied.minus(totalBorrowed).plus(currentBorrow);
-
-    if (this.isAssetIcx()) {
-      availTotalBorrow = this.convertSICXToICX(availTotalBorrow);
-    }
+    const availTotalBorrow = totalSupplied.minus(totalBorrowed).plus(currentBorrow);
 
     return BigNumber.min(suggestedMax, availTotalBorrow).dp(2);
   }
@@ -1004,6 +1005,10 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.inputBorrowEl.removeAttribute("disabled");
     this.sliderBorrow.removeAttribute("disabled");
     this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalancePlusOrigFee(this.asset.tag));
+  }
+
+  sIcxIsDisabled(): boolean {
+    return this.isAssetIcx() && this.getUserBorrowedAssetBalance().isZero();
   }
 
   hideAsset(): void {
