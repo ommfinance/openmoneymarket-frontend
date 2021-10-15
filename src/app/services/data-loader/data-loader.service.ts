@@ -194,18 +194,6 @@ export class DataLoaderService {
     });
   }
 
-  async loadUserAssetReserveData(assetTag: AssetTag): Promise<void> {
-    this.checkerService.checkAllAddressesLoaded();
-
-    const userReserveData = await this.scoreService.getUserReserveDataForSpecificReserve(
-      this.persistenceService.allAddresses!.collateralAddress(assetTag));
-    const mappedReserve = Mapper.mapUserReserve(userReserveData, this.persistenceService.getAssetReserveData(assetTag)!!.decimals);
-
-    this.persistenceService.userReserves.reserveMap.set(assetTag, mappedReserve);
-    log.debug(`User ${assetTag} reserve data:`, mappedReserve);
-    this.stateChangeService.updateUserAssetReserve(mappedReserve, assetTag);
-  }
-
   async loadAllUserReserveData(): Promise<void> {
     this.checkerService.checkAllAddressesLoaded();
     const allUserReserveData = await this.scoreService.getUserReserveDataForAllReserves();
@@ -225,6 +213,7 @@ export class DataLoaderService {
     });
 
     log.debug("loadAllUserReserveData.allUserReserveData after: ", newUserAllReserve);
+    this.stateChangeService.updateUserAllReserve(this.persistenceService.userReserves);
   }
 
   public loadUserAccountData(): Promise<void> {
