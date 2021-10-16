@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {SlidersService} from "../../services/sliders/sliders.service";
 import {assetPrefixMinusFormat, assetPrefixPlusFormat, ommPrefixPlusFormat, percentageFormat, usLocale} from "../../common/formats";
 import {CalculationsService} from "../../services/calculations/calculations.service";
@@ -15,7 +15,7 @@ import {NotificationService} from "../../services/notification/notification.serv
 import {UserAction} from "../../models/UserAction";
 import {Utils} from "../../common/utils";
 import {ActiveViews} from "../../models/ActiveViews";
-import {ICX_SUPPLY_BUFFER} from "../../common/constants";
+import {DEFAULT_SLIDER_MAX, ICX_SUPPLY_BUFFER} from "../../common/constants";
 import BigNumber from "bignumber.js";
 
 declare var $: any;
@@ -89,12 +89,16 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   prevBorrowSliderSetValue?: number;
   prevSupplySliderSetValue?: number;
 
+  supplySliderMax = 0;
+  borrowSliderMax = 0;
+
   constructor(private slidersService: SlidersService,
               public calculationService: CalculationsService,
               private stateChangeService: StateChangeService,
               public persistenceService: PersistenceService,
               private modalService: ModalService,
-              private notificationService: NotificationService) {
+              private notificationService: NotificationService,
+              private cdRef: ChangeDetectorRef) {
     super(persistenceService);
   }
 
@@ -106,6 +110,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.initSupplySliderlogic();
     this.initBorrowSliderLogic();
     this.registerSubscriptions();
+    this.cdRef.detectChanges();
   }
 
   ommApyCheckedChange(): void {
@@ -387,7 +392,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     const supplied = this.getUserSuppliedAssetBalance();
     const suppliedMax = this.calculationService.calculateAssetSupplySliderMax(this.asset.tag);
     this.slidersService.createNoUiSlider(this.sliderSupply, supplied,
-      undefined, undefined, undefined, {min: [0], max: [suppliedMax.dp(2).toNumber()]});
+      undefined, undefined, undefined, {min: [0], max: [this.deriveSupplySliderMaxValue(suppliedMax.dp(2))]});
 
     // create and set borrow slider
     const borrowed = this.getUserBorrowedAssetBalance();
@@ -396,7 +401,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     // borrow max is either borrowed + available OR borrowed in case borrowAvailable is negative (risk > 76)
     const borrowMax = borrowAvailable.isGreaterThan(Utils.ZERO) ? Utils.add(borrowed, borrowAvailable) : borrowed;
     this.slidersService.createNoUiSlider(this.sliderBorrow, borrowed, undefined, undefined, undefined,
-      {min: [0], max: [this.getMaxBorrowAvailable(borrowMax).dp(2).toNumber()]});
+      {min: [0], max: [this.deriveBorrowSliderMaxValue(this.getMaxBorrowAvailable(borrowMax).dp(2))]});
   }
 
   /**
@@ -508,7 +513,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.sliderBorrow.noUiSlider.updateOptions({
       range: {
         min: 0,
-        max: max.isZero() ? -1 : max.dp(2).toNumber() // min and max must not equal
+        max: this.deriveBorrowSliderMaxValue(max.dp(2)) // min and max must not equal
       }
     });
 
@@ -542,7 +547,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.sliderSupply.noUiSlider.updateOptions({
       range: {
         min: 0,
-        max: max.isZero() ? -1 : max.dp(2).toNumber() // min and max must not equal
+        max: this.deriveSupplySliderMaxValue(max.dp(2)) // min and max must not equal
       }
     });
 
@@ -564,7 +569,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         this.sliderSupply.noUiSlider.updateOptions({
           range: {
             min: 0,
-            max: max.isZero() ? -1 : max.dp(2).toNumber() // min and max must not equal
+            max: this.deriveSupplySliderMaxValue(max.dp(2)) // min and max must not equal
           }
         });
       }
@@ -818,8 +823,8 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     }
 
     // if value is greater than slider max, update the sliders max and set the value
-    if (res.isGreaterThan(this.supplySliderMaxValue())) {
-      this.sliderSupply.noUiSlider.updateOptions({range: { min: 0, max: res.toNumber() }});
+    if (!res.isZero() && res.isGreaterThan(this.supplySliderMaxValue())) {
+      this.sliderSupply.noUiSlider.updateOptions({range: { min: 0, max: this.deriveSupplySliderMaxValue(res) }});
     }
 
     this.sliderSupply.noUiSlider.set(res.toNumber());
@@ -830,10 +835,24 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
     // if value is greater than slider max, update the sliders max and set the value
     if (!res.isZero() && res.isGreaterThan(this.borrowSliderMaxValue())) {
-      this.sliderBorrow.noUiSlider.updateOptions({range: { min: 0, max: res.toNumber() }});
+      this.sliderBorrow.noUiSlider.updateOptions({range: { min: 0, max: this.deriveBorrowSliderMaxValue(res) }});
     }
 
     this.sliderBorrow.noUiSlider.set(res.toNumber());
+  }
+
+  deriveSupplySliderMaxValue(max: BigNumber): number {
+    const res = this.slidersService.deriveSliderMaxValue(max);
+    this.supplySliderMax = res;
+
+    return res;
+  }
+
+  deriveBorrowSliderMaxValue(max: BigNumber): number {
+    const res = this.slidersService.deriveSliderMaxValue(max);
+    this.borrowSliderMax = res;
+
+    return res;
   }
 
   setBorrowAvailableInput(value: BigNumber): void {
@@ -1198,6 +1217,14 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
   onSIcxToggleClick(): void {
     this.stateChangeService.sIcxSelectedUpdate(true);
+  }
+
+  shouldHideSupplySlider(): boolean {
+    return DEFAULT_SLIDER_MAX === this.supplySliderMax;
+  }
+
+  shouldHideBorrowSlider(): boolean {
+    return DEFAULT_SLIDER_MAX === this.borrowSliderMax;
   }
 
   supplyAssetTag(): AssetTag | CollateralAssetTag {

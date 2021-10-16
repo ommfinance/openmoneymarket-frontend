@@ -20,6 +20,8 @@ export const contributorsMap = new Map([
 // how much ICX should be left when user is supplying
 export const ICX_SUPPLY_BUFFER = 2;
 
+export const DEFAULT_SLIDER_MAX = 0.001;
+
 // notification timeout
 export const NOTIFICATION_TIMEOUT = 5000; // ms
 
