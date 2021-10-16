@@ -709,8 +709,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
         // Update asset-user available text box
         this.setBorrowAvailableInput(Utils.subtract(this.borrowSliderMaxValue(), newBorrowedVal).dp(2));
-        this.sliderBorrow.noUiSlider.set(newBorrowedVal.toNumber());
-        return;
+        return this.sliderBorrow.noUiSlider.set(newBorrowedVal.toNumber());
       }
 
       // Update asset-user borrowed text box
