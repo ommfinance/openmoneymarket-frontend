@@ -1038,6 +1038,14 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     $(this.assetYourEl).css("display", "table-row");
   }
 
+  shouldShowBorrowDeny(): boolean {
+    return !this.sIcxIsDisabled() && (this.persistenceService.userHasNotSuppliedAnyAsset() || this.shouldHideBorrowSlider());
+  }
+
+  shouldShowBorrowDenySicx(): boolean {
+    return this.sIcxIsDisabled() && !this.shouldShowBorrowDeny();
+  }
+
   supplySliderMaxValue(): BigNumber {
     return new BigNumber(this.sliderSupply?.noUiSlider?.options.range.max ?? "0");
   }
