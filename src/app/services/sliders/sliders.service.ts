@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import log from "loglevel";
 import BigNumber from "bignumber.js";
+import {DEFAULT_SLIDER_MAX} from "../../common/constants";
 
 declare var noUiSlider: any;
 declare var wNumb: any;
@@ -27,5 +28,12 @@ export class SlidersService {
     });
   }
 
+  public deriveSliderMaxValue(max: BigNumber): number {
+    if (max.isZero() || max.isNegative() || max.isNaN()) {
+      return DEFAULT_SLIDER_MAX;
+    }
+
+    return max.toNumber();
+  }
 
 }
