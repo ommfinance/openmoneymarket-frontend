@@ -25,6 +25,7 @@ import BigNumber from "bignumber.js";
 import {environment} from "../../../environments/environment";
 import {Vote} from "../../models/Vote";
 import {ReloaderService} from "../reloader/reloader.service";
+import {BridgeWallet} from "../../models/wallets/BridgeWallet";
 
 @Injectable({
   providedIn: 'root'
@@ -412,8 +413,6 @@ export class DataLoaderService {
   public async loadProposalList(): Promise<void> {
     try {
       const res = await this.scoreService.getProposalList();
-      log.debug("loadProposalList (mapped): ");
-      res.forEach(p => log.debug(p.toString()));
       this.stateChangeService.updateProposalsList(res);
     } catch (e) {
       log.error("Error in loadProposalList:");
@@ -492,7 +491,9 @@ export class DataLoaderService {
   }
 
   public async afterUserActionReload(): Promise<void> {
-    this.refreshBridgeBalances();
+    if (this.persistenceService.activeWallet instanceof BridgeWallet) {
+      this.refreshBridgeBalances();
+    }
 
     // reload all reserves and user asset-user reserve data
     await Promise.all([
