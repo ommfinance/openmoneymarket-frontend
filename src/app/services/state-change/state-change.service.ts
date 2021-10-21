@@ -117,6 +117,9 @@ export class StateChangeService {
   private userProposalVotesChange: Subject<{proposalId: BigNumber, vote: Vote}> = new Subject<{proposalId: BigNumber, vote: Vote}>();
   userProposalVotesChange$: Observable<{proposalId: BigNumber, vote: Vote}> = this.userProposalVotesChange.asObservable();
 
+  private userDataReload: Subject<void> = new Subject<void>();
+  userDataReload$: Observable<void> = this.userDataReload.asObservable();
+
   /**
    * Subscribable subject for monitoring the user debt changes for each asset
    */
@@ -165,6 +168,10 @@ export class StateChangeService {
   public allAssetDistPercentagesUpdate(value: AllAssetDistPercentages): void {
     this.persistenceService.allAssetDistPercentages = value;
     this.allAssetDistPercentagesChange.next(value);
+  }
+
+  public userDataReloadUpdate(): void {
+    this.userDataReload.next();
   }
 
   public tokenDistributionPerDayUpdate(value: BigNumber): void {

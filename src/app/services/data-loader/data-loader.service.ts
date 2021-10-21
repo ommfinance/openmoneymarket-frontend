@@ -47,18 +47,22 @@ export class DataLoaderService {
     try {
       await Promise.all(Object.values(AssetTag).map(
         async (assetTag) => {
-          this.scoreService.getUserAssetBalance(assetTag).then().catch(e => {
+          try {
+            await this.scoreService.getUserAssetBalance(assetTag);
+          } catch (e) {
             log.error("Failed to fetch balance for " + assetTag);
             log.error(e);
-          });
+          }
       }));
 
       await Promise.all(CollateralAssetTag.getPropertiesDifferentThanAssetTag().map(
         async (assetTag) => {
-          this.scoreService.getUserCollateralAssetBalance(assetTag).then().catch(e => {
+          try {
+            await this.scoreService.getUserCollateralAssetBalance(assetTag);
+          } catch (e) {
             log.error("Failed to fetch balance for " + assetTag);
             log.error(e);
-          });
+          }
         }));
     } catch (e) {
       log.debug("Failed to fetch all user asset balances!");
@@ -504,8 +508,7 @@ export class DataLoaderService {
       this.loadPrepList(),
       this.loadPoolsData(),
       this.loadProposalList(),
-      this.loadProposalLinks(),
-      this.loadUserProposalVotes()
+      this.loadProposalLinks()
     ]);
 
     await this.loadUserSpecificData();
@@ -551,6 +554,8 @@ export class DataLoaderService {
       this.loadUsersVotingWeight(),
       this.loadUserProposalVotes()
     ]);
+
+    this.stateChangeService.userDataReloadUpdate();
   }
 
   /**

@@ -103,14 +103,29 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.registerSubscriptions();
   }
 
   ngAfterViewInit(): void {
+    log.debug("asset.component ngAfterViewInit asset=" + this.asset.tag);
+    // init sliders
     this.initSliders();
     this.initSupplySliderlogic();
     this.initBorrowSliderLogic();
-    this.registerSubscriptions();
+
+    this.initSupplyAndBorrowValues();
+
     this.cdRef.detectChanges();
+  }
+
+  initSupplyAndBorrowValues(): void {
+    if (this.userLoggedIn()) {
+      // init user supply and borrow values
+      this.updateSupplyData();
+      this.updateBorrowData();
+      this.updateSupplySlider(this.persistenceService.getUserAssetReserve(this.asset.tag));
+      this.updateBorrowSlider();
+    }
   }
 
   ommApyCheckedChange(): void {
@@ -409,13 +424,13 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    */
   registerSubscriptions(): void {
     // handle user assets balance changes
-    this.subscribeToUserBalanceChange();
+    // this.subscribeToUserBalanceChange();
 
     // handle users assets reserve changes
-    this.subscribeToUserAssetReserveChange();
+    // this.subscribeToUserAssetReserveChange();
 
     // handle user account data change
-    this.subscribeToUserAccountDataChange();
+    // this.subscribeToUserAccountDataChange();
 
     // handle sIcxSelected change
     this.subscribeTosIcxSelectedChange();
@@ -687,7 +702,8 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   initBorrowSliderLogic(): void {
     // On asset-user borrow slider update (Your markets)
     this.sliderBorrow.noUiSlider.on('update', (values: any, handle: any) => {
-      const deformatedValue = +usLocale.from(values[handle]);
+      log.debug("BORROW SLIDER UPDATE with value " + values[handle]);
+      const deformatedValue = +usLocale.from(values[handle]); // FIXME array stack overflow happens here
 
       // if the value is same as previous return
       if (this.prevBorrowSliderSetValue && deformatedValue === this.prevBorrowSliderSetValue) {
@@ -704,12 +720,15 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
       if (!borrowUsed.isZero() && bigNumValue.isLessThan(borrowUsed)) {
         const newBorrowedVal = borrowUsed.dp(2, BigNumber.ROUND_UP);
+        log.debug(`newBorrowedVal = ${newBorrowedVal.toNumber()}`);
+        log.debug(`borrowUsed = ${newBorrowedVal.toNumber()}`);
         // Update asset-user borrowed text box
         this.inputBorrowEl.value = Utils.formatNumberToUSLocaleString(newBorrowedVal);
 
         // Update asset-user available text box
         this.setBorrowAvailableInput(Utils.subtract(this.borrowSliderMaxValue(), newBorrowedVal).dp(2));
-        return this.sliderBorrow.noUiSlider.set(newBorrowedVal.toNumber());
+        log.debug(`this.sliderBorrow.noUiSlider.set ${newBorrowedVal.toNumber()} [RECURSION]`);
+        return this.sliderBorrow.noUiSlider.set(newBorrowedVal.toNumber()); // FIXME array stack overflow happens here
       }
 
       // Update asset-user borrowed text box
