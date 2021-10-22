@@ -58,8 +58,6 @@ export class HomeComponent extends BaseClass implements OnInit, AfterViewInit {
   public activeMarketOverview: ActiveMarketOverview = this.userLoggedIn() ? ActiveMarketOverview.YOUR_OVERVIEW :
     ActiveMarketOverview.MARKET_OVERVIEW;
 
-  public hideMarketHeader = false;
-
   // OMM toggle checkbox
   public ommApyChecked = false;
 
@@ -132,7 +130,6 @@ export class HomeComponent extends BaseClass implements OnInit, AfterViewInit {
     this.subscribeToLoginChange();
     this.subscribeToUserModalActionChange();
     this.subscribeToUserDataReload();
-
   }
 
   private subscribeToUserDataReload(): void {
@@ -229,46 +226,20 @@ export class HomeComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   showDefaultActions(): void {
-    this.assetComponents.forEach(userAssetComponent => {
-      userAssetComponent.showDefaultActions();
-    });
-
-    this.userAvailableAssetComponents.forEach(userAvailableAssetComponent => {
-      userAvailableAssetComponent.showDefaultActions();
-    });
+    this.stateChangeService.showDefaultActionsUpdate();
   }
 
   removeAdjustClass(): void {
-    this.assetComponents.forEach(userAssetComponent => {
-      userAssetComponent.removeAdjustClass();
-    });
-    this.userAvailableAssetComponents.forEach(userAvailableAssetComponent => {
-      userAvailableAssetComponent.removeAdjustClass();
-    });
+    this.stateChangeService.removeAdjustClassUpdate();
   }
 
   collapseOtherAssetsTable(assetTag: any): void {
-    this.assetComponents.forEach((userAssetComponent, index) => {
-      if (userAssetComponent.asset.tag !== assetTag) {
-        userAssetComponent.collapseAssetTableSlideUp();
-      }
-    });
-
-    this.userAvailableAssetComponents.forEach((userAvailableAssetComponent, index) => {
-      if (userAvailableAssetComponent.asset.tag !== assetTag) {
-        userAvailableAssetComponent.collapseAssetTableSlideUp();
-      }
-    });
+    this.stateChangeService.collapseOtherAssetsTableUpdate(assetTag);
   }
 
   collapseTableUserAssets(): void {
-    this.assetComponents.forEach(userAssetComponent => {
-      userAssetComponent.collapseAssetTable();
-    });
-
-    this.userAvailableAssetComponents.forEach(userAvailableAssetComponent => {
-      userAvailableAssetComponent.collapseAssetTable();
-    });
+    // emit event to collapse asset tables
+    this.stateChangeService.collapseMarketAssetsUpdate();
   }
 
   disableAndResetAssetsSupplyAndBorrowSliders(): void {
@@ -295,13 +266,7 @@ export class HomeComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   disableAssetsInputs(): void {
-    this.assetComponents.forEach(userAssetComponent => {
-      userAssetComponent.disableInputs();
-    });
-
-    this.userAvailableAssetComponents.forEach(userAvailableAssetComponent => {
-      userAvailableAssetComponent.disableInputs();
-    });
+    this.stateChangeService.disableAssetsInputsUpdate();
   }
 
   // hide your market header if view is not active or active assets length == 0 and available is not

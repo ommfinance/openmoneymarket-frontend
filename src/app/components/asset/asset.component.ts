@@ -423,20 +423,42 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * Handle variable/state changes for subscribed assets
    */
   registerSubscriptions(): void {
-    // handle user assets balance changes
-    // this.subscribeToUserBalanceChange();
-
-    // handle users assets reserve changes
-    // this.subscribeToUserAssetReserveChange();
-
-    // handle user account data change
-    // this.subscribeToUserAccountDataChange();
-
     // handle sIcxSelected change
     this.subscribeTosIcxSelectedChange();
 
     // handle total risk change
     this.subscribeToTotalRiskChange();
+
+    // event based triggers
+    this.subscribeToCollapseTable();
+    this.subscribeToDisableAssetsInputs();
+    this.subscribeToShowDefaultActionsUpdate();
+    this.subscribeToRemoveAdjustClass();
+    this.subscribeToCollapseOtherAssetsTableUpdate();
+  }
+
+  private subscribeToCollapseTable(): void {
+    this.stateChangeService.collapseMarketAssets$.subscribe(() => this.collapseAssetTable());
+  }
+
+  private subscribeToCollapseOtherAssetsTableUpdate(): void {
+    this.stateChangeService.collapseOtherAssetsTable$.subscribe(assetTag => {
+      if (this.asset.tag !== assetTag) {
+        this.collapseAssetTableSlideUp();
+      }
+    });
+  }
+
+  private subscribeToRemoveAdjustClass(): void {
+    this.stateChangeService.removeAdjustClass$.subscribe(() => this.removeAdjustClass());
+  }
+
+  private subscribeToShowDefaultActionsUpdate(): void {
+    this.stateChangeService.showDefaultActions$.subscribe(() => this.showDefaultActions());
+  }
+
+  private subscribeToDisableAssetsInputs(): void {
+    this.stateChangeService.disableAssetsInputs$.subscribe(() => this.disableInputs());
   }
 
   private subscribeTosIcxSelectedChange(): void {
@@ -703,7 +725,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     // On asset-user borrow slider update (Your markets)
     this.sliderBorrow.noUiSlider.on('update', (values: any, handle: any) => {
       log.debug("BORROW SLIDER UPDATE with value " + values[handle]);
-      const deformatedValue = +usLocale.from(values[handle]); // FIXME array stack overflow happens here
+      const deformatedValue = +usLocale.from(values[handle]);
 
       // if the value is same as previous return
       if (this.prevBorrowSliderSetValue && deformatedValue === this.prevBorrowSliderSetValue) {
@@ -728,7 +750,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         // Update asset-user available text box
         this.setBorrowAvailableInput(Utils.subtract(this.borrowSliderMaxValue(), newBorrowedVal).dp(2));
         log.debug(`this.sliderBorrow.noUiSlider.set ${newBorrowedVal.toNumber()} [RECURSION]`);
-        return this.sliderBorrow.noUiSlider.set(newBorrowedVal.toNumber()); // FIXME array stack overflow happens here
+        return this.sliderBorrow.noUiSlider.set(newBorrowedVal.toNumber());
       }
 
       // Update asset-user borrowed text box
