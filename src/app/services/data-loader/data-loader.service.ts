@@ -108,13 +108,13 @@ export class DataLoaderService {
 
       // get all pools id and total staked
       const poolsData = await this.scoreService.getPoolsData();
-      log.debug("loadPoolsData:", poolsData);
+      // log.debug("loadPoolsData:", poolsData);
 
       // get stats for each pool
       this.persistenceService.allPoolsDataMap = new Map<string, PoolData>(); // re-init map to trigger state changes
       for (const poolData of poolsData) {
         const poolStats = await this.scoreService.getPoolStats(poolData.poolID);
-        log.debug("getPoolStats for " + poolData.poolID + " AFTER mapping:", poolStats);
+        // log.debug("getPoolStats for " + poolData.poolID + " AFTER mapping:", poolStats);
 
         const newPoolData = new PoolData(poolData.poolID, Utils.hexToNormalisedNumber(poolData.totalStakedBalance, poolStats.getPrecision())
           , poolStats);

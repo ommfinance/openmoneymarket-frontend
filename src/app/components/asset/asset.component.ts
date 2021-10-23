@@ -107,7 +107,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    log.debug("asset.component ngAfterViewInit asset=" + this.asset.tag);
     // init sliders
     this.initSliders();
     this.initSupplySliderlogic();
@@ -386,7 +385,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     if (borrowAmountDiff.isGreaterThan(Utils.ZERO)) {
       this.modalService.showNewModal(ModalType.BORROW, new AssetAction(this.asset, currentlyBorrowed , after, amount, risk));
     } else if (borrowAmountDiff.isLessThan(Utils.ZERO)) {
-
       // full repayment
       if (after.isZero()) {
         amount = currentlyBorrowed;
@@ -628,10 +626,12 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         this.prevSupplySliderSetValue = value;
       }
 
-      // in case of ICX leave 2 ICX for the fees
-      const sliderMinusBuffer = this.supplySliderMaxValue().minus(ICX_SUPPLY_BUFFER).dp(2).toNumber();
-      if (!this.sIcxSelected && this.isAssetIcx() && value > sliderMinusBuffer && value > ICX_SUPPLY_BUFFER) {
-        value = sliderMinusBuffer;
+      // in case of ICX leave 2 ICX for the fees if slider max is greater than 2x the buffer
+      if (this.supplySliderMaxValue().gt(ICX_SUPPLY_BUFFER * 2)) {
+        const sliderMinusBuffer = this.supplySliderMaxValue().minus(ICX_SUPPLY_BUFFER).dp(2).toNumber();
+        if (!this.sIcxSelected && this.isAssetIcx() && value > sliderMinusBuffer) {
+          value = sliderMinusBuffer;
+        }
       }
 
       // BigNumber value used in calculations
@@ -854,6 +854,10 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   private setSupplySliderValue(value: BigNumber, convert = false): void {
+    if (!this.userLoggedIn()) {
+      return;
+    }
+
     let res: BigNumber;
     // if asset is ICX, convert sICX -> ICX if convert flag is true
     if (convert && this.isAssetIcx()) {
@@ -871,6 +875,10 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   private setBorrowSliderValue(value: BigNumber): void {
+    if (!this.userLoggedIn()) {
+      return;
+    }
+
     const res = value.dp(2);
 
     // if value is greater than slider max, update the sliders max and set the value
@@ -993,7 +1001,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   collapseAssetTable(): void {
-    log.debug(`${this.asset.tag} collapseAssetTable()`);
     // Collapse asset-user table`
     this.assetYourEl.classList.remove('active');
     $(this.marketExpandedEl).slideUp();

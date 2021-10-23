@@ -16,7 +16,6 @@ export class SlidersService {
   public createNoUiSlider(htmlElement: any, start?: BigNumber, padding?: BigNumber, connect?: string, tooltips?: [],
                           range?: any, format?: any): void {
     if (!htmlElement) { return; }
-    log.debug("createNoUiSlider for htmlElement:", htmlElement);
     noUiSlider.create(htmlElement, {
       start: [start?.toNumber() ?? 10000],
       padding: [padding?.toNumber() ?? 0],

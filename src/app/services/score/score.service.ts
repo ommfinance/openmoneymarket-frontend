@@ -394,8 +394,6 @@ export class ScoreService {
   }
 
   public async getUserAssetBalance(assetTag: AssetTag): Promise<BigNumber> {
-    log.debug(`Fetching user balance for ${assetTag}...`);
-
     let balance: BigNumber;
     if (AssetTag.ICX === assetTag) {
       balance = await this.iconApiService.getIcxBalance(this.persistenceService.activeWallet!.address);
@@ -523,7 +521,7 @@ export class ScoreService {
 
     const res: PoolStatsInterface = await this.iconApiService.iconService.call(tx).execute();
 
-    log.debug("getPoolStats for " + poolId + ":", res);
+    // log.debug("getPoolStats for " + poolId + ":", res);
 
     return Mapper.mapPoolStats(res);
   }
