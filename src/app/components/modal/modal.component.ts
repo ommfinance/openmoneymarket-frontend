@@ -61,7 +61,7 @@ export class ModalComponent extends BaseClass implements OnInit {
   activeModal?: HTMLElement;
   activeModalChange?: ModalAction;
 
-  withdrawOption = "unstake";
+  withdrawOption: "unstake" | "keep" = "keep";
 
   // window on which user is on (e.g. 1st = [0, 1, 2, 3, 4])
   activeLedgerAddressWindow = 0;
@@ -140,7 +140,6 @@ export class ModalComponent extends BaseClass implements OnInit {
         default:
           // check if it is ICX withdraw action and show corresponding specific view / modal
           if (this.isIcxWithdraw(activeModalChange)) {
-            this.withdrawOption = activeModalChange.assetAction?.asset.tag === CollateralAssetTag.sICX ? "keep" : "unstake";
             this.setActiveModal(this.iconWithdrawModal.nativeElement, activeModalChange);
           } else {
             this.setActiveModal(this.assetActionModal.nativeElement, activeModalChange);
