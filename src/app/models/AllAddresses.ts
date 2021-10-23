@@ -22,12 +22,16 @@ export class AllAddresses {
         return this.collateral.USDS;
       case AssetTag.USDC:
         return this.collateral.IUSDC;
+      case AssetTag.bnUSD:
+        return this.collateral.bnUSD;
       case CollateralAssetTag.sICX:
         return this.collateral.sICX;
       case CollateralAssetTag.USDS:
         return this.collateral.USDS;
       case CollateralAssetTag.USDC:
         return this.collateral.IUSDC;
+      case CollateralAssetTag.bnUSD:
+        return this.collateral.bnUSD;
       default:
         return "";
     }
@@ -41,6 +45,8 @@ export class AllAddresses {
         return this.oTokens.oUSDS;
       case AssetTag.USDC:
         return this.oTokens.oIUSDC;
+      case AssetTag.bnUSD:
+        return this.oTokens.obnUSD;
       default:
         return "";
     }
@@ -51,18 +57,21 @@ interface Collateral {
   USDS: string;
   sICX: string;
   IUSDC: string;
+  bnUSD: string;
 }
 
 interface OTokens {
   oUSDS: string;
   oICX: string;
   oIUSDC: string;
+  obnUSD: string;
 }
 
 interface DTokens {
   dUSDS: string;
   dICX: string;
   dIUSDC: string;
+  dbnUSD: string;
 }
 
 interface SystemContract {

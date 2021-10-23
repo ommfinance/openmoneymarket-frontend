@@ -1193,7 +1193,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     const unit = 5;
     const base = inputSupply ? 40 : 35;
 
-    const res =  base + (tag.length * unit + (tag.length > 3 ? 5 : -10));
+    const res =  base + (tag.length * unit + (tag.length > 3 ? 10 : -10));
 
     if (tag === "sICX") {
       return "55px";

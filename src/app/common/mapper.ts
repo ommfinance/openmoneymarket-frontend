@@ -133,6 +133,8 @@ export class Mapper {
         Utils.hexToNormalisedNumber(value.reserve.oICX),
         Utils.hexToNormalisedNumber(value.reserve.oIUSDC),
         Utils.hexToNormalisedNumber(value.reserve.dIUSDC),
+        Utils.hexToNormalisedNumber(value.reserve.obnUSD),
+        Utils.hexToNormalisedNumber(value.reserve.dbnUSD),
         Utils.hexToNormalisedNumber(value.reserve.total)
       ),
       Utils.hexToNormalisedNumber(value.total),

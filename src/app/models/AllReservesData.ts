@@ -6,11 +6,13 @@ export class AllReservesData {
   USDS: ReserveData;
   ICX: ReserveData;
   USDC: ReserveData;
+  bnUSD: ReserveData;
 
-  constructor(USDb: ReserveData, sICX: ReserveData, USDC: ReserveData) {
+  constructor(USDb: ReserveData, sICX: ReserveData, USDC: ReserveData, bnUSD: ReserveData) {
     this.USDS = USDb;
     this.ICX = sICX;
     this.USDC = USDC;
+    this.bnUSD = bnUSD;
   }
 
   public getReserveData(assetTag: AssetTag | CollateralAssetTag): ReserveData {
@@ -21,12 +23,16 @@ export class AllReservesData {
         return this.USDS;
       case AssetTag.USDC:
         return this.USDC;
+      case AssetTag.bnUSD:
+        return this.bnUSD;
       case CollateralAssetTag.sICX:
         return this.ICX;
       case CollateralAssetTag.USDS:
         return this.USDS;
       case CollateralAssetTag.USDC:
         return this.USDC;
+      case CollateralAssetTag.bnUSD:
+        return this.bnUSD;
       default:
         throw new OmmError(`AllReserves.getReserveData: Unsupported parameter = ${assetTag}`);
     }
@@ -42,6 +48,9 @@ export class AllReservesData {
         break;
       case AssetTag.USDC:
         this.USDC = reserveData;
+        break;
+      case AssetTag.bnUSD:
+        this.bnUSD = reserveData;
         break;
       default:
         throw new OmmError(`AllReserves.setReserveData: Unsupported parameter = ${assetTag}`);
