@@ -47,18 +47,22 @@ export class DataLoaderService {
     try {
       await Promise.all(Object.values(AssetTag).map(
         async (assetTag) => {
-          this.scoreService.getUserAssetBalance(assetTag).then().catch(e => {
+          try {
+            await this.scoreService.getUserAssetBalance(assetTag);
+          } catch (e) {
             log.error("Failed to fetch balance for " + assetTag);
             log.error(e);
-          });
+          }
       }));
 
       await Promise.all(CollateralAssetTag.getPropertiesDifferentThanAssetTag().map(
         async (assetTag) => {
-          this.scoreService.getUserCollateralAssetBalance(assetTag).then().catch(e => {
+          try {
+            await this.scoreService.getUserCollateralAssetBalance(assetTag);
+          } catch (e) {
             log.error("Failed to fetch balance for " + assetTag);
             log.error(e);
-          });
+          }
         }));
     } catch (e) {
       log.debug("Failed to fetch all user asset balances!");
@@ -104,13 +108,13 @@ export class DataLoaderService {
 
       // get all pools id and total staked
       const poolsData = await this.scoreService.getPoolsData();
-      log.debug("loadPoolsData:", poolsData);
+      // log.debug("loadPoolsData:", poolsData);
 
       // get stats for each pool
       this.persistenceService.allPoolsDataMap = new Map<string, PoolData>(); // re-init map to trigger state changes
       for (const poolData of poolsData) {
         const poolStats = await this.scoreService.getPoolStats(poolData.poolID);
-        log.debug("getPoolStats for " + poolData.poolID + " AFTER mapping:", poolStats);
+        // log.debug("getPoolStats for " + poolData.poolID + " AFTER mapping:", poolStats);
 
         const newPoolData = new PoolData(poolData.poolID, Utils.hexToNormalisedNumber(poolData.totalStakedBalance, poolStats.getPrecision())
           , poolStats);
@@ -503,8 +507,7 @@ export class DataLoaderService {
       this.loadPrepList(),
       this.loadPoolsData(),
       this.loadProposalList(),
-      this.loadProposalLinks(),
-      this.loadUserProposalVotes()
+      this.loadProposalLinks()
     ]);
 
     await this.loadUserSpecificData();
@@ -550,6 +553,8 @@ export class DataLoaderService {
       this.loadUsersVotingWeight(),
       this.loadUserProposalVotes()
     ]);
+
+    this.stateChangeService.userDataReloadUpdate();
   }
 
   /**
