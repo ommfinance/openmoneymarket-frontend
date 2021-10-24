@@ -32,7 +32,7 @@ export enum AssetName {
   USDS = "Stably USD",
   sICX = "ICON",
   USDC = "ICON USD Coin",
-  bnUSD = "Balanced Dollar"
+  bnUSD = "Balanced Dollars"
 }
 
 export class AssetTag {
