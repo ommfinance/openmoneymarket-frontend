@@ -358,7 +358,7 @@ export class Mapper {
       return new Proposal(
         Utils.hexToNormalisedNumber(proposal.against),
         Utils.hexToNumber(proposal.against_voter_count),
-        proposal.description,
+        Utils.uriDecodeIfEncodedUri(proposal.description),
         Utils.hexToNumber(proposal["end day"]),
         Utils.hexToNormalisedNumber(proposal.for),
         Utils.hexToNumber(proposal.for_voter_count),

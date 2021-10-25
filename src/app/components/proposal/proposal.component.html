@@ -124,7 +124,7 @@
     <!-- Container -->
     <div class="grid panel">
       <div class="grid-cell">
-        <p>{{activeProposal?.description}}</p>
+        <p [innerText]="activeProposal?.description"></p>
         <br>
         <div class="proposal-description-metadata border-top">
           <a href="{{getForumLink()}}" target="_blank">Discussion</a><img src="assets/img/icon/external.svg">

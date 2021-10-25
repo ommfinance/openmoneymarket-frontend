@@ -289,7 +289,22 @@ export class Utils {
     } else {
       return daysUntilStart.isEqualTo(1) ? `${daysUntilStart} day` : `${daysUntilStart} days`;
     }
+  }
 
+  public static uriDecodeIfEncodedUri(uri: string): string {
+    uri = uri || '';
 
+    let isStringUriEncoded;
+    try {
+      isStringUriEncoded =  uri !== decodeURIComponent(uri);
+    } catch {
+      isStringUriEncoded = false;
+    }
+
+    if (isStringUriEncoded) {
+      return decodeURIComponent(uri);
+    } else {
+      return uri;
+    }
   }
 }
