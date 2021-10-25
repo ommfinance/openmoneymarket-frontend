@@ -214,7 +214,7 @@ export class Mapper {
       Utils.hexToNormalisedNumber(reserveData.liquidityCumulativeIndex),
       reserveData.reserveAddress,
       Utils.hexToNormalisedNumber(reserveData.sICXRate),
-      Utils.hexToNumber(reserveData.usageAsCollateralEnabled),
+      Utils.hexToBoolean(reserveData.usageAsCollateralEnabled),
       Utils.hexToNormalisedNumber(reserveData.rewardPercentage),
       Utils.hexToNormalisedNumber(reserveData.lendingPercentage),
       Utils.hexToNormalisedNumber(reserveData.borrowingPercentage),

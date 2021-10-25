@@ -81,7 +81,7 @@ export class ReserveData {
   liquidityCumulativeIndex: BigNumber;
   reserveAddress: string;
   sICXRate: BigNumber;
-  usageAsCollateralEnabled: BigNumber;
+  usageAsCollateralEnabled: boolean;
   rewardPercentage: BigNumber;
   lendingPercentage: BigNumber;
   borrowingPercentage: BigNumber;
@@ -92,7 +92,7 @@ export class ReserveData {
               exchangePrice: BigNumber, lastUpdateTimestamp: BigNumber, baseLTVasCollateral: BigNumber, borrowCumulativeIndex: BigNumber,
               borrowingEnabled: BigNumber, decimals: BigNumber, isActive: BigNumber, isFreezed: BigNumber, liquidationBonus: BigNumber,
               liquidationThreshold: BigNumber, liquidityCumulativeIndex: BigNumber, reserveAddress: string, sICXRate: BigNumber,
-              usageAsCollateralEnabled: BigNumber, rewardPercentage: BigNumber, lendingPercentage: BigNumber,
+              usageAsCollateralEnabled: boolean, rewardPercentage: BigNumber, lendingPercentage: BigNumber,
               borrowingPercentage: BigNumber) {
     this.totalLiquidity = totalLiquidity;
     this.availableLiquidity = availableLiquidity;

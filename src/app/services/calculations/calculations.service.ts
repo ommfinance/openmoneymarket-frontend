@@ -233,11 +233,15 @@ export class CalculationsService {
     switch (userAction) {
       case UserAction.SUPPLY:
         // if user add more collateral, add USD value of amount to the total collateral balance USD
-        totalCollateralBalanceUSD = totalCollateralBalanceUSD.plus(amount.multipliedBy(assetExchangePrice));
+        if (assetReserve?.usageAsCollateralEnabled) {
+          totalCollateralBalanceUSD = totalCollateralBalanceUSD.plus(amount.multipliedBy(assetExchangePrice));
+        }
         break;
       case UserAction.REDEEM:
         // if user takes out collateral, subtract USD value of amount from the total collateral balance USD
-        totalCollateralBalanceUSD = totalCollateralBalanceUSD.minus(amount.multipliedBy(assetExchangePrice));
+        if (assetReserve?.usageAsCollateralEnabled) {
+          totalCollateralBalanceUSD = totalCollateralBalanceUSD.minus(amount.multipliedBy(assetExchangePrice));
+        }
         break;
       case UserAction.BORROW:
         // if user takes out the loan (borrow) update the origination fee and add amount to the total borrow balance
