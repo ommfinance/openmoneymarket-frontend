@@ -308,6 +308,12 @@ export class ModalComponent extends BaseClass implements OnInit {
     return this.activeModalChange?.modalType === ModalType.SUPPLY && this.activeModalChange.assetAction?.asset.tag === AssetTag.ICX;
   }
 
+  showSupplyIsNotCollateralized(): boolean {
+    const collateralEnabled = this.persistenceService.getAssetReserveData(this.activeModalChange?.assetAction?.asset.tag)
+      ?.usageAsCollateralEnabled ?? false;
+    return this.activeModalChange?.modalType === ModalType.SUPPLY && !collateralEnabled;
+  }
+
   isWithdrawIcxModal(): boolean {
     return this.activeModalChange?.modalType === ModalType.WITHDRAW && this.activeModalChange.assetAction?.asset.tag === AssetTag.ICX;
   }

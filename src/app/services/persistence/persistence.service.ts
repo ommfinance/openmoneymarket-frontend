@@ -229,7 +229,10 @@ export class PersistenceService {
     return this.getUserAssetReserve(assetTag)?.liquidityRate ?? new BigNumber("0");
   }
 
-  public getAssetReserveData(assetTag: AssetTag): ReserveData | undefined {
+  public getAssetReserveData(assetTag?: AssetTag): ReserveData | undefined {
+    if (!assetTag) {
+      return undefined;
+    }
     return this.allReserves?.getReserveData(assetTag);
   }
 
