@@ -254,7 +254,7 @@ export class CalculationsService {
       liquidationThreshold));
 
     if (res.isLessThan(Utils.ZERO)) {
-      res = new BigNumber("1");
+      res = new BigNumber("0");
     }
 
     return res;
