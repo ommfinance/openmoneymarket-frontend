@@ -56,7 +56,7 @@ export class Times {
   }
 }
 
-export const bnUSDProposalDescription = "" +
+export const bnUSDProposalDescription = "Add borrowing and lending support for bnUSD on Omm.\n" +
   "Proposed OMM Rewards\n" +
   "- ICX = 40%\n" +
   "- IUSDC = 20%\n" +
