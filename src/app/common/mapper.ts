@@ -24,6 +24,7 @@ import {
 import {BigNumber} from "bignumber.js";
 import {Vote, VotersCount} from "../models/Vote";
 import {Proposal} from "../models/Proposal";
+import {bnUSDProposalDescription} from "./constants";
 
 export class Mapper {
 
@@ -353,6 +354,12 @@ export class Mapper {
 
   public static mapProposalList(proposals: any[]): Proposal[] {
     return proposals.map(proposal => {
+
+      // TODO: remove this handling after vote has passed
+      if (proposal.name?.includes("OIP 3: Adding support for bnUSD")) {
+        proposal.description = bnUSDProposalDescription;
+      }
+
       return new Proposal(
         Utils.hexToNormalisedNumber(proposal.against),
         Utils.hexToNumber(proposal.against_voter_count),
