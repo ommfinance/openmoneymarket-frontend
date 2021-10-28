@@ -33,7 +33,6 @@ export class LocalStorageService {
 
   getActiveProposal(): Proposal | undefined {
     const proposal: Proposal | undefined | "{}" = this.get("proposal");
-    log.debug("getActiveProposal proposal: ", proposal);
     return proposal !== undefined && proposal !== "{}" ? new Proposal(
       new BigNumber(proposal.against), new BigNumber(proposal.againstVoterCount), proposal.description, new BigNumber(proposal.endDay),
       new BigNumber(proposal.forVotes), new BigNumber(proposal.forVoterCount), new BigNumber(proposal.id), new BigNumber(proposal.majority),

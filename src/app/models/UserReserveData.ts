@@ -48,19 +48,22 @@ export class UserReserves {
     [AssetTag.USDS, undefined],
     [AssetTag.ICX, undefined],
     [AssetTag.USDC, undefined],
+    [AssetTag.bnUSD, undefined],
   ]);
 }
 
 export class UserAllReservesData {
-  constructor(USDS: UserReserveData, ICX: UserReserveData, USDC: UserReserveData) {
-    this.USDS = USDS;
-    this.ICX = ICX;
-    this.USDC = USDC;
-  }
-
   USDS: UserReserveData;
   ICX: UserReserveData;
   USDC: UserReserveData;
+  bnUSD: UserReserveData;
+
+  constructor(USDS: UserReserveData, ICX: UserReserveData, USDC: UserReserveData, bnUSD: UserReserveData) {
+    this.USDS = USDS;
+    this.ICX = ICX;
+    this.USDC = USDC;
+    this.bnUSD = bnUSD;
+  }
 }
 
 // EXAMPLE

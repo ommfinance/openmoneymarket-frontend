@@ -23,20 +23,23 @@ export enum AssetClass {
   ICX = "icx",
   USDS = "usds",
   sICX = "sicx",
-  USDC = "usdc"
+  USDC = "usdc",
+  bnUSD = "bnusd"
 }
 
 export enum AssetName {
   ICX = "ICON",
   USDS = "Stably USD",
   sICX = "ICON",
-  USDC = "ICON USD Coin"
+  USDC = "ICON USD Coin",
+  bnUSD = "Balanced Dollars"
 }
 
 export class AssetTag {
   static ICX = "ICX";
   static USDS = "USDS";
   static USDC = "IUSDC";
+  static bnUSD = "bnUSD";
 
   static fromString(value: string): AssetTag {
     if (value === "sICX") {
@@ -60,6 +63,7 @@ export class CollateralAssetTag {
   static USDS = "USDS";
   static sICX = "sICX";
   static USDC = "IUSDC";
+  static bnUSD = "bnUSD";
 
   public static getPropertiesDifferentThanAssetTag(): CollateralAssetTag[] {
     return Object.values(CollateralAssetTag).filter(collateralAssetTag =>  !(Object.values(AssetTag).includes(collateralAssetTag)));
@@ -74,6 +78,8 @@ export function assetToCollateralAssetTag(assetTag: AssetTag): CollateralAssetTa
       return CollateralAssetTag.USDC;
     case AssetTag.USDS:
       return CollateralAssetTag.USDS;
+    case AssetTag.bnUSD:
+      return CollateralAssetTag.bnUSD;
     default:
       throw new Error("Invalid AssetTag provided to assetToCollateralAssetTag method!");
   }
@@ -87,6 +93,8 @@ export function collateralTagToAssetTag(assetTag: CollateralAssetTag): AssetTag 
       return AssetTag.USDC;
     case CollateralAssetTag.USDS:
       return AssetTag.USDS;
+    case CollateralAssetTag.bnUSD:
+      return AssetTag.bnUSD;
     default:
       throw new Error("Invalid CollateralAssetTag provided to collateralTagToAssetTag method!");
   }
@@ -96,6 +104,7 @@ export const supportedAssetsMap: Map<AssetTag, Asset> = new Map([
   [AssetTag.ICX, new Asset(AssetClass.ICX, AssetName.ICX , AssetTag.ICX)],
   [AssetTag.USDS, new Asset(AssetClass.USDS, AssetName.USDS, AssetTag.USDS)],
   [AssetTag.USDC, new Asset(AssetClass.USDC, AssetName.USDC , AssetTag.USDC)],
+  [AssetTag.bnUSD, new Asset(AssetClass.bnUSD, AssetName.bnUSD , AssetTag.bnUSD)],
 ]);
 
 

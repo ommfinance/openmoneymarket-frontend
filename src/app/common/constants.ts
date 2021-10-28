@@ -20,7 +20,7 @@ export const contributorsMap = new Map([
 // how much ICX should be left when user is supplying
 export const ICX_SUPPLY_BUFFER = 2;
 
-export const DEFAULT_SLIDER_MAX = 0.001;
+export const DEFAULT_SLIDER_MAX = 0.01;
 
 // notification timeout
 export const NOTIFICATION_TIMEOUT = 5000; // ms
@@ -55,3 +55,15 @@ export class Times {
     return days * Times.DAY_IN_SECONDS;
   }
 }
+
+export const bnUSDProposalDescription = "" +
+  "Proposed OMM Rewards\n" +
+  "- ICX = 40%\n" +
+  "- IUSDC = 20%\n" +
+  "- USDS = 20%\n" +
+  "- bnUSD = 20%\n" +
+  "Proposed Borrow vs Lend rewards\n" +
+  "- Borrow = 50%\n" +
+  "- Lend = 50%\n" +
+  "Proposed LTV\n" +
+  "- LTV = 0%";

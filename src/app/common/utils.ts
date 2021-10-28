@@ -40,6 +40,16 @@ export class Utils {
     }
   }
 
+  public static hexToBoolean(value: any): boolean {
+    if (typeof value === "string") {
+      return value !== "0x0";
+    } else if (value instanceof BigNumber) {
+      return value.isEqualTo(1);
+    } else {
+      return value;
+    }
+  }
+
   // Returns true if the address is valid EOA address, false otherwise
   public static isEoaAddress(address: string): boolean {
     if (!address) { return false; }
@@ -279,7 +289,22 @@ export class Utils {
     } else {
       return daysUntilStart.isEqualTo(1) ? `${daysUntilStart} day` : `${daysUntilStart} days`;
     }
+  }
 
+  public static uriDecodeIfEncodedUri(uri: string): string {
+    uri = uri || '';
 
+    let isStringUriEncoded;
+    try {
+      isStringUriEncoded =  uri !== decodeURIComponent(uri);
+    } catch {
+      isStringUriEncoded = false;
+    }
+
+    if (isStringUriEncoded) {
+      return decodeURIComponent(uri);
+    } else {
+      return uri;
+    }
   }
 }

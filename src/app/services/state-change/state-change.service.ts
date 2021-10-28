@@ -39,12 +39,14 @@ export class StateChangeService {
     [AssetTag.USDS, new Subject<BigNumber>()],
     [AssetTag.ICX, new Subject<BigNumber>()],
     [AssetTag.USDC, new Subject<BigNumber>()],
+    [AssetTag.bnUSD, new Subject<BigNumber>()],
   ]);
 
   public userCollateralBalanceChangeMap: Map<CollateralAssetTag, Subject<BigNumber>> = new Map([
     [CollateralAssetTag.USDS, new Subject<BigNumber>()],
     [CollateralAssetTag.sICX, new Subject<BigNumber>()],
     [CollateralAssetTag.USDC, new Subject<BigNumber>()],
+    [CollateralAssetTag.bnUSD, new Subject<BigNumber>()],
   ]);
 
   /**
@@ -54,6 +56,7 @@ export class StateChangeService {
     [AssetTag.USDS, new Subject<UserReserveData>()],
     [AssetTag.ICX, new Subject<UserReserveData>()],
     [AssetTag.USDC, new Subject<UserReserveData>()],
+    [AssetTag.bnUSD, new Subject<UserReserveData>()],
   ]);
 
   private userAllReserveChange: Subject<UserReserves> = new Subject<UserReserves>();
@@ -117,6 +120,24 @@ export class StateChangeService {
   private userProposalVotesChange: Subject<{proposalId: BigNumber, vote: Vote}> = new Subject<{proposalId: BigNumber, vote: Vote}>();
   userProposalVotesChange$: Observable<{proposalId: BigNumber, vote: Vote}> = this.userProposalVotesChange.asObservable();
 
+  private userDataReload: Subject<void> = new Subject<void>();
+  userDataReload$: Observable<void> = this.userDataReload.asObservable();
+
+  private collapseMarketAssets: Subject<void> = new Subject<void>();
+  collapseMarketAssets$: Observable<void> = this.collapseMarketAssets.asObservable();
+
+  private disableAssetsInputs: Subject<void> = new Subject<void>();
+  disableAssetsInputs$: Observable<void> = this.disableAssetsInputs.asObservable();
+
+  private showDefaultActions: Subject<void> = new Subject<void>();
+  showDefaultActions$: Observable<void> = this.showDefaultActions.asObservable();
+
+  private removeAdjustClass: Subject<void> = new Subject<void>();
+  removeAdjustClass$: Observable<void> = this.removeAdjustClass.asObservable();
+
+  private collapseOtherAssetsTable: Subject<AssetTag | CollateralAssetTag> = new Subject<AssetTag | CollateralAssetTag>();
+  collapseOtherAssetsTable$: Observable<AssetTag | CollateralAssetTag> = this.collapseOtherAssetsTable.asObservable();
+
   /**
    * Subscribable subject for monitoring the user debt changes for each asset
    */
@@ -124,6 +145,7 @@ export class StateChangeService {
     [AssetTag.USDS, new Subject<BigNumber | undefined>()],
     [AssetTag.ICX, new Subject<BigNumber | undefined>()],
     [AssetTag.USDC, new Subject<BigNumber | undefined>()],
+    [AssetTag.bnUSD, new Subject<BigNumber | undefined>()],
   ]);
 
 
@@ -165,6 +187,30 @@ export class StateChangeService {
   public allAssetDistPercentagesUpdate(value: AllAssetDistPercentages): void {
     this.persistenceService.allAssetDistPercentages = value;
     this.allAssetDistPercentagesChange.next(value);
+  }
+
+  public collapseOtherAssetsTableUpdate(assetTag: AssetTag | CollateralAssetTag): void {
+    this.collapseOtherAssetsTable.next(assetTag);
+  }
+
+  public removeAdjustClassUpdate(): void {
+    this.removeAdjustClass.next();
+  }
+
+  public collapseMarketAssetsUpdate(): void {
+    this.collapseMarketAssets.next();
+  }
+
+  public showDefaultActionsUpdate(): void {
+    this.showDefaultActions.next();
+  }
+
+  public disableAssetsInputsUpdate(): void {
+    this.disableAssetsInputs.next();
+  }
+
+  public userDataReloadUpdate(): void {
+    this.userDataReload.next();
   }
 
   public tokenDistributionPerDayUpdate(value: BigNumber): void {

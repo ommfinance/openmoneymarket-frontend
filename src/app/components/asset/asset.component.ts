@@ -103,14 +103,28 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.registerSubscriptions();
   }
 
   ngAfterViewInit(): void {
+    // init sliders
     this.initSliders();
     this.initSupplySliderlogic();
     this.initBorrowSliderLogic();
-    this.registerSubscriptions();
+
+    this.initSupplyAndBorrowValues();
+
     this.cdRef.detectChanges();
+  }
+
+  initSupplyAndBorrowValues(): void {
+    if (this.userLoggedIn()) {
+      // init user supply and borrow values
+      this.updateSupplyData();
+      this.updateBorrowData();
+      this.updateSupplySlider(this.persistenceService.getUserAssetReserve(this.asset.tag));
+      this.updateBorrowSlider();
+    }
   }
 
   ommApyCheckedChange(): void {
@@ -371,7 +385,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     if (borrowAmountDiff.isGreaterThan(Utils.ZERO)) {
       this.modalService.showNewModal(ModalType.BORROW, new AssetAction(this.asset, currentlyBorrowed , after, amount, risk));
     } else if (borrowAmountDiff.isLessThan(Utils.ZERO)) {
-
       // full repayment
       if (after.isZero()) {
         amount = currentlyBorrowed;
@@ -408,20 +421,42 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * Handle variable/state changes for subscribed assets
    */
   registerSubscriptions(): void {
-    // handle user assets balance changes
-    this.subscribeToUserBalanceChange();
-
-    // handle users assets reserve changes
-    this.subscribeToUserAssetReserveChange();
-
-    // handle user account data change
-    this.subscribeToUserAccountDataChange();
-
     // handle sIcxSelected change
     this.subscribeTosIcxSelectedChange();
 
     // handle total risk change
     this.subscribeToTotalRiskChange();
+
+    // event based triggers
+    this.subscribeToCollapseTable();
+    this.subscribeToDisableAssetsInputs();
+    this.subscribeToShowDefaultActionsUpdate();
+    this.subscribeToRemoveAdjustClass();
+    this.subscribeToCollapseOtherAssetsTableUpdate();
+  }
+
+  private subscribeToCollapseTable(): void {
+    this.stateChangeService.collapseMarketAssets$.subscribe(() => this.collapseAssetTable());
+  }
+
+  private subscribeToCollapseOtherAssetsTableUpdate(): void {
+    this.stateChangeService.collapseOtherAssetsTable$.subscribe(assetTag => {
+      if (this.asset.tag !== assetTag) {
+        this.collapseAssetTableSlideUp();
+      }
+    });
+  }
+
+  private subscribeToRemoveAdjustClass(): void {
+    this.stateChangeService.removeAdjustClass$.subscribe(() => this.removeAdjustClass());
+  }
+
+  private subscribeToShowDefaultActionsUpdate(): void {
+    this.stateChangeService.showDefaultActions$.subscribe(() => this.showDefaultActions());
+  }
+
+  private subscribeToDisableAssetsInputs(): void {
+    this.stateChangeService.disableAssetsInputs$.subscribe(() => this.disableInputs());
   }
 
   private subscribeTosIcxSelectedChange(): void {
@@ -591,10 +626,12 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         this.prevSupplySliderSetValue = value;
       }
 
-      // in case of ICX leave 2 ICX for the fees
-      const sliderMinusBuffer = this.supplySliderMaxValue().minus(ICX_SUPPLY_BUFFER).dp(2).toNumber();
-      if (!this.sIcxSelected && this.isAssetIcx() && value > sliderMinusBuffer && value > ICX_SUPPLY_BUFFER) {
-        value = sliderMinusBuffer;
+      // in case of ICX leave 2 ICX for the fees if slider max is greater than 2x the buffer
+      if (this.supplySliderMaxValue().gt(ICX_SUPPLY_BUFFER * 2)) {
+        const sliderMinusBuffer = this.supplySliderMaxValue().minus(ICX_SUPPLY_BUFFER).dp(2).toNumber();
+        if (!this.sIcxSelected && this.isAssetIcx() && value > sliderMinusBuffer) {
+          value = sliderMinusBuffer;
+        }
       }
 
       // BigNumber value used in calculations
@@ -687,6 +724,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   initBorrowSliderLogic(): void {
     // On asset-user borrow slider update (Your markets)
     this.sliderBorrow.noUiSlider.on('update', (values: any, handle: any) => {
+      log.debug("BORROW SLIDER UPDATE with value " + values[handle]);
       const deformatedValue = +usLocale.from(values[handle]);
 
       // if the value is same as previous return
@@ -704,11 +742,14 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
       if (!borrowUsed.isZero() && bigNumValue.isLessThan(borrowUsed)) {
         const newBorrowedVal = borrowUsed.dp(2, BigNumber.ROUND_UP);
+        log.debug(`newBorrowedVal = ${newBorrowedVal.toNumber()}`);
+        log.debug(`borrowUsed = ${newBorrowedVal.toNumber()}`);
         // Update asset-user borrowed text box
         this.inputBorrowEl.value = Utils.formatNumberToUSLocaleString(newBorrowedVal);
 
         // Update asset-user available text box
         this.setBorrowAvailableInput(Utils.subtract(this.borrowSliderMaxValue(), newBorrowedVal).dp(2));
+        log.debug(`this.sliderBorrow.noUiSlider.set ${newBorrowedVal.toNumber()} [RECURSION]`);
         return this.sliderBorrow.noUiSlider.set(newBorrowedVal.toNumber());
       }
 
@@ -813,6 +854,10 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   private setSupplySliderValue(value: BigNumber, convert = false): void {
+    if (!this.userLoggedIn()) {
+      return;
+    }
+
     let res: BigNumber;
     // if asset is ICX, convert sICX -> ICX if convert flag is true
     if (convert && this.isAssetIcx()) {
@@ -830,6 +875,10 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   private setBorrowSliderValue(value: BigNumber): void {
+    if (!this.userLoggedIn()) {
+      return;
+    }
+
     const res = value.dp(2);
 
     // if value is greater than slider max, update the sliders max and set the value
@@ -952,7 +1001,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   collapseAssetTable(): void {
-    log.debug(`${this.asset.tag} collapseAssetTable()`);
     // Collapse asset-user table`
     this.assetYourEl.classList.remove('active');
     $(this.marketExpandedEl).slideUp();
@@ -1193,7 +1241,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     const unit = 5;
     const base = inputSupply ? 40 : 35;
 
-    const res =  base + (tag.length * unit + (tag.length > 3 ? 5 : -10));
+    const res =  base + (tag.length * unit + (tag.length > 3 ? 10 : -10));
 
     if (tag === "sICX") {
       return "55px";

@@ -141,7 +141,8 @@
           </div>
 
           <!-- Supply deny (Show if user can't borrow) -->
-          <div class="supply-deny {{asset.className}} hide" [ngStyle]="displayAsBlockOrHide(userAssetBalanceIsZero() && userAssetSuppliedBalanceIsZero() && userLoggedIn())">
+          <div class="supply-deny {{asset.className}} hide" [ngStyle]="displayAsBlockOrHide(userAssetBalanceIsZero() && userAssetSuppliedBalanceIsZero()
+          && userLoggedIn() && shouldHideSupplySlider())">
             <p class="text-center label message">You have no {{asset.name}} available to supply.</p>
           </div>
         </div>

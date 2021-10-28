@@ -24,6 +24,7 @@ import {
 import {BigNumber} from "bignumber.js";
 import {Vote, VotersCount} from "../models/Vote";
 import {Proposal} from "../models/Proposal";
+import {bnUSDProposalDescription} from "./constants";
 
 export class Mapper {
 
@@ -133,6 +134,8 @@ export class Mapper {
         Utils.hexToNormalisedNumber(value.reserve.oICX),
         Utils.hexToNormalisedNumber(value.reserve.oIUSDC),
         Utils.hexToNormalisedNumber(value.reserve.dIUSDC),
+        Utils.hexToNormalisedNumber(value.reserve.obnUSD),
+        Utils.hexToNormalisedNumber(value.reserve.dbnUSD),
         Utils.hexToNormalisedNumber(value.reserve.total)
       ),
       Utils.hexToNormalisedNumber(value.total),
@@ -212,7 +215,7 @@ export class Mapper {
       Utils.hexToNormalisedNumber(reserveData.liquidityCumulativeIndex),
       reserveData.reserveAddress,
       Utils.hexToNormalisedNumber(reserveData.sICXRate),
-      Utils.hexToNumber(reserveData.usageAsCollateralEnabled),
+      Utils.hexToBoolean(reserveData.usageAsCollateralEnabled),
       Utils.hexToNormalisedNumber(reserveData.rewardPercentage),
       Utils.hexToNormalisedNumber(reserveData.lendingPercentage),
       Utils.hexToNormalisedNumber(reserveData.borrowingPercentage),
@@ -353,10 +356,16 @@ export class Mapper {
 
   public static mapProposalList(proposals: any[]): Proposal[] {
     return proposals.map(proposal => {
+
+      // TODO: remove this handling after vote has passed
+      if (proposal.name?.includes("OIP 3: Adding support for bnUSD")) {
+        proposal.description = bnUSDProposalDescription;
+      }
+
       return new Proposal(
         Utils.hexToNormalisedNumber(proposal.against),
         Utils.hexToNumber(proposal.against_voter_count),
-        proposal.description,
+        Utils.uriDecodeIfEncodedUri(proposal.description),
         Utils.hexToNumber(proposal["end day"]),
         Utils.hexToNormalisedNumber(proposal.for),
         Utils.hexToNumber(proposal.for_voter_count),
