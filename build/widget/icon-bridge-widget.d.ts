@@ -4,6 +4,7 @@ import "./child-elements/deposit";
 import "./child-elements/withdraw";
 export declare class IconBridgeWidget extends LitElement {
     private hideButton;
+    private sessionExpired;
     private mainModalWrapper;
     private overlay;
     private menuTooltipMain;
@@ -54,9 +55,13 @@ export declare class IconBridgeWidget extends LitElement {
     private handleBriWidgetEvent;
     private showModalView;
     private setActiveModalView;
+    private handleSessionExpiry;
+    private checkUserSession;
     private refreshBaseData;
     private establishIntervals;
     private clearIntervals;
+    private addSessionCheckIntervals;
+    private clearSessionCheckIntervals;
     private loadUserUsdsBalance;
     private loadUserToken;
     private loadAllUserTokens;

@@ -51,6 +51,7 @@
         window.addEventListener("bri.login", handleBridgeLogin)
         window.addEventListener("bri.widget.res", handleWidgetRes)
         window.addEventListener("bri.logout.res", handleBridgeLogoutRes)
+        window.addEventListener('bri.session', handleSessionExpiry)
 
         function dispatchLogoutFromBridgeEvent() {
             window.dispatchEvent(new CustomEvent('bri.widget', {
@@ -130,6 +131,12 @@
             console.log(txHash)
             console.log(error)
             console.log(status)
+        }
+
+        // handle session expiry
+        function handleSessionExpiry (e) {
+            console.log(e.detail);
+            alert("SESSION EXPIRED");
         }
 
         // Handle when user log in with Bridge
