@@ -28,6 +28,7 @@ import { AllProposalsComponent } from './components/all-proposals/all-proposals.
 import { NewProposalComponent } from './components/new-proposal/new-proposal.component';
 import { ProposalComponent } from './components/proposal/proposal.component';
 import { BannerComponent } from './components/banner/banner.component';
+import { LoadingComponent } from './components/loading/loading.component';
 
 // Big Number configs
 const fmt = {
@@ -68,7 +69,8 @@ log.setLevel(environment.production ? "error" : "debug");
     AllProposalsComponent,
     NewProposalComponent,
     ProposalComponent,
-    BannerComponent
+    BannerComponent,
+    LoadingComponent
   ],
   imports: [
     BrowserModule,

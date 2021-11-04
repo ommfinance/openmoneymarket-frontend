@@ -97,6 +97,10 @@ export class PersistenceService {
     this.userReserves = new UserReserves();
   }
 
+  getProposal(id: BigNumber): Proposal | undefined {
+    return this.proposalList.find(p => p.id.isEqualTo(id));
+  }
+
   getMinOmmStakedRequiredForProposal(): BigNumber {
     return this.totalSuppliedOmm.multipliedBy(this.voteDefinitionCriterion);
   }

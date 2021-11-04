@@ -114,9 +114,6 @@ export class StateChangeService {
   private sIcxSelectedChange: Subject<boolean> = new Subject<boolean>();
   sIcxSelectedChange$: Observable<boolean> = this.sIcxSelectedChange.asObservable();
 
-  private selectedProposalChange: Subject<Proposal> = new Subject<Proposal>();
-  selectedProposalChange$: Observable<Proposal> = this.selectedProposalChange.asObservable();
-
   private userProposalVotesChange: Subject<{proposalId: BigNumber, vote: Vote}> = new Subject<{proposalId: BigNumber, vote: Vote}>();
   userProposalVotesChange$: Observable<{proposalId: BigNumber, vote: Vote}> = this.userProposalVotesChange.asObservable();
 
@@ -229,10 +226,6 @@ export class StateChangeService {
 
   public sIcxSelectedUpdate(sIcxSelected: boolean): void {
     this.sIcxSelectedChange.next(sIcxSelected);
-  }
-
-  public selectedProposalUpdate(proposal: Proposal | undefined): void {
-    this.selectedProposalChange.next(proposal);
   }
 
   public userProposalVotesUpdate(proposalId: BigNumber, vote: Vote): void {

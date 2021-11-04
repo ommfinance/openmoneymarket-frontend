@@ -1,9 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {Proposal} from "../../models/Proposal";
 import {PersistenceService} from "../../services/persistence/persistence.service";
-import {ProposalService} from "../../services/proposal/proposal.service";
 import {BaseClass} from "../base-class";
 import {ReloaderService} from "../../services/reloader/reloader.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-all-proposals',
@@ -12,8 +12,8 @@ import {ReloaderService} from "../../services/reloader/reloader.service";
 export class AllProposalsComponent extends BaseClass implements OnInit {
 
   constructor(public persistenceService: PersistenceService,
-              private proposalService: ProposalService,
-              public reloaderService: ReloaderService) {
+              public reloaderService: ReloaderService,
+              private router: Router) {
     super(persistenceService);
   }
 
@@ -25,7 +25,7 @@ export class AllProposalsComponent extends BaseClass implements OnInit {
   }
 
   onProposalClick(proposal: Proposal): void {
-    this.proposalService.setSelectedProposal(proposal);
+    this.router.navigate(["vote/proposal"], { queryParams: { id: proposal.id.toString()}});
   }
 
 }
