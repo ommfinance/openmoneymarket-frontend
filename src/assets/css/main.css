@@ -1378,6 +1378,19 @@ ul.pagination li:hover {
   background-size: 35px;
 }
 
+.list tbody tr.bnusd td:first-of-type {
+  background-image: url(../img/logo/bnusd.svg);
+  background-repeat: no-repeat;
+  background-position: 32px center;
+  background-size: 39px;
+}
+.list tbody tr.baln td:first-of-type {
+  background-image: url(../img/logo/baln.svg);
+  background-repeat: no-repeat;
+  background-position: 32px center;
+  background-size: 39px;
+}
+
 /*
 *
 * Expanded

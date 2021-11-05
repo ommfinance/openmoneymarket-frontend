@@ -233,11 +233,15 @@ export class CalculationsService {
     switch (userAction) {
       case UserAction.SUPPLY:
         // if user add more collateral, add USD value of amount to the total collateral balance USD
-        totalCollateralBalanceUSD = totalCollateralBalanceUSD.plus(amount.multipliedBy(assetExchangePrice));
+        if (assetReserve?.usageAsCollateralEnabled) {
+          totalCollateralBalanceUSD = totalCollateralBalanceUSD.plus(amount.multipliedBy(assetExchangePrice));
+        }
         break;
       case UserAction.REDEEM:
         // if user takes out collateral, subtract USD value of amount from the total collateral balance USD
-        totalCollateralBalanceUSD = totalCollateralBalanceUSD.minus(amount.multipliedBy(assetExchangePrice));
+        if (assetReserve?.usageAsCollateralEnabled) {
+          totalCollateralBalanceUSD = totalCollateralBalanceUSD.minus(amount.multipliedBy(assetExchangePrice));
+        }
         break;
       case UserAction.BORROW:
         // if user takes out the loan (borrow) update the origination fee and add amount to the total borrow balance
@@ -254,7 +258,7 @@ export class CalculationsService {
       liquidationThreshold));
 
     if (res.isLessThan(Utils.ZERO)) {
-      res = new BigNumber("1");
+      res = new BigNumber("0");
     }
 
     return res;
@@ -272,7 +276,6 @@ export class CalculationsService {
    * @return asset available borrow amount
    */
   public calculateAvailableBorrowForAsset(assetTag: AssetTag): BigNumber {
-
     if (assetTag === AssetTag.ICX) {
       return new BigNumber("0");
     }
@@ -280,11 +283,11 @@ export class CalculationsService {
     // Formulae: borrowsAllowedUSD = Sum((CollateralBalanceUSD per reserve - totalFeesUSD per reserve) * LTV per reserve)
     let borrowsAllowedUSD = new BigNumber("0");
 
-    const averageLtv = this.persistenceService.getAverageLtv();
     this.persistenceService.userReserves.reserveMap.forEach((userReserveData, tag) => {
       if (userReserveData) {
         const collateralBalanceUSD = userReserveData.currentOTokenBalanceUSD;
         const originationFee = userReserveData.originationFee;
+        const ltv = this.persistenceService.getReserveLtv(tag);
 
         let assetExchangePrice = userReserveData?.exchangeRate;
         if (tag === AssetTag.ICX) {
@@ -293,14 +296,16 @@ export class CalculationsService {
 
         const totalReserveFeesUSD = originationFee.multipliedBy(assetExchangePrice);
 
-        borrowsAllowedUSD = borrowsAllowedUSD.plus((collateralBalanceUSD.minus(totalReserveFeesUSD)).multipliedBy(averageLtv));
+        borrowsAllowedUSD = borrowsAllowedUSD.plus((collateralBalanceUSD.minus(totalReserveFeesUSD)).multipliedBy(ltv));
       }
     });
 
     // previous borrow balance of user across all collaterals in USD
     const totalBorrowBalanceUSD = this.persistenceService.userAccountData?.totalBorrowBalanceUSD ?? new BigNumber("0");
+
     // the amount user can borrow in USD across all the collaterals
     const availableBorrowUSD = borrowsAllowedUSD.minus(totalBorrowBalanceUSD);
+
     // exchange price of the asset (reserve) extracted from the ReserveData
     let exchangePrice = this.persistenceService.getAssetReserveData(assetTag)?.exchangePrice ?? new BigNumber("-1");
     if (assetTag === AssetTag.ICX) {

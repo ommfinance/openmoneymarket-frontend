@@ -97,6 +97,10 @@ export class PersistenceService {
     this.userReserves = new UserReserves();
   }
 
+  getProposal(id: BigNumber): Proposal | undefined {
+    return this.proposalList.find(p => p.id.isEqualTo(id));
+  }
+
   getMinOmmStakedRequiredForProposal(): BigNumber {
     return this.totalSuppliedOmm.multipliedBy(this.voteDefinitionCriterion);
   }
@@ -229,7 +233,10 @@ export class PersistenceService {
     return this.getUserAssetReserve(assetTag)?.liquidityRate ?? new BigNumber("0");
   }
 
-  public getAssetReserveData(assetTag: AssetTag): ReserveData | undefined {
+  public getAssetReserveData(assetTag?: AssetTag): ReserveData | undefined {
+    if (!assetTag) {
+      return undefined;
+    }
     return this.allReserves?.getReserveData(assetTag);
   }
 
@@ -295,19 +302,8 @@ export class PersistenceService {
     return total.dividedBy(counter);
   }
 
-  public getAverageLtv(): BigNumber {
-    let counter = new BigNumber("0");
-    let total = new BigNumber("0");
-
-    if (!this.allReserves) {
-      return total;
-    }
-
-    Object.values(this.allReserves).forEach((property: ReserveData) => {
-      total = total.plus(property.baseLTVasCollateral);
-      counter = counter.plus(new BigNumber("1"));
-    });
-    return total.dividedBy(counter);
+  public getReserveLtv(assetTag: AssetTag): BigNumber {
+    return this.allReserves?.getReserveData(assetTag).baseLTVasCollateral ?? new BigNumber("0");
   }
 
   public userHasNotBorrowedAnyAsset(): boolean {

@@ -134,6 +134,8 @@ export class Mapper {
         Utils.hexToNormalisedNumber(value.reserve.oICX),
         Utils.hexToNormalisedNumber(value.reserve.oIUSDC),
         Utils.hexToNormalisedNumber(value.reserve.dIUSDC),
+        Utils.hexToNormalisedNumber(value.reserve.obnUSD),
+        Utils.hexToNormalisedNumber(value.reserve.dbnUSD),
         Utils.hexToNormalisedNumber(value.reserve.total)
       ),
       Utils.hexToNormalisedNumber(value.total),
@@ -213,7 +215,7 @@ export class Mapper {
       Utils.hexToNormalisedNumber(reserveData.liquidityCumulativeIndex),
       reserveData.reserveAddress,
       Utils.hexToNormalisedNumber(reserveData.sICXRate),
-      Utils.hexToNumber(reserveData.usageAsCollateralEnabled),
+      Utils.hexToBoolean(reserveData.usageAsCollateralEnabled),
       Utils.hexToNormalisedNumber(reserveData.rewardPercentage),
       Utils.hexToNormalisedNumber(reserveData.lendingPercentage),
       Utils.hexToNormalisedNumber(reserveData.borrowingPercentage),
@@ -363,7 +365,7 @@ export class Mapper {
       return new Proposal(
         Utils.hexToNormalisedNumber(proposal.against),
         Utils.hexToNumber(proposal.against_voter_count),
-        proposal.description,
+        Utils.uriDecodeIfEncodedUri(proposal.description),
         Utils.hexToNumber(proposal["end day"]),
         Utils.hexToNormalisedNumber(proposal.for),
         Utils.hexToNumber(proposal.for_voter_count),

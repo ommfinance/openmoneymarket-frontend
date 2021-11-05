@@ -22,8 +22,8 @@ import {contributorsMap, defaultPrepLogoUrl} from "../../common/constants";
 import {normalFormat} from "../../common/formats";
 import BigNumber from "bignumber.js";
 import {Proposal} from "../../models/Proposal";
-import {ProposalService} from "../../services/proposal/proposal.service";
 import {ReloaderService} from "../../services/reloader/reloader.service";
+import {Router} from "@angular/router";
 
 declare var noUiSlider: any;
 
@@ -62,8 +62,8 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
               private sliderService: SlidersService,
               private dataLoaderService: DataLoaderService,
               private cd: ChangeDetectorRef,
-              private proposalService: ProposalService,
-              public reloaderService: ReloaderService) {
+              public reloaderService: ReloaderService,
+              private router: Router) {
     super(persistenceService);
   }
 
@@ -495,6 +495,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   onProposalClick(proposal: Proposal): void {
-    this.proposalService.setSelectedProposal(proposal);
+    this.router.navigate(["vote/proposal", proposal.id.toString()]);
   }
 }

@@ -2,7 +2,6 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
-  OnDestroy,
   OnInit,
   QueryList,
   ViewChild,
@@ -19,12 +18,11 @@ import {RepayService} from "../../services/repay/repay.service";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {HeaderComponent} from "../header/header.component";
 import {RiskComponent} from "../risk/risk.component";
-import {Asset, AssetTag} from "../../models/Asset";
+import {Asset} from "../../models/Asset";
 import log from "loglevel";
 import {AssetComponent} from "../asset/asset.component";
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import {ActiveMarketOverview, ActiveViews} from "../../models/ActiveViews";
-import {UserReserveData} from "../../models/UserReserveData";
 import {ModalAction} from "../../models/ModalAction";
 import {BridgeWidgetService} from "../../services/bridge-widget/bridge-widget.service";
 import {Utils} from "../../common/utils";
@@ -37,7 +35,7 @@ import {ReloaderService} from "../../services/reloader/reloader.service";
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent extends BaseClass implements OnInit, OnDestroy, AfterViewInit {
+export class HomeComponent extends BaseClass implements OnInit, AfterViewInit {
 
   className = "[HomeComponent]";
 
@@ -60,8 +58,6 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   public activeMarketOverview: ActiveMarketOverview = this.userLoggedIn() ? ActiveMarketOverview.YOUR_OVERVIEW :
     ActiveMarketOverview.MARKET_OVERVIEW;
 
-  public hideMarketHeader = false;
-
   // OMM toggle checkbox
   public ommApyChecked = false;
 
@@ -82,9 +78,6 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
 
   ngOnInit(): void {
     this.registerSubscriptions();
-  }
-
-  ngOnDestroy(): void {
   }
 
   ngAfterViewInit(): void {
@@ -127,14 +120,23 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
 
       this.userAssets = [...userAssetsTmp];
       this.availableAssets = [...availableAssetsTmp];
+
+      // trigger re-init in case the Asset object was not changed / added (Angular only re-renders component if object is changed / added)
+      this.initAssetValues();
     }
   }
 
   private registerSubscriptions(): void {
     this.subscribeToLoginChange();
     this.subscribeToUserModalActionChange();
-    this.subscribeToUserAssetReserveChange();
-    this.subscribeToUserAssetBalanceChange();
+    this.subscribeToUserDataReload();
+  }
+
+  private subscribeToUserDataReload(): void {
+    this.stateChangeService.userDataReload$.subscribe(() => {
+      // reload the asset lists
+      this.loadAssetLists();
+    });
   }
 
   private subscribeToLoginChange(): void {
@@ -148,23 +150,6 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
         this.onToggleMarketOverviewClick();
         this.onAllMarketsClick();
       }
-    });
-  }
-
-  private subscribeToUserAssetReserveChange(): void {
-    this.stateChangeService.userAllReserveChange$.subscribe(userReserves => {
-      // reload the asset lists
-      this.loadAssetLists();
-    });
-  }
-
-  private subscribeToUserAssetBalanceChange(): void {
-    // for each user asset subscribe to its balance change
-    Object.values(AssetTag).forEach(assetTag => {
-      this.stateChangeService.userBalanceChangeMap.get(assetTag)!.subscribe((newBalance: BigNumber) => {
-        // reload the asset lists
-        this.loadAssetLists();
-      });
     });
   }
 
@@ -241,46 +226,20 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
   }
 
   showDefaultActions(): void {
-    this.assetComponents.forEach(userAssetComponent => {
-      userAssetComponent.showDefaultActions();
-    });
-
-    this.userAvailableAssetComponents.forEach(userAvailableAssetComponent => {
-      userAvailableAssetComponent.showDefaultActions();
-    });
+    this.stateChangeService.showDefaultActionsUpdate();
   }
 
   removeAdjustClass(): void {
-    this.assetComponents.forEach(userAssetComponent => {
-      userAssetComponent.removeAdjustClass();
-    });
-    this.userAvailableAssetComponents.forEach(userAvailableAssetComponent => {
-      userAvailableAssetComponent.removeAdjustClass();
-    });
+    this.stateChangeService.removeAdjustClassUpdate();
   }
 
   collapseOtherAssetsTable(assetTag: any): void {
-    this.assetComponents.forEach((userAssetComponent, index) => {
-      if (userAssetComponent.asset.tag !== assetTag) {
-        userAssetComponent.collapseAssetTableSlideUp();
-      }
-    });
-
-    this.userAvailableAssetComponents.forEach((userAvailableAssetComponent, index) => {
-      if (userAvailableAssetComponent.asset.tag !== assetTag) {
-        userAvailableAssetComponent.collapseAssetTableSlideUp();
-      }
-    });
+    this.stateChangeService.collapseOtherAssetsTableUpdate(assetTag);
   }
 
   collapseTableUserAssets(): void {
-    this.assetComponents.forEach(userAssetComponent => {
-      userAssetComponent.collapseAssetTable();
-    });
-
-    this.userAvailableAssetComponents.forEach(userAvailableAssetComponent => {
-      userAvailableAssetComponent.collapseAssetTable();
-    });
+    // emit event to collapse asset tables
+    this.stateChangeService.collapseMarketAssetsUpdate();
   }
 
   disableAndResetAssetsSupplyAndBorrowSliders(): void {
@@ -295,14 +254,19 @@ export class HomeComponent extends BaseClass implements OnInit, OnDestroy, After
     });
   }
 
-  disableAssetsInputs(): void {
+  initAssetValues(): void {
+    // disable and reset supply and borrow sliders
     this.assetComponents.forEach(userAssetComponent => {
-      userAssetComponent.disableInputs();
+      userAssetComponent.initSupplyAndBorrowValues();
     });
 
     this.userAvailableAssetComponents.forEach(userAvailableAssetComponent => {
-      userAvailableAssetComponent.disableInputs();
+      userAvailableAssetComponent.initSupplyAndBorrowValues();
     });
+  }
+
+  disableAssetsInputs(): void {
+    this.stateChangeService.disableAssetsInputsUpdate();
   }
 
   // hide your market header if view is not active or active assets length == 0 and available is not
