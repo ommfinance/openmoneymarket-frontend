@@ -25,7 +25,7 @@ export class AllProposalsComponent extends BaseClass implements OnInit {
   }
 
   onProposalClick(proposal: Proposal): void {
-    this.router.navigate(["vote/proposal"], { queryParams: { id: proposal.id.toString()}});
+    this.router.navigate(["vote/proposal", proposal.id.toString()]);
   }
 
 }

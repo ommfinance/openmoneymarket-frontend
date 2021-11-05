@@ -14,7 +14,7 @@ const routes: Routes = [
   { path: 'home', component: HomeComponent},
   { path: 'vote/all-proposals', component: AllProposalsComponent },
   { path: 'vote/new-proposal', component: NewProposalComponent },
-  { path: 'vote/proposal', component: ProposalComponent },
+  { path: 'vote/proposal/:id', component: ProposalComponent },
   { path: 'vote', component: VoteComponent},
   { path: 'rewards', component: RewardsComponent},
 ];

@@ -37,7 +37,7 @@ export class ProposalComponent extends BaseClass implements OnInit, AfterViewIni
   }
 
   ngOnInit(): void {
-    this.subscribeToQueryParams();
+    this.subscribeToPathParamsChange();
     this.subscribeToModalActionResult();
     this.subscribeToUserProposalVoteChange();
     this.subscribeToProposalListChange();
@@ -50,14 +50,14 @@ export class ProposalComponent extends BaseClass implements OnInit, AfterViewIni
     }
   }
 
-  subscribeToQueryParams(): void {
+  subscribeToPathParamsChange(): void {
     // handle when user comes directly to the link with id
-    this.route.queryParams.subscribe(params => {
-      log.debug("subscribeToQueryParams...");
-      const proposalId = new BigNumber(params.id);
+    this.route.paramMap.subscribe(paramMap => {
+      log.debug("subscribeToPathParamsChange...");
+      const proposalId = new BigNumber(paramMap.get('id') ?? 0);
 
       if (proposalId.isFinite() && proposalId.gt(0) && !proposalId.isEqualTo(this.activeProposal?.id ?? 0)) {
-        log.debug("queryParams... handling proposal " + proposalId.toString());
+        log.debug("pathParams... handling proposal " + proposalId.toString());
         const proposal = this.persistenceService.getProposal(proposalId);
         if (proposal) {
           this.handleProposal(proposal);

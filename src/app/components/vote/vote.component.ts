@@ -495,6 +495,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   onProposalClick(proposal: Proposal): void {
-    this.router.navigate(["vote/proposal"], { queryParams: { id: proposal.id.toString()}});
+    this.router.navigate(["vote/proposal", proposal.id.toString()]);
   }
 }
