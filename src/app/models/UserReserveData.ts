@@ -49,6 +49,8 @@ export class UserReserves {
     [AssetTag.ICX, undefined],
     [AssetTag.USDC, undefined],
     [AssetTag.bnUSD, undefined],
+    [AssetTag.BALN, undefined],
+    [AssetTag.OMM, undefined],
   ]);
 }
 
@@ -57,12 +59,17 @@ export class UserAllReservesData {
   ICX: UserReserveData;
   USDC: UserReserveData;
   bnUSD: UserReserveData;
+  BALN: UserReserveData;
+  OMM: UserReserveData;
 
-  constructor(USDS: UserReserveData, ICX: UserReserveData, USDC: UserReserveData, bnUSD: UserReserveData) {
+  constructor(USDS: UserReserveData, ICX: UserReserveData, USDC: UserReserveData, bnUSD: UserReserveData,
+              BALN: UserReserveData, OMM: UserReserveData) {
     this.USDS = USDS;
     this.ICX = ICX;
     this.USDC = USDC;
     this.bnUSD = bnUSD;
+    this.BALN = BALN;
+    this.OMM = OMM;
   }
 }
 

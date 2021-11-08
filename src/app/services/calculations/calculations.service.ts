@@ -388,9 +388,15 @@ export class CalculationsService {
   }
 
   public calculateUserTotalOmmRewards(): BigNumber {
+    log.debug("calculateUserTotalOmmRewards...");
     let res = new BigNumber("0");
     Object.values(AssetTag).forEach(assetTag => {
-      res = res.plus(this.calculateUserDailySupplyOmmReward(assetTag).plus(this.calculateUserDailyBorrowOmmReward(assetTag)));
+      log.debug(`Daily supply and borrow rewards for ${assetTag}`);
+      const supplyOmmReward = this.calculateUserDailySupplyOmmReward(assetTag);
+      const borrowOmmReward = this.calculateUserDailyBorrowOmmReward(assetTag);
+      log.debug(`supplyOmmReward = ${supplyOmmReward}`);
+      log.debug(`borrowOmmReward = ${borrowOmmReward}`);
+      res = res.plus(supplyOmmReward.plus(borrowOmmReward));
     });
     return res;
   }
@@ -428,6 +434,11 @@ export class CalculationsService {
     // if it is a dynamic supply amount add it to the total liquidity and subtract the current supplied
     const totalReserveLiquidity = supplied ? supplied.plus(reserveData.totalLiquidity).minus(userReserveData.currentOTokenBalance)
       : reserveData.totalLiquidity;
+
+    if (dailySupplyRewards.isZero() || amountBeingSupplied.isZero() || totalReserveLiquidity.isZero()) {
+      return new BigNumber("0");
+    }
+
     return dailySupplyRewards.multipliedBy(amountBeingSupplied).dividedBy(totalReserveLiquidity);
   }
 
@@ -443,6 +454,7 @@ export class CalculationsService {
     if (reserveData && userReserveData) {
       const dailyBorrowRewards = this.persistenceService.dailyRewardsAllPoolsReserves?.reserve.getDailyBorrowRewardsForReserve(assetTag)
         ?? new BigNumber("0");
+      log.debug(`dailyBorrowRewards = ${dailyBorrowRewards}`);
       return this.userBorrowOmmRewardsFormula(dailyBorrowRewards, reserveData, userReserveData, borrowed);
     } else {
       return new BigNumber("0");
@@ -459,6 +471,10 @@ export class CalculationsService {
     // if it is a dynamic borrow amount add it to the total liquidity and subtract the current borrowed
     const totalReserveBorrowed = borrowed ? borrowed.plus(reserveData.totalBorrows).minus(userReserveData.currentBorrowBalance)
       : reserveData.totalBorrows;
+
+    if (dailyBorrowRewards.isZero() || amountBeingBorrowed.isZero() || totalReserveBorrowed.isZero()) {
+      return new BigNumber("0");
+    }
 
     return dailyBorrowRewards.multipliedBy(amountBeingBorrowed).dividedBy(totalReserveBorrowed);
   }
