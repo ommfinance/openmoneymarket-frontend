@@ -16,6 +16,12 @@
             <input id="apr-toggle-checkbox" type="checkbox" [(ngModel)]="ommApyChecked" (change)="ommApyToggleChanged()">
             <span class="switch-slider round"></span>
           </label>
+          <div class="apy-tooltip-container">
+                    <span class="tooltip">
+                      <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+                      <div class="tooltip-content apy-tooltip"><p>Rates based on interest only</p></div>
+                    </span>
+          </div>
           <p class="label apr-label" #aprLabel>{{ommApyChecked ? "Rates with OMM" : "Rates without OMM"}} {{getOmmPriceUSD()}}</p>
       </div>
     </div>
