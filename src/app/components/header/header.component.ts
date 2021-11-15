@@ -114,7 +114,7 @@ export class HeaderComponent extends BaseClass implements OnInit {
 
   getWalletName(): string {
     if (this.persistenceService.activeWallet instanceof IconexWallet) {
-      return "ICONex wallet";
+      return "ICON wallet";
     }
     else if (this.persistenceService.activeWallet instanceof BridgeWallet) {
       return "Bridge wallet";

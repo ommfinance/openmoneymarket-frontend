@@ -3350,6 +3350,14 @@ input[type="text"].input-borrow-available {
   .button {
     color: #ffffff;
   }
+  #new-proposal-submit {
+    box-shadow: 0 2.8px 2.2px rgba(35, 36, 41, 0.034),
+    0 6.7px 5.3px rgba(35, 36, 41, 0.048),
+    0 12.5px 10px rgba(35, 36, 41, 0.06),
+    0 22.3px 17.9px rgba(35, 36, 41, 0.072),
+    0 41.8px 33.4px rgba(35, 36, 41, 0.086),
+    0 100px 80px rgba(35, 36, 41, 0.12);
+  }
   #risk .noUi-target {
     background: #32343c;
   }
