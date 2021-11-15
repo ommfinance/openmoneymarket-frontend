@@ -3328,7 +3328,7 @@ input[type="text"].input-borrow-available {
   .metadata dd {
     color: #ffffff;
   }
-  .input-supply-default {
+  .input-supply-default, .input-borrow-default {
     color: #ffffff;
   }
   .list.markets .market-expanded {
