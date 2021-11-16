@@ -724,7 +724,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   initBorrowSliderLogic(): void {
     // On asset-user borrow slider update (Your markets)
     this.sliderBorrow.noUiSlider.on('update', (values: any, handle: any) => {
-      log.debug("BORROW SLIDER UPDATE with value " + values[handle]);
       const deformatedValue = +usLocale.from(values[handle]);
 
       // if the value is same as previous return
@@ -1109,6 +1108,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   updateRiskData(assetTag?: AssetTag, diff?: BigNumber, userAction?: UserAction, updateState = true): BigNumber {
+    log.debug(`[updateRiskData] assetTag = ${assetTag}, userAction = ${userAction}, updateState = ${updateState} `);
     const totalRisk = this.calculationService.calculateTotalRisk(assetTag, diff, userAction, updateState);
     // Update the risk slider
     this.riskSlider?.noUiSlider.set(totalRisk.multipliedBy(new BigNumber("100")).dp(2).toNumber());
