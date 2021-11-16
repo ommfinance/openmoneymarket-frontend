@@ -1,6 +1,5 @@
 import {AfterViewInit, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {Proposal} from "../../models/Proposal";
-import {ProposalService} from "../../services/proposal/proposal.service";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {BaseClass} from "../base-class";
 import {ModalService} from "../../services/modal/modal.service";
@@ -14,6 +13,7 @@ import {ScoreService} from "../../services/score/score.service";
 import log from "loglevel";
 import {ModalStatus} from "../../models/ModalAction";
 import BigNumber from "bignumber.js";
+import {ActivatedRoute} from "@angular/router";
 
 @Component({
   selector: 'app-proposal',
@@ -21,22 +21,23 @@ import BigNumber from "bignumber.js";
 })
 export class ProposalComponent extends BaseClass implements OnInit, AfterViewInit {
 
-  activeProposal: Proposal | undefined = this.proposalService.getSelectedProposal();
+  activeProposal?: Proposal;
   userVote?: Vote;
+  proposalId?: BigNumber;
 
-  constructor(private proposalService: ProposalService,
-              private modalService: ModalService,
+  constructor(private modalService: ModalService,
               public persistenceService: PersistenceService,
               public reloaderService: ReloaderService,
               private stateChangeService: StateChangeService,
               private localstorageService: LocalStorageService,
               private scoreService: ScoreService,
-              private cdRef: ChangeDetectorRef) {
+              private cdRef: ChangeDetectorRef,
+              private route: ActivatedRoute) {
       super(persistenceService);
   }
 
   ngOnInit(): void {
-    this.subscribeToSelectedProposalChange();
+    this.subscribeToPathParamsChange();
     this.subscribeToModalActionResult();
     this.subscribeToUserProposalVoteChange();
     this.subscribeToProposalListChange();
@@ -47,6 +48,24 @@ export class ProposalComponent extends BaseClass implements OnInit, AfterViewIni
     if (this.userLoggedIn() && this.activeProposal && !this.userVote) {
       this.scoreService.getVotesOfUsers(this.activeProposal.id).then(vote => this.userVote = vote).catch(e => log.error(e));
     }
+  }
+
+  subscribeToPathParamsChange(): void {
+    // handle when user comes directly to the link with id
+    this.route.paramMap.subscribe(paramMap => {
+      log.debug("subscribeToPathParamsChange...");
+      const proposalId = new BigNumber(paramMap.get('id') ?? 0);
+
+      if (proposalId.isFinite() && proposalId.gt(0) && !proposalId.isEqualTo(this.activeProposal?.id ?? 0)) {
+        log.debug("pathParams... handling proposal " + proposalId.toString());
+        const proposal = this.persistenceService.getProposal(proposalId);
+        if (proposal) {
+          this.handleProposal(proposal);
+        } else {
+          this.proposalId = proposalId;
+        }
+      }
+    });
   }
 
   subscribeToLoginChange(): void {
@@ -60,11 +79,12 @@ export class ProposalComponent extends BaseClass implements OnInit, AfterViewIni
 
   subscribeToProposalListChange(): void {
     this.stateChangeService.proposalListChange.subscribe((proposalList) => {
-      log.debug("proposalListChange..");
+      log.debug("proposalListChange..", proposalList);
+      log.debug("proposalId = " + this.proposalId?.toString());
       for (const proposal of proposalList) {
-        if (proposal.id.isEqualTo(this.proposalService.getSelectedProposal()?.id ?? -1)) {
-          this.activeProposal = proposal;
-          log.debug("Replaced activeProposal.. " + proposal.id);
+        if (proposal.id.isEqualTo(this.proposalId ?? -1)) {
+          this.handleProposal(proposal);
+          break;
         }
       }
 
@@ -75,18 +95,6 @@ export class ProposalComponent extends BaseClass implements OnInit, AfterViewIni
   subscribeToUserProposalVoteChange(): void {
     this.stateChangeService.userProposalVotesChange$.subscribe((change) => {
       if (this.userLoggedIn() && this.activeProposal?.id === change.proposalId) {
-        this.userVote = this.persistenceService.userProposalVotes.get(this.activeProposal.id);
-      }
-    });
-  }
-
-  subscribeToSelectedProposalChange(): void {
-    this.stateChangeService.selectedProposalChange$.subscribe(proposal => {
-      log.debug("selectedProposalChange$...", proposal);
-      this.activeProposal = proposal;
-
-      if (this.userLoggedIn()) {
-        log.debug("Setting userVote:", this.persistenceService.userProposalVotes.get(this.activeProposal.id));
         this.userVote = this.persistenceService.userProposalVotes.get(this.activeProposal.id);
       }
     });
@@ -104,6 +112,21 @@ export class ProposalComponent extends BaseClass implements OnInit, AfterViewIni
         }
       }
     });
+  }
+
+  handleProposal(proposal?: Proposal): void {
+    if (!proposal) {
+      return log.debug("handleProposal.. proposal is undefined..");
+    }
+
+    log.debug("handleProposal:", proposal);
+    this.activeProposal = proposal;
+    this.proposalId = this.activeProposal.id;
+
+    if (this.userLoggedIn()) {
+      log.debug("handleProposal... Setting userVote:", this.persistenceService.userProposalVotes.get(this.activeProposal.id));
+      this.userVote = this.persistenceService.userProposalVotes.get(this.activeProposal.id);
+    }
   }
 
   getUsersVotingWeightOnProposal(): BigNumber {
