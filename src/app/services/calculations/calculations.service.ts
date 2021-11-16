@@ -212,7 +212,6 @@ export class CalculationsService {
    * @return total user risk as a number (multiply by 100 to get percentage)
    */
   private calculateTotalRiskDynamic(assetTag: AssetTag, amount: BigNumber, userAction: UserAction): BigNumber {
-    log.debug(`[calculateTotalRiskDynamic] assetTag = ${assetTag}, userAction = ${userAction}`);
     const userAccountData = this.persistenceService.userAccountData;
     // if user account data not yet initialised return 0
     if (!userAccountData) {
@@ -223,7 +222,6 @@ export class CalculationsService {
     let totalFeeUSD = userAccountData.totalFeesUSD;
     let totalBorrowBalanceUSD = userAccountData.totalBorrowBalanceUSD;
     let totalCollateralBalanceUSD = userAccountData.totalCollateralBalanceUSD;
-    log.debug(`userAccountData.totalCollateralBalanceUSD = ${totalCollateralBalanceUSD}`);
 
     const liquidationThreshold = this.persistenceService.getAverageLiquidationThreshold();
 
@@ -239,14 +237,12 @@ export class CalculationsService {
         // if user add more collateral, add USD value of amount to the total collateral balance USD
         if (assetReserve?.usageAsCollateralEnabled) {
           totalCollateralBalanceUSD = totalCollateralBalanceUSD.plus(amount.multipliedBy(assetExchangePrice));
-          log.debug(`SUPPLY totalCollateralBalanceUSD = ${totalBorrowBalanceUSD}`);
         }
         break;
       case UserAction.REDEEM:
         // if user takes out collateral, subtract USD value of amount from the total collateral balance USD
         if (assetReserve?.usageAsCollateralEnabled) {
           totalCollateralBalanceUSD = totalCollateralBalanceUSD.minus(amount.multipliedBy(assetExchangePrice));
-          log.debug(`REDEEM totalCollateralBalanceUSD = ${totalBorrowBalanceUSD}`);
         }
         break;
       case UserAction.BORROW:
@@ -267,19 +263,13 @@ export class CalculationsService {
       res = new BigNumber("0");
     }
 
-    log.debug(`[calculateTotalRiskDynamic] res = ${res}`);
-    log.debug("****************************************************");
-
     return res;
   }
 
   public calculateHealthFactor(totalCollateralUSD: BigNumber, totalBorrowUSD: BigNumber, totalFeeUSD: BigNumber,
                                averageLiquidationThreshold: BigNumber)
     : BigNumber {
-    const res = ((totalCollateralUSD.minus(totalFeeUSD)).multipliedBy(averageLiquidationThreshold)).dividedBy(totalBorrowUSD);
-    log.debug(`[calculateHealthFactor] totalCollateralUSD = ${totalCollateralUSD}, totalBorrowUSD = ${totalBorrowUSD},
-    totalFeeUSD = ${totalFeeUSD}, averageLiquidationThreshold = ${averageLiquidationThreshold}`);
-    return res;
+    return ((totalCollateralUSD.minus(totalFeeUSD)).multipliedBy(averageLiquidationThreshold)).dividedBy(totalBorrowUSD);
   }
 
   /**
