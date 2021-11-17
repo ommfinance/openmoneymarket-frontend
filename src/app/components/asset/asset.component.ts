@@ -1077,6 +1077,10 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     return this.isAssetIcx() && this.getUserBorrowedAssetBalance().isZero();
   }
 
+  isAssetOmm(): boolean {
+    return this.asset.tag === AssetTag.OMM;
+  }
+
   hideAsset(): void {
     $(this.assetYourEl).css("display", "none");
   }
@@ -1239,7 +1243,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
     const decimals = Utils.countDecimals(el?.value);
     const unit = 5;
-    const base = inputSupply ? 40 : 35;
+    const base = inputSupply ? (this.isAssetOmm() ? 50 : 40) : 35;
 
     const res =  base + (tag.length * unit + (tag.length > 3 ? 10 : -10));
 
