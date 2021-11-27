@@ -71,6 +71,10 @@
 
           <!-- Supply allow (Show if user can supply) -->
           <div class="supply-allow" #supplyAllow [ngStyle]="hideElement(userAssetBalanceIsZero() && userAssetSuppliedBalanceIsZero() || !userLoggedIn())">
+
+            <!-- Supply APY history chart -->
+            <div id="chart-line-1" class="chart-apy"></div>
+
             <!-- Supply slider -->
             <div id="slider-supply" #sliderSupply disabled></div>
 
