@@ -17,6 +17,7 @@ import {Utils} from "../../common/utils";
 import {ActiveViews} from "../../models/ActiveViews";
 import {DEFAULT_SLIDER_MAX, ICX_SUPPLY_BUFFER} from "../../common/constants";
 import BigNumber from "bignumber.js";
+import {ChartService} from "../../services/chart/chart.service";
 
 declare var $: any;
 
@@ -74,6 +75,10 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   @ViewChild("suppRewards") set r(suppRewards: ElementRef) { this.suppRewardsEl = suppRewards.nativeElement; }
   borrRewardsEl: any;
   @ViewChild("borrRewards") set s(borrRewards: ElementRef) { this.borrRewardsEl = borrRewards.nativeElement; }
+  supplyChartEl: any;
+  @ViewChild("suppHistChart") set t(supplyChart: ElementRef) { this.supplyChartEl = supplyChart.nativeElement; }
+  borrowChartEl: any;
+  @ViewChild("borrHistChart") set u(borrowChart: ElementRef) { this.borrowChartEl = borrowChart.nativeElement; }
 
   @Output() collOtherAssetTables = new EventEmitter<AssetTag>();
 
@@ -92,13 +97,17 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   supplySliderMax = 0;
   borrowSliderMax = 0;
 
+  supplyChart: any;
+  borrowChart: any;
+
   constructor(private slidersService: SlidersService,
               public calculationService: CalculationsService,
               private stateChangeService: StateChangeService,
               public persistenceService: PersistenceService,
               private modalService: ModalService,
               private notificationService: NotificationService,
-              private cdRef: ChangeDetectorRef) {
+              private cdRef: ChangeDetectorRef,
+              private chartService: ChartService) {
     super(persistenceService);
   }
 
@@ -114,7 +123,32 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
     this.initSupplyAndBorrowValues();
 
+    this.initInterestHistoryCharts();
+
     this.cdRef.detectChanges();
+  }
+
+  initInterestHistoryCharts(): void {
+    this.supplyChart = this.chartService.createSupplyChart(this.supplyChartEl);
+    this.borrowChart = this.chartService.createBorrowChart(this.borrowChartEl);
+
+    this.supplyChart.subscribeCrosshairMove((param: any) => {
+      if (!param.point) {
+        return;
+      }
+
+      console.log(`[supplyChart] A user moved the crosshair to (${param.point.x}, ${param.point.y}) point, the time is: `);
+      console.log(param.seriesPrices.entries().next().value[1]);
+    });
+
+    this.borrowChart.subscribeCrosshairMove((param: any) => {
+      if (!param.point) {
+        return;
+      }
+
+      console.log(`[borrowChart] A user moved the crosshair to (${param.point.x}, ${param.point.y}) point, the time is: `);
+      console.log(param.seriesPrices.entries().next().value[1]);
+    });
   }
 
   initSupplyAndBorrowValues(): void {

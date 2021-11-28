@@ -73,7 +73,7 @@
           <div class="supply-allow" #supplyAllow [ngStyle]="hideElement(userAssetBalanceIsZero() && userAssetSuppliedBalanceIsZero() || !userLoggedIn())">
 
             <!-- Supply APY history chart -->
-            <div id="chart-line-1" class="chart-apy"></div>
+            <div class="chart-apy" #suppHistChart></div>
 
             <!-- Supply slider -->
             <div id="slider-supply" #sliderSupply disabled></div>
@@ -174,6 +174,9 @@
             <div class="used-container" *ngIf="isAssetBorrowUsed()">
               <div class="used active" [ngStyle]="{left: assetRepayUsedPercentage() + '%'}"><p class="label">Used</p></div>
             </div>
+
+            <!-- Chart line 2 -->
+            <div class="chart-apy" #borrHistChart></div>
 
             <!-- Borrow slider -->
             <div id="slider-borrow" #sliderBorrow disabled></div>
