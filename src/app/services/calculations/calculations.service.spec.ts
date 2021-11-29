@@ -147,4 +147,16 @@ describe('CalculationsService', () => {
     expect(1 / healthFactor).toBeCloseTo(new BigNumber("0.7695770789").toNumber(), 4);
   });
 
+  it('Test calculateHealthFactor2', () => {
+    const totalCollateralUSD = new BigNumber("9686");
+    const totalBorrowUSD = new BigNumber("4214");
+    const totalFeeUSD = new BigNumber("1.30");
+    const averageLtv = new BigNumber("0.65");
+
+    const healthFactor = service.calculateHealthFactor(totalCollateralUSD, totalBorrowUSD, totalFeeUSD, averageLtv).toNumber();
+
+    expect(healthFactor).toBeCloseTo(new BigNumber("1.935786030235315494").toNumber(), 2);
+    expect(1 / healthFactor).toBeCloseTo(new BigNumber("0.52").toNumber(), 2);
+  });
+
 });
