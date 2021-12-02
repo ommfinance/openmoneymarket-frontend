@@ -423,20 +423,6 @@ export class DataLoaderService {
     }
   }
 
-  public async loadProposalLinks(): Promise<void> {
-    try {
-      const res = await this.scoreService.getProposalLinks();
-      log.debug("loadProposalLinks (mapped): ");
-      res.forEach(p => {
-        this.persistenceService.proposalLinks.set(p.title, p);
-        log.debug(p.toString());
-      });
-    } catch (e) {
-      log.error("Error in loadProposalLinks:");
-      log.error(e);
-    }
-  }
-
   public async loadUserProposalVotes(): Promise<void> {
     await Promise.all(this.persistenceService.proposalList.map( async (proposal) => {
       try {
@@ -506,8 +492,7 @@ export class DataLoaderService {
       this.loadTotalStakedOmm(),
       this.loadPrepList(),
       this.loadPoolsData(),
-      this.loadProposalList(),
-      this.loadProposalLinks()
+      this.loadProposalList()
     ]);
 
     await this.loadUserSpecificData();
@@ -532,7 +517,6 @@ export class DataLoaderService {
       this.loadVoteDefinitionFee(),
       this.loadVoteDefinitionCriterion(),
       this.loadProposalList(),
-      this.loadProposalLinks(),
       this.loadTotalOmmSupply(),
       this.loadVoteDuration()
     ]);

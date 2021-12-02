@@ -253,13 +253,6 @@ export class TransactionResultService {
       switch (modalAction.modalType) {
         case ModalType.SUBMIT_PROPOSAL:
           this.notificationService.showNewNotification(`Couldn't submit proposal. ${failedTxMessage} Try again.`);
-
-          // delete proposal link if it fails to be submitted
-          const title = modalAction.governanceAction.newProposal?.title ?? "";
-          this.scoreService.deleteProposalLink(title).subscribe(
-            (res) => log.error("Successfully deleted proposal " + title),
-            (error => log.error(error)
-            ));
           break;
         case ModalType.CAST_VOTE:
           this.notificationService.showNewNotification(`Couldn't cast vote. ${failedTxMessage} Try again.`);
