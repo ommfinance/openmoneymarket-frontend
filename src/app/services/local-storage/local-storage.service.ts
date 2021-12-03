@@ -37,7 +37,7 @@ export class LocalStorageService {
       new BigNumber(proposal.against), new BigNumber(proposal.againstVoterCount), proposal.description, new BigNumber(proposal.endDay),
       new BigNumber(proposal.forVotes), new BigNumber(proposal.forVoterCount), new BigNumber(proposal.id), new BigNumber(proposal.majority),
       proposal.name, proposal.proposer, new BigNumber(proposal.quorum), new BigNumber(proposal.startDay), proposal.status,
-      proposal.voteSnapshot) : undefined;
+      proposal.voteSnapshot, proposal.forumLink) : undefined;
   }
 
   getLastModalAction(): ModalAction | undefined {

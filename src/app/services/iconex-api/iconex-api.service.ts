@@ -70,17 +70,6 @@ export class IconexApiService {
         break;
       }
       case "CANCEL_JSON-RPC": {
-        // get last modal action from localstorage
-        const modalAction: ModalAction = this.localStorageService.getLastModalAction()!!;
-
-        if (modalAction.modalType === ModalType.SUBMIT_PROPOSAL) {
-          // delete proposal link if it fails to be submitted
-          const title = modalAction.governanceAction?.newProposal?.title ?? "";
-          this.scoreService.deleteProposalLink(title).subscribe(
-            () => log.debug("Successfully deleted proposal " + title),
-            (error => log.error(error)
-            ));
-        }
         throw new OmmError("ICONEX send transaction cancelled!");
       }
       default: {

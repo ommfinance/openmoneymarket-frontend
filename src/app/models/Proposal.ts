@@ -17,11 +17,12 @@ export class Proposal {
   startDay: BigNumber;
   status: ProposalStatus;
   voteSnapshot: BigNumber;
+  forumLink: string;
 
 
   constructor(against: BigNumber, againstVoterCount: BigNumber, description: string, endDay: BigNumber, forVotes: BigNumber,
               forVoterCount: BigNumber, id: BigNumber, majority: BigNumber, name: string, proposer: string, quorum: BigNumber,
-              startDay: BigNumber, status: ProposalStatus, voteSnapshot: BigNumber) {
+              startDay: BigNumber, status: ProposalStatus, voteSnapshot: BigNumber, forumLink: string) {
     this.against = against;
     this.againstVoterCount = againstVoterCount;
     this.description = description;
@@ -36,6 +37,7 @@ export class Proposal {
     this.startDay = startDay;
     this.status = status;
     this.voteSnapshot = voteSnapshot;
+    this.forumLink = forumLink;
   }
 
   public toString(): string {
@@ -52,7 +54,8 @@ export class Proposal {
       + `quorum = ${this.quorum} \n`
       + `startDay = ${this.startDay} \n`
       + `status = ${this.status} \n`
-      + `voteSnapshot = ${this.voteSnapshot} \n`;
+      + `voteSnapshot = ${this.voteSnapshot} \n`
+      + `forumLink = ${this.forumLink}`;
   }
 
   getShortDescription(): string {
