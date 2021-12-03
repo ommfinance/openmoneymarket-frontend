@@ -221,9 +221,7 @@ export class CalculationsService {
     // init base values
     let totalFeeUSD = userAccountData.totalFeesUSD;
     let totalBorrowBalanceUSD = userAccountData.totalBorrowBalanceUSD;
-    let totalCollateralBalanceUSD = userAccountData.totalCollateralBalanceUSD;
 
-    const liquidationThreshold = this.persistenceService.getAverageLiquidationThreshold();
 
     const assetReserve = this.persistenceService.getAssetReserveData(assetTag);
     let assetExchangePrice = assetReserve?.exchangePrice ?? new BigNumber("0");
@@ -232,17 +230,28 @@ export class CalculationsService {
       assetExchangePrice = Utils.convertICXToSICXPrice(assetExchangePrice, this.persistenceService.sIcxToIcxRate());
     }
 
+    let totalCollateralUSD = new BigNumber("0");
+    this.persistenceService.userReserves.reserveMap.forEach((reserve, tag) => {
+      if (this.persistenceService.reserveIsUsedAsCollateral(tag)) {
+        const reserveCollateralUSD = reserve?.currentOTokenBalanceUSD ?? new BigNumber("0");
+        totalCollateralUSD = totalCollateralUSD.plus(reserveCollateralUSD.multipliedBy(
+          this.persistenceService.getReserveLiquidationThreshold(tag)));
+      }
+    });
+
     switch (userAction) {
       case UserAction.SUPPLY:
         // if user add more collateral, add USD value of amount to the total collateral balance USD
         if (assetReserve?.usageAsCollateralEnabled) {
-          totalCollateralBalanceUSD = totalCollateralBalanceUSD.plus(amount.multipliedBy(assetExchangePrice));
+          totalCollateralUSD = totalCollateralUSD.plus(amount.multipliedBy(assetExchangePrice)
+            .multipliedBy(this.persistenceService.getReserveLiquidationThreshold(assetTag)));
         }
         break;
       case UserAction.REDEEM:
         // if user takes out collateral, subtract USD value of amount from the total collateral balance USD
         if (assetReserve?.usageAsCollateralEnabled) {
-          totalCollateralBalanceUSD = totalCollateralBalanceUSD.minus(amount.multipliedBy(assetExchangePrice));
+          totalCollateralUSD = totalCollateralUSD.minus(amount.multipliedBy(assetExchangePrice)
+            .multipliedBy(this.persistenceService.getReserveLiquidationThreshold(assetTag)));
         }
         break;
       case UserAction.BORROW:
@@ -256,8 +265,7 @@ export class CalculationsService {
         totalBorrowBalanceUSD = totalBorrowBalanceUSD.minus(amount.multipliedBy(assetExchangePrice));
     }
 
-    let res = (new BigNumber("1")).dividedBy(this.calculateHealthFactor(totalCollateralBalanceUSD, totalBorrowBalanceUSD, totalFeeUSD,
-      liquidationThreshold));
+    let res = (new BigNumber("1")).dividedBy(this.calculateHealthFactor(totalCollateralUSD, totalBorrowBalanceUSD, totalFeeUSD));
 
     if (res.isLessThan(Utils.ZERO)) {
       res = new BigNumber("0");
@@ -266,10 +274,11 @@ export class CalculationsService {
     return res;
   }
 
-  public calculateHealthFactor(totalCollateralUSD: BigNumber, totalBorrowUSD: BigNumber, totalFeeUSD: BigNumber,
-                               averageLiquidationThreshold: BigNumber)
+  public calculateHealthFactor(totalCollateralUSD: BigNumber, totalBorrowUSD: BigNumber, totalFeeUSD: BigNumber)
     : BigNumber {
-    return ((totalCollateralUSD.minus(totalFeeUSD)).multipliedBy(averageLiquidationThreshold)).dividedBy(totalBorrowUSD);
+    const collateral = totalCollateralUSD.minus(totalFeeUSD);
+
+    return collateral.isNegative() ? new BigNumber("1") : collateral.dividedBy(totalBorrowUSD);
   }
 
   /**

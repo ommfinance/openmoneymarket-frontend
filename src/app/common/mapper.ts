@@ -54,7 +54,6 @@ export class Mapper {
       Utils.hexToNormalisedNumber(reserve.principalBorrowBalanceUSD),
       Utils.hexToNormalisedNumber(reserve.principalOTokenBalance, decimals),
       Utils.hexToNormalisedNumber(reserve.principalOTokenBalanceUSD),
-      Utils.hexToNumber(reserve.useAsCollateral),
       Utils.hexToNumber(reserve.userBorrowCumulativeIndex),
       Utils.hexToNumber(reserve.userLiquidityIndex),
     );

@@ -15,14 +15,13 @@ export class UserReserveData {
   principalBorrowBalanceUSD: BigNumber;
   principalOTokenBalance: BigNumber;
   principalOTokenBalanceUSD: BigNumber;
-  useAsCollateral: BigNumber;
   userBorrowCumulativeIndex: BigNumber;
   userLiquidityIndex: BigNumber;
 
   constructor(borrowRate: BigNumber, currentBorrowBalance: BigNumber, currentBorrowBalanceUSD: BigNumber, currentOTokenBalance: BigNumber,
               currentOTokenBalanceUSD: BigNumber, exchangeRate: BigNumber, lastUpdateTimestamp: BigNumber, liquidityRate: BigNumber,
               originationFee: BigNumber, principalBorrowBalance: BigNumber, principalBorrowBalanceUSD: BigNumber,
-              principalOTokenBalance: BigNumber, principalOTokenBalanceUSD: BigNumber, useAsCollateral: BigNumber,
+              principalOTokenBalance: BigNumber, principalOTokenBalanceUSD: BigNumber,
               userBorrowCumulativeIndex: BigNumber, userLiquidityIndex: BigNumber) {
     this.borrowRate = borrowRate;
     this.currentBorrowBalance = currentBorrowBalance;
@@ -37,7 +36,6 @@ export class UserReserveData {
     this.principalBorrowBalanceUSD = principalBorrowBalanceUSD;
     this.principalOTokenBalance = principalOTokenBalance;
     this.principalOTokenBalanceUSD = principalOTokenBalanceUSD;
-    this.useAsCollateral = useAsCollateral;
     this.userBorrowCumulativeIndex = userBorrowCumulativeIndex;
     this.userLiquidityIndex = userLiquidityIndex;
   }

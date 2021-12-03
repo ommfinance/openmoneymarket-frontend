@@ -285,19 +285,12 @@ export class PersistenceService {
     return totalBorrowed;
   }
 
-  public getAverageLiquidationThreshold(): BigNumber {
-    let counter = new BigNumber("0");
-    let total = new BigNumber("0");
+  public getReserveLiquidationThreshold(assetTag: AssetTag): BigNumber {
+    return this.allReserves?.getReserveData(assetTag).liquidationThreshold ?? new BigNumber(0);
+  }
 
-    if (!this.allReserves) {
-      return total;
-    }
-
-    Object.values(this.allReserves).forEach((property: ReserveData) => {
-      total = total.plus(property.liquidationThreshold);
-      counter = counter.plus(new BigNumber("1"));
-    });
-    return total.dividedBy(counter);
+  public reserveIsUsedAsCollateral(assetTag: AssetTag): boolean {
+    return this.allReserves?.getReserveData(assetTag).usageAsCollateralEnabled ?? false;
   }
 
   public getReserveLtv(assetTag: AssetTag): BigNumber {
