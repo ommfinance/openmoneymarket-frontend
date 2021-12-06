@@ -542,7 +542,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       this.setBorrowAvailableInput(borrowAvailable.isNegative() ? new BigNumber("0") : borrowAvailable.dp(2));
 
       // update asset borrow slider max value to  -> borrowed + borrow available
-      max = borrowAvailable.isNegative() ? borrowAvailable : this.getMaxBorrowAvailable(reserve.currentBorrowBalance).plus(borrowAvailable);
+      max = borrowAvailable.isNegative() ? borrowAvailable : this.getMaxBorrowAvailable(reserve.currentBorrowBalance.plus(borrowAvailable));
     }
 
     this.sliderBorrow.noUiSlider.updateOptions({
@@ -990,7 +990,10 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     const currentBorrow = this.persistenceService.getUserBorrowedAssetBalancePlusOrigFee(this.asset.tag) ?? new BigNumber("0");
     const availTotalBorrow = totalSupplied.minus(totalBorrowed).plus(currentBorrow);
 
-    return BigNumber.min(suggestedMax, availTotalBorrow).dp(2);
+    const res = BigNumber.min(suggestedMax, availTotalBorrow).dp(2);
+
+    log.debug(res.toNumber());
+    return res;
   }
 
   collapseAssetTableSlideUp(): void {
