@@ -141,20 +141,6 @@ export class ProposalComponent extends BaseClass implements OnInit, AfterViewIni
     }
   }
 
-  getForumLink(): string {
-    const forumLink = this.persistenceService.proposalLinks.get(this.activeProposal?.name ?? "")?.forumLink;
-
-    if (forumLink) {
-      if (forumLink.startsWith("http://") || forumLink.startsWith("https://")) {
-        return forumLink;
-      } else {
-        return "https://" + forumLink;
-      }
-    } else {
-      return "";
-    }
-  }
-
   isVoteValid(): boolean {
     if (this.userVote) {
       return (this.userVote.against.isFinite() && !this.userVote.against.isZero()) ||

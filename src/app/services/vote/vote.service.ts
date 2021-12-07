@@ -123,7 +123,9 @@ export class VoteService {
       proposal.title}", "description": "${ // "unique name of the proposal"
       proposal.description}", "vote_start": ${ // "description of the proposal"
       proposal.voteStart.toString()}, "snapshot": ${ // voting start timestamp in microseconds
-      proposal.snapshot.toString()}}}`);
+      proposal.snapshot.toString()} , "forum": "${ // forum link
+      proposal.forumLink
+    }"}}`);
 
     const params = {
       _to: to,
