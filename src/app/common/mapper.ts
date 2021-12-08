@@ -54,7 +54,6 @@ export class Mapper {
       Utils.hexToNormalisedNumber(reserve.principalBorrowBalanceUSD),
       Utils.hexToNormalisedNumber(reserve.principalOTokenBalance, decimals),
       Utils.hexToNormalisedNumber(reserve.principalOTokenBalanceUSD),
-      Utils.hexToNumber(reserve.useAsCollateral),
       Utils.hexToNumber(reserve.userBorrowCumulativeIndex),
       Utils.hexToNumber(reserve.userLiquidityIndex),
     );
@@ -136,6 +135,10 @@ export class Mapper {
         Utils.hexToNormalisedNumber(value.reserve.dIUSDC),
         Utils.hexToNormalisedNumber(value.reserve.obnUSD),
         Utils.hexToNormalisedNumber(value.reserve.dbnUSD),
+        Utils.hexToNormalisedNumber(value.reserve.oBALN),
+        Utils.hexToNormalisedNumber(value.reserve.dBALN),
+        Utils.hexToNormalisedNumber(value.reserve.oOMM),
+        Utils.hexToNormalisedNumber(value.reserve.dOMM),
         Utils.hexToNormalisedNumber(value.reserve.total)
       ),
       Utils.hexToNormalisedNumber(value.total),
