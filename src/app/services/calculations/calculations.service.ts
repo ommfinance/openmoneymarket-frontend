@@ -193,7 +193,6 @@ export class CalculationsService {
       return new BigNumber("0");
     } else {
       const healthFactor = this.persistenceService.userAccountData?.healthFactor ?? new BigNumber("1");
-      log.debug(`healthFactor = ${healthFactor}`);
 
       // check for negative health factor
       if (healthFactor.isLessThanOrEqualTo(Utils.ZERO)) {
@@ -265,7 +264,7 @@ export class CalculationsService {
         totalBorrowBalanceUSD = totalBorrowBalanceUSD.minus(amount.multipliedBy(assetExchangePrice));
     }
 
-    let res = (new BigNumber("1")).dividedBy(this.calculateHealthFactor(totalCollateralUSD, totalBorrowBalanceUSD, totalFeeUSD));
+    let res = (new BigNumber("1")).dividedBy(this.calculateHealthFactor(totalCollateralUSD.minus(totalFeeUSD), totalBorrowBalanceUSD));
 
     if (res.isLessThan(Utils.ZERO)) {
       res = new BigNumber("0");
@@ -274,11 +273,9 @@ export class CalculationsService {
     return res;
   }
 
-  public calculateHealthFactor(totalCollateralUSD: BigNumber, totalBorrowUSD: BigNumber, totalFeeUSD: BigNumber)
+  public calculateHealthFactor(totalCollateralUSD: BigNumber, totalBorrowUSD: BigNumber)
     : BigNumber {
-    const collateral = totalCollateralUSD.minus(totalFeeUSD);
-
-    return collateral.isNegative() ? new BigNumber("1") : collateral.dividedBy(totalBorrowUSD);
+    return totalCollateralUSD.isNegative() ? new BigNumber("1") : totalCollateralUSD.dividedBy(totalBorrowUSD);
   }
 
   /**
@@ -324,7 +321,29 @@ export class CalculationsService {
     }
 
     const buffer = new BigNumber("0.9996");
-    return (availableBorrowUSD.dividedBy(exchangePrice)).multipliedBy(buffer).dp(2);
+    const suggestedBorrowAvailable =  (availableBorrowUSD.dividedBy(exchangePrice)).multipliedBy(buffer).dp(2);
+
+    // adjust borrow available if the reserve borrow available is less than calculated one
+    const reserveData = this.persistenceService.getAssetReserveData(assetTag);
+    const currentBorrow = this.persistenceService.getUserBorrowedAssetBalancePlusOrigFee(assetTag) ?? new BigNumber("0");
+    const totalLiquidity = reserveData?.totalLiquidity ?? new BigNumber("0");
+    const totalBorrows = reserveData?.totalBorrows ?? new BigNumber("0");
+    const borrowThreshold = reserveData?.borrowThreshold ?? new BigNumber("0");
+    const reserveAvailableBorrows = (totalLiquidity.multipliedBy(borrowThreshold)).minus(totalBorrows);
+    const availTotalBorrow = reserveAvailableBorrows.plus(currentBorrow);
+
+    log.debug(`******* calculateAvailableBorrowForAsset ${assetTag} ******`);
+    log.debug(`suggestedBorrowAvailable = ${suggestedBorrowAvailable.toString()}`);
+    log.debug(`availTotalBorrow = ${availTotalBorrow.toString()}`);
+    log.debug(`***********************`);
+    log.debug(`totalLiquidity = ${reserveData?.totalLiquidity.toString()}`);
+    log.debug(`borrowThreshold = ${reserveData?.borrowThreshold.toString()}`);
+    log.debug(`totalBorrows = ${reserveData?.totalBorrows.toString()}`);
+    log.debug(`totalLiquidity*borrowThreshold-totalBorrows = ${(reserveData?.totalLiquidity
+      .multipliedBy(reserveData?.borrowThreshold) ?? new BigNumber(0)).minus(reserveData?.totalBorrows ?? 0) }`);
+
+
+    return BigNumber.min(suggestedBorrowAvailable, availTotalBorrow).dp(2);
   }
 
   /**
@@ -465,7 +484,6 @@ export class CalculationsService {
     if (reserveData && userReserveData) {
       const dailyBorrowRewards = this.persistenceService.dailyRewardsAllPoolsReserves?.reserve.getDailyBorrowRewardsForReserve(assetTag)
         ?? new BigNumber("0");
-      log.debug(`dailyBorrowRewards = ${dailyBorrowRewards}`);
       return this.userBorrowOmmRewardsFormula(dailyBorrowRewards, reserveData, userReserveData, borrowed);
     } else {
       return new BigNumber("0");

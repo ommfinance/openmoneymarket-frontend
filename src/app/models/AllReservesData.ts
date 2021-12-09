@@ -104,6 +104,8 @@ export class ReserveData {
   rewardPercentage: BigNumber;
   lendingPercentage: BigNumber;
   borrowingPercentage: BigNumber;
+  availableBorrows: BigNumber;
+  borrowThreshold: BigNumber;
 
 
   constructor(totalLiquidity: BigNumber, availableLiquidity: BigNumber, totalLiquidityUSD: BigNumber, availableLiquidityUSD: BigNumber,
@@ -112,7 +114,7 @@ export class ReserveData {
               borrowingEnabled: BigNumber, decimals: BigNumber, isActive: BigNumber, isFreezed: BigNumber, liquidationBonus: BigNumber,
               liquidationThreshold: BigNumber, liquidityCumulativeIndex: BigNumber, reserveAddress: string, sICXRate: BigNumber,
               usageAsCollateralEnabled: boolean, rewardPercentage: BigNumber, lendingPercentage: BigNumber,
-              borrowingPercentage: BigNumber) {
+              borrowingPercentage: BigNumber, availableBorrows: BigNumber, borrowThreshold: BigNumber) {
     this.totalLiquidity = totalLiquidity;
     this.availableLiquidity = availableLiquidity;
     this.totalLiquidityUSD = totalLiquidityUSD;
@@ -139,6 +141,8 @@ export class ReserveData {
     this.rewardPercentage = rewardPercentage;
     this.lendingPercentage = lendingPercentage;
     this.borrowingPercentage = borrowingPercentage;
+    this.availableBorrows = availableBorrows;
+    this.borrowThreshold = borrowThreshold;
   }
 }
 
