@@ -136,27 +136,29 @@ describe('CalculationsService', () => {
   });
 
   it('Test calculateHealthFactor', () => {
-    const totalCollateralUSD = new BigNumber("100.005");
+    let totalCollateralUSD = new BigNumber("100.005");
     const totalBorrowUSD = new BigNumber("50");
     const totalFeeUSD = new BigNumber("0.05");
-    const averageLtv = new BigNumber("0.65");
+    const ltv = new BigNumber("0.65");
+    totalCollateralUSD = (totalCollateralUSD.minus(totalFeeUSD)).multipliedBy(ltv);
 
-    const healthFactor = service.calculateHealthFactor(totalCollateralUSD, totalBorrowUSD, totalFeeUSD, averageLtv).toNumber();
+    const healthFactor = service.calculateHealthFactor(totalCollateralUSD, totalBorrowUSD).toNumber();
 
     expect(healthFactor).toBeCloseTo(new BigNumber("1.299415").toNumber(), 2);
     expect(1 / healthFactor).toBeCloseTo(new BigNumber("0.7695770789").toNumber(), 4);
   });
 
   it('Test calculateHealthFactor2', () => {
-    const totalCollateralUSD = new BigNumber("9686");
+    let totalLiquidityUSD = new BigNumber("9686");
     const totalBorrowUSD = new BigNumber("4214");
     const totalFeeUSD = new BigNumber("1.30");
-    const averageLtv = new BigNumber("0.65");
+    const ltv = new BigNumber("0.65");
+    totalLiquidityUSD = (totalLiquidityUSD.minus(totalFeeUSD)).multipliedBy(ltv);
 
-    const healthFactor = service.calculateHealthFactor(totalCollateralUSD, totalBorrowUSD, totalFeeUSD, averageLtv).toNumber();
+    const healthFactor = service.calculateHealthFactor(totalLiquidityUSD, totalBorrowUSD).toNumber();
 
-    expect(healthFactor).toBeCloseTo(new BigNumber("1.935786030235315494").toNumber(), 2);
-    expect(1 / healthFactor).toBeCloseTo(new BigNumber("0.52").toNumber(), 2);
+    expect(healthFactor).toBeCloseTo(new BigNumber(" 1.4938431419079259").toNumber(), 2);
+    expect(1 / healthFactor).toBeCloseTo(new BigNumber("0.6694").toNumber(), 2);
   });
 
 });

@@ -222,6 +222,8 @@ export class Mapper {
       Utils.hexToNormalisedNumber(reserveData.rewardPercentage),
       Utils.hexToNormalisedNumber(reserveData.lendingPercentage),
       Utils.hexToNormalisedNumber(reserveData.borrowingPercentage),
+      Utils.hexToNormalisedNumber(reserveData.availableBorrows),
+      Utils.hexToNormalisedNumber(reserveData.borrowThreshold),
     );
   }
 
