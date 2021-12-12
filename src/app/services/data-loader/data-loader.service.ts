@@ -26,6 +26,7 @@ import {environment} from "../../../environments/environment";
 import {Vote} from "../../models/Vote";
 import {ReloaderService} from "../reloader/reloader.service";
 import {BridgeWallet} from "../../models/wallets/BridgeWallet";
+import {InterestHistoryService} from "../interest-history/interest-history.service";
 
 @Injectable({
   providedIn: 'root'
@@ -39,8 +40,20 @@ export class DataLoaderService {
               private notificationService: NotificationService,
               private errorService: ErrorService,
               private checkerService: CheckerService,
-              private reloaderService: ReloaderService) {
+              private reloaderService: ReloaderService,
+              private interestHistoryService: InterestHistoryService) {
 
+  }
+
+  public async loadInterestHistory(): Promise<void> {
+    try {
+      this.persistenceService.interestHistory =  [...(await this.interestHistoryService.getInterestHistory()).docs];
+      log.debug("loadInterestHistory..");
+      log.debug(this.persistenceService.interestHistory);
+    } catch (e) {
+      log.error("Failed to fetch interest history..");
+      log.error(e);
+    }
   }
 
   public async loadAllUserAssetsBalances(): Promise<void> {
@@ -542,6 +555,7 @@ export class DataLoaderService {
     this.loadUserAsyncData();
 
     await Promise.all([
+      this.loadInterestHistory(),
       this.loadAllUserReserveData(),
       this.loadAllUserAssetsBalances(),
       this.loadUserAccountData(),

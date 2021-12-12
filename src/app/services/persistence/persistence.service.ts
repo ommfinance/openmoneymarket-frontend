@@ -24,6 +24,7 @@ import BigNumber from "bignumber.js";
 import {Proposal} from "../../models/Proposal";
 import {Vote} from "../../models/Vote";
 import {ProposalLink} from "../../models/ProposalLink";
+import {InterestHistory} from "../../models/InterestHistory";
 
 @Injectable({
   providedIn: 'root'
@@ -75,9 +76,10 @@ export class PersistenceService {
   public userProposalVotes: Map<BigNumber, Vote> = new Map<BigNumber, Vote>();
   public voteDuration = new BigNumber("-1");
 
-
   public prepList?: PrepList;
   public yourVotesPrepList: YourPrepVote[] = [];
+
+  public interestHistory: InterestHistory[] = [];
 
   constructor() {}
 
