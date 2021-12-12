@@ -8,7 +8,7 @@ export const defaultPrepLogoUrl = "assets/img/icon/profile.svg";
 
 export const ommForumDomain = "forum.omm.finance";
 
-export const ommBannerExitKey = "omm-bnr-closed";
+export const ommBannerExitKey = "omm-bnr-closed1";
 
 export const contributorsMap = new Map([
   ["hxfba37e91ccc13ec1dab115811f73e429cde44d48", true], // ICX_Station
