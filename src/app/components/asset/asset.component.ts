@@ -79,6 +79,10 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   @ViewChild("suppHistChart") set t(supplyChart: ElementRef) { this.supplyChartEl = supplyChart.nativeElement; }
   borrowChartEl: any;
   @ViewChild("borrHistChart") set u(borrowChart: ElementRef) { this.borrowChartEl = borrowChart.nativeElement; }
+  supplyApyEl: any;
+  @ViewChild("suppApyEl") set v(supplyApyEl: ElementRef) { this.supplyApyEl = supplyApyEl.nativeElement; }
+  borrowAprEl: any;
+  @ViewChild("borrowAprEl") set z(borrowAprEl: ElementRef) { this.borrowAprEl = borrowAprEl.nativeElement; }
 
   @Output() collOtherAssetTables = new EventEmitter<AssetTag>();
 
@@ -129,25 +133,40 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   initInterestHistoryCharts(): void {
-    this.supplyChart = this.chartService.createSupplyChart(this.supplyChartEl);
-    this.borrowChart = this.chartService.createBorrowChart(this.borrowChartEl);
+    const charts = this.chartService.createBorrowAndSupplyInterestHistoryChart(this.supplyChartEl, this.borrowChartEl, this.asset.tag,
+      this.supplyChart, this.borrowChart);
+    this.supplyChart = charts.supplyChart;
+    this.borrowChart = charts.borrowChart;
 
-    this.supplyChart.subscribeCrosshairMove((param: any) => {
-      if (!param.point) {
+    log.debug("Interest history charts:");
+    log.debug(this.supplyChartEl);
+    log.debug(this.borrowChartEl);
+    log.debug(!!this.supplyChartEl.chart);
+
+    this.supplyChart?.subscribeCrosshairMove((param: any) => {
+      if (!param?.point) {
+        this.setText(this.supplyApyEl, `${this.to2DecimalRoundedOffPercentString(this.getMarketSupplyRate())} APY`);
         return;
       }
 
-      console.log(`[supplyChart] A user moved the crosshair to (${param.point.x}, ${param.point.y}) point, the time is: `);
-      console.log(param.seriesPrices.entries().next().value[1]);
+      const supplyApy = param.seriesPrices.entries().next().value;
+      if (supplyApy && supplyApy.length > 1) {
+        this.setText(this.supplyApyEl, `${this.to2DecimalRoundedOffPercentString(supplyApy[1])} APY`);
+      }
     });
 
-    this.borrowChart.subscribeCrosshairMove((param: any) => {
-      if (!param.point) {
+    this.borrowChart?.subscribeCrosshairMove((param: any) => {
+      if (!param?.point) {
+        this.setText(this.borrowAprEl, `${this.to2DecimalRoundedOffPercentString(this.makeAbsolute(this.getMarketBorrowRate()))} APR`);
         return;
       }
 
-      console.log(`[borrowChart] A user moved the crosshair to (${param.point.x}, ${param.point.y}) point, the time is: `);
-      console.log(param.seriesPrices.entries().next().value[1]);
+      const borrowApr = param?.seriesPrices?.entries()?.next()?.value;
+
+      if (borrowApr && borrowApr.length > 1) {
+        this.setText(this.borrowAprEl, `${this.to2DecimalRoundedOffPercentString(borrowApr[1])} APR`);
+      }
+
     });
   }
 
@@ -467,6 +486,13 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.subscribeToShowDefaultActionsUpdate();
     this.subscribeToRemoveAdjustClass();
     this.subscribeToCollapseOtherAssetsTableUpdate();
+    this.subscribeToInterestHistoryChange();
+  }
+
+  private subscribeToInterestHistoryChange(): void {
+    this.stateChangeService.interestHistoryChange$.subscribe(() => {
+      this.initInterestHistoryCharts();
+    });
   }
 
   private subscribeToCollapseTable(): void {
@@ -1142,7 +1168,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   updateRiskData(assetTag?: AssetTag, diff?: BigNumber, userAction?: UserAction, updateState = true): BigNumber {
-    log.debug(`[updateRiskData] assetTag = ${assetTag}, userAction = ${userAction}, updateState = ${updateState} `);
     const totalRisk = this.calculationService.calculateTotalRisk(assetTag, diff, userAction, updateState);
     // Update the risk slider
     this.riskSlider?.noUiSlider.set(totalRisk.multipliedBy(new BigNumber("100")).dp(2).toNumber());

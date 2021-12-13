@@ -51,6 +51,15 @@ export class AssetTag {
     return AssetTag[value as keyof typeof AssetTag];
   }
 
+  static toAdjustedString(asset: AssetTag): string {
+    switch (asset) {
+      case AssetTag.USDC:
+        return "USDC";
+      default:
+        return asset.toString();
+    }
+  }
+
   /** construct AssetTag from pool name by parsing quote asset (base asset is always OMM) */
   static constructFromPoolPairName(name: string): AssetTag | undefined {
     const splitString = name?.replace(" ", "").replace(/[0-9]/g, '').split("/")

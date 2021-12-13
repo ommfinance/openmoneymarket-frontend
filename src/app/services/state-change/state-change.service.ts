@@ -18,6 +18,7 @@ import {AllAssetDistPercentages} from "../../models/AllAssetDisPercentages";
 import BigNumber from "bignumber.js";
 import {Proposal} from "../../models/Proposal";
 import {Vote} from "../../models/Vote";
+import {InterestHistory} from "../../models/InterestHistory";
 
 @Injectable({
   providedIn: 'root'
@@ -135,6 +136,9 @@ export class StateChangeService {
   private collapseOtherAssetsTable: Subject<AssetTag | CollateralAssetTag> = new Subject<AssetTag | CollateralAssetTag>();
   collapseOtherAssetsTable$: Observable<AssetTag | CollateralAssetTag> = this.collapseOtherAssetsTable.asObservable();
 
+  private interestHistoryChange: Subject<InterestHistory[]> = new Subject<InterestHistory[]>();
+  interestHistoryChange$: Observable<InterestHistory[]> = this.interestHistoryChange.asObservable();
+
   /**
    * Subscribable subject for monitoring the user debt changes for each asset
    */
@@ -179,6 +183,11 @@ export class StateChangeService {
         }
       });
     });
+  }
+
+  public interestHistoryUpdate(interestHistory: InterestHistory[]): void {
+    this.persistenceService.interestHistory =  [...interestHistory];
+    this.interestHistoryChange.next(this.persistenceService.interestHistory);
   }
 
   public allAssetDistPercentagesUpdate(value: AllAssetDistPercentages): void {

@@ -193,7 +193,6 @@ export class CalculationsService {
       return new BigNumber("0");
     } else {
       const healthFactor = this.persistenceService.userAccountData?.healthFactor ?? new BigNumber("1");
-      log.debug(`healthFactor = ${healthFactor}`);
 
       // check for negative health factor
       if (healthFactor.isLessThanOrEqualTo(Utils.ZERO)) {

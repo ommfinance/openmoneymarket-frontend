@@ -58,7 +58,7 @@
 
             </div>
             <div class="grid-cell text-right">
-              <p class="supply-apy">{{to2DecimalRoundedOffPercentString(getMarketSupplyRate())}} APY</p>
+              <p class="supply-apy" #suppApyEl>{{to2DecimalRoundedOffPercentString(getMarketSupplyRate())}} APY</p>
             </div>
           </div>
 
@@ -163,7 +163,7 @@
               </span>
             </div>
             <div class="grid-cell text-right">
-              <p class="{{isNegative(getMarketBorrowRate()) ? 'borrow-apy':'borrow-apy text-green'}}">{{to2DecimalRoundedOffPercentString(makeAbsolute(getMarketBorrowRate()))}} APR</p>
+              <p class="{{isNegative(getMarketBorrowRate()) ? 'borrow-apy':'borrow-apy text-green'}}" #borrowAprEl>{{to2DecimalRoundedOffPercentString(makeAbsolute(getMarketBorrowRate()))}} APR</p>
             </div>
           </div>
 

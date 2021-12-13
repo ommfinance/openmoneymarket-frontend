@@ -47,9 +47,8 @@ export class DataLoaderService {
 
   public async loadInterestHistory(): Promise<void> {
     try {
-      this.persistenceService.interestHistory =  [...(await this.interestHistoryService.getInterestHistory()).docs];
-      log.debug("loadInterestHistory..");
-      log.debug(this.persistenceService.interestHistory);
+      const interestHistory = Mapper.mapInterestHistory([...(await this.interestHistoryService.getInterestHistory()).docs]);
+      this.stateChangeService.interestHistoryUpdate(interestHistory);
     } catch (e) {
       log.error("Failed to fetch interest history..");
       log.error(e);
