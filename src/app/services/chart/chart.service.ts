@@ -50,7 +50,7 @@ export class ChartService {
         lineWidth: 2,
       });
 
-      supplyChartAreaSeries.setData(borrowData);
+      supplyChartAreaSeries.setData(supplyData);
     }
     if (borrowData.length > 0) {
       borrowChart = LightweightCharts.createChart(borrowChartHtmlElement, this.constructChartOptions('#9d4df1'));
@@ -62,7 +62,7 @@ export class ChartService {
         lineWidth: 2,
       });
 
-      borrowChartAreaSeries.setData(supplyData);
+      borrowChartAreaSeries.setData(borrowData);
     }
 
     return {
