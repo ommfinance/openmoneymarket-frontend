@@ -41,6 +41,8 @@ export class StateChangeService {
     [AssetTag.ICX, new Subject<BigNumber>()],
     [AssetTag.USDC, new Subject<BigNumber>()],
     [AssetTag.bnUSD, new Subject<BigNumber>()],
+    [AssetTag.BALN, new Subject<BigNumber>()],
+    [AssetTag.OMM, new Subject<BigNumber>()],
   ]);
 
   public userCollateralBalanceChangeMap: Map<CollateralAssetTag, Subject<BigNumber>> = new Map([
@@ -48,6 +50,8 @@ export class StateChangeService {
     [CollateralAssetTag.sICX, new Subject<BigNumber>()],
     [CollateralAssetTag.USDC, new Subject<BigNumber>()],
     [CollateralAssetTag.bnUSD, new Subject<BigNumber>()],
+    [CollateralAssetTag.BALN, new Subject<BigNumber>()],
+    [CollateralAssetTag.OMM, new Subject<BigNumber>()],
   ]);
 
   /**
@@ -58,6 +62,8 @@ export class StateChangeService {
     [AssetTag.ICX, new Subject<UserReserveData>()],
     [AssetTag.USDC, new Subject<UserReserveData>()],
     [AssetTag.bnUSD, new Subject<UserReserveData>()],
+    [AssetTag.BALN, new Subject<UserReserveData>()],
+    [AssetTag.OMM, new Subject<UserReserveData>()],
   ]);
 
   private userAllReserveChange: Subject<UserReserves> = new Subject<UserReserves>();
@@ -147,6 +153,8 @@ export class StateChangeService {
     [AssetTag.ICX, new Subject<BigNumber | undefined>()],
     [AssetTag.USDC, new Subject<BigNumber | undefined>()],
     [AssetTag.bnUSD, new Subject<BigNumber | undefined>()],
+    [AssetTag.BALN, new Subject<BigNumber | undefined>()],
+    [AssetTag.OMM, new Subject<BigNumber | undefined>()],
   ]);
 
 

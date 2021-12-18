@@ -24,7 +24,9 @@ export enum AssetClass {
   USDS = "usds",
   sICX = "sicx",
   USDC = "usdc",
-  bnUSD = "bnusd"
+  bnUSD = "bnusd",
+  BALN = "baln",
+  OMM = "omm"
 }
 
 export enum AssetName {
@@ -32,7 +34,9 @@ export enum AssetName {
   USDS = "Stably USD",
   sICX = "ICON",
   USDC = "ICON USD Coin",
-  bnUSD = "Balanced Dollars"
+  bnUSD = "Balanced Dollars",
+  BALN = "Balance Tokens",
+  OMM = "Omm Tokens"
 }
 
 export class AssetTag {
@@ -40,6 +44,8 @@ export class AssetTag {
   static USDS = "USDS";
   static USDC = "IUSDC";
   static bnUSD = "bnUSD";
+  static BALN = "BALN";
+  static OMM = "OMM";
 
   static fromString(value: string): AssetTag {
     if (value === "sICX") {
@@ -73,6 +79,8 @@ export class CollateralAssetTag {
   static sICX = "sICX";
   static USDC = "IUSDC";
   static bnUSD = "bnUSD";
+  static BALN = "BALN";
+  static OMM = "OMM";
 
   public static getPropertiesDifferentThanAssetTag(): CollateralAssetTag[] {
     return Object.values(CollateralAssetTag).filter(collateralAssetTag =>  !(Object.values(AssetTag).includes(collateralAssetTag)));
@@ -89,6 +97,10 @@ export function assetToCollateralAssetTag(assetTag: AssetTag): CollateralAssetTa
       return CollateralAssetTag.USDS;
     case AssetTag.bnUSD:
       return CollateralAssetTag.bnUSD;
+    case AssetTag.BALN:
+      return CollateralAssetTag.BALN;
+    case AssetTag.OMM:
+      return CollateralAssetTag.OMM;
     default:
       throw new Error("Invalid AssetTag provided to assetToCollateralAssetTag method!");
   }
@@ -104,6 +116,10 @@ export function collateralTagToAssetTag(assetTag: CollateralAssetTag): AssetTag 
       return AssetTag.USDS;
     case CollateralAssetTag.bnUSD:
       return AssetTag.bnUSD;
+    case CollateralAssetTag.BALN:
+      return AssetTag.BALN;
+    case CollateralAssetTag.OMM:
+      return AssetTag.OMM;
     default:
       throw new Error("Invalid CollateralAssetTag provided to collateralTagToAssetTag method!");
   }
@@ -114,6 +130,8 @@ export const supportedAssetsMap: Map<AssetTag, Asset> = new Map([
   [AssetTag.USDS, new Asset(AssetClass.USDS, AssetName.USDS, AssetTag.USDS)],
   [AssetTag.USDC, new Asset(AssetClass.USDC, AssetName.USDC , AssetTag.USDC)],
   [AssetTag.bnUSD, new Asset(AssetClass.bnUSD, AssetName.bnUSD , AssetTag.bnUSD)],
+  [AssetTag.BALN, new Asset(AssetClass.BALN, AssetName.BALN , AssetTag.BALN)],
+  [AssetTag.OMM, new Asset(AssetClass.OMM, AssetName.OMM , AssetTag.OMM)],
 ]);
 
 
