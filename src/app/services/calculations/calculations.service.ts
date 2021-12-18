@@ -325,16 +325,14 @@ export class CalculationsService {
 
     // adjust borrow available if the reserve borrow available is less than calculated one
     const reserveData = this.persistenceService.getAssetReserveData(assetTag);
-    const currentBorrow = this.persistenceService.getUserBorrowedAssetBalancePlusOrigFee(assetTag) ?? new BigNumber("0");
     const totalLiquidity = reserveData?.totalLiquidity ?? new BigNumber("0");
     const totalBorrows = reserveData?.totalBorrows ?? new BigNumber("0");
     const borrowThreshold = reserveData?.borrowThreshold ?? new BigNumber("0");
     const reserveAvailableBorrows = (totalLiquidity.multipliedBy(borrowThreshold)).minus(totalBorrows);
-    const availTotalBorrow = reserveAvailableBorrows.plus(currentBorrow);
 
     log.debug(`******* calculateAvailableBorrowForAsset ${assetTag} ******`);
     log.debug(`suggestedBorrowAvailable = ${suggestedBorrowAvailable.toString()}`);
-    log.debug(`availTotalBorrow = ${availTotalBorrow.toString()}`);
+    log.debug(`availTotalBorrow = ${reserveAvailableBorrows.toString()}`);
     log.debug(`***********************`);
     log.debug(`totalLiquidity = ${reserveData?.totalLiquidity.toString()}`);
     log.debug(`borrowThreshold = ${reserveData?.borrowThreshold.toString()}`);
@@ -343,7 +341,7 @@ export class CalculationsService {
       .multipliedBy(reserveData?.borrowThreshold) ?? new BigNumber(0)).minus(reserveData?.totalBorrows ?? 0) }`);
 
 
-    return BigNumber.min(suggestedBorrowAvailable, availTotalBorrow).dp(2);
+    return BigNumber.min(suggestedBorrowAvailable, reserveAvailableBorrows).dp(2);
   }
 
   /**
