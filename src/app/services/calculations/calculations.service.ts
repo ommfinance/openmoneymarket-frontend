@@ -193,7 +193,6 @@ export class CalculationsService {
       return new BigNumber("0");
     } else {
       const healthFactor = this.persistenceService.userAccountData?.healthFactor ?? new BigNumber("1");
-      log.debug(`healthFactor = ${healthFactor}`);
 
       // check for negative health factor
       if (healthFactor.isLessThanOrEqualTo(Utils.ZERO)) {
@@ -221,9 +220,7 @@ export class CalculationsService {
     // init base values
     let totalFeeUSD = userAccountData.totalFeesUSD;
     let totalBorrowBalanceUSD = userAccountData.totalBorrowBalanceUSD;
-    let totalCollateralBalanceUSD = userAccountData.totalCollateralBalanceUSD;
 
-    const liquidationThreshold = this.persistenceService.getAverageLiquidationThreshold();
 
     const assetReserve = this.persistenceService.getAssetReserveData(assetTag);
     let assetExchangePrice = assetReserve?.exchangePrice ?? new BigNumber("0");
@@ -232,17 +229,28 @@ export class CalculationsService {
       assetExchangePrice = Utils.convertICXToSICXPrice(assetExchangePrice, this.persistenceService.sIcxToIcxRate());
     }
 
+    let totalCollateralUSD = new BigNumber("0");
+    this.persistenceService.userReserves.reserveMap.forEach((reserve, tag) => {
+      if (this.persistenceService.reserveIsUsedAsCollateral(tag)) {
+        const reserveCollateralUSD = reserve?.currentOTokenBalanceUSD ?? new BigNumber("0");
+        totalCollateralUSD = totalCollateralUSD.plus(reserveCollateralUSD.multipliedBy(
+          this.persistenceService.getReserveLiquidationThreshold(tag)));
+      }
+    });
+
     switch (userAction) {
       case UserAction.SUPPLY:
         // if user add more collateral, add USD value of amount to the total collateral balance USD
         if (assetReserve?.usageAsCollateralEnabled) {
-          totalCollateralBalanceUSD = totalCollateralBalanceUSD.plus(amount.multipliedBy(assetExchangePrice));
+          totalCollateralUSD = totalCollateralUSD.plus(amount.multipliedBy(assetExchangePrice)
+            .multipliedBy(this.persistenceService.getReserveLiquidationThreshold(assetTag)));
         }
         break;
       case UserAction.REDEEM:
         // if user takes out collateral, subtract USD value of amount from the total collateral balance USD
         if (assetReserve?.usageAsCollateralEnabled) {
-          totalCollateralBalanceUSD = totalCollateralBalanceUSD.minus(amount.multipliedBy(assetExchangePrice));
+          totalCollateralUSD = totalCollateralUSD.minus(amount.multipliedBy(assetExchangePrice)
+            .multipliedBy(this.persistenceService.getReserveLiquidationThreshold(assetTag)));
         }
         break;
       case UserAction.BORROW:
@@ -256,8 +264,7 @@ export class CalculationsService {
         totalBorrowBalanceUSD = totalBorrowBalanceUSD.minus(amount.multipliedBy(assetExchangePrice));
     }
 
-    let res = (new BigNumber("1")).dividedBy(this.calculateHealthFactor(totalCollateralBalanceUSD, totalBorrowBalanceUSD, totalFeeUSD,
-      liquidationThreshold));
+    let res = (new BigNumber("1")).dividedBy(this.calculateHealthFactor(totalCollateralUSD.minus(totalFeeUSD), totalBorrowBalanceUSD));
 
     if (res.isLessThan(Utils.ZERO)) {
       res = new BigNumber("0");
@@ -266,10 +273,9 @@ export class CalculationsService {
     return res;
   }
 
-  public calculateHealthFactor(totalCollateralUSD: BigNumber, totalBorrowUSD: BigNumber, totalFeeUSD: BigNumber,
-                               averageLiquidationThreshold: BigNumber)
+  public calculateHealthFactor(totalCollateralUSD: BigNumber, totalBorrowUSD: BigNumber)
     : BigNumber {
-    return ((totalCollateralUSD.minus(totalFeeUSD)).multipliedBy(averageLiquidationThreshold)).dividedBy(totalBorrowUSD);
+    return totalCollateralUSD.isNegative() ? new BigNumber("1") : totalCollateralUSD.dividedBy(totalBorrowUSD);
   }
 
   /**
@@ -315,7 +321,27 @@ export class CalculationsService {
     }
 
     const buffer = new BigNumber("0.9996");
-    return (availableBorrowUSD.dividedBy(exchangePrice)).multipliedBy(buffer).dp(2);
+    const suggestedBorrowAvailable =  (availableBorrowUSD.dividedBy(exchangePrice)).multipliedBy(buffer).dp(2);
+
+    // adjust borrow available if the reserve borrow available is less than calculated one
+    const reserveData = this.persistenceService.getAssetReserveData(assetTag);
+    const totalLiquidity = reserveData?.totalLiquidity ?? new BigNumber("0");
+    const totalBorrows = reserveData?.totalBorrows ?? new BigNumber("0");
+    const borrowThreshold = reserveData?.borrowThreshold ?? new BigNumber("0");
+    const reserveAvailableBorrows = (totalLiquidity.multipliedBy(borrowThreshold)).minus(totalBorrows);
+
+    log.debug(`******* calculateAvailableBorrowForAsset ${assetTag} ******`);
+    log.debug(`suggestedBorrowAvailable = ${suggestedBorrowAvailable.toString()}`);
+    log.debug(`availTotalBorrow = ${reserveAvailableBorrows.toString()}`);
+    log.debug(`***********************`);
+    log.debug(`totalLiquidity = ${reserveData?.totalLiquidity.toString()}`);
+    log.debug(`borrowThreshold = ${reserveData?.borrowThreshold.toString()}`);
+    log.debug(`totalBorrows = ${reserveData?.totalBorrows.toString()}`);
+    log.debug(`totalLiquidity*borrowThreshold-totalBorrows = ${(reserveData?.totalLiquidity
+      .multipliedBy(reserveData?.borrowThreshold) ?? new BigNumber(0)).minus(reserveData?.totalBorrows ?? 0) }`);
+
+
+    return BigNumber.min(suggestedBorrowAvailable, reserveAvailableBorrows).dp(2);
   }
 
   /**
@@ -390,9 +416,15 @@ export class CalculationsService {
   }
 
   public calculateUserTotalOmmRewards(): BigNumber {
+    log.debug("calculateUserTotalOmmRewards...");
     let res = new BigNumber("0");
     Object.values(AssetTag).forEach(assetTag => {
-      res = res.plus(this.calculateUserDailySupplyOmmReward(assetTag).plus(this.calculateUserDailyBorrowOmmReward(assetTag)));
+      log.debug(`Daily supply and borrow rewards for ${assetTag}`);
+      const supplyOmmReward = this.calculateUserDailySupplyOmmReward(assetTag);
+      const borrowOmmReward = this.calculateUserDailyBorrowOmmReward(assetTag);
+      log.debug(`supplyOmmReward = ${supplyOmmReward}`);
+      log.debug(`borrowOmmReward = ${borrowOmmReward}`);
+      res = res.plus(supplyOmmReward.plus(borrowOmmReward));
     });
     return res;
   }
@@ -430,6 +462,11 @@ export class CalculationsService {
     // if it is a dynamic supply amount add it to the total liquidity and subtract the current supplied
     const totalReserveLiquidity = supplied ? supplied.plus(reserveData.totalLiquidity).minus(userReserveData.currentOTokenBalance)
       : reserveData.totalLiquidity;
+
+    if (dailySupplyRewards.isZero() || amountBeingSupplied.isZero() || totalReserveLiquidity.isZero()) {
+      return new BigNumber("0");
+    }
+
     return dailySupplyRewards.multipliedBy(amountBeingSupplied).dividedBy(totalReserveLiquidity);
   }
 
@@ -461,6 +498,10 @@ export class CalculationsService {
     // if it is a dynamic borrow amount add it to the total liquidity and subtract the current borrowed
     const totalReserveBorrowed = borrowed ? borrowed.plus(reserveData.totalBorrows).minus(userReserveData.currentBorrowBalance)
       : reserveData.totalBorrows;
+
+    if (dailyBorrowRewards.isZero() || amountBeingBorrowed.isZero() || totalReserveBorrowed.isZero()) {
+      return new BigNumber("0");
+    }
 
     return dailyBorrowRewards.multipliedBy(amountBeingBorrowed).dividedBy(totalReserveBorrowed);
   }

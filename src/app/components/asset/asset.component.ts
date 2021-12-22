@@ -408,13 +408,13 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       undefined, undefined, undefined, {min: [0], max: [this.deriveSupplySliderMaxValue(suppliedMax.dp(2))]});
 
     // create and set borrow slider
-    const borrowed = this.getUserBorrowedAssetBalance();
+    const userBorrowed = this.getUserBorrowedAssetBalance();
     const borrowAvailable = this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag);
 
     // borrow max is either borrowed + available OR borrowed in case borrowAvailable is negative (risk > 76)
-    const borrowMax = borrowAvailable.isGreaterThan(Utils.ZERO) ? Utils.add(borrowed, borrowAvailable) : borrowed;
-    this.slidersService.createNoUiSlider(this.sliderBorrow, borrowed, undefined, undefined, undefined,
-      {min: [0], max: [this.deriveBorrowSliderMaxValue(this.getMaxBorrowAvailable(borrowMax).dp(2))]});
+    const borrowMax = borrowAvailable.isGreaterThan(Utils.ZERO) ? Utils.add(userBorrowed, borrowAvailable) : userBorrowed;
+    this.slidersService.createNoUiSlider(this.sliderBorrow, userBorrowed, undefined, undefined, undefined,
+      {min: [0], max: [this.deriveBorrowSliderMaxValue(borrowMax.dp(2))]});
   }
 
   /**
@@ -535,14 +535,14 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       this.setBorrowAvailableInput(borrowAvailable.isNegative() ? new BigNumber("0") : borrowAvailable.dp(2));
 
       // update asset borrow slider max value to  -> borrowed + borrow available
-      max = this.getMaxBorrowAvailable(this.getUserBorrowedAssetBalance().plus(borrowAvailable).dp(2));
+      max = this.getUserBorrowedAssetBalance().plus(borrowAvailable).dp(2);
     } else {
       // set borrowed available value
       const borrowAvailable = this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag);
       this.setBorrowAvailableInput(borrowAvailable.isNegative() ? new BigNumber("0") : borrowAvailable.dp(2));
 
       // update asset borrow slider max value to  -> borrowed + borrow available
-      max = borrowAvailable.isNegative() ? borrowAvailable : this.getMaxBorrowAvailable(reserve.currentBorrowBalance).plus(borrowAvailable);
+      max = borrowAvailable.isNegative() ? borrowAvailable : this.getUserBorrowedAssetBalance().plus(borrowAvailable);
     }
 
     this.sliderBorrow.noUiSlider.updateOptions({
@@ -983,16 +983,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     return this.persistenceService.userAssetBorrowedIsZero(this.asset.tag);
   }
 
-  getMaxBorrowAvailable(suggestedMax: BigNumber): BigNumber {
-    // take either suggested on or asset totalSupplied - totalBorrowed + currentBorrow
-    const totalSupplied = this.persistenceService.getAssetReserveData(this.asset.tag)?.totalLiquidity ?? new BigNumber("0");
-    const totalBorrowed = this.persistenceService.getAssetReserveData(this.asset.tag)?.totalBorrows ?? new BigNumber("0");
-    const currentBorrow = this.persistenceService.getUserBorrowedAssetBalancePlusOrigFee(this.asset.tag) ?? new BigNumber("0");
-    const availTotalBorrow = totalSupplied.minus(totalBorrowed).plus(currentBorrow);
-
-    return BigNumber.min(suggestedMax, availTotalBorrow).dp(2);
-  }
-
   collapseAssetTableSlideUp(): void {
     // Collapse asset-user table`
     this.assetYourEl.classList.remove('active');
@@ -1076,6 +1066,10 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     return this.isAssetIcx() && this.getUserBorrowedAssetBalance().isZero();
   }
 
+  isAssetOmm(): boolean {
+    return this.asset.tag === AssetTag.OMM;
+  }
+
   hideAsset(): void {
     $(this.assetYourEl).css("display", "none");
   }
@@ -1108,7 +1102,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   updateRiskData(assetTag?: AssetTag, diff?: BigNumber, userAction?: UserAction, updateState = true): BigNumber {
-    log.debug(`[updateRiskData] assetTag = ${assetTag}, userAction = ${userAction}, updateState = ${updateState} `);
     const totalRisk = this.calculationService.calculateTotalRisk(assetTag, diff, userAction, updateState);
     // Update the risk slider
     this.riskSlider?.noUiSlider.set(totalRisk.multipliedBy(new BigNumber("100")).dp(2).toNumber());
@@ -1239,7 +1232,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
     const decimals = Utils.countDecimals(el?.value);
     const unit = 5;
-    const base = inputSupply ? 40 : 35;
+    const base = inputSupply ? (this.isAssetOmm() ? 50 : 40) : 35;
 
     const res =  base + (tag.length * unit + (tag.length > 3 ? 10 : -10));
 

@@ -18,6 +18,22 @@
   background-size: 35px;
 }
 
+/* BALN logo */
+.list tbody tr.baln td:first-of-type {
+  background-image: url(../img/logos/baln.svg);
+  background-repeat: no-repeat;
+  background-position: 33px center;
+  background-size: 35px;
+}
+
+/* OMM logo */
+.list tbody tr.omm td:first-of-type {
+  background-image: url(../img/logo/omm-symbol.svg);
+  background-repeat: no-repeat;
+  background-position: 33px center;
+  background-size: 35px;
+}
+
 .value-your-votes {
   font-size: 20px;
   color: #7a8294;

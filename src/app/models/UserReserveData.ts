@@ -15,14 +15,13 @@ export class UserReserveData {
   principalBorrowBalanceUSD: BigNumber;
   principalOTokenBalance: BigNumber;
   principalOTokenBalanceUSD: BigNumber;
-  useAsCollateral: BigNumber;
   userBorrowCumulativeIndex: BigNumber;
   userLiquidityIndex: BigNumber;
 
   constructor(borrowRate: BigNumber, currentBorrowBalance: BigNumber, currentBorrowBalanceUSD: BigNumber, currentOTokenBalance: BigNumber,
               currentOTokenBalanceUSD: BigNumber, exchangeRate: BigNumber, lastUpdateTimestamp: BigNumber, liquidityRate: BigNumber,
               originationFee: BigNumber, principalBorrowBalance: BigNumber, principalBorrowBalanceUSD: BigNumber,
-              principalOTokenBalance: BigNumber, principalOTokenBalanceUSD: BigNumber, useAsCollateral: BigNumber,
+              principalOTokenBalance: BigNumber, principalOTokenBalanceUSD: BigNumber,
               userBorrowCumulativeIndex: BigNumber, userLiquidityIndex: BigNumber) {
     this.borrowRate = borrowRate;
     this.currentBorrowBalance = currentBorrowBalance;
@@ -37,7 +36,6 @@ export class UserReserveData {
     this.principalBorrowBalanceUSD = principalBorrowBalanceUSD;
     this.principalOTokenBalance = principalOTokenBalance;
     this.principalOTokenBalanceUSD = principalOTokenBalanceUSD;
-    this.useAsCollateral = useAsCollateral;
     this.userBorrowCumulativeIndex = userBorrowCumulativeIndex;
     this.userLiquidityIndex = userLiquidityIndex;
   }
@@ -49,6 +47,8 @@ export class UserReserves {
     [AssetTag.ICX, undefined],
     [AssetTag.USDC, undefined],
     [AssetTag.bnUSD, undefined],
+    [AssetTag.BALN, undefined],
+    [AssetTag.OMM, undefined],
   ]);
 }
 
@@ -57,12 +57,17 @@ export class UserAllReservesData {
   ICX: UserReserveData;
   USDC: UserReserveData;
   bnUSD: UserReserveData;
+  BALN: UserReserveData;
+  OMM: UserReserveData;
 
-  constructor(USDS: UserReserveData, ICX: UserReserveData, USDC: UserReserveData, bnUSD: UserReserveData) {
+  constructor(USDS: UserReserveData, ICX: UserReserveData, USDC: UserReserveData, bnUSD: UserReserveData,
+              BALN: UserReserveData, OMM: UserReserveData) {
     this.USDS = USDS;
     this.ICX = ICX;
     this.USDC = USDC;
     this.bnUSD = bnUSD;
+    this.BALN = BALN;
+    this.OMM = OMM;
   }
 }
 
