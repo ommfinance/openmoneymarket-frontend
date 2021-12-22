@@ -427,9 +427,10 @@ export class ScoreService {
     this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
 
     const decimals = this.persistenceService.allReserves!.getReserveData(assetTag).decimals;
+    const method = assetTag === AssetTag.BALN ? ScoreMethodNames.AVAILABLE_BALANCE_OF : ScoreMethodNames.BALANCE;
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.collateralAddress(assetTag),
-      ScoreMethodNames.BALANCE, {
+      method, {
         _owner: this.persistenceService.activeWallet!.address
       }, IconTransactionType.READ);
 
