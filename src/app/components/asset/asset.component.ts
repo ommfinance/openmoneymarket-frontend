@@ -138,10 +138,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.supplyChart = charts.supplyChart;
     this.borrowChart = charts.borrowChart;
 
-    log.debug("Interest history charts:");
-    log.debug(this.supplyChartEl);
-    log.debug(this.borrowChartEl);
-    log.debug(!!this.supplyChartEl.chart);
+    this.resetChartsView();
 
     this.supplyChart?.subscribeCrosshairMove((param: any) => {
       if (!param?.point) {
@@ -168,6 +165,11 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       }
 
     });
+  }
+
+  private resetChartsView(): void {
+    this.supplyChart?.timeScale().fitContent();
+    this.borrowChart?.timeScale().fitContent();
   }
 
   initSupplyAndBorrowValues(): void {
@@ -318,6 +320,8 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
     // disable inputs
     this.disableInputs();
+
+    this.resetChartsView();
   }
 
   /**
@@ -1021,6 +1025,15 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         || !this.persistenceService.userAssetBorrowedIsZero(this.asset.tag)
         || (this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag).isGreaterThan(Utils.ZERO));
     }
+  }
+
+  shouldHideSupplyContent(): boolean {
+    return this.userAssetBalanceIsZero() && this.userAssetSuppliedBalanceIsZero() || !this.userLoggedIn();
+  }
+
+  shouldHideBorrowContent(): boolean {
+    return this.persistenceService.userHasNotSuppliedAnyAsset() || this.shouldHideBorrowSlider()
+      || this.sIcxIsDisabled() || this.isAssetOmm();
   }
 
   getDailySupplyInterest(assetTag: AssetTag | CollateralAssetTag, amountBeingSupplied?: BigNumber): BigNumber {

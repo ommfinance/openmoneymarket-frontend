@@ -62,24 +62,17 @@
             </div>
           </div>
 
-          <!-- If logged out show sign in button -->
-          <div class="grid grid-center sign-in-message" [ngStyle]="hideElement(userLoggedIn())">
-            <div class="grid-cell" [ngStyle]="hideElement(userLoggedIn())">
-              <p class="text-center"><a href="javascript:void(0);" class="button" (click)="onSignInClick()">Sign in to supply</a></p>
-            </div>
-          </div>
-
           <!-- Supply allow (Show if user can supply) -->
-          <div class="supply-allow" #supplyAllow [ngStyle]="hideElement(userAssetBalanceIsZero() && userAssetSuppliedBalanceIsZero() || !userLoggedIn())">
+          <div class="supply-allow" #supplyAllow>
 
             <!-- Supply APY history chart -->
             <div class="chart-apy" #suppHistChart></div>
 
             <!-- Supply slider -->
-            <div id="slider-supply" #sliderSupply disabled></div>
+            <div [ngStyle]="hideElement(shouldHideSupplyContent())" id="slider-supply" #sliderSupply disabled></div>
 
             <!-- Supply inputs -->
-            <div class="grid legend">
+            <div [ngStyle]="hideElement(shouldHideSupplyContent())" class="grid legend">
               <div class="grid-cell">
                 <label class="label supplied">Supplied</label>
                 <p class="input-supply-default value-supplied" [ngStyle]="hideElement(this.inputSupplyActive)">{{inputSupply?.value}} {{supplyAssetTag()}}</p>
@@ -103,7 +96,7 @@
             </div>
 
             <!-- Supply income -->
-            <div class="grid legend income">
+            <div [ngStyle]="hideElement(shouldHideSupplyContent())" class="grid legend income">
               <div class="grid-cell">
                 <dl class="metadata">
                   <dt>Daily interest</dt>
@@ -119,11 +112,18 @@
             </div>
 
             <!-- Adjust-->
-            <div class="grid grid-center supply-actions actions-1" #suppAct1>
+            <div [ngStyle]="hideElement(shouldHideSupplyContent())" class="grid grid-center supply-actions actions-1" #suppAct1>
               <div class="grid-cell text-center">
                 <a href="javascript:void(0);" class="button {{asset.className}} supply-adjust"
                    (click)="onSupplyAdjustClick()">{{userAssetSuppliedBalanceIsZero() ? "Supply" : "Adjust"}}</a>
               </div>
+            </div>
+          </div>
+
+          <!-- If logged out show sign in button -->
+          <div class="grid grid-center sign-in-message" [ngStyle]="hideElement(userLoggedIn())">
+            <div class="grid-cell" [ngStyle]="hideElement(userLoggedIn())">
+              <p class="text-center"><a href="javascript:void(0);" class="button" (click)="onSignInClick()">Sign in to supply</a></p>
             </div>
           </div>
 
@@ -168,11 +168,10 @@
           </div>
 
           <!-- Borrow allow (Show if user can borrow) -->
-          <div class="borrow-allow" [ngStyle]="hideElement(this.persistenceService.userHasNotSuppliedAnyAsset() || shouldHideBorrowSlider()
-          || this.sIcxIsDisabled() || isAssetOmm())">
+          <div class="borrow-allow">
 
             <!-- Used indicator -->
-            <div class="used-container" *ngIf="isAssetBorrowUsed()">
+            <div [ngStyle]="hideElement(shouldHideBorrowContent())" class="used-container" *ngIf="isAssetBorrowUsed()">
               <div class="used active" [ngStyle]="{left: assetRepayUsedPercentage() + '%'}"><p class="label">Used</p></div>
             </div>
 
@@ -180,10 +179,10 @@
             <div class="chart-apy" #borrHistChart></div>
 
             <!-- Borrow slider -->
-            <div id="slider-borrow" #sliderBorrow disabled></div>
+            <div [ngStyle]="hideElement(shouldHideBorrowContent())" id="slider-borrow" #sliderBorrow disabled></div>
 
             <!-- Borrow legend -->
-            <div class="grid legend">
+            <div [ngStyle]="hideElement(shouldHideBorrowContent())" class="grid legend">
               <div class="grid-cell">
                 <label class="label borrowed">Borrowed</label>
                 <p class="input-borrow-default value-borrowed" [ngStyle]="hideElement(this.inputBorrowActive)">{{inputBorrow?.value}} {{getBorrowAssetTagAdjusted()}}</p>
@@ -207,7 +206,7 @@
             </div>
 
             <!-- Borrow income legend -->
-            <div class="grid legend income">
+            <div [ngStyle]="hideElement(shouldHideBorrowContent())" class="grid legend income">
               <div class="grid-cell">
                 <dl class="metadata">
                   <dt>Daily interest</dt>
@@ -223,7 +222,7 @@
             </div>
 
             <!-- Adjust-->
-            <div class="grid grid-center borrow-actions actions-1" #borrAct1>
+            <div [ngStyle]="hideElement(shouldHideBorrowContent())" class="grid grid-center borrow-actions actions-1" #borrAct1>
               <div class="grid-cell text-center">
                 <a href="javascript:void(0);" class="button {{asset.className}} purple borrow-adjust"
                    [ngStyle]="hideElement(this.persistenceService.userHasNotSuppliedAnyAsset())"
@@ -232,7 +231,7 @@
             </div>
 
             <!-- Confirm -->
-            <div class="grid grid-center borrow-actions actions-2 hide" #borrAct2>
+            <div [ngStyle]="hideElement(shouldHideBorrowContent())" class="grid grid-center borrow-actions actions-2 hide" #borrAct2>
               <div class="grid-cell text-right">
                 <a href="javascript:void(0);" class="cancel adjust-cancel" (click)="onAdjustCancelClick()">Cancel</a>
               </div>

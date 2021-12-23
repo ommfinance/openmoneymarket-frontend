@@ -32,8 +32,8 @@ export class LocalStorageService {
   }
 
   getActiveProposal(): Proposal | undefined {
-    const proposal: Proposal | undefined | "{}" = this.get("proposal");
-    return proposal !== undefined && proposal !== "{}" ? new Proposal(
+    const proposal: Proposal | undefined = this.get("proposal");
+    return proposal !== undefined ? new Proposal(
       new BigNumber(proposal.against), new BigNumber(proposal.againstVoterCount), proposal.description, new BigNumber(proposal.endDay),
       new BigNumber(proposal.forVotes), new BigNumber(proposal.forVoterCount), new BigNumber(proposal.id), new BigNumber(proposal.majority),
       proposal.name, proposal.proposer, new BigNumber(proposal.quorum), new BigNumber(proposal.startDay), proposal.status,
@@ -58,7 +58,8 @@ export class LocalStorageService {
 
   get(key: string): any {
     if (this.isLocalStorageSupported) {
-      return JSON.parse(this.localStorage.getItem(key) ?? "{}");
+      const item = this.localStorage.getItem(key);
+      return item ? JSON.parse(item) : undefined;
     }
     return undefined;
   }

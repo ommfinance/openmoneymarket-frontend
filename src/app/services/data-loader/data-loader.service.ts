@@ -47,7 +47,31 @@ export class DataLoaderService {
 
   public async loadInterestHistory(): Promise<void> {
     try {
-      const interestHistory = Mapper.mapInterestHistory([...(await this.interestHistoryService.getInterestHistory()).docs]);
+
+      // load interest history from local storage
+      const interestHistoryPersisted = this.interestHistoryService.getInterestHistoryFromLocalStorage();
+      let interestHistory = interestHistoryPersisted?.data;
+
+      // if interest history did not exist in local storage fetch from backend API
+      if (!interestHistoryPersisted || !interestHistory) {
+        log.debug("Interest history does not exists in localstorage!");
+        interestHistory = Mapper.mapInterestHistory([...(await this.interestHistoryService.getInterestHistory()).docs]);
+        this.interestHistoryService.persistInterestHistoryInLocalStorage(interestHistory);
+      } else {
+        log.debug("Interest history exists!");
+        const nowDate = Utils.dateToDateOnlyIsoString(new Date());
+
+        // check if loaded interest history is up to date and re-load if not
+        if (interestHistoryPersisted.to !== nowDate) {
+          log.debug("Interest history exists but with old date (older than 365 days)!!");
+          interestHistory = Mapper.mapInterestHistory([...(await this.interestHistoryService.getInterestHistoryFromTo(
+            interestHistoryPersisted.to, nowDate
+          )).docs]);
+          this.interestHistoryService.persistInterestHistoryInLocalStorage(interestHistory, true);
+          interestHistory = this.interestHistoryService.getInterestHistoryFromLocalStorage()!.data;
+        }
+      }
+
       this.stateChangeService.interestHistoryUpdate(interestHistory);
     } catch (e) {
       log.error("Failed to fetch interest history..");
@@ -121,14 +145,11 @@ export class DataLoaderService {
 
       // get all pools id and total staked
       const poolsData = await this.scoreService.getPoolsData();
-      // log.debug("loadPoolsData:", poolsData);
 
       // get stats for each pool
       this.persistenceService.allPoolsDataMap = new Map<string, PoolData>(); // re-init map to trigger state changes
       for (const poolData of poolsData) {
         const poolStats = await this.scoreService.getPoolStats(poolData.poolID);
-        // log.debug("getPoolStats for " + poolData.poolID + " AFTER mapping:", poolStats);
-
         const newPoolData = new PoolData(poolData.poolID, Utils.hexToNormalisedNumber(poolData.totalStakedBalance, poolStats.getPrecision())
           , poolStats);
         // push combined pool and stats to response array and persistence map
@@ -539,7 +560,6 @@ export class DataLoaderService {
     this.loadUserAsyncData();
 
     await Promise.all([
-      this.loadInterestHistory(),
       this.loadAllUserReserveData(),
       this.loadAllUserAssetsBalances(),
       this.loadUserAccountData(),
@@ -572,6 +592,7 @@ export class DataLoaderService {
    */
   public loadCoreAsyncData(): void {
     this.loadMinOmmStakeAmount();
+    this.loadInterestHistory();
   }
 
   public async loadUserGovernanceData(): Promise<void> {

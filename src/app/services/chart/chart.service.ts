@@ -65,6 +65,7 @@ export class ChartService {
       borrowChartAreaSeries.setData(borrowData);
     }
 
+
     return {
       supplyChart: supplyData.length > 0 ? supplyChart : undefined,
       borrowChart: borrowData.length > 0 ? borrowChart : undefined,
