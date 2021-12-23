@@ -265,7 +265,7 @@ export class CalculationsService {
 
     let res = (new BigNumber("1")).dividedBy(this.calculateHealthFactor(totalCollateralUSD.minus(totalFeeUSD), totalBorrowBalanceUSD));
 
-    if (res.isLessThan(Utils.ZERO)) {
+    if (!res.isFinite() || res.isLessThan(Utils.ZERO)) {
       res = new BigNumber("0");
     }
 

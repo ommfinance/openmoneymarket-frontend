@@ -17,6 +17,8 @@ export class ScoreMethodNames {
    */
   public static TRANSFER = "transfer";
   public static BALANCE = "balanceOf";
+  public static AVAILABLE_BALANCE_OF = "availableBalanceOf";
+
 
   /**
    * LendingPoolDataProvider SCORE
