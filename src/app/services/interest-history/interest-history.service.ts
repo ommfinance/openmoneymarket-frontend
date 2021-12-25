@@ -14,7 +14,7 @@ import {Utils} from "../../common/utils";
 })
 export class InterestHistoryService {
 
-  private interestHistoryKey = "interest.hist";
+  private interestHistoryKey = "int.hist";
 
   constructor(private httpClient: HttpClient,
               private localStorageService: LocalStorageService) { }
@@ -28,10 +28,6 @@ export class InterestHistoryService {
         const interestHistoryOld = interestHistoryPersisted!.data;
 
         interestHistory.forEach(el => {
-          log.debug(`Removing interest history data = `, interestHistoryOld[0]);
-          log.debug(`Pushing interest history data = `, el);
-          // remove first
-          interestHistoryOld.shift();
           // push new date on end
           interestHistoryOld.push(el);
         });
