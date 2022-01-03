@@ -1032,8 +1032,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   shouldHideBorrowContent(): boolean {
-    return this.persistenceService.userHasNotSuppliedAnyAsset() || this.shouldHideBorrowSlider()
-      || this.sIcxIsDisabled() || this.isAssetOmm();
+    return this.persistenceService.userHasNotSuppliedAnyAsset() || this.shouldHideBorrowSlider() || this.isAssetOmm();
   }
 
   getDailySupplyInterest(assetTag: AssetTag | CollateralAssetTag, amountBeingSupplied?: BigNumber): BigNumber {
