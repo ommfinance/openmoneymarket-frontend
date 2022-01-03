@@ -170,11 +170,12 @@ export class CalculationsService {
   }
 
   // calculate the total risk percentage based on the user health factor or user action
-  public calculateTotalRisk(assetTag?: AssetTag, diff?: BigNumber, userAction?: UserAction, updateState = true): BigNumber {
+  public calculateTotalRisk(assetTag?: AssetTag, diff?: BigNumber, userAction?: UserAction, updateState = true,
+                            fullRedeem = false): BigNumber {
 
     let res: BigNumber;
     if (assetTag && diff && userAction != null) {
-      res = this.calculateTotalRiskDynamic(assetTag, diff, userAction);
+      res = this.calculateTotalRiskDynamic(assetTag, diff, userAction, fullRedeem);
     } else {
       res = this.calculateTotalRiskBasedOnHF();
     }
@@ -208,9 +209,14 @@ export class CalculationsService {
    * @param assetTag - Asset based on which we are calculating the risk
    * @param amount - Amount being considered in dynamic risk calculation
    * @param userAction - Action that user is making
+   * * @param fullRedeem - Boolean indicating whether full redeem of supplied is being made
    * @return total user risk as a number (multiply by 100 to get percentage)
    */
-  private calculateTotalRiskDynamic(assetTag: AssetTag, amount: BigNumber, userAction: UserAction): BigNumber {
+  private calculateTotalRiskDynamic(assetTag: AssetTag, amount: BigNumber, userAction: UserAction, fullRedeem = false): BigNumber {
+    if (fullRedeem) {
+      return new BigNumber("0");
+    }
+
     const userAccountData = this.persistenceService.userAccountData;
     // if user account data not yet initialised return 0
     if (!userAccountData) {
@@ -266,7 +272,7 @@ export class CalculationsService {
 
     let res = (new BigNumber("1")).dividedBy(this.calculateHealthFactor(totalCollateralUSD.minus(totalFeeUSD), totalBorrowBalanceUSD));
 
-    if (res.isLessThan(Utils.ZERO)) {
+    if (!res.isFinite() || res.isLessThan(Utils.ZERO)) {
       res = new BigNumber("0");
     }
 
@@ -284,10 +290,6 @@ export class CalculationsService {
    * @return asset available borrow amount
    */
   public calculateAvailableBorrowForAsset(assetTag: AssetTag): BigNumber {
-    if (assetTag === AssetTag.ICX) {
-      return new BigNumber("0");
-    }
-
     // Formulae: borrowsAllowedUSD = Sum((CollateralBalanceUSD per reserve - totalFeesUSD per reserve) * LTV per reserve)
     let borrowsAllowedUSD = new BigNumber("0");
 
