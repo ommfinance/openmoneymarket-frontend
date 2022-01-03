@@ -253,11 +253,6 @@
             <p class="text-center label message">Supply an asset to borrow {{asset.name}}.</p>
           </div>
 
-          <!-- Borrow deny (Show if user can't borrow sICX) -->
-          <div class="borrow-deny hide" [ngStyle]="displayAsBlockOrHide(shouldShowBorrowDenySicx() && !isAssetOmm())">
-            <p class="text-center label message">ICON is unavailable to borrow.</p>
-          </div>
-
           <!-- Borrow unavailable for OMM -->
           <div class="borrow-deny hide" [ngStyle]="displayAsBlockOrHide(isAssetOmm())">
             <p class="text-center label message">Omm Tokens aren't available to borrow.</p>

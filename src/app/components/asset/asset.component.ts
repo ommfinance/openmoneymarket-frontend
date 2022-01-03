@@ -757,7 +757,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     if (supplyDiff.isGreaterThan(Utils.ZERO)) {
       totalRisk = this.updateRiskData(this.asset.tag, supplyDiff , UserAction.SUPPLY, false);
     } else if (supplyDiff.isLessThan(Utils.ZERO)) {
-      totalRisk = this.updateRiskData(this.asset.tag, supplyDiff.abs() , UserAction.REDEEM, false);
+      totalRisk = this.updateRiskData(this.asset.tag, supplyDiff.abs() , UserAction.REDEEM, false, this.getInputSupplyValue().isZero());
     } else {
       totalRisk = this.updateRiskData();
     }
@@ -1135,10 +1135,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalancePlusOrigFee(this.asset.tag));
   }
 
-  sIcxIsDisabled(): boolean {
-    return this.isAssetIcx() && this.getUserBorrowedAssetBalance().isZero();
-  }
-
   isAssetOmm(): boolean {
     return this.asset.tag === AssetTag.OMM;
   }
@@ -1152,11 +1148,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   shouldShowBorrowDeny(): boolean {
-    return !this.sIcxIsDisabled() && (this.persistenceService.userHasNotSuppliedAnyAsset() || this.shouldHideBorrowSlider());
-  }
-
-  shouldShowBorrowDenySicx(): boolean {
-    return this.sIcxIsDisabled() && !this.shouldShowBorrowDeny();
+    return this.persistenceService.userHasNotSuppliedAnyAsset() || this.shouldHideBorrowSlider();
   }
 
   supplySliderMaxValue(): BigNumber {
@@ -1174,8 +1166,8 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.removeClass(this.inputBorrowEl, "red-border");
   }
 
-  updateRiskData(assetTag?: AssetTag, diff?: BigNumber, userAction?: UserAction, updateState = true): BigNumber {
-    const totalRisk = this.calculationService.calculateTotalRisk(assetTag, diff, userAction, updateState);
+  updateRiskData(assetTag?: AssetTag, diff?: BigNumber, userAction?: UserAction, updateState = true, fullRedeem = false): BigNumber {
+    const totalRisk = this.calculationService.calculateTotalRisk(assetTag, diff, userAction, updateState, fullRedeem);
     // Update the risk slider
     this.riskSlider?.noUiSlider.set(totalRisk.multipliedBy(new BigNumber("100")).dp(2).toNumber());
 
