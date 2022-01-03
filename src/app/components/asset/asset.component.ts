@@ -1062,10 +1062,6 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.setBorrowSliderValue(this.persistenceService.getUserBorrowedAssetBalancePlusOrigFee(this.asset.tag));
   }
 
-  sIcxIsDisabled(): boolean {
-    return this.isAssetIcx() && this.getUserBorrowedAssetBalance().isZero();
-  }
-
   isAssetOmm(): boolean {
     return this.asset.tag === AssetTag.OMM;
   }
@@ -1079,11 +1075,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   shouldShowBorrowDeny(): boolean {
-    return !this.sIcxIsDisabled() && (this.persistenceService.userHasNotSuppliedAnyAsset() || this.shouldHideBorrowSlider());
-  }
-
-  shouldShowBorrowDenySicx(): boolean {
-    return this.sIcxIsDisabled() && !this.shouldShowBorrowDeny();
+    return this.persistenceService.userHasNotSuppliedAnyAsset() || this.shouldHideBorrowSlider();
   }
 
   supplySliderMaxValue(): BigNumber {

@@ -290,10 +290,6 @@ export class CalculationsService {
    * @return asset available borrow amount
    */
   public calculateAvailableBorrowForAsset(assetTag: AssetTag): BigNumber {
-    if (assetTag === AssetTag.ICX) {
-      return new BigNumber("0");
-    }
-
     // Formulae: borrowsAllowedUSD = Sum((CollateralBalanceUSD per reserve - totalFeesUSD per reserve) * LTV per reserve)
     let borrowsAllowedUSD = new BigNumber("0");
 

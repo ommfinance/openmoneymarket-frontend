@@ -165,7 +165,7 @@
 
           <!-- Borrow allow (Show if user can borrow) -->
           <div class="borrow-allow" [ngStyle]="hideElement(this.persistenceService.userHasNotSuppliedAnyAsset() || shouldHideBorrowSlider()
-          || this.sIcxIsDisabled() || isAssetOmm())">
+           || isAssetOmm())">
 
             <!-- Used indicator -->
             <div class="used-container" *ngIf="isAssetBorrowUsed()">
@@ -245,11 +245,6 @@
           <!-- Borrow deny (Show if user can't borrow) -->
           <div class="borrow-deny hide" [ngStyle]="displayAsBlockOrHide(shouldShowBorrowDeny() && !isAssetOmm())">
             <p class="text-center label message">Supply an asset to borrow {{asset.name}}.</p>
-          </div>
-
-          <!-- Borrow deny (Show if user can't borrow sICX) -->
-          <div class="borrow-deny hide" [ngStyle]="displayAsBlockOrHide(shouldShowBorrowDenySicx() && !isAssetOmm())">
-            <p class="text-center label message">ICON is unavailable to borrow.</p>
           </div>
 
           <!-- Borrow unavailable for OMM -->
