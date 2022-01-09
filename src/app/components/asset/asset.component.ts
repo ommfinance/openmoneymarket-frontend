@@ -148,7 +148,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
       const supplyApy = param.seriesPrices.entries().next().value;
       if (supplyApy && supplyApy.length > 1) {
-        this.setText(this.supplyApyEl, `${this.to2DecimalRoundedOffPercentString(supplyApy[1])} APY`);
+        this.setText(this.supplyApyEl, `${Utils.roundOffTo2Decimals(supplyApy[1])}% APY`);
       }
     });
 
@@ -161,7 +161,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       const borrowApr = param?.seriesPrices?.entries()?.next()?.value;
 
       if (borrowApr && borrowApr.length > 1) {
-        this.setText(this.borrowAprEl, `${this.to2DecimalRoundedOffPercentString(borrowApr[1])} APR`);
+        this.setText(this.borrowAprEl, `${Utils.roundOffTo2Decimals(borrowApr[1])}% APR`);
       }
 
     });

@@ -35,8 +35,10 @@ export class ChartService {
 
       if (assetData) {
         const borrowAndSupplyInterests = this.interestHistoryService.getAverageInterests(assetData);
-        supplyData.push({ time: Utils.dateToDateOnlyIsoString(historyData.date), value: borrowAndSupplyInterests.supplyApy});
-        borrowData.push({ time: Utils.dateToDateOnlyIsoString(historyData.date), value: borrowAndSupplyInterests.borrowApr});
+        supplyData.push({ time: Utils.dateToDateOnlyIsoString(historyData.date),
+          value: +Utils.roundOffTo2Decimals(Utils.numberToPercent(borrowAndSupplyInterests.supplyApy))});
+        borrowData.push({ time: Utils.dateToDateOnlyIsoString(historyData.date),
+          value: +Utils.roundOffTo2Decimals(Utils.numberToPercent(borrowAndSupplyInterests.borrowApr))});
       }
     });
 
@@ -77,7 +79,7 @@ export class ChartService {
       width: 392,
       height: 100,
       leftPriceScale: {
-        visible: false,
+        visible: true,
       },
       rightPriceScale: {
         visible: false,
