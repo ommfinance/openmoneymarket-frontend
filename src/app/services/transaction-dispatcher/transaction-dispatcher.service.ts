@@ -35,11 +35,13 @@ export class TransactionDispatcherService {
    */
   async dispatchTransaction(tx: any, notificationMessage: string): Promise<void> {
     try {
-      const estimatedStepCost = await this.iconApiService.estimateStepCost(IconConverter.toRawTransaction(tx));
+      const estimateTx = IconConverter.toRawTransaction(tx);
+      delete estimateTx.stepLimit;
+      const estimatedStepCost = await this.iconApiService.estimateStepCost(estimateTx);
 
       log.debug("Estimated cost for ", tx, " is ", estimatedStepCost);
 
-      if (estimatedStepCost) {
+      if (estimatedStepCost && estimatedStepCost.isFinite() && !estimatedStepCost.isNaN()) {
         tx.stepLimit = this.iconApiService.convertNumberToHex(estimatedStepCost.multipliedBy(new BigNumber("1.3")));
       }
 
