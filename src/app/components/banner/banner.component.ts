@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {LocalStorageService} from "../../services/local-storage/local-storage.service";
 import {ommBannerExitKey} from "../../common/constants";
 import log from "loglevel";
+import {environment} from "../../../environments/environment";
 
 @Component({
   selector: 'app-banner',
@@ -11,7 +12,7 @@ import log from "loglevel";
 export class BannerComponent implements OnInit {
 
   // show banner only if the user has not pressed x on this device (localstorage)
-  showBanner = this.localstorageService.get(ommBannerExitKey) as boolean;
+  showBanner = (this.localstorageService.get(ommBannerExitKey) as boolean) && environment.SHOW_BANNER;
 
   constructor(private localstorageService: LocalStorageService) { }
 
