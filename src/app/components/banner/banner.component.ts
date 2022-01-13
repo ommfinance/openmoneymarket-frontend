@@ -17,7 +17,7 @@ export class BannerComponent implements OnInit {
   constructor(private localstorageService: LocalStorageService) { }
 
   ngOnInit(): void {
-    this.showBanner = this.localstorageService.get(ommBannerExitKey) as boolean;
+    this.showBanner = (this.localstorageService.get(ommBannerExitKey) as boolean) && environment.SHOW_BANNER;
     log.debug("showBanner = ", this.showBanner);
   }
 
