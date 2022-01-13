@@ -39,10 +39,9 @@ export class TransactionDispatcherService {
       delete estimateTx.stepLimit;
       const estimatedStepCost = await this.iconApiService.estimateStepCost(estimateTx);
 
-      log.debug("Estimated cost for ", tx, " is ", estimatedStepCost);
-
-      if (estimatedStepCost && estimatedStepCost.isFinite() && !estimatedStepCost.isNaN()) {
-        tx.stepLimit = this.iconApiService.convertNumberToHex(estimatedStepCost.multipliedBy(new BigNumber("1.3")));
+      if (estimatedStepCost) {
+        const estimateCostBuffered = estimatedStepCost.multipliedBy(new BigNumber("1.3")).dp(0);
+        tx.stepLimit = this.iconApiService.convertNumberToHex(estimateCostBuffered);
       }
 
       if (this.persistenceService.activeWallet instanceof IconexWallet) {
