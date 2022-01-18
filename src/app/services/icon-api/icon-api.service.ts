@@ -17,7 +17,7 @@ export class IconApiService {
   public httpProvider;
   public iconService;
 
-  public stepCost = 20000000;
+  public stepCost = 30000000;
 
   constructor(private http: HttpClient) {
     this.httpProvider = new IconService.HttpProvider(environment.iconRpcUrl);

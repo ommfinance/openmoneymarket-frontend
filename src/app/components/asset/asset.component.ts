@@ -388,6 +388,7 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       // full repayment
       if (after.isZero()) {
         amount = currentlyBorrowed;
+        log.debug("FULL REPAYMENT currentlyBorrowed = " + currentlyBorrowed.toString());
       }
 
       this.modalService.showNewModal(ModalType.REPAY, new AssetAction(this.asset, currentlyBorrowed , after, amount, risk));
