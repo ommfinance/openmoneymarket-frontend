@@ -79,10 +79,10 @@ export class ChartService {
       width: 392,
       height: 100,
       leftPriceScale: {
-        visible: true,
+        visible: false,
       },
       rightPriceScale: {
-        visible: false,
+        visible: true,
       },
       handleScroll: {
         mouseWheel: true,
