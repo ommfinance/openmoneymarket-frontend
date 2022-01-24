@@ -29,6 +29,7 @@ import { NewProposalComponent } from './components/new-proposal/new-proposal.com
 import { ProposalComponent } from './components/proposal/proposal.component';
 import { BannerComponent } from './components/banner/banner.component';
 import { LoadingComponent } from './components/loading/loading.component';
+import { ToZeroIfDashPipe } from './pipes/to-zero-if-dash.pipe';
 
 // Big Number configs
 const fmt = {
@@ -70,7 +71,8 @@ log.setLevel(environment.production ? "error" : "debug");
     NewProposalComponent,
     ProposalComponent,
     BannerComponent,
-    LoadingComponent
+    LoadingComponent,
+    ToZeroIfDashPipe
   ],
   imports: [
     BrowserModule,
