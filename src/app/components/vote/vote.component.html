@@ -231,7 +231,7 @@
                       <div class="tooltip-content"><p>The amount P-Reps earn each month, based on the number of votes.</p></div>
                     </span>
             </th>
-            <th class="text-right">Votes</th>
+            <th class="text-right">Voting Power</th>
           </tr>
           </thead>
           <tbody>
@@ -256,8 +256,8 @@
                 </td>
                 <td>${{getPrepsUSDReward(prep, i) | roundOff0Dec | usFormat}}<br>
                   <span class="label">{{getPrepsIcxReward(prep, i) | roundOff0Dec | usFormat}} ICX</span></td>
-                <td>{{to2DecimalRoundedOffPercentString(getDelegatedPercent(prep))}}<br>
-                  <span class="label">{{prep!.delegated  | roundOff0Dec | usFormat}}</span></td>
+                <td>{{to2DecimalRoundedOffPercentString(getPowerPercent(prep), true)}}<br>
+                  <span class="label">{{prep!.power  | roundOff0Dec | usFormat | toZeroIfDash}}</span></td>
               </tr>
               <!-- Spacer -->
               <tr *ngIf="!isLast" class="spacer"></tr>

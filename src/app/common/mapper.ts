@@ -252,14 +252,20 @@ export class Mapper {
 
     const preps: Prep[] = [];
 
+    let totalPower = new BigNumber("0");
+
     prepList.preps.forEach(prep => {
+      const power = Utils.hexToNormalisedNumber(prep.power);
+      totalPower = totalPower.plus(power);
+
       preps.push(new Prep(
         prep.address,
         prep.name,
         Utils.hexToNormalisedNumber(prep.stake),
         Utils.hexToNormalisedNumber(prep.delegated),
         Utils.hexToNormalisedNumber(prep.irep),
-        prep.details
+        prep.details,
+        power
       ));
     });
 
@@ -277,7 +283,8 @@ export class Mapper {
       Utils.hexToNormalisedNumber(prepList.totalDelegated),
       Utils.hexToNormalisedNumber(prepList.totalStake),
       preps,
-      avgIRep
+      avgIRep,
+      totalPower
     );
 
     log.debug("prepList after: ", res);
@@ -292,7 +299,8 @@ export class Mapper {
       Utils.hexToNormalisedNumber(prep.stake),
       Utils.hexToNormalisedNumber(prep.delegated),
       Utils.hexToNormalisedNumber(prep.irep),
-      prep.details
+      prep.details,
+      Utils.hexToNormalisedNumber(prep.power)
     );
   }
 

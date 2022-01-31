@@ -35,12 +35,13 @@ export class TransactionDispatcherService {
    */
   async dispatchTransaction(tx: any, notificationMessage: string): Promise<void> {
     try {
-      const estimatedStepCost = await this.iconApiService.estimateStepCost(IconConverter.toRawTransaction(tx));
-
-      log.debug("Estimated cost for ", tx, " is ", estimatedStepCost);
+      const estimateTx = IconConverter.toRawTransaction(tx);
+      delete estimateTx.stepLimit;
+      const estimatedStepCost = await this.iconApiService.estimateStepCost(estimateTx);
 
       if (estimatedStepCost) {
-        tx.stepLimit = this.iconApiService.convertNumberToHex(estimatedStepCost.multipliedBy(new BigNumber("1.3")));
+        const estimateCostBuffered = estimatedStepCost.multipliedBy(new BigNumber("1.3")).dp(0);
+        tx.stepLimit = this.iconApiService.convertNumberToHex(estimateCostBuffered);
       }
 
       if (this.persistenceService.activeWallet instanceof IconexWallet) {
