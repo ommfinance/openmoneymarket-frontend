@@ -84,8 +84,14 @@ export class ChartService {
       rightPriceScale: {
         visible: true,
       },
-      handleScroll: false,
-      handleScale: false,
+      handleScroll: {
+        mouseWheel: true,
+        pressedMouseMove: false,
+      },
+      handleScale: {
+        mouseWheel: true,
+        axisPressedMouseMove: false,
+      },
       grid: {
         vertLines: {
           visible: false,
