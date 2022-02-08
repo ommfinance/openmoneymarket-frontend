@@ -89,3 +89,15 @@
   from {transform:rotate(0deg);}
   to {transform:rotate(360deg);}
 }
+
+.chart-wrapper {
+  width: 100%;
+  position: relative;
+  height: 100px;
+}
+
+.chart-wrapper .chart-apy {
+  position: absolute;
+  width: 100%;
+  height: 100px;
+}

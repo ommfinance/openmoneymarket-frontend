@@ -1,4 +1,14 @@
-import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import {SlidersService} from "../../services/sliders/sliders.service";
 import {assetPrefixMinusFormat, assetPrefixPlusFormat, ommPrefixPlusFormat, percentageFormat, usLocale} from "../../common/formats";
 import {CalculationsService} from "../../services/calculations/calculations.service";
@@ -23,7 +33,7 @@ declare var $: any;
 
 @Component({
   selector: 'app-asset',
-  templateUrl: './asset.component.html',
+  templateUrl: './asset.component.html'
 })
 export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
@@ -83,6 +93,10 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   @ViewChild("suppApyEl") set v(supplyApyEl: ElementRef) { this.supplyApyEl = supplyApyEl.nativeElement; }
   borrowAprEl: any;
   @ViewChild("borrowAprEl") set z(borrowAprEl: ElementRef) { this.borrowAprEl = borrowAprEl.nativeElement; }
+  borrChartWrapperEl: any;
+  @ViewChild("borrChartWrapper") set bcw(bcw: ElementRef) { this.borrChartWrapperEl = bcw.nativeElement; }
+  suppChartWrapperEl: any;
+  @ViewChild("suppChartWrapper") set scw(scw: ElementRef) { this.suppChartWrapperEl = scw.nativeElement; }
 
   @Output() collOtherAssetTables = new EventEmitter<AssetTag>();
 
@@ -179,7 +193,24 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       this.updateBorrowData();
       this.updateSupplySlider(this.persistenceService.getUserAssetReserve(this.asset.tag));
       this.updateBorrowSlider();
+
     }
+  }
+
+  // update supply and borrow charts widths
+  // @notice should only be used in resize event
+  updateApyCharts(): void {
+    const borrWidth = this.borrChartWrapperEl?.offsetWidth ?? 0;
+    const suppWidth = this.suppChartWrapperEl?.offsetWidth ?? 0;
+    if (borrWidth && borrWidth > 0) {
+      this.chartService.resize(this.supplyChart, suppWidth);
+      this.chartService.resize(this.borrowChart, borrWidth);
+    }
+  }
+
+  onSuppChartResize(): void {
+    // update apy history charts when supp chart wrapper is resized
+    this.updateApyCharts();
   }
 
   ommApyCheckedChange(): void {
@@ -280,6 +311,9 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * Asset expand logic
    */
   onAssetClick(): void {
+    // trigger resize
+    this.updateApyCharts();
+
     this.inputSupplyActive = false;
     this.inputBorrowActive = false;
 
@@ -497,6 +531,8 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   private subscribeToInterestHistoryChange(): void {
     this.stateChangeService.interestHistoryChange$.subscribe(() => {
       this.initInterestHistoryCharts();
+      // trigger resize
+      this.updateApyCharts();
     });
   }
 

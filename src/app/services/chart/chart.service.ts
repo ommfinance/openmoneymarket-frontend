@@ -13,6 +13,8 @@ declare var LightweightCharts: any;
 })
 export class ChartService {
 
+  private readonly chartHeight = 100;
+
   constructor(private persistenceService: PersistenceService,
               private interestHistoryService: InterestHistoryService) { }
 
@@ -53,14 +55,6 @@ export class ChartService {
       });
 
       supplyChartAreaSeries.setData(supplyData);
-
-      // Make Chart Responsive with screen resize
-      new ResizeObserver(entries => {
-        if (entries.length === 0 || entries[0].target !== supplyChartHtmlElement) { return; }
-        const newRect = entries[0].contentRect;
-        supplyChart.applyOptions({ height: newRect.height, width: newRect.width });
-        supplyChart?.timeScale().fitContent();
-      }).observe(supplyChartHtmlElement);
     }
     if (borrowData.length > 0) {
       borrowChart = LightweightCharts.createChart(borrowChartHtmlElement, this.constructChartOptions('#9d4df1'));
@@ -73,15 +67,6 @@ export class ChartService {
       });
 
       borrowChartAreaSeries.setData(borrowData);
-
-
-      // Make Chart Responsive with screen resize
-      new ResizeObserver(entries => {
-        if (entries.length === 0 || entries[0].target !== borrowChartHtmlElement) { return; }
-        const newRect = entries[0].contentRect;
-        borrowChart.applyOptions({ height: newRect.height, width: newRect.width });
-        borrowChart?.timeScale().fitContent();
-      }).observe(borrowChartHtmlElement);
     }
 
 
@@ -91,10 +76,16 @@ export class ChartService {
     };
   }
 
+  // resize lightweight chart width
+  public resize(chart: any, width: number): void {
+    chart?.resize(width , this.chartHeight);
+    chart?.timeScale().fitContent();
+  }
+
   private constructChartOptions(crossHairColor: string): any {
     return {
-      width: 392,
-      height: 100,
+      width: 0,
+      height: this.chartHeight,
       leftPriceScale: {
         visible: false,
       },

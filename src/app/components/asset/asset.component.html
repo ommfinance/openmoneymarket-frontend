@@ -66,7 +66,9 @@
           <div class="supply-allow" #supplyAllow>
 
             <!-- Supply APY history chart -->
-            <div class="chart-apy" [ngStyle]="hideElement(_ommApyChecked)" #suppHistChart></div>
+            <div class="chart-wrapper" (resized)="onSuppChartResize()" #suppChartWrapper>
+              <div class="chart-apy" [ngStyle]="hideElement(_ommApyChecked)" #suppHistChart></div>
+            </div>
 
             <!-- Supply slider -->
             <div [ngStyle]="hideElement(shouldHideSupplyContent())" id="slider-supply" #sliderSupply disabled></div>
@@ -176,7 +178,10 @@
             </div>
 
             <!-- Chart line 2 -->
-            <div class="chart-apy" [ngStyle]="hideElement(_ommApyChecked)" #borrHistChart></div>
+            <div class="chart-wrapper" #borrChartWrapper>
+              <div class="chart-apy" [ngStyle]="hideElement(_ommApyChecked)" #borrHistChart></div>
+            </div>
+
 
             <!-- Borrow slider -->
             <div [ngStyle]="hideElement(shouldHideBorrowContent())" id="slider-borrow" #sliderBorrow disabled></div>
