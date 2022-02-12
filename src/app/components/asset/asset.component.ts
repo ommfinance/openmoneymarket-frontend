@@ -202,8 +202,12 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   updateApyCharts(): void {
     const borrWidth = this.borrChartWrapperEl?.offsetWidth ?? 0;
     const suppWidth = this.suppChartWrapperEl?.offsetWidth ?? 0;
-    if (borrWidth && borrWidth > 0) {
+
+    if (suppWidth && suppWidth > 0) {
       this.chartService.resize(this.supplyChart, suppWidth);
+    }
+
+    if (borrWidth && borrWidth > 0) {
       this.chartService.resize(this.borrowChart, borrWidth);
     }
   }
