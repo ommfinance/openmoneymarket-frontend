@@ -30,6 +30,7 @@ import { ProposalComponent } from './components/proposal/proposal.component';
 import { BannerComponent } from './components/banner/banner.component';
 import { LoadingComponent } from './components/loading/loading.component';
 import { ToZeroIfDashPipe } from './pipes/to-zero-if-dash.pipe';
+import { AngularResizedEventModule } from 'angular-resize-event';
 
 // Big Number configs
 const fmt = {
@@ -79,7 +80,8 @@ log.setLevel(environment.production ? "error" : "debug");
     AppRoutingModule,
     FormsModule,
     CoreModule,
-    HttpClientModule
+    HttpClientModule,
+    AngularResizedEventModule
   ],
   providers: [HttpClientModule],
   bootstrap: [AppComponent],

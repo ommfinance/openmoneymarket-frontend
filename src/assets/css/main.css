@@ -2156,6 +2156,10 @@ input[type="text"].input-borrow-available {
   margin-top: 100px;
 }
 
+.tv-lightweight-charts table tr {
+  box-shadow: none;
+}
+
 /* ==========================================================================
 	Vote specific styles (Layout styles: sizing, spacing, etc.)
 ========================================================================== */
@@ -3611,6 +3615,10 @@ input[type="text"].input-borrow-available {
   }
   #modal-sign-in-ledger table tr:hover td {
     background-color: #282b2f;
+  }
+
+  .tv-lightweight-charts table tr {
+    box-shadow: none;
   }
 }
 @media (prefers-color-scheme: dark) and (max-width: 1200px) {

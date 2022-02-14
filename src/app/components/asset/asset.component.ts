@@ -1,4 +1,14 @@
-import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import {SlidersService} from "../../services/sliders/sliders.service";
 import {assetPrefixMinusFormat, assetPrefixPlusFormat, ommPrefixPlusFormat, percentageFormat, usLocale} from "../../common/formats";
 import {CalculationsService} from "../../services/calculations/calculations.service";
@@ -17,12 +27,13 @@ import {Utils} from "../../common/utils";
 import {ActiveViews} from "../../models/ActiveViews";
 import {DEFAULT_SLIDER_MAX, ICX_SUPPLY_BUFFER} from "../../common/constants";
 import BigNumber from "bignumber.js";
+import {ChartService} from "../../services/chart/chart.service";
 
 declare var $: any;
 
 @Component({
   selector: 'app-asset',
-  templateUrl: './asset.component.html',
+  templateUrl: './asset.component.html'
 })
 export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
@@ -74,6 +85,18 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   @ViewChild("suppRewards") set r(suppRewards: ElementRef) { this.suppRewardsEl = suppRewards.nativeElement; }
   borrRewardsEl: any;
   @ViewChild("borrRewards") set s(borrRewards: ElementRef) { this.borrRewardsEl = borrRewards.nativeElement; }
+  supplyChartEl: any;
+  @ViewChild("suppHistChart") set t(supplyChart: ElementRef) { this.supplyChartEl = supplyChart.nativeElement; }
+  borrowChartEl: any;
+  @ViewChild("borrHistChart") set u(borrowChart: ElementRef) { this.borrowChartEl = borrowChart.nativeElement; }
+  supplyApyEl: any;
+  @ViewChild("suppApyEl") set v(supplyApyEl: ElementRef) { this.supplyApyEl = supplyApyEl.nativeElement; }
+  borrowAprEl: any;
+  @ViewChild("borrowAprEl") set z(borrowAprEl: ElementRef) { this.borrowAprEl = borrowAprEl.nativeElement; }
+  borrChartWrapperEl: any;
+  @ViewChild("borrChartWrapper") set bcw(bcw: ElementRef) { this.borrChartWrapperEl = bcw.nativeElement; }
+  suppChartWrapperEl: any;
+  @ViewChild("suppChartWrapper") set scw(scw: ElementRef) { this.suppChartWrapperEl = scw.nativeElement; }
 
   @Output() collOtherAssetTables = new EventEmitter<AssetTag>();
 
@@ -92,13 +115,17 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   supplySliderMax = 0;
   borrowSliderMax = 0;
 
+  supplyChart: any;
+  borrowChart: any;
+
   constructor(private slidersService: SlidersService,
               public calculationService: CalculationsService,
               private stateChangeService: StateChangeService,
               public persistenceService: PersistenceService,
               private modalService: ModalService,
               private notificationService: NotificationService,
-              private cdRef: ChangeDetectorRef) {
+              private cdRef: ChangeDetectorRef,
+              private chartService: ChartService) {
     super(persistenceService);
   }
 
@@ -114,7 +141,49 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
     this.initSupplyAndBorrowValues();
 
+    this.initInterestHistoryCharts();
+
     this.cdRef.detectChanges();
+  }
+
+  initInterestHistoryCharts(): void {
+    const charts = this.chartService.createBorrowAndSupplyInterestHistoryChart(this.supplyChartEl, this.borrowChartEl, this.asset.tag,
+      this.supplyChart, this.borrowChart);
+    this.supplyChart = charts.supplyChart;
+    this.borrowChart = charts.borrowChart;
+
+    this.resetChartsView();
+
+    this.supplyChart?.subscribeCrosshairMove((param: any) => {
+      if (!param?.point) {
+        this.setText(this.supplyApyEl, `${this.to2DecimalRoundedOffPercentString(this.getMarketSupplyRate())} APY`);
+        return;
+      }
+
+      const supplyApy = param.seriesPrices.entries().next().value;
+      if (supplyApy && supplyApy.length > 1) {
+        this.setText(this.supplyApyEl, `${Utils.roundOffTo2Decimals(supplyApy[1])}% APY`);
+      }
+    });
+
+    this.borrowChart?.subscribeCrosshairMove((param: any) => {
+      if (!param?.point) {
+        this.setText(this.borrowAprEl, `${this.to2DecimalRoundedOffPercentString(this.makeAbsolute(this.getMarketBorrowRate()))} APR`);
+        return;
+      }
+
+      const borrowApr = param?.seriesPrices?.entries()?.next()?.value;
+
+      if (borrowApr && borrowApr.length > 1) {
+        this.setText(this.borrowAprEl, `${Utils.roundOffTo2Decimals(borrowApr[1])}% APR`);
+      }
+
+    });
+  }
+
+  private resetChartsView(): void {
+    this.supplyChart?.timeScale().fitContent();
+    this.borrowChart?.timeScale().fitContent();
   }
 
   initSupplyAndBorrowValues(): void {
@@ -124,7 +193,28 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
       this.updateBorrowData();
       this.updateSupplySlider(this.persistenceService.getUserAssetReserve(this.asset.tag));
       this.updateBorrowSlider();
+
     }
+  }
+
+  // update supply and borrow charts widths
+  // @notice should only be used in resize event
+  updateApyCharts(): void {
+    const borrWidth = this.borrChartWrapperEl?.offsetWidth ?? 0;
+    const suppWidth = this.suppChartWrapperEl?.offsetWidth ?? 0;
+
+    if (suppWidth && suppWidth > 0) {
+      this.chartService.resize(this.supplyChart, suppWidth);
+    }
+
+    if (borrWidth && borrWidth > 0) {
+      this.chartService.resize(this.borrowChart, borrWidth);
+    }
+  }
+
+  onSuppChartResize(): void {
+    // update apy history charts when supp chart wrapper is resized
+    this.updateApyCharts();
   }
 
   ommApyCheckedChange(): void {
@@ -225,6 +315,9 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
    * Asset expand logic
    */
   onAssetClick(): void {
+    // trigger resize
+    this.updateApyCharts();
+
     this.inputSupplyActive = false;
     this.inputBorrowActive = false;
 
@@ -265,6 +358,8 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
 
     // disable inputs
     this.disableInputs();
+
+    this.resetChartsView();
   }
 
   /**
@@ -434,6 +529,15 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
     this.subscribeToShowDefaultActionsUpdate();
     this.subscribeToRemoveAdjustClass();
     this.subscribeToCollapseOtherAssetsTableUpdate();
+    this.subscribeToInterestHistoryChange();
+  }
+
+  private subscribeToInterestHistoryChange(): void {
+    this.stateChangeService.interestHistoryChange$.subscribe(() => {
+      this.initInterestHistoryCharts();
+      // trigger resize
+      this.updateApyCharts();
+    });
   }
 
   private subscribeToCollapseTable(): void {
@@ -962,6 +1066,14 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
         || !this.persistenceService.userAssetBorrowedIsZero(this.asset.tag)
         || (this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag).isGreaterThan(Utils.ZERO));
     }
+  }
+
+  shouldHideSupplyContent(): boolean {
+    return this.userAssetBalanceIsZero() && this.userAssetSuppliedBalanceIsZero() || !this.userLoggedIn();
+  }
+
+  shouldHideBorrowContent(): boolean {
+    return this.persistenceService.userHasNotSuppliedAnyAsset() || this.shouldHideBorrowSlider() || this.isAssetOmm();
   }
 
   getDailySupplyInterest(assetTag: AssetTag | CollateralAssetTag, amountBeingSupplied?: BigNumber): BigNumber {

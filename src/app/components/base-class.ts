@@ -68,7 +68,7 @@ export class BaseClass {
     num = new BigNumber(num).multipliedBy(new BigNumber("100"));
 
     // handle values smaller than 0.01%
-    if (num < new BigNumber("0.01")) {
+    if (num.isLessThan(new BigNumber("0.01"))) {
       return Utils.handleSmallDecimal(num);
     }
 

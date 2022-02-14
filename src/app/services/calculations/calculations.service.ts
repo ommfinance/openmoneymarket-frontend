@@ -12,7 +12,6 @@ import log from "loglevel";
 import {PoolData} from "../../models/PoolData";
 import {UserPoolData} from "../../models/UserPoolData";
 import BigNumber from "bignumber.js";
-import {environment} from "../../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
@@ -331,17 +330,6 @@ export class CalculationsService {
     const totalBorrows = reserveData?.totalBorrows ?? new BigNumber("0");
     const borrowThreshold = reserveData?.borrowThreshold ?? new BigNumber("0");
     const reserveAvailableBorrows = (totalLiquidity.multipliedBy(borrowThreshold)).minus(totalBorrows);
-
-    log.debug(`******* calculateAvailableBorrowForAsset ${assetTag} ******`);
-    log.debug(`suggestedBorrowAvailable = ${suggestedBorrowAvailable.toString()}`);
-    log.debug(`availTotalBorrow = ${reserveAvailableBorrows.toString()}`);
-    log.debug(`***********************`);
-    log.debug(`totalLiquidity = ${reserveData?.totalLiquidity.toString()}`);
-    log.debug(`borrowThreshold = ${reserveData?.borrowThreshold.toString()}`);
-    log.debug(`totalBorrows = ${reserveData?.totalBorrows.toString()}`);
-    log.debug(`totalLiquidity*borrowThreshold-totalBorrows = ${(reserveData?.totalLiquidity
-      .multipliedBy(reserveData?.borrowThreshold) ?? new BigNumber(0)).minus(reserveData?.totalBorrows ?? 0) }`);
-
 
     return BigNumber.min(suggestedBorrowAvailable, reserveAvailableBorrows).dp(2);
   }

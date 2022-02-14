@@ -50,6 +50,14 @@ export class Utils {
     }
   }
 
+  public static numberToPercent(value: BigNumber | string | number): BigNumber {
+    if (value instanceof BigNumber) {
+      return value.multipliedBy(new BigNumber("100"));
+    }
+
+    return new BigNumber(value).multipliedBy(new BigNumber("100"));
+  }
+
   // Returns true if the address is valid EOA address, false otherwise
   public static isEoaAddress(address: string): boolean {
     if (!address) { return false; }
@@ -84,7 +92,7 @@ export class Utils {
     return amount.multipliedBy(new BigNumber("10").pow(decimals)).toFixed();
   }
 
-  public static roundOffTo2Decimals(value: BigNumber | string): string {
+  public static roundOffTo2Decimals(value: BigNumber | string | number): string {
     if (value instanceof BigNumber) {
       return value.toFixed(2, BigNumber.ROUND_HALF_CEIL);
     } else {
@@ -306,5 +314,9 @@ export class Utils {
     } else {
       return uri;
     }
+  }
+
+  public static dateToDateOnlyIsoString(date: Date): string {
+    return date.toISOString().split("T")[0];
   }
 }

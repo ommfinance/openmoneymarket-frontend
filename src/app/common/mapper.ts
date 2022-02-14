@@ -25,9 +25,17 @@ import {BigNumber} from "bignumber.js";
 import {Vote, VotersCount} from "../models/Vote";
 import {Proposal} from "../models/Proposal";
 import {bnUSDProposalDescription} from "./constants";
+import {InterestHistory} from "../models/InterestHistory";
 
 export class Mapper {
 
+  public static mapInterestHistory(interestHistory: InterestHistory[]): InterestHistory[] {
+    interestHistory.forEach(el => {
+      el.date = new Date(el.date);
+    });
+
+    return interestHistory;
+  }
 
   public static mapDistributionPercentages(distributionPercentages: DistributionPercentages): DistributionPercentages {
     return new DistributionPercentages(
