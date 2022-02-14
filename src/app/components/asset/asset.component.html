@@ -66,8 +66,8 @@
           <div class="supply-allow" #supplyAllow>
 
             <!-- Supply APY history chart -->
-            <div class="chart-wrapper" (resized)="onSuppChartResize()" #suppChartWrapper>
-              <div class="chart-apy" [ngStyle]="hideElement(_ommApyChecked)" #suppHistChart></div>
+            <div class="chart-wrapper" (resized)="onSuppChartResize()" [ngStyle]="hideElement(_ommApyChecked  || isAssetOmm())" #suppChartWrapper>
+              <div class="chart-apy" #suppHistChart></div>
             </div>
 
             <!-- Supply slider -->
@@ -164,7 +164,7 @@
                 <div class="tooltip-content"><p>While you borrow assets, your supply is at risk of liquidation. Keep it below 50% to reduce the impact of volatile markets.</p></div>
               </span>
             </div>
-            <div class="grid-cell text-right" [ngStyle]="hideElement(asset.tag === AssetTag.OMM)">
+            <div class="grid-cell text-right" [ngStyle]="hideElement(isAssetOmm())">
               <p class="{{isNegative(getMarketBorrowRate()) ? 'borrow-apy':'borrow-apy text-green'}}" #borrowAprEl>{{to2DecimalRoundedOffPercentString(makeAbsolute(getMarketBorrowRate()))}} APR</p>
             </div>
           </div>
@@ -178,7 +178,7 @@
             </div>
 
             <!-- Chart line 2 -->
-            <div class="chart-wrapper" [ngStyle]="hideElement(_ommApyChecked || asset.tag === AssetTag.OMM)" #borrChartWrapper>
+            <div class="chart-wrapper" [ngStyle]="hideElement(_ommApyChecked || isAssetOmm())" #borrChartWrapper>
               <div class="chart-apy" #borrHistChart></div>
             </div>
 
