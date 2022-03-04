@@ -149,10 +149,6 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     this.sliderStake.noUiSlider.set(this.persistenceService.getUsersStakedOmmBalance().toNumber());
   }
 
-  onSignInClick(): void {
-    this.modalService.showNewModal(ModalType.SIGN_IN);
-  }
-
   onYourLiquidityClick(): void {
     this.activeLiquidityOverview = ActiveLiquidityOverview.YOUR_LIQUIDITY;
   }
@@ -336,12 +332,6 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     });
   }
 
-  getYourStakeMax(): BigNumber {
-    // sliders max is sum of staked + available balance
-    return Utils.add(this.persistenceService.getUsersStakedOmmBalance(),
-      this.persistenceService.getUsersAvailableOmmBalance());
-  }
-
   shouldHideClaimBtn(): boolean {
     const userOmmRewardsTotal = this.persistenceService.userOmmRewards?.total ?? new BigNumber("0");
     return userOmmRewardsTotal.isLessThanOrEqualTo(Utils.ZERO) || !this.persistenceService.userOmmTokenBalanceDetails;
@@ -434,10 +424,6 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     return false;
   }
 
-  getStakingApy(): BigNumber {
-    return this.calculationService.calculateStakingApy();
-  }
-
   getUserOmmStakingDailyRewards(): BigNumber {
     return this.calculationService.calculateDailyUsersOmmStakingRewards();
   }
@@ -458,22 +444,6 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     return (this.persistenceService.userOmmTokenBalanceDetails?.totalBalance ?? new BigNumber("0")).isGreaterThan(new BigNumber("1"));
   }
 
-  userHasStaked(): boolean {
-    return this.persistenceService.getUsersStakedOmmBalance().isGreaterThan(Utils.ZERO);
-  }
-
-  isMaxStaked(): boolean {
-    return new BigNumber(this.sliderStake?.noUiSlider?.options.range.max).isEqualTo(this.userOmmTokenBalanceDetails?.stakedBalance ?? -1);
-  }
-
-  isUnstaking(): boolean {
-    return this.persistenceService.getUserUnstakingOmmBalance0Rounded().isGreaterThan(Utils.ZERO);
-  }
-
-  getUserOmmStakingDailyRewardsUSD(): BigNumber {
-    return this.calculationService.calculateUserOmmStakingDailyRewardsUSD();
-  }
-
   userHasLpTokenAvailableOrHasStaked(poolId: BigNumber): boolean {
     return this.persistenceService.getUserPoolStakedAvailableBalance(poolId).isGreaterThan(Utils.ZERO)
       || this.persistenceService.getUserPoolStakedBalance(poolId).isGreaterThan(Utils.ZERO);
@@ -485,10 +455,6 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
 
   getUserSuppliedBase(poolData: UserPoolData): BigNumber {
     return this.calculationService.calculateUserPoolSupplied(poolData);
-  }
-
-  getTotalStaked(): BigNumber {
-    return this.persistenceService.totalStakedOmm;
   }
 
   getTotalSuppliedQuote(poolData: PoolData): BigNumber {
@@ -554,5 +520,55 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
 
   shouldHideYourPoolsHeader(): boolean {
     return this.isAllPoolsActive() || !this.userHasStakedAnyPool();
+  }
+
+
+  // BOOSTED OMM
+  boostedOmmPanelMessage(): string {
+    if (!this.userLoggedIn()) {
+      // signed out / hold no OMM
+      return "Earn or buy OMM, then lock it up here to boost your earning potential and voting power.";
+    } else if (this.userLoggedIn() && (this.userHasLockedOmm() || this.userHasOmmTokens())) {
+      // unlocked OMM (no market or LP participation)
+      return "Lock up OMM to boost your earning potential.";
+    }
+
+    return "Earn or buy OMM, then lock it up here to boost your earning potential and voting power.";
+  }
+
+  userHasLockedOmm(): boolean {
+    // TODO get information on users locked OMM
+    return false;
+  }
+
+  shouldHideBoostedSlider(): boolean {
+    return !this.userLoggedIn() || !this.userHasOmmTokens() || !this.userHasMoreThanOneOmmToken();
+  }
+
+  boostAdjustLabel(): string {
+    if (this.userHasLockedOmm()) {
+      return "Adjust";
+    } else {
+      return "Lock up OMM";
+    }
+  }
+
+  usersBoostedOmmDailyRewards(): BigNumber {
+    // TODO get actual users boosted omm daily rewards
+    return new BigNumber(0);
+  }
+
+  usersBoostedOmmMarketRewards(): { from: BigNumber, to: BigNumber} {
+    // TODO get actual users boosted omm market rewards
+    return { from: new BigNumber(0), to: new BigNumber(0)};
+  }
+
+  usersBoostedOmmLiquidityRewards(): { from: BigNumber, to: BigNumber} {
+    // TODO get actual users boosted omm liquidity rewards
+    return { from: new BigNumber(0), to: new BigNumber(0)};
+  }
+
+  fromToIsEmpty(fromTo: { from: BigNumber, to: BigNumber}): boolean {
+    return fromTo.from.isZero() && fromTo.to.isZero();
   }
 }
