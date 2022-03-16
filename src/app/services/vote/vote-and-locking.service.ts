@@ -17,7 +17,7 @@ import {CreateProposal} from "../../models/Proposal";
 @Injectable({
   providedIn: 'root'
 })
-export class VoteService {
+export class VoteAndLockingService {
 
   constructor(private iconApiService: IconApiService,
               private persistenceService: PersistenceService,
@@ -28,6 +28,14 @@ export class VoteService {
     const tx = this.buildCastVote(proposalId, approved);
 
     log.debug(`Cast vote TX: `, tx);
+    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
+  }
+
+  public lockOmm(amount: BigNumber, unlockTime: BigNumber, notificationMessage: string): void {
+    amount = amount.dp(0);
+    const tx = this.buildLockOmmTx(amount, unlockTime);
+
+    log.debug(`Lock OMM TX: `, tx);
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
@@ -52,6 +60,71 @@ export class VoteService {
 
     log.debug(`Cancel Unstake OMM TX: `, tx);
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
+  }
+
+  /**
+   * @description Build lock OMM Tokens Icon transaction
+   * **Note**: Lock period is timestamp in microseconds. The lock period should be an integer/long, not a string.
+   * @param amount - Amount of OMM tokens to lock
+   * @param unlockTime - lock time in milliseconds that needs to be converted to microseconds
+   * @return any lock OMM Tokens Icon transaction
+   */
+  private buildLockOmmTx(amount: BigNumber, unlockTime: BigNumber): any {
+    this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
+
+    // convert to microseconds
+    const unlockTimeMicro = unlockTime.multipliedBy(1000);
+    log.debug(`Lock Omm amount = ` + amount.toString());
+    log.debug(`unlockTime = ` + unlockTime.toString());
+    const decimals = 18;
+    const dataPayload = '{ "method": "createLock", "params": { "unlockTime":' + unlockTimeMicro.toFixed() + '}}';
+    log.debug("Data payload = ", dataPayload);
+
+    const params = {
+      _to: this.persistenceService.allAddresses!.systemContract.bOMM,
+      _value: IconConverter.toHex(IconAmount.of(amount, decimals).toLoop()),
+      _data: IconConverter.fromUtf8(dataPayload)};
+
+    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
+      this.persistenceService.allAddresses!.systemContract.OmmToken, ScoreMethodNames.TRANSFER, params, IconTransactionType.WRITE);
+  }
+
+  /**
+   * @description Build increase lock OMM amount Icon transaction
+   * @param amount - Amount of OMM tokens to lock
+   * @return any lock OMM Tokens Icon transaction
+   */
+  private buildIncreaseLockAmountOmmTx(amount: BigNumber): any {
+    this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
+
+    log.debug(`Increase Lock Omm amount = ` + amount.toString());
+    const decimals = 18;
+
+    const params = {
+      _to: this.persistenceService.allAddresses!.systemContract.bOMM,
+      _value: IconConverter.toHex(IconAmount.of(amount, decimals).toLoop()),
+      _data: IconConverter.fromUtf8('{ "method": "increaseAmount"}')};
+
+    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
+      this.persistenceService.allAddresses!.systemContract.OmmToken, ScoreMethodNames.TRANSFER, params, IconTransactionType.WRITE);
+  }
+
+  /**
+   * @description Build increase lock time of locked OMM tokens
+   * @param lockPeriod - Amount of OMM tokens to lock
+   * @return any lock OMM Tokens Icon transaction
+   */
+  private buildIncreaseLockTimeOmmTx(lockPeriod: BigNumber): any {
+    this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
+
+    log.debug(`Increase Lock Omm time for = ` + lockPeriod.toString());
+
+    const params = {
+      unlockTime: lockPeriod.toFixed()
+    };
+
+    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
+      this.persistenceService.allAddresses!.systemContract.bOMM, ScoreMethodNames.INCREASE_UNLOCK_TIME, params, IconTransactionType.WRITE);
   }
 
   /**

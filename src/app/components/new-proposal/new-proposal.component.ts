@@ -68,7 +68,7 @@ export class NewProposalComponent implements OnInit {
   }
 
   userHasEnoughOmmStaked(): boolean {
-    return this.persistenceService.getUsersStakedOmmBalance().gte(this.persistenceService.getMinOmmStakedRequiredForProposal());
+    return this.persistenceService.getUsersLockedOmmBalance().gte(this.persistenceService.getMinOmmStakedRequiredForProposal());
   }
 
   onSubmitClick(): void {

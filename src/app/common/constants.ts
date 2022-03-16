@@ -1,4 +1,6 @@
 /** Modal constants */
+import BigNumber from "bignumber.js";
+
 export const BORROW = "Borrow";
 export const SUPPLY = "Supply";
 export const REPAY = "Repay";
@@ -34,6 +36,8 @@ export class Times {
   public static readonly MINUTE_IN_MILLISECONDS = 60000;
   public static readonly HOUR_IN_MILLISECONDS = 3600000;
   public static readonly DAY_IN_MILLISECONDS = 86400000;
+  public static readonly WEEK_IN_MILLISECONDS = new BigNumber("604800000");
+  public static readonly MONTH_IN_MILLISECONDS = new BigNumber("2592000000");
 
   public static readonly MINUTE_IN_SECONDS = 60;
   public static readonly HOUR_IN_SECONDS = 3600;
@@ -55,6 +59,18 @@ export class Times {
     return days * Times.DAY_IN_SECONDS;
   }
 }
+
+export const lockedUntilDateOptions = ["1 week", "1 month", "3 months", "6 months", "1 year", "2 years", "4 years"];
+
+export const lockedDatesToMilliseconds = new Map([
+  ["1 week", Times.WEEK_IN_MILLISECONDS],
+  ["1 month", Times.MONTH_IN_MILLISECONDS],
+  ["3 months", Times.MONTH_IN_MILLISECONDS.multipliedBy(3)],
+  ["6 months", Times.MONTH_IN_MILLISECONDS.multipliedBy(6)],
+  ["1 year", Times.MONTH_IN_MILLISECONDS.multipliedBy(12)],
+  ["2 years", Times.MONTH_IN_MILLISECONDS.multipliedBy(24)],
+  ["4 years", Times.MONTH_IN_MILLISECONDS.multipliedBy(48)],
+]);
 
 export const bnUSDProposalDescription = "" +
   "Proposed OMM Rewards\n" +

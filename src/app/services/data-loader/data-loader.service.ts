@@ -254,6 +254,42 @@ export class DataLoaderService {
     this.stateChangeService.updateUserAllReserve(this.persistenceService.userReserves);
   }
 
+  public async loadUserLockedOmm(): Promise<void> {
+    try {
+      const lockedOmm = await this.scoreService.getUserLockedOmmTokens();
+      this.stateChangeService.userLockedOmmUpdate(lockedOmm);
+
+      log.debug("User locked OMM: ", lockedOmm);
+    } catch (e) {
+      log.error("Error in loadUserLockedOmm:");
+      log.error(e);
+    }
+  }
+
+  public async loadUserbOmmBalance(): Promise<void> {
+    try {
+      const balance = await this.scoreService.getUsersbOmmBalance();
+      this.stateChangeService.userbOmmBalanceUpdate(balance);
+
+      log.debug("User bOMM balance ", balance);
+    } catch (e) {
+      log.error("Error in loadUserbOmmBalance:");
+      log.error(e);
+    }
+  }
+
+  public async loadbOmmTotalSupply(): Promise<void> {
+    try {
+      const totalSupply = await this.scoreService.getTotalbOmmSupply();
+      this.stateChangeService.bOmmTotalSupplyUpdate(totalSupply);
+
+      log.debug("bOMM total supply ", totalSupply);
+    } catch (e) {
+      log.error("Error in loadbOmmTotalSupply:");
+      log.error(e);
+    }
+  }
+
   public loadUserAccountData(): Promise<void> {
     return this.scoreService.getUserAccountData().then((userAccountData: UserAccountData) => {
       this.persistenceService.userAccountData = Mapper.mapUserAccountData(userAccountData);
@@ -413,7 +449,7 @@ export class DataLoaderService {
 
   public async loadVoteDefinitionCriterion(): Promise<void> {
     try {
-      const res = await this.scoreService.getVoteDefinitionCriteria();
+      const res = await this.scoreService.getBoostedOmmVoteDefinitionCriteria();
       log.debug("loadVoteDefinitionCriterion (mapped): ", res);
 
       this.stateChangeService.updateVoteDefinitionCriterion(res);
@@ -526,7 +562,8 @@ export class DataLoaderService {
       this.loadTotalStakedOmm(),
       this.loadPrepList(),
       this.loadPoolsData(),
-      this.loadProposalList()
+      this.loadProposalList(),
+      this.loadbOmmTotalSupply(),
     ]);
 
     await this.loadUserSpecificData();
@@ -552,7 +589,8 @@ export class DataLoaderService {
       this.loadVoteDefinitionCriterion(),
       this.loadProposalList(),
       this.loadTotalOmmSupply(),
-      this.loadVoteDuration()
+      this.loadVoteDuration(),
+      this.loadbOmmTotalSupply()
     ]);
   }
 
@@ -569,7 +607,9 @@ export class DataLoaderService {
       this.loadUserClaimableIcx(),
       this.loadUserPoolsData(),
       this.loadUsersVotingWeight(),
-      this.loadUserProposalVotes()
+      this.loadUserProposalVotes(),
+      this.loadUserLockedOmm(),
+      this.loadUserbOmmBalance()
     ]);
 
     this.stateChangeService.userDataReloadUpdate();

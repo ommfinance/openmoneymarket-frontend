@@ -13,14 +13,14 @@ import {CalculationsService} from "../../services/calculations/calculations.serv
 import log from "loglevel";
 import {UserPoolData} from "../../models/UserPoolData";
 import {ModalAction} from "../../models/ModalAction";
-import {StakingAction} from "../../models/StakingAction";
 import {NotificationService} from "../../services/notification/notification.service";
 import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
 import {environment} from "../../../environments/environment";
 import {ReloaderService} from "../../services/reloader/reloader.service";
-import {Times} from "../../common/constants";
+import {lockedDatesToMilliseconds, lockedUntilDateOptions, Times} from "../../common/constants";
 import BigNumber from "bignumber.js";
 import {normalFormat} from "../../common/formats";
+import {LockingAction} from "../../models/LockingAction";
 
 declare var $: any;
 declare var noUiSlider: any;
@@ -34,21 +34,23 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
 
   toggleYourPoolsEl: any; @ViewChild("toggYourPools")set a(a: ElementRef) {this.toggleYourPoolsEl = a.nativeElement; }
   toggleAllPoolsEl: any; @ViewChild("toggAllPools") set b(b: ElementRef) {this.toggleAllPoolsEl = b.nativeElement; }
-  private inputStakeOmm!: any; @ViewChild("stakeInput")set c(c: ElementRef) {this.inputStakeOmm = c.nativeElement; }
+  private inputLockOmm!: any; @ViewChild("lockInput")set c(c: ElementRef) {this.inputLockOmm = c.nativeElement; }
   private sliderStake!: any; @ViewChild("stkSlider")set d(sliderStake: ElementRef) {this.sliderStake = sliderStake.nativeElement; }
-  stakeDailyRewEl: any; @ViewChild("stkDailyRew")set e(a: ElementRef) {this.stakeDailyRewEl = a.nativeElement; }
-  private stakeAmount!: any; @ViewChild("ommStkAmount")set f(f: ElementRef) {this.stakeAmount = f.nativeElement; }
 
   public activeLiquidityOverview: ActiveLiquidityOverview = this.userLoggedIn() ? ActiveLiquidityOverview.YOUR_LIQUIDITY :
     ActiveLiquidityOverview.ALL_LIQUIDITY;
   public activeLiquidityPoolView: ActiveLiquidityPoolsView = ActiveLiquidityPoolsView.ALL_POOLS;
 
   userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
+  userLockedOmmBalance = this.persistenceService.getUsersLockedOmmBalance();
 
   stakeAdjustActive = false;
 
   dailyOmmRewards = new BigNumber("0");
   yourDailyRewards = new BigNumber("0");
+
+  lockedUntilDateOptions = lockedUntilDateOptions;
+  selectedLockTime = Times.WEEK_IN_MILLISECONDS; // default to 1 week
 
   constructor(public persistenceService: PersistenceService,
               private stateChangeService: StateChangeService,
@@ -58,6 +60,10 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
               private cd: ChangeDetectorRef,
               public reloaderService: ReloaderService) {
     super(persistenceService);
+  }
+
+  selectedLockDateString(): string {
+    return Utils.timestampInMillisecondsToPrettyDate(Utils.timestampNowMilliseconds().plus(this.selectedLockTime));
   }
 
   ngOnInit(): void {
@@ -78,7 +84,7 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
    */
 
   onClaimOmmRewardsClick(): void {
-    this.onStakeAdjustCancelClick();
+    this.onLockAdjustCancelClick();
     this.stakeAdjustActive = false;
 
     const rewards = (this.persistenceService.userOmmRewards?.total ?? new BigNumber("0")).dp(2);
@@ -93,60 +99,60 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
       before, after, rewards, undefined, new ClaimOmmDetails(this.persistenceService.userOmmRewards)));
   }
 
-  // On OMM un-staking cancel click
-  onCancelUnstakingClick(): void {
-    const stakingAction = new StakingAction(Utils.ZERO, Utils.ZERO, this.persistenceService.getUserUnstakingOmmBalance0Rounded());
-    this.modalService.showNewModal(ModalType.CANCEL_UNSTAKE_OMM_TOKENS, undefined, stakingAction);
-  }
-
-  onConfirmStakeClick(): void {
-    log.debug(`onConfirmStakeClick Omm stake amount = ${this.userOmmTokenBalanceDetails?.stakedBalance}`);
-    const before = this.persistenceService.getUsersStakedOmmBalance().dp(0);
+  onConfirmLockOmmClick(): void {
+    log.debug(`onConfirmLockOmmClick Omm locked amount = ${this.userLockedOmmBalance}`);
+    const before = this.persistenceService.getUsersLockedOmmBalance().dp(0);
     log.debug("before = ", before);
-    const after = (this.userOmmTokenBalanceDetails?.stakedBalance ?? new BigNumber("0")).dp(0);
+    const after = (this.userLockedOmmBalance ?? new BigNumber("0")).dp(0);
     log.debug("after = ", after);
     const diff = Utils.subtract(after, before);
     log.debug("Diff = ", diff);
 
     // if before and after equal show notification
     if (before.isEqualTo(after)) {
-      this.notificationService.showNewNotification("No change in staked value.");
+      this.notificationService.showNewNotification("No change in locked value.");
       return;
     }
 
-    const voteAction = new StakingAction(before, after, diff.abs());
+    if (!this.selectedLockTime.isFinite() || this.selectedLockTime.lte(0)) {
+      this.notificationService.showNewNotification("Please selected locking period.");
+      return;
+    }
+
+    const unlockPeriod = this.selectedLockTime.plus(Utils.timestampNowMilliseconds());
+    log.debug("Selected lock time:", this.selectedLockTime);
+
+    const lockingAction = new LockingAction(before, after, diff.abs(), unlockPeriod);
 
     if (diff.isGreaterThan(Utils.ZERO)) {
       if (this.persistenceService.minOmmStakeAmount.isGreaterThan(diff)) {
-        this.notificationService.showNewNotification(`Stake amount must be greater than ${this.persistenceService.minOmmStakeAmount}`);
+        this.notificationService.showNewNotification(`Lock amount must be greater than ${this.persistenceService.minOmmStakeAmount}`);
       } else {
-        this.modalService.showNewModal(ModalType.STAKE_OMM_TOKENS, undefined, voteAction);
+        this.modalService.showNewModal(ModalType.LOCK_OMM, undefined, undefined, undefined, undefined,
+          lockingAction);
       }
     } else {
-      this.modalService.showNewModal(ModalType.UNSTAKE_OMM_TOKENS, undefined, voteAction);
+      this.modalService.showNewModal(ModalType.UNLOCK_OMM, undefined, undefined, undefined, undefined,
+        lockingAction);
     }
   }
 
-  // On "Stake" click
-  onStakeAdjustClick(): void {
-    this.onStakeAdjustCancelClick();
+  // On "Lock up OMM" or "Adjust" click
+  onLockAdjustClick(): void {
+    this.onLockAdjustCancelClick();
     this.collapseAllPoolTables();
     this.stakeAdjustActive = true;
 
-    $(".stake-omm-actions-default").addClass('hide');
     this.sliderStake.removeAttribute("disabled");
   }
 
-  // On "Cancel Stake" click
-  onStakeAdjustCancelClick(): void {
+  // On "Cancel Lock up OMM" click
+  onLockAdjustCancelClick(): void {
     this.stakeAdjustActive = false;
 
-    $(".stake-omm-actions-default").removeClass('hide');
-
-
-    // Set your stake slider to the initial value
+    // Set your locked OMM slider to the initial value
     this.sliderStake.setAttribute("disabled", "");
-    this.sliderStake.noUiSlider.set(this.persistenceService.getUsersStakedOmmBalance().toNumber());
+    this.sliderStake.noUiSlider.set(this.persistenceService.getUsersLockedOmmBalance().toNumber());
   }
 
   onYourLiquidityClick(): void {
@@ -158,13 +164,13 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   }
 
   onYourPoolsClick(): void {
-    this.onStakeAdjustCancelClick();
+    this.onLockAdjustCancelClick();
     this.collapseAllPoolTables();
     this.activeLiquidityPoolView = ActiveLiquidityPoolsView.YOUR_POOLS;
   }
 
   onAllPoolsClick(): void {
-    this.onStakeAdjustCancelClick();
+    this.onLockAdjustCancelClick();
     this.collapseAllPoolTables();
     this.activeLiquidityPoolView = ActiveLiquidityPoolsView.ALL_POOLS;
   }
@@ -192,7 +198,7 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     this.collapsePoolTablesSlideUp(poolData);
 
     this.stakeAdjustActive = false;
-    this.onStakeAdjustCancelClick();
+    this.onLockAdjustCancelClick();
 
     // commit event to state change
     this.stateChangeService.poolClickCUpdate(poolData);
@@ -202,10 +208,10 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   }
 
   // Stake input updates the slider
-  onInputStakeOmmChange(): void {
-    log.debug("onInputStakeOmmChange: " + this.inputStakeOmm.value);
-    if (+normalFormat.from(this.inputStakeOmm.value)) {
-      this.sliderStake.noUiSlider.set(normalFormat.from(this.inputStakeOmm.value));
+  onInputLockChange(): void {
+    log.debug("onInputLockChange: " + this.inputLockOmm.value);
+    if (+normalFormat.from(this.inputLockOmm.value)) {
+      this.sliderStake.noUiSlider.set(normalFormat.from(this.inputLockOmm.value));
     } else {
       this.sliderStake.noUiSlider.set(normalFormat.from("0"));
     }
@@ -228,23 +234,23 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     this.stateChangeService.userOmmTokenBalanceDetailsChange.subscribe((res: OmmTokenBalanceDetails) => {
       this.userOmmTokenBalanceDetails = res.getClone();
 
-      // sliders max is sum of staked + available balance
-      const sliderMax = Utils.add(this.persistenceService.getUsersStakedOmmBalance(),
+      // sliders max is sum of locked + available balance
+      const sliderMax = Utils.add(this.persistenceService.getUsersLockedOmmBalance(),
         this.persistenceService.getUsersAvailableOmmBalance());
 
       this.sliderStake.noUiSlider.updateOptions({
-        start: [this.userOmmTokenBalanceDetails.stakedBalance.dp(0).toNumber()],
+        start: [this.persistenceService.getUsersLockedOmmBalance().toNumber()],
         range: { min: 0, max: sliderMax.isGreaterThan(Utils.ZERO) ? sliderMax.dp(0).toNumber() : 1 }
       });
 
-      this.sliderStake.noUiSlider.set(this.userOmmTokenBalanceDetails.stakedBalance.dp(0).toNumber());
+      this.sliderStake.noUiSlider.set(this.persistenceService.getUsersLockedOmmBalance().toNumber());
     });
   }
 
   private subscribeToUserModalActionChange(): void {
     // User confirmed the modal action
     this.stateChangeService.userModalActionChange.subscribe((modalAction?: ModalAction) => {
-      this.onStakeAdjustCancelClick();
+      this.onLockAdjustCancelClick();
       this.collapseAllPoolTables();
     });
   }
@@ -290,9 +296,9 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
 
   initStakeSlider(): void {
     this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails?.getClone();
-    const currentUserOmmStakedBalance = this.persistenceService.getUsersStakedOmmBalance();
+    const usersLockedOmmBalance = this.persistenceService.getUsersLockedOmmBalance();
     const userOmmAvailableBalance = this.persistenceService.getUsersAvailableOmmBalance();
-    const max = Utils.add(currentUserOmmStakedBalance, userOmmAvailableBalance).dp(0);
+    const max = Utils.add(usersLockedOmmBalance, userOmmAvailableBalance).dp(0);
 
     // create Stake slider
     if (this.sliderStake) {
@@ -308,29 +314,37 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
       });
     }
 
-    // slider slider value if user Omm token balances are already loaded
+    // slider value if user Omm token balances are already loaded
     if (this.userOmmTokenBalanceDetails) {
-      this.sliderStake.noUiSlider.set(this.userOmmTokenBalanceDetails.stakedBalance.dp(0).toNumber());
+      this.sliderStake.noUiSlider.set(this.persistenceService.getUsersLockedOmmBalance().toNumber());
     }
 
     // On stake slider update
     this.sliderStake.noUiSlider.on('update', (values: any, handle: any) => {
       const value = new BigNumber(values[handle]);
 
-      if (this.stakeDailyRewEl && this.userLoggedIn()) {
-        const dailyUsersOmmStakingRewards = this.calculationService.calculateDailyUsersOmmStakingRewards(value);
-        this.setText(this.stakeDailyRewEl, this.formatNumberToUSLocaleString(dailyUsersOmmStakingRewards.dp(2))
-          + (dailyUsersOmmStakingRewards.isGreaterThan(Utils.ZERO) ? " OMM" : ""));
-      }
+      // TODO: implement new daily OMM rewards based on the locked OMM and veOMM
+      // if (this.lockDailyRewardsEl && this.userLoggedIn()) {
+      //   const dailyUsersOmmStakingRewards = this.calculationService.calculateDailyUsersOmmStakingRewards(value);
+      //   this.setText(this.lockDailyRewardsEl, this.formatNumberToUSLocaleString(dailyUsersOmmStakingRewards.dp(2))
+      //     + (dailyUsersOmmStakingRewards.isGreaterThan(Utils.ZERO) ? " OMM" : ""));
+      // }
 
       // Update Omm stake input text box
-      this.inputStakeOmm.value = normalFormat.to(parseFloat(values[handle]));
+      this.inputLockOmm.value = normalFormat.to(parseFloat(values[handle]));
 
       if (this.userOmmTokenBalanceDetails) {
-        this.userOmmTokenBalanceDetails.stakedBalance = value;
+        this.userLockedOmmBalance = value;
       }
     });
   }
+
+  getLockSliderMax(): BigNumber {
+    // sliders max is sum of locked + available balance
+    return Utils.add(this.persistenceService.getUsersLockedOmmBalance(),
+      this.persistenceService.getUsersAvailableOmmBalance());
+  }
+
 
   shouldHideClaimBtn(): boolean {
     const userOmmRewardsTotal = this.persistenceService.userOmmRewards?.total ?? new BigNumber("0");
@@ -367,15 +381,15 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     }
   }
 
-  getMarketRewards(): BigNumber {
+  getUserMarketRewards(): BigNumber {
     return this.persistenceService.userOmmRewards?.reserve.total ?? new BigNumber("0");
   }
 
-  getStakingRewards(): BigNumber {
-    return this.persistenceService.userOmmRewards?.staking?.total ?? new BigNumber("0");
+  getUserLockingRewards(): BigNumber {
+    return this.persistenceService.userOmmRewards?.locking?.total ?? new BigNumber("0");
   }
 
-  getLiquidityRewards(): BigNumber {
+  getUserLiquidityRewards(): BigNumber {
     return this.persistenceService.userOmmRewards?.liquidity?.total ?? new BigNumber("0");
   }
 
@@ -485,8 +499,8 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     return this.persistenceService.dailyRewardsAllPoolsReserves?.reserve.total ?? new BigNumber("0");
   }
 
-  getDailyStakingRewards(): BigNumber {
-    return this.persistenceService.dailyRewardsAllPoolsReserves?.staking?.total ?? new BigNumber("0");
+  getDailyOmmLockingRewards(): BigNumber {
+    return this.persistenceService.dailyRewardsAllPoolsReserves?.OMMLocking?.total ?? new BigNumber("0");
   }
 
   getDailyLiquidityRewards(): BigNumber {
@@ -556,6 +570,12 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   usersBoostedOmmDailyRewards(): BigNumber {
     // TODO get actual users boosted omm daily rewards
     return new BigNumber(0);
+
+    // if (this.userLoggedIn()) {
+    //   return this.yourDailyRewards;
+    // } else {
+    //   return this.dailyOmmRewards;
+    // }
   }
 
   usersBoostedOmmMarketRewards(): { from: BigNumber, to: BigNumber} {
@@ -570,5 +590,22 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
 
   fromToIsEmpty(fromTo: { from: BigNumber, to: BigNumber}): boolean {
     return fromTo.from.isZero() && fromTo.to.isZero();
+  }
+
+  isMaxOmmLocked(): boolean {
+    return new BigNumber(this.sliderStake?.noUiSlider?.options.range.max)
+      .isEqualTo(this.userOmmTokenBalanceDetails?.availableBalance ?? -1);
+  }
+
+  onLockedDateDropdownClick(): void {
+    $(".dropdown-content.locked-selector").toggleClass('active');
+  }
+
+  onLockUntilDateClick(date: string): void {
+    this.selectedLockTime = lockedDatesToMilliseconds.get(date) ?? Times.WEEK_IN_MILLISECONDS;
+  }
+
+  userBOMMbalance(): BigNumber {
+    return this.persistenceService.userbOmmBalance;
   }
 }

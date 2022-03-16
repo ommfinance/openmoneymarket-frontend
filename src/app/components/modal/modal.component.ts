@@ -23,7 +23,7 @@ import {LedgerWallet} from "../../models/wallets/LedgerWallet";
 import log from "loglevel";
 import {TransactionDispatcherService} from "../../services/transaction-dispatcher/transaction-dispatcher.service";
 import {OmmService} from "../../services/omm/omm.service";
-import {VoteService} from "../../services/vote/vote.service";
+import {VoteAndLockingService} from "../../services/vote/vote-and-locking.service";
 import {LoginService} from "../../services/login/login.service";
 import {IconexWallet} from "../../models/wallets/IconexWallet";
 import {ClaimIcxService} from "../../services/claim-icx/claim-icx.service";
@@ -56,6 +56,7 @@ export class ModalComponent extends BaseClass implements OnInit {
   @ViewChild('poolUnstakeModal', { static: true }) poolUnstakeModal!: ElementRef;
   @ViewChild('submitProposal', { static: true }) submitProposalModal!: ElementRef;
   @ViewChild('submitVote', { static: true }) submitVoteModal!: ElementRef;
+  @ViewChild('lockOmm', { static: true }) lockOmmModal!: ElementRef;
 
   activeModalSubscription: Subscription;
   activeModal?: HTMLElement;
@@ -90,7 +91,7 @@ export class ModalComponent extends BaseClass implements OnInit {
               private loginService: LoginService,
               private transactionDispatcherService: TransactionDispatcherService,
               private ommService: OmmService,
-              private voteService: VoteService,
+              private voteService: VoteAndLockingService,
               private claimIcxService: ClaimIcxService,
               private calculationService: CalculationsService,
               private stakeLpService: StakeLpService) {
@@ -136,6 +137,10 @@ export class ModalComponent extends BaseClass implements OnInit {
           break;
         case ModalType.CANCEL_VOTE:
           this.setActiveModal(this.submitVoteModal.nativeElement, activeModalChange);
+          break;
+        case ModalType.LOCK_OMM:
+          this.setActiveModal(this.lockOmmModal.nativeElement, activeModalChange);
+          log.debug("Locking time:", activeModalChange.lockingOmmAction?.lockingTime.toString());
           break;
         default:
           // check if it is ICX withdraw action and show corresponding specific view / modal
@@ -198,11 +203,6 @@ export class ModalComponent extends BaseClass implements OnInit {
       this.activeLedgerAddressPageList.push(i);
     }
 
-    log.debug("******** onLedgerPageNextClick ********");
-    log.debug(`activeLedgerAddressWindow = ${this.activeLedgerAddressWindow}`);
-    log.debug(`activeLedgerAddressPageList = ${this.activeLedgerAddressPageList}`);
-    log.debug(`selectedLedgerAddressPage = ${this.activeLedgerAddressPageList[0]}`);
-
     this.selectedLedgerAddressPage = this.activeLedgerAddressPageList[0];
 
     this.fetchLedgerWallets();
@@ -244,6 +244,23 @@ export class ModalComponent extends BaseClass implements OnInit {
       this.notificationService.showNewNotification("Can not get Icon addresses from Ledger device." +
         " Make sure it is connected and try again.");
     });
+  }
+
+  onConfirmLockUpOmmClick(): void {
+    // store user action in local storage
+    this.localStorageService.persistModalAction(this.activeModalChange!);
+
+    const amount = this.activeModalChange?.lockingOmmAction?.amount!;
+    const unlockTime = this.activeModalChange?.lockingOmmAction?.lockingTime!;
+
+    // build and dispatch lock OMM tx
+    this.voteService.lockOmm(amount, unlockTime, "Locking Omm Tokens...");
+
+    // commit modal action change
+    this.stateChangeService.updateUserModalAction(this.activeModalChange!);
+
+    // hide current modal
+    this.modalService.hideActiveModal();
   }
 
   onClaimOmmRewardsClick(): void {
@@ -537,7 +554,7 @@ export class ModalComponent extends BaseClass implements OnInit {
   }
 
   userHasEnoughOmmStaked(): boolean {
-    return this.persistenceService.getUsersStakedOmmBalance().gte(this.persistenceService.getMinOmmStakedRequiredForProposal());
+    return this.persistenceService.getUsersLockedOmmBalance().gte(this.persistenceService.getMinOmmStakedRequiredForProposal());
   }
 
   getVoteDuration(): string {

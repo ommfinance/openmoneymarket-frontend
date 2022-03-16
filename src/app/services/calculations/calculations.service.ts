@@ -153,7 +153,7 @@ export class CalculationsService {
   public usersVotingPower(): BigNumber {
     const ommVotingPower = this.ommVotingPower();
     const totalStakedOmm = this.persistenceService.totalStakedOmm;
-    const userStakedOmmToken = this.persistenceService.getUsersStakedOmmBalance();
+    const userStakedOmmToken = this.persistenceService.getUsersLockedOmmBalance();
 
     return (ommVotingPower.dividedBy(totalStakedOmm).multipliedBy(userStakedOmmToken)).dp(2);
   }
@@ -697,7 +697,7 @@ export class CalculationsService {
   /** Formulae: Daily OMM staking rewards* User's OMM staked/Total OMM staked */
   public calculateDailyUsersOmmStakingRewards(stakedOmm?: BigNumber): BigNumber {
     const dailyOmmStakingRewards = this.calculateDailyOmmStakingRewards();
-    const usersOmmStaked = stakedOmm ? stakedOmm : this.persistenceService.getUsersStakedOmmBalance();
+    const usersOmmStaked = stakedOmm ? stakedOmm : this.persistenceService.getUsersLockedOmmBalance();
     const totalOmmStaked = this.persistenceService.totalStakedOmm;
 
     if (dailyOmmStakingRewards.isLessThanOrEqualTo(Utils.ZERO) || usersOmmStaked.isLessThanOrEqualTo(Utils.ZERO)

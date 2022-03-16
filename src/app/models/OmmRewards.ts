@@ -2,20 +2,21 @@ import BigNumber from "bignumber.js";
 
 export class OmmRewards {
   liquidity?: Liquidity;
-  staking?: Staking;
+  locking?: Locking;
   reserve: Reserve;
   total: BigNumber;
+  now: BigNumber;
 
-
-  constructor(reserve: Reserve, total: BigNumber, liquidity?: Liquidity, staking?: Staking) {
+  constructor(reserve: Reserve, total: BigNumber, now: BigNumber, liquidity?: Liquidity, locking?: Locking) {
     this.liquidity = liquidity;
-    this.staking = staking;
+    this.locking = locking;
     this.reserve = reserve;
     this.total = total;
+    this.now = now;
   }
 
   public getClone(): OmmRewards {
-    return new OmmRewards(this.reserve, this.total, this.liquidity, this.staking);
+    return new OmmRewards(this.reserve, this.total, this.now, this.liquidity, this.locking);
   }
 }
 
@@ -33,12 +34,12 @@ export class Liquidity {
   }
 }
 
-export class Staking {
-  OMM: BigNumber;
+export class Locking {
+  bOMM: BigNumber;
   total: BigNumber;
 
   constructor(OMM: BigNumber, total: BigNumber) {
-    this.OMM = OMM;
+    this.bOMM = OMM;
     this.total = total;
   }
 }
@@ -65,26 +66,31 @@ export class Reserve {
 }
 
 // Example response
-// {
-//   "liquidity": {
-//   "OMM/SICX": "0x1aa4b1bab30d23348b1",
-//     "OMM/USDS": "0x1b7385ebca36e08954e",
-//     "OMM/IUSDC": "0x406f49cb54104f282b7",
-//     "total": "0x406f49cb54104f282b7"
-// },
-//   "staking": {
-//   "OMM": "0x57214ee5a8ee19c783c",
-//     "total": "0x57214ee5a8ee19c783c"
-// },
-//   "reserve": {
-//   "oUSDS": "0x16a1b5b6780ba093984",
-//     "total": "0x13371d016451390196c71e12e60",
-//     "dUSDS": "0x0",
-//     "dICX": "0x0",
-//     "oICX": "0x6f06ad64f56d6f0ae",
-//     "oIUSDC": "0x0",
-//     "dIUSDC": "0x13371d016451390196c71e12e60"
-// },
-//   "total": "0x13371d02490ac5bcee0a98c3184"
-// }
+// OMMLocking:
+//   bOMM: "0x0"
+//   total: "0x0"
+//
+// liquidity:
+//   OMM/IUSDC: "0x0"
+//   OMM/USDS: "0x0"
+//   OMM/sICX: "0x0"
+//   total: "0x0"
+//
+// now: "0x622bc44b"
+// reserve:
+//   dBALN: "0x0"
+//   dICX: "0x0"
+//   dIUSDC: "0x0"
+//   dOMM: "0x0"
+//   dUSDS: "0x0"
+//   dbnUSD: "0x0"
+//   oBALN: "0x0"
+//   oICX: "0x0"
+//   oIUSDC: "0x0"
+//   oOMM: "0x0"
+//   oUSDS: "0x0"
+//   obnUSD: "0x0"
+//   total: "0x0"
+//
+// total: "0x0"
 

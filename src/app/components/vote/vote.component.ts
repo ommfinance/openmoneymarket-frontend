@@ -6,7 +6,7 @@ import {ModalService} from "../../services/modal/modal.service";
 import log from "loglevel";
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
-import {VoteService} from "../../services/vote/vote.service";
+import {VoteAndLockingService} from "../../services/vote/vote-and-locking.service";
 import {Prep, PrepList} from "../../models/Preps";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {YourPrepVote} from "../../models/YourPrepVote";
@@ -56,7 +56,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   constructor(public persistenceService: PersistenceService,
               private modalService: ModalService,
               private stateChangeService: StateChangeService,
-              private voteService: VoteService,
+              private voteService: VoteAndLockingService,
               public calculationsService: CalculationsService,
               private notificationService: NotificationService,
               private sliderService: SlidersService,
@@ -141,7 +141,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       log.debug(`this.userOmmTokenBalanceDetails:`, this.userOmmTokenBalanceDetails);
 
       // sliders max is sum of staked + available balance
-      const sliderMax = Utils.add(this.persistenceService.getUsersStakedOmmBalance(),
+      const sliderMax = Utils.add(this.persistenceService.getUsersLockedOmmBalance(),
         this.persistenceService.getUsersAvailableOmmBalance());
 
       this.sliderStake.noUiSlider.updateOptions({
@@ -157,7 +157,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   initStakeSlider(): void {
     this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails?.getClone();
-    const currentUserOmmStakedBalance = this.persistenceService.getUsersStakedOmmBalance();
+    const currentUserOmmStakedBalance = this.persistenceService.getUsersLockedOmmBalance();
     const userOmmAvailableBalance = this.persistenceService.getUsersAvailableOmmBalance();
     const max = Utils.add(currentUserOmmStakedBalance, userOmmAvailableBalance).dp(0);
 
@@ -229,7 +229,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
     // Set your stake slider to the initial value
     this.sliderStake.setAttribute("disabled", "");
-    this.sliderStake.noUiSlider.set(this.persistenceService.getUsersStakedOmmBalance().toNumber());
+    this.sliderStake.noUiSlider.set(this.persistenceService.getUsersLockedOmmBalance().toNumber());
   }
 
   // On "Adjust votes" click
@@ -247,7 +247,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   onConfirmStakeClick(): void {
     log.debug(`onConfirmStakeClick Omm stake amount = ${this.userOmmTokenBalanceDetails?.stakedBalance}`);
-    const before = this.persistenceService.getUsersStakedOmmBalance();
+    const before = this.persistenceService.getUsersLockedOmmBalance();
     log.debug("before = ", before);
     const after = (this.userOmmTokenBalanceDetails?.stakedBalance ?? new BigNumber("0")).dp(0);
     log.debug("after = ", after);
@@ -341,12 +341,12 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   userHasStaked(): boolean {
-    return this.persistenceService.getUsersStakedOmmBalance().isGreaterThan(Utils.ZERO);
+    return this.persistenceService.getUsersLockedOmmBalance().isGreaterThan(Utils.ZERO);
   }
 
   userVotingPower(): BigNumber {
     if (this.userLoggedIn()) {
-      return this.votingPower().multipliedBy(this.persistenceService.getUsersStakedOmmBalance());
+      return this.votingPower().multipliedBy(this.persistenceService.getUsersLockedOmmBalance());
     } else {
       return new BigNumber("0");
     }
@@ -432,7 +432,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   getDelegationAmount(yourPrepVote: YourPrepVote): BigNumber {
-    return (this.persistenceService.getUsersStakedOmmBalance().multipliedBy((yourPrepVote.percentage
+    return (this.persistenceService.getUsersLockedOmmBalance().multipliedBy((yourPrepVote.percentage
       .dividedBy(new BigNumber("100"))).multipliedBy(this.votingPower()))).dp(2);
   }
 
@@ -475,7 +475,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   getYourStakeMax(): BigNumber {
     // sliders max is sum of staked + available balance
-    return Utils.add(this.persistenceService.getUsersStakedOmmBalance(),
+    return Utils.add(this.persistenceService.getUsersLockedOmmBalance(),
         this.persistenceService.getUsersAvailableOmmBalance());
   }
 

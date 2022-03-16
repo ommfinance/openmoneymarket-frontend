@@ -19,6 +19,7 @@ import BigNumber from "bignumber.js";
 import {Proposal} from "../../models/Proposal";
 import {Vote} from "../../models/Vote";
 import {InterestHistory} from "../../models/InterestHistory";
+import {LockedOmm} from "../../models/LockedOmm";
 
 @Injectable({
   providedIn: 'root'
@@ -145,6 +146,15 @@ export class StateChangeService {
   private interestHistoryChange: Subject<InterestHistory[]> = new Subject<InterestHistory[]>();
   interestHistoryChange$: Observable<InterestHistory[]> = this.interestHistoryChange.asObservable();
 
+  private userLockedOmmChange = new Subject<LockedOmm>();
+  userLockedOmmChange$ = this.userLockedOmmChange.asObservable();
+
+  private userbOmmBalanceChange = new Subject<BigNumber>();
+  userbOmmBalanceChange$ = this.userbOmmBalanceChange.asObservable();
+
+  private bOmmTotalSupplyChange = new Subject<BigNumber>();
+  bOmmTotalSupplyChange$ = this.bOmmTotalSupplyChange.asObservable();
+
   /**
    * Subscribable subject for monitoring the user debt changes for each asset
    */
@@ -191,6 +201,21 @@ export class StateChangeService {
         }
       });
     });
+  }
+
+  public bOmmTotalSupplyUpdate(totalSupply: BigNumber): void {
+    this.persistenceService.bOmmTotalSupply = totalSupply;
+    this.bOmmTotalSupplyChange.next(totalSupply);
+  }
+
+  public userbOmmBalanceUpdate(balance: BigNumber): void {
+    this.persistenceService.userbOmmBalance = balance;
+    this.userbOmmBalanceChange.next(balance);
+  }
+
+  public userLockedOmmUpdate(lockedOmm: LockedOmm): void {
+    this.persistenceService.userLockedOmm = lockedOmm;
+    this.userLockedOmmChange.next(lockedOmm);
   }
 
   public interestHistoryUpdate(interestHistory: InterestHistory[]): void {

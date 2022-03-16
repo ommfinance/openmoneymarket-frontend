@@ -30,6 +30,8 @@ import BigNumber from "bignumber.js";
 import {Vote, VotersCount} from "../../models/Vote";
 import {Proposal} from "../../models/Proposal";
 import {HttpClient} from "@angular/common/http";
+import {LockedOmm} from "../../models/LockedOmm";
+import {LockedOmmI} from "../../models/LockedOmmI";
 
 
 @Injectable({
@@ -67,7 +69,7 @@ export class ScoreService {
       _day: day,
     };
 
-    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Rewards,
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.RewardWeightController,
       ScoreMethodNames.GET_TOKEN_DISTRIBUTION_PER_DAY, params, IconTransactionType.READ);
 
     const res = await this.iconApiService.iconService.call(tx).execute();
@@ -80,7 +82,7 @@ export class ScoreService {
   public async getRewardsDay(): Promise<string> {
     this.checkerService.checkAllAddressesLoaded();
 
-    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Rewards,
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.RewardWeightController,
       ScoreMethodNames.GET_DAY, {}, IconTransactionType.READ);
 
     const res = await this.iconApiService.iconService.call(tx).execute();
@@ -427,7 +429,7 @@ export class ScoreService {
     this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
 
     const decimals = this.persistenceService.allReserves!.getReserveData(assetTag).decimals;
-    const method = assetTag === AssetTag.BALN ? ScoreMethodNames.AVAILABLE_BALANCE_OF : ScoreMethodNames.BALANCE;
+    const method = assetTag === AssetTag.BALN ? ScoreMethodNames.AVAILABLE_BALANCE_OF : ScoreMethodNames.BALANCE_OF;
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.collateralAddress(assetTag),
       method, {
@@ -549,12 +551,61 @@ export class ScoreService {
   public async getAllAssetsRewardDistributionPercentages(): Promise<AllAssetDistPercentages> {
     this.checkerService.checkAllAddressesLoaded();
 
-    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Rewards,
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.RewardWeightController,
       ScoreMethodNames.GET_ALL_ASSET_DIST_PERCENTAGE, {}, IconTransactionType.READ);
 
     const res: AllAssetDistPercentages = await this.iconApiService.iconService.call(tx).execute();
 
     return Mapper.mapAllAssetDistPercentages(res);
+  }
+
+  /**
+   * @description Get users locked OMM token amount
+   * @return LockedOmm - Locked OMM tokens amount and end
+   */
+  public async getUserLockedOmmTokens(): Promise<LockedOmm> {
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
+    const params = { _owner: this.persistenceService.activeWallet!.address};
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.bOMM,
+      ScoreMethodNames.GET_LOCKED_OMM, params, IconTransactionType.READ);
+
+    const res: LockedOmmI = await this.iconApiService.iconService.call(tx).execute();
+
+    return Mapper.mapLockedOmm(res);
+  }
+
+  /**
+   * @description Get users bOMM balance
+   * @return BigNumber - Users bOMM balance as BigNumber
+   */
+  public async getUsersbOmmBalance(): Promise<BigNumber> {
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
+    const params = { address: this.persistenceService.activeWallet!.address};
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.bOMM,
+      ScoreMethodNames.BALANCE_OF, params, IconTransactionType.READ);
+
+    const res: string = await this.iconApiService.iconService.call(tx).execute();
+
+    return Utils.hexToNormalisedNumber(res);
+  }
+
+  /**
+   * @description Get total bOMM supply
+   * @return BigNumber - Total bOMM supply
+   */
+  public async getTotalbOmmSupply(): Promise<BigNumber> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.bOMM,
+      ScoreMethodNames.TOTAL_SUPPLY, {}, IconTransactionType.READ);
+
+    const res: string = await this.iconApiService.iconService.call(tx).execute();
+
+    return Utils.hexToNormalisedNumber(res);
   }
 
   /**
@@ -564,7 +615,7 @@ export class ScoreService {
   public async getDailyRewardsDistributions(): Promise<DailyRewardsAllReservesPools> {
     this.checkerService.checkAllAddressesLoaded();
 
-    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Rewards,
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.RewardWeightController,
       ScoreMethodNames.GET_DAILY_REWARDS_RESERVES_POOLS, {}, IconTransactionType.READ);
 
     const res: DailyRewardsAllReservesPools = await this.iconApiService.iconService.call(tx).execute();
@@ -708,13 +759,13 @@ export class ScoreService {
    * @description Get vote definition criteria
    * @return  BigNumber - percentage representing vote definition criteria
    */
-  public async getVoteDefinitionCriteria(): Promise<BigNumber> {
+  public async getBoostedOmmVoteDefinitionCriteria(): Promise<BigNumber> {
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Governance,
-      ScoreMethodNames.GET_OMM_VOTE_DEFINITION_CRITERION, {}, IconTransactionType.READ);
+      ScoreMethodNames.GET_BOOSTED_OMM_VOTE_DEFINITION_CRITERION, {}, IconTransactionType.READ);
 
     const res = await this.iconApiService.iconService.call(tx).execute();
 
-    log.debug(`getVoteDefinitionCriteria = ${res}`);
+    log.debug(`getBoostedOmmVoteDefinitionCriteria = ${res}`);
 
     return Utils.hexToNormalisedNumber(res);
   }

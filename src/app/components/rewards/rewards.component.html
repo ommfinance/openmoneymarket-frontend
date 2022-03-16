@@ -56,7 +56,7 @@
               <div class="tooltip-content"><p>The amount you've earned by supplying or borrowing assets since you last claimed.</p></div>
             </span>
             </dt>
-            <dd [ngStyle]="{opacity: getMarketRewards().gt(ZERO) ? null : 0.5}">{{getMarketRewards() | roundOff2Dec | usFormat}} <span class="label">{{getMarketRewards().gt(ZERO) ? "OMM" :  ""}}</span></dd>
+            <dd [ngStyle]="{opacity: getUserMarketRewards().gt(ZERO) ? null : 0.5}">{{getUserMarketRewards() | roundOff2Dec | usFormat}} <span class="label">{{getUserMarketRewards().gt(ZERO) ? "OMM" :  ""}}</span></dd>
           </dl>
         </div>
 
@@ -69,7 +69,7 @@
               <div class="tooltip-content"><p>The amount you've earned from your locked OMM since you last claimed.</p></div>
             </span>
             </dt>
-            <dd [ngStyle]="{opacity: getStakingRewards().gt(ZERO) ? null : 0.5}">{{getStakingRewards() | roundOff2Dec | usFormat}} <span class="label">{{getStakingRewards().isGreaterThan(ZERO) ? "OMM" :  ""}}</span></dd>
+            <dd [ngStyle]="{opacity: getUserLockingRewards().gt(ZERO) ? null : 0.5}">{{getUserLockingRewards() | roundOff2Dec | usFormat}} <span class="label">{{getUserLockingRewards().isGreaterThan(ZERO) ? "OMM" :  ""}}</span></dd>
           </dl>
         </div>
 
@@ -82,7 +82,7 @@
               <div class="tooltip-content"><p>The amount you've earned by staking LP tokens since you last claimed.</p></div>
             </span>
             </dt>
-            <dd [ngStyle]="{opacity: getLiquidityRewards().gt(ZERO) ? null : 0.5}">{{getLiquidityRewards() | roundOff2Dec | usFormat}} <span class="label">{{getLiquidityRewards().isGreaterThan(ZERO) ? "OMM" :  ""}}</span></dd>
+            <dd [ngStyle]="{opacity: getUserLiquidityRewards().gt(ZERO) ? null : 0.5}">{{getUserLiquidityRewards() | roundOff2Dec | usFormat}} <span class="label">{{getUserLiquidityRewards().isGreaterThan(ZERO) ? "OMM" :  ""}}</span></dd>
           </dl>
         </div>
       </ng-container>
@@ -115,7 +115,7 @@
             <div class="tooltip-content"><p>Lock up OMM to earn these rewards.</p></div>
           </span>
           </dt>
-          <dd>{{getDailyStakingRewards() | roundOff2Dec | usFormat}} <span class="label">{{getDailyStakingRewards().isGreaterThan(ZERO) ? "OMM":""}}</span></dd>
+          <dd>{{getDailyOmmLockingRewards() | roundOff2Dec | usFormat}} <span class="label">{{getDailyOmmLockingRewards().isGreaterThan(ZERO) ? "OMM":""}}</span></dd>
         </dl>
       </div>
       <div class="grid-cell text-center">
@@ -153,7 +153,7 @@
             <div class="grid">
               <!-- Heading -->
               <div class="grid-cell">
-                <h3>Earning potential
+                <h3>Earning potential <span *ngIf="!userBOMMbalance().isZero() && userBOMMbalance().isPositive()" class="label value-bomm-total">{{userBOMMbalance() | roundDown2Dec | usFormat | toZeroIfDash }} bOMM</span>
                   <span class="bomm-tooltip tooltip">
                     <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
                     <div class="tooltip-content">
@@ -166,18 +166,21 @@
                 </h3>
               </div>
               <!-- Button -->
-              <div class="grid-cell">
-                <p class="text-right"><a href="#" class="button hide" id="boost-adjust" style="margin-top: 0;">{{boostAdjustLabel()}}</a></p>
+              <div class="grid-cell" [ngStyle]="hideElement(shouldHideBoostedSlider())">
+                <p class="text-right" [ngStyle]="hideElement(stakeAdjustActive)">
+                  <a href="javascript:void(0);" class="button" id="boost-adjust" style="margin-top: 0;" (click)="onLockAdjustClick()">{{boostAdjustLabel()}}</a>
+                </p>
 
-                <div class="boost-adjust-actions hide">
+                <div class="boost-adjust-actions" [ngStyle]="hideElement(!stakeAdjustActive)">
                   <div class="grid">
                     <div class="grid-cell">
                       <div class="grid grid-center">
                         <div class="grid-cell text-right">
-                          <a href="#" class="cancel boost-cancel" (click)="onStakeAdjustCancelClick()">Cancel</a>
+                          <a href="javascript:void(0);" class="cancel boost-cancel" (click)="onLockAdjustCancelClick()">Cancel</a>
                         </div>
                         <div class="grid-cell">
-                          <a href="#" class="button modal-trigger" style="margin-top: 0;" data-modal="modal-boost-confirm">Confirm</a>
+                          <a href="javascript:void(0);" class="button modal-trigger" style="margin-top: 0;"
+                             data-modal="modal-boost-confirm" (click)="onConfirmLockOmmClick()">Confirm</a>
                         </div>
                       </div>
                     </div>
@@ -193,25 +196,24 @@
               </dl>
             </div>
             <div id="slider-boost" disabled="" #stkSlider [ngStyle]="hideElement(shouldHideBoostedSlider())"></div>
-            <div class="grid grid-center">
-              <div class="grid-cell hide" style="max-width: 200px;">
-                <p class="label"><input id="input-boost" class="input-boost hide" type="text" name=""><span class="omm-locked">0</span> / 4,000 OMM</p>
+            <div class="grid grid-center" [ngStyle]="hideElement(shouldHideBoostedSlider())">
+              <div class="grid-cell" style="max-width: 200px;">
+                <p class="label">
+                  <input [ngStyle]="hideElement(!stakeAdjustActive)" #lockInput id="input-boost" (input)="onInputLockChange()"
+                                        class="input-boost" type="text" name=""><span [ngStyle]="hideElement(stakeAdjustActive)" class="omm-locked">0</span> / {{getLockSliderMax() | usFormat}} OMM</p>
               </div>
               <div class="grid-cell text-right">
                 <p class="label text-red boost-message hide">You'll need to pay a 50% fee to unlock OMM early.</p>
-                <p class="label locked-default hide">Locked until 20 Aug 2022</p>
-                <div class="locked-adjust hide">
-                  <p><span class="label">Locked until </span> <a class="dropdown time-selector"><span class="animation-underline locked-selector">20 Aug 2022</span></a></p>
+                <p class="label locked-default" [ngStyle]="hideElement(stakeAdjustActive || userLockedOmmBalance.isZero())">Locked until {{selectedLockDateString()}}</p>
+                <div class="locked-adjust" [ngStyle]="hideElement(!stakeAdjustActive)">
+                  <p>
+                    <span class="label">Locked until </span> <a class="dropdown time-selector" (click)="onLockedDateDropdownClick()"><span class="animation-underline locked-selector">{{selectedLockDateString()}}</span></a></p>
                   <div class="grid dropdown-content locked-selector">
                     <div class="grid-cell">
                       <ul>
-                        <li>1 week</li>
-                        <li>1 month</li>
-                        <li>3 months</li>
-                        <li>6 months</li>
-                        <li>1 year</li>
-                        <li>2 years</li>
-                        <li>4 years</li>
+                        <ng-container *ngFor="let date of lockedUntilDateOptions;">
+                          <li (click)="onLockUntilDateClick(date)">{{date}}</li>
+                        </ng-container>
                       </ul>
                     </div>
                   </div>
@@ -227,7 +229,14 @@
               <div class="grid-cell border-right">
                 <dl class="metadata">
                   <dt>Daily rewards</dt>
-                  <dd><span class="value-network-fees">{{to2DecimalRoundedOffPercentString(usersBoostedOmmDailyRewards())}}</span></dd>
+                  <dd #lockDailyRew>
+                    <ng-container *ngIf="userLoggedIn()">
+                      {{to2DecimalRoundedOffPercentString(usersBoostedOmmDailyRewards()) | roundOff2Dec | usFormat}} OMM <span class="label">(<span class=" text-green">40% APR</span>)</span>
+                    </ng-container>
+                    <ng-container *ngIf="!userLoggedIn()">
+                      <span class=" text-green">40% APR</span>
+                    </ng-container>
+                  </dd>
                 </dl>
               </div>
               <div class="grid-cell border-right">

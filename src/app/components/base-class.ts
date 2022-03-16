@@ -153,4 +153,14 @@ export class BaseClass {
     return environment.production;
   }
 
+  public timestampInMillisecondsToPrettyDate(timestamp?: BigNumber): string {
+    if (!timestamp) { return ""; }
+    return Utils.timestampInMillisecondsToPrettyDate(timestamp);
+  }
+
+  public addTimestampToNowToPrettyDate(timestamp?: BigNumber): string {
+    if (!timestamp) { return ""; }
+    return this.timestampInMillisecondsToPrettyDate(Utils.timestampNowMilliseconds().plus(timestamp));
+  }
+
 }

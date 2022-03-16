@@ -24,6 +24,7 @@ import BigNumber from "bignumber.js";
 import {Proposal} from "../../models/Proposal";
 import {Vote} from "../../models/Vote";
 import {InterestHistory} from "../../models/InterestHistory";
+import {LockedOmm} from "../../models/LockedOmm";
 
 @Injectable({
   providedIn: 'root'
@@ -54,10 +55,13 @@ export class PersistenceService {
   public userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
   public userUnstakingInfo?: UnstakeInfo;
   public userClaimableIcx?: BigNumber;
+  public userLockedOmm?: LockedOmm;
+  public userbOmmBalance = new BigNumber("0");
   public userDebt: Map<CollateralAssetTag, BigNumber | undefined> = new Map<CollateralAssetTag, BigNumber | undefined>();
   public minOmmStakeAmount = new BigNumber("1");
   public totalStakedOmm = new BigNumber("0");
   public totalSuppliedOmm = new BigNumber("0");
+  public bOmmTotalSupply = new BigNumber("0");
   public ommPriceUSD = new BigNumber("-1"); // -1 indicates that ommPriceUSD is not set
 
   public tokenDistributionPerDay = new BigNumber("0");
@@ -145,8 +149,8 @@ export class PersistenceService {
     return this.userDebt.get(assetTag) ?? new BigNumber("0");
   }
 
-  public getUsersStakedOmmBalance(): BigNumber {
-    return (this.userOmmTokenBalanceDetails?.stakedBalance ?? new BigNumber("0")).dp(0);
+  public getUsersLockedOmmBalance(): BigNumber {
+    return (this.userLockedOmm?.amount ?? new BigNumber("0")).dp(0);
   }
 
   public getUsersAvailableOmmBalance(): BigNumber {

@@ -275,6 +275,16 @@ export class Utils {
     return timestamp.plus(microSecond.multipliedBy(seconds));
   }
 
+  /**
+   * @description Return converted timestamp in date as dd mon yyyy format (e.g. 12 Mar 2022)
+   */
+  public static timestampInMillisecondsToPrettyDate(timestamp: BigNumber): string {
+    const date = new Date(timestamp.toNumber());
+    return date.toLocaleDateString('en-GB', {
+      day: 'numeric', month: 'short', year: 'numeric'
+    });
+  }
+
   public static textContainsDomain(domain: string, text: string): boolean {
     const regExp = new RegExp('^(?:https?:\\/\\/)?(?:[^@\\/\\n]+@)?(?:www\\.)?([^:\\/?\\n]+)');
     const res = regExp.exec(text);
