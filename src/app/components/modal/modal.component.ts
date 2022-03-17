@@ -160,7 +160,14 @@ export class ModalComponent extends BaseClass implements OnInit {
 
   onSignInIconexClick(): void {
     this.modalService.hideActiveModal();
-    this.iconexApiService.hasAccount();
+
+    // if user has wallet extension request account address
+    if (this.iconexApiService.hasWalletExtension) {
+      this.iconexApiService.hasAccount();
+    } else {
+      // redirect to Hana extension link else
+      window.open("https://chrome.google.com/webstore/detail/hana/jfdlamikmbghhapbgfoogdffldioobgl?hl=en", "_blank");
+    }
   }
 
   onSignInBridgeClick(): void {
@@ -241,8 +248,8 @@ export class ModalComponent extends BaseClass implements OnInit {
     }).catch(e => {
       this.modalService.hideActiveModal();
       log.error(e);
-      this.notificationService.showNewNotification("Can not get Icon addresses from Ledger device." +
-        " Make sure it is connected and try again.");
+      this.notificationService.showNewNotification("Couldn’t detect Ledger.\n" +
+        "Make sure it’s connected and try again.");
     });
   }
 
