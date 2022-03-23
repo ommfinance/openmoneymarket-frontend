@@ -21,6 +21,52 @@ export class CalculationsService {
   constructor(private persistenceService: PersistenceService,
               private stateChangeService: StateChangeService) { }
 
+  public calculateMarketRewardsSupplyMultiplier(assetTag: AssetTag): BigNumber {
+    const userAssetSupply = this.persistenceService.getUserSuppliedAssetBalance(assetTag);
+    const totalAssetSupply = this.persistenceService.getReserveTotalLiquidity(assetTag);
+    const userbOMMBalance = this.persistenceService.userbOmmBalance;
+    const totalbOMMBalance = this.persistenceService.bOmmTotalSupply;
+
+    return this.bOmmRewardsMultiplier(userAssetSupply, totalAssetSupply, userbOMMBalance, totalbOMMBalance);
+  }
+
+  public calculateMarketRewardsBorrowMultiplier(assetTag: AssetTag): BigNumber {
+    const userAssetBorrow = this.persistenceService.getUserSuppliedAssetBalance(assetTag);
+    const totalAssetBorrow = this.persistenceService.getReserveTotalLiquidity(assetTag);
+    const userbOMMBalance = this.persistenceService.userbOmmBalance;
+    const totalbOMMBalance = this.persistenceService.bOmmTotalSupply;
+
+    return this.bOmmRewardsMultiplier(userAssetBorrow, totalAssetBorrow, userbOMMBalance, totalbOMMBalance);
+  }
+
+  public calculateliquidityRewardsMultiplier(poolId: BigNumber): BigNumber {
+    const userStakedLp = this.persistenceService.getUserPoolStakedBalance(poolId);
+    const totalStakedLp = this.persistenceService.getPoolTotalStakedLp(poolId);
+    const userbOMMBalance = this.persistenceService.userbOmmBalance;
+    const totalbOMMBalance = this.persistenceService.bOmmTotalSupply;
+
+    return this.bOmmRewardsMultiplier(userStakedLp, totalStakedLp, userbOMMBalance, totalbOMMBalance);
+  }
+
+  /**
+   * @description
+   * Equation:
+   * Example for supply market:
+   * min(((user's supply * 40 / 100) + (totalsupply * user's bOMM balance/total bOMM balance * (100 - 40) / 100))/user's supply, 1) * 2.5
+   */
+  public bOmmRewardsMultiplier(userAssetAmount: BigNumber, totalAssetAmount: BigNumber, userbOMMBalance: BigNumber,
+                               totalbOMMBalance: BigNumber): BigNumber {
+    // (user's supply * 40 / 100)
+    const r1 = userAssetAmount.multipliedBy(new BigNumber("0.4"));
+
+    // (totalsupply * user's bOMM balance/total bOMM balance * (100 - 40) / 100)
+    const r2 = totalAssetAmount.multipliedBy(userbOMMBalance).dividedBy(totalbOMMBalance).multipliedBy(new BigNumber("0.6"));
+
+    const multiplier = (r1.plus(r2)).dividedBy(userAssetAmount);
+
+    return (BigNumber.min(multiplier, 1)).multipliedBy(new BigNumber("2.5"));
+  }
+
 
   // formulae: Supply APY + OMM reward Supply APY
   calculateUserAndMarketReserveSupplyApy(assetTag: AssetTag): BigNumber {
@@ -63,8 +109,6 @@ export class CalculationsService {
     // if reserve is ICX, convert ICX exchange price to sICX
     const exchangePrice = assetTag === AssetTag.ICX ? Utils.convertICXToSICXPrice(reserveData.exchangePrice, reserveData.sICXRate)
       : reserveData.exchangePrice;
-
-    log.debug("Exchange price = " + exchangePrice);
 
     return (dailyReserveBorrowRewards.multipliedBy(ommPriceUSD).multipliedBy(365)).dividedBy((reserveData.totalBorrows
       .multipliedBy(exchangePrice)));
@@ -675,41 +719,40 @@ export class CalculationsService {
     return this.calculatePoolTotalSupplied(poolData, true);
   }
 
-  public calculateDailyOmmStakingRewards(): BigNumber {
+  public calculateDailyOmmLockingRewards(): BigNumber {
     const dailyOmmDistribution = this.persistenceService.tokenDistributionPerDay;
-    const stakingOmmDistPercentage = this.persistenceService.allAssetDistPercentages?.staking?.OMM ?? new BigNumber("0");
+    const lockingOmmDistPercentage = this.persistenceService.allAssetDistPercentages?.OMMLocking.bOMM ?? new BigNumber("0");
 
-    return dailyOmmDistribution.multipliedBy(stakingOmmDistPercentage);
+    return dailyOmmDistribution.multipliedBy(lockingOmmDistPercentage);
   }
 
-  /** Formulae: Daily OMM staking rewards * 365/Total OMM staked */
-  public calculateStakingApy(): BigNumber {
-    const dailyOmmStakingRewards = this.calculateDailyOmmStakingRewards();
-    const totalStakedOmm = this.persistenceService.totalStakedOmm;
+  /** Formulae: Daily OMM locking rewards * 365/ total bOMM supply */
+  public calculateLockingApy(): BigNumber {
+    const dailyOmmLockingRewards = this.calculateDailyOmmLockingRewards();
+    const totalbOmmBalance = this.persistenceService.bOmmTotalSupply;
 
-    if (dailyOmmStakingRewards.isZero() || totalStakedOmm.isZero()) {
+    if (dailyOmmLockingRewards.isZero() || totalbOmmBalance.isZero()) {
       return new BigNumber("0");
     }
 
-    return dailyOmmStakingRewards.multipliedBy(new BigNumber("365")).dividedBy(totalStakedOmm);
+    return (dailyOmmLockingRewards.multipliedBy(new BigNumber("365"))).dividedBy(totalbOmmBalance);
   }
 
-  /** Formulae: Daily OMM staking rewards* User's OMM staked/Total OMM staked */
-  public calculateDailyUsersOmmStakingRewards(stakedOmm?: BigNumber): BigNumber {
-    const dailyOmmStakingRewards = this.calculateDailyOmmStakingRewards();
-    const usersOmmStaked = stakedOmm ? stakedOmm : this.persistenceService.getUsersLockedOmmBalance();
-    const totalOmmStaked = this.persistenceService.totalStakedOmm;
+  /** Formulae: Daily OMM locking rewards * User's bOMM balance /total bOMM balance */
+  public calculateUserDailyLockingOmmRewards(lockedOmm?: BigNumber): BigNumber {
+    const dailyOmmLockingRewards = this.calculateDailyOmmLockingRewards();
+    const usersbOmmBalance = lockedOmm ? lockedOmm : this.persistenceService.getUsersLockedOmmBalance();
+    const bOmmTotalSupply = this.persistenceService.bOmmTotalSupply;
 
-    if (dailyOmmStakingRewards.isLessThanOrEqualTo(Utils.ZERO) || usersOmmStaked.isLessThanOrEqualTo(Utils.ZERO)
-      || totalOmmStaked.isLessThanOrEqualTo(Utils.ZERO)) {
+    if (dailyOmmLockingRewards.lte(Utils.ZERO) || usersbOmmBalance.lte(Utils.ZERO) || bOmmTotalSupply.lte(Utils.ZERO)) {
       return new BigNumber("0");
     }
 
-    return dailyOmmStakingRewards.multipliedBy(usersOmmStaked).dividedBy(totalOmmStaked);
+    return dailyOmmLockingRewards.multipliedBy(usersbOmmBalance).dividedBy(bOmmTotalSupply);
   }
 
   public calculateUserOmmStakingDailyRewardsUSD(stakedOmm?: BigNumber): BigNumber {
-    return this.calculateDailyUsersOmmStakingRewards(stakedOmm).multipliedBy(this.persistenceService.ommPriceUSD);
+    return this.calculateUserDailyLockingOmmRewards(stakedOmm).multipliedBy(this.persistenceService.ommPriceUSD);
   }
 
 

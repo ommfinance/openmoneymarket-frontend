@@ -113,6 +113,10 @@ export class PersistenceService {
     return this.allPoolsDistPercentages?.getDistPercentageForPool(poolId) ?? new BigNumber("0");
   }
 
+  public getPoolTotalStakedLp(poolId: BigNumber): BigNumber {
+    return this.allPoolsDataMap.get(poolId.toString())?.totalStakedBalance ?? new BigNumber("0");
+  }
+
   public getUserPoolStakedBalance(poolId: BigNumber): BigNumber {
     return this.userPoolsDataMap.get(poolId.toString())?.userStakedBalance ?? new BigNumber("0");
   }
@@ -289,6 +293,10 @@ export class PersistenceService {
       totalBorrowed = totalBorrowed.plus(borrowBalanceUSD).plus(originationFee.multipliedBy(exchangeRate));
     });
     return totalBorrowed;
+  }
+
+  public getReserveTotalLiquidity(assetTag: AssetTag): BigNumber {
+    return this.allReserves?.getReserveData(assetTag).totalLiquidity ?? new BigNumber(0);
   }
 
   public getReserveLiquidationThreshold(assetTag: AssetTag): BigNumber {

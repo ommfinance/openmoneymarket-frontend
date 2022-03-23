@@ -167,11 +167,11 @@
               </div>
               <!-- Button -->
               <div class="grid-cell" [ngStyle]="hideElement(shouldHideBoostedSlider())">
-                <p class="text-right" [ngStyle]="hideElement(stakeAdjustActive)">
+                <p class="text-right" [ngStyle]="hideElement(lockAdjustActive)">
                   <a href="javascript:void(0);" class="button" id="boost-adjust" style="margin-top: 0;" (click)="onLockAdjustClick()">{{boostAdjustLabel()}}</a>
                 </p>
 
-                <div class="boost-adjust-actions" [ngStyle]="hideElement(!stakeAdjustActive)">
+                <div class="boost-adjust-actions" [ngStyle]="hideElement(!lockAdjustActive)">
                   <div class="grid">
                     <div class="grid-cell">
                       <div class="grid grid-center">
@@ -189,25 +189,25 @@
               </div>
             </div>
 
-            <p class="label intro-label">{{boostedOmmPanelMessage()}}</p>
-            <div class="threshold locked boost hide">
+            <p class="label intro-label" [ngStyle]="hideElement(lockAdjustActive)">{{boostedOmmPanelMessage()}}</p>
+            <div class="threshold locked boost {{shouldHideLockedOmmThreshold() ? 'hide':''}}" [ngStyle]="getLeftLockedThresholdPercentStyle()">
               <dl class="metadata">
                 <dt>Locked</dt>
               </dl>
             </div>
-            <div id="slider-boost" disabled="" #stkSlider [ngStyle]="hideElement(shouldHideBoostedSlider())"></div>
+            <div id="slider-boost" class="{{lockAdjustActive ? 'active' : ''}}" disabled="" #stkSlider [ngStyle]="hideElement(shouldHideBoostedSlider())"></div>
             <div class="grid grid-center" [ngStyle]="hideElement(shouldHideBoostedSlider())">
               <div class="grid-cell" style="max-width: 200px;">
                 <p class="label">
-                  <input [ngStyle]="hideElement(!stakeAdjustActive)" #lockInput id="input-boost" (input)="onInputLockChange()"
-                                        class="input-boost" type="text" name=""><span [ngStyle]="hideElement(stakeAdjustActive)" class="omm-locked">0</span> / {{getLockSliderMax() | usFormat}} OMM</p>
+                  <input [ngStyle]="hideElement(!lockAdjustActive)" #lockInput id="input-boost" (input)="onInputLockChange()"
+                         class="input-boost" type="text" name=""><span [ngStyle]="hideElement(lockAdjustActive)" class="omm-locked">{{userLockedOmmBalance | roundDown2Dec | usFormat}}</span> / {{getLockSliderMax() | usFormat}} OMM</p>
               </div>
               <div class="grid-cell text-right">
-                <p class="label text-red boost-message hide">You'll need to pay a 50% fee to unlock OMM early.</p>
-                <p class="label locked-default" [ngStyle]="hideElement(stakeAdjustActive || userLockedOmmBalance.isZero())">Locked until {{selectedLockDateString()}}</p>
-                <div class="locked-adjust" [ngStyle]="hideElement(!stakeAdjustActive)">
+                <p class="label locked-default" [ngStyle]="hideElement(lockAdjustActive || userLockedOmmBalance.isZero())">Locked until {{timestampInMillisecondsToPrettyDate(lockDate())}}</p>
+                <div class="locked-adjust" [ngStyle]="hideElement(!lockAdjustActive)">
                   <p>
-                    <span class="label">Locked until </span> <a class="dropdown time-selector" (click)="onLockedDateDropdownClick()"><span class="animation-underline locked-selector">{{selectedLockDateString()}}</span></a></p>
+                    <span class="label">Locked until </span> <a class="dropdown time-selector" (click)="onLockedDateDropdownClick()">
+                    <span class="animation-underline locked-selector">{{timestampInMillisecondsToPrettyDate(lockDate())}}</span></a></p>
                   <div class="grid dropdown-content locked-selector">
                     <div class="grid-cell">
                       <ul>
@@ -229,12 +229,12 @@
               <div class="grid-cell border-right">
                 <dl class="metadata">
                   <dt>Daily rewards</dt>
-                  <dd #lockDailyRew>
-                    <ng-container *ngIf="userLoggedIn()">
-                      {{to2DecimalRoundedOffPercentString(usersBoostedOmmDailyRewards()) | roundOff2Dec | usFormat}} OMM <span class="label">(<span class=" text-green">40% APR</span>)</span>
+                  <dd >
+                    <ng-container *ngIf="showBoostedOmmDailyRewardsOmmAmount()">
+                      <span #lockDailyRew>{{getUserOmmLockingDailyRewards() | roundOff2Dec | usFormat}} OMM&nbsp;</span><span class="label">(<span class=" text-green">{{to2DecimalRoundedOffPercentString(lockingApy())}} APR</span>)</span>
                     </ng-container>
-                    <ng-container *ngIf="!userLoggedIn()">
-                      <span class=" text-green">40% APR</span>
+                    <ng-container *ngIf="!showBoostedOmmDailyRewardsOmmAmount()">
+                      <span class=" text-green">{{to2DecimalRoundedOffPercentString(lockingApy())}} APR</span>
                     </ng-container>
                   </dd>
                 </dl>
@@ -244,9 +244,9 @@
                   <dt>Market rewards</dt>
                   <ng-container *ngIf="!fromToIsEmpty(usersBoostedOmmMarketRewards())">
                     <dd>
-                      <span class="value-liquidity-apy-4">{{usersBoostedOmmMarketRewards().from | roundDown2Dec | usFormat}} x</span>
-                      <span class="label">–</span>
-                      <span class="value-liquidity-apy-2">{{usersBoostedOmmMarketRewards().to | roundDown2Dec | usFormat}} x</span>
+                      <span class="value-liquidity-apy-4">{{usersBoostedOmmMarketRewards().from | usFormat}} x</span>
+                      <span class="label"> – </span>
+                      <span class="value-liquidity-apy-2">{{usersBoostedOmmMarketRewards().to | usFormat}} x</span>
                     </dd>
                   </ng-container>
                   <ng-container *ngIf="fromToIsEmpty(usersBoostedOmmMarketRewards())">
@@ -260,7 +260,7 @@
                   <ng-container *ngIf="!fromToIsEmpty(usersBoostedOmmLiquidityRewards())">
                     <dd>
                       <span class="value-liquidity-apy-4">{{usersBoostedOmmLiquidityRewards().from | roundDown2Dec | usFormat}} x</span>
-                      <span class="label">–</span>
+                      <span class="label"> – </span>
                       <span class="value-liquidity-apy-2">{{usersBoostedOmmLiquidityRewards().to | roundDown2Dec | usFormat}} x</span>
                     </dd>
                   </ng-container>

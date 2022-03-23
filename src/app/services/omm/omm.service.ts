@@ -40,7 +40,7 @@ export class OmmService {
     log.debug("Executing getOmmRewardsPerUser...");
 
     const params = {
-      user: this.persistenceService.activeWallet!.address,
+      _user: this.persistenceService.activeWallet!.address,
     };
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Rewards,

@@ -283,7 +283,7 @@ export class DataLoaderService {
       const totalSupply = await this.scoreService.getTotalbOmmSupply();
       this.stateChangeService.bOmmTotalSupplyUpdate(totalSupply);
 
-      log.debug("bOMM total supply ", totalSupply);
+      log.debug("bOMM total supply ", totalSupply.toString());
     } catch (e) {
       log.error("Error in loadbOmmTotalSupply:");
       log.error(e);

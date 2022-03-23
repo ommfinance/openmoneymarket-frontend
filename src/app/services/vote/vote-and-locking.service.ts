@@ -39,6 +39,21 @@ export class VoteAndLockingService {
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
+  public increaseOmmLockPeriod(newPeriod: BigNumber, notificationMessage: string): void {
+    const tx = this.buildIncreaseLockTimeOmmTx(newPeriod);
+
+    log.debug(`Increase lock period OMM TX: `, tx);
+    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
+  }
+
+  public increaseOmmLockAmount(amount: BigNumber, notificationMessage: string): void {
+    amount = amount.dp(0);
+    const tx = this.buildIncreaseLockAmountOmmTx(amount);
+
+    log.debug(`Increase Locked OMM TX: `, tx);
+    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
+  }
+
   public stakeOmm(amount: BigNumber, notificationMessage: string): void {
     amount = amount.dp(2);
     const tx = this.buildStakeOmmTx(amount);
@@ -111,16 +126,20 @@ export class VoteAndLockingService {
 
   /**
    * @description Build increase lock time of locked OMM tokens
-   * @param lockPeriod - Amount of OMM tokens to lock
-   * @return any lock OMM Tokens Icon transaction
+   * @param lockPeriod - New lock period
+   * @return any increase OMM Tokens lock period Icon transaction
    */
   private buildIncreaseLockTimeOmmTx(lockPeriod: BigNumber): any {
     this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
 
-    log.debug(`Increase Lock Omm time for = ` + lockPeriod.toString());
+    log.debug("buildIncreaseLockTimeOmmTx lockPeriod = " + lockPeriod.toString());
+
+    // convert to microseconds
+    const unlockTimeMicro = lockPeriod.multipliedBy(1000);
+    log.debug(`Increase Lock Omm time for = ` + unlockTimeMicro.toString());
 
     const params = {
-      unlockTime: lockPeriod.toFixed()
+      unlockTime: unlockTimeMicro.toFixed()
     };
 
     return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,

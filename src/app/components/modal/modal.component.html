@@ -84,7 +84,7 @@
   <div class="modal-content">
     <!-- Title -->
     <h3 class="text-center label">Lock up Omm Tokens?</h3>
-    <p class="text-center">{{activeModalChange?.lockingOmmAction?.amount | usFormat}} OMM</p>
+    <p class="text-center">{{activeModalChange?.lockingOmmAction?.amount | usFormat | toZeroIfDash}} OMM</p>
 
     <!-- Before vs after -->
     <div class="grid before-after">
