@@ -125,8 +125,8 @@ export class StateChangeService {
   private userProposalVotesChange: Subject<{proposalId: BigNumber, vote: Vote}> = new Subject<{proposalId: BigNumber, vote: Vote}>();
   userProposalVotesChange$: Observable<{proposalId: BigNumber, vote: Vote}> = this.userProposalVotesChange.asObservable();
 
-  private userDataReload: Subject<void> = new Subject<void>();
-  userDataReload$: Observable<void> = this.userDataReload.asObservable();
+  private afterUserDataReload: Subject<void> = new Subject<void>();
+  afterUserDataReload$: Observable<void> = this.afterUserDataReload.asObservable();
 
   private collapseMarketAssets: Subject<void> = new Subject<void>();
   collapseMarketAssets$: Observable<void> = this.collapseMarketAssets.asObservable();
@@ -249,7 +249,7 @@ export class StateChangeService {
   }
 
   public userDataReloadUpdate(): void {
-    this.userDataReload.next();
+    this.afterUserDataReload.next();
   }
 
   public tokenDistributionPerDayUpdate(value: BigNumber): void {

@@ -64,7 +64,7 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   public subscribeToUserDataReload(): void {
-    this.stateChangeService.userDataReload$.subscribe(() => {
+    this.stateChangeService.afterUserDataReload$.subscribe(() => {
       // re-calculate total risk percentage
       this.calculationService.calculateTotalRisk();
     });

@@ -133,7 +133,7 @@ export class HomeComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   private subscribeToUserDataReload(): void {
-    this.stateChangeService.userDataReload$.subscribe(() => {
+    this.stateChangeService.afterUserDataReload$.subscribe(() => {
       // reload the asset lists
       this.loadAssetLists();
     });

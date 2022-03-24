@@ -231,10 +231,10 @@
                   <dt>Daily rewards</dt>
                   <dd >
                     <ng-container *ngIf="showBoostedOmmDailyRewardsOmmAmount()">
-                      <span #lockDailyRew>{{getUserOmmLockingDailyRewards() | roundOff2Dec | usFormat}} OMM&nbsp;</span><span class="label">(<span class=" text-green">{{to2DecimalRoundedOffPercentString(lockingApy())}} APR</span>)</span>
+                      <span #lockDailyRew>{{getUserOmmLockingDailyRewards() | roundOff2Dec | usFormat}} OMM&nbsp;</span><span class="label">(<span class=" text-green">{{to2DecimalRoundedOffPercentString(lockingApr())}} APR</span>)</span>
                     </ng-container>
                     <ng-container *ngIf="!showBoostedOmmDailyRewardsOmmAmount()">
-                      <span class=" text-green">{{to2DecimalRoundedOffPercentString(lockingApy())}} APR</span>
+                      <span class=" text-green">{{to2DecimalRoundedOffPercentString(lockingApr())}} APR</span>
                     </ng-container>
                   </dd>
                 </dl>
@@ -245,8 +245,8 @@
                   <ng-container *ngIf="!fromToIsEmpty(usersBoostedOmmMarketRewards())">
                     <dd>
                       <span class="value-liquidity-apy-4">{{usersBoostedOmmMarketRewards().from | usFormat}} x</span>
-                      <span class="label"> – </span>
-                      <span class="value-liquidity-apy-2">{{usersBoostedOmmMarketRewards().to | usFormat}} x</span>
+                      <span *ngIf="!marketMultipliersAreEqual()" class="label"> – </span>
+                      <span *ngIf="!marketMultipliersAreEqual()" class="value-liquidity-apy-2">{{usersBoostedOmmMarketRewards().to | usFormat}} x</span>
                     </dd>
                   </ng-container>
                   <ng-container *ngIf="fromToIsEmpty(usersBoostedOmmMarketRewards())">
@@ -260,8 +260,8 @@
                   <ng-container *ngIf="!fromToIsEmpty(usersBoostedOmmLiquidityRewards())">
                     <dd>
                       <span class="value-liquidity-apy-4">{{usersBoostedOmmLiquidityRewards().from | roundDown2Dec | usFormat}} x</span>
-                      <span class="label"> – </span>
-                      <span class="value-liquidity-apy-2">{{usersBoostedOmmLiquidityRewards().to | roundDown2Dec | usFormat}} x</span>
+                      <span *ngIf="!liquidityMultipliersAreEqual()" class="label"> – </span>
+                      <span *ngIf="!liquidityMultipliersAreEqual()" class="value-liquidity-apy-2">{{usersBoostedOmmLiquidityRewards().to | roundDown2Dec | usFormat}} x</span>
                     </dd>
                   </ng-container>
                   <ng-container *ngIf="fromToIsEmpty(usersBoostedOmmLiquidityRewards())">

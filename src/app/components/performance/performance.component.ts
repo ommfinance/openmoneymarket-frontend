@@ -48,7 +48,7 @@ export class PerformanceComponent extends BaseClass implements OnInit, AfterView
   }
 
   public subscribeToUserDataReload(): void {
-    this.stateChangeService.userDataReload$.subscribe(() => {
+    this.stateChangeService.afterUserDataReload$.subscribe(() => {
       // update performance values
       this.updatePerformanceValues();
     });

@@ -67,7 +67,6 @@ export class CalculationsService {
     return (BigNumber.min(multiplier, 1)).multipliedBy(new BigNumber("2.5"));
   }
 
-
   // formulae: Supply APY + OMM reward Supply APY
   calculateUserAndMarketReserveSupplyApy(assetTag: AssetTag): BigNumber {
     const reserveData = this.persistenceService.getAssetReserveData(assetTag);
@@ -727,7 +726,7 @@ export class CalculationsService {
   }
 
   /** Formulae: Daily OMM locking rewards * 365/ total bOMM supply */
-  public calculateLockingApy(): BigNumber {
+  public calculateLockingApr(): BigNumber {
     const dailyOmmLockingRewards = this.calculateDailyOmmLockingRewards();
     const totalbOmmBalance = this.persistenceService.bOmmTotalSupply;
 
@@ -741,14 +740,15 @@ export class CalculationsService {
   /** Formulae: Daily OMM locking rewards * User's bOMM balance /total bOMM balance */
   public calculateUserDailyLockingOmmRewards(lockedOmm?: BigNumber): BigNumber {
     const dailyOmmLockingRewards = this.calculateDailyOmmLockingRewards();
-    const usersbOmmBalance = lockedOmm ? lockedOmm : this.persistenceService.getUsersLockedOmmBalance();
-    const bOmmTotalSupply = this.persistenceService.bOmmTotalSupply;
+    const usersbOmmBalance = lockedOmm ? lockedOmm : this.persistenceService.userbOmmBalance;
+    const bOmmTotalSupply = lockedOmm ? lockedOmm.plus(this.persistenceService.bOmmTotalSupply)
+        .minus(this.persistenceService.userbOmmBalance) : this.persistenceService.bOmmTotalSupply;
 
     if (dailyOmmLockingRewards.lte(Utils.ZERO) || usersbOmmBalance.lte(Utils.ZERO) || bOmmTotalSupply.lte(Utils.ZERO)) {
       return new BigNumber("0");
     }
 
-    return dailyOmmLockingRewards.multipliedBy(usersbOmmBalance).dividedBy(bOmmTotalSupply);
+    return dailyOmmLockingRewards.multipliedBy(usersbOmmBalance.dividedBy(bOmmTotalSupply));
   }
 
   public calculateUserOmmStakingDailyRewardsUSD(stakedOmm?: BigNumber): BigNumber {

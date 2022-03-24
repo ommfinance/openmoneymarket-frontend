@@ -242,22 +242,20 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     this.subscribeToAllAssetDistPercentagesChange();
     this.subscribeToTokenDistributionPerDayChange();
     this.subscribeToOmmPriceChange();
+    this.subscribeToAfterUserDataReload();
+  }
+
+  public subscribeToAfterUserDataReload(): void {
+    this.stateChangeService.afterUserDataReload$.subscribe(() => {
+      this.updateLockSliderValues();
+    });
   }
 
   private subscribeToOmmTokenBalanceChange(): void {
     this.stateChangeService.userOmmTokenBalanceDetailsChange.subscribe((res: OmmTokenBalanceDetails) => {
       this.userOmmTokenBalanceDetails = res.getClone();
 
-      // sliders max is sum of locked + available balance
-      const sliderMax = Utils.add(this.persistenceService.getUsersLockedOmmBalance(),
-        this.persistenceService.getUsersAvailableOmmBalance());
-
-      this.sliderStake.noUiSlider.updateOptions({
-        start: [this.persistenceService.getUsersLockedOmmBalance().toNumber()],
-        range: { min: 0, max: sliderMax.isGreaterThan(Utils.ZERO) ? sliderMax.dp(0).toNumber() : 1 }
-      });
-
-      this.sliderStake.noUiSlider.set(this.persistenceService.getUsersLockedOmmBalance().toNumber());
+      this.updateLockSliderValues();
     });
   }
 
@@ -355,6 +353,19 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
         this.userLockedOmmBalance = value;
       }
     });
+  }
+
+  private updateLockSliderValues(): void {
+    // sliders max is sum of locked + available balance
+    const sliderMax = Utils.add(this.persistenceService.getUsersLockedOmmBalance(),
+      this.persistenceService.getUsersAvailableOmmBalance());
+
+    this.sliderStake.noUiSlider.updateOptions({
+      start: [this.persistenceService.getUsersLockedOmmBalance().toNumber()],
+      range: { min: 0, max: sliderMax.isGreaterThan(Utils.ZERO) ? sliderMax.dp(0).toNumber() : 1 }
+    });
+
+    this.sliderStake.noUiSlider.set(this.persistenceService.getUsersLockedOmmBalance().toNumber());
   }
 
   getLockSliderMax(): BigNumber {
@@ -566,8 +577,8 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     this.dailyOmmLockingRewards = this.calculationService.calculateDailyOmmLockingRewards();
   }
 
-  lockingApy(): BigNumber {
-    return this.calculationService.calculateLockingApy();
+  lockingApr(): BigNumber {
+    return this.calculationService.calculateLockingApr();
   }
 
   boostedOmmPanelMessage(): string {
@@ -622,12 +633,25 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     const marketRewards: BigNumber[] = [];
 
     supportedAssetsMap.forEach((value: Asset, key: AssetTag) => {
-      marketRewards.push(this.calculationService.calculateMarketRewardsSupplyMultiplier(key));
-      marketRewards.push(this.calculationService.calculateMarketRewardsBorrowMultiplier(key));
+      if (!this.persistenceService.getUserSuppliedAssetBalance(key).isZero()) {
+        marketRewards.push(this.calculationService.calculateMarketRewardsSupplyMultiplier(key));
+      }
+
+      if (!this.persistenceService.getUserBorrAssetBalance(key).isZero()) {
+        marketRewards.push(this.calculationService.calculateMarketRewardsBorrowMultiplier(key));
+      }
     });
+
+    if (marketRewards.length === 0) {
+      return { from: new BigNumber(0), to: new BigNumber(0)};
+    }
 
     let min = new BigNumber(-1);
     let max = new BigNumber(-1);
+
+    if (marketRewards.length === 1) {
+      return { from: marketRewards[0], to: marketRewards[0]};
+    }
 
     marketRewards.forEach(multiplier => {
       if (multiplier.lt(min) || min.eq(-1)) {
@@ -642,6 +666,10 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     return { from: min, to: max};
   }
 
+  marketMultipliersAreEqual(): boolean {
+    return this.usersBoostedOmmLiquidityRewards().from.eq(this.usersBoostedOmmLiquidityRewards().to);
+  }
+
   usersBoostedOmmLiquidityRewards(): { from: BigNumber, to: BigNumber} {
     if (!this.userLoggedIn()) {
       return { from: new BigNumber(0), to: new BigNumber(0)};
@@ -650,11 +678,21 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     const liquidity: BigNumber[] = [];
 
     this.persistenceService.userPoolsDataMap.forEach((value: UserPoolData, poolId: string) => {
-      liquidity.push(this.calculationService.calculateliquidityRewardsMultiplier(new BigNumber(poolId)));
+      if (!value.userStakedBalance.isZero()) {
+        liquidity.push(this.calculationService.calculateliquidityRewardsMultiplier(new BigNumber(poolId)));
+      }
     });
+
+    if (liquidity.length === 0) {
+      return { from: new BigNumber(0), to: new BigNumber(0)};
+    }
 
     let min = new BigNumber(-1);
     let max = new BigNumber(-1);
+
+    if (liquidity.length === 1) {
+      return { from: liquidity[0], to: liquidity[0]};
+    }
 
     liquidity.forEach(multiplier => {
       if (multiplier.lt(min) || min.eq(-1)) {
@@ -667,6 +705,10 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     });
 
     return { from: min, to: max};
+  }
+
+  liquidityMultipliersAreEqual(): boolean {
+    return this.usersBoostedOmmLiquidityRewards().from.eq(this.usersBoostedOmmLiquidityRewards().to);
   }
 
   fromToIsEmpty(fromTo: { from: BigNumber, to: BigNumber}): boolean {

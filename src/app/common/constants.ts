@@ -72,6 +72,14 @@ export const lockedDatesToMilliseconds = new Map([
   ["4 years", Times.MONTH_IN_MILLISECONDS.multipliedBy(48)],
 ]);
 
+// 1 week = 0.0048 veOMM per 1 OMM staked
+// 1 month = 0.0208333 veOMM per 1 OMM staked
+// 3 months = 0.0625 veOMM per 1 OMM staked
+// 6 months lockup = 0.125 veOMM per 1 OMM staked
+// 1 year lockup = 0.25 veOMM per 1 OMM staked
+// 2 year lockup = 0.5 veOMM per 1 OMM staked
+// 4 year lockup = 1 veOMM per 1 OMM staked
+
 export const bnUSDProposalDescription = "" +
   "Proposed OMM Rewards\n" +
   "- ICX = 40%\n" +

@@ -130,8 +130,13 @@ export class Mapper {
         Utils.hexToNormalisedNumber(value.reserve.total)
       ),
       Utils.hexToNormalisedNumber(value.total),
-      new OmmLockingDistPercent(value.OMMLocking.bOMM, value.OMMLocking.total),
-      new DaoFundDistPercent(value.daoFund.daoFund, value.daoFund.total),
+      new OmmLockingDistPercent(
+        Utils.hexToNormalisedNumber(value.OMMLocking.bOMM),
+        Utils.hexToNormalisedNumber(value.OMMLocking.total)
+      ),
+      new DaoFundDistPercent(
+        Utils.hexToNormalisedNumber(value.daoFund.daoFund),
+        Utils.hexToNormalisedNumber(value.daoFund.total)),
       value.liquidity ?
         new LiquidityDistPercent(
           Utils.hexToNormalisedNumber(value.liquidity["OMM/SICX"]),
