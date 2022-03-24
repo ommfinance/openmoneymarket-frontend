@@ -65,7 +65,7 @@ export class ScoreMethodNames {
    * bOMM SCORE
    */
   public static GET_LOCKED_OMM = "getLocked";
-  public static INCREASE_UNLOCK_TIME = "'increaseUnlockTime'";
+  public static INCREASE_UNLOCK_TIME = "increaseUnlockTime";
 
 
   /**

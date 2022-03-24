@@ -58,7 +58,7 @@ export class PersistenceService {
   public userLockedOmm?: LockedOmm;
   public userbOmmBalance = new BigNumber("0");
   public userDebt: Map<CollateralAssetTag, BigNumber | undefined> = new Map<CollateralAssetTag, BigNumber | undefined>();
-  public minOmmStakeAmount = new BigNumber("1");
+  public minOmmLockAmount = new BigNumber("1");
   public totalStakedOmm = new BigNumber("0");
   public totalSuppliedOmm = new BigNumber("0");
   public bOmmTotalSupply = new BigNumber("0");

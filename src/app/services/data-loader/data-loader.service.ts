@@ -364,14 +364,14 @@ export class DataLoaderService {
     });
   }
 
-  public loadMinOmmStakeAmount(): void {
-    this.scoreService.getOmmTokenMinStakeAmount().then(minStakeAmount => {
-      this.persistenceService.minOmmStakeAmount = minStakeAmount;
-    }).catch(e => {
-      log.error("Error in loadMinOmmStakeAmount()");
-      log.error(e);
-    });
-  }
+  // public loadMinOmmStakeAmount(): void {
+  //   this.scoreService.getOmmTokenMinStakeAmount().then(minStakeAmount => {
+  //     this.persistenceService.minOmmStakeAmount = minStakeAmount;
+  //   }).catch(e => {
+  //     log.error("Error in loadMinOmmStakeAmount()");
+  //     log.error(e);
+  //   });
+  // }
 
   public async loadOmmTokenPriceUSD(): Promise<void> {
     try {
@@ -631,7 +631,6 @@ export class DataLoaderService {
    * Load core data async without waiting
    */
   public loadCoreAsyncData(): void {
-    this.loadMinOmmStakeAmount();
     this.loadInterestHistory();
   }
 

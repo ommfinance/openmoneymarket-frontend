@@ -123,10 +123,10 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     const lockingAction = new LockingAction(before, after, diff.abs(), unlockPeriod);
 
     if (diff.gte(Utils.ZERO)) {
-      if (this.persistenceService.minOmmStakeAmount.isGreaterThan(diff)
-        && !unlockPeriod.gt(this.userCurrentLockedOmmEndInMilliseconds())) { // TODO use min lock amount!
+      if (this.persistenceService.minOmmLockAmount.isGreaterThan(diff)
+        && !unlockPeriod.gt(this.userCurrentLockedOmmEndInMilliseconds())) {
 
-        this.notificationService.showNewNotification(`Lock amount must be greater than ${this.persistenceService.minOmmStakeAmount}`);
+        this.notificationService.showNewNotification(`Lock amount must be greater than ${this.persistenceService.minOmmLockAmount}`);
       }
       else if (before.gt(0) && after.gt(before) && this.lockDate().eq(this.userCurrentLockedOmmEndInMilliseconds())) {
         // increase lock amount

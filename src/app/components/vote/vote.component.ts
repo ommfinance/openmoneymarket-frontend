@@ -263,8 +263,8 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     const voteAction = new StakingAction(before, after, diff.abs());
 
     if (diff.isGreaterThan(Utils.ZERO)) {
-      if (this.persistenceService.minOmmStakeAmount > diff) {
-        this.notificationService.showNewNotification(`Stake amount must be greater than ${this.persistenceService.minOmmStakeAmount}`);
+      if (this.persistenceService.minOmmLockAmount > diff) {
+        this.notificationService.showNewNotification(`Stake amount must be greater than ${this.persistenceService.minOmmLockAmount}`);
       } else {
         this.modalService.showNewModal(ModalType.STAKE_OMM_TOKENS, undefined, voteAction);
       }

@@ -139,7 +139,7 @@ export class VoteAndLockingService {
     log.debug(`Increase Lock Omm time for = ` + unlockTimeMicro.toString());
 
     const params = {
-      unlockTime: unlockTimeMicro.toFixed()
+      unlockTime: IconConverter.toHex(unlockTimeMicro)
     };
 
     return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
