@@ -4,7 +4,7 @@ import {PersistenceService} from "../persistence/persistence.service";
 import {CheckerService} from "../checker/checker.service";
 import {ScoreMethodNames} from "../../common/score-method-names";
 import {IconTransactionType} from "../../models/IconTransactionType";
-import {OmmRewards} from "../../models/OmmRewards";
+import {UserOmmRewards} from "../../models/UserOmmRewards";
 import log from "loglevel";
 import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
 
@@ -33,9 +33,9 @@ export class OmmService {
 
   /**
    * @description Get OMM rewards per user
-   * @return OmmRewards - Omm rewards per user
+   * @return UserOmmRewards - Omm rewards per user
    */
-  public async getOmmRewardsPerUser(): Promise<OmmRewards> {
+  public async getOmmRewardsPerUser(): Promise<UserOmmRewards> {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
     log.debug("Executing getOmmRewardsPerUser...");
 

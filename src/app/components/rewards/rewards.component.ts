@@ -419,7 +419,7 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   }
 
   getUserLockingRewards(): BigNumber {
-    return this.persistenceService.userOmmRewards?.locking?.total ?? new BigNumber("0");
+    return this.persistenceService.userOmmRewards?.OMMLocking?.total ?? new BigNumber("0");
   }
 
   getUserLiquidityRewards(): BigNumber {
@@ -594,10 +594,9 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   }
 
   getLeftLockedThresholdPercentStyle(): any {
-    const min = new BigNumber("25.9");
-    const max = new BigNumber("97");
+    const max = new BigNumber("96.7");
     const percent = this.persistenceService.getUsersLockedOmmBalance().dividedBy(this.getLockSliderMax());
-    const res = min.plus(max.minus(min).multipliedBy(percent)).dp(2);
+    const res = max.multipliedBy(percent).dp(2);
     return { left: res.toString() + "%" };
   }
 

@@ -11,7 +11,7 @@ import log from "loglevel";
 import {OmmError} from "../../core/errors/OmmError";
 import {AllReserveConfigData} from "../../models/AllReserveConfigData";
 import {OmmService} from "../omm/omm.service";
-import {OmmRewards} from "../../models/OmmRewards";
+import {UserOmmRewards} from "../../models/UserOmmRewards";
 import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
 import {NotificationService} from "../notification/notification.service";
 import {ErrorCode, ErrorService} from "../error/error.service";
@@ -299,7 +299,7 @@ export class DataLoaderService {
   }
 
   public loadUserOmmRewards(): Promise<void> {
-    return this.ommService.getOmmRewardsPerUser().then((ommRewards: OmmRewards) => {
+    return this.ommService.getOmmRewardsPerUser().then((ommRewards: UserOmmRewards) => {
       this.errorService.deregisterError(ErrorCode.USER_OMM_REWARDS);
 
       this.persistenceService.userOmmRewards = Mapper.mapUserOmmRewards(ommRewards);

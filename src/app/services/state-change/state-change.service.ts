@@ -7,7 +7,7 @@ import {IconexWallet} from "../../models/wallets/IconexWallet";
 import {BridgeWallet} from "../../models/wallets/BridgeWallet";
 import {UserAccountData} from "../../models/UserAccountData";
 import {ModalAction, ModalActionsResult} from "../../models/ModalAction";
-import {OmmRewards} from "../../models/OmmRewards";
+import {UserOmmRewards} from "../../models/UserOmmRewards";
 import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
 import {PrepList} from "../../models/Preps";
 import {YourPrepVote} from "../../models/YourPrepVote";
@@ -76,7 +76,7 @@ export class StateChangeService {
    */
   public userAccountDataChange: Subject<UserAccountData> = new Subject<UserAccountData>();
 
-  public userOmmRewardsChange: Subject<OmmRewards> = new Subject<OmmRewards>();
+  public userOmmRewardsChange: Subject<UserOmmRewards> = new Subject<UserOmmRewards>();
   public userOmmTokenBalanceDetailsChange: Subject<OmmTokenBalanceDetails> = new Subject<OmmTokenBalanceDetails>();
   public totalOmmStakedChange: Subject<BigNumber> = new Subject<BigNumber>();
   public voteDefinitionFeeChange: Subject<BigNumber> = new Subject<BigNumber>();
@@ -320,7 +320,7 @@ export class StateChangeService {
     this.userAccountDataChange.next(userAccountData);
   }
 
-  public updateUserOmmRewards(userOmmRewards: OmmRewards): void {
+  public updateUserOmmRewards(userOmmRewards: UserOmmRewards): void {
     this.userOmmRewardsChange.next(userOmmRewards);
   }
 

@@ -4,7 +4,7 @@ import {ReserveData} from "../models/AllReservesData";
 import {UserAccountData} from "../models/UserAccountData";
 import log from "loglevel";
 import {ReserveConfigData} from "../models/ReserveConfigData";
-import {Liquidity, OmmRewards, Reserve, Locking} from "../models/OmmRewards";
+import {Liquidity, UserOmmRewards, Reserve, Locking} from "../models/UserOmmRewards";
 import {OmmTokenBalanceDetails} from "../models/OmmTokenBalanceDetails";
 import {Prep, PrepList} from "../models/Preps";
 import {DelegationPreference} from "../models/DelegationPreference";
@@ -85,9 +85,9 @@ export class Mapper {
     return res;
   }
 
-  public static mapUserOmmRewards(ommRewards: OmmRewards): OmmRewards {
+  public static mapUserOmmRewards(ommRewards: UserOmmRewards): UserOmmRewards {
     log.debug("mapUserOmmRewards before: ", ommRewards);
-    const res = new OmmRewards(
+    const res = new UserOmmRewards(
       new Reserve(
         Utils.hexToNormalisedNumber(ommRewards.reserve.oUSDS),
         Utils.hexToNormalisedNumber(ommRewards.reserve.dUSDS),
@@ -106,10 +106,10 @@ export class Mapper {
         Utils.hexToNormalisedNumber(ommRewards.liquidity["OMM/IUSDC"]),
         Utils.hexToNormalisedNumber(ommRewards.liquidity.total)
       ) : undefined,
-      ommRewards.locking ?
+      ommRewards.OMMLocking ?
       new Locking(
-        Utils.hexToNormalisedNumber(ommRewards.locking.bOMM),
-        Utils.hexToNormalisedNumber(ommRewards.locking.total)
+        Utils.hexToNormalisedNumber(ommRewards.OMMLocking.bOMM),
+        Utils.hexToNormalisedNumber(ommRewards.OMMLocking.total)
       ) : undefined,
     );
     log.debug("mapUserOmmRewards after: ", res);

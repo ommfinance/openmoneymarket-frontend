@@ -1,22 +1,22 @@
 import BigNumber from "bignumber.js";
 
-export class OmmRewards {
+export class UserOmmRewards {
   liquidity?: Liquidity;
-  locking?: Locking;
+  OMMLocking?: Locking;
   reserve: Reserve;
   total: BigNumber;
   now: BigNumber;
 
-  constructor(reserve: Reserve, total: BigNumber, now: BigNumber, liquidity?: Liquidity, locking?: Locking) {
+  constructor(reserve: Reserve, total: BigNumber, now: BigNumber, liquidity?: Liquidity, OMMLocking?: Locking) {
     this.liquidity = liquidity;
-    this.locking = locking;
+    this.OMMLocking = OMMLocking;
     this.reserve = reserve;
     this.total = total;
     this.now = now;
   }
 
-  public getClone(): OmmRewards {
-    return new OmmRewards(this.reserve, this.total, this.now, this.liquidity, this.locking);
+  public getClone(): UserOmmRewards {
+    return new UserOmmRewards(this.reserve, this.total, this.now, this.liquidity, this.OMMLocking);
   }
 }
 

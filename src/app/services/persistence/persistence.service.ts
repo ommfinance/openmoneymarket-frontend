@@ -8,7 +8,7 @@ import {BridgeWallet} from "../../models/wallets/BridgeWallet";
 import {AssetTag, CollateralAssetTag} from "../../models/Asset";
 import {AllReserveConfigData} from "../../models/AllReserveConfigData";
 import {LedgerWallet} from "../../models/wallets/LedgerWallet";
-import {OmmRewards} from "../../models/OmmRewards";
+import {UserOmmRewards} from "../../models/UserOmmRewards";
 import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
 import {PrepList} from "../../models/Preps";
 import {YourPrepVote} from "../../models/YourPrepVote";
@@ -51,7 +51,7 @@ export class PersistenceService {
   public userTotalRisk = new BigNumber("0");
 
   public userAccountData?: UserAccountData;
-  public userOmmRewards?: OmmRewards;
+  public userOmmRewards?: UserOmmRewards;
   public userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
   public userUnstakingInfo?: UnstakeInfo;
   public userClaimableIcx?: BigNumber;
