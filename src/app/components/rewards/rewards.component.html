@@ -242,14 +242,14 @@
               <div class="grid-cell border-right">
                 <dl class="metadata">
                   <dt>Market rewards</dt>
-                  <ng-container *ngIf="!fromToIsEmpty(usersBoostedOmmMarketRewards())">
+                  <ng-container *ngIf="!fromToIsEmpty(userbOmmMarketMultipliers())">
                     <dd>
-                      <span class="value-liquidity-apy-4">{{usersBoostedOmmMarketRewards().from | usFormat}} x</span>
+                      <span class="value-liquidity-apy-4">{{userbOmmMarketMultipliers().from | usFormat}} x</span>
                       <span *ngIf="!marketMultipliersAreEqual()" class="label"> – </span>
-                      <span *ngIf="!marketMultipliersAreEqual()" class="value-liquidity-apy-2">{{usersBoostedOmmMarketRewards().to | usFormat}} x</span>
+                      <span *ngIf="!marketMultipliersAreEqual()" class="value-liquidity-apy-2">{{userbOmmMarketMultipliers().to | usFormat}} x</span>
                     </dd>
                   </ng-container>
-                  <ng-container *ngIf="fromToIsEmpty(usersBoostedOmmMarketRewards())">
+                  <ng-container *ngIf="fromToIsEmpty(userbOmmMarketMultipliers())">
                     <dd>–</dd>
                   </ng-container>
                 </dl>
@@ -257,14 +257,14 @@
               <div class="grid-cell">
                 <dl class="metadata">
                   <dt>Liquidity rewards</dt>
-                  <ng-container *ngIf="!fromToIsEmpty(usersBoostedOmmLiquidityRewards())">
+                  <ng-container *ngIf="!fromToIsEmpty(userbOmmLiquidityMultipliers())">
                     <dd>
-                      <span class="value-liquidity-apy-4">{{usersBoostedOmmLiquidityRewards().from | roundDown2Dec | usFormat}} x</span>
+                      <span class="value-liquidity-apy-4">{{userbOmmLiquidityMultipliers().from | roundDown2Dec | usFormat}} x</span>
                       <span *ngIf="!liquidityMultipliersAreEqual()" class="label"> – </span>
-                      <span *ngIf="!liquidityMultipliersAreEqual()" class="value-liquidity-apy-2">{{usersBoostedOmmLiquidityRewards().to | roundDown2Dec | usFormat}} x</span>
+                      <span *ngIf="!liquidityMultipliersAreEqual()" class="value-liquidity-apy-2">{{userbOmmLiquidityMultipliers().to | roundDown2Dec | usFormat}} x</span>
                     </dd>
                   </ng-container>
-                  <ng-container *ngIf="fromToIsEmpty(usersBoostedOmmLiquidityRewards())">
+                  <ng-container *ngIf="fromToIsEmpty(userbOmmLiquidityMultipliers())">
                     <dd>–</dd>
                   </ng-container>
                 </dl>
@@ -315,7 +315,7 @@
                 <span class="label">{{poolData.userAvailableBalance | roundDown2Dec | usFormat}} available</span></td>
               <td><span class="text-dark">{{getUserDailyRewards(poolData) | roundOff2Dec | usFormat}} OMM</span><br>
                 <span class="label">{{toDollarUSLocaleString(getUserDailyRewardsUSD(poolData) | roundOff2Dec)}}</span></td>
-              <td class="text-green">{{to2DecimalRoundedOffPercentString(getLiquidityApy(poolData))}}</td>
+              <td class="text-green" >{{to2DecimalRoundedOffPercentString(getUserLiquidityApy(poolData))}}</td>
             </tr>
 
             <!-- Pool expanded -->
@@ -361,7 +361,7 @@
               <tr class="pool {{poolData.getPairClassName()}}" (click)="onPoolClick(poolData)">
                 <td class="text-dark">{{poolData.getPrettyName()}}</td>
                 <td colspan="2"><span class="text-dark">{{poolData.userAvailableBalance | roundDown2Dec | usFormat}} LP tokens</span></td>
-                <td colspan="2" class="text-green">{{to2DecimalRoundedOffPercentString(getLiquidityApy(poolData))}}</td>
+                <td colspan="2" class="text-green">{{to2DecimalRoundedOffPercentString(getUserLiquidityApy(poolData))}}</td>
               </tr>
 
               <!-- Pool expanded -->

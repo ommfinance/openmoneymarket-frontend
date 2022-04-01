@@ -21,6 +21,7 @@ import {lockedDatesToMilliseconds, lockedUntilDateOptions, Times} from "../../co
 import BigNumber from "bignumber.js";
 import {normalFormat} from "../../common/formats";
 import {LockingAction} from "../../models/LockingAction";
+import {LockDate} from "../../models/LockDate";
 
 declare var $: any;
 declare var noUiSlider: any;
@@ -51,7 +52,8 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   dailyOmmLockingRewards = new BigNumber("0");
 
   lockedUntilDateOptions = lockedUntilDateOptions;
-  selectedLockTime = Times.WEEK_IN_MILLISECONDS; // default to 1 week
+  selectedLockTimeInMillisec = Times.WEEK_IN_MILLISECONDS; // default to 1 week
+  selectedLockTime = LockDate.WEEK;
   userHasSelectedLockTime = false;
 
   constructor(public persistenceService: PersistenceService,
@@ -69,7 +71,7 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   }
 
   ngAfterViewInit(): void {
-    this.initStakeSlider();
+    this.initLockSlider();
 
     this.setLockingDailyRewards();
 
@@ -112,7 +114,7 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
       return;
     }
 
-    if (!this.selectedLockTime.isFinite() || this.selectedLockTime.lte(0)) {
+    if (!this.selectedLockTimeInMillisec.isFinite() || this.selectedLockTimeInMillisec.lte(0)) {
       this.notificationService.showNewNotification("Please selected locking period.");
       return;
     }
@@ -306,7 +308,7 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
    * Getters, setters and checks
    */
 
-  initStakeSlider(): void {
+  initLockSlider(): void {
     this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails?.getClone();
     const usersLockedOmmBalance = this.persistenceService.getUsersLockedOmmBalance();
     const userOmmAvailableBalance = this.persistenceService.getUsersAvailableOmmBalance();
@@ -341,9 +343,7 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
       }
 
       if (this.lockDailyRewardsEl && this.userLoggedIn()) {
-        const dailyUsersOmmLockingRewards = this.calculationService.calculateUserDailyLockingOmmRewards(value);
-        this.setText(this.lockDailyRewardsEl, this.formatNumberToUSLocaleString(dailyUsersOmmLockingRewards.dp(2))
-          + (dailyUsersOmmLockingRewards.isGreaterThan(Utils.ZERO) ? " OMM " : ""));
+        this.updateUserDailyRewards(value);
       }
 
       // Update Omm stake input text box
@@ -540,6 +540,15 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     return this.calculationService.calculatePoolLiquidityApy(poolData);
   }
 
+  getUserLiquidityApy(poolData: PoolData): BigNumber {
+    const liquidityMultiplier = this.userbOmmPoolLiquidityMultiplier(poolData.poolId);
+    if (!liquidityMultiplier.isZero()) {
+      return this.calculationService.calculatePoolLiquidityApy(poolData).multipliedBy(liquidityMultiplier);
+    } else {
+      return this.calculationService.calculatePoolLiquidityApy(poolData);
+    }
+  }
+
   isAllPoolsActive(): boolean {
     return this.activeLiquidityPoolView === ActiveLiquidityPoolsView.ALL_POOLS;
   }
@@ -564,12 +573,12 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   lockDate(): BigNumber {
     if (this.userCurrentLockedOmmEndInMilliseconds().gt(0)) {
       if (this.userHasSelectedLockTime) {
-        return this.userCurrentLockedOmmEndInMilliseconds().plus(this.selectedLockTime);
+        return this.userCurrentLockedOmmEndInMilliseconds().plus(this.selectedLockTimeInMillisec);
       } else {
         return this.userCurrentLockedOmmEndInMilliseconds();
       }
     } else {
-      return Utils.timestampNowMilliseconds().plus(this.selectedLockTime);
+      return Utils.timestampNowMilliseconds().plus(this.selectedLockTimeInMillisec);
     }
   }
 
@@ -624,7 +633,23 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     }
   }
 
-  usersBoostedOmmMarketRewards(): { from: BigNumber, to: BigNumber} {
+  userbOmmAssetSupplyMarketMultiplier(assetTag: AssetTag): BigNumber {
+    if (!this.userLoggedIn()) {
+      return new BigNumber(0);
+    }
+
+    return this.calculationService.calculateMarketRewardsSupplyMultiplier(assetTag);
+  }
+
+  userbOmmAssetBorrowMarketMultiplier(assetTag: AssetTag): BigNumber {
+    if (!this.userLoggedIn()) {
+      return new BigNumber(0);
+    }
+
+    return this.calculationService.calculateMarketRewardsBorrowMultiplier(assetTag);
+  }
+
+  userbOmmMarketMultipliers(): { from: BigNumber, to: BigNumber} {
     if (!this.userLoggedIn()) {
       return { from: new BigNumber(0), to: new BigNumber(0)};
     }
@@ -633,11 +658,11 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
 
     supportedAssetsMap.forEach((value: Asset, key: AssetTag) => {
       if (!this.persistenceService.getUserSuppliedAssetBalance(key).isZero()) {
-        marketRewards.push(this.calculationService.calculateMarketRewardsSupplyMultiplier(key));
+        marketRewards.push(this.persistenceService.getSupplyMarketMultiplier(key));
       }
 
       if (!this.persistenceService.getUserBorrAssetBalance(key).isZero()) {
-        marketRewards.push(this.calculationService.calculateMarketRewardsBorrowMultiplier(key));
+        marketRewards.push(this.persistenceService.getBorrowMarketMultiplier(key));
       }
     });
 
@@ -666,10 +691,22 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   }
 
   marketMultipliersAreEqual(): boolean {
-    return this.usersBoostedOmmLiquidityRewards().from.eq(this.usersBoostedOmmLiquidityRewards().to);
+    return this.userbOmmMarketMultipliers().from.eq(this.userbOmmMarketMultipliers().to);
   }
 
-  usersBoostedOmmLiquidityRewards(): { from: BigNumber, to: BigNumber} {
+  marketMultipliersAreZero(): boolean {
+    return this.userbOmmMarketMultipliers().from.isZero() && this.userbOmmMarketMultipliers().to.isZero();
+  }
+
+  userbOmmPoolLiquidityMultiplier(poolId: BigNumber): BigNumber {
+    if (!this.userLoggedIn()) {
+      return new BigNumber(0);
+    }
+
+    return this.calculationService.calculateliquidityRewardsMultiplier(poolId);
+  }
+
+  userbOmmLiquidityMultipliers(): { from: BigNumber, to: BigNumber} {
     if (!this.userLoggedIn()) {
       return { from: new BigNumber(0), to: new BigNumber(0)};
     }
@@ -678,7 +715,7 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
 
     this.persistenceService.userPoolsDataMap.forEach((value: UserPoolData, poolId: string) => {
       if (!value.userStakedBalance.isZero()) {
-        liquidity.push(this.calculationService.calculateliquidityRewardsMultiplier(new BigNumber(poolId)));
+        liquidity.push(this.persistenceService.getLiquidityMultiplier(poolId));
       }
     });
 
@@ -707,7 +744,11 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   }
 
   liquidityMultipliersAreEqual(): boolean {
-    return this.usersBoostedOmmLiquidityRewards().from.eq(this.usersBoostedOmmLiquidityRewards().to);
+    return this.userbOmmLiquidityMultipliers().from.eq(this.userbOmmLiquidityMultipliers().to);
+  }
+
+  liquidityMultipliersAreZero(): boolean {
+    return this.userbOmmLiquidityMultipliers().from.isZero() && this.userbOmmLiquidityMultipliers().to.isZero();
   }
 
   fromToIsEmpty(fromTo: { from: BigNumber, to: BigNumber}): boolean {
@@ -723,9 +764,21 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     $(".dropdown-content.locked-selector").toggleClass('active');
   }
 
-  onLockUntilDateClick(date: string): void {
-    this.selectedLockTime = lockedDatesToMilliseconds.get(date) ?? Times.WEEK_IN_MILLISECONDS;
+  onLockUntilDateClick(date: LockDate): void {
+    this.selectedLockTimeInMillisec = lockedDatesToMilliseconds.get(date) ?? Times.WEEK_IN_MILLISECONDS;
+    this.selectedLockTime = date;
     this.userHasSelectedLockTime = true;
+
+    // update dynamic daily OMM rewards based on the newly selected lock date
+    this.updateUserDailyRewards(this.userLockedOmmBalance);
+  }
+
+  updateUserDailyRewards(value: BigNumber): void {
+    const dailyUsersOmmLockingRewards = this.calculationService.calculateUserDailyLockingOmmRewards(value, this.selectedLockTime);
+
+    // set daily rewards text to dynamic value by replacing inner HTML
+    this.setText(this.lockDailyRewardsEl, this.formatNumberToUSLocaleString(dailyUsersOmmLockingRewards.dp(2))
+      + (dailyUsersOmmLockingRewards.isGreaterThan(Utils.ZERO) ? " OMM " : ""));
   }
 
   userBOMMbalance(): BigNumber {

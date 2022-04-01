@@ -43,13 +43,15 @@ export class PersistenceService {
   public allPools: PoolData[] = [];
   public allPoolsDistPercentages?: PoolsDistPercentages;
   public allPoolsDataMap: Map<string, PoolData> = new Map<string, PoolData>();
+  public yourVotesPrepList: YourPrepVote[] = [];
 
+  /**
+   * User specific data
+   */
   public userPools: UserPoolData[] = [];
   public userPoolsDataMap: Map<string, UserPoolData> = new Map<string, UserPoolData>();
-
   public userReserves: UserReserves = new UserReserves();
   public userTotalRisk = new BigNumber("0");
-
   public userAccountData?: UserAccountData;
   public userOmmRewards?: UserOmmRewards;
   public userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
@@ -58,6 +60,13 @@ export class PersistenceService {
   public userLockedOmm?: LockedOmm;
   public userbOmmBalance = new BigNumber("0");
   public userDebt: Map<CollateralAssetTag, BigNumber | undefined> = new Map<CollateralAssetTag, BigNumber | undefined>();
+  public userVotingWeightForProposal: Map<BigNumber, BigNumber> = new Map<BigNumber, BigNumber>(); // proposalId to voting weight
+  public userVotingWeight: BigNumber = new BigNumber("0");
+  public userProposalVotes: Map<BigNumber, Vote> = new Map<BigNumber, Vote>();
+  private userSupplyMarketMultiplierMap = new Map<AssetTag, BigNumber>();
+  private userBorrowMarketMultiplierMap = new Map<AssetTag, BigNumber>();
+  private userLiquidityMultiplierMap = new Map<string, BigNumber>(); // key is poolId
+
   public minOmmLockAmount = new BigNumber("1");
   public totalStakedOmm = new BigNumber("0");
   public totalSuppliedOmm = new BigNumber("0");
@@ -73,13 +82,9 @@ export class PersistenceService {
   public voteDefinitionFee = new BigNumber("0");
   public voteDefinitionCriterion = new BigNumber("0");
   public proposalList: Proposal[] = [];
-  public userVotingWeightForProposal: Map<BigNumber, BigNumber> = new Map<BigNumber, BigNumber>(); // proposalId to voting weight
-  public userVotingWeight: BigNumber = new BigNumber("0");
-  public userProposalVotes: Map<BigNumber, Vote> = new Map<BigNumber, Vote>();
   public voteDuration = new BigNumber("-1");
 
   public prepList?: PrepList;
-  public yourVotesPrepList: YourPrepVote[] = [];
 
   public interestHistory: InterestHistory[] = [];
 
@@ -99,6 +104,34 @@ export class PersistenceService {
     this.userAccountData = undefined;
     this.userTotalRisk = new BigNumber("0");
     this.userReserves = new UserReserves();
+    this.userSupplyMarketMultiplierMap = new Map<AssetTag, BigNumber>();
+    this.userBorrowMarketMultiplierMap = new Map<AssetTag, BigNumber>();
+    this.userLiquidityMultiplierMap = new Map<string, BigNumber>();
+    this.userbOmmBalance = new BigNumber("0");
+  }
+
+  getSupplyMarketMultiplier(assetTag: AssetTag): BigNumber {
+    return this.userSupplyMarketMultiplierMap.get(assetTag) ?? new BigNumber(1);
+  }
+
+  getBorrowMarketMultiplier(assetTag: AssetTag): BigNumber {
+    return this.userBorrowMarketMultiplierMap.get(assetTag) ?? new BigNumber(1);
+  }
+
+  getLiquidityMultiplier(poolId: string): BigNumber {
+    return this.userLiquidityMultiplierMap.get(poolId) ?? new BigNumber(1);
+  }
+
+  setSupplyMarketMultiplier(assetTag: AssetTag, multiplier: BigNumber): void {
+    this.userSupplyMarketMultiplierMap.set(assetTag, multiplier);
+  }
+
+  setBorrowMarketMultiplier(assetTag: AssetTag, multiplier: BigNumber): void {
+    this.userBorrowMarketMultiplierMap.set(assetTag, multiplier);
+  }
+
+  setLiquidityMultiplier(poolId: BigNumber, multiplier: BigNumber): void {
+    this.userLiquidityMultiplierMap.set(poolId.toString(), multiplier);
   }
 
   getProposal(id: BigNumber): Proposal | undefined {

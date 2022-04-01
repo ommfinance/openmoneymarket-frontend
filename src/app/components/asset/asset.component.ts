@@ -1,14 +1,4 @@
-import {
-  AfterViewInit,
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  EventEmitter,
-  Input,
-  OnInit,
-  Output,
-  ViewChild
-} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {SlidersService} from "../../services/sliders/sliders.service";
 import {assetPrefixMinusFormat, assetPrefixPlusFormat, ommPrefixPlusFormat, percentageFormat, usLocale} from "../../common/formats";
 import {CalculationsService} from "../../services/calculations/calculations.service";
@@ -1287,23 +1277,49 @@ export class AssetComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   getMarketBorrowRate(): BigNumber {
-    return this._ommApyChecked ? this.calculationService.calculateUserAndMarketReserveBorrowApy(this.asset.tag) :
+    return this._ommApyChecked ? this.getMarketBorrowRateWithOmmRewards() :
       Utils.makeNegativeNumber(this.persistenceService.getAssetReserveData(this.asset.tag)?.borrowRate ?? new BigNumber("0"));
   }
 
+  getMarketBorrowRateWithOmmRewards(): BigNumber {
+    const borrowRate = this.persistenceService.getAssetReserveData(this.asset.tag)?.borrowRate ?? new BigNumber(0);
+    const borrowApyWithOmmRewards = this.calculationService.calculateBorrowApyWithOmmRewards(this.asset.tag);
+
+    if (this.activeMarketView === ActiveViews.USER_MARKET) {
+      // (OMM reward Borrow APY * borrow market bOmm multiplier) - Borrow APY
+      return (this.persistenceService.getBorrowMarketMultiplier(this.asset.tag).multipliedBy(borrowApyWithOmmRewards)).minus(borrowRate);
+    } else {
+      // OMM reward Borrow APY - Borrow APY
+      return borrowApyWithOmmRewards.minus(borrowRate);
+    }
+  }
+
   getMarketSupplyRate(): BigNumber {
-    return this._ommApyChecked ? this.calculationService.calculateUserAndMarketReserveSupplyApy(this.asset.tag) :
+    return this._ommApyChecked ? this.getMarketSupplyRateWithOmmRewards() :
       this.persistenceService.getAssetReserveData(this.asset.tag)?.liquidityRate ?? new BigNumber("0");
   }
 
+  getMarketSupplyRateWithOmmRewards(): BigNumber {
+    const liquidityRate = this.persistenceService.getAssetReserveData(this.asset.tag)?.liquidityRate ?? new BigNumber(0);
+    const supplyApyWithOmmRewards = this.calculationService.calculateSupplyApyWithOmmRewards(this.asset.tag);
+
+    if (this.activeMarketView === ActiveViews.USER_MARKET) {
+      // Supply APY + (OMM reward Supply APY * supply market bOmm multiplier)
+      return liquidityRate.plus(this.persistenceService.getSupplyMarketMultiplier(this.asset.tag).multipliedBy(supplyApyWithOmmRewards));
+    } else {
+      // Supply APY + OMM reward Supply APY
+      return liquidityRate.plus(supplyApyWithOmmRewards);
+    }
+  }
+
   getUserSupplyApy(): BigNumber | undefined {
-    return this._ommApyChecked ? this.getMarketSupplyRate() :
-      this.persistenceService.getUserAssetReserve(this.asset.tag)?.liquidityRate;
+    return this._ommApyChecked ? this.getMarketSupplyRate() : this.persistenceService.getUserAssetReserve(this.asset.tag)?.liquidityRate;
   }
 
   getUserBorrowApy(): BigNumber {
     return this._ommApyChecked ? this.getMarketBorrowRate() :
       Utils.makeNegativeNumber(this.persistenceService.getUserAssetReserve(this.asset.tag)?.borrowRate ?? new BigNumber("0"));
+
   }
 
   getUserTotalUnstakeAmount(): BigNumber {

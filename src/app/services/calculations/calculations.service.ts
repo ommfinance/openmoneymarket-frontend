@@ -12,6 +12,8 @@ import log from "loglevel";
 import {PoolData} from "../../models/PoolData";
 import {UserPoolData} from "../../models/UserPoolData";
 import BigNumber from "bignumber.js";
+import {LockDate} from "../../models/LockDate";
+import {lockedDateTobOmmPerOmm} from "../../common/constants";
 
 @Injectable({
   providedIn: 'root'
@@ -67,35 +69,15 @@ export class CalculationsService {
     return (BigNumber.min(multiplier, 1)).multipliedBy(new BigNumber("2.5"));
   }
 
-  // formulae: Supply APY + OMM reward Supply APY
-  calculateUserAndMarketReserveSupplyApy(assetTag: AssetTag): BigNumber {
-    const reserveData = this.persistenceService.getAssetReserveData(assetTag);
-
-    if (reserveData) {
-      return reserveData.liquidityRate.plus(this.calculateSupplyApyWithOmmRewards(assetTag));
-    } else {
-      return new BigNumber("0");
-    }
-  }
-
-  // formulae: OMM reward Borrow APY - Borrow APY
-  calculateUserAndMarketReserveBorrowApy(assetTag: AssetTag): BigNumber {
-    const reserveData = this.persistenceService.getAssetReserveData(assetTag);
-
-    if (reserveData) {
-      return this.calculateBorrowApyWithOmmRewards(assetTag).minus(reserveData.borrowRate);
-    } else {
-      return new BigNumber("0");
-    }
-  }
-
   public calculateBorrowApyWithOmmRewards(assetTag: AssetTag): BigNumber {
     const reserveData = this.persistenceService.getAssetReserveData(assetTag);
+    const borrowBOMMultiplier = this.persistenceService.getBorrowMarketMultiplier(assetTag);
 
     if (reserveData) {
       const dailyBorrowRewards = this.persistenceService.dailyRewardsAllPoolsReserves?.reserve.getDailyBorrowRewardsForReserve(assetTag)
         ?? new BigNumber("0");
-      return this.borrowOmmApyFormula(dailyBorrowRewards, this.persistenceService.ommPriceUSD, reserveData, assetTag);
+      const borrowOmmApy = this.borrowOmmApyFormula(dailyBorrowRewards, this.persistenceService.ommPriceUSD, reserveData, assetTag);
+      return borrowOmmApy.multipliedBy(borrowBOMMultiplier);
     } else {
       return new BigNumber("0");
     }
@@ -174,13 +156,13 @@ export class CalculationsService {
   /** Formulae: Omm's Voting Power/Total staked OMM tokens */
   public votingPower(): BigNumber {
     const ommVotingPower = this.ommVotingPower();
-    const totalStakedOmm = this.persistenceService.totalStakedOmm;
+    const totalbOmmBalance = this.persistenceService.bOmmTotalSupply;
 
-    if (ommVotingPower.isZero() || totalStakedOmm.isZero()) {
+    if (ommVotingPower.isZero() || totalbOmmBalance.isZero()) {
       return new BigNumber("0");
     }
 
-    return Utils.divide(ommVotingPower, totalStakedOmm).dp(2);
+    return Utils.divide(ommVotingPower, totalbOmmBalance).dp(2);
   }
 
   /** (totalLiquidity of sICX - totalborrow of sICX) * (sICX/ICX ratio) */
@@ -192,13 +174,13 @@ export class CalculationsService {
     return ((totalLiquiditySicx.minus(totalborrowSicx)).multipliedBy(sIcxIcxRatio)).dp(2);
   }
 
-  /** Formulae: Omm's Voting Power/Total staked OMM tokens * user’s staked OMM token */
+  /** Formulae: Omm's Voting Power/Total bOMM balance * user’s bOMM balance */
   public usersVotingPower(): BigNumber {
     const ommVotingPower = this.ommVotingPower();
-    const totalStakedOmm = this.persistenceService.totalStakedOmm;
-    const userStakedOmmToken = this.persistenceService.getUsersLockedOmmBalance();
+    const totalbOmmBalance = this.persistenceService.bOmmTotalSupply;
+    const userbOmmBalance = this.persistenceService.userbOmmBalance;
 
-    return (ommVotingPower.dividedBy(totalStakedOmm).multipliedBy(userStakedOmmToken)).dp(2);
+    return (ommVotingPower.dividedBy(totalbOmmBalance).multipliedBy(userbOmmBalance)).dp(2);
   }
 
   public calculateAssetSupplySliderMax(assetTag: AssetTag): BigNumber {
@@ -449,14 +431,10 @@ export class CalculationsService {
   }
 
   public calculateUserTotalOmmRewards(): BigNumber {
-    log.debug("calculateUserTotalOmmRewards...");
     let res = new BigNumber("0");
     Object.values(AssetTag).forEach(assetTag => {
-      log.debug(`Daily supply and borrow rewards for ${assetTag}`);
       const supplyOmmReward = this.calculateUserDailySupplyOmmReward(assetTag);
       const borrowOmmReward = this.calculateUserDailyBorrowOmmReward(assetTag);
-      log.debug(`supplyOmmReward = ${supplyOmmReward}`);
-      log.debug(`borrowOmmReward = ${borrowOmmReward}`);
       res = res.plus(supplyOmmReward.plus(borrowOmmReward));
     });
     return res;
@@ -738,7 +716,12 @@ export class CalculationsService {
   }
 
   /** Formulae: Daily OMM locking rewards * User's bOMM balance /total bOMM balance */
-  public calculateUserDailyLockingOmmRewards(lockedOmm?: BigNumber): BigNumber {
+  public calculateUserDailyLockingOmmRewards(lockedOmm?: BigNumber, lockDate?: LockDate): BigNumber {
+    // convert locked Omm amount to predicted bOMM amount based on the lockDate
+    if (lockedOmm && lockDate) {
+      lockedOmm = lockedOmm.multipliedBy(lockedDateTobOmmPerOmm.get(lockDate)!);
+    }
+
     const dailyOmmLockingRewards = this.calculateDailyOmmLockingRewards();
     const usersbOmmBalance = lockedOmm ? lockedOmm : this.persistenceService.userbOmmBalance;
     const bOmmTotalSupply = lockedOmm ? lockedOmm.plus(this.persistenceService.bOmmTotalSupply)

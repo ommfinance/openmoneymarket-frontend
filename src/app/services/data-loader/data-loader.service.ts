@@ -6,7 +6,7 @@ import {AllReservesData, ReserveData} from "../../models/AllReservesData";
 import {Mapper} from "../../common/mapper";
 import {UserAccountData} from "../../models/UserAccountData";
 import {StateChangeService} from "../state-change/state-change.service";
-import {AssetTag, CollateralAssetTag} from "../../models/Asset";
+import {Asset, AssetTag, CollateralAssetTag, supportedAssetsMap} from "../../models/Asset";
 import log from "loglevel";
 import {OmmError} from "../../core/errors/OmmError";
 import {AllReserveConfigData} from "../../models/AllReserveConfigData";
@@ -27,6 +27,7 @@ import {Vote} from "../../models/Vote";
 import {ReloaderService} from "../reloader/reloader.service";
 import {BridgeWallet} from "../../models/wallets/BridgeWallet";
 import {InterestHistoryService} from "../interest-history/interest-history.service";
+import {CalculationsService} from "../calculations/calculations.service";
 
 @Injectable({
   providedIn: 'root'
@@ -41,7 +42,8 @@ export class DataLoaderService {
               private errorService: ErrorService,
               private checkerService: CheckerService,
               private reloaderService: ReloaderService,
-              private interestHistoryService: InterestHistoryService) {
+              private interestHistoryService: InterestHistoryService,
+              private calculationService: CalculationsService) {
 
   }
 
@@ -612,7 +614,42 @@ export class DataLoaderService {
       this.loadUserbOmmBalance()
     ]);
 
+    this.initialisePersistenceData();
     this.stateChangeService.userDataReloadUpdate();
+  }
+
+  initialisePersistenceData(): void {
+    this.initialisebOmmMultipliers();
+  }
+
+  initialisebOmmMultipliers(): void {
+    log.debug("****** bOMM multipliers ****** ");
+
+    // market multipliers
+    log.debug("Market multipliers:");
+    supportedAssetsMap.forEach((value: Asset, key: AssetTag) => {
+      if (!this.persistenceService.getUserSuppliedAssetBalance(key).isZero()) {
+        const supplyMultiplier = this.calculationService.calculateMarketRewardsSupplyMultiplier(key);
+        this.persistenceService.setSupplyMarketMultiplier(key, supplyMultiplier);
+        log.debug(`asset=${key} supplyMultiplier=${supplyMultiplier}`);
+      }
+
+      if (!this.persistenceService.getUserBorrAssetBalance(key).isZero()) {
+        const borrowMultiplier = this.calculationService.calculateMarketRewardsBorrowMultiplier(key);
+        this.persistenceService.setBorrowMarketMultiplier(key, borrowMultiplier);
+        log.debug(`asset=${key} borrowMultiplier=${borrowMultiplier}`);
+      }
+    });
+
+    // liquidity multipliers
+    log.debug("Liquidity multipliers:");
+    this.persistenceService.userPoolsDataMap.forEach((value: UserPoolData, poolId: string) => {
+      if (!value.userStakedBalance.isZero()) {
+        const liquidityMultiplier = this.calculationService.calculateliquidityRewardsMultiplier(new BigNumber(poolId));
+        this.persistenceService.setLiquidityMultiplier(new BigNumber(poolId), liquidityMultiplier);
+        log.debug(`poolId=${poolId} liquidityMultiplier=${liquidityMultiplier}`);
+      }
+    });
   }
 
   /**

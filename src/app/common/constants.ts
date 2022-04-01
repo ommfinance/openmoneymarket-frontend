@@ -1,5 +1,6 @@
 /** Modal constants */
 import BigNumber from "bignumber.js";
+import {LockDate} from "../models/LockDate";
 
 export const BORROW = "Borrow";
 export const SUPPLY = "Supply";
@@ -60,16 +61,27 @@ export class Times {
   }
 }
 
-export const lockedUntilDateOptions = ["1 week", "1 month", "3 months", "6 months", "1 year", "2 years", "4 years"];
+export const lockedUntilDateOptions = [LockDate.WEEK, LockDate.MONTH, LockDate.MONTH_3, LockDate.MONTH_6, LockDate.YEAR, LockDate.YEAR_2,
+  LockDate.YEAR_4];
 
 export const lockedDatesToMilliseconds = new Map([
-  ["1 week", Times.WEEK_IN_MILLISECONDS],
-  ["1 month", Times.MONTH_IN_MILLISECONDS],
-  ["3 months", Times.MONTH_IN_MILLISECONDS.multipliedBy(3)],
-  ["6 months", Times.MONTH_IN_MILLISECONDS.multipliedBy(6)],
-  ["1 year", Times.MONTH_IN_MILLISECONDS.multipliedBy(12)],
-  ["2 years", Times.MONTH_IN_MILLISECONDS.multipliedBy(24)],
-  ["4 years", Times.MONTH_IN_MILLISECONDS.multipliedBy(48)],
+  [LockDate.WEEK, Times.WEEK_IN_MILLISECONDS],
+  [LockDate.MONTH, Times.MONTH_IN_MILLISECONDS],
+  [LockDate.MONTH_3, Times.MONTH_IN_MILLISECONDS.multipliedBy(3)],
+  [LockDate.MONTH_6, Times.MONTH_IN_MILLISECONDS.multipliedBy(6)],
+  [LockDate.YEAR, Times.MONTH_IN_MILLISECONDS.multipliedBy(12)],
+  [LockDate.YEAR_2, Times.MONTH_IN_MILLISECONDS.multipliedBy(24)],
+  [LockDate.YEAR_4, Times.MONTH_IN_MILLISECONDS.multipliedBy(48)],
+]);
+
+export const lockedDateTobOmmPerOmm = new Map([
+  [LockDate.WEEK, new BigNumber("0.0048")],
+  [LockDate.MONTH, new BigNumber("0.0208333")],
+  [LockDate.MONTH_3, new BigNumber("0.0625")],
+  [LockDate.MONTH_6, new BigNumber("0.125")],
+  [LockDate.YEAR, new BigNumber("0.25")],
+  [LockDate.YEAR_2, new BigNumber("0.5")],
+  [LockDate.YEAR_4, new BigNumber("1")],
 ]);
 
 // 1 week = 0.0048 veOMM per 1 OMM staked
