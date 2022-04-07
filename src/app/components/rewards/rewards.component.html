@@ -242,15 +242,12 @@
               <div class="grid-cell border-right">
                 <dl class="metadata">
                   <dt>Market rewards</dt>
-                  <ng-container *ngIf="!fromToIsEmpty(userbOmmMarketMultipliers())">
+                  <ng-container *ngIf="!marketMultipliersAreZero() && userLoggedIn()">
                     <dd>
-                      <span class="value-liquidity-apy-4">{{userbOmmMarketMultipliers().from | usFormat}} x</span>
+                      <span class="value-liquidity-apy-4">{{marketMultipliers?.from | usFormat}} x</span>
                       <span *ngIf="!marketMultipliersAreEqual()" class="label"> – </span>
-                      <span *ngIf="!marketMultipliersAreEqual()" class="value-liquidity-apy-2">{{userbOmmMarketMultipliers().to | usFormat}} x</span>
+                      <span *ngIf="!marketMultipliersAreEqual()" class="value-liquidity-apy-2">{{marketMultipliers?.to | usFormat}} x</span>
                     </dd>
-                  </ng-container>
-                  <ng-container *ngIf="fromToIsEmpty(userbOmmMarketMultipliers())">
-                    <dd>–</dd>
                   </ng-container>
                 </dl>
               </div>
@@ -259,9 +256,9 @@
                   <dt>Liquidity rewards</dt>
                   <ng-container *ngIf="!fromToIsEmpty(userbOmmLiquidityMultipliers())">
                     <dd>
-                      <span class="value-liquidity-apy-4">{{userbOmmLiquidityMultipliers().from | roundDown2Dec | usFormat}} x</span>
+                      <span class="value-liquidity-apy-4">{{liquidityMultipliers?.from | roundDown2Dec | usFormat}} x</span>
                       <span *ngIf="!liquidityMultipliersAreEqual()" class="label"> – </span>
-                      <span *ngIf="!liquidityMultipliersAreEqual()" class="value-liquidity-apy-2">{{userbOmmLiquidityMultipliers().to | roundDown2Dec | usFormat}} x</span>
+                      <span *ngIf="!liquidityMultipliersAreEqual()" class="value-liquidity-apy-2">{{liquidityMultipliers?.to | roundDown2Dec | usFormat}} x</span>
                     </dd>
                   </ng-container>
                   <ng-container *ngIf="fromToIsEmpty(userbOmmLiquidityMultipliers())">

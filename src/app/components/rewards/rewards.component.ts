@@ -17,7 +17,7 @@ import {NotificationService} from "../../services/notification/notification.serv
 import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
 import {environment} from "../../../environments/environment";
 import {ReloaderService} from "../../services/reloader/reloader.service";
-import {lockedDatesToMilliseconds, lockedUntilDateOptions, Times} from "../../common/constants";
+import {lockedDatesToMilliseconds, lockedDateTobOmmPerOmm, lockedUntilDateOptions, Times} from "../../common/constants";
 import BigNumber from "bignumber.js";
 import {normalFormat} from "../../common/formats";
 import {LockingAction} from "../../models/LockingAction";
@@ -55,6 +55,10 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   selectedLockTimeInMillisec = Times.WEEK_IN_MILLISECONDS; // default to 1 week
   selectedLockTime = LockDate.WEEK;
   userHasSelectedLockTime = false;
+
+  marketMultipliers?: { from: BigNumber, to: BigNumber};
+  liquidityMultipliers?: { from: BigNumber, to: BigNumber};
+  activeLockedOmmAmount: BigNumber = new BigNumber(0);
 
   constructor(public persistenceService: PersistenceService,
               private stateChangeService: StateChangeService,
@@ -102,11 +106,8 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   onConfirmLockOmmClick(): void {
     log.debug(`onConfirmLockOmmClick Omm locked amount = ${this.userLockedOmmBalance}`);
     const before = this.persistenceService.getUsersLockedOmmBalance().dp(0);
-    log.debug("before = ", before);
     const after = (this.userLockedOmmBalance ?? new BigNumber("0")).dp(0);
-    log.debug("after = ", after);
     const diff = Utils.subtract(after, before);
-    log.debug("Diff = ", diff);
 
     // if before and after equal show notification
     if (before.isEqualTo(after) && this.lockDate().eq(this.userCurrentLockedOmmEndInMilliseconds())) {
@@ -130,8 +131,13 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
 
         this.notificationService.showNewNotification(`Lock amount must be greater than ${this.persistenceService.minOmmLockAmount}`);
       }
-      else if (before.gt(0) && after.gt(before) && this.lockDate().eq(this.userCurrentLockedOmmEndInMilliseconds())) {
-        // increase lock amount
+      else if (before.gt(0) && after.gt(before) && unlockPeriod.gt(this.userCurrentLockedOmmEndInMilliseconds())) {
+        // increase both locked amount and unlock period if lock amount and unlock period are greater than current
+        this.modalService.showNewModal(ModalType.INCREASE_LOCK_TIME_AND_AMOUNT, undefined, undefined, undefined, undefined,
+          lockingAction);
+      }
+      else if (before.gt(0) && after.gt(before) && unlockPeriod.eq(this.userCurrentLockedOmmEndInMilliseconds())) {
+        // increase lock amount only if new one is greater and unlock period is same as current
         this.modalService.showNewModal(ModalType.INCREASE_LOCK_OMM, undefined, undefined, undefined, undefined,
           lockingAction);
       }
@@ -344,6 +350,12 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
 
       if (this.lockDailyRewardsEl && this.userLoggedIn()) {
         this.updateUserDailyRewards(value);
+      }
+
+      if (this.userLoggedIn()) {
+        this.marketMultipliers = this.userbOmmMarketMultipliers(value);
+        this.liquidityMultipliers = this.userbOmmLiquidityMultipliers(value);
+        this.activeLockedOmmAmount = value;
       }
 
       // Update Omm stake input text box
@@ -649,35 +661,53 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     return this.calculationService.calculateMarketRewardsBorrowMultiplier(assetTag);
   }
 
-  userbOmmMarketMultipliers(): { from: BigNumber, to: BigNumber} {
+  calculateDynamicBorrowMarketMultiplier(newLockedOmmAmount: BigNumber, lockDate: LockDate, assetTag: AssetTag): BigNumber {
+    const currentLockedOmm = this.persistenceService.getUsersLockedOmmBalance();
+    const lockedOmmDiff = newLockedOmmAmount.minus(currentLockedOmm);
+    const currentUserbOmmBalance = this.persistenceService.userbOmmBalance;
+    const userbOMMBalance = lockedOmmDiff.multipliedBy(lockedDateTobOmmPerOmm(lockDate)).plus(currentUserbOmmBalance);
+    return this.calculationService.calculateDynamicMarketRewardsBorrowMultiplier(assetTag, userbOMMBalance);
+  }
+
+  calculateDynamicSupplyMarketMultiplier(newLockedOmmAmount: BigNumber, lockDate: LockDate, assetTag: AssetTag): BigNumber {
+    const currentLockedOmm = this.persistenceService.getUsersLockedOmmBalance();
+    const lockedOmmDiff = newLockedOmmAmount.minus(currentLockedOmm);
+    const currentUserbOmmBalance = this.persistenceService.userbOmmBalance;
+    const userbOMMBalance = lockedOmmDiff.multipliedBy(lockedDateTobOmmPerOmm(lockDate)).plus(currentUserbOmmBalance);
+    return this.calculationService.calculateDynamicMarketRewardsSupplyMultiplier(assetTag, userbOMMBalance);
+  }
+
+  userbOmmMarketMultipliers(newLockedOmmAmount?: BigNumber): { from: BigNumber, to: BigNumber} {
     if (!this.userLoggedIn()) {
       return { from: new BigNumber(0), to: new BigNumber(0)};
     }
 
-    const marketRewards: BigNumber[] = [];
+    const multipliers: BigNumber[] = [];
 
     supportedAssetsMap.forEach((value: Asset, key: AssetTag) => {
       if (!this.persistenceService.getUserSuppliedAssetBalance(key).isZero()) {
-        marketRewards.push(this.persistenceService.getSupplyMarketMultiplier(key));
+        multipliers.push(newLockedOmmAmount ? this.calculateDynamicSupplyMarketMultiplier(newLockedOmmAmount, this.selectedLockTime, key)
+          : this.persistenceService.getSupplyMarketMultiplier(key));
       }
 
       if (!this.persistenceService.getUserBorrAssetBalance(key).isZero()) {
-        marketRewards.push(this.persistenceService.getBorrowMarketMultiplier(key));
+        multipliers.push(newLockedOmmAmount ? this.calculateDynamicBorrowMarketMultiplier(newLockedOmmAmount, this.selectedLockTime, key)
+          : this.persistenceService.getBorrowMarketMultiplier(key));
       }
     });
 
-    if (marketRewards.length === 0) {
+    if (multipliers.length === 0) {
       return { from: new BigNumber(0), to: new BigNumber(0)};
     }
 
     let min = new BigNumber(-1);
     let max = new BigNumber(-1);
 
-    if (marketRewards.length === 1) {
-      return { from: marketRewards[0], to: marketRewards[0]};
+    if (multipliers.length === 1) {
+      return { from: multipliers[0], to: multipliers[0]};
     }
 
-    marketRewards.forEach(multiplier => {
+    multipliers.forEach(multiplier => {
       if (multiplier.lt(min) || min.eq(-1)) {
         min = multiplier;
       }
@@ -691,11 +721,11 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
   }
 
   marketMultipliersAreEqual(): boolean {
-    return this.userbOmmMarketMultipliers().from.eq(this.userbOmmMarketMultipliers().to);
+    return this.marketMultipliers?.from.eq(this.marketMultipliers?.to) ?? false;
   }
 
   marketMultipliersAreZero(): boolean {
-    return this.userbOmmMarketMultipliers().from.isZero() && this.userbOmmMarketMultipliers().to.isZero();
+    return (this.marketMultipliers?.from.isZero() && this.marketMultipliers?.to.isZero()) ?? false;
   }
 
   userbOmmPoolLiquidityMultiplier(poolId: BigNumber): BigNumber {
@@ -703,34 +733,44 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
       return new BigNumber(0);
     }
 
-    return this.calculationService.calculateliquidityRewardsMultiplier(poolId);
+    return this.activeLockedOmmAmount ? this.calculateDynamicLiquidityMultiplier(this.activeLockedOmmAmount, this.selectedLockTime,
+        poolId.toString()) : this.calculationService.calculateLiquidityRewardsMultiplier(poolId);
   }
 
-  userbOmmLiquidityMultipliers(): { from: BigNumber, to: BigNumber} {
+  calculateDynamicLiquidityMultiplier(newLockedOmmAmount: BigNumber, lockDate: LockDate, poolId: string): BigNumber {
+    const currentLockedOmm = this.persistenceService.getUsersLockedOmmBalance();
+    const lockedOmmDiff = newLockedOmmAmount.minus(currentLockedOmm);
+    const currentUserbOmmBalance = this.persistenceService.userbOmmBalance;
+    const userbOMMBalance = lockedOmmDiff.multipliedBy(lockedDateTobOmmPerOmm(lockDate)).plus(currentUserbOmmBalance);
+    return this.calculationService.calculateDynamicLiquidityRewardsMultiplier(new BigNumber(poolId), userbOMMBalance);
+  }
+
+  userbOmmLiquidityMultipliers(newLockedOmmAmount?: BigNumber): { from: BigNumber, to: BigNumber} {
     if (!this.userLoggedIn()) {
       return { from: new BigNumber(0), to: new BigNumber(0)};
     }
 
-    const liquidity: BigNumber[] = [];
+    const multipliers: BigNumber[] = [];
 
     this.persistenceService.userPoolsDataMap.forEach((value: UserPoolData, poolId: string) => {
       if (!value.userStakedBalance.isZero()) {
-        liquidity.push(this.persistenceService.getLiquidityMultiplier(poolId));
+        multipliers.push(newLockedOmmAmount ? this.calculateDynamicLiquidityMultiplier(newLockedOmmAmount, this.selectedLockTime, poolId)
+          : this.persistenceService.getLiquidityMultiplier(poolId));
       }
     });
 
-    if (liquidity.length === 0) {
+    if (multipliers.length === 0) {
       return { from: new BigNumber(0), to: new BigNumber(0)};
     }
 
     let min = new BigNumber(-1);
     let max = new BigNumber(-1);
 
-    if (liquidity.length === 1) {
-      return { from: liquidity[0], to: liquidity[0]};
+    if (multipliers.length === 1) {
+      return { from: multipliers[0], to: multipliers[0]};
     }
 
-    liquidity.forEach(multiplier => {
+    multipliers.forEach(multiplier => {
       if (multiplier.lt(min) || min.eq(-1)) {
         min = multiplier;
       }
@@ -751,7 +791,11 @@ export class RewardsComponent extends BaseClass implements OnInit, AfterViewInit
     return this.userbOmmLiquidityMultipliers().from.isZero() && this.userbOmmLiquidityMultipliers().to.isZero();
   }
 
-  fromToIsEmpty(fromTo: { from: BigNumber, to: BigNumber}): boolean {
+  fromToIsEmpty(fromTo?: { from: BigNumber, to: BigNumber}): boolean {
+    if (!fromTo) {
+      return true;
+    }
+
     return (fromTo.from.isZero() && fromTo.to.isZero()) || fromTo.from.isNaN() || fromTo.to.isNaN();
   }
 

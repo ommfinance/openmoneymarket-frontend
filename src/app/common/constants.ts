@@ -74,15 +74,24 @@ export const lockedDatesToMilliseconds = new Map([
   [LockDate.YEAR_4, Times.MONTH_IN_MILLISECONDS.multipliedBy(48)],
 ]);
 
-export const lockedDateTobOmmPerOmm = new Map([
-  [LockDate.WEEK, new BigNumber("0.0048")],
-  [LockDate.MONTH, new BigNumber("0.0208333")],
-  [LockDate.MONTH_3, new BigNumber("0.0625")],
-  [LockDate.MONTH_6, new BigNumber("0.125")],
-  [LockDate.YEAR, new BigNumber("0.25")],
-  [LockDate.YEAR_2, new BigNumber("0.5")],
-  [LockDate.YEAR_4, new BigNumber("1")],
-]);
+export function lockedDateTobOmmPerOmm(lockDate: LockDate): BigNumber {
+  switch (lockDate) {
+    case LockDate.WEEK:
+      return new BigNumber("0.0048");
+    case LockDate.MONTH:
+      return new BigNumber("0.0208333");
+    case LockDate.MONTH_3:
+      return new BigNumber("0.0625");
+    case LockDate.MONTH_6:
+      return new BigNumber("0.125");
+    case LockDate.YEAR:
+      return new BigNumber("0.25");
+    case LockDate.YEAR_2:
+      return new BigNumber("0.5");
+    case LockDate.YEAR_4:
+      return new BigNumber("1");
+  }
+}
 
 // 1 week = 0.0048 veOMM per 1 OMM staked
 // 1 month = 0.0208333 veOMM per 1 OMM staked

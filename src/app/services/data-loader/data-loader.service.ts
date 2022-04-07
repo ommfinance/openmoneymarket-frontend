@@ -107,14 +107,15 @@ export class DataLoaderService {
     }
   }
 
-  public loadAllUserDebts(): void {
-    Object.values(AssetTag).forEach(assetTag => {
-      this.scoreService.getUserDebt(assetTag).then()
-        .catch(e => {
+  public async loadAllUserDebts(): Promise<void> {
+    await Promise.all(Object.values(AssetTag).map(async (assetTag) => {
+      try {
+        await this.scoreService.getUserDebt(assetTag);
+      } catch (e) {
         log.error("Failed to load user debt for asset " + assetTag);
         log.error(e);
-      });
-    });
+      }
+    }));
   }
 
   public loadAllScoreAddresses(): Promise<void> {
@@ -551,6 +552,40 @@ export class DataLoaderService {
     }));
   }
 
+  initialisePersistenceData(): void {
+    this.initialisebOmmMultipliers();
+  }
+
+  initialisebOmmMultipliers(): void {
+    log.debug("****** bOMM multipliers ****** ");
+
+    // market multipliers
+    log.debug("Market multipliers:");
+    supportedAssetsMap.forEach((value: Asset, key: AssetTag) => {
+      if (!this.persistenceService.getUserSuppliedAssetBalance(key).isZero()) {
+        const supplyMultiplier = this.calculationService.calculateMarketRewardsSupplyMultiplier(key);
+        this.persistenceService.setSupplyMarketMultiplier(key, supplyMultiplier);
+        log.debug(`asset=${key} supplyMultiplier=${supplyMultiplier}`);
+      }
+
+      if (!this.persistenceService.getUserBorrAssetBalance(key).isZero()) {
+        const borrowMultiplier = this.calculationService.calculateMarketRewardsBorrowMultiplier(key);
+        this.persistenceService.setBorrowMarketMultiplier(key, borrowMultiplier);
+        log.debug(`asset=${key} borrowMultiplier=${borrowMultiplier}`);
+      }
+    });
+
+    // liquidity multipliers
+    log.debug("Liquidity multipliers:");
+    this.persistenceService.userPoolsDataMap.forEach((value: UserPoolData, poolId: string) => {
+      if (!value.userStakedBalance.isZero()) {
+        const liquidityMultiplier = this.calculationService.calculateLiquidityRewardsMultiplier(new BigNumber(poolId));
+        this.persistenceService.setLiquidityMultiplier(new BigNumber(poolId), liquidityMultiplier);
+        log.debug(`poolId=${poolId} liquidityMultiplier=${liquidityMultiplier}`);
+      }
+    });
+  }
+
   public async afterUserActionReload(): Promise<void> {
     if (this.persistenceService.activeWallet instanceof BridgeWallet) {
       this.refreshBridgeBalances();
@@ -597,8 +632,6 @@ export class DataLoaderService {
   }
 
   public async loadUserSpecificData(): Promise<void> {
-    this.loadUserAsyncData();
-
     await Promise.all([
       this.loadAllUserReserveData(),
       this.loadAllUserAssetsBalances(),
@@ -611,57 +644,14 @@ export class DataLoaderService {
       this.loadUsersVotingWeight(),
       this.loadUserProposalVotes(),
       this.loadUserLockedOmm(),
-      this.loadUserbOmmBalance()
+      this.loadUserbOmmBalance(),
+      this.loadAllUserDebts()
     ]);
 
     this.initialisePersistenceData();
+
+    // emit event that user data load has been completed
     this.stateChangeService.userDataReloadUpdate();
-  }
-
-  initialisePersistenceData(): void {
-    this.initialisebOmmMultipliers();
-  }
-
-  initialisebOmmMultipliers(): void {
-    log.debug("****** bOMM multipliers ****** ");
-
-    // market multipliers
-    log.debug("Market multipliers:");
-    supportedAssetsMap.forEach((value: Asset, key: AssetTag) => {
-      if (!this.persistenceService.getUserSuppliedAssetBalance(key).isZero()) {
-        const supplyMultiplier = this.calculationService.calculateMarketRewardsSupplyMultiplier(key);
-        this.persistenceService.setSupplyMarketMultiplier(key, supplyMultiplier);
-        log.debug(`asset=${key} supplyMultiplier=${supplyMultiplier}`);
-      }
-
-      if (!this.persistenceService.getUserBorrAssetBalance(key).isZero()) {
-        const borrowMultiplier = this.calculationService.calculateMarketRewardsBorrowMultiplier(key);
-        this.persistenceService.setBorrowMarketMultiplier(key, borrowMultiplier);
-        log.debug(`asset=${key} borrowMultiplier=${borrowMultiplier}`);
-      }
-    });
-
-    // liquidity multipliers
-    log.debug("Liquidity multipliers:");
-    this.persistenceService.userPoolsDataMap.forEach((value: UserPoolData, poolId: string) => {
-      if (!value.userStakedBalance.isZero()) {
-        const liquidityMultiplier = this.calculationService.calculateliquidityRewardsMultiplier(new BigNumber(poolId));
-        this.persistenceService.setLiquidityMultiplier(new BigNumber(poolId), liquidityMultiplier);
-        log.debug(`poolId=${poolId} liquidityMultiplier=${liquidityMultiplier}`);
-      }
-    });
-  }
-
-  /**
-   * Load user data async without waiting
-   */
-  public loadUserAsyncData(): void {
-    try {
-      this.loadAllUserDebts();
-    } catch (e) {
-      log.error("Error occurred in loadUserAsyncData...");
-      log.error(e);
-    }
   }
 
   /**

@@ -39,6 +39,14 @@ export class VoteAndLockingService {
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
+  public increaseLockAmountAndPeriodOmm(amount: BigNumber, unlockTime: BigNumber, notificationMessage: string): void {
+    amount = amount.dp(0);
+    const tx = this.buildIncreaseLockPeriodAndAmountOmmTx(amount, unlockTime);
+
+    log.debug(`Increase Lock amount and unlock period OMM TX: `, tx);
+    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
+  }
+
   public increaseOmmLockPeriod(newPeriod: BigNumber, notificationMessage: string): void {
     const tx = this.buildIncreaseLockTimeOmmTx(newPeriod);
 
@@ -93,6 +101,33 @@ export class VoteAndLockingService {
     log.debug(`unlockTime = ` + unlockTime.toString());
     const decimals = 18;
     const dataPayload = '{ "method": "createLock", "params": { "unlockTime":' + unlockTimeMicro.toFixed() + '}}';
+    log.debug("Data payload = ", dataPayload);
+
+    const params = {
+      _to: this.persistenceService.allAddresses!.systemContract.bOMM,
+      _value: IconConverter.toHex(IconAmount.of(amount, decimals).toLoop()),
+      _data: IconConverter.fromUtf8(dataPayload)};
+
+    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
+      this.persistenceService.allAddresses!.systemContract.OmmToken, ScoreMethodNames.TRANSFER, params, IconTransactionType.WRITE);
+  }
+
+  /**
+   * @description Build increase lock amount and unlock period OMM Tokens Icon transaction
+   * **Note**: Lock period is timestamp in microseconds. The lock period should be an integer/long, not a string.
+   * @param amount - Amount of OMM tokens to lock
+   * @param unlockTime - lock time in milliseconds that needs to be converted to microseconds
+   * @return any lock OMM Tokens Icon transaction
+   */
+  private buildIncreaseLockPeriodAndAmountOmmTx(amount: BigNumber, unlockTime: BigNumber): any {
+    this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
+
+    // convert to microseconds
+    const unlockTimeMicro = unlockTime.multipliedBy(1000);
+    log.debug(`Lock Omm amount = ` + amount.toString());
+    log.debug(`unlockTime = ` + unlockTime.toString());
+    const decimals = 18;
+    const dataPayload = '{ "method": "increaseAmount", "params": { "unlockTime":' + unlockTimeMicro.toFixed() + '}}';
     log.debug("Data payload = ", dataPayload);
 
     const params = {

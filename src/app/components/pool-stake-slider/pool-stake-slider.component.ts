@@ -194,12 +194,8 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
 
   getStakeMax(): BigNumber {
     // sliders max is sum of staked + available balance
-    const res = Utils.add(this.persistenceService.getUserPoolStakedBalance(this.poolId),
+    return Utils.add(this.persistenceService.getUserPoolStakedBalance(this.poolId),
       this.persistenceService.getUserPoolStakedAvailableBalance(this.poolId)).dp(2);
-
-    log.debug(`[pool=${this.poolId}] getStakeMax: `, res);
-
-    return res;
   }
 
   getInputStakedValue(): BigNumber {

@@ -147,6 +147,9 @@ export class ModalComponent extends BaseClass implements OnInit {
         case ModalType.INCREASE_LOCK_TIME:
           this.setActiveModal(this.lockOmmModal.nativeElement, activeModalChange);
           break;
+        case ModalType.INCREASE_LOCK_TIME_AND_AMOUNT:
+          this.setActiveModal(this.lockOmmModal.nativeElement, activeModalChange);
+          break;
         default:
           // check if it is ICX withdraw action and show corresponding specific view / modal
           if (this.isIcxWithdraw(activeModalChange)) {
@@ -264,6 +267,10 @@ export class ModalComponent extends BaseClass implements OnInit {
       // build and dispatch increase time period OMM tx
       this.voteService.increaseOmmLockPeriod(this.activeModalChange?.lockingOmmAction?.lockingTime!,
         "Increasing Omm Tokens lock period...");
+    } else if (this.activeModalChange?.modalType === ModalType.INCREASE_LOCK_TIME_AND_AMOUNT) {
+      const unlockTime = this.activeModalChange?.lockingOmmAction?.lockingTime!;
+      this.voteService.increaseLockAmountAndPeriodOmm(amount, unlockTime,
+        "Increasing Omm Tokens lock period and amount...");
     } else {
       const unlockTime = this.activeModalChange?.lockingOmmAction?.lockingTime!;
 

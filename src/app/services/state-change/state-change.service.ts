@@ -125,6 +125,7 @@ export class StateChangeService {
   private userProposalVotesChange: Subject<{proposalId: BigNumber, vote: Vote}> = new Subject<{proposalId: BigNumber, vote: Vote}>();
   userProposalVotesChange$: Observable<{proposalId: BigNumber, vote: Vote}> = this.userProposalVotesChange.asObservable();
 
+  // subscribe to afterUserDataReload$ in order to react to user data loading being complete
   private afterUserDataReload: Subject<void> = new Subject<void>();
   afterUserDataReload$: Observable<void> = this.afterUserDataReload.asObservable();
 
