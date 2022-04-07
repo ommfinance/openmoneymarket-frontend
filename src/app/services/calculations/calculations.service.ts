@@ -41,7 +41,7 @@ export class CalculationsService {
   }
 
   public calculateDynamicMarketRewardsBorrowMultiplier(assetTag: AssetTag, userbOMMBalance: BigNumber): BigNumber {
-    const userAssetBorrow = this.persistenceService.getUserSuppliedAssetBalance(assetTag);
+    const userAssetBorrow = this.persistenceService.getUserBorrAssetBalance(assetTag);
     const totalAssetBorrow = this.persistenceService.getReserveTotalLiquidity(assetTag);
     const totalbOMMBalance = this.persistenceService.bOmmTotalSupply;
 
@@ -49,7 +49,7 @@ export class CalculationsService {
   }
 
   public calculateMarketRewardsBorrowMultiplier(assetTag: AssetTag): BigNumber {
-    const userAssetBorrow = this.persistenceService.getUserSuppliedAssetBalance(assetTag);
+    const userAssetBorrow = this.persistenceService.getUserBorrAssetBalance(assetTag);
     const totalAssetBorrow = this.persistenceService.getReserveTotalLiquidity(assetTag);
     const userbOMMBalance = this.persistenceService.userbOmmBalance;
     const totalbOMMBalance = this.persistenceService.bOmmTotalSupply;
