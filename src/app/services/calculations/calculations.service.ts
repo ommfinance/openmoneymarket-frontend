@@ -760,7 +760,7 @@ export class CalculationsService {
    * Formula: getUserDailyReward(Address user) * OMM Token price * 365/($ value of user's supplied or borrowed asset)
    */
   public calculateUserBorrowOmmRewardsApy(assetTag: AssetTag): BigNumber {
-    log.debug("calculateUserBorrowOmmRewardsApy for asset " + assetTag);
+    // log.debug("calculateUserBorrowOmmRewardsApy for asset " + assetTag);
     const userDailyBorrowRewards: any = this.persistenceService.userDailyOmmRewards?.getBorrowRewardForAsset(assetTag);
 
     if (!userDailyBorrowRewards) { return new BigNumber(0); }
@@ -771,9 +771,9 @@ export class CalculationsService {
 
     if (borrowedUsdValue.isZero()) { return new BigNumber(0); }
 
-    log.debug(`userDailyBorrowRewards = ${userDailyBorrowRewards}`);
-    log.debug(`ommTokenPrice = ${ommTokenPrice}`);
-    log.debug(`borrowedUsdValue = ${borrowedUsdValue}`);
+    // log.debug(`userDailyBorrowRewards = ${userDailyBorrowRewards}`);
+    // log.debug(`ommTokenPrice = ${ommTokenPrice}`);
+    // log.debug(`borrowedUsdValue = ${borrowedUsdValue}`);
 
     return (userDailyBorrowRewards.multipliedBy(ommTokenPrice).multipliedBy(365)).dividedBy(borrowedUsdValue);
   }
