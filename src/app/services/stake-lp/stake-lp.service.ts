@@ -8,7 +8,7 @@ import {IconexApiService} from "../iconex-api/iconex-api.service";
 import {TransactionDispatcherService} from "../transaction-dispatcher/transaction-dispatcher.service";
 import {IconAmount, IconConverter} from "icon-sdk-js";
 import {ScoreMethodNames} from "../../common/score-method-names";
-import {IconTransactionType} from "../../models/IconTransactionType";
+import {IconTransactionType} from "../../models/enums/IconTransactionType";
 import {environment} from "../../../environments/environment";
 import BigNumber from "bignumber.js";
 

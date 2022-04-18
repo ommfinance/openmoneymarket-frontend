@@ -1,10 +1,10 @@
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {ModalService} from "../../services/modal/modal.service";
 import {Subscription} from "rxjs";
-import {ModalType} from "../../models/ModalType";
+import {ModalType} from "../../models/enums/ModalType";
 import {IconexApiService} from "../../services/iconex-api/iconex-api.service";
 import {BridgeWidgetService} from "../../services/bridge-widget/bridge-widget.service";
-import {ModalAction, ModalActionsResult, ModalStatus} from "../../models/ModalAction";
+import {ModalAction, ModalActionsResult, ModalStatus} from "../../models/classes/ModalAction";
 import {BaseClass} from "../base-class";
 import {BORROW, REPAY, SUPPLY, WITHDRAW} from "../../common/constants";
 import {SupplyService} from "../../services/supply/supply.service";
@@ -15,7 +15,7 @@ import {OmmError} from "../../core/errors/OmmError";
 import {LocalStorageService} from "../../services/local-storage/local-storage.service";
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import {NotificationService} from "../../services/notification/notification.service";
-import {AssetTag, assetToCollateralAssetTag, CollateralAssetTag} from "../../models/Asset";
+import {AssetTag, assetToCollateralAssetTag, CollateralAssetTag} from "../../models/classes/Asset";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {LedgerService} from "../../services/ledger/ledger.service";
 import {DataLoaderService} from "../../services/data-loader/data-loader.service";
@@ -266,7 +266,7 @@ export class ModalComponent extends BaseClass implements OnInit {
     } else if (this.activeModalChange?.modalType === ModalType.INCREASE_LOCK_TIME) {
       // build and dispatch increase time period OMM tx
       this.voteService.increaseOmmLockPeriod(this.activeModalChange?.lockingOmmAction?.lockingTime!,
-        "Increasing Omm Tokens lock period...");
+        "Locking up Omm Tokens…");
     } else if (this.activeModalChange?.modalType === ModalType.INCREASE_LOCK_TIME_AND_AMOUNT) {
       const unlockTime = this.activeModalChange?.lockingOmmAction?.lockingTime!;
       this.voteService.increaseLockAmountAndPeriodOmm(amount, unlockTime,

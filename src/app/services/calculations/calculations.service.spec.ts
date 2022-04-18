@@ -2,9 +2,9 @@ import { TestBed } from '@angular/core/testing';
 
 import { CalculationsService } from './calculations.service';
 import {HttpClientTestingModule} from "@angular/common/http/testing";
-import {ReserveData} from "../../models/AllReservesData";
-import {AssetTag} from "../../models/Asset";
-import {UserReserveData} from "../../models/UserReserveData";
+import {ReserveData} from "../../models/classes/AllReservesData";
+import {AssetTag} from "../../models/classes/Asset";
+import {UserReserveData} from "../../models/classes/UserReserveData";
 import BigNumber from "bignumber.js";
 
 describe('CalculationsService', () => {

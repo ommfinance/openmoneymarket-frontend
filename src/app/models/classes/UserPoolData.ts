@@ -32,6 +32,11 @@ export class UserPoolData {
     return splitString[0] + "-" + splitString[1];
   }
 
+  // get name without pool numbers
+  getCleanPoolName(): string {
+    return this.poolStats.name.replace(" ", "").replace(/[0-9]/g, '');
+  }
+
   getQuoteAssetName(): string {
     return this.poolStats.name.replace(" ", "").split("/")[1];
   }

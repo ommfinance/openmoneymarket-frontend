@@ -153,7 +153,7 @@
             <div class="grid">
               <!-- Heading -->
               <div class="grid-cell">
-                <h3>Earning potential <span *ngIf="!userBOMMbalance().isZero() && userBOMMbalance().isPositive()" class="label value-bomm-total">{{userBOMMbalance() | roundDown2Dec | usFormat | toZeroIfDash }} bOMM</span>
+                <h3>Earning potential <span *ngIf="!userBOMMbalance().isZero() && userBOMMbalance().isPositive()" class="label value-bomm-total">{{userBOMMbalance() | roundDown2Dec | usFormat | toZeroIfDash }} bOMM</span>&nbsp;
                   <span class="bomm-tooltip tooltip">
                     <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
                     <div class="tooltip-content">
@@ -195,7 +195,14 @@
                 <dt>Locked</dt>
               </dl>
             </div>
-            <div id="slider-boost" class="{{lockAdjustActive ? 'active' : ''}}" disabled="" #stkSlider [ngStyle]="hideElement(shouldHideBoostedSlider())"></div>
+
+            <!-- Locked OMM slider -->
+            <app-boosted-omm-slider #lockOmmSlider
+              [lockAdjustActive]="lockAdjustActive"
+              [shouldHideBoostedSlider]="shouldHideBoostedSlider()"
+              (sliderValueUpdate)="handleLockSliderValueUpdate($event)"
+            ></app-boosted-omm-slider>
+
             <div class="grid grid-center" [ngStyle]="hideElement(shouldHideBoostedSlider())">
               <div class="grid-cell" style="max-width: 200px;">
                 <p class="label">
@@ -203,7 +210,7 @@
                          class="input-boost" type="text" name=""><span [ngStyle]="hideElement(lockAdjustActive)" class="omm-locked">{{userLockedOmmBalance | roundDown2Dec | usFormat}}</span> / {{getLockSliderMax() | usFormat}} OMM</p>
               </div>
               <div class="grid-cell text-right">
-                <p class="label locked-default" [ngStyle]="hideElement(lockAdjustActive || userLockedOmmBalance.isZero())">Locked until {{timestampInMillisecondsToPrettyDate(lockDate())}}</p>
+                <p class="label locked-default" [ngStyle]="hideElement(lockAdjustActive || userLockedOmmBalance === 0)">{{userHasLockedOmm() ? "Locked until" : "Lock up until"}} {{timestampInMillisecondsToPrettyDate(lockDate())}}</p>
                 <div class="locked-adjust" [ngStyle]="hideElement(!lockAdjustActive)">
                   <p>
                     <span class="label">Locked until </span> <a class="dropdown time-selector" (click)="onLockedDateDropdownClick()">
@@ -212,7 +219,7 @@
                     <div class="grid-cell">
                       <ul>
                         <ng-container *ngFor="let date of lockedUntilDateOptions;">
-                          <li (click)="onLockUntilDateClick(date)">{{date}}</li>
+                          <li (click)="onLockUntilDateClick(date)">{{userHasLockedOmm() ? "+":""}} {{date}}</li>
                         </ng-container>
                       </ul>
                     </div>
@@ -242,26 +249,29 @@
               <div class="grid-cell border-right">
                 <dl class="metadata">
                   <dt>Market rewards</dt>
-                  <ng-container *ngIf="!marketMultipliersAreZero() && userLoggedIn()">
+                  <ng-container *ngIf="!fromToIsEmpty(marketMultipliers)">
                     <dd>
-                      <span class="value-liquidity-apy-4">{{marketMultipliers?.from | usFormat}} x</span>
+                      <span class="value-liquidity-apy-4">{{marketMultipliers?.from | roundOff2Dec | usFormat}} x</span>
                       <span *ngIf="!marketMultipliersAreEqual()" class="label"> – </span>
-                      <span *ngIf="!marketMultipliersAreEqual()" class="value-liquidity-apy-2">{{marketMultipliers?.to | usFormat}} x</span>
+                      <span *ngIf="!marketMultipliersAreEqual()" class="value-liquidity-apy-2">{{marketMultipliers?.to | roundOff2Dec | usFormat}} x</span>
                     </dd>
+                  </ng-container>
+                  <ng-container *ngIf="fromToIsEmpty(marketMultipliers)">
+                    <dd>–</dd>
                   </ng-container>
                 </dl>
               </div>
               <div class="grid-cell">
                 <dl class="metadata">
                   <dt>Liquidity rewards</dt>
-                  <ng-container *ngIf="!fromToIsEmpty(userbOmmLiquidityMultipliers())">
+                  <ng-container *ngIf="!fromToIsEmpty(liquidityMultipliers)">
                     <dd>
-                      <span class="value-liquidity-apy-4">{{liquidityMultipliers?.from | roundDown2Dec | usFormat}} x</span>
+                      <span class="value-liquidity-apy-4">{{liquidityMultipliers?.from | roundOff2Dec | usFormat}} x</span>
                       <span *ngIf="!liquidityMultipliersAreEqual()" class="label"> – </span>
-                      <span *ngIf="!liquidityMultipliersAreEqual()" class="value-liquidity-apy-2">{{liquidityMultipliers?.to | roundDown2Dec | usFormat}} x</span>
+                      <span *ngIf="!liquidityMultipliersAreEqual()" class="value-liquidity-apy-2">{{liquidityMultipliers?.to | roundOff2Dec | usFormat}} x</span>
                     </dd>
                   </ng-container>
-                  <ng-container *ngIf="fromToIsEmpty(userbOmmLiquidityMultipliers())">
+                  <ng-container *ngIf="fromToIsEmpty(liquidityMultipliers)">
                     <dd>–</dd>
                   </ng-container>
                 </dl>
@@ -312,7 +322,7 @@
                 <span class="label">{{poolData.userAvailableBalance | roundDown2Dec | usFormat}} available</span></td>
               <td><span class="text-dark">{{getUserDailyRewards(poolData) | roundOff2Dec | usFormat}} OMM</span><br>
                 <span class="label">{{toDollarUSLocaleString(getUserDailyRewardsUSD(poolData) | roundOff2Dec)}}</span></td>
-              <td class="text-green" >{{to2DecimalRoundedOffPercentString(getUserLiquidityApy(poolData))}}</td>
+              <td class="text-green" >{{to2DecimalRoundedOffPercentString(getUserPoolLiquidityApr(poolData))}}</td>
             </tr>
 
             <!-- Pool expanded -->
@@ -358,7 +368,7 @@
               <tr class="pool {{poolData.getPairClassName()}}" (click)="onPoolClick(poolData)">
                 <td class="text-dark">{{poolData.getPrettyName()}}</td>
                 <td colspan="2"><span class="text-dark">{{poolData.userAvailableBalance | roundDown2Dec | usFormat}} LP tokens</span></td>
-                <td colspan="2" class="text-green">{{to2DecimalRoundedOffPercentString(getUserLiquidityApy(poolData))}}</td>
+                <td colspan="2" class="text-green">{{to2DecimalRoundedOffPercentString(getUserPoolLiquidityApr(poolData))}}</td>
               </tr>
 
               <!-- Pool expanded -->
@@ -403,12 +413,12 @@
         <ng-container *ngFor="let poolData of getAllPoolsData(); last as isLast;">
           <tr class="pool {{poolData.getPairClassName()}}" #allPool (click)="onPoolClick(poolData)">
             <td class="text-dark">{{poolData.getPrettyName()}}</td>
-            <td><span class="text-dark">{{getTotalSuppliedBase(poolData) | roundOff2Dec | usFormat}} OMM</span><br>
-              <span class="label">{{getTotalSuppliedQuote(poolData) | roundOff2Dec | usFormat}} {{poolData.getQuoteAssetName()}}</span></td>
-            <td><span class="text-dark">{{poolData.totalStakedBalance | roundOff2Dec | usFormat}}</span></td>
+            <td><span class="text-dark">{{getTotalSuppliedBase(poolData) | usFormat}} OMM</span><br>
+              <span class="label">{{getTotalSuppliedQuote(poolData) | usFormat}} {{poolData.getQuoteAssetName()}}</span></td>
+            <td><span class="text-dark">{{getTotalLpTokens(poolData) | usFormat}}</span></td>
             <td><span class="text-dark">{{getDailyRewards(poolData) | roundOff2Dec | usFormat}} OMM</span><br>
               <span class="label">{{toDollarUSLocaleString(getDailyRewardsUSD(poolData) | roundOff2Dec)}}</span></td>
-            <td class="text-green">{{to2DecimalRoundedOffPercentString(getLiquidityApy(poolData))}}</td>
+            <td class="text-green">{{to2DecimalRoundedOffPercentString(getPoolLiquidityApr(poolData))}}</td>
           </tr>
 
           <tr class="expanded">

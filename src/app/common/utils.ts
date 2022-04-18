@@ -1,7 +1,7 @@
 import IconService from 'icon-sdk-js';
 import {BigNumber} from "bignumber.js";
-import {AssetTag} from "../models/Asset";
-import {BridgeWidgetAction} from "../models/BridgeWidgetAction";
+import {AssetTag} from "../models/classes/Asset";
+import {BridgeWidgetAction} from "../models/Interfaces/BridgeWidgetAction";
 import log from "loglevel";
 import {Times} from "./constants";
 
@@ -108,7 +108,7 @@ export class Utils {
     }
   }
 
-  public static roundDownTo2Decimals(value: BigNumber | string | undefined): string {
+  public static roundDownTo2Decimals(value: BigNumber | number | string | undefined): string {
     if (!value || !(new BigNumber(value).isFinite())) {
       return "0";
     } else if (value instanceof BigNumber) {

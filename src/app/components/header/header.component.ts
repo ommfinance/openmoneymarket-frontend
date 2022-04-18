@@ -7,7 +7,7 @@ import {BaseClass} from "../base-class";
 import {IconexWallet} from "../../models/wallets/IconexWallet";
 import {BridgeWallet} from "../../models/wallets/BridgeWallet";
 import {ModalService} from "../../services/modal/modal.service";
-import {ModalType} from "../../models/ModalType";
+import {ModalType} from "../../models/enums/ModalType";
 import {BridgeWidgetService} from "../../services/bridge-widget/bridge-widget.service";
 import {DataLoaderService} from "../../services/data-loader/data-loader.service";
 import {NotificationService} from "../../services/notification/notification.service";

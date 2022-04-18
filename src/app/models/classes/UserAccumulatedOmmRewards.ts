@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 
-export class UserOmmRewards {
+export class UserAccumulatedOmmRewards {
   liquidity?: Liquidity;
   OMMLocking?: Locking;
   reserve: Reserve;
@@ -15,8 +15,8 @@ export class UserOmmRewards {
     this.now = now;
   }
 
-  public getClone(): UserOmmRewards {
-    return new UserOmmRewards(this.reserve, this.total, this.now, this.liquidity, this.OMMLocking);
+  public getClone(): UserAccumulatedOmmRewards {
+    return new UserAccumulatedOmmRewards(this.reserve, this.total, this.now, this.liquidity, this.OMMLocking);
   }
 }
 

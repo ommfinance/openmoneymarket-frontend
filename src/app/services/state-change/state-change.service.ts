@@ -1,25 +1,26 @@
 import {Injectable} from '@angular/core';
 import {Observable, Subject} from "rxjs";
-import {UserReserveData, UserReserves} from "../../models/UserReserveData";
+import {UserReserveData, UserReserves} from "../../models/classes/UserReserveData";
 import {PersistenceService} from "../persistence/persistence.service";
-import {AssetTag, CollateralAssetTag} from "../../models/Asset";
+import {AssetTag, CollateralAssetTag} from "../../models/classes/Asset";
 import {IconexWallet} from "../../models/wallets/IconexWallet";
 import {BridgeWallet} from "../../models/wallets/BridgeWallet";
-import {UserAccountData} from "../../models/UserAccountData";
-import {ModalAction, ModalActionsResult} from "../../models/ModalAction";
-import {UserOmmRewards} from "../../models/UserOmmRewards";
-import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
-import {PrepList} from "../../models/Preps";
-import {YourPrepVote} from "../../models/YourPrepVote";
+import {UserAccountData} from "../../models/classes/UserAccountData";
+import {ModalAction, ModalActionsResult} from "../../models/classes/ModalAction";
+import {UserAccumulatedOmmRewards} from "../../models/classes/UserAccumulatedOmmRewards";
+import {OmmTokenBalanceDetails} from "../../models/classes/OmmTokenBalanceDetails";
+import {PrepList} from "../../models/classes/Preps";
+import {YourPrepVote} from "../../models/classes/YourPrepVote";
 import log from "loglevel";
-import {PoolData} from "../../models/PoolData";
-import {UserPoolData} from "../../models/UserPoolData";
-import {AllAssetDistPercentages} from "../../models/AllAssetDisPercentages";
+import {PoolData} from "../../models/classes/PoolData";
+import {UserPoolData} from "../../models/classes/UserPoolData";
+import {AllAssetDistPercentages} from "../../models/classes/AllAssetDisPercentages";
 import BigNumber from "bignumber.js";
-import {Proposal} from "../../models/Proposal";
-import {Vote} from "../../models/Vote";
-import {InterestHistory} from "../../models/InterestHistory";
-import {LockedOmm} from "../../models/LockedOmm";
+import {Proposal} from "../../models/classes/Proposal";
+import {Vote} from "../../models/classes/Vote";
+import {InterestHistory} from "../../models/classes/InterestHistory";
+import {LockedOmm} from "../../models/classes/LockedOmm";
+import {UserDailyOmmReward} from "../../models/classes/UserDailyOmmReward";
 
 @Injectable({
   providedIn: 'root'
@@ -76,7 +77,11 @@ export class StateChangeService {
    */
   public userAccountDataChange: Subject<UserAccountData> = new Subject<UserAccountData>();
 
-  public userOmmRewardsChange: Subject<UserOmmRewards> = new Subject<UserOmmRewards>();
+  public userOmmAccumulatedRewardsChange: Subject<UserAccumulatedOmmRewards> = new Subject<UserAccumulatedOmmRewards>();
+
+  private userOmmDailyRewardsChange = new Subject<UserDailyOmmReward>();
+  userOmmDailyRewardsChange$ = this.userOmmDailyRewardsChange.asObservable();
+
   public userOmmTokenBalanceDetailsChange: Subject<OmmTokenBalanceDetails> = new Subject<OmmTokenBalanceDetails>();
   public totalOmmStakedChange: Subject<BigNumber> = new Subject<BigNumber>();
   public voteDefinitionFeeChange: Subject<BigNumber> = new Subject<BigNumber>();
@@ -128,6 +133,9 @@ export class StateChangeService {
   // subscribe to afterUserDataReload$ in order to react to user data loading being complete
   private afterUserDataReload: Subject<void> = new Subject<void>();
   afterUserDataReload$: Observable<void> = this.afterUserDataReload.asObservable();
+
+  private afterCoreDataReload: Subject<void> = new Subject<void>();
+  afterCoreDataReload$: Observable<void> = this.afterCoreDataReload.asObservable();
 
   private collapseMarketAssets: Subject<void> = new Subject<void>();
   collapseMarketAssets$: Observable<void> = this.collapseMarketAssets.asObservable();
@@ -204,6 +212,11 @@ export class StateChangeService {
     });
   }
 
+  public userOmmDailyRewardsUpdate(rewards: UserDailyOmmReward): void {
+    this.persistenceService.userDailyOmmRewards = rewards;
+    this.userOmmDailyRewardsChange.next(rewards);
+  }
+
   public bOmmTotalSupplyUpdate(totalSupply: BigNumber): void {
     this.persistenceService.bOmmTotalSupply = totalSupply;
     this.bOmmTotalSupplyChange.next(totalSupply);
@@ -251,6 +264,10 @@ export class StateChangeService {
 
   public userDataReloadUpdate(): void {
     this.afterUserDataReload.next();
+  }
+
+  public coreDataReloadUpdate(): void {
+    this.afterCoreDataReload.next();
   }
 
   public tokenDistributionPerDayUpdate(value: BigNumber): void {
@@ -321,11 +338,12 @@ export class StateChangeService {
     this.userAccountDataChange.next(userAccountData);
   }
 
-  public updateUserOmmRewards(userOmmRewards: UserOmmRewards): void {
-    this.userOmmRewardsChange.next(userOmmRewards);
+  public updateUserAccumulatedOmmRewards(userOmmRewards: UserAccumulatedOmmRewards): void {
+    this.userOmmAccumulatedRewardsChange.next(userOmmRewards);
   }
 
   public updateUserOmmTokenBalanceDetails(userOmmTokenBalanceDetails: OmmTokenBalanceDetails): void {
+    this.persistenceService.userOmmTokenBalanceDetails = userOmmTokenBalanceDetails;
     this.userOmmTokenBalanceDetailsChange.next(userOmmTokenBalanceDetails);
   }
 

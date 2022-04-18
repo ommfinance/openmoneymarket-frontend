@@ -1,4 +1,4 @@
-import {Paginate} from "./Paginate";
+import {Paginate} from "../Interfaces/Paginate";
 import {InterestHistory} from "./InterestHistory";
 
 export class InterestHistoryResult implements Paginate {

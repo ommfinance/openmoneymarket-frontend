@@ -1,29 +1,28 @@
 import {Injectable} from '@angular/core';
 import {ScoreService} from '../score/score.service';
 import {PersistenceService} from '../persistence/persistence.service';
-import {AllAddresses} from '../../models/AllAddresses';
-import {AllReservesData, ReserveData} from "../../models/AllReservesData";
+import {AllAddresses} from '../../models/classes/AllAddresses';
+import {AllReservesData, ReserveData} from "../../models/classes/AllReservesData";
 import {Mapper} from "../../common/mapper";
-import {UserAccountData} from "../../models/UserAccountData";
+import {UserAccountData} from "../../models/classes/UserAccountData";
 import {StateChangeService} from "../state-change/state-change.service";
-import {Asset, AssetTag, CollateralAssetTag, supportedAssetsMap} from "../../models/Asset";
+import {Asset, AssetTag, CollateralAssetTag, supportedAssetsMap} from "../../models/classes/Asset";
 import log from "loglevel";
 import {OmmError} from "../../core/errors/OmmError";
-import {AllReserveConfigData} from "../../models/AllReserveConfigData";
+import {AllReserveConfigData} from "../../models/classes/AllReserveConfigData";
 import {OmmService} from "../omm/omm.service";
-import {UserOmmRewards} from "../../models/UserOmmRewards";
-import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
+import {UserAccumulatedOmmRewards} from "../../models/classes/UserAccumulatedOmmRewards";
+import {OmmTokenBalanceDetails} from "../../models/classes/OmmTokenBalanceDetails";
 import {NotificationService} from "../notification/notification.service";
-import {ErrorCode, ErrorService} from "../error/error.service";
 import {CheckerService} from "../checker/checker.service";
-import {UserAllReservesData, UserReserveData} from "../../models/UserReserveData";
-import {PoolData} from "../../models/PoolData";
-import {UserPoolData} from "../../models/UserPoolData";
+import {UserAllReservesData, UserReserveData} from "../../models/classes/UserReserveData";
+import {PoolData} from "../../models/classes/PoolData";
+import {UserPoolData} from "../../models/classes/UserPoolData";
 import {Utils} from "../../common/utils";
-import {PoolsDistPercentages} from "../../models/PoolsDistPercentages";
+import {PoolsDistPercentages} from "../../models/classes/PoolsDistPercentages";
 import BigNumber from "bignumber.js";
 import {environment} from "../../../environments/environment";
-import {Vote} from "../../models/Vote";
+import {Vote} from "../../models/classes/Vote";
 import {ReloaderService} from "../reloader/reloader.service";
 import {BridgeWallet} from "../../models/wallets/BridgeWallet";
 import {InterestHistoryService} from "../interest-history/interest-history.service";
@@ -39,7 +38,6 @@ export class DataLoaderService {
               private stateChangeService: StateChangeService,
               private ommService: OmmService,
               private notificationService: NotificationService,
-              private errorService: ErrorService,
               private checkerService: CheckerService,
               private reloaderService: ReloaderService,
               private interestHistoryService: InterestHistoryService,
@@ -301,39 +299,46 @@ export class DataLoaderService {
     });
   }
 
-  public loadUserOmmRewards(): Promise<void> {
-    return this.ommService.getOmmRewardsPerUser().then((ommRewards: UserOmmRewards) => {
-      this.errorService.deregisterError(ErrorCode.USER_OMM_REWARDS);
-
-      this.persistenceService.userOmmRewards = Mapper.mapUserOmmRewards(ommRewards);
-      this.stateChangeService.updateUserOmmRewards(this.persistenceService.userOmmRewards);
-    }).catch((e: any) => {
-      this.errorService.registerErrorForResolve(ErrorCode.USER_OMM_REWARDS, () => this.loadUserOmmRewards());
+  public async loadUserAccumulatedOmmRewards(): Promise<void> {
+    try {
+      const ommRewards = await this.ommService.getUserAccumulatedOmmRewards();
+      this.persistenceService.userAccumulatedOmmRewards = Mapper.mapUserAccumulatedOmmRewards(ommRewards);
+      this.stateChangeService.updateUserAccumulatedOmmRewards(this.persistenceService.userAccumulatedOmmRewards);
+    } catch (e) {
+      log.error("loadUserAccumulatedOmmRewards:");
       log.error(e);
-    });
+    }
   }
 
-  public loadUserOmmTokenBalanceDetails(): Promise<void> {
-    return this.ommService.getOmmTokenBalanceDetails().then((res: OmmTokenBalanceDetails) => {
-      this.errorService.deregisterError(ErrorCode.USER_OMM_TOKEN_BALANCE_DETAILS);
-
-      this.persistenceService.userOmmTokenBalanceDetails = Mapper.mapUserOmmTokenBalanceDetails(res);
-      log.debug("User Omm Token Balance Details: ", this.persistenceService.userOmmTokenBalanceDetails);
-      this.stateChangeService.updateUserOmmTokenBalanceDetails(this.persistenceService.userOmmTokenBalanceDetails);
-    }).catch((e: any) => {
-      this.errorService.registerErrorForResolve(ErrorCode.USER_OMM_TOKEN_BALANCE_DETAILS, () => this.loadUserOmmTokenBalanceDetails());
+  public async loadUserDailyOmmRewards(): Promise<void> {
+    try {
+      const ommDailyRewards = await this.ommService.getUserDailyOmmRewards();
+      this.stateChangeService.userOmmDailyRewardsUpdate(ommDailyRewards);
+    } catch (e) {
       log.error(e);
-    });
+    }
   }
 
-  public loadUserDelegations(): Promise<void> {
-    return this.scoreService.getUserDelegationDetails().then(yourVotesPrep => {
+  public async loadUserOmmTokenBalanceDetails(): Promise<void> {
+    try {
+      const res = await this.ommService.getOmmTokenBalanceDetails();
+      log.debug("User Omm Token Balance Details: ", res);
+      this.stateChangeService.updateUserOmmTokenBalanceDetails(res);
+    } catch (e) {
+      log.error("loadUserOmmTokenBalanceDetails:");
+      log.error(e);
+    }
+  }
+
+  public async loadUserDelegations(): Promise<void> {
+    try {
+      const yourVotesPrep = await this.scoreService.getUserDelegationDetails();
       this.persistenceService.yourVotesPrepList = yourVotesPrep;
       this.stateChangeService.yourVotesPrepChange.next(yourVotesPrep);
-    }).catch(e => {
+    } catch (e) {
       log.error("Error occurred in loadUserDelegations:");
       log.error(e);
-    });
+    }
   }
 
   public loadUserUnstakingInfo(): Promise<void> {
@@ -359,22 +364,13 @@ export class DataLoaderService {
     }
   }
 
-  public loadLoanOriginationFeePercentage(): Promise<void> {
-    return this.scoreService.getLoanOriginationFeePercentage().then(res => {
-      this.persistenceService.loanOriginationFeePercentage = res;
-    }).catch(e => {
+  public async loadLoanOriginationFeePercentage(): Promise<void> {
+    try {
+      this.persistenceService.loanOriginationFeePercentage = await this.scoreService.getLoanOriginationFeePercentage();
+    } catch (e) {
       log.error("Error in loadLoanOriginationFeePercentage", e);
-    });
+    }
   }
-
-  // public loadMinOmmStakeAmount(): void {
-  //   this.scoreService.getOmmTokenMinStakeAmount().then(minStakeAmount => {
-  //     this.persistenceService.minOmmStakeAmount = minStakeAmount;
-  //   }).catch(e => {
-  //     log.error("Error in loadMinOmmStakeAmount()");
-  //     log.error(e);
-  //   });
-  // }
 
   public async loadOmmTokenPriceUSD(): Promise<void> {
     try {
@@ -389,8 +385,7 @@ export class DataLoaderService {
 
   public async loadDistributionPercentages(): Promise<void> {
     try {
-      const res = await this.scoreService.getDistPercentages();
-      this.persistenceService.distributionPercentages = res;
+      this.persistenceService.distributionPercentages = await this.scoreService.getDistPercentages();
     } catch (e) {
       log.error("Error in loadDistributionPercentages()");
       log.error(e);
@@ -409,8 +404,7 @@ export class DataLoaderService {
 
   public async loadDailyRewardsAllReservesPools(): Promise<void> {
     try {
-      const res = await this.scoreService.getDailyRewardsDistributions();
-      this.persistenceService.dailyRewardsAllPoolsReserves = res;
+      this.persistenceService.dailyRewardsAllPoolsReserves = await this.scoreService.getDailyRewardsDistributions();
     } catch (e) {
       log.error("Error in loadDailyRewardsAllReservesPools()");
       log.error(e);
@@ -552,25 +546,23 @@ export class DataLoaderService {
     }));
   }
 
-  initialisePersistenceData(): void {
+  initialiseUserSpecificPersistenceData(): void {
     this.initialisebOmmMultipliers();
   }
 
   initialisebOmmMultipliers(): void {
-    log.debug("****** bOMM multipliers ****** ");
+    log.debug("****** bOMM calculated multipliers ****** ");
 
     // market multipliers
     log.debug("Market multipliers:");
     supportedAssetsMap.forEach((value: Asset, key: AssetTag) => {
       if (!this.persistenceService.getUserSuppliedAssetBalance(key).isZero()) {
         const supplyMultiplier = this.calculationService.calculateMarketRewardsSupplyMultiplier(key);
-        this.persistenceService.setSupplyMarketMultiplier(key, supplyMultiplier);
         log.debug(`asset=${key} supplyMultiplier=${supplyMultiplier}`);
       }
 
       if (!this.persistenceService.getUserBorrAssetBalance(key).isZero()) {
         const borrowMultiplier = this.calculationService.calculateMarketRewardsBorrowMultiplier(key);
-        this.persistenceService.setBorrowMarketMultiplier(key, borrowMultiplier);
         log.debug(`asset=${key} borrowMultiplier=${borrowMultiplier}`);
       }
     });
@@ -580,7 +572,6 @@ export class DataLoaderService {
     this.persistenceService.userPoolsDataMap.forEach((value: UserPoolData, poolId: string) => {
       if (!value.userStakedBalance.isZero()) {
         const liquidityMultiplier = this.calculationService.calculateLiquidityRewardsMultiplier(new BigNumber(poolId));
-        this.persistenceService.setLiquidityMultiplier(new BigNumber(poolId), liquidityMultiplier);
         log.debug(`poolId=${poolId} liquidityMultiplier=${liquidityMultiplier}`);
       }
     });
@@ -629,6 +620,9 @@ export class DataLoaderService {
       this.loadVoteDuration(),
       this.loadbOmmTotalSupply()
     ]);
+
+    // emit event indicating that core data was loaded
+    this.stateChangeService.coreDataReloadUpdate();
   }
 
   public async loadUserSpecificData(): Promise<void> {
@@ -636,7 +630,9 @@ export class DataLoaderService {
       this.loadAllUserReserveData(),
       this.loadAllUserAssetsBalances(),
       this.loadUserAccountData(),
-      this.loadUserGovernanceData(),
+      this.loadUserAccumulatedOmmRewards(),
+      this.loadUserOmmTokenBalanceDetails(),
+      this.loadUserDailyOmmRewards(),
       this.loadUserDelegations(),
       this.loadUserUnstakingInfo(),
       this.loadUserClaimableIcx(),
@@ -648,7 +644,7 @@ export class DataLoaderService {
       this.loadAllUserDebts()
     ]);
 
-    this.initialisePersistenceData();
+    this.initialiseUserSpecificPersistenceData();
 
     // emit event that user data load has been completed
     this.stateChangeService.userDataReloadUpdate();
@@ -659,12 +655,5 @@ export class DataLoaderService {
    */
   public loadCoreAsyncData(): void {
     this.loadInterestHistory();
-  }
-
-  public async loadUserGovernanceData(): Promise<void> {
-    await Promise.all([
-      this.loadUserOmmRewards(),
-      this.loadUserOmmTokenBalanceDetails(),
-    ]);
   }
 }

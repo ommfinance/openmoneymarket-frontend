@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import {Subject} from "rxjs";
-import {ModalType} from "../../models/ModalType";
-import {ModalAction} from "../../models/ModalAction";
+import {ModalType} from "../../models/enums/ModalType";
+import {ModalAction} from "../../models/classes/ModalAction";
 import log from "loglevel";
-import {AssetAction} from "../../models/AssetAction";
-import {StakingAction} from "../../models/StakingAction";
-import {VoteAction} from "../../models/VoteAction";
-import {GovernanceAction} from "../../models/GovernanceAction";
-import {LockingAction} from "../../models/LockingAction";
+import {AssetAction} from "../../models/classes/AssetAction";
+import {StakingAction} from "../../models/classes/StakingAction";
+import {VoteAction} from "../../models/classes/VoteAction";
+import {GovernanceAction} from "../../models/classes/GovernanceAction";
+import {LockingAction} from "../../models/classes/LockingAction";
 
 declare var classie: any;
 declare var $: any;

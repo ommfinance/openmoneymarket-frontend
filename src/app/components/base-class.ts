@@ -1,5 +1,5 @@
 import {Utils} from "../common/utils";
-import {Asset, AssetTag, supportedAssetsMap} from "../models/Asset";
+import {Asset, AssetTag, supportedAssetsMap} from "../models/classes/Asset";
 import {BigNumber} from "bignumber.js";
 import {PersistenceService} from "../services/persistence/persistence.service";
 import {environment} from "../../environments/environment";

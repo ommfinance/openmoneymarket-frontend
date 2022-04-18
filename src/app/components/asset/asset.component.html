@@ -22,11 +22,11 @@
 
   <!-- All markets state -->
   <ng-container *ngIf="isAllMarketViewActive()">
-    <td><span>{{this.toDollarUSLocaleString(this.persistenceService.getAssetReserveData(asset.tag)?.totalLiquidityUSD | roundOff2Dec)}}</span><br>
-      <span class="label">{{getTotalLiquidity() | roundOff2Dec | usFormat}} {{supplyAssetTag()}}</span></td>
+    <td><span>{{this.toDollarUSLocaleString(getTotalLiquidity())}}</span><br>
+      <span class="label">{{getTotalLiquidity() | usFormat}} {{supplyAssetTag()}}</span></td>
     <td class="text-green">{{to2DecimalRoundedOffPercentString(getMarketSupplyRate())}}</td> <!-- Supply APY -->
-    <td>{{this.toDollarUSLocaleString(this.persistenceService.getAssetReserveData(asset.tag)?.totalBorrowsUSD | roundOff2Dec)}}<br>
-      <span class="label">{{getTotalAssetBorrows() | roundOff2Dec | usFormat}} {{getBorrowAssetTagAdjusted()}}</span></td>
+    <td>{{this.toDollarUSLocaleString(getTotalBorrowUsd())}}<br>
+      <span class="label">{{getTotalAssetBorrows() | usFormat}} {{getBorrowAssetTagAdjusted()}}</span></td>
     <td class="{{isNegative(getMarketBorrowRate()) ? 'text-purple' : 'text-green'}}">{{to2DecimalRoundedOffPercentString(makeAbsolute(getMarketBorrowRate()))}}</td> <!-- Borrow APY -->
   </ng-container>
 
@@ -66,7 +66,7 @@
           <div class="supply-allow" #supplyAllow>
 
             <!-- Supply APY history chart -->
-            <div class="chart-wrapper" (resized)="onSuppChartResize()" [ngStyle]="hideElement(_ommApyChecked  || isAssetOmm())" #suppChartWrapper>
+            <div class="chart-wrapper" (resized)="onSuppChartResize()" [ngStyle]="hideElement(ommApyChecked  || isAssetOmm())" #suppChartWrapper>
               <div class="chart-apy" #suppHistChart></div>
             </div>
 
@@ -178,7 +178,7 @@
             </div>
 
             <!-- Chart line 2 -->
-            <div class="chart-wrapper" [ngStyle]="hideElement(_ommApyChecked || isAssetOmm())" #borrChartWrapper>
+            <div class="chart-wrapper" [ngStyle]="hideElement(ommApyChecked || isAssetOmm())" #borrChartWrapper>
               <div class="chart-apy" #borrHistChart></div>
             </div>
 

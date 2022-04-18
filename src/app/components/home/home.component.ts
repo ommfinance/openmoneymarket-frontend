@@ -18,12 +18,12 @@ import {RepayService} from "../../services/repay/repay.service";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {HeaderComponent} from "../header/header.component";
 import {RiskComponent} from "../risk/risk.component";
-import {Asset} from "../../models/Asset";
+import {Asset} from "../../models/classes/Asset";
 import log from "loglevel";
 import {AssetComponent} from "../asset/asset.component";
 import {StateChangeService} from "../../services/state-change/state-change.service";
-import {ActiveMarketOverview, ActiveViews} from "../../models/ActiveViews";
-import {ModalAction} from "../../models/ModalAction";
+import {ActiveMarketOverview, ActiveViews} from "../../models/enums/ActiveViews";
+import {ModalAction} from "../../models/classes/ModalAction";
 import {BridgeWidgetService} from "../../services/bridge-widget/bridge-widget.service";
 import {Utils} from "../../common/utils";
 import BigNumber from "bignumber.js";
@@ -41,7 +41,7 @@ export class HomeComponent extends BaseClass implements OnInit, AfterViewInit {
 
   // Child components
   @ViewChild(HeaderComponent) private headerComponent!: HeaderComponent;
-  @ViewChild(RiskComponent) riskComponent!: RiskComponent;
+  @ViewChild("riskComponent") riskComponent!: RiskComponent;
 
   // Asset children components
   @ViewChildren('assetEl') assetComponents!: QueryList<AssetComponent>;
@@ -60,7 +60,6 @@ export class HomeComponent extends BaseClass implements OnInit, AfterViewInit {
 
   // OMM toggle checkbox
   public ommApyChecked = false;
-
 
   constructor(public persistenceService: PersistenceService,
               public depositService: SupplyService,
@@ -89,11 +88,6 @@ export class HomeComponent extends BaseClass implements OnInit, AfterViewInit {
 
     // call cd after to avoid ExpressionChangedAfterItHasBeenCheckedError
     this.cd.detectChanges();
-  }
-
-
-  ommApyToggleChanged(): void {
-    // TODO overview total / your APY logic
   }
 
   // load the asset lists

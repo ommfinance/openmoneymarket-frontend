@@ -1,14 +1,14 @@
 import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
-import {UserPoolData} from "../../models/UserPoolData";
+import {UserPoolData} from "../../models/classes/UserPoolData";
 import {BaseClass} from "../base-class";
 import {PersistenceService} from "../../services/persistence/persistence.service";
-import {ModalType} from "../../models/ModalType";
+import {ModalType} from "../../models/enums/ModalType";
 import {ModalService} from "../../services/modal/modal.service";
-import {StakingAction} from "../../models/StakingAction";
+import {StakingAction} from "../../models/classes/StakingAction";
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import {Utils} from "../../common/utils";
 import {NotificationService} from "../../services/notification/notification.service";
-import {ModalAction} from "../../models/ModalAction";
+import {ModalAction} from "../../models/classes/ModalAction";
 import log from "loglevel";
 import BigNumber from "bignumber.js";
 
@@ -52,8 +52,6 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
   }
 
   ngAfterViewInit(): void {
-    log.debug("Pool " + this.poolId + "ngAfterViewInit userPoolsDataMap: ", this.persistenceService.userPoolsDataMap);
-
     this.poolData = this.persistenceService.userPoolsDataMap.get(this.poolId.toString());
     this.initSlider();
     this.setCurrentStaked();

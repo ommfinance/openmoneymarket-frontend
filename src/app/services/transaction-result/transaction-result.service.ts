@@ -7,8 +7,8 @@ import {DataLoaderService} from "../data-loader/data-loader.service";
 import log from "loglevel";
 import {NotificationService} from "../notification/notification.service";
 import {LocalStorageService} from "../local-storage/local-storage.service";
-import {ModalAction, ModalActionsResult, ModalStatus} from "../../models/ModalAction";
-import {ModalType} from "../../models/ModalType";
+import {ModalAction, ModalActionsResult, ModalStatus} from "../../models/classes/ModalAction";
+import {ModalType} from "../../models/enums/ModalType";
 import {StateChangeService} from "../state-change/state-change.service";
 import {Utils} from "../../common/utils";
 import {BORROW_MAX_ERROR_REGEX} from "../../common/constants";
@@ -187,7 +187,6 @@ export class TransactionResultService {
       }
     } else if (modalAction.lockingOmmAction) {
       const lockingAction = modalAction.lockingOmmAction;
-      lockingAction.amount = lockingAction.amount.dp(2);
 
       switch (modalAction.modalType) {
         case ModalType.LOCK_OMM:
@@ -195,7 +194,7 @@ export class TransactionResultService {
           break;
         case ModalType.INCREASE_LOCK_TIME:
           this.notificationService.showNewNotification(
-            `Omm tokens Lock period increased until ${Utils.timestampInMillisecondsToPrettyDate(lockingAction.lockingTime)}`);
+            `${lockingAction.amount} OMM locked until ${Utils.timestampInMillisecondsToPrettyDate(lockingAction.lockingTime)}`);
           break;
         case ModalType.INCREASE_LOCK_OMM:
           this.notificationService.showNewNotification(`Increased locked Omm tokens for ${lockingAction.amount}.`);
@@ -276,7 +275,7 @@ export class TransactionResultService {
       }
     } else if (modalAction.lockingOmmAction) {
       const lockingAction = modalAction.lockingOmmAction;
-      lockingAction.amount = lockingAction.amount.dp(2);
+      lockingAction.amount = lockingAction.amount;
 
       switch (modalAction.modalType) {
         case ModalType.LOCK_OMM:

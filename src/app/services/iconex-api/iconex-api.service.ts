@@ -10,10 +10,10 @@ import log from "loglevel";
 import {OmmError} from "../../core/errors/OmmError";
 import {NotificationService} from "../notification/notification.service";
 import {LoginService} from "../login/login.service";
-import {IconexId} from "../../models/IconexId";
+import {IconexId} from "../../models/enums/IconexId";
 import {ModalService} from "../modal/modal.service";
-import {ModalType} from "../../models/ModalType";
-import {ModalAction} from "../../models/ModalAction";
+import {ModalType} from "../../models/enums/ModalType";
+import {ModalAction} from "../../models/classes/ModalAction";
 import {LocalStorageService} from "../local-storage/local-storage.service";
 
 @Injectable({

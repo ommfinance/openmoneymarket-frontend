@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {Proposal} from "../../models/Proposal";
+import {Proposal} from "../../models/classes/Proposal";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {BaseClass} from "../base-class";
 import {ReloaderService} from "../../services/reloader/reloader.service";

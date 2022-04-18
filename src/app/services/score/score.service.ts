@@ -1,37 +1,37 @@
 import {Injectable} from '@angular/core';
 import {IconApiService} from '../icon-api/icon-api.service';
 import {ScoreMethodNames} from '../../common/score-method-names';
-import {IconTransactionType} from '../../models/IconTransactionType';
+import {IconTransactionType} from '../../models/enums/IconTransactionType';
 import {PersistenceService} from '../persistence/persistence.service';
 import {environment} from '../../../environments/environment';
 import {Utils} from "../../common/utils";
 import {CheckerService} from "../checker/checker.service";
-import {AllAddresses} from "../../models/AllAddresses";
-import {UserAllReservesData, UserReserveData} from "../../models/UserReserveData";
-import {AllReservesData, ReserveData} from "../../models/AllReservesData";
-import {UserAccountData} from "../../models/UserAccountData";
-import {ReserveConfigData} from "../../models/ReserveConfigData";
+import {AllAddresses} from "../../models/classes/AllAddresses";
+import {UserAllReservesData, UserReserveData} from "../../models/classes/UserReserveData";
+import {AllReservesData, ReserveData} from "../../models/classes/AllReservesData";
+import {UserAccountData} from "../../models/classes/UserAccountData";
+import {ReserveConfigData} from "../../models/classes/ReserveConfigData";
 import {StateChangeService} from "../state-change/state-change.service";
-import {AssetTag, CollateralAssetTag} from "../../models/Asset";
+import {AssetTag, CollateralAssetTag} from "../../models/classes/Asset";
 import log from "loglevel";
-import {PrepList} from "../../models/Preps";
+import {PrepList} from "../../models/classes/Preps";
 import {Mapper} from "../../common/mapper";
 import {IconAmount, IconConverter} from "icon-sdk-js";
-import {YourPrepVote} from "../../models/YourPrepVote";
-import {DelegationPreference} from "../../models/DelegationPreference";
-import {UnstakeInfo} from "../../models/UnstakeInfo";
-import {DistributionPercentages} from "../../models/DistributionPercentages";
-import {PoolStats, PoolStatsInterface} from "../../models/PoolStats";
-import {TotalPoolInterface, UserPoolDataInterface} from "../../models/Poolnterfaces";
-import {PoolsDistPercentages} from "../../models/PoolsDistPercentages";
-import {AllAssetDistPercentages} from "../../models/AllAssetDisPercentages";
-import {DailyRewardsAllReservesPools} from "../../models/DailyRewardsAllReservesPools";
+import {YourPrepVote} from "../../models/classes/YourPrepVote";
+import {DelegationPreference} from "../../models/classes/DelegationPreference";
+import {UnstakeInfo} from "../../models/classes/UnstakeInfo";
+import {DistributionPercentages} from "../../models/classes/DistributionPercentages";
+import {PoolStats, PoolStatsInterface} from "../../models/classes/PoolStats";
+import {TotalPoolInterface, UserPoolDataInterface} from "../../models/Interfaces/Poolnterfaces";
+import {PoolsDistPercentages} from "../../models/classes/PoolsDistPercentages";
+import {AllAssetDistPercentages} from "../../models/classes/AllAssetDisPercentages";
+import {DailyRewardsAllReservesPools} from "../../models/classes/DailyRewardsAllReservesPools";
 import BigNumber from "bignumber.js";
-import {Vote, VotersCount} from "../../models/Vote";
-import {Proposal} from "../../models/Proposal";
+import {Vote, VotersCount} from "../../models/classes/Vote";
+import {Proposal} from "../../models/classes/Proposal";
 import {HttpClient} from "@angular/common/http";
-import {LockedOmm} from "../../models/LockedOmm";
-import {LockedOmmI} from "../../models/LockedOmmI";
+import {LockedOmm} from "../../models/classes/LockedOmm";
+import {ILockedOmm} from "../../models/Interfaces/ILockedOmm";
 
 
 @Injectable({
@@ -571,7 +571,7 @@ export class ScoreService {
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.bOMM,
       ScoreMethodNames.GET_LOCKED_OMM, params, IconTransactionType.READ);
 
-    const res: LockedOmmI = await this.iconApiService.iconService.call(tx).execute();
+    const res: ILockedOmm = await this.iconApiService.iconService.call(tx).execute();
 
     return Mapper.mapLockedOmm(res);
   }

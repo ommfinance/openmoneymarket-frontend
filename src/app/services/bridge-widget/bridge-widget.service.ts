@@ -6,7 +6,7 @@ import BridgeService from "../../../../build/bridge.bundle";
 import {BridgeWallet} from "../../models/wallets/BridgeWallet";
 import {DataLoaderService} from "../data-loader/data-loader.service";
 import log from "loglevel";
-import {BridgeWidgetAction} from "../../models/BridgeWidgetAction";
+import {BridgeWidgetAction} from "../../models/Interfaces/BridgeWidgetAction";
 import {NotificationService} from "../notification/notification.service";
 import {LoginService} from "../login/login.service";
 import {Utils} from "../../common/utils";

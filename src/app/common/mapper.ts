@@ -1,39 +1,40 @@
 import {Utils} from "./utils";
-import {UserReserveData} from "../models/UserReserveData";
-import {ReserveData} from "../models/AllReservesData";
-import {UserAccountData} from "../models/UserAccountData";
+import {UserReserveData} from "../models/classes/UserReserveData";
+import {ReserveData} from "../models/classes/AllReservesData";
+import {UserAccountData} from "../models/classes/UserAccountData";
 import log from "loglevel";
-import {ReserveConfigData} from "../models/ReserveConfigData";
-import {Liquidity, UserOmmRewards, Reserve, Locking} from "../models/UserOmmRewards";
-import {OmmTokenBalanceDetails} from "../models/OmmTokenBalanceDetails";
-import {Prep, PrepList} from "../models/Preps";
-import {DelegationPreference} from "../models/DelegationPreference";
-import {YourPrepVote} from "../models/YourPrepVote";
-import {UnstakeIcxData, UnstakeInfo} from "../models/UnstakeInfo";
-import {DistributionPercentages} from "../models/DistributionPercentages";
-import {PoolStats, PoolStatsInterface} from "../models/PoolStats";
-import {TotalPoolInterface, UserPoolDataInterface} from "../models/Poolnterfaces";
-import {UserPoolData} from "../models/UserPoolData";
+import {ReserveConfigData} from "../models/classes/ReserveConfigData";
+import {Liquidity, UserAccumulatedOmmRewards, Reserve, Locking} from "../models/classes/UserAccumulatedOmmRewards";
+import {OmmTokenBalanceDetails} from "../models/classes/OmmTokenBalanceDetails";
+import {Prep, PrepList} from "../models/classes/Preps";
+import {DelegationPreference} from "../models/classes/DelegationPreference";
+import {YourPrepVote} from "../models/classes/YourPrepVote";
+import {UnstakeIcxData, UnstakeInfo} from "../models/classes/UnstakeInfo";
+import {DistributionPercentages} from "../models/classes/DistributionPercentages";
+import {PoolStats, PoolStatsInterface} from "../models/classes/PoolStats";
+import {TotalPoolInterface, UserPoolDataInterface} from "../models/Interfaces/Poolnterfaces";
+import {UserPoolData} from "../models/classes/UserPoolData";
 import {
   AllAssetDistPercentages, DaoFundDistPercent,
   LiquidityDistPercent,
   OmmLockingDistPercent,
   ReserveAllAsset,
   StakingDistPercent
-} from "../models/AllAssetDisPercentages";
+} from "../models/classes/AllAssetDisPercentages";
 import {
   DailyRewardsAllReservesPools, DaoFundDailyRewards,
   LiquidityDailyRewards, OmmLockingDailyRewards,
   ReserveDailyRewards,
   WorkerTokenDailyRewards
-} from "../models/DailyRewardsAllReservesPools";
+} from "../models/classes/DailyRewardsAllReservesPools";
 import {BigNumber} from "bignumber.js";
-import {Vote, VotersCount} from "../models/Vote";
-import {Proposal} from "../models/Proposal";
-import {bnUSDProposalDescription} from "./constants";
-import {InterestHistory} from "../models/InterestHistory";
-import {LockedOmmI} from "../models/LockedOmmI";
-import {LockedOmm} from "../models/LockedOmm";
+import {Vote, VotersCount} from "../models/classes/Vote";
+import {Proposal} from "../models/classes/Proposal";
+import {InterestHistory} from "../models/classes/InterestHistory";
+import {ILockedOmm} from "../models/Interfaces/ILockedOmm";
+import {LockedOmm} from "../models/classes/LockedOmm";
+import {UserDailyOmmReward} from "../models/classes/UserDailyOmmReward";
+import {IUserDailyOmmReward} from "../models/Interfaces/IUserDailyOmmReward";
 
 export class Mapper {
 
@@ -45,7 +46,7 @@ export class Mapper {
     return interestHistory;
   }
 
-  public static mapLockedOmm(lockedOmm: LockedOmmI): LockedOmm {
+  public static mapLockedOmm(lockedOmm: ILockedOmm): LockedOmm {
     return new LockedOmm(
       Utils.hexToNormalisedNumber(lockedOmm.amount),
       Utils.hexToNumber(lockedOmm.end)
@@ -85,9 +86,9 @@ export class Mapper {
     return res;
   }
 
-  public static mapUserOmmRewards(ommRewards: UserOmmRewards): UserOmmRewards {
-    log.debug("mapUserOmmRewards before: ", ommRewards);
-    const res = new UserOmmRewards(
+  public static mapUserAccumulatedOmmRewards(ommRewards: UserAccumulatedOmmRewards): UserAccumulatedOmmRewards {
+    log.debug("mapUserAccumulatedOmmRewards before: ", ommRewards);
+    const res = new UserAccumulatedOmmRewards(
       new Reserve(
         Utils.hexToNormalisedNumber(ommRewards.reserve.oUSDS),
         Utils.hexToNormalisedNumber(ommRewards.reserve.dUSDS),
@@ -112,7 +113,33 @@ export class Mapper {
         Utils.hexToNormalisedNumber(ommRewards.OMMLocking.total)
       ) : undefined,
     );
-    log.debug("mapUserOmmRewards after: ", res);
+    log.debug("mapUserAccumulatedOmmRewards after: ", res);
+
+    return res;
+  }
+
+  public static mapUserDailyOmmRewards(ommRewards: IUserDailyOmmReward): UserDailyOmmReward {
+    log.debug("mapUserDailyOmmRewards before: ", ommRewards);
+    const res = new UserDailyOmmReward(
+      Utils.hexToNormalisedNumber(ommRewards["OMM/IUSDC"]),
+      Utils.hexToNormalisedNumber(ommRewards["OMM/USDS"]),
+      Utils.hexToNormalisedNumber(ommRewards["OMM/sICX"]),
+      Utils.hexToNormalisedNumber(ommRewards.bOMM),
+      Utils.hexToNormalisedNumber(ommRewards.dBALN),
+      Utils.hexToNormalisedNumber(ommRewards.dICX),
+      Utils.hexToNormalisedNumber(ommRewards.dIUSDC),
+      Utils.hexToNormalisedNumber(ommRewards.dOMM),
+      Utils.hexToNormalisedNumber(ommRewards.dUSDS),
+      Utils.hexToNormalisedNumber(ommRewards.dbnUSD),
+      Utils.hexToNormalisedNumber(ommRewards.oBALN),
+      Utils.hexToNormalisedNumber(ommRewards.oICX),
+      Utils.hexToNormalisedNumber(ommRewards.oIUSDC),
+      Utils.hexToNormalisedNumber(ommRewards.oOMM),
+      Utils.hexToNormalisedNumber(ommRewards.oUSDS),
+      Utils.hexToNormalisedNumber(ommRewards.obnUSD),
+    );
+
+    log.debug("mapUserDailyOmmRewards after: ", res);
 
     return res;
   }
@@ -408,12 +435,6 @@ export class Mapper {
 
   public static mapProposalList(proposals: any[]): Proposal[] {
     return proposals.map(proposal => {
-
-      // TODO: remove this handling after vote has passed
-      if (proposal.name?.includes("OIP 3: Adding support for bnUSD")) {
-        proposal.description = bnUSDProposalDescription;
-      }
-
       return new Proposal(
         Utils.hexToNormalisedNumber(proposal.against),
         Utils.hexToNumber(proposal.against_voter_count),

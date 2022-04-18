@@ -21,7 +21,7 @@
               <!-- Heading -->
               <div class="grid-cell">
                 <h3>Voting power <span *ngIf="!userBOMMbalance().isZero() && userBOMMbalance().isPositive()"
-                                       class="label value-bomm-total">{{userBOMMbalance() | roundDown2Dec | usFormat | toZeroIfDash }} bOMM</span>
+                                       class="label value-bomm-total">{{userBOMMbalance() | roundDown2Dec | usFormat | toZeroIfDash }} bOMM</span>&nbsp;
                   <span class="bomm-tooltip tooltip">
                     <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
                     <p class="bomm-tooltip-content tooltip-content">
@@ -68,7 +68,7 @@
                   <input [ngStyle]="hideElement(!lockAdjustActive)" #lockInput id="input-boost" (input)="onInputLockChange()" class="input-boost" type="text" name=""><span [ngStyle]="hideElement(lockAdjustActive)" class="omm-locked">{{userLockedOmmBalance | roundDown2Dec | usFormat}}</span> / {{getLockSliderMax() | usFormat}} OMM</p>
               </div>
               <div class="grid-cell text-right">
-                <p class="label locked-default" [ngStyle]="hideElement(lockAdjustActive || userLockedOmmBalance.isZero())">Locked until {{timestampInMillisecondsToPrettyDate(lockDate())}}</p>
+                <p class="label locked-default" [ngStyle]="hideElement(lockAdjustActive || userLockedOmmBalance === 0)">{{userHasLockedOmm() ? "Locked until" : "Lock up until"}} {{timestampInMillisecondsToPrettyDate(lockDate())}}</p>
                 <div class="locked-adjust" [ngStyle]="hideElement(!lockAdjustActive)">
                   <p>
                     <span class="label">Locked until </span> <a class="dropdown time-selector" (click)="onLockedDateDropdownClick()">
@@ -77,7 +77,7 @@
                     <div class="grid-cell">
                       <ul>
                         <ng-container *ngFor="let date of lockedUntilDateOptions;">
-                          <li (click)="onLockUntilDateClick(date)">{{date}}</li>
+                          <li (click)="onLockUntilDateClick(date)">{{userHasLockedOmm() ? "+":""}} {{date}}</li>
                         </ng-container>
                       </ul>
                     </div>
@@ -100,8 +100,8 @@
               <div class="grid-cell border-right">
                 <dl class="metadata">
                   <dt>Your voting power</dt>
-                  <dd class="value-voting-power">{{userLoggedIn() && userVotingPower().isGreaterThan(ZERO) ?
-                    (userVotingPower() | roundDown2Dec | usFormat) : "-"}} {{userVotingPower().isGreaterThan(ZERO) ? " ICX" : ""}}</dd>
+                  <dd class="value-voting-power">{{userLoggedIn() && yourVotingPower.isGreaterThan(ZERO) ?
+                    (yourVotingPower | roundDown2Dec | usFormat) : "-"}} {{yourVotingPower.isGreaterThan(ZERO) ? " ICX" : ""}}</dd>
                 </dl>
               </div>
               <div class="grid-cell">

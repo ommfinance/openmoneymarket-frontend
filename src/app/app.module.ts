@@ -31,6 +31,7 @@ import { BannerComponent } from './components/banner/banner.component';
 import { LoadingComponent } from './components/loading/loading.component';
 import { ToZeroIfDashPipe } from './pipes/to-zero-if-dash.pipe';
 import { AngularResizedEventModule } from 'angular-resize-event';
+import { BoostedOmmSliderComponent } from './components/boosted-omm-slider/boosted-omm-slider.component';
 
 // Big Number configs
 const fmt = {
@@ -73,7 +74,8 @@ log.setLevel(environment.production ? "error" : "debug");
     ProposalComponent,
     BannerComponent,
     LoadingComponent,
-    ToZeroIfDashPipe
+    ToZeroIfDashPipe,
+    BoostedOmmSliderComponent,
   ],
   imports: [
     BrowserModule,

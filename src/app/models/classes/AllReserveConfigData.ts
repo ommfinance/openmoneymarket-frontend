@@ -1,5 +1,5 @@
 import {AssetTag} from "./Asset";
-import {OmmError} from "../core/errors/OmmError";
+import {OmmError} from "../../core/errors/OmmError";
 import {ReserveConfigData} from "./ReserveConfigData";
 
 export class AllReserveConfigData {

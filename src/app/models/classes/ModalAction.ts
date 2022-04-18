@@ -1,4 +1,4 @@
-import {ModalType} from "./ModalType";
+import {ModalType} from "../enums/ModalType";
 import {AssetAction} from "./AssetAction";
 import {StakingAction} from "./StakingAction";
 import {VoteAction} from "./VoteAction";

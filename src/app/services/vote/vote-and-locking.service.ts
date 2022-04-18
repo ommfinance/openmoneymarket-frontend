@@ -4,15 +4,15 @@ import {PersistenceService} from "../persistence/persistence.service";
 import {CheckerService} from "../checker/checker.service";
 import {TransactionDispatcherService} from "../transaction-dispatcher/transaction-dispatcher.service";
 import {ScoreMethodNames} from "../../common/score-method-names";
-import {IconTransactionType} from "../../models/IconTransactionType";
+import {IconTransactionType} from "../../models/enums/IconTransactionType";
 import log from "loglevel";
 import {IconAmount, IconConverter} from "icon-sdk-js";
 import {environment} from "../../../environments/environment";
 import {Mapper} from "../../common/mapper";
-import {Prep} from "../../models/Preps";
-import {YourPrepVote} from "../../models/YourPrepVote";
+import {Prep} from "../../models/classes/Preps";
+import {YourPrepVote} from "../../models/classes/YourPrepVote";
 import BigNumber from "bignumber.js";
-import {CreateProposal} from "../../models/Proposal";
+import {CreateProposal} from "../../models/classes/Proposal";
 
 @Injectable({
   providedIn: 'root'
@@ -31,16 +31,16 @@ export class VoteAndLockingService {
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
-  public lockOmm(amount: BigNumber, unlockTime: BigNumber, notificationMessage: string): void {
-    amount = amount.dp(0);
+  public lockOmm(amount: number, unlockTime: BigNumber, notificationMessage: string): void {
+    amount = Math.round(amount);
     const tx = this.buildLockOmmTx(amount, unlockTime);
 
     log.debug(`Lock OMM TX: `, tx);
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
-  public increaseLockAmountAndPeriodOmm(amount: BigNumber, unlockTime: BigNumber, notificationMessage: string): void {
-    amount = amount.dp(0);
+  public increaseLockAmountAndPeriodOmm(amount: number, unlockTime: BigNumber, notificationMessage: string): void {
+    amount = Math.round(amount);
     const tx = this.buildIncreaseLockPeriodAndAmountOmmTx(amount, unlockTime);
 
     log.debug(`Increase Lock amount and unlock period OMM TX: `, tx);
@@ -54,8 +54,8 @@ export class VoteAndLockingService {
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
-  public increaseOmmLockAmount(amount: BigNumber, notificationMessage: string): void {
-    amount = amount.dp(0);
+  public increaseOmmLockAmount(amount: number, notificationMessage: string): void {
+    amount = Math.round(amount);
     const tx = this.buildIncreaseLockAmountOmmTx(amount);
 
     log.debug(`Increase Locked OMM TX: `, tx);
@@ -92,7 +92,7 @@ export class VoteAndLockingService {
    * @param unlockTime - lock time in milliseconds that needs to be converted to microseconds
    * @return any lock OMM Tokens Icon transaction
    */
-  private buildLockOmmTx(amount: BigNumber, unlockTime: BigNumber): any {
+  private buildLockOmmTx(amount: number, unlockTime: BigNumber): any {
     this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
 
     // convert to microseconds
@@ -119,7 +119,7 @@ export class VoteAndLockingService {
    * @param unlockTime - lock time in milliseconds that needs to be converted to microseconds
    * @return any lock OMM Tokens Icon transaction
    */
-  private buildIncreaseLockPeriodAndAmountOmmTx(amount: BigNumber, unlockTime: BigNumber): any {
+  private buildIncreaseLockPeriodAndAmountOmmTx(amount: number, unlockTime: BigNumber): any {
     this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
 
     // convert to microseconds
@@ -144,7 +144,7 @@ export class VoteAndLockingService {
    * @param amount - Amount of OMM tokens to lock
    * @return any lock OMM Tokens Icon transaction
    */
-  private buildIncreaseLockAmountOmmTx(amount: BigNumber): any {
+  private buildIncreaseLockAmountOmmTx(amount: number): any {
     this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
 
     log.debug(`Increase Lock Omm amount = ` + amount.toString());

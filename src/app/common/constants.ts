@@ -1,6 +1,6 @@
 /** Modal constants */
 import BigNumber from "bignumber.js";
-import {LockDate} from "../models/LockDate";
+import {LockDate} from "../models/enums/LockDate";
 
 export const BORROW = "Borrow";
 export const SUPPLY = "Supply";
@@ -100,15 +100,3 @@ export function lockedDateTobOmmPerOmm(lockDate: LockDate): BigNumber {
 // 1 year lockup = 0.25 veOMM per 1 OMM staked
 // 2 year lockup = 0.5 veOMM per 1 OMM staked
 // 4 year lockup = 1 veOMM per 1 OMM staked
-
-export const bnUSDProposalDescription = "" +
-  "Proposed OMM Rewards\n" +
-  "- ICX = 40%\n" +
-  "- IUSDC = 20%\n" +
-  "- USDS = 20%\n" +
-  "- bnUSD = 20%\n" +
-  "Proposed Borrow vs Lend rewards\n" +
-  "- Borrow = 50%\n" +
-  "- Lend = 50%\n" +
-  "Proposed LTV\n" +
-  "- LTV = 0%";

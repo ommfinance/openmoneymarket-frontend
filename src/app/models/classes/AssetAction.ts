@@ -1,5 +1,5 @@
 import {Asset} from "./Asset";
-import {UserOmmRewards} from "./UserOmmRewards";
+import {UserAccumulatedOmmRewards} from "./UserAccumulatedOmmRewards";
 import BigNumber from "bignumber.js";
 
 export class AssetAction {
@@ -21,9 +21,9 @@ export class AssetAction {
 }
 
 export class ClaimOmmDetails {
-  ommRewards?: UserOmmRewards;
+  ommRewards?: UserAccumulatedOmmRewards;
 
-  constructor(ommRewards?: UserOmmRewards) {
+  constructor(ommRewards?: UserAccumulatedOmmRewards) {
     this.ommRewards = ommRewards;
   }
 }

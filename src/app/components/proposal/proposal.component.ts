@@ -1,17 +1,17 @@
 import {AfterViewInit, ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {Proposal} from "../../models/Proposal";
+import {Proposal} from "../../models/classes/Proposal";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {BaseClass} from "../base-class";
 import {ModalService} from "../../services/modal/modal.service";
-import {ModalType} from "../../models/ModalType";
-import {GovernanceAction} from "../../models/GovernanceAction";
+import {ModalType} from "../../models/enums/ModalType";
+import {GovernanceAction} from "../../models/classes/GovernanceAction";
 import {ReloaderService} from "../../services/reloader/reloader.service";
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import {LocalStorageService} from "../../services/local-storage/local-storage.service";
-import {Vote} from "../../models/Vote";
+import {Vote} from "../../models/classes/Vote";
 import {ScoreService} from "../../services/score/score.service";
 import log from "loglevel";
-import {ModalStatus} from "../../models/ModalAction";
+import {ModalStatus} from "../../models/classes/ModalAction";
 import BigNumber from "bignumber.js";
 import {ActivatedRoute} from "@angular/router";
 
