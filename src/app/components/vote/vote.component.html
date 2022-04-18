@@ -61,7 +61,14 @@
                 <dt>Locked</dt>
               </dl>
             </div>
-            <div id="slider-boost" class="{{lockAdjustActive ? 'active' : ''}}" disabled="" #stkSlider [ngStyle]="hideElement(shouldHideBoostedSlider())"></div>
+
+            <!-- Locked OMM slider -->
+            <app-boosted-omm-slider #lockOmmSlider
+                                    [lockAdjustActive]="lockAdjustActive"
+                                    [shouldHideBoostedSlider]="shouldHideBoostedSlider()"
+                                    (sliderValueUpdate)="handleLockSliderValueUpdate($event)"
+            ></app-boosted-omm-slider>
+
             <div class="grid grid-center" [ngStyle]="hideElement(shouldHideBoostedSlider())">
               <div class="grid-cell" style="max-width: 200px;">
                 <p class="label">
@@ -76,8 +83,8 @@
                   <div class="grid dropdown-content locked-selector">
                     <div class="grid-cell">
                       <ul>
-                        <ng-container *ngFor="let date of lockedUntilDateOptions;">
-                          <li (click)="onLockUntilDateClick(date)">{{userHasLockedOmm() ? "+":""}} {{date}}</li>
+                        <ng-container *ngFor="let date of getLockedUntilDateOptions();">
+                          <li (click)="onLockUntilDateClick(date)">{{date}}</li>
                         </ng-container>
                       </ul>
                     </div>

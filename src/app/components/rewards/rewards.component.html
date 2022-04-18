@@ -218,8 +218,8 @@
                   <div class="grid dropdown-content locked-selector">
                     <div class="grid-cell">
                       <ul>
-                        <ng-container *ngFor="let date of lockedUntilDateOptions;">
-                          <li (click)="onLockUntilDateClick(date)">{{userHasLockedOmm() ? "+":""}} {{date}}</li>
+                        <ng-container *ngFor="let date of getLockedUntilDateOptions();">
+                          <li (click)="onLockUntilDateClick(date)">{{date}}</li>
                         </ng-container>
                       </ul>
                     </div>

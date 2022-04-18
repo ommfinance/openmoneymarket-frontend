@@ -50,17 +50,16 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
 
   userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
   userLockedOmmBalance = this.persistenceService.getUsersLockedOmmBalance().toNumber();
+  activeLockedOmmAmount: BigNumber = new BigNumber(0);
 
   lockAdjustActive = false; // flag that indicates whether the locked adjust is active (confirm and cancel shown)
 
-  lockedUntilDateOptions = lockedUntilDateOptions;
   selectedLockTimeInMillisec = Times.WEEK_IN_MILLISECONDS; // default to 1 week
   selectedLockTime = LockDate.WEEK;
   userHasSelectedLockTime = false;
 
   marketMultipliers?: { from: BigNumber, to: BigNumber};
   liquidityMultipliers?: { from: BigNumber, to: BigNumber};
-  activeLockedOmmAmount: BigNumber = new BigNumber(0);
 
 
   constructor(public persistenceService: PersistenceService,
@@ -68,32 +67,27 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
               private modalService: ModalService,
               private calculationService: CalculationsService,
               private notificationService: NotificationService,
-              private cd: ChangeDetectorRef,
               public reloaderService: ReloaderService) {
     super(persistenceService);
   }
 
   ngOnInit(): void {
-    log.debug(this.TAG + " ngOnInit() called");
-
     this.initValues();
 
     this.registerSubscriptions();
   }
 
   ngAfterViewInit(): void {
-    log.debug(this.TAG + " ngAfterViewInit() called");
-
     this.initLockSlider();
   }
 
   ngOnDestroy(): void {
-    log.debug(this.TAG + " ngOnDestroy() called");
   }
 
   initValues(): void {
     this.marketMultipliers = this.calculationService.calculateUserbOmmMarketMultipliers();
     this.liquidityMultipliers = this.calculationService.calculateUserbOmmLiquidityMultipliers();
+    this.userLockedOmmBalance = this.persistenceService.getUsersLockedOmmBalance().toNumber();
   }
 
 
@@ -170,7 +164,7 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   }
 
   userCurrentLockedOmmEndInMilliseconds(): BigNumber {
-    return this.persistenceService.userLockedOmm?.end.dividedBy(1000) ?? new BigNumber(0);
+    return this.persistenceService.userCurrentLockedOmmEndInMilliseconds();
   }
 
   // On "Lock up OMM" or "Adjust" click
@@ -243,7 +237,7 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
     $(`.pool-${poolData.getPairClassName()}-expanded`).slideToggle();
   }
 
-  // Stake input updates the slider
+  // Lock input updates the slider
   onInputLockChange(): void {
     log.debug("onInputLockChange: " + this.inputLockOmm.value);
     if (+normalFormat.from(this.inputLockOmm.value)) {
@@ -338,7 +332,7 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
     const sliderMax = this.persistenceService.getUsersAvailableOmmBalance().plus(this.userLockedOmmBalance);
 
     this.lockOmmSliderCmp.updateSliderValues(sliderMax.toNumber(), this.userLockedOmmBalance);
-    this.lockOmmSliderCmp.setSliderValue(this.userLockedOmmBalance);
+    this.lockOmmSliderCmp.setSliderValue(this.persistenceService.getUsersLockedOmmBalance().toNumber());
   }
 
   getLockSliderMax(): BigNumber {
@@ -544,7 +538,11 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   lockDate(): BigNumber {
     if (this.userCurrentLockedOmmEndInMilliseconds().gt(0)) {
       if (this.userHasSelectedLockTime) {
-        return this.userCurrentLockedOmmEndInMilliseconds().plus(this.selectedLockTimeInMillisec);
+        // increase for difference between selected and current end
+        const now = Utils.timestampNowMilliseconds();
+        const currentEndPeriodDate = this.userCurrentLockedOmmEndInMilliseconds();
+        const difference = now.plus(this.selectedLockTimeInMillisec).minus(currentEndPeriodDate);
+        return currentEndPeriodDate.plus(difference);
       } else {
         return this.userCurrentLockedOmmEndInMilliseconds();
       }
@@ -683,6 +681,14 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
 
   onLockedDateDropdownClick(): void {
     $(".dropdown-content.locked-selector").toggleClass('active');
+  }
+
+  getLockedUntilDateOptions(): LockDate[] {
+    if (!this.userHasLockedOmm()) {
+      return lockedUntilDateOptions;
+    } else {
+      return Utils.getAvailableLockPeriods(this.userCurrentLockedOmmEndInMilliseconds()) ?? [LockDate.YEAR_4];
+    }
   }
 
   onLockUntilDateClick(date: LockDate): void {

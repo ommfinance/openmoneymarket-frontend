@@ -194,10 +194,14 @@ export class TransactionResultService {
           break;
         case ModalType.INCREASE_LOCK_TIME:
           this.notificationService.showNewNotification(
-            `${lockingAction.amount} OMM locked until ${Utils.timestampInMillisecondsToPrettyDate(lockingAction.lockingTime)}`);
+            `OMM locked until ${Utils.timestampInMillisecondsToPrettyDate(lockingAction.lockingTime)}`);
           break;
         case ModalType.INCREASE_LOCK_OMM:
           this.notificationService.showNewNotification(`Increased locked Omm tokens for ${lockingAction.amount}.`);
+          break;
+        case ModalType.INCREASE_LOCK_TIME_AND_AMOUNT:
+          this.notificationService.showNewNotification(
+            `${lockingAction.amount} OMM locked until ${Utils.timestampInMillisecondsToPrettyDate(lockingAction.lockingTime)}`);
           break;
       }
     }
@@ -274,9 +278,6 @@ export class TransactionResultService {
           break;
       }
     } else if (modalAction.lockingOmmAction) {
-      const lockingAction = modalAction.lockingOmmAction;
-      lockingAction.amount = lockingAction.amount;
-
       switch (modalAction.modalType) {
         case ModalType.LOCK_OMM:
           this.notificationService.showNewNotification(`Couldn't lock Omm Tokens. ${failedTxMessage} Try again.`);
@@ -287,6 +288,10 @@ export class TransactionResultService {
           break;
         case ModalType.INCREASE_LOCK_OMM:
           this.notificationService.showNewNotification(`Couldn't increase locked Omm Tokens. ${failedTxMessage} Try again.`);
+          break;
+        case ModalType.INCREASE_LOCK_TIME_AND_AMOUNT:
+          this.notificationService.showNewNotification(
+            `Couldn't increase locked Omm Tokens and lock period. ${failedTxMessage} Try again.`);
           break;
       }
     }

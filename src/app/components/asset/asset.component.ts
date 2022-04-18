@@ -135,7 +135,6 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
   }
 
   ngOnInit(): void {
-    log.debug(`ngOnInit Asset ${this.asset.tag}`);
     this.registerSubscriptions();
 
     this.initSupplyAndBorrowApy();
@@ -1296,7 +1295,6 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
   }
 
   initSupplyAndBorrowApy(): void {
-    log.debug(`initSupplyAndBorrowApy asset = ${this.asset.tag} ....`);
     const liquidityApy = this.persistenceService.getAssetReserveLiquidityRate(this.asset.tag);
     const borrowApy = this.persistenceService.getAssetReserveBorrowRate(this.asset.tag);
 

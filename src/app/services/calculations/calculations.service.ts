@@ -125,7 +125,6 @@ export class CalculationsService {
         ?? new BigNumber("0");
       return this.supplyOmmApyFormula(dailySupplyRewards, this.persistenceService.ommPriceUSD, reserveData, assetTag);
     } else {
-      log.debug("calculateSupplyApyWithOmmRewards: res is ZERO (reserveData not found)");
       return new BigNumber("0");
     }
   }
@@ -716,7 +715,7 @@ export class CalculationsService {
 
   /** Formula: getUserDailyReward(Address user) * OMM Token price * 365/($ value of user's staked LP token value) */
   public calculateUserPoolLiquidityApr(poolData: UserPoolData): BigNumber {
-    // log.debug("calculateUserPoolLiquidityApr:");
+    log.debug("******* calculateUserPoolLiquidityApr for pool " + poolData.getCleanPoolName() + " *******");
     const userDailyRewards: any = this.persistenceService.userDailyOmmRewards;
 
     if (!userDailyRewards) { return new BigNumber(0); }
@@ -726,9 +725,9 @@ export class CalculationsService {
     const ommTokenPrice = this.persistenceService.ommPriceUSD;
     const stakedLpUsdValue = this.calculateUserPoolSupplied(poolData).multipliedBy(ommTokenPrice).multipliedBy(2);
 
-    // log.debug(`userPoolDailyOmmRewards = ${userPoolDailyOmmRewards}`);
-    // log.debug(`ommTokenPrice = ${ommTokenPrice}`);
-    // log.debug(`stakedLpUsdValue = ${stakedLpUsdValue}`);
+    log.debug(`userPoolDailyOmmRewards = ${userPoolDailyOmmRewards}`);
+    log.debug(`ommTokenPrice = ${ommTokenPrice}`);
+    log.debug(`stakedLpUsdValue = ${stakedLpUsdValue}`);
 
     return (userPoolDailyOmmRewards.multipliedBy(ommTokenPrice).multipliedBy(365)).dividedBy(stakedLpUsdValue);
   }
@@ -738,7 +737,7 @@ export class CalculationsService {
    * Formula: getUserDailyReward(Address user) * OMM Token price * 365/($ value of user's supplied or borrowed asset)
    */
   public calculateUserSupplyOmmRewardsApy(assetTag: AssetTag): BigNumber {
-    log.debug("calculateUserSupplyOmmRewardsApy for asset " + assetTag);
+    // log.debug("calculateUserSupplyOmmRewardsApy for asset " + assetTag);
     const userDailySupplyRewards: any = this.persistenceService.userDailyOmmRewards?.getSupplyRewardForAsset(assetTag);
 
     if (!userDailySupplyRewards) { return new BigNumber(0); }
@@ -749,9 +748,9 @@ export class CalculationsService {
 
     if (suppliedUsdValue.isZero()) { return new BigNumber(0); }
 
-    log.debug(`userDailySupplyRewards = ${userDailySupplyRewards}`);
-    log.debug(`ommTokenPrice = ${ommTokenPrice}`);
-    log.debug(`suppliedUsdValue = ${suppliedUsdValue}`);
+    // log.debug(`userDailySupplyRewards = ${userDailySupplyRewards}`);
+    // log.debug(`ommTokenPrice = ${ommTokenPrice}`);
+    // log.debug(`suppliedUsdValue = ${suppliedUsdValue}`);
 
     return (userDailySupplyRewards.multipliedBy(ommTokenPrice).multipliedBy(365)).dividedBy(suppliedUsdValue);
   }
@@ -768,7 +767,7 @@ export class CalculationsService {
 
     if (!userDailyBorrowRewards) { log.error("ERROR in calculateUserBorrowOmmRewardsApy.."); return new BigNumber(0); }
     const ommTokenPrice = this.persistenceService.ommPriceUSD;
-    const borrowedUsdValue = this.persistenceService.getUserAssetReserve(assetTag)?.currentOTokenBalanceUSD ?? new BigNumber(0);
+    const borrowedUsdValue = this.persistenceService.getUserAssetReserve(assetTag)?.currentBorrowBalanceUSD ?? new BigNumber(0);
 
     if (borrowedUsdValue.isZero()) { return new BigNumber(0); }
 
@@ -933,7 +932,7 @@ export class CalculationsService {
     let max = new BigNumber(-1);
 
     supportedAssetsMap.forEach((value: Asset, key: AssetTag) => {
-      log.debug(`Asset = ${key}`);
+      log.debug(`***** Asset = ${key} *******`);
 
       if (!this.persistenceService.getUserSuppliedAssetBalance(key).isZero()) {
         const supplyOmmRewardsApy = this.calculateSupplyOmmRewardsApy(key);
@@ -963,7 +962,6 @@ export class CalculationsService {
         }
       }
 
-      log.debug(`Current min =${min.toString()}, max=${max.toString()}`);
     });
 
     if (min.eq(-1) || max.eq(-1)) {

@@ -106,6 +106,11 @@ export class PersistenceService {
     this.userbOmmBalance = new BigNumber("0");
   }
 
+
+  userCurrentLockedOmmEndInMilliseconds(): BigNumber {
+    return this.userLockedOmm?.end.dividedBy(1000) ?? new BigNumber(0);
+  }
+
   getProposal(id: BigNumber): Proposal | undefined {
     return this.proposalList.find(p => p.id.isEqualTo(id));
   }

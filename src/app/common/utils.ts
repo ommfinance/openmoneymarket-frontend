@@ -3,11 +3,30 @@ import {BigNumber} from "bignumber.js";
 import {AssetTag} from "../models/classes/Asset";
 import {BridgeWidgetAction} from "../models/Interfaces/BridgeWidgetAction";
 import log from "loglevel";
-import {Times} from "./constants";
+import {lockedDatesToMilliseconds, Times} from "./constants";
+import {LockDate} from "../models/enums/LockDate";
 
 export class Utils {
 
   public static ZERO = new BigNumber("0");
+
+
+  public static getAvailableLockPeriods(currentLockPeriodEndInMilliseconds: BigNumber): LockDate[] | undefined {
+    const lockDates = Object.values(LockDate);
+    const lockPeriods = [];
+
+    for (const lockDate of lockDates) {
+      const lockDateInMilli = lockedDatesToMilliseconds.get(lockDate)!;
+      const currentLockPeriod = currentLockPeriodEndInMilliseconds.minus(Utils.timestampNowMilliseconds());
+
+      // if current lock period is smaller than lock date
+      if (lockDateInMilli.gt(currentLockPeriod)) {
+        lockPeriods.push(lockDate);
+      }
+    }
+
+    return lockPeriods.length > 0 ? lockPeriods : undefined;
+  }
 
   public static handleSmallDecimal(num: BigNumber): string {
     if (num.isGreaterThanOrEqualTo(new BigNumber("0.005"))) {
