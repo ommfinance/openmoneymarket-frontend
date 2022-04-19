@@ -4,9 +4,9 @@ import BigNumber from "bignumber.js";
 import {TransactionDispatcherService} from "../../services/transaction-dispatcher/transaction-dispatcher.service";
 import {ScoreService} from "../../services/score/score.service";
 import {ModalService} from "../../services/modal/modal.service";
-import {GovernanceAction} from "../../models/GovernanceAction";
-import {ModalType} from "../../models/ModalType";
-import {CreateProposal, Proposal} from "../../models/Proposal";
+import {GovernanceAction} from "../../models/classes/GovernanceAction";
+import {ModalType} from "../../models/enums/ModalType";
+import {CreateProposal, Proposal} from "../../models/classes/Proposal";
 import {NotificationService} from "../../services/notification/notification.service";
 import {Utils} from "../../common/utils";
 import {ommForumDomain} from "../../common/constants";
@@ -68,7 +68,7 @@ export class NewProposalComponent implements OnInit {
   }
 
   userHasEnoughOmmStaked(): boolean {
-    return this.persistenceService.getUsersStakedOmmBalance().gte(this.persistenceService.getMinOmmStakedRequiredForProposal());
+    return this.persistenceService.getUsersLockedOmmBalance().gte(this.persistenceService.getMinOmmStakedRequiredForProposal());
   }
 
   onSubmitClick(): void {

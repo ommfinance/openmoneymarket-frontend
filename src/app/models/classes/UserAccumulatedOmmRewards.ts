@@ -1,24 +1,26 @@
 import BigNumber from "bignumber.js";
 
-export class AllAssetDistPercentages {
-  liquidity?: LiquidityAllAsset;
-  staking?: StakingAllAsset;
-  reserve: ReserveAllAsset;
+export class UserAccumulatedOmmRewards {
+  liquidity?: Liquidity;
+  OMMLocking?: Locking;
+  reserve: Reserve;
   total: BigNumber;
+  now: BigNumber;
 
-  constructor(reserve: ReserveAllAsset, total: BigNumber, liquidity?: LiquidityAllAsset, staking?: StakingAllAsset) {
+  constructor(reserve: Reserve, total: BigNumber, now: BigNumber, liquidity?: Liquidity, OMMLocking?: Locking) {
     this.liquidity = liquidity;
-    this.staking = staking;
+    this.OMMLocking = OMMLocking;
     this.reserve = reserve;
     this.total = total;
+    this.now = now;
   }
 
-  public getClone(): AllAssetDistPercentages {
-    return new AllAssetDistPercentages(this.reserve, this.total, this.liquidity, this.staking);
+  public getClone(): UserAccumulatedOmmRewards {
+    return new UserAccumulatedOmmRewards(this.reserve, this.total, this.now, this.liquidity, this.OMMLocking);
   }
 }
 
-export class LiquidityAllAsset {
+export class Liquidity {
   "OMM/SICX": BigNumber;
   "OMM/USDS": BigNumber;
   "OMM/IUSDC": BigNumber;
@@ -32,17 +34,17 @@ export class LiquidityAllAsset {
   }
 }
 
-export class StakingAllAsset {
-  OMM: BigNumber;
+export class Locking {
+  bOMM: BigNumber;
   total: BigNumber;
 
   constructor(OMM: BigNumber, total: BigNumber) {
-    this.OMM = OMM;
+    this.bOMM = OMM;
     this.total = total;
   }
 }
 
-export class ReserveAllAsset {
+export class Reserve {
   oUSDS: BigNumber;
   dUSDS: BigNumber;
   dICX: BigNumber;
@@ -64,23 +66,31 @@ export class ReserveAllAsset {
 }
 
 // Example response
-// {
-//   "liquidity": {
-//   "OMM/SICX": "0xb1a2bc2ec50000",
-//     "OMM/USDS": "0xb1a2bc2ec50000",
-//     "OMM/IUSDC": "0xb1a2bc2ec50000"
-// },
-//   "staking": {
-//   "OMM": "0xb1a2bc2ec50000"
-// },
-//   "reserve": {
-//   "oUSDS": "0x470de4df820000",
-//     "dUSDS": "0x470de4df820000",
-//     "dICX": "0x71afd498d0000",
-//     "oICX": "0x3ff2e795f50000",
-//     "oIUSDC": "0x470de4df820000",
-//     "dIUSDC": "0x470de4df820000"
-// }
-// }
-
+// OMMLocking:
+//   bOMM: "0x0"
+//   total: "0x0"
+//
+// liquidity:
+//   OMM/IUSDC: "0x0"
+//   OMM/USDS: "0x0"
+//   OMM/sICX: "0x0"
+//   total: "0x0"
+//
+// now: "0x622bc44b"
+// reserve:
+//   dBALN: "0x0"
+//   dICX: "0x0"
+//   dIUSDC: "0x0"
+//   dOMM: "0x0"
+//   dUSDS: "0x0"
+//   dbnUSD: "0x0"
+//   oBALN: "0x0"
+//   oICX: "0x0"
+//   oIUSDC: "0x0"
+//   oOMM: "0x0"
+//   oUSDS: "0x0"
+//   obnUSD: "0x0"
+//   total: "0x0"
+//
+// total: "0x0"
 

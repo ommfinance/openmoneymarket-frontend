@@ -1,6 +1,6 @@
 import {AssetTag, CollateralAssetTag} from "./Asset";
-import {OmmError} from "../core/errors/OmmError";
 import BigNumber from "bignumber.js";
+import {OmmError} from "../../core/errors/OmmError";
 
 export class AllReservesData {
   USDS: ReserveData;

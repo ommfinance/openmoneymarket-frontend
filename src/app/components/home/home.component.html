@@ -13,7 +13,7 @@
 
       <div class="grid-cell">
           <label *ngIf="shouldShowOmmPriceAndToggle()" id="apr-toggle">
-            <input id="apr-toggle-checkbox" type="checkbox" [(ngModel)]="ommApyChecked" (change)="ommApyToggleChanged()">
+            <input id="apr-toggle-checkbox" type="checkbox" [(ngModel)]="ommApyChecked">
             <span class="switch-slider round"></span>
           </label>
           <div class="apy-tooltip-container">
@@ -130,7 +130,7 @@
     <!-- Risk -->
     <div class="grid-cell">
       <section id="risk">
-        <app-risk style="display: contents" [userAssetComponents]="assetComponents"></app-risk>
+        <app-risk #riskComponent style="display: contents"></app-risk>
       </section>
     </div>
   </div>
@@ -200,7 +200,7 @@
               <!-- Asset (USDb, ICX, ..) -->
               <app-asset [asset]="asset" #assetEl
                          [ommApyChecked]="ommApyChecked"
-                         [riskSlider]="riskComponent.sliderRisk"
+                         [riskSlider]="riskComponent.sliderRiskEl"
                          [index]="i"
                          [activeMarketView]="activeMarketView"
                          [ngStyle]="{display: 'contents'}"

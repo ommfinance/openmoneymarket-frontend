@@ -61,6 +61,11 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
         $("#time-selector").removeClass("active");
         $(".time-selector-content").removeClass("active");
       }
+
+      if ($(e.target).is(".dropdown.time-selector") === false && $(e.target).is(".dropdown-content.locked-selector") === false
+        && $(e.target).is(".animation-underline.locked-selector") === false) {
+        $(".dropdown-content.locked-selector").removeClass("active");
+      }
     });
   }
 

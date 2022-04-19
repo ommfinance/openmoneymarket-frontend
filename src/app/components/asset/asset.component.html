@@ -22,11 +22,11 @@
 
   <!-- All markets state -->
   <ng-container *ngIf="isAllMarketViewActive()">
-    <td><span>{{this.toDollarUSLocaleString(this.persistenceService.getAssetReserveData(asset.tag)?.totalLiquidityUSD | roundOff2Dec)}}</span><br>
-      <span class="label">{{getTotalLiquidity() | roundOff2Dec | usFormat}} {{supplyAssetTag()}}</span></td>
+    <td><span>{{this.toDollarUSLocaleString(getTotalLiquidity())}}</span><br>
+      <span class="label">{{getTotalLiquidity() | usFormat}} {{supplyAssetTag()}}</span></td>
     <td class="text-green">{{to2DecimalRoundedOffPercentString(getMarketSupplyRate())}}</td> <!-- Supply APY -->
-    <td>{{this.toDollarUSLocaleString(this.persistenceService.getAssetReserveData(asset.tag)?.totalBorrowsUSD | roundOff2Dec)}}<br>
-      <span class="label">{{getTotalAssetBorrows() | roundOff2Dec | usFormat}} {{getBorrowAssetTagAdjusted()}}</span></td>
+    <td>{{this.toDollarUSLocaleString(getTotalBorrowUsd())}}<br>
+      <span class="label">{{getTotalAssetBorrows() | usFormat}} {{getBorrowAssetTagAdjusted()}}</span></td>
     <td class="{{isNegative(getMarketBorrowRate()) ? 'text-purple' : 'text-green'}}">{{to2DecimalRoundedOffPercentString(makeAbsolute(getMarketBorrowRate()))}}</td> <!-- Borrow APY -->
   </ng-container>
 
@@ -58,24 +58,23 @@
 
             </div>
             <div class="grid-cell text-right">
-              <p class="supply-apy">{{to2DecimalRoundedOffPercentString(getMarketSupplyRate())}} APY</p>
-            </div>
-          </div>
-
-          <!-- If logged out show sign in button -->
-          <div class="grid grid-center sign-in-message" [ngStyle]="hideElement(userLoggedIn())">
-            <div class="grid-cell" [ngStyle]="hideElement(userLoggedIn())">
-              <p class="text-center"><a href="javascript:void(0);" class="button" (click)="onSignInClick()">Sign in to supply</a></p>
+              <p class="supply-apy" #suppApyEl>{{to2DecimalRoundedOffPercentString(getMarketSupplyRate())}} APY</p>
             </div>
           </div>
 
           <!-- Supply allow (Show if user can supply) -->
-          <div class="supply-allow" #supplyAllow [ngStyle]="hideElement(userAssetBalanceIsZero() && userAssetSuppliedBalanceIsZero() || !userLoggedIn())">
+          <div class="supply-allow" #supplyAllow>
+
+            <!-- Supply APY history chart -->
+            <div class="chart-wrapper" (resized)="onSuppChartResize()" [ngStyle]="hideElement(ommApyChecked  || isAssetOmm())" #suppChartWrapper>
+              <div class="chart-apy" #suppHistChart></div>
+            </div>
+
             <!-- Supply slider -->
-            <div id="slider-supply" #sliderSupply disabled></div>
+            <div [ngStyle]="hideElement(shouldHideSupplyContent())" id="slider-supply" #sliderSupply disabled></div>
 
             <!-- Supply inputs -->
-            <div class="grid legend">
+            <div [ngStyle]="hideElement(shouldHideSupplyContent())" class="grid legend">
               <div class="grid-cell">
                 <label class="label supplied">Supplied</label>
                 <p class="input-supply-default value-supplied" [ngStyle]="hideElement(this.inputSupplyActive)">{{inputSupply?.value}} {{supplyAssetTag()}}</p>
@@ -99,7 +98,7 @@
             </div>
 
             <!-- Supply income -->
-            <div class="grid legend income">
+            <div [ngStyle]="hideElement(shouldHideSupplyContent())" class="grid legend income">
               <div class="grid-cell">
                 <dl class="metadata">
                   <dt>Daily interest</dt>
@@ -115,11 +114,18 @@
             </div>
 
             <!-- Adjust-->
-            <div class="grid grid-center supply-actions actions-1" #suppAct1>
+            <div [ngStyle]="hideElement(shouldHideSupplyContent())" class="grid grid-center supply-actions actions-1" #suppAct1>
               <div class="grid-cell text-center">
                 <a href="javascript:void(0);" class="button {{asset.className}} supply-adjust"
                    (click)="onSupplyAdjustClick()">{{userAssetSuppliedBalanceIsZero() ? "Supply" : "Adjust"}}</a>
               </div>
+            </div>
+          </div>
+
+          <!-- If logged out show sign in button -->
+          <div class="grid grid-center sign-in-message" [ngStyle]="hideElement(userLoggedIn())">
+            <div class="grid-cell" [ngStyle]="hideElement(userLoggedIn())">
+              <p class="text-center"><a href="javascript:void(0);" class="button" (click)="onSignInClick()">Sign in to supply</a></p>
             </div>
           </div>
 
@@ -158,25 +164,30 @@
                 <div class="tooltip-content"><p>While you borrow assets, your supply is at risk of liquidation. Keep it below 50% to reduce the impact of volatile markets.</p></div>
               </span>
             </div>
-            <div class="grid-cell text-right">
-              <p class="{{isNegative(getMarketBorrowRate()) ? 'borrow-apy':'borrow-apy text-green'}}">{{to2DecimalRoundedOffPercentString(makeAbsolute(getMarketBorrowRate()))}} APR</p>
+            <div class="grid-cell text-right" [ngStyle]="hideElement(isAssetOmm())">
+              <p class="{{isNegative(getMarketBorrowRate()) ? 'borrow-apy':'borrow-apy text-green'}}" #borrowAprEl>{{to2DecimalRoundedOffPercentString(makeAbsolute(getMarketBorrowRate()))}} APR</p>
             </div>
           </div>
 
           <!-- Borrow allow (Show if user can borrow) -->
-          <div class="borrow-allow" [ngStyle]="hideElement(this.persistenceService.userHasNotSuppliedAnyAsset() || shouldHideBorrowSlider()
-           || isAssetOmm())">
+          <div class="borrow-allow">
 
             <!-- Used indicator -->
-            <div class="used-container" *ngIf="isAssetBorrowUsed()">
+            <div [ngStyle]="hideElement(shouldHideBorrowContent())" class="used-container" *ngIf="isAssetBorrowUsed()">
               <div class="used active" [ngStyle]="{left: assetRepayUsedPercentage() + '%'}"><p class="label">Used</p></div>
             </div>
 
+            <!-- Chart line 2 -->
+            <div class="chart-wrapper" [ngStyle]="hideElement(ommApyChecked || isAssetOmm())" #borrChartWrapper>
+              <div class="chart-apy" #borrHistChart></div>
+            </div>
+
+
             <!-- Borrow slider -->
-            <div id="slider-borrow" #sliderBorrow disabled></div>
+            <div [ngStyle]="hideElement(shouldHideBorrowContent())" id="slider-borrow" #sliderBorrow disabled></div>
 
             <!-- Borrow legend -->
-            <div class="grid legend">
+            <div [ngStyle]="hideElement(shouldHideBorrowContent())" class="grid legend">
               <div class="grid-cell">
                 <label class="label borrowed">Borrowed</label>
                 <p class="input-borrow-default value-borrowed" [ngStyle]="hideElement(this.inputBorrowActive)">{{inputBorrow?.value}} {{getBorrowAssetTagAdjusted()}}</p>
@@ -200,7 +211,7 @@
             </div>
 
             <!-- Borrow income legend -->
-            <div class="grid legend income">
+            <div [ngStyle]="hideElement(shouldHideBorrowContent())" class="grid legend income">
               <div class="grid-cell">
                 <dl class="metadata">
                   <dt>Daily interest</dt>
@@ -216,7 +227,7 @@
             </div>
 
             <!-- Adjust-->
-            <div class="grid grid-center borrow-actions actions-1" #borrAct1>
+            <div [ngStyle]="hideElement(shouldHideBorrowContent())" class="grid grid-center borrow-actions actions-1" #borrAct1>
               <div class="grid-cell text-center">
                 <a href="javascript:void(0);" class="button {{asset.className}} purple borrow-adjust"
                    [ngStyle]="hideElement(this.persistenceService.userHasNotSuppliedAnyAsset())"
@@ -225,7 +236,7 @@
             </div>
 
             <!-- Confirm -->
-            <div class="grid grid-center borrow-actions actions-2 hide" #borrAct2>
+            <div [ngStyle]="hideElement(shouldHideBorrowContent())" class="grid grid-center borrow-actions actions-2 hide" #borrAct2>
               <div class="grid-cell text-right">
                 <a href="javascript:void(0);" class="cancel adjust-cancel" (click)="onAdjustCancelClick()">Cancel</a>
               </div>

@@ -1,33 +1,57 @@
 import {Utils} from "./utils";
-import {UserReserveData} from "../models/UserReserveData";
-import {ReserveData} from "../models/AllReservesData";
-import {UserAccountData} from "../models/UserAccountData";
+import {UserReserveData} from "../models/classes/UserReserveData";
+import {ReserveData} from "../models/classes/AllReservesData";
+import {UserAccountData} from "../models/classes/UserAccountData";
 import log from "loglevel";
-import {ReserveConfigData} from "../models/ReserveConfigData";
-import {Liquidity, OmmRewards, Reserve, Staking} from "../models/OmmRewards";
-import {OmmTokenBalanceDetails} from "../models/OmmTokenBalanceDetails";
-import {Prep, PrepList} from "../models/Preps";
-import {DelegationPreference} from "../models/DelegationPreference";
-import {YourPrepVote} from "../models/YourPrepVote";
-import {UnstakeIcxData, UnstakeInfo} from "../models/UnstakeInfo";
-import {DistributionPercentages} from "../models/DistributionPercentages";
-import {PoolStats, PoolStatsInterface} from "../models/PoolStats";
-import {TotalPoolInterface, UserPoolDataInterface} from "../models/Poolnterfaces";
-import {UserPoolData} from "../models/UserPoolData";
-import {AllAssetDistPercentages, LiquidityAllAsset, ReserveAllAsset, StakingAllAsset} from "../models/AllAssetDisPercentages";
+import {ReserveConfigData} from "../models/classes/ReserveConfigData";
+import {Liquidity, UserAccumulatedOmmRewards, Reserve, Locking} from "../models/classes/UserAccumulatedOmmRewards";
+import {OmmTokenBalanceDetails} from "../models/classes/OmmTokenBalanceDetails";
+import {Prep, PrepList} from "../models/classes/Preps";
+import {DelegationPreference} from "../models/classes/DelegationPreference";
+import {YourPrepVote} from "../models/classes/YourPrepVote";
+import {UnstakeIcxData, UnstakeInfo} from "../models/classes/UnstakeInfo";
+import {DistributionPercentages} from "../models/classes/DistributionPercentages";
+import {PoolStats, PoolStatsInterface} from "../models/classes/PoolStats";
+import {TotalPoolInterface, UserPoolDataInterface} from "../models/Interfaces/Poolnterfaces";
+import {UserPoolData} from "../models/classes/UserPoolData";
 import {
-  DailyRewardsAllReservesPools,
-  LiquidityDailyRewards,
+  AllAssetDistPercentages, DaoFundDistPercent,
+  LiquidityDistPercent,
+  OmmLockingDistPercent,
+  ReserveAllAsset,
+  StakingDistPercent
+} from "../models/classes/AllAssetDisPercentages";
+import {
+  DailyRewardsAllReservesPools, DaoFundDailyRewards,
+  LiquidityDailyRewards, OmmLockingDailyRewards,
   ReserveDailyRewards,
-  StakingDailyRewards
-} from "../models/DailyRewardsAllReservesPools";
+  WorkerTokenDailyRewards
+} from "../models/classes/DailyRewardsAllReservesPools";
 import {BigNumber} from "bignumber.js";
-import {Vote, VotersCount} from "../models/Vote";
-import {Proposal} from "../models/Proposal";
-import {bnUSDProposalDescription} from "./constants";
+import {Vote, VotersCount} from "../models/classes/Vote";
+import {Proposal} from "../models/classes/Proposal";
+import {InterestHistory} from "../models/classes/InterestHistory";
+import {ILockedOmm} from "../models/Interfaces/ILockedOmm";
+import {LockedOmm} from "../models/classes/LockedOmm";
+import {UserDailyOmmReward} from "../models/classes/UserDailyOmmReward";
+import {IUserDailyOmmReward} from "../models/Interfaces/IUserDailyOmmReward";
 
 export class Mapper {
 
+  public static mapInterestHistory(interestHistory: InterestHistory[]): InterestHistory[] {
+    interestHistory.forEach(el => {
+      el.date = new Date(el.date);
+    });
+
+    return interestHistory;
+  }
+
+  public static mapLockedOmm(lockedOmm: ILockedOmm): LockedOmm {
+    return new LockedOmm(
+      Utils.hexToNormalisedNumber(lockedOmm.amount),
+      Utils.hexToNumber(lockedOmm.end)
+    );
+  }
 
   public static mapDistributionPercentages(distributionPercentages: DistributionPercentages): DistributionPercentages {
     return new DistributionPercentages(
@@ -62,9 +86,9 @@ export class Mapper {
     return res;
   }
 
-  public static mapUserOmmRewards(ommRewards: OmmRewards): OmmRewards {
-    log.debug("mapUserOmmRewards before: ", ommRewards);
-    const res = new OmmRewards(
+  public static mapUserAccumulatedOmmRewards(ommRewards: UserAccumulatedOmmRewards): UserAccumulatedOmmRewards {
+    log.debug("mapUserAccumulatedOmmRewards before: ", ommRewards);
+    const res = new UserAccumulatedOmmRewards(
       new Reserve(
         Utils.hexToNormalisedNumber(ommRewards.reserve.oUSDS),
         Utils.hexToNormalisedNumber(ommRewards.reserve.dUSDS),
@@ -75,6 +99,7 @@ export class Mapper {
         Utils.hexToNormalisedNumber(ommRewards.reserve.total)
       ),
       Utils.hexToNormalisedNumber(ommRewards.total),
+      Utils.hexToNormalisedNumber(ommRewards.now),
       ommRewards.liquidity ?
       new Liquidity(
         Utils.hexToNormalisedNumber(ommRewards.liquidity["OMM/SICX"]),
@@ -82,13 +107,39 @@ export class Mapper {
         Utils.hexToNormalisedNumber(ommRewards.liquidity["OMM/IUSDC"]),
         Utils.hexToNormalisedNumber(ommRewards.liquidity.total)
       ) : undefined,
-      ommRewards.staking ?
-      new Staking(
-        Utils.hexToNormalisedNumber(ommRewards.staking.OMM),
-        Utils.hexToNormalisedNumber(ommRewards.staking.total)
+      ommRewards.OMMLocking ?
+      new Locking(
+        Utils.hexToNormalisedNumber(ommRewards.OMMLocking.bOMM),
+        Utils.hexToNormalisedNumber(ommRewards.OMMLocking.total)
       ) : undefined,
     );
-    log.debug("mapUserOmmRewards after: ", res);
+    log.debug("mapUserAccumulatedOmmRewards after: ", res);
+
+    return res;
+  }
+
+  public static mapUserDailyOmmRewards(ommRewards: IUserDailyOmmReward): UserDailyOmmReward {
+    log.debug("mapUserDailyOmmRewards before: ", ommRewards);
+    const res = new UserDailyOmmReward(
+      Utils.hexToNormalisedNumber(ommRewards["OMM/IUSDC"]),
+      Utils.hexToNormalisedNumber(ommRewards["OMM/USDS"]),
+      Utils.hexToNormalisedNumber(ommRewards["OMM/sICX"]),
+      Utils.hexToNormalisedNumber(ommRewards.bOMM),
+      Utils.hexToNormalisedNumber(ommRewards.dBALN),
+      Utils.hexToNormalisedNumber(ommRewards.dICX),
+      Utils.hexToNormalisedNumber(ommRewards.dIUSDC),
+      Utils.hexToNormalisedNumber(ommRewards.dOMM),
+      Utils.hexToNormalisedNumber(ommRewards.dUSDS),
+      Utils.hexToNormalisedNumber(ommRewards.dbnUSD),
+      Utils.hexToNormalisedNumber(ommRewards.oBALN),
+      Utils.hexToNormalisedNumber(ommRewards.oICX),
+      Utils.hexToNormalisedNumber(ommRewards.oIUSDC),
+      Utils.hexToNormalisedNumber(ommRewards.oOMM),
+      Utils.hexToNormalisedNumber(ommRewards.oUSDS),
+      Utils.hexToNormalisedNumber(ommRewards.obnUSD),
+    );
+
+    log.debug("mapUserDailyOmmRewards after: ", res);
 
     return res;
   }
@@ -106,15 +157,22 @@ export class Mapper {
         Utils.hexToNormalisedNumber(value.reserve.total)
       ),
       Utils.hexToNormalisedNumber(value.total),
+      new OmmLockingDistPercent(
+        Utils.hexToNormalisedNumber(value.OMMLocking.bOMM),
+        Utils.hexToNormalisedNumber(value.OMMLocking.total)
+      ),
+      new DaoFundDistPercent(
+        Utils.hexToNormalisedNumber(value.daoFund.daoFund),
+        Utils.hexToNormalisedNumber(value.daoFund.total)),
       value.liquidity ?
-        new LiquidityAllAsset(
+        new LiquidityDistPercent(
           Utils.hexToNormalisedNumber(value.liquidity["OMM/SICX"]),
           Utils.hexToNormalisedNumber(value.liquidity["OMM/USDS"]),
           Utils.hexToNormalisedNumber(value.liquidity["OMM/IUSDC"]),
           Utils.hexToNormalisedNumber(value.liquidity.total),
         ) : undefined,
       value.staking ?
-      new StakingAllAsset(
+      new StakingDistPercent(
         Utils.hexToNormalisedNumber(value.staking.OMM),
         Utils.hexToNormalisedNumber(value.staking.total)
       ) : undefined);
@@ -143,6 +201,14 @@ export class Mapper {
       ),
       Utils.hexToNormalisedNumber(value.total),
       Utils.hexToNumber(value.day),
+      new DaoFundDailyRewards(
+        Utils.hexToNormalisedNumber(value.daoFund.daoFund),
+        Utils.hexToNormalisedNumber(value.daoFund.total),
+      ),
+      new OmmLockingDailyRewards(
+        Utils.hexToNormalisedNumber(value.OMMLocking.bOMM),
+        Utils.hexToNormalisedNumber(value.OMMLocking.total),
+      ),
       value.liquidity ?
       new LiquidityDailyRewards(
         Utils.hexToNormalisedNumber(value.liquidity["OMM/SICX"]),
@@ -150,10 +216,10 @@ export class Mapper {
         Utils.hexToNormalisedNumber(value.liquidity["OMM/IUSDC"]),
         Utils.hexToNormalisedNumber(value.liquidity.total),
       ) : undefined,
-      value.staking ?
-      new StakingDailyRewards(
-        Utils.hexToNormalisedNumber(value.staking.OMM),
-        Utils.hexToNormalisedNumber(value.staking.total)
+      value.workerToken ?
+      new WorkerTokenDailyRewards(
+        Utils.hexToNormalisedNumber(value.workerToken.workerToken),
+        Utils.hexToNormalisedNumber(value.workerToken.total)
       ) : undefined);
     log.debug("mapDailyRewardsAllReservesPools after: ", res);
 
@@ -369,12 +435,6 @@ export class Mapper {
 
   public static mapProposalList(proposals: any[]): Proposal[] {
     return proposals.map(proposal => {
-
-      // TODO: remove this handling after vote has passed
-      if (proposal.name?.includes("OIP 3: Adding support for bnUSD")) {
-        proposal.description = bnUSDProposalDescription;
-      }
-
       return new Proposal(
         Utils.hexToNormalisedNumber(proposal.against),
         Utils.hexToNumber(proposal.against_voter_count),

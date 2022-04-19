@@ -4,15 +4,15 @@ import {PersistenceService} from "../persistence/persistence.service";
 import {IconexApiService} from "../iconex-api/iconex-api.service";
 import {IconAmount, IconConverter} from "icon-sdk-js";
 import {ScoreMethodNames} from "../../common/score-method-names";
-import {IconTransactionType} from "../../models/IconTransactionType";
+import {IconTransactionType} from "../../models/enums/IconTransactionType";
 import {Utils} from "../../common/utils";
 import {CheckerService} from "../checker/checker.service";
 import log from "loglevel";
-import {AssetTag} from "../../models/Asset";
+import {AssetTag} from "../../models/classes/Asset";
 import {TransactionDispatcherService} from "../transaction-dispatcher/transaction-dispatcher.service";
 import {ScoreService} from "../score/score.service";
 import {LocalStorageService} from "../local-storage/local-storage.service";
-import {ModalAction} from "../../models/ModalAction";
+import {ModalAction} from "../../models/classes/ModalAction";
 import BigNumber from "bignumber.js";
 
 @Injectable({

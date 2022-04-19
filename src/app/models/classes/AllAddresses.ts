@@ -102,5 +102,7 @@ interface SystemContract {
   OmmToken: string;
   Delegation: string;
   PriceOracle: string;
+  RewardWeightController: string;
   StakedLp: string;
+  bOMM: string;
 }

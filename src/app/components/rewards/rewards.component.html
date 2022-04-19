@@ -56,20 +56,20 @@
               <div class="tooltip-content"><p>The amount you've earned by supplying or borrowing assets since you last claimed.</p></div>
             </span>
             </dt>
-            <dd [ngStyle]="{opacity: getMarketRewards().gt(ZERO) ? null : 0.5}">{{getMarketRewards() | roundOff2Dec | usFormat}} <span class="label">{{getMarketRewards().gt(ZERO) ? "OMM" :  ""}}</span></dd>
+            <dd [ngStyle]="{opacity: getUserMarketRewards().gt(ZERO) ? null : 0.5}">{{getUserMarketRewards() | roundOff2Dec | usFormat}} <span class="label">{{getUserMarketRewards().gt(ZERO) ? "OMM" :  ""}}</span></dd>
           </dl>
         </div>
 
         <!-- Staking rewards -->
         <div class="grid-cell text-center">
           <dl class="metadata">
-            <dt>Staking
+            <dt>Boosted OMM
               <span class="tooltip expanded-risk-tooltip">
               <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
-              <div class="tooltip-content"><p>The amount you've earned by staking OMM since you last claimed.</p></div>
+              <div class="tooltip-content"><p>The amount you've earned from your locked OMM since you last claimed.</p></div>
             </span>
             </dt>
-            <dd [ngStyle]="{opacity: getStakingRewards().gt(ZERO) ? null : 0.5}">{{getStakingRewards() | roundOff2Dec | usFormat}} <span class="label">{{getStakingRewards().isGreaterThan(ZERO) ? "OMM" :  ""}}</span></dd>
+            <dd [ngStyle]="{opacity: getUserLockingRewards().gt(ZERO) ? null : 0.5}">{{getUserLockingRewards() | roundOff2Dec | usFormat}} <span class="label">{{getUserLockingRewards().isGreaterThan(ZERO) ? "OMM" :  ""}}</span></dd>
           </dl>
         </div>
 
@@ -82,7 +82,7 @@
               <div class="tooltip-content"><p>The amount you've earned by staking LP tokens since you last claimed.</p></div>
             </span>
             </dt>
-            <dd [ngStyle]="{opacity: getLiquidityRewards().gt(ZERO) ? null : 0.5}">{{getLiquidityRewards() | roundOff2Dec | usFormat}} <span class="label">{{getLiquidityRewards().isGreaterThan(ZERO) ? "OMM" :  ""}}</span></dd>
+            <dd [ngStyle]="{opacity: getUserLiquidityRewards().gt(ZERO) ? null : 0.5}">{{getUserLiquidityRewards() | roundOff2Dec | usFormat}} <span class="label">{{getUserLiquidityRewards().isGreaterThan(ZERO) ? "OMM" :  ""}}</span></dd>
           </dl>
         </div>
       </ng-container>
@@ -109,13 +109,13 @@
       </div>
       <div class="grid-cell text-center">
         <dl class="metadata">
-          <dt>Staking
+          <dt>Boosted OMM
             <span class="tooltip expanded-risk-tooltip">
             <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
-            <div class="tooltip-content"><p>Stake Omm Tokens to earn these rewards.</p></div>
+            <div class="tooltip-content"><p>Lock up OMM to earn these rewards.</p></div>
           </span>
           </dt>
-          <dd>{{getDailyStakingRewards() | roundOff2Dec | usFormat}} <span class="label">{{getDailyStakingRewards().isGreaterThan(ZERO) ? "OMM":""}}</span></dd>
+          <dd>{{getDailyOmmLockingRewards() | roundOff2Dec | usFormat}} <span class="label">{{getDailyOmmLockingRewards().isGreaterThan(ZERO) ? "OMM":""}}</span></dd>
         </dl>
       </div>
       <div class="grid-cell text-center">
@@ -132,104 +132,154 @@
     </div>
   </section>
 
-  <section id="staking-overview">
-    <h2>Staking</h2>
-    <!-- Container -->
-    <div class="grid panel">
-      <!-- Omm stake -->
-      <div id="omm-stake" class="grid-cell">
-        <!-- Title -->
-        <h3>Omm stake</h3>
-
-        <!-- Stake slider -->
-        <div id="slider-omm-stake" disabled class="" #stkSlider [ngStyle]="hideElement(!userLoggedIn() || !userHasOmmTokens() || !userHasMoreThanOneOmmToken())"></div>
-
-        <!-- Message (If no OMM in wallet) -->
-        <p class="label text-center" id="message-stake-no-omm" [ngStyle]="hideElement(!userLoggedIn() || userHasOmmTokens() || userHasMoreThanOneOmmToken())">Earn or buy Omm Tokens,<br>then stake them here to earn more OMM.</p>
-
-        <!-- Message (If user has less than 1 OMM token) -->
-        <p class="label text-center grid-cell-center" style="margin-top: 35px" [ngStyle]="hideElement(!userLoggedIn() || !userHasOmmTokens() || userHasMoreThanOneOmmToken())">You need at least 1 Omm Token in your wallet before you can stake.</p>
-
-        <!-- Message (If not signed in) -->
-        <div id="message-stake-logged-out" class="grid" [ngStyle]="hideElement(userLoggedIn())">
-          <div class="grid-cell">
-            <p>Sign in to stake Omm Tokens.</p>
-            <a href="javascript:void(0);" class="button" (click)="onSignInClick()">Sign in</a>
-          </div>
-        </div>
-
-        <!-- Stake actions -->
-        <div class="grid" [ngStyle]="hideElement(!userLoggedIn() || !userHasOmmTokens() || !userHasMoreThanOneOmmToken())">
-          <div class="grid-cell text-center">
-            <!-- Actions to show by default -->
-            <div *ngIf="!userHasStaked()" class="grid grid-center stake-omm-actions-default actions-default">
-              <div class="grid-cell text-center">
-                <a href="javascript:void(0);" class="button" id="stake-adjust-omm" (click)="onStakeAdjustClick()">Stake Omm Tokens</a>
-              </div>
-            </div>
-
-            <!-- Actions to show if already staked -->
-            <div *ngIf="userHasStaked() && !isMaxStaked() && !stakeAdjustActive" class="grid grid-center stake-omm-actions-default actions-default">
-              <div class="grid-cell text-center">
-                <a href="javascript:void(0);" (click)="onStakeAdjustClick()" class="button">Adjust stake</a>
-              </div>
-            </div>
-
-            <!-- Actions to show if max staked -->
-            <div *ngIf="userHasStaked() && isMaxStaked() && !stakeAdjustActive" class="grid grid-center actions-default">
-              <div class="grid-cell text-center">
-                <a href="javascript:void(0);" class="button" (click)="onStakeAdjustClick()">Unstake Omm Tokens</a>
-              </div>
-            </div>
-
-            <!-- Actions to show when adjust class is active -->
-            <div class="grid grid-center stake-omm-actions-adjust {{stakeAdjustActive ? '' : 'hide'}}">
-              <div class="grid-cell text-right">
-                <a id="stake-omm-actions-adjust-cancel" href="javascript:void(0);" (click)="onStakeAdjustCancelClick()" class="cancel">Cancel</a>
-              </div>
-              <div class="grid-cell text-left">
-                <a href="javascript:void(0);" (click)="onConfirmStakeClick()" class="button">Confirm</a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Stake -->
-          <div class="grid-cell text-center">
-            <dl class="metadata">
-              <dt>Your stake</dt>
-              <dd><input id="stake-input" type="text" name="" class="{{stakeAdjustActive ? 'active' : 'hide'}}" #stakeInput (input)="onInputStakeOmmChange()"><span
-                class="value-omm-stake-amount {{stakeAdjustActive ? 'hide' : ''}}" #ommStkAmount>{{userOmmTokenBalanceDetails?.stakedBalance | usFormat}}</span> / {{getYourStakeMax() | usFormat}} OMM</dd>
-            </dl>
-
-            <!-- Message (If unstaking) -->
-            <p *ngIf="isUnstaking()" class="label" style="margin-top: 5px;">{{this.persistenceService.getUserUnstakingOmmBalance0Rounded() | usFormat}} OMM unstaking. <a
-              href="javascript:void(0);" (click)="onCancelUnstakingClick()">Cancel</a></p>
-          </div>
-        </div>
+  <!-- Boosted Omm -->
+  <section class="boosted-omm">
+    <div class="grid">
+      <div class="grid-cell">
+        <h2>Boosted OMM</h2>
       </div>
 
-      <!-- Staking metadata -->
-      <div id="staking-apy" class="grid-cell">
-        <div id="staking-apy-data" class="grid-cell border-bottom text-center">
-          <dl class="metadata">
-            <dt>{{userLoggedIn() ? "Your daily rewards" : "Daily rewards"}}</dt>
-            <dd class="omm-stake-rewards" #stkDailyRew>{{this.getDailyOmmRewards() | roundOff2Dec | usFormat}} {{this.getDailyOmmRewards().isGreaterThan(ZERO) ? "OMM":""}}</dd>
-          </dl>
-        </div>
+      <div class="grid-cell">
+
+      </div>
+    </div>
+
+    <!-- Boosted OMM panel -->
+    <div class="grid panel">
+      <div class="grid-cell">
         <div class="grid">
-          <div class="grid-cell">
-            <dl class="metadata text-center">
-              <dt>Staking APR</dt>
-              <dd class="text-green">{{to2DecimalRoundedOffPercentString(getStakingApy())}}</dd>
-            </dl>
-          </div>
-          <div class="grid-cell">
-            <dl class="metadata text-center">
-              <dt>Total staked</dt>
-              <dd>{{getTotalStaked() | roundOff2Dec | usFormat}} {{getTotalStaked().isGreaterThan(ZERO) ? "OMM":""}}</dd>
-            </dl>
+          <div class="grid-cell boosted-container">
+            <!-- Header -->
+            <div class="grid">
+              <!-- Heading -->
+              <div class="grid-cell">
+                <h3>Earning potential <span *ngIf="!userBOMMbalance().isZero() && userBOMMbalance().isPositive()" class="label value-bomm-total">{{userBOMMbalance() | roundDown2Dec | usFormat | toZeroIfDash }} bOMM</span>&nbsp;
+                  <span class="bomm-tooltip tooltip">
+                    <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+                    <div class="tooltip-content">
+                      <p class="bomm-tooltip-content">
+                        Lock up OMM to boost your earning potential by up to 2.5 x. The longer you lock up OMM,
+                        the more bOMM (boosted OMM) you'll receive; the amount will decrease over time.
+                      </p>
+                    </div>
+                  </span>
+                </h3>
+              </div>
+              <!-- Button -->
+              <div class="grid-cell" [ngStyle]="hideElement(shouldHideBoostedSlider())">
+                <p class="text-right" [ngStyle]="hideElement(lockAdjustActive)">
+                  <a href="javascript:void(0);" class="button" id="boost-adjust" style="margin-top: 0;" (click)="onLockAdjustClick()">{{boostAdjustLabel()}}</a>
+                </p>
+
+                <div class="boost-adjust-actions" [ngStyle]="hideElement(!lockAdjustActive)">
+                  <div class="grid">
+                    <div class="grid-cell">
+                      <div class="grid grid-center">
+                        <div class="grid-cell text-right">
+                          <a href="javascript:void(0);" class="cancel boost-cancel" (click)="onLockAdjustCancelClick()">Cancel</a>
+                        </div>
+                        <div class="grid-cell">
+                          <a href="javascript:void(0);" class="button modal-trigger" style="margin-top: 0;"
+                             data-modal="modal-boost-confirm" (click)="onConfirmLockOmmClick()">Confirm</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <p class="label intro-label" [ngStyle]="hideElement(lockAdjustActive)">{{boostedOmmPanelMessage()}}</p>
+            <div class="threshold locked boost {{shouldHideLockedOmmThreshold() ? 'hide':''}}" [ngStyle]="getLeftLockedThresholdPercentStyle()">
+              <dl class="metadata">
+                <dt>Locked</dt>
+              </dl>
+            </div>
+
+            <!-- Locked OMM slider -->
+            <app-boosted-omm-slider #lockOmmSlider
+              [lockAdjustActive]="lockAdjustActive"
+              [shouldHideBoostedSlider]="shouldHideBoostedSlider()"
+              (sliderValueUpdate)="handleLockSliderValueUpdate($event)"
+            ></app-boosted-omm-slider>
+
+            <div class="grid grid-center" [ngStyle]="hideElement(shouldHideBoostedSlider())">
+              <div class="grid-cell" style="max-width: 200px;">
+                <p class="label">
+                  <input [ngStyle]="hideElement(!lockAdjustActive)" #lockInput id="input-boost" (input)="onInputLockChange()"
+                         class="input-boost" type="text" name=""><span [ngStyle]="hideElement(lockAdjustActive)" class="omm-locked">{{userLockedOmmBalance | roundDown2Dec | usFormat}}</span> / {{getLockSliderMax() | usFormat}} OMM</p>
+              </div>
+              <div class="grid-cell text-right">
+                <p class="label locked-default" [ngStyle]="hideElement(lockAdjustActive || userLockedOmmBalance === 0)">{{userHasLockedOmm() ? "Locked until" : "Lock up until"}} {{timestampInMillisecondsToPrettyDate(lockDate())}}</p>
+                <div class="locked-adjust" [ngStyle]="hideElement(!lockAdjustActive)">
+                  <p>
+                    <span class="label">Locked until </span> <a class="dropdown time-selector" (click)="onLockedDateDropdownClick()">
+                    <span class="animation-underline locked-selector">{{timestampInMillisecondsToPrettyDate(lockDate())}}</span></a></p>
+                  <div class="grid dropdown-content locked-selector">
+                    <div class="grid-cell">
+                      <ul>
+                        <ng-container *ngFor="let date of getLockedUntilDateOptions();">
+                          <li (click)="onLockUntilDateClick(date)">{{date}}</li>
+                        </ng-container>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+
+        <div class="grid">
+          <div class="grid-cell boost-increase border-top">
+            <div class="grid">
+              <div class="grid-cell border-right">
+                <dl class="metadata">
+                  <dt>Daily rewards</dt>
+                  <dd >
+                    <ng-container *ngIf="showBoostedOmmDailyRewardsOmmAmount()">
+                      <span #lockDailyRew>{{getUserOmmLockingDailyRewards() | roundOff2Dec | usFormat}} OMM&nbsp;</span><span class="label">(<span class=" text-green">{{to2DecimalRoundedOffPercentString(lockingApr())}} APR</span>)</span>
+                    </ng-container>
+                    <ng-container *ngIf="!showBoostedOmmDailyRewardsOmmAmount()">
+                      <span class=" text-green">{{to2DecimalRoundedOffPercentString(lockingApr())}} APR</span>
+                    </ng-container>
+                  </dd>
+                </dl>
+              </div>
+              <div class="grid-cell border-right">
+                <dl class="metadata">
+                  <dt>Market rewards</dt>
+                  <ng-container *ngIf="!fromToIsEmpty(marketMultipliers)">
+                    <dd>
+                      <span class="value-liquidity-apy-4">{{marketMultipliers?.from | roundOff2Dec | usFormat}} x</span>
+                      <span *ngIf="!marketMultipliersAreEqual()" class="label"> – </span>
+                      <span *ngIf="!marketMultipliersAreEqual()" class="value-liquidity-apy-2">{{marketMultipliers?.to | roundOff2Dec | usFormat}} x</span>
+                    </dd>
+                  </ng-container>
+                  <ng-container *ngIf="fromToIsEmpty(marketMultipliers)">
+                    <dd>–</dd>
+                  </ng-container>
+                </dl>
+              </div>
+              <div class="grid-cell">
+                <dl class="metadata">
+                  <dt>Liquidity rewards</dt>
+                  <ng-container *ngIf="!fromToIsEmpty(liquidityMultipliers)">
+                    <dd>
+                      <span class="value-liquidity-apy-4">{{liquidityMultipliers?.from | roundOff2Dec | usFormat}} x</span>
+                      <span *ngIf="!liquidityMultipliersAreEqual()" class="label"> – </span>
+                      <span *ngIf="!liquidityMultipliersAreEqual()" class="value-liquidity-apy-2">{{liquidityMultipliers?.to | roundOff2Dec | usFormat}} x</span>
+                    </dd>
+                  </ng-container>
+                  <ng-container *ngIf="fromToIsEmpty(liquidityMultipliers)">
+                    <dd>–</dd>
+                  </ng-container>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
@@ -272,7 +322,7 @@
                 <span class="label">{{poolData.userAvailableBalance | roundDown2Dec | usFormat}} available</span></td>
               <td><span class="text-dark">{{getUserDailyRewards(poolData) | roundOff2Dec | usFormat}} OMM</span><br>
                 <span class="label">{{toDollarUSLocaleString(getUserDailyRewardsUSD(poolData) | roundOff2Dec)}}</span></td>
-              <td class="text-green">{{to2DecimalRoundedOffPercentString(getLiquidityApy(poolData))}}</td>
+              <td class="text-green" >{{to2DecimalRoundedOffPercentString(getUserPoolLiquidityApr(poolData))}}</td>
             </tr>
 
             <!-- Pool expanded -->
@@ -318,7 +368,7 @@
               <tr class="pool {{poolData.getPairClassName()}}" (click)="onPoolClick(poolData)">
                 <td class="text-dark">{{poolData.getPrettyName()}}</td>
                 <td colspan="2"><span class="text-dark">{{poolData.userAvailableBalance | roundDown2Dec | usFormat}} LP tokens</span></td>
-                <td colspan="2" class="text-green">{{to2DecimalRoundedOffPercentString(getLiquidityApy(poolData))}}</td>
+                <td colspan="2" class="text-green">{{to2DecimalRoundedOffPercentString(getUserPoolLiquidityApr(poolData))}}</td>
               </tr>
 
               <!-- Pool expanded -->
@@ -363,12 +413,12 @@
         <ng-container *ngFor="let poolData of getAllPoolsData(); last as isLast;">
           <tr class="pool {{poolData.getPairClassName()}}" #allPool (click)="onPoolClick(poolData)">
             <td class="text-dark">{{poolData.getPrettyName()}}</td>
-            <td><span class="text-dark">{{getTotalSuppliedBase(poolData) | roundOff2Dec | usFormat}} OMM</span><br>
-              <span class="label">{{getTotalSuppliedQuote(poolData) | roundOff2Dec | usFormat}} {{poolData.getQuoteAssetName()}}</span></td>
-            <td><span class="text-dark">{{poolData.totalStakedBalance | roundOff2Dec | usFormat}}</span></td>
+            <td><span class="text-dark">{{getTotalSuppliedBase(poolData) | usFormat}} OMM</span><br>
+              <span class="label">{{getTotalSuppliedQuote(poolData) | usFormat}} {{poolData.getQuoteAssetName()}}</span></td>
+            <td><span class="text-dark">{{getTotalLpTokens(poolData) | usFormat}}</span></td>
             <td><span class="text-dark">{{getDailyRewards(poolData) | roundOff2Dec | usFormat}} OMM</span><br>
               <span class="label">{{toDollarUSLocaleString(getDailyRewardsUSD(poolData) | roundOff2Dec)}}</span></td>
-            <td class="text-green">{{to2DecimalRoundedOffPercentString(getLiquidityApy(poolData))}}</td>
+            <td class="text-green">{{to2DecimalRoundedOffPercentString(getPoolLiquidityApr(poolData))}}</td>
           </tr>
 
           <tr class="expanded">

@@ -1,5 +1,5 @@
 import {Utils} from "../common/utils";
-import {Asset, AssetTag, supportedAssetsMap} from "../models/Asset";
+import {Asset, AssetTag, supportedAssetsMap} from "../models/classes/Asset";
 import {BigNumber} from "bignumber.js";
 import {PersistenceService} from "../services/persistence/persistence.service";
 import {environment} from "../../environments/environment";
@@ -68,7 +68,7 @@ export class BaseClass {
     num = new BigNumber(num).multipliedBy(new BigNumber("100"));
 
     // handle values smaller than 0.01%
-    if (num < new BigNumber("0.01")) {
+    if (num.isLessThan(new BigNumber("0.01"))) {
       return Utils.handleSmallDecimal(num);
     }
 
@@ -151,6 +151,16 @@ export class BaseClass {
 
   isProduction(): boolean {
     return environment.production;
+  }
+
+  public timestampInMillisecondsToPrettyDate(timestamp?: BigNumber): string {
+    if (!timestamp) { return ""; }
+    return Utils.timestampInMillisecondsToPrettyDate(timestamp);
+  }
+
+  public addTimestampToNowToPrettyDate(timestamp?: BigNumber): string {
+    if (!timestamp) { return ""; }
+    return this.timestampInMillisecondsToPrettyDate(Utils.timestampNowMilliseconds().plus(timestamp));
   }
 
 }

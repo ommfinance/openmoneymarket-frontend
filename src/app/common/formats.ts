@@ -3,7 +3,7 @@
 ========================================================================== */
 
 // declare wNumb
-import {AssetTag, CollateralAssetTag} from "../models/Asset";
+import {AssetTag, CollateralAssetTag} from "../models/classes/Asset";
 
 declare var wNumb: any;
 

@@ -1,12 +1,12 @@
 import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {ModalService} from "../../services/modal/modal.service";
-import {UserReserveData} from "../../models/UserReserveData";
+import {UserReserveData} from "../../models/classes/UserReserveData";
 import {StateChangeService} from "../../services/state-change/state-change.service";
-import {AssetTag} from "../../models/Asset";
+import {AssetTag} from "../../models/classes/Asset";
 import {BaseClass} from "../base-class";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {PersistenceService} from "../../services/persistence/persistence.service";
-import {PerformanceDropDownOption} from "../../models/PerformanceDropDownOption";
+import {PerformanceDropDownOption} from "../../models/enums/PerformanceDropDownOption";
 import {Utils} from "../../common/utils";
 import BigNumber from "bignumber.js";
 
@@ -48,7 +48,7 @@ export class PerformanceComponent extends BaseClass implements OnInit, AfterView
   }
 
   public subscribeToUserDataReload(): void {
-    this.stateChangeService.userDataReload$.subscribe(() => {
+    this.stateChangeService.afterUserDataReload$.subscribe(() => {
       // update performance values
       this.updatePerformanceValues();
     });

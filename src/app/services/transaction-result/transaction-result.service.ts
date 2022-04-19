@@ -7,8 +7,8 @@ import {DataLoaderService} from "../data-loader/data-loader.service";
 import log from "loglevel";
 import {NotificationService} from "../notification/notification.service";
 import {LocalStorageService} from "../local-storage/local-storage.service";
-import {ModalAction, ModalActionsResult, ModalStatus} from "../../models/ModalAction";
-import {ModalType} from "../../models/ModalType";
+import {ModalAction, ModalActionsResult, ModalStatus} from "../../models/classes/ModalAction";
+import {ModalType} from "../../models/enums/ModalType";
 import {StateChangeService} from "../state-change/state-change.service";
 import {Utils} from "../../common/utils";
 import {BORROW_MAX_ERROR_REGEX} from "../../common/constants";
@@ -146,24 +146,24 @@ export class TransactionResultService {
           this.notificationService.showNewNotification(`${assetAction.amount} Omm Tokens claimed.`);
       }
     } else if (modalAction.stakingAction) {
-      const voteAction = modalAction.stakingAction;
-      voteAction.amount = voteAction.amount.dp(2);
+      const stakingAction = modalAction.stakingAction;
+      stakingAction.amount = stakingAction.amount.dp(2);
 
       switch (modalAction.modalType) {
         case ModalType.STAKE_OMM_TOKENS:
-          this.notificationService.showNewNotification(`${voteAction.amount} OMM staked.`);
+          this.notificationService.showNewNotification(`${stakingAction.amount} OMM staked.`);
           break;
         case ModalType.UNSTAKE_OMM_TOKENS:
-          this.notificationService.showNewNotification(`${voteAction.amount} OMM unstaking.`);
+          this.notificationService.showNewNotification(`${stakingAction.amount} OMM unstaking.`);
           break;
         case ModalType.CANCEL_UNSTAKE_OMM_TOKENS:
-          this.notificationService.showNewNotification(`${voteAction.amount} Omm Tokens restaked.`);
+          this.notificationService.showNewNotification(`${stakingAction.amount} Omm Tokens restaked.`);
           break;
         case ModalType.POOL_STAKE:
-          this.notificationService.showNewNotification(`${voteAction.amount} LP tokens staked.`);
+          this.notificationService.showNewNotification(`${stakingAction.amount} LP tokens staked.`);
           break;
         case ModalType.POOL_UNSTAKE:
-          this.notificationService.showNewNotification(`${voteAction.amount}  LP tokens unstaked.`);
+          this.notificationService.showNewNotification(`${stakingAction.amount}  LP tokens unstaked.`);
           break;
       }
     } else if (modalAction.voteAction) {
@@ -183,6 +183,25 @@ export class TransactionResultService {
           break;
         case ModalType.CAST_VOTE:
           this.notificationService.showNewNotification("Vote cast.");
+          break;
+      }
+    } else if (modalAction.lockingOmmAction) {
+      const lockingAction = modalAction.lockingOmmAction;
+
+      switch (modalAction.modalType) {
+        case ModalType.LOCK_OMM:
+          this.notificationService.showNewNotification(`${lockingAction.amount} Omm Tokens locked.`);
+          break;
+        case ModalType.INCREASE_LOCK_TIME:
+          this.notificationService.showNewNotification(
+            `OMM locked until ${Utils.timestampInMillisecondsToPrettyDate(lockingAction.lockingTime)}`);
+          break;
+        case ModalType.INCREASE_LOCK_OMM:
+          this.notificationService.showNewNotification(`Increased locked Omm tokens for ${lockingAction.amount}.`);
+          break;
+        case ModalType.INCREASE_LOCK_TIME_AND_AMOUNT:
+          this.notificationService.showNewNotification(
+            `${lockingAction.amount} OMM locked until ${Utils.timestampInMillisecondsToPrettyDate(lockingAction.lockingTime)}`);
           break;
       }
     }
@@ -256,6 +275,23 @@ export class TransactionResultService {
           break;
         case ModalType.CAST_VOTE:
           this.notificationService.showNewNotification(`Couldn't cast vote. ${failedTxMessage} Try again.`);
+          break;
+      }
+    } else if (modalAction.lockingOmmAction) {
+      switch (modalAction.modalType) {
+        case ModalType.LOCK_OMM:
+          this.notificationService.showNewNotification(`Couldn't lock Omm Tokens. ${failedTxMessage} Try again.`);
+          break;
+        case ModalType.INCREASE_LOCK_TIME:
+          this.notificationService.showNewNotification(
+            `Couldn't increase lock period of Omm Tokens. ${failedTxMessage} Try again.`);
+          break;
+        case ModalType.INCREASE_LOCK_OMM:
+          this.notificationService.showNewNotification(`Couldn't increase locked Omm Tokens. ${failedTxMessage} Try again.`);
+          break;
+        case ModalType.INCREASE_LOCK_TIME_AND_AMOUNT:
+          this.notificationService.showNewNotification(
+            `Couldn't increase locked Omm Tokens and lock period. ${failedTxMessage} Try again.`);
           break;
       }
     }

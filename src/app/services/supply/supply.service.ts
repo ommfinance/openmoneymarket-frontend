@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {IconTransactionType} from '../../models/IconTransactionType';
+import {IconTransactionType} from '../../models/enums/IconTransactionType';
 import {IconAmount, IconConverter} from "icon-sdk-js";
 import {IconApiService} from '../icon-api/icon-api.service';
 import {PersistenceService} from '../persistence/persistence.service';
@@ -9,7 +9,7 @@ import {ScoreService} from "../score/score.service";
 import {Utils} from "../../common/utils";
 import {CheckerService} from "../checker/checker.service";
 import log from "loglevel";
-import {AssetTag, CollateralAssetTag, collateralTagToAssetTag} from "../../models/Asset";
+import {AssetTag, CollateralAssetTag, collateralTagToAssetTag} from "../../models/classes/Asset";
 import {TransactionDispatcherService} from "../transaction-dispatcher/transaction-dispatcher.service";
 import BigNumber from "bignumber.js";
 

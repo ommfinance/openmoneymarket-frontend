@@ -1,28 +1,31 @@
 import {Injectable} from '@angular/core';
 import {IconexWallet} from '../../models/wallets/IconexWallet';
-import {AllAddresses} from '../../models/AllAddresses';
-import {AllReservesData, ReserveData} from "../../models/AllReservesData";
-import {UserReserveData, UserReserves} from "../../models/UserReserveData";
-import {UserAccountData} from "../../models/UserAccountData";
+import {AllAddresses} from '../../models/classes/AllAddresses';
+import {AllReservesData, ReserveData} from "../../models/classes/AllReservesData";
+import {UserReserveData, UserReserves} from "../../models/classes/UserReserveData";
+import {UserAccountData} from "../../models/classes/UserAccountData";
 import {BridgeWallet} from "../../models/wallets/BridgeWallet";
-import {AssetTag, CollateralAssetTag} from "../../models/Asset";
-import {AllReserveConfigData} from "../../models/AllReserveConfigData";
+import {AssetTag, CollateralAssetTag} from "../../models/classes/Asset";
+import {AllReserveConfigData} from "../../models/classes/AllReserveConfigData";
 import {LedgerWallet} from "../../models/wallets/LedgerWallet";
-import {OmmRewards} from "../../models/OmmRewards";
-import {OmmTokenBalanceDetails} from "../../models/OmmTokenBalanceDetails";
-import {PrepList} from "../../models/Preps";
-import {YourPrepVote} from "../../models/YourPrepVote";
+import {UserAccumulatedOmmRewards} from "../../models/classes/UserAccumulatedOmmRewards";
+import {OmmTokenBalanceDetails} from "../../models/classes/OmmTokenBalanceDetails";
+import {PrepList} from "../../models/classes/Preps";
+import {YourPrepVote} from "../../models/classes/YourPrepVote";
 import {Utils} from "../../common/utils";
-import {UnstakeInfo} from "../../models/UnstakeInfo";
-import {DistributionPercentages} from "../../models/DistributionPercentages";
-import {PoolData} from "../../models/PoolData";
-import {UserPoolData} from "../../models/UserPoolData";
-import {PoolsDistPercentages} from "../../models/PoolsDistPercentages";
-import {AllAssetDistPercentages} from "../../models/AllAssetDisPercentages";
-import {DailyRewardsAllReservesPools} from "../../models/DailyRewardsAllReservesPools";
+import {UnstakeInfo} from "../../models/classes/UnstakeInfo";
+import {DistributionPercentages} from "../../models/classes/DistributionPercentages";
+import {PoolData} from "../../models/classes/PoolData";
+import {UserPoolData} from "../../models/classes/UserPoolData";
+import {PoolsDistPercentages} from "../../models/classes/PoolsDistPercentages";
+import {AllAssetDistPercentages} from "../../models/classes/AllAssetDisPercentages";
+import {DailyRewardsAllReservesPools} from "../../models/classes/DailyRewardsAllReservesPools";
 import BigNumber from "bignumber.js";
-import {Proposal} from "../../models/Proposal";
-import {Vote} from "../../models/Vote";
+import {Proposal} from "../../models/classes/Proposal";
+import {Vote} from "../../models/classes/Vote";
+import {InterestHistory} from "../../models/classes/InterestHistory";
+import {LockedOmm} from "../../models/classes/LockedOmm";
+import {UserDailyOmmReward} from "../../models/classes/UserDailyOmmReward";
 
 @Injectable({
   providedIn: 'root'
@@ -41,22 +44,32 @@ export class PersistenceService {
   public allPools: PoolData[] = [];
   public allPoolsDistPercentages?: PoolsDistPercentages;
   public allPoolsDataMap: Map<string, PoolData> = new Map<string, PoolData>();
+  public yourVotesPrepList: YourPrepVote[] = [];
 
+  /**
+   * User specific data
+   */
   public userPools: UserPoolData[] = [];
   public userPoolsDataMap: Map<string, UserPoolData> = new Map<string, UserPoolData>();
-
   public userReserves: UserReserves = new UserReserves();
   public userTotalRisk = new BigNumber("0");
-
   public userAccountData?: UserAccountData;
-  public userOmmRewards?: OmmRewards;
+  public userAccumulatedOmmRewards?: UserAccumulatedOmmRewards;
+  public userDailyOmmRewards?: UserDailyOmmReward;
   public userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
   public userUnstakingInfo?: UnstakeInfo;
   public userClaimableIcx?: BigNumber;
+  public userLockedOmm?: LockedOmm;
+  public userbOmmBalance = new BigNumber("0");
   public userDebt: Map<CollateralAssetTag, BigNumber | undefined> = new Map<CollateralAssetTag, BigNumber | undefined>();
-  public minOmmStakeAmount = new BigNumber("1");
+  public userVotingWeightForProposal: Map<BigNumber, BigNumber> = new Map<BigNumber, BigNumber>(); // proposalId to voting weight
+  public userVotingWeight: BigNumber = new BigNumber("0");
+  public userProposalVotes: Map<BigNumber, Vote> = new Map<BigNumber, Vote>();
+
+  public minOmmLockAmount = new BigNumber("1");
   public totalStakedOmm = new BigNumber("0");
   public totalSuppliedOmm = new BigNumber("0");
+  public bOmmTotalSupply = new BigNumber("0");
   public ommPriceUSD = new BigNumber("-1"); // -1 indicates that ommPriceUSD is not set
 
   public tokenDistributionPerDay = new BigNumber("0");
@@ -68,14 +81,11 @@ export class PersistenceService {
   public voteDefinitionFee = new BigNumber("0");
   public voteDefinitionCriterion = new BigNumber("0");
   public proposalList: Proposal[] = [];
-  public userVotingWeightForProposal: Map<BigNumber, BigNumber> = new Map<BigNumber, BigNumber>(); // proposalId to voting weight
-  public userVotingWeight: BigNumber = new BigNumber("0");
-  public userProposalVotes: Map<BigNumber, Vote> = new Map<BigNumber, Vote>();
   public voteDuration = new BigNumber("-1");
 
-
   public prepList?: PrepList;
-  public yourVotesPrepList: YourPrepVote[] = [];
+
+  public interestHistory: InterestHistory[] = [];
 
   constructor() {}
 
@@ -89,10 +99,16 @@ export class PersistenceService {
     // reset values
     this.yourVotesPrepList = [];
     this.userOmmTokenBalanceDetails = undefined;
-    this.userOmmRewards = undefined;
+    this.userAccumulatedOmmRewards = undefined;
     this.userAccountData = undefined;
     this.userTotalRisk = new BigNumber("0");
     this.userReserves = new UserReserves();
+    this.userbOmmBalance = new BigNumber("0");
+  }
+
+
+  userCurrentLockedOmmEndInMilliseconds(): BigNumber {
+    return this.userLockedOmm?.end.dividedBy(1000) ?? new BigNumber(0);
   }
 
   getProposal(id: BigNumber): Proposal | undefined {
@@ -105,6 +121,10 @@ export class PersistenceService {
 
   public getDistPercentageOfPool(poolId: BigNumber): BigNumber {
     return this.allPoolsDistPercentages?.getDistPercentageForPool(poolId) ?? new BigNumber("0");
+  }
+
+  public getPoolTotalStakedLp(poolId: BigNumber): BigNumber {
+    return this.allPoolsDataMap.get(poolId.toString())?.totalStakedBalance ?? new BigNumber("0");
   }
 
   public getUserPoolStakedBalance(poolId: BigNumber): BigNumber {
@@ -143,8 +163,8 @@ export class PersistenceService {
     return this.userDebt.get(assetTag) ?? new BigNumber("0");
   }
 
-  public getUsersStakedOmmBalance(): BigNumber {
-    return (this.userOmmTokenBalanceDetails?.stakedBalance ?? new BigNumber("0")).dp(0);
+  public getUsersLockedOmmBalance(): BigNumber {
+    return (this.userLockedOmm?.amount ?? new BigNumber("0")).dp(0);
   }
 
   public getUsersAvailableOmmBalance(): BigNumber {
@@ -228,7 +248,19 @@ export class PersistenceService {
     if (assetTag === CollateralAssetTag.sICX) {
       return this.getUserAssetReserve(AssetTag.ICX)?.liquidityRate ?? new BigNumber("0");
     }
-    return this.getUserAssetReserve(assetTag)?.liquidityRate ?? new BigNumber("0");
+    return this.getUserAssetReserve(assetTag)?.liquidityRate ?? new BigNumber(0);
+  }
+
+  public getUserAssetReserveBorrowRate(assetTag: AssetTag): BigNumber {
+    return this.getUserAssetReserve(assetTag)?.borrowRate ?? new BigNumber(0);
+  }
+
+  public getAssetReserveLiquidityRate(assetTag: AssetTag): BigNumber {
+    return this.getAssetReserveData(assetTag)?.liquidityRate ?? new BigNumber(0);
+  }
+
+  public getAssetReserveBorrowRate(assetTag: AssetTag): BigNumber {
+    return this.getAssetReserveData(assetTag)?.borrowRate ?? new BigNumber(0);
   }
 
   public getAssetReserveData(assetTag?: AssetTag): ReserveData | undefined {
@@ -283,6 +315,10 @@ export class PersistenceService {
       totalBorrowed = totalBorrowed.plus(borrowBalanceUSD).plus(originationFee.multipliedBy(exchangeRate));
     });
     return totalBorrowed;
+  }
+
+  public getReserveTotalLiquidity(assetTag: AssetTag): BigNumber {
+    return this.allReserves?.getReserveData(assetTag).totalLiquidity ?? new BigNumber(0);
   }
 
   public getReserveLiquidationThreshold(assetTag: AssetTag): BigNumber {

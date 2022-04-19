@@ -1,4 +1,4 @@
-import {UserAction} from "./UserAction";
+import {UserAction} from "../enums/UserAction";
 import {AssetTag} from "./Asset";
 import BigNumber from "bignumber.js";
 

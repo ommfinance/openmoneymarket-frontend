@@ -1,4 +1,4 @@
-import {Utils} from "../common/utils";
+import {Utils} from "../../common/utils";
 import log from "loglevel";
 import BigNumber from "bignumber.js";
 

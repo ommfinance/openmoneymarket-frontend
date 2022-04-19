@@ -2,23 +2,48 @@ import {AssetTag} from "./Asset";
 import BigNumber from "bignumber.js";
 
 export class DailyRewardsAllReservesPools {
+  OMMLocking: OmmLockingDailyRewards;
+  daoFund: DaoFundDailyRewards;
+  day: BigNumber;
   liquidity?: LiquidityDailyRewards;
-  staking?: StakingDailyRewards;
   reserve: ReserveDailyRewards;
   total: BigNumber;
-  day: BigNumber;
+  workerToken?: WorkerTokenDailyRewards;
 
-  constructor(reserve: ReserveDailyRewards, total: BigNumber, day: BigNumber, liquidity?: LiquidityDailyRewards,
-              staking?: StakingDailyRewards) {
+  constructor(reserve: ReserveDailyRewards, total: BigNumber, day: BigNumber, daoFund: DaoFundDailyRewards,
+              OMMLocking: OmmLockingDailyRewards, liquidity?: LiquidityDailyRewards, workerTokens?: WorkerTokenDailyRewards) {
     this.liquidity = liquidity;
-    this.staking = staking;
+    this.workerToken = workerTokens;
     this.reserve = reserve;
     this.total = total;
     this.day = day;
+    this.daoFund = daoFund;
+    this.OMMLocking = OMMLocking;
   }
 
   public getClone(): DailyRewardsAllReservesPools {
-    return new DailyRewardsAllReservesPools(this.reserve, this.total, this.day, this.liquidity, this.staking);
+    return new DailyRewardsAllReservesPools(this.reserve, this.total, this.day, this.daoFund, this.OMMLocking, this.liquidity,
+      this.workerToken);
+  }
+}
+
+export class OmmLockingDailyRewards {
+  bOMM: BigNumber;
+  total: BigNumber;
+
+  constructor(bOMM: BigNumber, total: BigNumber) {
+    this.bOMM = bOMM;
+    this.total = total;
+  }
+}
+
+export class DaoFundDailyRewards {
+  daoFund: BigNumber;
+  total: BigNumber;
+
+  constructor(daoFund: BigNumber, total: BigNumber) {
+    this.daoFund = daoFund;
+    this.total = total;
   }
 }
 
@@ -36,12 +61,12 @@ export class LiquidityDailyRewards {
   }
 }
 
-export class StakingDailyRewards {
-  OMM: BigNumber;
+export class WorkerTokenDailyRewards {
+  workerToken: BigNumber;
   total: BigNumber;
 
   constructor(OMM: BigNumber, total: BigNumber) {
-    this.OMM = OMM;
+    this.workerToken = OMM;
     this.total = total;
   }
 }
@@ -118,30 +143,39 @@ export class ReserveDailyRewards {
   }
 }
 
-// Example response
-// {
-//   "liquidity": {
-//   "OMM/SICX": "0x43c33c1937564800000",
-//     "OMM/USDS": "0x43c33c1937564800000",
-//     "OMM/IUSDC": "0x43c33c1937564800000",
-//     "total": "0xcb49b44ba602d800000",
-// },
-//   "staking": {
-//   "OMM": "0x43c33c1937564800000",
-//     "total": "0x43c33c1937564800000"
-// },
-//   "reserve": {
-//   "oUSDS": "0x1b1ae4d6e2ef5000000",
-//     "dUSDS": "0x1b1ae4d6e2ef5000000",
-//     "dICX": "0x2b5e3af16b18800000",
-//     "oICX": "0x18650127cc3dc800000",
-//     "oIUSDC": "0x1b1ae4d6e2ef5000000",
-//     "dIUSDC": "0x1b1ae4d6e2ef5000000",
-//     "total": "0x878678326eac9000000"
-// },
-//   "day": "0x22",
-//   "total": "0x1969368974c05b000000"
-// }
-
-
+// New example response
+// OMMLocking:
+//   bOMM: "0x21e19e0c9bab2400000"
+//   total: "0x21e19e0c9bab2400000"
+//
+// daoFund:
+//   daoFund: "0x10f0cf064dd592000000"
+//   total: "0x10f0cf064dd592000000"
+//
+// day: "0x2f3"
+// liquidity:
+//   OMM/IUSDC: "0x21e19e0c9bab2404e20"
+//   OMM/USDS: "0x21e19e0c9bab23fd8f0"
+//   OMM/sICX: "0x21e19e0c9bab23fd8f0"
+//   total: "0x65a4da25d3016c00000"
+//
+// reserve:
+//   dBALN: "0x0"
+//   dICX: "0xc328093e61ee400000"
+//   dIUSDC: "0x6c6b935b8bbd400000"
+//   dOMM: "0x0"
+//   dUSDS: "0xa2a15d09519be00000"
+//   dbnUSD: "0xd8d726b7177a800000"
+//   oBALN: "0x0"
+//   oICX: "0xc328093e61ee400000"
+//   oIUSDC: "0x6c6b935b8bbd400000"
+//   oOMM: "0x2b5e3af16b18800000"
+//   oUSDS: "0x3635c9adc5dea00000"
+//   obnUSD: "0x0"
+//   total: "0x43c33c1937564800000"
+//
+// total: "0x2a5a058fc295ed000000"
+// workerToken:
+//   total: "0xcb49b44ba602d800000"
+//   workerToken: "0xcb49b44ba602d800000"
 

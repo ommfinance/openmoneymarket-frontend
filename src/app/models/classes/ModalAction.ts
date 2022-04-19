@@ -1,8 +1,9 @@
-import {ModalType} from "./ModalType";
+import {ModalType} from "../enums/ModalType";
 import {AssetAction} from "./AssetAction";
 import {StakingAction} from "./StakingAction";
 import {VoteAction} from "./VoteAction";
 import {GovernanceAction} from "./GovernanceAction";
+import {LockingAction} from "./LockingAction";
 
 export class ModalAction {
   modalType: ModalType;
@@ -10,14 +11,16 @@ export class ModalAction {
   stakingAction?: StakingAction;
   governanceAction?: GovernanceAction;
   voteAction?: VoteAction;
+  lockingOmmAction?: LockingAction;
 
   constructor(modalType: ModalType, assetAction?: AssetAction, stakingAction?: StakingAction, voteAction?: VoteAction,
-              governanceAction?: GovernanceAction) {
+              governanceAction?: GovernanceAction, lockingOmmAction?: LockingAction) {
     this.modalType = modalType;
     this.assetAction = assetAction;
     this.stakingAction = stakingAction;
     this.voteAction = voteAction;
     this.governanceAction = governanceAction;
+    this.lockingOmmAction = lockingOmmAction;
   }
 }
 

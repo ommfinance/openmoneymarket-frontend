@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
-import {Times} from "../common/constants";
-import {ReloaderService} from "../services/reloader/reloader.service";
+import {Times} from "../../common/constants";
+import {ReloaderService} from "../../services/reloader/reloader.service";
 
 export class Proposal {
   against: BigNumber;

@@ -1,13 +1,32 @@
 import IconService from 'icon-sdk-js';
 import {BigNumber} from "bignumber.js";
-import {AssetTag} from "../models/Asset";
-import {BridgeWidgetAction} from "../models/BridgeWidgetAction";
+import {AssetTag} from "../models/classes/Asset";
+import {BridgeWidgetAction} from "../models/Interfaces/BridgeWidgetAction";
 import log from "loglevel";
-import {Times} from "./constants";
+import {lockedDatesToMilliseconds, Times} from "./constants";
+import {LockDate} from "../models/enums/LockDate";
 
 export class Utils {
 
   public static ZERO = new BigNumber("0");
+
+
+  public static getAvailableLockPeriods(currentLockPeriodEndInMilliseconds: BigNumber): LockDate[] | undefined {
+    const lockDates = Object.values(LockDate);
+    const lockPeriods = [];
+
+    for (const lockDate of lockDates) {
+      const lockDateInMilli = lockedDatesToMilliseconds.get(lockDate)!;
+      const currentLockPeriod = currentLockPeriodEndInMilliseconds.minus(Utils.timestampNowMilliseconds());
+
+      // if current lock period is smaller than lock date
+      if (lockDateInMilli.gt(currentLockPeriod)) {
+        lockPeriods.push(lockDate);
+      }
+    }
+
+    return lockPeriods.length > 0 ? lockPeriods : undefined;
+  }
 
   public static handleSmallDecimal(num: BigNumber): string {
     if (num.isGreaterThanOrEqualTo(new BigNumber("0.005"))) {
@@ -50,6 +69,14 @@ export class Utils {
     }
   }
 
+  public static numberToPercent(value: BigNumber | string | number): BigNumber {
+    if (value instanceof BigNumber) {
+      return value.multipliedBy(new BigNumber("100"));
+    }
+
+    return new BigNumber(value).multipliedBy(new BigNumber("100"));
+  }
+
   // Returns true if the address is valid EOA address, false otherwise
   public static isEoaAddress(address: string): boolean {
     if (!address) { return false; }
@@ -84,7 +111,7 @@ export class Utils {
     return amount.multipliedBy(new BigNumber("10").pow(decimals)).toFixed();
   }
 
-  public static roundOffTo2Decimals(value: BigNumber | string): string {
+  public static roundOffTo2Decimals(value: BigNumber | string | number): string {
     if (value instanceof BigNumber) {
       return value.toFixed(2, BigNumber.ROUND_HALF_CEIL);
     } else {
@@ -100,7 +127,7 @@ export class Utils {
     }
   }
 
-  public static roundDownTo2Decimals(value: BigNumber | string | undefined): string {
+  public static roundDownTo2Decimals(value: BigNumber | number | string | undefined): string {
     if (!value || !(new BigNumber(value).isFinite())) {
       return "0";
     } else if (value instanceof BigNumber) {
@@ -267,6 +294,16 @@ export class Utils {
     return timestamp.plus(microSecond.multipliedBy(seconds));
   }
 
+  /**
+   * @description Return converted timestamp in date as dd mon yyyy format (e.g. 12 Mar 2022)
+   */
+  public static timestampInMillisecondsToPrettyDate(timestamp: BigNumber): string {
+    const date = new Date(timestamp.toNumber());
+    return date.toLocaleDateString('en-GB', {
+      day: 'numeric', month: 'short', year: 'numeric'
+    });
+  }
+
   public static textContainsDomain(domain: string, text: string): boolean {
     const regExp = new RegExp('^(?:https?:\\/\\/)?(?:[^@\\/\\n]+@)?(?:www\\.)?([^:\\/?\\n]+)');
     const res = regExp.exec(text);
@@ -306,5 +343,9 @@ export class Utils {
     } else {
       return uri;
     }
+  }
+
+  public static dateToDateOnlyIsoString(date: Date): string {
+    return date.toISOString().split("T")[0];
   }
 }

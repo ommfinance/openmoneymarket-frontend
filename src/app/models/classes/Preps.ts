@@ -1,5 +1,5 @@
 import BigNumber from "bignumber.js";
-import {defaultPrepLogoUrl} from "../common/constants";
+import {defaultPrepLogoUrl} from "../../common/constants";
 
 export class PrepList {
   prepAddressToNameMap: Map<string, string>;

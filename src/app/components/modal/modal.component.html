@@ -79,6 +79,37 @@
   </div>
 </div>
 
+<!-- Modal: Boost confirm -->
+<div class="modal" id="modal-boost-confirm" #lockOmm>
+  <div class="modal-content">
+    <!-- Title -->
+    <h3 class="text-center label">Lock up Omm Tokens?</h3>
+    <p class="text-center">{{activeModalChange?.lockingOmmAction?.amount | usFormat | toZeroIfDash}} OMM</p>
+
+    <!-- Before vs after -->
+    <div class="grid before-after">
+      <div class="grid-cell text-center border-right">
+        <p class="label">Before</p>
+        <p class="text-dark">{{activeModalChange?.lockingOmmAction?.before | usFormat | toZeroIfDash}} OMM</p>
+      </div>
+      <div class="grid-cell text-center">
+        <p class="label">After</p>
+        <p class="text-dark">{{activeModalChange?.lockingOmmAction?.after | usFormat}} OMM</p>
+      </div>
+    </div>
+
+    <!-- Lock message -->
+    <p class="label text-center">Your OMM will be locked until<br><span class="text-bold">{{
+      timestampInMillisecondsToPrettyDate(activeModalChange?.lockingOmmAction?.lockingTime)}}</span>.</p>
+    <p class="label text-center text-red" style="margin-top: 10px;">You won't be able to withdraw it early.</p>
+
+    <!-- Modal actions -->
+    <div class="modal-actions">
+      <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Cancel</a>
+      <a href="javascript:void(0);" class="button" (click)="onConfirmLockUpOmmClick()">Lock up OMM</a>
+    </div>
+  </div>
+</div>
 
 <!-- Modal: Confirm Omm Token stake -->
 <div class="modal" id="modal-confirm-stake" #stakeOmm>
@@ -258,7 +289,7 @@
   <div class="modal-content">
     <h3 class="text-center label">{{getModalActionName()}} {{activeModalChange?.assetAction?.asset?.name}}?</h3>
     <p class="text-bold text-center value-borrow-difference">{{activeModalChange?.assetAction?.amount | roundDown2Dec | usFormat}} {{getAdjustedAssetTag()}}</p>
-    <div class="grid">
+    <div class="grid before-after">
       <div class="grid-cell text-center border-right">
         <p class="label">Before</p>
         <p class="text-dark value-borrowed">{{activeModalChange?.assetAction?.before | roundDown2Dec | usFormat}} {{getAdjustedAssetTag()}}</p>
