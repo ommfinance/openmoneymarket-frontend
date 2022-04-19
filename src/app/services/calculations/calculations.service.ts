@@ -13,7 +13,7 @@ import {PoolData} from "../../models/classes/PoolData";
 import {UserPoolData} from "../../models/classes/UserPoolData";
 import BigNumber from "bignumber.js";
 import {LockDate} from "../../models/enums/LockDate";
-import {lockedDateTobOmmPerOmm} from "../../common/constants";
+import {lockedDateTobOmmPerOmm, Times} from "../../common/constants";
 
 @Injectable({
   providedIn: 'root'
@@ -737,7 +737,7 @@ export class CalculationsService {
    * Formula: getUserDailyReward(Address user) * OMM Token price * 365/($ value of user's supplied or borrowed asset)
    */
   public calculateUserSupplyOmmRewardsApy(assetTag: AssetTag): BigNumber {
-    // log.debug("calculateUserSupplyOmmRewardsApy for asset " + assetTag);
+    log.debug("calculateUserSupplyOmmRewardsApy for asset " + assetTag);
     const userDailySupplyRewards: any = this.persistenceService.userDailyOmmRewards?.getSupplyRewardForAsset(assetTag);
 
     if (!userDailySupplyRewards) { return new BigNumber(0); }
@@ -748,9 +748,9 @@ export class CalculationsService {
 
     if (suppliedUsdValue.isZero()) { return new BigNumber(0); }
 
-    // log.debug(`userDailySupplyRewards = ${userDailySupplyRewards}`);
-    // log.debug(`ommTokenPrice = ${ommTokenPrice}`);
-    // log.debug(`suppliedUsdValue = ${suppliedUsdValue}`);
+    log.debug(`userDailySupplyRewards = ${userDailySupplyRewards}`);
+    log.debug(`ommTokenPrice = ${ommTokenPrice}`);
+    log.debug(`suppliedUsdValue = ${suppliedUsdValue}`);
 
     return (userDailySupplyRewards.multipliedBy(ommTokenPrice).multipliedBy(365)).dividedBy(suppliedUsdValue);
   }
@@ -760,7 +760,7 @@ export class CalculationsService {
    * Formula: getUserDailyReward(Address user) * OMM Token price * 365/($ value of user's supplied or borrowed asset)
    */
   public calculateUserBorrowOmmRewardsApy(assetTag: AssetTag): BigNumber {
-    // log.debug("calculateUserBorrowOmmRewardsApy for asset " + assetTag);
+    log.debug("calculateUserBorrowOmmRewardsApy for asset " + assetTag);
     const userDailyBorrowRewards: any = this.persistenceService.userDailyOmmRewards?.getBorrowRewardForAsset(assetTag);
 
     if (!userDailyBorrowRewards) { return new BigNumber(0); }
@@ -771,9 +771,9 @@ export class CalculationsService {
 
     if (borrowedUsdValue.isZero()) { return new BigNumber(0); }
 
-    // log.debug(`userDailyBorrowRewards = ${userDailyBorrowRewards}`);
-    // log.debug(`ommTokenPrice = ${ommTokenPrice}`);
-    // log.debug(`borrowedUsdValue = ${borrowedUsdValue}`);
+    log.debug(`userDailyBorrowRewards = ${userDailyBorrowRewards}`);
+    log.debug(`ommTokenPrice = ${ommTokenPrice}`);
+    log.debug(`borrowedUsdValue = ${borrowedUsdValue}`);
 
     return (userDailyBorrowRewards.multipliedBy(ommTokenPrice).multipliedBy(365)).dividedBy(borrowedUsdValue);
   }
@@ -843,14 +843,7 @@ export class CalculationsService {
 
   /** Formula: # of quote token balance from Total Supplied (sICX, USDS, iUSDC) * respective token price *2 */
   public calculatePoolTotalSuppliedInUSD(poolData: PoolData): BigNumber {
-    const quoteAssetTag = AssetTag.constructFromPoolPairName(poolData.poolStats.name);
-
-    if (!quoteAssetTag) {
-      return new BigNumber("0");
-    }
-
-    return this.calculatePoolTotalSupplied(poolData, false).multipliedBy(this.persistenceService.getAssetExchangePrice(quoteAssetTag))
-      .multipliedBy(new BigNumber("2"));
+    return this.calculatePoolTotalSupplied(poolData).multipliedBy(this.persistenceService.ommPriceUSD).multipliedBy(2);
   }
 
   /** Calculate user total supplied for base and quote token of pool in USD */
@@ -1000,6 +993,12 @@ export class CalculationsService {
     }
 
     return { from: min, to: max};
+  }
+
+  // (Given expiration timestamp in milliseconds // 1 week in milliseconds )*1 week in milliseconds
+  recalculateLockPeriodEnd(lockPeriod: BigNumber): BigNumber {
+    return lockPeriod.dividedBy(Times.WEEK_IN_MILLISECONDS).dp(0, BigNumber.ROUND_DOWN)
+      .multipliedBy(Times.WEEK_IN_MILLISECONDS);
   }
 
 }

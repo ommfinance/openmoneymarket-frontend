@@ -471,12 +471,12 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
         const now = Utils.timestampNowMilliseconds();
         const currentEndPeriodDate = this.userCurrentLockedOmmEndInMilliseconds();
         const difference = now.plus(this.selectedLockTimeInMillisec).minus(currentEndPeriodDate);
-        return currentEndPeriodDate.plus(difference);
+        return this.calculationService.recalculateLockPeriodEnd(currentEndPeriodDate.plus(difference));
       } else {
         return this.userCurrentLockedOmmEndInMilliseconds();
       }
     } else {
-      return Utils.timestampNowMilliseconds().plus(this.selectedLockTimeInMillisec);
+      return this.calculationService.recalculateLockPeriodEnd(Utils.timestampNowMilliseconds().plus(this.selectedLockTimeInMillisec));
     }
   }
 
