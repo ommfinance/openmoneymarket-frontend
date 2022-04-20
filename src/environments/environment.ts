@@ -7,7 +7,7 @@ export const environment = {
   iconRpcUrl: "https://sejong.net.solidwallet.io/api/v3",
   ommRestApi: "https://omm-stats-api-dev-r8jdq.ondigitalocean.app/api/v1",
   iconDebugRpcUrl: "https://sejong.net.solidwallet.io/api/v3d",
-  ADDRESS_PROVIDER_SCORE: 'cx36e3408f031983d220d99b1a58849ac443d2c585',
+  ADDRESS_PROVIDER_SCORE: 'cx1e6fcc68f8007b88fdde5503229d421de3b62c3a',
   BALANCED_DEX_SCORE: "cxf0276a2413b46d5660e09c4935eecbf401c5811a",
   ledgerBip32Path: "44'/4801368'/0'/0'",
   GOVERNANCE_ADDRESS: "cx0000000000000000000000000000000000000001",
