@@ -14,6 +14,8 @@ import {UserPoolData} from "../../models/classes/UserPoolData";
 import BigNumber from "bignumber.js";
 import {LockDate} from "../../models/enums/LockDate";
 import {lockedDateTobOmmPerOmm, Times} from "../../common/constants";
+import {IMarketBoosterData} from "../../models/Interfaces/IMarketBoosterData";
+import {ILiquidityBoosterData} from "../../models/Interfaces/ILiquidityBoosterData";
 
 @Injectable({
   providedIn: 'root'
@@ -175,9 +177,9 @@ export class CalculationsService {
   }
 
   /** Formulae: Omm's Voting Power/Total staked OMM tokens */
-  public votingPower(): BigNumber {
+  public votingPower(userDynamicbOmmBalance: BigNumber = new BigNumber(0)): BigNumber {
     const ommVotingPower = this.ommVotingPower();
-    const totalbOmmBalance = this.persistenceService.bOmmTotalSupply;
+    const totalbOmmBalance = this.persistenceService.bOmmTotalSupply.plus(userDynamicbOmmBalance);
 
     if (ommVotingPower.isZero() || totalbOmmBalance.isZero()) {
       return new BigNumber("0");
@@ -802,6 +804,18 @@ export class CalculationsService {
     return (dailyOmmLockingRewards.multipliedBy(new BigNumber("365"))).dividedBy(totalbOmmBalance);
   }
 
+  /** Formulae: Daily user OMM locking rewards * 365/ total bOMM supply */
+  public calculateUserLockingApr(lockedOmm?: BigNumber, lockDate?: LockDate): BigNumber {
+    const dailyUserOmmLockingRewards = this.calculateUserDailyLockingOmmRewards(lockedOmm, lockDate);
+    const totalbOmmBalance = this.persistenceService.bOmmTotalSupply;
+
+    if (dailyUserOmmLockingRewards.isZero() || totalbOmmBalance.isZero()) {
+      return new BigNumber("0");
+    }
+
+    return (dailyUserOmmLockingRewards.multipliedBy(new BigNumber("365"))).dividedBy(totalbOmmBalance);
+  }
+
   /** Formulae: Daily OMM locking rewards * User's bOMM balance /total bOMM balance */
   public calculateUserDailyLockingOmmRewards(lockedOmm?: BigNumber, lockDate?: LockDate): BigNumber {
     // convert locked Omm amount to predicted bOMM amount based on the lockDate
@@ -820,11 +834,6 @@ export class CalculationsService {
 
     return dailyOmmLockingRewards.multipliedBy(usersbOmmBalance.dividedBy(bOmmTotalSupply));
   }
-
-  public calculateUserOmmStakingDailyRewardsUSD(stakedOmm?: BigNumber): BigNumber {
-    return this.calculateUserDailyLockingOmmRewards(stakedOmm).multipliedBy(this.persistenceService.ommPriceUSD);
-  }
-
 
   /** Calculate total supplied for base and quote token of pool in USD */
   public calculatePoolQuoteAndBaseSuppliedInUSD(poolData: PoolData): BigNumber {
@@ -915,84 +924,93 @@ export class CalculationsService {
     return sum.dividedBy(totalLiquidity);
   }
 
-  calculateUserbOmmMarketMultipliers(): { from: BigNumber, to: BigNumber} {
-    log.debug("calculateUserbOmmMarketMultipliers...");
+  calculateUserbOmmMarketBoosters(): IMarketBoosterData {
+    log.debug("calculateUserbOmmMarketBoosters...");
     if (!this.persistenceService.userLoggedIn()) {
-      return { from: new BigNumber(0), to: new BigNumber(0)};
+      return { from: new BigNumber(0), to: new BigNumber(0), supplyBoosterMap: new Map(), borrowBoosterMap: new Map()};
     }
 
     let min = new BigNumber(-1);
     let max = new BigNumber(-1);
+    const supplyBoosterMap = new Map<AssetTag, BigNumber>();
+    const borrowBoosterMap = new Map<AssetTag, BigNumber>();
 
-    supportedAssetsMap.forEach((value: Asset, key: AssetTag) => {
-      log.debug(`***** Asset = ${key} *******`);
+    supportedAssetsMap.forEach((value: Asset, assetTag: AssetTag) => {
+      log.debug(`***** Asset = ${assetTag} *******`);
 
-      if (!this.persistenceService.getUserSuppliedAssetBalance(key).isZero()) {
-        const supplyOmmRewardsApy = this.calculateSupplyOmmRewardsApy(key);
-        const userSupplyOmmRewardsApy = this.calculateUserSupplyOmmRewardsApy(key);
-        const supplyMultiplier = userSupplyOmmRewardsApy.dividedBy(supplyOmmRewardsApy);
-        log.debug(`supplyMultiplier = ${supplyMultiplier.toNumber()}`);
+      if (!this.persistenceService.getUserSuppliedAssetBalance(assetTag).isZero()) {
+        const supplyOmmRewardsApy = this.calculateSupplyOmmRewardsApy(assetTag);
+        const userSupplyOmmRewardsApy = this.calculateUserSupplyOmmRewardsApy(assetTag);
+        const supplyBooster = userSupplyOmmRewardsApy.dividedBy(supplyOmmRewardsApy);
+        supplyBoosterMap.set(assetTag, supplyBooster);
+        log.debug(`supplyBooster = ${supplyBooster.toNumber()}`);
 
-        if (supplyMultiplier.lt(min) || min.eq(-1)) {
-          min = supplyMultiplier;
+        if (supplyBooster.lt(min) || min.eq(-1)) {
+          min = supplyBooster;
         }
-        if (supplyMultiplier.gt(max) || max.eq(-1)) {
-          max = supplyMultiplier;
+        if (supplyBooster.gt(max) || max.eq(-1)) {
+          max = supplyBooster;
         }
       }
 
-      if (!this.persistenceService.getUserBorrAssetBalance(key).isZero()) {
-        const borrowOmmRewardsApy = this.calculateBorrowOmmRewardsApy(key);
-        const userBorrowOmmRewardsApy = this.calculateUserBorrowOmmRewardsApy(key);
-        const borrowMultiplier = userBorrowOmmRewardsApy.dividedBy(borrowOmmRewardsApy);
-        log.debug(`borrowMultiplier = ${borrowMultiplier.toNumber()}`);
+      if (!this.persistenceService.getUserBorrAssetBalance(assetTag).isZero()) {
+        const borrowOmmRewardsApy = this.calculateBorrowOmmRewardsApy(assetTag);
+        const userBorrowOmmRewardsApy = this.calculateUserBorrowOmmRewardsApy(assetTag);
+        const borrowBooster = userBorrowOmmRewardsApy.dividedBy(borrowOmmRewardsApy);
+        borrowBoosterMap.set(assetTag, borrowBooster);
+        log.debug(`borrowBooster = ${borrowBooster.toNumber()}`);
 
-        if (borrowMultiplier.lt(min) || min.eq(-1)) {
-          min = borrowMultiplier;
+        if (borrowBooster.lt(min) || min.eq(-1)) {
+          min = borrowBooster;
         }
-        if (borrowMultiplier.gt(max) || max.eq(-1)) {
-          max = borrowMultiplier;
+        if (borrowBooster.gt(max) || max.eq(-1)) {
+          max = borrowBooster;
         }
       }
 
     });
 
     if (min.eq(-1) || max.eq(-1)) {
-      return { from: new BigNumber(0), to: new BigNumber(0)};
+      return { from: new BigNumber(0), to: new BigNumber(0), supplyBoosterMap, borrowBoosterMap};
     }
 
-    return { from: min, to: max};
+    return { from: min, to: max, supplyBoosterMap, borrowBoosterMap};
   }
 
-  calculateUserbOmmLiquidityMultipliers(): { from: BigNumber, to: BigNumber} {
+  calculateUserbOmmLiquidityBoosters(): ILiquidityBoosterData {
     if (!this.persistenceService.userLoggedIn()) {
-      return { from: new BigNumber(0), to: new BigNumber(0)};
+      return { from: new BigNumber(0), to: new BigNumber(0), liquidityBoosterMap: new Map()};
     }
 
     let min = new BigNumber(-1);
     let max = new BigNumber(-1);
+    const liquidityBoosterMap = new Map<string, BigNumber>();
 
     this.persistenceService.userPoolsDataMap.forEach((value: UserPoolData, poolId: string) => {
       if (!value.userStakedBalance.isZero()) {
+        log.debug(`***** Pool = ${value.getCleanPoolName()} *******`);
+
         const userPoolLiquidityApr = this.calculateUserPoolLiquidityApr(value);
         const poolLiquidityApr = this.calculatePoolLiquidityApr(this.persistenceService.allPoolsDataMap.get(poolId));
-        const multiplier = userPoolLiquidityApr.dividedBy(poolLiquidityApr);
+        const liquidityBooster = userPoolLiquidityApr.dividedBy(poolLiquidityApr);
+        liquidityBoosterMap.set(poolId, liquidityBooster);
+        log.debug(`liquidityBooster = ${liquidityBooster.toNumber()}`);
 
-        if (multiplier.lt(min) || min.eq(-1)) {
-          min = multiplier;
+        if (liquidityBooster.lt(min) || min.eq(-1)) {
+          min = liquidityBooster;
         }
 
-        if (multiplier.gt(max) || max.eq(-1)) {
-          max = multiplier;
+        if (liquidityBooster.gt(max) || max.eq(-1)) {
+          max = liquidityBooster;
         }
       }
     });
 
     if (min.eq(-1) || max.eq(-1)) {
-      return { from: new BigNumber(0), to: new BigNumber(0)};
+      return { from: new BigNumber(0), to: new BigNumber(0), liquidityBoosterMap};
     }
 
-    return { from: min, to: max};
+    return { from: min, to: max, liquidityBoosterMap};
   }
 
   // (Given expiration timestamp in milliseconds // 1 week in milliseconds )*1 week in milliseconds

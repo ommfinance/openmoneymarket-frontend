@@ -93,6 +93,16 @@ export function lockedDateTobOmmPerOmm(lockDate: LockDate): BigNumber {
   }
 }
 
+export function getLockDateFromMilliseconds(milliseconds: BigNumber): LockDate {
+  if (milliseconds.lte(Times.WEEK_IN_MILLISECONDS)) { return LockDate.WEEK; }
+  else if (milliseconds.lte(Times.MONTH_IN_MILLISECONDS)) { return LockDate.MONTH; }
+  else if (milliseconds.lte(Times.MONTH_IN_MILLISECONDS.multipliedBy(3))) { return LockDate.MONTH_3; }
+  else if (milliseconds.lte(Times.MONTH_IN_MILLISECONDS.multipliedBy(6))) { return LockDate.MONTH_6; }
+  else if (milliseconds.lte(Times.MONTH_IN_MILLISECONDS.multipliedBy(12))) { return LockDate.YEAR; }
+  else if (milliseconds.lte(Times.MONTH_IN_MILLISECONDS.multipliedBy(24))) { return LockDate.YEAR_2; }
+  else { return LockDate.YEAR_4; }
+}
+
 // 1 week = 0.0048 veOMM per 1 OMM staked
 // 1 month = 0.0208333 veOMM per 1 OMM staked
 // 3 months = 0.0625 veOMM per 1 OMM staked

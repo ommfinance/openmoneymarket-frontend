@@ -147,88 +147,12 @@
     <!-- Boosted OMM panel -->
     <div class="grid panel">
       <div class="grid-cell">
-        <div class="grid">
-          <div class="grid-cell boosted-container">
-            <!-- Header -->
-            <div class="grid">
-              <!-- Heading -->
-              <div class="grid-cell">
-                <h3>Earning potential <span *ngIf="!userBOMMbalance().isZero() && userBOMMbalance().isPositive()" class="label value-bomm-total">{{userBOMMbalance() | roundDown2Dec | usFormat | toZeroIfDash }} bOMM</span>&nbsp;
-                  <span class="bomm-tooltip tooltip">
-                    <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
-                    <div class="tooltip-content">
-                      <p class="bomm-tooltip-content">
-                        Lock up OMM to boost your earning potential by up to 2.5 x. The longer you lock up OMM,
-                        the more bOMM (boosted OMM) you'll receive; the amount will decrease over time.
-                      </p>
-                    </div>
-                  </span>
-                </h3>
-              </div>
-              <!-- Button -->
-              <div class="grid-cell" [ngStyle]="hideElement(shouldHideBoostedSlider())">
-                <p class="text-right" [ngStyle]="hideElement(lockAdjustActive)">
-                  <a href="javascript:void(0);" class="button" id="boost-adjust" style="margin-top: 0;" (click)="onLockAdjustClick()">{{boostAdjustLabel()}}</a>
-                </p>
-
-                <div class="boost-adjust-actions" [ngStyle]="hideElement(!lockAdjustActive)">
-                  <div class="grid">
-                    <div class="grid-cell">
-                      <div class="grid grid-center">
-                        <div class="grid-cell text-right">
-                          <a href="javascript:void(0);" class="cancel boost-cancel" (click)="onLockAdjustCancelClick()">Cancel</a>
-                        </div>
-                        <div class="grid-cell">
-                          <a href="javascript:void(0);" class="button modal-trigger" style="margin-top: 0;"
-                             data-modal="modal-boost-confirm" (click)="onConfirmLockOmmClick()">Confirm</a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <p class="label intro-label" [ngStyle]="hideElement(lockAdjustActive)">{{boostedOmmPanelMessage()}}</p>
-            <div class="threshold locked boost {{shouldHideLockedOmmThreshold() ? 'hide':''}}" [ngStyle]="getLeftLockedThresholdPercentStyle()">
-              <dl class="metadata">
-                <dt>Locked</dt>
-              </dl>
-            </div>
-
-            <!-- Locked OMM slider -->
-            <app-boosted-omm-slider #lockOmmSlider
-              [lockAdjustActive]="lockAdjustActive"
-              [shouldHideBoostedSlider]="shouldHideBoostedSlider()"
-              (sliderValueUpdate)="handleLockSliderValueUpdate($event)"
-            ></app-boosted-omm-slider>
-
-            <div class="grid grid-center" [ngStyle]="hideElement(shouldHideBoostedSlider())">
-              <div class="grid-cell" style="max-width: 200px;">
-                <p class="label">
-                  <input [ngStyle]="hideElement(!lockAdjustActive)" #lockInput id="input-boost" (input)="onInputLockChange()"
-                         class="input-boost" type="text" name=""><span [ngStyle]="hideElement(lockAdjustActive)" class="omm-locked">{{userLockedOmmBalance | roundDown2Dec | usFormat}}</span> / {{getLockSliderMax() | usFormat}} OMM</p>
-              </div>
-              <div class="grid-cell text-right">
-                <p class="label locked-default" [ngStyle]="hideElement(lockAdjustActive || userLockedOmmBalance === 0)">{{userHasLockedOmm() ? "Locked until" : "Lock up until"}} {{timestampInMillisecondsToPrettyDate(lockDate())}}</p>
-                <div class="locked-adjust" [ngStyle]="hideElement(!lockAdjustActive)">
-                  <p>
-                    <span class="label">Locked until </span> <a class="dropdown time-selector" (click)="onLockedDateDropdownClick()">
-                    <span class="animation-underline locked-selector">{{timestampInMillisecondsToPrettyDate(lockDate())}}</span></a></p>
-                  <div class="grid dropdown-content locked-selector">
-                    <div class="grid-cell">
-                      <ul>
-                        <ng-container *ngFor="let date of getLockedUntilDateOptions();">
-                          <li (click)="onLockUntilDateClick(date)">{{date}}</li>
-                        </ng-container>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <app-omm-locking style="display: contents"
+                         [lockAdjustActive]="lockAdjustActive"
+                         (lockAdjustClicked)="onLockAdjustClick()"
+                         (lockUntilDateClicked)="onLockUntilDateClick($event)"
+                         (sliderValueUpdate)="handleLockSliderValueUpdate($event)"
+        ></app-omm-locking>
 
         <div class="grid">
           <div class="grid-cell boost-increase border-top">
@@ -238,7 +162,8 @@
                   <dt>Daily rewards</dt>
                   <dd >
                     <ng-container *ngIf="showBoostedOmmDailyRewardsOmmAmount()">
-                      <span #lockDailyRew>{{getUserOmmLockingDailyRewards() | roundOff2Dec | usFormat}} OMM&nbsp;</span><span class="label">(<span class=" text-green">{{to2DecimalRoundedOffPercentString(lockingApr())}} APR</span>)</span>
+                      <span #lockDailyRew>{{getUserOmmLockingDailyRewards() | roundOff2Dec | usFormat}} OMM&nbsp;</span>
+                      <span class="label">(<span class=" text-green" #lockApr>{{to2DecimalRoundedOffPercentString(lockingApr())}} APR</span>)</span>
                     </ng-container>
                     <ng-container *ngIf="!showBoostedOmmDailyRewardsOmmAmount()">
                       <span class=" text-green">{{to2DecimalRoundedOffPercentString(lockingApr())}} APR</span>
@@ -249,14 +174,14 @@
               <div class="grid-cell border-right">
                 <dl class="metadata">
                   <dt>Market rewards</dt>
-                  <ng-container *ngIf="!fromToIsEmpty(marketMultipliers)">
+                  <ng-container *ngIf="!fromToIsEmpty(marketBoosterData)">
                     <dd>
-                      <span class="value-liquidity-apy-4">{{marketMultipliers?.from | roundOff2Dec | usFormat}} x</span>
+                      <span class="value-liquidity-apy-4" #mrktBoosterFrom>{{marketBoosterData?.from | roundOff2Dec | usFormat}} x</span>
                       <span *ngIf="!marketMultipliersAreEqual()" class="label"> – </span>
-                      <span *ngIf="!marketMultipliersAreEqual()" class="value-liquidity-apy-2">{{marketMultipliers?.to | roundOff2Dec | usFormat}} x</span>
+                      <span *ngIf="!marketMultipliersAreEqual()" class="value-liquidity-apy-2" #mrktBoosterTo>{{marketBoosterData?.to | roundOff2Dec | usFormat}} x</span>
                     </dd>
                   </ng-container>
-                  <ng-container *ngIf="fromToIsEmpty(marketMultipliers)">
+                  <ng-container *ngIf="fromToIsEmpty(marketBoosterData)">
                     <dd>–</dd>
                   </ng-container>
                 </dl>
@@ -264,14 +189,14 @@
               <div class="grid-cell">
                 <dl class="metadata">
                   <dt>Liquidity rewards</dt>
-                  <ng-container *ngIf="!fromToIsEmpty(liquidityMultipliers)">
+                  <ng-container *ngIf="!fromToIsEmpty(liquidityBoosterData)">
                     <dd>
-                      <span class="value-liquidity-apy-4">{{liquidityMultipliers?.from | roundOff2Dec | usFormat}} x</span>
+                      <span class="value-liquidity-apy-4" #liqBoosterFrom>{{liquidityBoosterData?.from | roundOff2Dec | usFormat}} x</span>
                       <span *ngIf="!liquidityMultipliersAreEqual()" class="label"> – </span>
-                      <span *ngIf="!liquidityMultipliersAreEqual()" class="value-liquidity-apy-2">{{liquidityMultipliers?.to | roundOff2Dec | usFormat}} x</span>
+                      <span *ngIf="!liquidityMultipliersAreEqual()" class="value-liquidity-apy-2"  #liqBoosterTo>{{liquidityBoosterData?.to | roundOff2Dec | usFormat}} x</span>
                     </dd>
                   </ng-container>
-                  <ng-container *ngIf="fromToIsEmpty(liquidityMultipliers)">
+                  <ng-container *ngIf="fromToIsEmpty(liquidityBoosterData)">
                     <dd>–</dd>
                   </ng-container>
                 </dl>

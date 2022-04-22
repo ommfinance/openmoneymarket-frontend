@@ -65,6 +65,9 @@ export class PersistenceService {
   public userVotingWeightForProposal: Map<BigNumber, BigNumber> = new Map<BigNumber, BigNumber>(); // proposalId to voting weight
   public userVotingWeight: BigNumber = new BigNumber("0");
   public userProposalVotes: Map<BigNumber, Vote> = new Map<BigNumber, Vote>();
+  public userMarketSupplyMultiplierMap = new Map<AssetTag, BigNumber>();
+  public userMarketBorrowMultiplierMap = new Map<AssetTag, BigNumber>();
+  public userLiquidityPoolMultiplierMap = new Map<string, BigNumber>(); // key = pool ID
 
   public minOmmLockAmount = new BigNumber("1");
   public totalStakedOmm = new BigNumber("0");

@@ -288,7 +288,7 @@ export class HomeComponent extends BaseClass implements OnInit, AfterViewInit {
     if (!this.shouldShowOmmPriceAndToggle() || this.persistenceService.ommPriceUSD.isLessThanOrEqualTo(new BigNumber("0"))) {
       return "";
     } else {
-      return `($${this.formatNumberToUSLocaleString(Utils.roundOffTo2Decimals(this.persistenceService.ommPriceUSD))})`;
+      return `($${this.tooUSLocaleString(Utils.roundOffTo2Decimals(this.persistenceService.ommPriceUSD))})`;
     }
   }
 

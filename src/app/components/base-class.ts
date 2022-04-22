@@ -47,7 +47,7 @@ export class BaseClass {
     return Utils.roundDownToZeroDecimals(value);
   }
 
-  public formatNumberToUSLocaleString(num?: BigNumber | string, defaultZero = false): string {
+  public tooUSLocaleString(num?: BigNumber | string, defaultZero = false): string {
     if (!num || !(new BigNumber(num).isFinite()) || (+num) <= 0) { return defaultZero ? "0" : "-"; }
     if (typeof num === 'string') {
       return Utils.formatNumberToUSLocaleString(new BigNumber(num));
@@ -58,7 +58,7 @@ export class BaseClass {
 
   public toDollarUSLocaleString(num?: BigNumber | string, defaultZero = false): string {
     if (!num || !(new BigNumber(num).isFinite()) || (+num) <= 0) { return defaultZero ? "0" : "-"; }
-    return `$${this.formatNumberToUSLocaleString(num)}`;
+    return `$${this.tooUSLocaleString(num)}`;
   }
 
   public to2DecimalRoundedOffPercentString(num?: BigNumber | string, defaultZero = false): string {
@@ -72,7 +72,7 @@ export class BaseClass {
       return Utils.handleSmallDecimal(num);
     }
 
-    return `${(this.formatNumberToUSLocaleString(Utils.roundOffTo2Decimals(num)))}%`;
+    return `${(this.tooUSLocaleString(Utils.roundOffTo2Decimals(num)))}%`;
   }
 
   public to0DecimalRoundedDownPercentString(num?: BigNumber | string, defaultZero = false): string {
@@ -85,7 +85,7 @@ export class BaseClass {
       return defaultZero ? "0%" : "-";
     }
 
-    return `${(this.formatNumberToUSLocaleString(Utils.roundDownToZeroDecimals(num)))}%`;
+    return `${(this.tooUSLocaleString(Utils.roundDownToZeroDecimals(num)))}%`;
   }
 
   public hideElement(hide: boolean): any {
@@ -134,11 +134,17 @@ export class BaseClass {
   }
 
   setText(htmlElement: any, text: string): void {
-    htmlElement.textContent = text;
+    if (htmlElement) {
+      htmlElement.textContent = text;
+    }
   }
 
   getText(htmlElement: any): string {
     return htmlElement.textContent ?? "";
+  }
+
+  toZeroIfDash(dash: string): string {
+    return dash === "-" ? "0" : dash;
   }
 
   makeAbsolute(value: BigNumber): BigNumber {

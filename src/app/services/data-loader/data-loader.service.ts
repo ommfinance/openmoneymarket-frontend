@@ -558,11 +558,13 @@ export class DataLoaderService {
     supportedAssetsMap.forEach((value: Asset, key: AssetTag) => {
       if (!this.persistenceService.getUserSuppliedAssetBalance(key).isZero()) {
         const supplyMultiplier = this.calculationService.calculateMarketRewardsSupplyMultiplier(key);
+        this.persistenceService.userMarketSupplyMultiplierMap.set(key, supplyMultiplier);
         log.debug(`asset=${key} supplyMultiplier=${supplyMultiplier}`);
       }
 
       if (!this.persistenceService.getUserBorrAssetBalance(key).isZero()) {
         const borrowMultiplier = this.calculationService.calculateMarketRewardsBorrowMultiplier(key);
+        this.persistenceService.userMarketBorrowMultiplierMap.set(key, borrowMultiplier);
         log.debug(`asset=${key} borrowMultiplier=${borrowMultiplier}`);
       }
     });
@@ -572,6 +574,7 @@ export class DataLoaderService {
     this.persistenceService.userPoolsDataMap.forEach((value: UserPoolData, poolId: string) => {
       if (!value.userStakedBalance.isZero()) {
         const liquidityMultiplier = this.calculationService.calculateLiquidityRewardsMultiplier(new BigNumber(poolId));
+        this.persistenceService.userLiquidityPoolMultiplierMap.set(poolId, liquidityMultiplier);
         log.debug(`poolId=${poolId} liquidityMultiplier=${liquidityMultiplier}`);
       }
     });

@@ -1,7 +1,6 @@
 import {Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {BaseClass} from "../base-class";
 import {PersistenceService} from "../../services/persistence/persistence.service";
-import {Utils} from "../../common/utils";
 
 declare var noUiSlider: any;
 
@@ -16,12 +15,7 @@ export class BoostedOmmSliderComponent extends BaseClass implements OnInit, OnDe
   @Input() lockAdjustActive!: boolean;
   @Input() shouldHideBoostedSlider!: boolean;
 
-  userLockedOmmBalance!: number;
-
-  @Input() set  _userLockedOmmBalance(value: number) {
-    this.userLockedOmmBalance = value;
-    this.setSliderValue(value);
-  }
+  userLockedOmmBalance = 0;
 
   @Output() sliderValueUpdate = new EventEmitter<number>();
 
@@ -36,11 +30,13 @@ export class BoostedOmmSliderComponent extends BaseClass implements OnInit, OnDe
   }
 
   ngOnDestroy(): void {
-    this.lockOmmSlider.noUiSlider.destroy();
+    this.lockOmmSlider?.noUiSlider?.destroy();
     this.sliderInitialised = false;
   }
 
-  public createAndInitSlider(startingValue: number, max: number): void {
+  public createAndInitSlider(startingValue: number, minValue: number, max: number): void {
+    this.userLockedOmmBalance = minValue;
+
     noUiSlider.create(this.lockOmmSlider, {
       start: startingValue,
       padding: 0,
@@ -73,6 +69,9 @@ export class BoostedOmmSliderComponent extends BaseClass implements OnInit, OnDe
 
   public updateSliderValues(sliderMax: number, startingValue: number): void {
     if (this.sliderInitialised) {
+
+      this.userLockedOmmBalance = this.persistenceService.getUsersLockedOmmBalance().toNumber();
+
       this.lockOmmSlider.noUiSlider.updateOptions({
         start: [startingValue],
         range: { min: 0, max: sliderMax > 0 ? sliderMax : 1 }

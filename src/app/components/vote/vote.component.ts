@@ -5,15 +5,12 @@ import {ModalType} from "../../models/enums/ModalType";
 import {ModalService} from "../../services/modal/modal.service";
 import log from "loglevel";
 import {StateChangeService} from "../../services/state-change/state-change.service";
-import {OmmTokenBalanceDetails} from "../../models/classes/OmmTokenBalanceDetails";
 import {VoteAndLockingService} from "../../services/vote/vote-and-locking.service";
 import {Prep, PrepList} from "../../models/classes/Preps";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {YourPrepVote} from "../../models/classes/YourPrepVote";
 import {NotificationService} from "../../services/notification/notification.service";
-import {StakingAction} from "../../models/classes/StakingAction";
 import {ModalAction, ModalStatus} from "../../models/classes/ModalAction";
-import {SlidersService} from "../../services/sliders/sliders.service";
 import {Utils} from "../../common/utils";
 import {DataLoaderService} from "../../services/data-loader/data-loader.service";
 import {VoteAction} from "../../models/classes/VoteAction";
@@ -21,22 +18,15 @@ import {AssetTag} from "../../models/classes/Asset";
 import {
   contributorsMap,
   defaultPrepLogoUrl,
-  Times,
-  lockedDatesToMilliseconds,
-  lockedUntilDateOptions,
   lockedDateTobOmmPerOmm
 } from "../../common/constants";
-import {normalFormat} from "../../common/formats";
 import BigNumber from "bignumber.js";
 import {Proposal} from "../../models/classes/Proposal";
 import {ReloaderService} from "../../services/reloader/reloader.service";
 import {Router} from "@angular/router";
 import {LockDate} from "../../models/enums/LockDate";
-import {LockingAction} from "../../models/classes/LockingAction";
-import {BoostedOmmSliderComponent} from "../boosted-omm-slider/boosted-omm-slider.component";
+import {OmmLockingComponent} from "../omm-locking/omm-locking.component";
 
-declare var $: any;
-declare var noUiSlider: any;
 
 @Component({
   selector: 'app-vote',
@@ -52,23 +42,14 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     new BigNumber("0"), new BigNumber("0"));
   searchInput = "";
 
-  private inputLockOmm!: any; @ViewChild("lockInput")set c(c: ElementRef) {this.inputLockOmm = c.nativeElement; }
-  lockDailyRewardsEl: any; @ViewChild("lockDailyRew") set e(e: ElementRef) {this.lockDailyRewardsEl = e?.nativeElement; }
+  private yourVotingPowerEl: any; @ViewChild("yourVotPow")set b(b: ElementRef) {this.yourVotingPowerEl = b.nativeElement; }
+  private votingPowerPerIcxEl: any; @ViewChild("votPwrPerIcx")set c(c: ElementRef) {this.votingPowerPerIcxEl = c.nativeElement; }
 
-  @ViewChild(BoostedOmmSliderComponent) lockOmmSliderCmp!: BoostedOmmSliderComponent;
-
-  userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
-  userLockedOmmBalance = this.persistenceService.getUsersLockedOmmBalance().toNumber();
-  activeLockedOmmAmount: BigNumber = new BigNumber(0);
+  @ViewChild(OmmLockingComponent) ommLockingComponent!: OmmLockingComponent;
 
   // current state variables
   yourVotesEditMode = false;
   voteOverviewEditMode = false;
-  lockAdjustActive = false; // flag that indicates whether the locked adjust is active (confirm and cancel shown)
-
-  selectedLockTimeInMillisec = Times.WEEK_IN_MILLISECONDS; // default to 1 week
-  selectedLockTime = LockDate.WEEK;
-  userHasSelectedLockTime = false;
 
   yourVotingPower = new BigNumber(0);
 
@@ -78,7 +59,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
               private voteService: VoteAndLockingService,
               public calculationsService: CalculationsService,
               private notificationService: NotificationService,
-              private sliderService: SlidersService,
               private dataLoaderService: DataLoaderService,
               private cd: ChangeDetectorRef,
               public reloaderService: ReloaderService,
@@ -96,11 +76,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.initLockSlider();
     this.resetStateValues();
-
-    // call cd after to avoid ExpressionChangedAfterItHasBeenCheckedError
-    // this.cd.detectChanges();
   }
 
   private initSubscriptions(): void {
@@ -113,10 +89,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   private subscribeToAfterUserDataReload(): void {
     this.stateChangeService.afterUserDataReload$.subscribe(() => {
-      this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails;
       this.yourVotingPower = this.calculationService.usersVotingPower();
-      this.userLockedOmmBalance = this.persistenceService.getUsersLockedOmmBalance().toNumber();
-      this.updateLockSliderValues();
     });
   }
 
@@ -159,89 +132,29 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   private subscribeToUserModalActionChange(): void {
     // User confirmed the modal action
     this.stateChangeService.userModalActionChange.subscribe((modalAction?: ModalAction) => {
+      this.ommLockingComponent.onLockAdjustCancelClick();
+
       // set edit mode to false, disable slider and reset search
-      this.onLockAdjustCancelClick();
       this.yourVotesEditMode = false;
       this.voteOverviewEditMode = false;
       this.onSearchInputChange("");
     });
   }
 
-  initLockSlider(): void {
-    this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails?.getClone();
-    const userOmmAvailableBalance = this.persistenceService.getUsersAvailableOmmBalance();
-    const max = userOmmAvailableBalance.plus(this.userLockedOmmBalance).dp(0).toNumber();
-
-    // create Stake slider
-    this.lockOmmSliderCmp.createAndInitSlider(this.userLockedOmmBalance, max);
-  }
-
   handleLockSliderValueUpdate(value: number): void {
     const bigNumValue = new BigNumber(value);
 
-    if (this.userLoggedIn()) {
-      // this.marketMultipliers = this.calculationService.calculateUserbOmmMarketMultipliers(bigNumValue); TODO: enable on dynamic part
-      // this.liquidityMultipliers = this.userbOmmLiquidityMultipliers(bigNumValue);
-      this.activeLockedOmmAmount = bigNumValue;
-      this.userLockedOmmBalance = value;
-
+    // update dynamic values only if user current and dynamic locked OMM amounts are different
+    if (this.userLoggedIn() && !this.userLockedOmmBalance().eq(bigNumValue.dp(0)))  {
       // Update User daily Omm rewards
-      if (this.lockDailyRewardsEl) {
-        this.updateUserDailyRewards(bigNumValue);
+      if (this.yourVotingPower) {
+        this.updateYourVotingPower(bigNumValue);
+      }
+
+      if (this.votingPowerPerIcxEl) {
+        this.updateVotingPowerPerIcx(bigNumValue);
       }
     }
-
-    // Update Omm stake input text box
-    this.inputLockOmm.value = normalFormat.to(value);
-  }
-
-  private updateLockSliderValues(): void {
-    // sliders max is sum of locked + available balance
-    const sliderMax = this.persistenceService.getUsersAvailableOmmBalance().plus(this.userLockedOmmBalance);
-
-    this.lockOmmSliderCmp.updateSliderValues(sliderMax.toNumber(), this.userLockedOmmBalance);
-    this.lockOmmSliderCmp.setSliderValue(this.userLockedOmmBalance);
-  }
-
-  calculateDynamicUserVotingPower(newLockedOmmAmount: BigNumber): BigNumber {
-    const currentLockedOmm = this.persistenceService.getUsersLockedOmmBalance();
-    const lockedOmmDiff = newLockedOmmAmount.minus(currentLockedOmm);
-    const currentUserbOmmBalance = this.persistenceService.userbOmmBalance;
-    const userbOMMBalance = lockedOmmDiff.multipliedBy(lockedDateTobOmmPerOmm(this.selectedLockTime)).plus(currentUserbOmmBalance);
-    return this.calculationService.usersVotingPower(userbOMMBalance);
-  }
-
-  // Lock input updates the slider
-  onInputLockChange(): void {
-    log.debug("onInputLockChange: " + this.inputLockOmm.value);
-    if (+normalFormat.from(this.inputLockOmm.value)) {
-      this.lockOmmSliderCmp.setSliderValue(normalFormat.from(this.inputLockOmm.value));
-    } else {
-      this.lockOmmSliderCmp.setSliderValue(0);
-    }
-  }
-
-  // On OMM un-staking cancel click
-  onCancelUnstakingClick(): void {
-    const stakingAction = new StakingAction(Utils.ZERO, Utils.ZERO, this.persistenceService.getUserUnstakingOmmBalance0Rounded());
-    this.modalService.showNewModal(ModalType.CANCEL_UNSTAKE_OMM_TOKENS, undefined, stakingAction);
-  }
-
-  // On "Lock up OMM" or "Adjust" click
-  onLockAdjustClick(): void {
-    this.onLockAdjustCancelClick();
-    this.lockAdjustActive = true;
-    this.lockOmmSliderCmp.enableSlider();
-  }
-
-  // On "Cancel Lock up OMM" click
-  onLockAdjustCancelClick(): void {
-    this.lockAdjustActive = false;
-    this.userHasSelectedLockTime = false;
-
-    // Set your locked OMM slider to the initial value
-    this.lockOmmSliderCmp.disableSlider();
-    this.lockOmmSliderCmp.setSliderValue(this.persistenceService.getUsersLockedOmmBalance().toNumber());
   }
 
   // On "Adjust votes" click
@@ -316,16 +229,12 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     this.fillYourVotePercentages(this.yourVotesPrepList);
   }
 
-  userHasOmmTokens(): boolean {
-    return (this.persistenceService.userOmmTokenBalanceDetails?.totalBalance ?? new BigNumber("0")).isGreaterThan(Utils.ZERO);
-  }
-
-  userHasMoreThanOneOmmToken(): boolean {
-    return (this.persistenceService.userOmmTokenBalanceDetails?.totalBalance ?? new BigNumber("0")).isGreaterThan(new BigNumber("1"));
-  }
-
-  userHasStaked(): boolean {
+  userHasLockedOmm(): boolean {
     return this.persistenceService.getUsersLockedOmmBalance().isGreaterThan(Utils.ZERO);
+  }
+
+  userLockedOmmBalance(): BigNumber {
+    return this.persistenceService.getUsersLockedOmmBalance();
   }
 
   votingPower(): BigNumber {
@@ -338,10 +247,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   ommVotingPower(): BigNumber {
     return this.calculationService.ommVotingPower();
-  }
-
-  isUnstaking(): boolean {
-    return this.persistenceService.getUserUnstakingOmmBalance0Rounded().isGreaterThan(Utils.ZERO);
   }
 
   userHasVotedForPrep(): boolean {
@@ -433,12 +338,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     return prep.power.dividedBy(this.searchedPrepList.totalPower);
   }
 
-  getYourStakeMax(): BigNumber {
-    // sliders max is sum of staked + available balance
-    return Utils.add(this.persistenceService.getUsersLockedOmmBalance(),
-        this.persistenceService.getUsersAvailableOmmBalance());
-  }
-
   getLogoUrl(address: string): string {
     return this.persistenceService.prepList?.prepAddressToLogoUrlMap.get(address) ?? defaultPrepLogoUrl;
   }
@@ -464,153 +363,47 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
    * BOOSTED OMM
    */
 
-  lockDate(): BigNumber {
-    if (this.userCurrentLockedOmmEndInMilliseconds().gt(0)) {
-      if (this.userHasSelectedLockTime) {
-        // increase for difference between selected and current end
-        const now = Utils.timestampNowMilliseconds();
-        const currentEndPeriodDate = this.userCurrentLockedOmmEndInMilliseconds();
-        const difference = now.plus(this.selectedLockTimeInMillisec).minus(currentEndPeriodDate);
-        return this.calculationService.recalculateLockPeriodEnd(currentEndPeriodDate.plus(difference));
-      } else {
-        return this.userCurrentLockedOmmEndInMilliseconds();
-      }
-    } else {
-      return this.calculationService.recalculateLockPeriodEnd(Utils.timestampNowMilliseconds().plus(this.selectedLockTimeInMillisec));
-    }
-  }
-
-  onConfirmLockOmmClick(): void {
-    log.debug(`onConfirmLockOmmClick Omm locked amount = ${this.userLockedOmmBalance}`);
-    const before = this.persistenceService.getUsersLockedOmmBalance().toNumber();
-    const after = this.userLockedOmmBalance;
-    const diff = after - before;
-
-    // if before and after equal show notification
-    if (before === after && this.lockDate().eq(this.userCurrentLockedOmmEndInMilliseconds())) {
-      this.notificationService.showNewNotification("No change in locked value.");
-      return;
-    }
-
-    if (!this.selectedLockTimeInMillisec.isFinite() || this.selectedLockTimeInMillisec.lte(0)) {
-      this.notificationService.showNewNotification("Please selected locking period.");
-      return;
-    }
-
-    const unlockPeriod = this.lockDate();
-    log.debug("unlockPeriod:", unlockPeriod);
-
-    const lockingAction = new LockingAction(before, after, Math.abs(diff), unlockPeriod);
-
-    if (diff >= 0) {
-      if (this.persistenceService.minOmmLockAmount.isGreaterThan(diff)
-        && !unlockPeriod.gt(this.userCurrentLockedOmmEndInMilliseconds())) {
-
-        this.notificationService.showNewNotification(`Lock amount must be greater than ${this.persistenceService.minOmmLockAmount}`);
-      }
-      else if (before > 0 && after > before && unlockPeriod.gt(this.userCurrentLockedOmmEndInMilliseconds())) {
-        // increase both locked amount and unlock period if lock amount and unlock period are greater than current
-        this.modalService.showNewModal(ModalType.INCREASE_LOCK_TIME_AND_AMOUNT, undefined, undefined, undefined, undefined,
-          lockingAction);
-      }
-      else if (before > 0 && after > before && unlockPeriod.eq(this.userCurrentLockedOmmEndInMilliseconds())) {
-        // increase lock amount only if new one is greater and unlock period is same as current
-        this.modalService.showNewModal(ModalType.INCREASE_LOCK_OMM, undefined, undefined, undefined, undefined,
-          lockingAction);
-      }
-      else if (before === after && unlockPeriod.gt(this.userCurrentLockedOmmEndInMilliseconds())) {
-        this.modalService.showNewModal(ModalType.INCREASE_LOCK_TIME, undefined, undefined, undefined, undefined,
-          lockingAction);
-      }
-      else {
-        this.modalService.showNewModal(ModalType.LOCK_OMM, undefined, undefined, undefined, undefined,
-          lockingAction);
-      }
-    } else {
-      this.notificationService.showNewNotification("Lock amount can not be lower than locked amount.");
-    }
-  }
-
-  onLockedDateDropdownClick(): void {
-    $(".dropdown-content.locked-selector").toggleClass('active');
-  }
-
-  getLockedUntilDateOptions(): LockDate[] {
-    if (!this.userHasLockedOmm()) {
-      return lockedUntilDateOptions;
-    } else {
-      return Utils.getAvailableLockPeriods(this.userCurrentLockedOmmEndInMilliseconds()) ?? [LockDate.YEAR_4];
-    }
-  }
-
   onLockUntilDateClick(date: LockDate): void {
-    this.selectedLockTimeInMillisec = lockedDatesToMilliseconds.get(date) ?? Times.WEEK_IN_MILLISECONDS;
-    this.selectedLockTime = date;
-    this.userHasSelectedLockTime = true;
-
-    // update dynamic daily OMM rewards based on the newly selected lock date
-    this.updateUserDailyRewards(new BigNumber(this.userLockedOmmBalance));
+    // TODO update variables that change with new locked date (bOMM related data)
+    this.updateYourVotingPower(this.ommLockingComponent.dynamicLockedOmmAmount, date);
+    this.updateVotingPowerPerIcx(this.ommLockingComponent.dynamicLockedOmmAmount, date);
   }
 
-  updateUserDailyRewards(value: BigNumber): void {
-    const dailyUsersOmmLockingRewards = this.calculationService.calculateUserDailyLockingOmmRewards(value, this.selectedLockTime);
+  updateYourVotingPower(newLockedOmmAmount: BigNumber, date?: LockDate): void {
+    const currentLockedOmm = this.persistenceService.getUsersLockedOmmBalance();
+    const lockedOmmDiff = newLockedOmmAmount.minus(currentLockedOmm).dp(0);
+
+    const currentUserbOmmBalance = this.persistenceService.userbOmmBalance;
+    const currentLockPeriodDate = date ? date : this.ommLockingComponent.currentLockPeriodDate();
+    const lockDateTobOmmPerOmm = lockedDateTobOmmPerOmm(currentLockPeriodDate);
+
+    const  newUserbOmmBalance = lockedOmmDiff.multipliedBy(lockDateTobOmmPerOmm).plus(currentUserbOmmBalance);
+    const yourVotingPower = this.calculationService.usersVotingPower(newUserbOmmBalance);
 
     // set daily rewards text to dynamic value by replacing inner HTML
-    this.setText(this.lockDailyRewardsEl, this.formatNumberToUSLocaleString(dailyUsersOmmLockingRewards.dp(2))
-      + (dailyUsersOmmLockingRewards.isGreaterThan(Utils.ZERO) ? " OMM " : ""));
+    this.setText(this.yourVotingPowerEl, this.tooUSLocaleString(yourVotingPower.dp(2))
+      + (yourVotingPower.isGreaterThan(Utils.ZERO) ? " ICX " : "-"));
   }
 
-  boostAdjustLabel(): string {
-    if (this.userHasLockedOmm()) {
-      return "Adjust";
-    } else {
-      return "Lock up OMM";
-    }
-  }
+  updateVotingPowerPerIcx(lockedOmm: BigNumber, date?: LockDate): void {
+    const currentLockedOmm = this.persistenceService.getUsersLockedOmmBalance();
+    const lockedOmmDiff = lockedOmm.minus(currentLockedOmm).dp(0);
 
-  shouldHideBoostedSlider(): boolean {
-    return !this.userLoggedIn() || !this.userHasOmmTokens() || !this.userHasMoreThanOneOmmToken();
-  }
+    const currentUserbOmmBalance = this.persistenceService.userbOmmBalance;
+    const currentLockPeriodDate = date ? date : this.ommLockingComponent.currentLockPeriodDate();
+    const lockDateTobOmmPerOmm = lockedDateTobOmmPerOmm(currentLockPeriodDate);
 
-  boostedOmmPanelMessage(): string {
-    if (!this.userLoggedIn()) {
-      // signed out / hold no OMM
-      return "Earn or buy OMM, then lock it up here to boost your earning potential and voting power.";
-    } else if (this.userLoggedIn() && (this.userHasLockedOmm() || this.userHasOmmTokens())) {
-      // unlocked OMM (no market or LP participation)
-      return "Lock up OMM to boost your earning potential.";
-    }
+    const  newUserbOmmBalance = lockedOmmDiff.multipliedBy(lockDateTobOmmPerOmm).plus(currentUserbOmmBalance);
+    const bOmmAddedToTotal = newUserbOmmBalance.minus(this.userBOMMbalance());
+    const votingPower = this.calculationsService.votingPower(bOmmAddedToTotal);
+    const text = `1 bOMM = ${this.tooUSLocaleString(votingPower.dp(2))} ICX`;
 
-    return "Earn or buy OMM, then lock it up here to boost your earning potential and voting power.";
-  }
-
-  getLeftLockedThresholdPercentStyle(): any {
-    const max = new BigNumber("96.7");
-    const userLockedOmm = this.persistenceService.getUsersLockedOmmBalance();
-    const percent = userLockedOmm.dividedBy(userLockedOmm.plus(this.persistenceService.getUsersAvailableOmmBalance()));
-    const res = max.multipliedBy(percent).dp(2);
-    return { left: res.toString() + "%" };
-  }
-
-  userHasLockedOmm(): boolean {
-    return this.persistenceService.getUsersLockedOmmBalance().gt(0);
+    // set dynamic voting power per ICX based on the newly added bOmm from user
+    this.setText(this.votingPowerPerIcxEl, text);
   }
 
   userBOMMbalance(): BigNumber {
     return this.persistenceService.userbOmmBalance;
   }
 
-  userCurrentLockedOmmEndInMilliseconds(): BigNumber {
-    return this.persistenceService.userCurrentLockedOmmEndInMilliseconds();
-  }
-
-  getLockSliderMax(): BigNumber {
-    // sliders max is sum of locked + available balance
-    return Utils.add(this.persistenceService.getUsersLockedOmmBalance(),
-      this.persistenceService.getUsersAvailableOmmBalance());
-  }
-
-  shouldHideLockedOmmThreshold(): boolean {
-    return !this.userLoggedIn() || !this.userHasLockedOmm() || !this.lockAdjustActive;
-  }
 }
