@@ -343,11 +343,16 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy {
   }
 
   getUserDailyRewards(poolData: UserPoolData): BigNumber {
-    return this.calculationService.calculateUserDailyRewardsForPool(poolData);
+    const userDailyOmmRewards: any = this.persistenceService.userDailyOmmRewards;
+    if (userDailyOmmRewards) {
+      return userDailyOmmRewards[poolData.getCleanPoolName()] ?? new BigNumber(0);
+    } else {
+      return new BigNumber(0);
+    }
   }
 
   getUserDailyRewardsUSD(poolData: UserPoolData): BigNumber {
-    return this.calculationService.calculateUserDailyRewardsForPool(poolData).multipliedBy(this.persistenceService.ommPriceUSD);
+    return this.getUserDailyRewards(poolData).multipliedBy(this.persistenceService.ommPriceUSD);
   }
 
   getTotalDailyRewards(): BigNumber {

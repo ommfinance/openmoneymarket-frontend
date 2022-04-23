@@ -665,42 +665,6 @@ export class CalculationsService {
     return this.persistenceService.tokenDistributionPerDay.multipliedBy(this.persistenceService.getDistPercentageOfPool(poolData.poolId));
   }
 
-  /** Formula: userStakedBalance / totalStakedBalance * Daily OMM distribution (1M) * OMM/USDS pair portion (0.05) */
-  public calculateUserDailyRewardsForPool(poolData: UserPoolData): BigNumber {
-    return poolData.userStakedBalance.dividedBy(poolData.totalStakedBalance).multipliedBy(this.persistenceService.tokenDistributionPerDay)
-      .multipliedBy(this.persistenceService.getDistPercentageOfPool(poolData.poolId));
-  }
-
-  /** Formula: Sum (Daily rewards_Liquidity Pools2 across 3 pools) */
-  public calculateDailyRewardsAllPools(): BigNumber {
-    let res = new BigNumber("0");
-    this.persistenceService.allPools.forEach(poolData => {
-      res = res.plus(this.calculateDailyRewardsForPool(poolData));
-    });
-
-    return res;
-  }
-
-  /** Formula: Sum (Daily rewards_Liquidity Pools2 across 3 pools) */
-  public calculateDailyRewardsUserPools(): BigNumber {
-    let res = new BigNumber("0");
-    this.persistenceService.userPools.forEach(poolData => {
-      res = res.plus(this.calculateUserDailyRewardsForPool(poolData));
-    });
-
-    return res;
-  }
-
-  /** Formula: Sum (Daily rewards_Liquidity Pools2 across 3 pools) */
-  public calculateTotalPoolsStaked(): BigNumber {
-    let res = new BigNumber("0");
-    this.persistenceService.allPools.forEach(poolData => {
-      res = res.plus(poolData.totalStakedBalance);
-    });
-
-    return res;
-  }
-
   /** Formula: Daily rewards * OMM price * 365/Total supplied in $ value */
   public calculatePoolLiquidityApr(poolData?: PoolData): BigNumber {
     if (!poolData) { return new BigNumber(0); }
