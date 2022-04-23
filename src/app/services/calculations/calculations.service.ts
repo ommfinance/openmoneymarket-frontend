@@ -804,16 +804,16 @@ export class CalculationsService {
     return (dailyOmmLockingRewards.multipliedBy(new BigNumber("365"))).dividedBy(totalbOmmBalance);
   }
 
-  /** Formulae: Daily user OMM locking rewards * 365/ total bOMM supply */
+  /** Formulae: Daily user OMM locking rewards * 365 / user locked OMM balance */
   public calculateUserLockingApr(lockedOmm?: BigNumber, lockDate?: LockDate): BigNumber {
     const dailyUserOmmLockingRewards = this.calculateUserDailyLockingOmmRewards(lockedOmm, lockDate);
-    const totalbOmmBalance = this.persistenceService.bOmmTotalSupply;
+    const userLockedOmmBalance = this.persistenceService.getUsersLockedOmmBalance();
 
-    if (dailyUserOmmLockingRewards.isZero() || totalbOmmBalance.isZero()) {
+    if (dailyUserOmmLockingRewards.isZero() || userLockedOmmBalance.isZero()) {
       return new BigNumber("0");
     }
 
-    return (dailyUserOmmLockingRewards.multipliedBy(new BigNumber("365"))).dividedBy(totalbOmmBalance);
+    return (dailyUserOmmLockingRewards.multipliedBy(new BigNumber("365"))).dividedBy(userLockedOmmBalance);
   }
 
   /** Formulae: Daily OMM locking rewards * User's bOMM balance /total bOMM balance */
