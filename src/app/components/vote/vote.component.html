@@ -202,7 +202,7 @@
                 </td>
                 <td>${{getPrepsUSDReward(prep, i) | roundOff0Dec | usFormat}}<br>
                   <span class="label">{{getPrepsIcxReward(prep, i) | roundOff0Dec | usFormat}} ICX</span></td>
-                <td>{{to2DecimalRoundedOffPercentString(getPowerPercent(prep), true)}}<br>
+                <td>{{to2DecimalRndOffPercString(getPowerPercent(prep), true)}}<br>
                   <span class="label">{{prep!.power  | roundOff0Dec | usFormat | toZeroIfDash}}</span></td>
               </tr>
               <!-- Spacer -->

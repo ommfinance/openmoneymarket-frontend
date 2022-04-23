@@ -168,7 +168,7 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
 
     this.supplyChart?.subscribeCrosshairMove((param: any) => {
       if (!param?.point) {
-        this.setText(this.supplyApyEl, `${this.to2DecimalRoundedOffPercentString(this.getMarketSupplyRate())} APY`);
+        this.setText(this.supplyApyEl, `${this.to2DecimalRndOffPercString(this.getMarketSupplyRate())} APY`);
         return;
       }
 
@@ -180,7 +180,7 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
 
     this.borrowChart?.subscribeCrosshairMove((param: any) => {
       if (!param?.point) {
-        this.setText(this.borrowAprEl, `${this.to2DecimalRoundedOffPercentString(this.makeAbsolute(this.getMarketBorrowRate()))} APR`);
+        this.setText(this.borrowAprEl, `${this.to2DecimalRndOffPercString(this.makeAbsolute(this.getMarketBorrowRate()))} APR`);
         return;
       }
 

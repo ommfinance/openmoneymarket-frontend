@@ -43,7 +43,7 @@
           <div class="grid-cell text-center">
             <dl class="metadata">
               <dt class="">Your supply APY</dt>
-              <dd class="text-green value-supplied-apy">{{to2DecimalRoundedOffPercentString(this.calculationService.getYourSupplyApy(ommApyChecked))}}</dd>
+              <dd class="text-green value-supplied-apy">{{to2DecimalRndOffPercString(this.calculationService.getYourSupplyApy(ommApyChecked))}}</dd>
             </dl>
           </div>
         </div>
@@ -64,7 +64,7 @@
           <div class="grid-cell text-center">
             <dl class="metadata">
               <dt>Your borrow APR</dt>
-              <dd class="{{isNegative(this.calculationService.getYourBorrowApy(ommApyChecked)) ? 'text-purple' : 'text-green'}} value-borrowed-apy">{{to2DecimalRoundedOffPercentString(makeAbsolute(this.calculationService.getYourBorrowApy(ommApyChecked)))}}</dd> <!-- Borrow APY -->
+              <dd class="{{isNegative(this.calculationService.getYourBorrowApy(ommApyChecked)) ? 'text-purple' : 'text-green'}} value-borrowed-apy">{{to2DecimalRndOffPercString(makeAbsolute(this.calculationService.getYourBorrowApy(ommApyChecked)))}}</dd> <!-- Borrow APY -->
             </dl>
           </div>
         </div>
@@ -88,7 +88,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Avg supply APY</dt>
-                  <dd class="text-green">{{to2DecimalRoundedOffPercentString(this.calculationService.getTotalAvgSupplyApy(ommApyChecked))}}</dd>
+                  <dd class="text-green">{{to2DecimalRndOffPercString(this.calculationService.getTotalAvgSupplyApy(ommApyChecked))}}</dd>
                 </dl>
               </div>
             </div>
@@ -109,7 +109,7 @@
               <div class="grid-cell text-center">
                 <dl class="metadata">
                   <dt>Avg borrow APR</dt>
-                  <dd class="{{isNegative(this.calculationService.getTotalAvgBorrowApy(ommApyChecked)) ? 'text-purple' : 'text-green'}}">{{to2DecimalRoundedOffPercentString(makeAbsolute(this.calculationService.getTotalAvgBorrowApy(ommApyChecked)))}}</dd> <!-- Borrow APY -->
+                  <dd class="{{isNegative(this.calculationService.getTotalAvgBorrowApy(ommApyChecked)) ? 'text-purple' : 'text-green'}}">{{to2DecimalRndOffPercString(makeAbsolute(this.calculationService.getTotalAvgBorrowApy(ommApyChecked)))}}</dd> <!-- Borrow APY -->
                 </dl>
               </div>
             </div>

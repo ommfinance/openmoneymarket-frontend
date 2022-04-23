@@ -61,7 +61,7 @@ export class BaseClass {
     return `$${this.tooUSLocaleString(num)}`;
   }
 
-  public to2DecimalRoundedOffPercentString(num?: BigNumber | string, defaultZero = false): string {
+  public to2DecimalRndOffPercString(num?: BigNumber | string, defaultZero = false): string {
     if (!num || !(new BigNumber(num).isFinite()) || (+num) <= 0) { return defaultZero ? "0%" : "-"; }
 
     // convert in to percentage

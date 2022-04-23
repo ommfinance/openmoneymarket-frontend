@@ -371,14 +371,21 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy {
    * BOOSTED OMM
    */
 
-  lockingApr(): BigNumber {
-    let lockingApr;
-    if (this.userLoggedIn() && this.userHasLockedOmm()) {
-      lockingApr = this.calculationService.calculateUserLockingApr();
-    } else {
-      lockingApr = this.calculationService.calculateLockingApr();
-    }
+  lockingApr(): string {
+    let lockingAprFrom = this.calculationService.calculateLockingAprFrom();
+    let lockingAprTo = this.calculationService.calculateLockingAprTo();
+    lockingAprFrom = lockingAprFrom.gt(1) ? lockingAprFrom.dp(0) : lockingAprFrom;
+    lockingAprTo = lockingAprTo.gt(1) ? lockingAprTo.dp(0) : lockingAprTo;
 
+    if (!lockingAprTo.isZero()) {
+      return `${this.to2DecimalRndOffPercString(lockingAprFrom)} - ${this.to2DecimalRndOffPercString(lockingAprTo)} APR`;
+    } else {
+      return "-";
+    }
+  }
+
+  userLockingApr(): BigNumber {
+    const lockingApr = this.calculationService.calculateUserLockingApr();
     return lockingApr.gt(1) ? lockingApr.dp(0) : lockingApr;
   }
 
@@ -547,7 +554,7 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy {
     userLockApr = userLockApr.gt(1) ? userLockApr.dp(0) : userLockApr;
 
     // set user lock apr text to dynamic value by replacing inner HTML
-    this.setText(this.lockAprEl, this.to2DecimalRoundedOffPercentString(userLockApr)
+    this.setText(this.lockAprEl, this.to2DecimalRndOffPercString(userLockApr)
       + (userLockApr.isGreaterThan(Utils.ZERO) ? " APR " : ""));
   }
 }

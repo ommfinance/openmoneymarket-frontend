@@ -757,7 +757,7 @@ export class CalculationsService {
   }
 
   /** Formulae: Daily OMM locking rewards * 365/ total bOMM supply */
-  public calculateLockingApr(): BigNumber {
+  public calculateLockingAprTo(): BigNumber {
     const dailyOmmLockingRewards = this.calculateDailyOmmLockingRewards();
     const totalbOmmBalance = this.persistenceService.bOmmTotalSupply;
 
@@ -766,6 +766,18 @@ export class CalculationsService {
     }
 
     return (dailyOmmLockingRewards.multipliedBy(new BigNumber("365"))).dividedBy(totalbOmmBalance);
+  }
+
+  /** Formulae: Daily OMM locking rewards * 365*0.0048 /Total bOMM Balance */
+  public calculateLockingAprFrom(): BigNumber {
+    const dailyOmmLockingRewards = this.calculateDailyOmmLockingRewards();
+    const totalbOmmBalance = this.persistenceService.bOmmTotalSupply;
+
+    if (dailyOmmLockingRewards.isZero() || totalbOmmBalance.isZero()) {
+      return new BigNumber("0");
+    }
+
+    return (dailyOmmLockingRewards.multipliedBy(new BigNumber("365").multipliedBy(new BigNumber("0.0048")))).dividedBy(totalbOmmBalance);
   }
 
   /** Formulae: Daily user OMM locking rewards * 365 / user locked OMM balance */
