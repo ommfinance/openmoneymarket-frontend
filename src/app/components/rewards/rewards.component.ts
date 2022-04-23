@@ -13,9 +13,7 @@ import {CalculationsService} from "../../services/calculations/calculations.serv
 import {UserPoolData} from "../../models/classes/UserPoolData";
 import {ModalAction} from "../../models/classes/ModalAction";
 import {OmmTokenBalanceDetails} from "../../models/classes/OmmTokenBalanceDetails";
-import {environment} from "../../../environments/environment";
-import {ReloaderService} from "../../services/reloader/reloader.service";
-import {lockedDateTobOmmPerOmm, Times} from "../../common/constants";
+import {lockedDateTobOmmPerOmm} from "../../common/constants";
 import BigNumber from "bignumber.js";
 import {LockDate} from "../../models/enums/LockDate";
 import {OmmLockingComponent} from "../omm-locking/omm-locking.component";
@@ -59,8 +57,7 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy {
   constructor(public persistenceService: PersistenceService,
               private stateChangeService: StateChangeService,
               private modalService: ModalService,
-              private calculationService: CalculationsService,
-              public reloaderService: ReloaderService) {
+              private calculationService: CalculationsService) {
     super(persistenceService);
   }
 
@@ -220,36 +217,6 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy {
   shouldHideClaimBtn(): boolean {
     const userOmmRewardsTotal = this.persistenceService.userAccumulatedOmmRewards?.total ?? new BigNumber("0");
     return userOmmRewardsTotal.isLessThanOrEqualTo(Utils.ZERO) || !this.persistenceService.userOmmTokenBalanceDetails;
-  }
-
-  rewardsAccrueStartDateHasPassed(): boolean {
-    return environment.REWARDS_ACCRUE_START < this.reloaderService.currentTimestamp;
-  }
-
-  rewardsClaimStartDateHasPassed(): boolean {
-    return environment.REWARDS_CLAIMABLE_START < this.reloaderService.currentTimestamp;
-  }
-
-  rewardsTimeStampsActivated(): boolean {
-    return environment.ACTIVATE_REWARDS_TIMESTAMPS;
-  }
-
-  getTimeUntilClaimStart(): string {
-    const secondsUntilStart = environment.REWARDS_CLAIMABLE_START - this.reloaderService.currentTimestamp;
-    const daysUntilStart = Math.floor(secondsUntilStart / Times.DAY_IN_SECONDS);
-
-    if (daysUntilStart === 0) {
-      const hoursUntilStart = Math.floor(secondsUntilStart / Times.HOUR_IN_SECONDS);
-
-      if (hoursUntilStart === 0) {
-        const minutesUntilStart = Math.floor(secondsUntilStart / Times.MINUTE_IN_SECONDS);
-        return minutesUntilStart + " minutes";
-      } else {
-        return hoursUntilStart + " hours";
-      }
-    } else {
-      return daysUntilStart + " days";
-    }
   }
 
   getUserMarketRewards(): BigNumber {

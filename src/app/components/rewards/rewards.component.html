@@ -13,39 +13,17 @@
 
     <!-- Your liquidity -->
     <div id="your-liquidity" class="grid panel" [ngStyle]="hideElement(isAllLiquidityOverviewActive() || !userLoggedIn())">
-
-      <ng-container *ngIf="rewardsTimeStampsActivated() && !rewardsAccrueStartDateHasPassed() && false">
-        <!-- If the timestamp of omm rewards accrue is not yet passed -->
-        <div class="grid-cell text-center">
-          <dt>Omm rewards will start accruing in 24 hours.</dt>
+        <!-- Claim rewards -->
+        <div class="grid-cell text-center border-right" [ngStyle]="hideElement(shouldHideClaimBtn())">
+          <p class="label">{{getUserOmmRewardsBalance() | roundDown2Dec | usFormat}} Omm Tokens</p>
+          <a href="javascript:void(0);" class="button modal-trigger" style="margin-top: 5px;" data-modal="modal-claim-rewards"
+             (click)="onClaimOmmRewardsClick()" >Claim rewards</a>
         </div>
-      </ng-container>
 
-      <ng-container *ngIf="!rewardsTimeStampsActivated() || rewardsAccrueStartDateHasPassed() || true">
-
-        <ng-container *ngIf="rewardsTimeStampsActivated() && !rewardsClaimStartDateHasPassed()">
-          <div class="grid-cell text-center border-right">
-            <dl class="metadata">
-              <dt>Claimable in {{getTimeUntilClaimStart()}}
-              </dt>
-              <dd>{{getUserOmmRewardsBalance() | roundOff2Dec | usFormat}} <span class="label">{{getUserOmmRewardsBalance().isGreaterThan(ZERO) ? "OMM" :  ""}}</span></dd>
-            </dl>
-          </div>
-        </ng-container>
-
-        <ng-container *ngIf="!rewardsTimeStampsActivated() || rewardsClaimStartDateHasPassed()">
-          <!-- Claim rewards -->
-          <div class="grid-cell text-center border-right" [ngStyle]="hideElement(shouldHideClaimBtn())">
-            <p class="label">{{getUserOmmRewardsBalance() | roundDown2Dec | usFormat}} Omm Tokens</p>
-            <a href="javascript:void(0);" class="button modal-trigger" style="margin-top: 5px;" data-modal="modal-claim-rewards"
-               (click)="onClaimOmmRewardsClick()" >Claim rewards</a>
-          </div>
-
-          <!-- No rewards to claim -->
-          <div class="grid-cell text-center border-right" [ngStyle]="hideElement(!shouldHideClaimBtn())">
-            <p style="margin-top: 25px;" class="label">No rewards to claim</p>
-          </div>
-        </ng-container>
+        <!-- No rewards to claim -->
+        <div class="grid-cell text-center border-right" [ngStyle]="hideElement(!shouldHideClaimBtn())">
+          <p style="margin-top: 25px;" class="label">No rewards to claim</p>
+        </div>
 
         <!-- Market rewards -->
         <div class="grid-cell text-center">
@@ -85,7 +63,6 @@
             <dd [ngStyle]="{opacity: getUserLiquidityRewards().gt(ZERO) ? null : 0.5}">{{getUserLiquidityRewards() | roundOff2Dec | usFormat}} <span class="label">{{getUserLiquidityRewards().isGreaterThan(ZERO) ? "OMM" :  ""}}</span></dd>
           </dl>
         </div>
-      </ng-container>
     </div>
 
     <!-- All liquidity -->
