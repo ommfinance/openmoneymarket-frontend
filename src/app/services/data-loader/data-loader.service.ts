@@ -11,9 +11,6 @@ import log from "loglevel";
 import {OmmError} from "../../core/errors/OmmError";
 import {AllReserveConfigData} from "../../models/classes/AllReserveConfigData";
 import {OmmService} from "../omm/omm.service";
-import {UserAccumulatedOmmRewards} from "../../models/classes/UserAccumulatedOmmRewards";
-import {OmmTokenBalanceDetails} from "../../models/classes/OmmTokenBalanceDetails";
-import {NotificationService} from "../notification/notification.service";
 import {CheckerService} from "../checker/checker.service";
 import {UserAllReservesData, UserReserveData} from "../../models/classes/UserReserveData";
 import {PoolData} from "../../models/classes/PoolData";
@@ -37,7 +34,6 @@ export class DataLoaderService {
               private persistenceService: PersistenceService,
               private stateChangeService: StateChangeService,
               private ommService: OmmService,
-              private notificationService: NotificationService,
               private checkerService: CheckerService,
               private reloaderService: ReloaderService,
               private interestHistoryService: InterestHistoryService,
@@ -135,6 +131,9 @@ export class DataLoaderService {
       });
       this.persistenceService.allReserves = newAllReserve;
       log.debug("loadAllReserves.allReserves after: ", this.persistenceService.allReserves);
+
+      this.persistenceService.initTotalBorrowedUSD();
+      this.persistenceService.initTotalSuppliedUSD();
     }).catch(e => {
       log.error("Error in loadAllReserveData: ", e);
     });
@@ -252,7 +251,9 @@ export class DataLoaderService {
     });
 
     log.debug("loadAllUserReserveData.allUserReserveData after: ", newUserAllReserve);
-    this.stateChangeService.updateUserAllReserve(this.persistenceService.userReserves);
+
+    this.persistenceService.initUserTotalSuppliedUSD();
+    this.persistenceService.initUserTotalBorrowedUSD();
   }
 
   public async loadUserLockedOmm(): Promise<void> {
@@ -272,7 +273,7 @@ export class DataLoaderService {
       const balance = await this.scoreService.getUsersbOmmBalance();
       this.stateChangeService.userbOmmBalanceUpdate(balance);
 
-      log.debug("User bOMM balance ", balance);
+      log.debug("User bOMM balance ", balance.toString());
     } catch (e) {
       log.error("Error in loadUserbOmmBalance:");
       log.error(e);
@@ -334,7 +335,6 @@ export class DataLoaderService {
     try {
       const yourVotesPrep = await this.scoreService.getUserDelegationDetails();
       this.persistenceService.yourVotesPrepList = yourVotesPrep;
-      this.stateChangeService.yourVotesPrepChange.next(yourVotesPrep);
     } catch (e) {
       log.error("Error occurred in loadUserDelegations:");
       log.error(e);
@@ -355,14 +355,14 @@ export class DataLoaderService {
     });
   }
 
-  public async loadUsersVotingWeight(): Promise<void> {
-    try {
-      this.persistenceService.userVotingWeight = await  this.scoreService.getUserVotingWeight();
-      log.debug(`Users voting weight = ${this.persistenceService.userVotingWeight}`);
-    } catch (e) {
-      log.error("Error in loadUsersVotingWeight", e);
-    }
-  }
+  // public async loadUsersVotingWeight(): Promise<void> {
+  //   try {
+  //     this.persistenceService.userVotingWeight = await  this.scoreService.getUserVotingWeight();
+  //     log.debug(`Users voting weight = ${this.persistenceService.userVotingWeight}`);
+  //   } catch (e) {
+  //     log.error("Error in loadUsersVotingWeight", e);
+  //   }
+  // }
 
   public async loadLoanOriginationFeePercentage(): Promise<void> {
     try {
@@ -531,7 +531,7 @@ export class DataLoaderService {
         log.debug("Failed to fetch all logos");
       }
 
-      this.stateChangeService.updatePrepList(prepList);
+      this.persistenceService.prepList = prepList;
     } catch (e) {
       log.error("Failed to load prep list... Details:");
       log.error(e);
@@ -551,31 +551,31 @@ export class DataLoaderService {
   }
 
   initialisebOmmMultipliers(): void {
-    log.debug("****** bOMM calculated multipliers ****** ");
+    // log.debug("****** bOMM calculated multipliers ****** ");
 
     // market multipliers
-    log.debug("Market multipliers:");
+    // log.debug("Market multipliers:");
     supportedAssetsMap.forEach((value: Asset, key: AssetTag) => {
       if (!this.persistenceService.getUserSuppliedAssetBalance(key).isZero()) {
         const supplyMultiplier = this.calculationService.calculateMarketRewardsSupplyMultiplier(key);
         this.persistenceService.userMarketSupplyMultiplierMap.set(key, supplyMultiplier);
-        log.debug(`asset=${key} supplyMultiplier=${supplyMultiplier}`);
+        // log.debug(`asset=${key} supplyMultiplier=${supplyMultiplier}`);
       }
 
       if (!this.persistenceService.getUserBorrAssetBalance(key).isZero()) {
         const borrowMultiplier = this.calculationService.calculateMarketRewardsBorrowMultiplier(key);
         this.persistenceService.userMarketBorrowMultiplierMap.set(key, borrowMultiplier);
-        log.debug(`asset=${key} borrowMultiplier=${borrowMultiplier}`);
+        // log.debug(`asset=${key} borrowMultiplier=${borrowMultiplier}`);
       }
     });
 
     // liquidity multipliers
-    log.debug("Liquidity multipliers:");
+    // log.debug("Liquidity multipliers:");
     this.persistenceService.userPoolsDataMap.forEach((value: UserPoolData, poolId: string) => {
       if (!value.userStakedBalance.isZero()) {
         const liquidityMultiplier = this.calculationService.calculateLiquidityRewardsMultiplier(new BigNumber(poolId));
         this.persistenceService.userLiquidityPoolMultiplierMap.set(poolId, liquidityMultiplier);
-        log.debug(`poolId=${poolId} liquidityMultiplier=${liquidityMultiplier}`);
+        // log.debug(`poolId=${poolId} liquidityMultiplier=${liquidityMultiplier}`);
       }
     });
   }
@@ -640,7 +640,6 @@ export class DataLoaderService {
       this.loadUserUnstakingInfo(),
       this.loadUserClaimableIcx(),
       this.loadUserPoolsData(),
-      this.loadUsersVotingWeight(),
       this.loadUserProposalVotes(),
       this.loadUserLockedOmm(),
       this.loadUserbOmmBalance(),

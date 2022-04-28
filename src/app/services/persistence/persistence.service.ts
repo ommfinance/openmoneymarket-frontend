@@ -41,6 +41,9 @@ export class PersistenceService {
   public allReserves?: AllReservesData;
   public allReservesConfigData?: AllReserveConfigData;
 
+  public totalBorrowedUSD = new BigNumber(0);
+  public totalSuppliedUSD = new BigNumber(0);
+
   public allPools: PoolData[] = [];
   public allPoolsDistPercentages?: PoolsDistPercentages;
   public allPoolsDataMap: Map<string, PoolData> = new Map<string, PoolData>();
@@ -52,6 +55,8 @@ export class PersistenceService {
   public userPools: UserPoolData[] = [];
   public userPoolsDataMap: Map<string, UserPoolData> = new Map<string, UserPoolData>();
   public userReserves: UserReserves = new UserReserves();
+  public userTotalSuppliedUSD = new BigNumber(0);
+  public userTotalBorrowedUSD = new BigNumber(0);
   public userTotalRisk = new BigNumber("0");
   public userAccountData?: UserAccountData;
   public userAccumulatedOmmRewards?: UserAccumulatedOmmRewards;
@@ -63,7 +68,6 @@ export class PersistenceService {
   public userbOmmBalance = new BigNumber("0");
   public userDebt: Map<CollateralAssetTag, BigNumber | undefined> = new Map<CollateralAssetTag, BigNumber | undefined>();
   public userVotingWeightForProposal: Map<BigNumber, BigNumber> = new Map<BigNumber, BigNumber>(); // proposalId to voting weight
-  public userVotingWeight: BigNumber = new BigNumber("0");
   public userProposalVotes: Map<BigNumber, Vote> = new Map<BigNumber, Vote>();
   public userMarketSupplyMultiplierMap = new Map<AssetTag, BigNumber>();
   public userMarketBorrowMultiplierMap = new Map<AssetTag, BigNumber>();
@@ -273,51 +277,51 @@ export class PersistenceService {
     return this.allReserves?.getReserveData(assetTag);
   }
 
-  public getTotalSuppliedUSD(): BigNumber {
-    let totalSupplied = new BigNumber("0");
-    if (!this.allReserves) {
-      return totalSupplied;
+  public initTotalSuppliedUSD(): void {
+    if (this.allReserves) {
+      let totalSupplied = new BigNumber("0");
+
+      Object.values(this.allReserves).forEach((property: ReserveData) => {
+        totalSupplied = totalSupplied.plus(property.totalLiquidityUSD);
+      });
+
+      this.totalSuppliedUSD =  totalSupplied;
     }
-    Object.values(this.allReserves).forEach((property: ReserveData) => {
-      totalSupplied = totalSupplied.plus(property.totalLiquidityUSD);
-    });
-    return totalSupplied;
   }
 
-  public getTotalBorrowedUSD(): BigNumber {
-    let totalBorrowed = new BigNumber("0");
-    if (!this.allReserves) {
-      return totalBorrowed;
+  public initTotalBorrowedUSD(): void {
+    if (this.allReserves) {
+      let totalBorrowed = new BigNumber("0");
+
+      Object.values(this.allReserves).forEach((property: ReserveData) => {
+        totalBorrowed = totalBorrowed.plus(property.totalBorrowsUSD);
+      });
+
+      this.totalBorrowedUSD =  totalBorrowed;
     }
-    Object.values(this.allReserves).forEach((property: ReserveData) => {
-      totalBorrowed = totalBorrowed.plus(property.totalBorrowsUSD);
-    });
-    return totalBorrowed;
   }
 
-  public getUserTotalSuppliedUSD(): BigNumber {
+  public initUserTotalSuppliedUSD(): void {
     let totalSupplied = new BigNumber("0");
-    if (!this.userReserves) {
-      return totalSupplied;
-    }
+
     this.userReserves.reserveMap.forEach((reserve: UserReserveData | undefined) => {
       totalSupplied = totalSupplied.plus((reserve?.currentOTokenBalanceUSD ?? new BigNumber("0")));
     });
-    return totalSupplied;
+
+    this.userTotalSuppliedUSD =  totalSupplied;
   }
 
-  public getUserTotalBorrowedUSD(): BigNumber {
+  public initUserTotalBorrowedUSD(): void {
     let totalBorrowed = new BigNumber("0");
-    if (!this.userReserves) {
-      return totalBorrowed;
-    }
+
     this.userReserves.reserveMap.forEach((reserve: UserReserveData | undefined) => {
       const originationFee = reserve?.originationFee ?? new BigNumber("0");
       const exchangeRate = reserve?.exchangeRate ?? new BigNumber("0");
       const borrowBalanceUSD = reserve?.currentBorrowBalanceUSD ?? new BigNumber("0");
       totalBorrowed = totalBorrowed.plus(borrowBalanceUSD).plus(originationFee.multipliedBy(exchangeRate));
     });
-    return totalBorrowed;
+
+    this.userTotalBorrowedUSD =  totalBorrowed;
   }
 
   public getReserveTotalLiquidity(assetTag: AssetTag): BigNumber {

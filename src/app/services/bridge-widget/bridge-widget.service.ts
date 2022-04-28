@@ -52,8 +52,6 @@ export class BridgeWidgetService {
   }
 
   handleWidgetLogoutRes(e: any): void {
-    const publicAddress: string = e.detail.publicAddress;
-    const email: string = e.detail.email;
     const error: string = e.detail.error;
 
     if (error) {
@@ -65,7 +63,6 @@ export class BridgeWidgetService {
 
   handleWidgetRes(e: any): void {
     const error: string = e.detail.error;
-    const action: BridgeWidgetAction = e.detail.success;
 
     if (error) {
       throw new OmmError(error);

@@ -39,6 +39,8 @@ export class Times {
   public static readonly DAY_IN_MILLISECONDS = 86400000;
   public static readonly WEEK_IN_MILLISECONDS = new BigNumber("604800000");
   public static readonly MONTH_IN_MILLISECONDS = new BigNumber("2592000000");
+  public static readonly YEAR_IN_MILLISECONDS = new BigNumber("31536000000");
+  public static readonly FOUR_YEARS_IN_MILLISECONDS = new BigNumber("126144000000");
 
   public static readonly MINUTE_IN_SECONDS = 60;
   public static readonly HOUR_IN_SECONDS = 3600;
@@ -61,17 +63,17 @@ export class Times {
   }
 }
 
-export const lockedUntilDateOptions = [LockDate.WEEK, LockDate.MONTH, LockDate.MONTH_3, LockDate.MONTH_6, LockDate.YEAR, LockDate.YEAR_2,
-  LockDate.YEAR_4];
+export const lockedUntilDateOptions = [LockDate.WEEK, LockDate.MONTH, LockDate.MONTH_3, LockDate.MONTH_6, LockDate.YEAR, LockDate.TWO_YEARS,
+  LockDate.FOUR_YEARS];
 
 export const lockedDatesToMilliseconds = new Map([
   [LockDate.WEEK, Times.WEEK_IN_MILLISECONDS],
   [LockDate.MONTH, Times.MONTH_IN_MILLISECONDS],
   [LockDate.MONTH_3, Times.MONTH_IN_MILLISECONDS.multipliedBy(3)],
   [LockDate.MONTH_6, Times.MONTH_IN_MILLISECONDS.multipliedBy(6)],
-  [LockDate.YEAR, Times.MONTH_IN_MILLISECONDS.multipliedBy(12)],
-  [LockDate.YEAR_2, Times.MONTH_IN_MILLISECONDS.multipliedBy(24)],
-  [LockDate.YEAR_4, Times.MONTH_IN_MILLISECONDS.multipliedBy(48)],
+  [LockDate.YEAR, Times.YEAR_IN_MILLISECONDS],
+  [LockDate.TWO_YEARS, Times.YEAR_IN_MILLISECONDS.multipliedBy(2)],
+  [LockDate.FOUR_YEARS, Times.FOUR_YEARS_IN_MILLISECONDS],
 ]);
 
 export function lockedDateTobOmmPerOmm(lockDate: LockDate): BigNumber {
@@ -86,9 +88,9 @@ export function lockedDateTobOmmPerOmm(lockDate: LockDate): BigNumber {
       return new BigNumber("0.125");
     case LockDate.YEAR:
       return new BigNumber("0.25");
-    case LockDate.YEAR_2:
+    case LockDate.TWO_YEARS:
       return new BigNumber("0.5");
-    case LockDate.YEAR_4:
+    case LockDate.FOUR_YEARS:
       return new BigNumber("1");
   }
 }
@@ -99,8 +101,8 @@ export function getLockDateFromMilliseconds(milliseconds: BigNumber): LockDate {
   else if (milliseconds.lte(Times.MONTH_IN_MILLISECONDS.multipliedBy(3))) { return LockDate.MONTH_3; }
   else if (milliseconds.lte(Times.MONTH_IN_MILLISECONDS.multipliedBy(6))) { return LockDate.MONTH_6; }
   else if (milliseconds.lte(Times.MONTH_IN_MILLISECONDS.multipliedBy(12))) { return LockDate.YEAR; }
-  else if (milliseconds.lte(Times.MONTH_IN_MILLISECONDS.multipliedBy(24))) { return LockDate.YEAR_2; }
-  else { return LockDate.YEAR_4; }
+  else if (milliseconds.lte(Times.MONTH_IN_MILLISECONDS.multipliedBy(24))) { return LockDate.TWO_YEARS; }
+  else { return LockDate.FOUR_YEARS; }
 }
 
 // 1 week = 0.0048 veOMM per 1 OMM staked

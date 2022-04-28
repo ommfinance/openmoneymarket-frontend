@@ -1,8 +1,6 @@
 import {Injectable} from '@angular/core';
 import {IconApiService} from '../icon-api/icon-api.service';
 import {IconJsonRpcResponse} from '../../interfaces/icon-json-rpc-response';
-import {ScoreService} from '../score/score.service';
-import {PersistenceService} from '../persistence/persistence.service';
 import {DataLoaderService} from "../data-loader/data-loader.service";
 import log from "loglevel";
 import {NotificationService} from "../notification/notification.service";
@@ -20,8 +18,6 @@ import {Router} from "@angular/router";
 export class TransactionResultService {
 
   constructor(private iconApiService: IconApiService,
-              private scoreService: ScoreService,
-              private persistenceService: PersistenceService,
               private dataLoaderService: DataLoaderService,
               private notificationService: NotificationService,
               private localStorageService: LocalStorageService,

@@ -18,7 +18,6 @@ import {NotificationService} from "../../services/notification/notification.serv
 import {AssetTag, assetToCollateralAssetTag, CollateralAssetTag} from "../../models/classes/Asset";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {LedgerService} from "../../services/ledger/ledger.service";
-import {DataLoaderService} from "../../services/data-loader/data-loader.service";
 import {LedgerWallet} from "../../models/wallets/LedgerWallet";
 import log from "loglevel";
 import {TransactionDispatcherService} from "../../services/transaction-dispatcher/transaction-dispatcher.service";
@@ -36,7 +35,7 @@ import BigNumber from "bignumber.js";
 @Component({
   selector: 'app-modal',
   templateUrl: './modal.component.html',
-  styleUrls: ['./modal.component.css']
+  styleUrls: ['./modal.component.css'],
 })
 export class ModalComponent extends BaseClass implements OnInit {
 
@@ -87,7 +86,6 @@ export class ModalComponent extends BaseClass implements OnInit {
               private notificationService: NotificationService,
               public persistenceService: PersistenceService,
               private ledgerService: LedgerService,
-              private dataLoaderService: DataLoaderService,
               private loginService: LoginService,
               private transactionDispatcherService: TransactionDispatcherService,
               private ommService: OmmService,

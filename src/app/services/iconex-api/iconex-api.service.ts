@@ -1,20 +1,13 @@
 import { Injectable } from "@angular/core";
 import {IconexWallet} from "../../models/wallets/IconexWallet";
-import {IconApiService} from "../icon-api/icon-api.service";
-import {PersistenceService} from "../persistence/persistence.service";
 import {IconConverter } from "icon-sdk-js";
 import {TransactionResultService} from '../transaction-result/transaction-result.service';
-import {ScoreService} from "../score/score.service";
-import {DataLoaderService} from "../data-loader/data-loader.service";
 import log from "loglevel";
 import {OmmError} from "../../core/errors/OmmError";
 import {NotificationService} from "../notification/notification.service";
 import {LoginService} from "../login/login.service";
 import {IconexId} from "../../models/enums/IconexId";
 import {ModalService} from "../modal/modal.service";
-import {ModalType} from "../../models/enums/ModalType";
-import {ModalAction} from "../../models/classes/ModalAction";
-import {LocalStorageService} from "../local-storage/local-storage.service";
 
 @Injectable({
   providedIn: "root"
@@ -25,15 +18,10 @@ export class IconexApiService {
   * https://www.icondev.io/docs/chrome-extension-connect
   */
 
-  constructor(private iconApiService: IconApiService,
-              private persistenceService: PersistenceService,
-              private transactionResultService: TransactionResultService,
-              private scoreService: ScoreService,
-              private dataLoaderService: DataLoaderService,
+  constructor(private transactionResultService: TransactionResultService,
               private loginService: LoginService,
               private notificationService: NotificationService,
-              private modalService: ModalService,
-              private localStorageService: LocalStorageService) { }
+              private modalService: ModalService) { }
 
   public iconexEventHandler( e: any): void {
     const {type, payload} = e.detail;

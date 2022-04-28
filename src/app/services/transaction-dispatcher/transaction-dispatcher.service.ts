@@ -12,7 +12,6 @@ import {IconConverter} from "icon-sdk-js";
 import {TransactionResultService} from "../transaction-result/transaction-result.service";
 import {LocalStorageService} from "../local-storage/local-storage.service";
 import {IconexId} from "../../models/enums/IconexId";
-import log from "loglevel";
 import BigNumber from "bignumber.js";
 
 @Injectable({

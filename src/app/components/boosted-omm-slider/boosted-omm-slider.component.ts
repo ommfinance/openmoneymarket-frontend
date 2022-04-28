@@ -72,7 +72,7 @@ export class BoostedOmmSliderComponent extends BaseClass implements OnInit, OnDe
 
       this.userLockedOmmBalance = this.persistenceService.getUsersLockedOmmBalance().toNumber();
 
-      this.lockOmmSlider.noUiSlider.updateOptions({
+      this.lockOmmSlider.noUiSlider?.updateOptions({
         start: [startingValue],
         range: { min: 0, max: sliderMax > 0 ? sliderMax : 1 }
       });

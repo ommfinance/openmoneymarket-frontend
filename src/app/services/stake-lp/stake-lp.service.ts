@@ -2,9 +2,7 @@ import { Injectable } from '@angular/core';
 import {IconApiService} from "../icon-api/icon-api.service";
 import {PersistenceService} from "../persistence/persistence.service";
 import {CheckerService} from "../checker/checker.service";
-import {Utils} from "../../common/utils";
 import log from "loglevel";
-import {IconexApiService} from "../iconex-api/iconex-api.service";
 import {TransactionDispatcherService} from "../transaction-dispatcher/transaction-dispatcher.service";
 import {IconAmount, IconConverter} from "icon-sdk-js";
 import {ScoreMethodNames} from "../../common/score-method-names";
@@ -19,7 +17,6 @@ export class StakeLpService {
 
   constructor(private iconApiService: IconApiService,
               private persistenceService: PersistenceService,
-              private iconexApiService: IconexApiService,
               private checkerService: CheckerService,
               private transactionDispatcherService: TransactionDispatcherService) { }
 

@@ -4,8 +4,6 @@ import {IconAmount, IconConverter} from "icon-sdk-js";
 import {IconApiService} from '../icon-api/icon-api.service';
 import {PersistenceService} from '../persistence/persistence.service';
 import {ScoreMethodNames} from '../../common/score-method-names';
-import {IconexApiService} from '../iconex-api/iconex-api.service';
-import {ScoreService} from "../score/score.service";
 import {Utils} from "../../common/utils";
 import {CheckerService} from "../checker/checker.service";
 import log from "loglevel";
@@ -21,8 +19,6 @@ export class SupplyService {
 
   constructor(private iconApiService: IconApiService,
               private persistenceService: PersistenceService,
-              private iconexApiService: IconexApiService,
-              private scoreService: ScoreService,
               private checkerService: CheckerService,
               private transactionDispatcherService: TransactionDispatcherService) {
   }

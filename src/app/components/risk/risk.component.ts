@@ -1,19 +1,17 @@
-import {AfterViewInit, Component, ElementRef, Input, OnInit, QueryList, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {BaseClass} from "../base-class";
-import {AssetComponent} from "../asset/asset.component";
 import BigNumber from "bignumber.js";
 
 declare var noUiSlider: any;
 declare var wNumb: any;
-declare var $: any;
 
 @Component({
   selector: 'app-risk',
   templateUrl: './risk.component.html',
-  styleUrls: ['./risk.component.css']
+  styleUrls: ['./risk.component.css'],
 })
 export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
 

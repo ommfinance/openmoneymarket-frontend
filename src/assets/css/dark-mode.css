@@ -402,7 +402,7 @@
   }
 
   .modal .before-after {
-    background-color: #4a4f59;
+    /*background-color: #4a4f59;*/
   }
   input[type="text"].input-boost {
     border: 2px solid #565b66;

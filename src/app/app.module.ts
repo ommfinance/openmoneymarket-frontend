@@ -33,6 +33,13 @@ import { ToZeroIfDashPipe } from './pipes/to-zero-if-dash.pipe';
 import { AngularResizedEventModule } from 'angular-resize-event';
 import { BoostedOmmSliderComponent } from './components/boosted-omm-slider/boosted-omm-slider.component';
 import { OmmLockingComponent } from './components/omm-locking/omm-locking.component';
+import {DollarUsLocalePipe} from "./pipes/dollar-us-locale.pipe";
+import {RoundOff2DecPercentPipe} from "./pipes/round-off-2-dec-percent.pipe";
+import { YourOverviewComponent } from './components/your-overview/your-overview.component';
+import { MarketOverviewComponent } from './components/market-overview/market-overview.component';
+import {AbsPipe} from "./pipes/abs-pipe";
+import { LatestProposalsComponent } from './components/latest-proposals/latest-proposals.component';
+import {RoundDown0DecPercentPipe} from "./pipes/round-down-0-dec-percent.pipe";
 
 // Big Number configs
 const fmt = {
@@ -66,6 +73,10 @@ log.setLevel(environment.production ? "error" : "debug");
     MainComponent,
     RewardsComponent,
     UsFormatPipe,
+    RoundDown0DecPercentPipe,
+    AbsPipe,
+    DollarUsLocalePipe,
+    RoundOff2DecPercentPipe,
     RoundOff2DecPipe,
     RoundDown2DecPipe,
     RoundOff0DecPipe,
@@ -78,6 +89,9 @@ log.setLevel(environment.production ? "error" : "debug");
     ToZeroIfDashPipe,
     BoostedOmmSliderComponent,
     OmmLockingComponent,
+    YourOverviewComponent,
+    MarketOverviewComponent,
+    LatestProposalsComponent,
   ],
   imports: [
     BrowserModule,

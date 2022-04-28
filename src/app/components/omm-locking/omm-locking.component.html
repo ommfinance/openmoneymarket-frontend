@@ -4,7 +4,7 @@
     <div class="grid">
       <!-- Heading -->
       <div class="grid-cell">
-        <h3>Earning potential <span *ngIf="!userBOMMbalance().isZero() && userBOMMbalance().isPositive()" class="label value-bomm-total" #bommBaln>{{userBOMMbalance() | roundDown2Dec | usFormat | toZeroIfDash }} bOMM</span>&nbsp;
+        <h3>Earning potential <span *ngIf="shouldShowbOmmBalance()" class="label value-bomm-total" #bommBaln>{{userbOmmBalance | roundDown2Dec | usFormat | toZeroIfDash }} bOMM</span>&nbsp;
           <span class="bomm-tooltip tooltip">
                     <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
                     <div class="tooltip-content">
@@ -58,7 +58,9 @@
       <div class="grid-cell" style="max-width: 200px;">
         <p class="label">
           <input [ngStyle]="hideElement(!lockAdjustActive)" #lockInput id="input-boost" (keyup)="onLockedOmmInputLostFocus()"
-                 class="input-boost" type="text" name=""><span [ngStyle]="hideElement(lockAdjustActive)" class="omm-locked">{{userLockedOmmBalance() | roundDown2Dec | usFormat}}</span> / {{getLockSliderMax() | usFormat}} OMM</p>
+                 class="input-boost" type="text" name="">
+          <span [ngStyle]="hideElement(lockAdjustActive)" class="omm-locked">{{userLockedOmmBalance() | roundDown2Dec | usFormat}}</span> / {{getLockSliderMax() | usFormat}} OMM</p>
+          <p class="label hide">3,000 OMM unstaking...</p>
       </div>
       <div class="grid-cell text-right">
         <p class="label locked-default" [ngStyle]="hideElement(lockAdjustActive || userLockedOmmBalance().isZero())">{{userHasLockedOmm() ? "Locked until" : "Lock up until"}} {{timestampInMillisecondsToPrettyDate(lockDate())}}</p>

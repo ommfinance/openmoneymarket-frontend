@@ -29,7 +29,6 @@ import {DailyRewardsAllReservesPools} from "../../models/classes/DailyRewardsAll
 import BigNumber from "bignumber.js";
 import {Vote, VotersCount} from "../../models/classes/Vote";
 import {Proposal} from "../../models/classes/Proposal";
-import {HttpClient} from "@angular/common/http";
 import {LockedOmm} from "../../models/classes/LockedOmm";
 import {ILockedOmm} from "../../models/Interfaces/ILockedOmm";
 
@@ -42,8 +41,7 @@ export class ScoreService {
   constructor(private iconApiService: IconApiService,
               private persistenceService: PersistenceService,
               private checkerService: CheckerService,
-              private stateChangeService: StateChangeService,
-              private http: HttpClient) {
+              private stateChangeService: StateChangeService) {
   }
 
   /**
@@ -774,10 +772,10 @@ export class ScoreService {
    * @description Get users voting weight
    * @return  BigNumber - Users voting weight in OMM token number denomination
    */
-  public async getUserVotingWeight(timestamp?: BigNumber): Promise<BigNumber> {
+  public async getUserVotingWeight(proposalBlockHeight: BigNumber): Promise<BigNumber> {
 
     const params = {
-      _day: timestamp ? timestamp : Utils.timestampNowMicroseconds(),
+      _block: proposalBlockHeight,
       _address: this.persistenceService.activeWallet?.address
     };
 

@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import {IconApiService} from "../icon-api/icon-api.service";
 import {PersistenceService} from "../persistence/persistence.service";
-import {IconexApiService} from "../iconex-api/iconex-api.service";
 import {IconAmount, IconConverter} from "icon-sdk-js";
 import {ScoreMethodNames} from "../../common/score-method-names";
 import {IconTransactionType} from "../../models/enums/IconTransactionType";
@@ -22,7 +21,6 @@ export class RepayService {
 
   constructor(private iconApiService: IconApiService,
               private persistenceService: PersistenceService,
-              private iconexApiService: IconexApiService,
               private checkerService: CheckerService,
               private transactionDispatcherService: TransactionDispatcherService,
               private scoreService: ScoreService,

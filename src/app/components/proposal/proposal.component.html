@@ -14,7 +14,8 @@
       <!-- Container -->
       <div class="grid proposal-overview-metadata">
         <div class="grid-cell">
-          <span class="label"><img [src]="activeProposal?.getStatusImgSrc()">{{activeProposal?.getProposalState(reloaderService)}}</span> <span class="label"><img src="assets/img/icon/chart.svg">{{to2DecimalRndOffPercString(activeProposal?.getTotalVotePercentage(), true)}} voted</span> <span class="label">
+          <span class="label"><img [src]="activeProposal?.getStatusImgSrc()">{{activeProposal?.getProposalState(currentTimestampMicro)}}</span> <span class="label">
+          <img src="assets/img/icon/chart.svg">{{to2DecimalRndOffPercString(activeProposal?.getTotalVotePercentage(), true)}} voted</span> <span class="label">
         <img src="assets/img/icon/users.svg">{{totalVoters()}} voters</span>
         </div>
       </div>

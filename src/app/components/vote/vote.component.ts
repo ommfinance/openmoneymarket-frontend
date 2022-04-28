@@ -1,28 +1,24 @@
-import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {BaseClass} from "../base-class";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {ModalType} from "../../models/enums/ModalType";
 import {ModalService} from "../../services/modal/modal.service";
 import log from "loglevel";
 import {StateChangeService} from "../../services/state-change/state-change.service";
-import {VoteAndLockingService} from "../../services/vote/vote-and-locking.service";
 import {Prep, PrepList} from "../../models/classes/Preps";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {YourPrepVote} from "../../models/classes/YourPrepVote";
 import {NotificationService} from "../../services/notification/notification.service";
 import {ModalAction, ModalStatus} from "../../models/classes/ModalAction";
 import {Utils} from "../../common/utils";
-import {DataLoaderService} from "../../services/data-loader/data-loader.service";
 import {VoteAction} from "../../models/classes/VoteAction";
 import {AssetTag} from "../../models/classes/Asset";
 import {
   contributorsMap,
-  defaultPrepLogoUrl,
-  lockedDateTobOmmPerOmm
+  defaultPrepLogoUrl
 } from "../../common/constants";
 import BigNumber from "bignumber.js";
 import {Proposal} from "../../models/classes/Proposal";
-import {ReloaderService} from "../../services/reloader/reloader.service";
 import {Router} from "@angular/router";
 import {LockDate} from "../../models/enums/LockDate";
 import {OmmLockingComponent} from "../omm-locking/omm-locking.component";
@@ -31,9 +27,11 @@ import {OmmLockingComponent} from "../omm-locking/omm-locking.component";
 @Component({
   selector: 'app-vote',
   templateUrl: './vote.component.html',
-  styleUrls: ['./vote.component.css']
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
+
+  latestProposals: Proposal[] = [];
 
   prepList?: PrepList = this.persistenceService.prepList;
   yourVotesPrepList: YourPrepVote[] = this.persistenceService.yourVotesPrepList;
@@ -53,52 +51,66 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   yourVotingPower = new BigNumber(0);
 
+  votingPower = new BigNumber(0);
+  ommVotingPower = new BigNumber(0);
+
   constructor(public persistenceService: PersistenceService,
               private modalService: ModalService,
               private stateChangeService: StateChangeService,
-              private voteService: VoteAndLockingService,
               public calculationsService: CalculationsService,
               private notificationService: NotificationService,
-              private dataLoaderService: DataLoaderService,
-              private cd: ChangeDetectorRef,
-              public reloaderService: ReloaderService,
               private router: Router,
+              private cdRef: ChangeDetectorRef,
               private calculationService: CalculationsService) {
     super(persistenceService);
   }
 
   ngOnInit(): void {
+    this.initCoreStaticValues();
     this.initSubscriptions();
-
-    if (this.userLoggedIn()) {
-      this.yourVotingPower = this.calculationService.usersVotingPower();
-    }
+    this.initUserStaticValues();
   }
 
   ngAfterViewInit(): void {
-    this.resetStateValues();
+    this.cdRef.detectChanges();
   }
 
   private initSubscriptions(): void {
-    this.subscribeToPrepListChange();
+    this.subscribeToCoreDataReload();
     this.subscribeToUserModalActionChange();
     this.subscribeToModalActionResult();
-    this.subscribeToYourVotesPrepChange();
     this.subscribeToAfterUserDataReload();
   }
 
   private subscribeToAfterUserDataReload(): void {
     this.stateChangeService.afterUserDataReload$.subscribe(() => {
-      this.yourVotingPower = this.calculationService.usersVotingPower();
+      this.initUserStaticValues();
+      this.cdRef.detectChanges();
     });
   }
 
-  // values that should be reset on re-init
-  resetStateValues(): void {
+  public subscribeToCoreDataReload(): void {
+    this.stateChangeService.afterCoreDataReload$.subscribe(() => {
+      this.initCoreStaticValues();
+      this.cdRef.detectChanges();
+    });
+  }
+
+  initCoreStaticValues(): void {
+    this.latestProposals = this.persistenceService.proposalList.slice(0, 3);
     this.yourVotesEditMode = false;
     this.voteOverviewEditMode = false;
+    this.votingPower = this.calculationsService.votingPower();
+    this.ommVotingPower = this.calculationsService.ommVotingPower();
+    this.prepList = this.persistenceService.prepList;
+    this.onSearchInputChange("");
+  }
 
-    this.yourVotesPrepList = [...this.persistenceService.yourVotesPrepList];
+  initUserStaticValues(): void {
+    if (this.userLoggedIn()) {
+      this.yourVotingPower = this.calculationsService.usersVotingPower();
+      this.yourVotesPrepList = this.persistenceService.yourVotesPrepList;
+    }
   }
 
   private subscribeToModalActionResult(): void {
@@ -108,24 +120,11 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
         // if it failed
         if (res.status === ModalStatus.FAILED) {
           this.yourVotesPrepList = [...this.persistenceService.yourVotesPrepList];
+          this.cdRef.detectChanges();
         } else if (res.status === ModalStatus.CANCELLED) {
           this.yourVotesEditMode = true;
         }
       }
-    });
-  }
-
-  private subscribeToYourVotesPrepChange(): void {
-    this.stateChangeService.yourVotesPrepChange.subscribe(res => {
-      this.yourVotesPrepList = [...res];
-    });
-  }
-
-  private subscribeToPrepListChange(): void {
-    // top 100 prep list has changed
-    this.stateChangeService.prepListChange.subscribe((prepList: PrepList) => {
-      this.prepList = prepList;
-      this.onSearchInputChange("");
     });
   }
 
@@ -155,6 +154,11 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
         this.updateVotingPowerPerIcx(bigNumValue);
       }
     }
+  }
+
+  handleLockAdjustCancelClicked(): void {
+    this.updateYourVotingPower(this.userLockedOmmBalance());
+    this.updateVotingPowerPerIcx(this.userLockedOmmBalance());
   }
 
   // On "Adjust votes" click
@@ -237,16 +241,8 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     return this.persistenceService.getUsersLockedOmmBalance();
   }
 
-  votingPower(): BigNumber {
-    return this.calculationsService.votingPower();
-  }
-
   totalbOmm(): BigNumber {
     return this.persistenceService.bOmmTotalSupply.dp(2);
-  }
-
-  ommVotingPower(): BigNumber {
-    return this.calculationService.ommVotingPower();
   }
 
   userHasVotedForPrep(): boolean {
@@ -309,7 +305,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   getDelegationAmount(yourPrepVote: YourPrepVote): BigNumber {
     return (this.persistenceService.getUsersLockedOmmBalance().multipliedBy((yourPrepVote.percentage
-      .dividedBy(new BigNumber("100"))).multipliedBy(this.votingPower()))).dp(2);
+      .dividedBy(new BigNumber("100"))).multipliedBy(this.votingPower))).dp(2);
   }
 
   getLatestProposals(): Proposal[] {
@@ -363,47 +359,29 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
    * BOOSTED OMM
    */
 
-  onLockUntilDateClick(date: LockDate): void {
-    // TODO update variables that change with new locked date (bOMM related data)
-    this.updateYourVotingPower(this.ommLockingComponent.dynamicLockedOmmAmount, date);
-    this.updateVotingPowerPerIcx(this.ommLockingComponent.dynamicLockedOmmAmount, date);
+  onLockUntilDateClick(): void {
+    this.updateYourVotingPower(this.ommLockingComponent.dynamicLockedOmmAmount);
+    this.updateVotingPowerPerIcx(this.ommLockingComponent.dynamicLockedOmmAmount);
   }
 
   updateYourVotingPower(newLockedOmmAmount: BigNumber, date?: LockDate): void {
-    const currentLockedOmm = this.persistenceService.getUsersLockedOmmBalance();
-    const lockedOmmDiff = newLockedOmmAmount.minus(currentLockedOmm).dp(0);
-
-    const currentUserbOmmBalance = this.persistenceService.userbOmmBalance;
-    const currentLockPeriodDate = date ? date : this.ommLockingComponent.currentLockPeriodDate();
-    const lockDateTobOmmPerOmm = lockedDateTobOmmPerOmm(currentLockPeriodDate);
-
-    const  newUserbOmmBalance = lockedOmmDiff.multipliedBy(lockDateTobOmmPerOmm).plus(currentUserbOmmBalance);
-    const yourVotingPower = this.calculationService.usersVotingPower(newUserbOmmBalance);
+    const newUserbOmmBalance = this.calculationService.calculateNewbOmmBalance(newLockedOmmAmount,
+      this.ommLockingComponent.selectedLockTimeInMillisec);
+    const yourVotingPower = this.calculationsService.usersVotingPower(newUserbOmmBalance);
 
     // set daily rewards text to dynamic value by replacing inner HTML
     this.setText(this.yourVotingPowerEl, this.tooUSLocaleString(yourVotingPower.dp(2))
       + (yourVotingPower.isGreaterThan(Utils.ZERO) ? " ICX " : "-"));
   }
 
-  updateVotingPowerPerIcx(lockedOmm: BigNumber, date?: LockDate): void {
-    const currentLockedOmm = this.persistenceService.getUsersLockedOmmBalance();
-    const lockedOmmDiff = lockedOmm.minus(currentLockedOmm).dp(0);
-
-    const currentUserbOmmBalance = this.persistenceService.userbOmmBalance;
-    const currentLockPeriodDate = date ? date : this.ommLockingComponent.currentLockPeriodDate();
-    const lockDateTobOmmPerOmm = lockedDateTobOmmPerOmm(currentLockPeriodDate);
-
-    const  newUserbOmmBalance = lockedOmmDiff.multipliedBy(lockDateTobOmmPerOmm).plus(currentUserbOmmBalance);
-    const bOmmAddedToTotal = newUserbOmmBalance.minus(this.userBOMMbalance());
-    const votingPower = this.calculationsService.votingPower(bOmmAddedToTotal);
+  updateVotingPowerPerIcx(newLockedOmmAmount: BigNumber, date?: LockDate): void {
+    const newUserbOmmBalance = this.calculationService.calculateNewbOmmBalance(newLockedOmmAmount,
+      this.ommLockingComponent.selectedLockTimeInMillisec);
+    const votingPower = this.calculationsService.votingPower(newUserbOmmBalance);
     const text = `1 bOMM = ${this.tooUSLocaleString(votingPower.dp(2))} ICX`;
 
     // set dynamic voting power per ICX based on the newly added bOmm from user
     this.setText(this.votingPowerPerIcxEl, text);
-  }
-
-  userBOMMbalance(): BigNumber {
-    return this.persistenceService.userbOmmBalance;
   }
 
 }

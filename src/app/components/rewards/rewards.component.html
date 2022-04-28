@@ -129,6 +129,7 @@
                          (lockAdjustClicked)="onLockAdjustClick()"
                          (lockUntilDateClicked)="onLockUntilDateClick($event)"
                          (sliderValueUpdate)="handleLockSliderValueUpdate($event)"
+                         (lockAdjustCancelClicked)="handleLockAdjustCancelClicked()"
         ></app-omm-locking>
 
         <div class="grid">
@@ -142,10 +143,10 @@
                     <ng-container *ngIf="userLoggedIn()">
                       <ng-container *ngIf="showBoostedOmmDailyRewardsOmmAmount()">
                         <span #lockDailyRew>{{getUserOmmLockingDailyRewards() | roundOff2Dec | usFormat}} OMM&nbsp;</span>
-                        <span class="label">(<span class=" text-green" #lockApr>{{to2DecimalRndOffPercString(userLockingApr())}} APR</span>)</span>
+                        <span class="label">(<span class=" text-green" #lockApr>{{getUserLockingApr() | roundOff2DecPercent}} APR</span>)</span>
                       </ng-container>
                       <ng-container *ngIf="!showBoostedOmmDailyRewardsOmmAmount()">
-                        <span class=" text-green">{{to2DecimalRndOffPercString(userLockingApr())}} APR</span>
+                        <span class=" text-green">{{getUserLockingApr() | roundOff2DecPercent}} APR</span>
                       </ng-container>
                     </ng-container>
 
@@ -231,8 +232,8 @@
               <td><span class="text-dark">{{poolData.userStakedBalance | roundDown2Dec | usFormat}}</span><br>
                 <span class="label">{{poolData.userAvailableBalance | roundDown2Dec | usFormat}} available</span></td>
               <td><span class="text-dark">{{getUserDailyRewards(poolData) | roundOff2Dec | usFormat}} OMM</span><br>
-                <span class="label">{{toDollarUSLocaleString(getUserDailyRewardsUSD(poolData) | roundOff2Dec)}}</span></td>
-              <td class="text-green" >{{to2DecimalRndOffPercString(getUserPoolLiquidityApr(poolData))}}</td>
+                <span class="label">{{getUserDailyRewardsUSD(poolData) | roundOff2Dec | dollarUsLocale}}</span></td>
+              <td class="text-green" >{{getUserPoolLiquidityApr(poolData) | roundOff2DecPercent}}</td>
             </tr>
 
             <!-- Pool expanded -->
@@ -278,7 +279,7 @@
               <tr class="pool {{poolData.getPairClassName()}}" (click)="onPoolClick(poolData)">
                 <td class="text-dark">{{poolData.getPrettyName()}}</td>
                 <td colspan="2"><span class="text-dark">{{poolData.userAvailableBalance | roundDown2Dec | usFormat}} LP tokens</span></td>
-                <td colspan="2" class="text-green">{{to2DecimalRndOffPercString(getUserPoolLiquidityApr(poolData))}}</td>
+                <td colspan="2" class="text-green">{{getUserPoolLiquidityApr(poolData) | roundOff2DecPercent}}</td>
               </tr>
 
               <!-- Pool expanded -->
@@ -327,8 +328,8 @@
               <span class="label">{{getTotalSuppliedQuote(poolData) | usFormat}} {{poolData.getQuoteAssetName()}}</span></td>
             <td><span class="text-dark">{{getTotalLpTokens(poolData) | usFormat}}</span></td>
             <td><span class="text-dark">{{getDailyRewards(poolData) | roundOff2Dec | usFormat}} OMM</span><br>
-              <span class="label">{{toDollarUSLocaleString(getDailyRewardsUSD(poolData) | roundOff2Dec)}}</span></td>
-            <td class="text-green">{{to2DecimalRndOffPercString(getPoolLiquidityApr(poolData))}}</td>
+              <span class="label">{{getDailyRewardsUSD(poolData) | roundOff2Dec | dollarUsLocale}}</span></td>
+            <td class="text-green">{{getPoolLiquidityApr(poolData) | roundOff2DecPercent}}</td>
           </tr>
 
           <tr class="expanded">

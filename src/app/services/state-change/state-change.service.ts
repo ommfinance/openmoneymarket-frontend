@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Observable, Subject} from "rxjs";
-import {UserReserveData, UserReserves} from "../../models/classes/UserReserveData";
+import {UserReserveData} from "../../models/classes/UserReserveData";
 import {PersistenceService} from "../persistence/persistence.service";
 import {AssetTag, CollateralAssetTag} from "../../models/classes/Asset";
 import {IconexWallet} from "../../models/wallets/IconexWallet";
@@ -9,8 +9,6 @@ import {UserAccountData} from "../../models/classes/UserAccountData";
 import {ModalAction, ModalActionsResult} from "../../models/classes/ModalAction";
 import {UserAccumulatedOmmRewards} from "../../models/classes/UserAccumulatedOmmRewards";
 import {OmmTokenBalanceDetails} from "../../models/classes/OmmTokenBalanceDetails";
-import {PrepList} from "../../models/classes/Preps";
-import {YourPrepVote} from "../../models/classes/YourPrepVote";
 import log from "loglevel";
 import {PoolData} from "../../models/classes/PoolData";
 import {UserPoolData} from "../../models/classes/UserPoolData";
@@ -68,9 +66,6 @@ export class StateChangeService {
     [AssetTag.OMM, new Subject<UserReserveData>()],
   ]);
 
-  private userAllReserveChange: Subject<UserReserves> = new Subject<UserReserves>();
-  userAllReserveChange$: Observable<UserReserves> = this.userAllReserveChange.asObservable();
-
 
   /**
    * Subscribable subject for user account data change
@@ -87,9 +82,6 @@ export class StateChangeService {
   public voteDefinitionFeeChange: Subject<BigNumber> = new Subject<BigNumber>();
   public voteDefinitionCriterionChange: Subject<BigNumber> = new Subject<BigNumber>();
   public proposalListChange: Subject<Proposal[]> = new Subject<Proposal[]>();
-
-  public yourVotesPrepChange: Subject<YourPrepVote[]> = new Subject<YourPrepVote[]>();
-  public prepListChange: Subject<PrepList> = new Subject<PrepList>();
 
   /**
    * Subscribable subject for monitoring the user modal action changes (supply, withdraw, ..)
@@ -164,6 +156,9 @@ export class StateChangeService {
   private bOmmTotalSupplyChange = new Subject<BigNumber>();
   bOmmTotalSupplyChange$ = this.bOmmTotalSupplyChange.asObservable();
 
+  private currentTimestampChange = new Subject<{ currentTimestamp: number, currentTimestampMicro: BigNumber }>();
+  currentTimestampChange$ = this.currentTimestampChange.asObservable();
+
   /**
    * Subscribable subject for monitoring the user debt changes for each asset
    */
@@ -210,6 +205,10 @@ export class StateChangeService {
         }
       });
     });
+  }
+
+  public currentTimestampUpdate(currentTimestamp: number, currentTimestampMicro: BigNumber): void {
+    this.currentTimestampChange.next({ currentTimestamp, currentTimestampMicro});
   }
 
   public userOmmDailyRewardsUpdate(rewards: UserDailyOmmReward): void {
@@ -329,11 +328,6 @@ export class StateChangeService {
     this.userReserveChangeMap.get(assetTag)!.next(reserve);
   }
 
-  public updateUserAllReserve(userReserves: UserReserves): void {
-    this.userAllReserveChange.next(userReserves);
-  }
-
-
   public updateUserAccountData(userAccountData: UserAccountData): void {
     this.userAccountDataChange.next(userAccountData);
   }
@@ -345,15 +339,6 @@ export class StateChangeService {
   public updateUserOmmTokenBalanceDetails(userOmmTokenBalanceDetails: OmmTokenBalanceDetails): void {
     this.persistenceService.userOmmTokenBalanceDetails = userOmmTokenBalanceDetails;
     this.userOmmTokenBalanceDetailsChange.next(userOmmTokenBalanceDetails);
-  }
-
-  public updateUserDelegations(yourVotesPrep: YourPrepVote[]): void {
-    this.yourVotesPrepChange.next(yourVotesPrep);
-  }
-
-  public updatePrepList(prepList: PrepList): void {
-    this.persistenceService.prepList = prepList;
-    this.prepListChange.next(prepList);
   }
 
   public updateTotalStakedOmm(totalStakedOmm: BigNumber): void {

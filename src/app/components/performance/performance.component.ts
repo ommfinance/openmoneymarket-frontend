@@ -1,8 +1,5 @@
 import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {ModalService} from "../../services/modal/modal.service";
-import {UserReserveData} from "../../models/classes/UserReserveData";
 import {StateChangeService} from "../../services/state-change/state-change.service";
-import {AssetTag} from "../../models/classes/Asset";
 import {BaseClass} from "../base-class";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {PersistenceService} from "../../services/persistence/persistence.service";
@@ -15,7 +12,7 @@ declare var $: any;
 @Component({
   selector: 'app-performance',
   templateUrl: './performance.component.html',
-  styleUrls: ['./performance.component.css']
+  styleUrls: ['./performance.component.css'],
 })
 export class PerformanceComponent extends BaseClass implements OnInit, AfterViewInit {
 
@@ -29,8 +26,7 @@ export class PerformanceComponent extends BaseClass implements OnInit, AfterView
   dropDownOptions = [...Object.values(PerformanceDropDownOption)];
   selectedDropDownOption = this.dropDownOptions[0].toLowerCase();
 
-  constructor(private modalService: ModalService,
-              private stateChangeService: StateChangeService,
+  constructor(private stateChangeService: StateChangeService,
               private calculationService: CalculationsService,
               public persistenceService: PersistenceService) {
     super(persistenceService);
