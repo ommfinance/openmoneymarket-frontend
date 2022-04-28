@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {BaseClass} from "../base-class";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {ActiveLiquidityOverview, ActiveLiquidityPoolsView} from "../../models/enums/ActiveViews";
@@ -27,7 +27,7 @@ declare var $: any;
   templateUrl: './rewards.component.html',
   styleUrls: ['./rewards.component.css']
 })
-export class RewardsComponent extends BaseClass implements OnInit, OnDestroy {
+export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, AfterViewInit {
 
   TAG = "[RewardsComponent]";
 
@@ -75,6 +75,14 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy {
   ngOnDestroy(): void {
   }
 
+  ngAfterViewInit(): void {
+
+    // pop up manage staked omm, TODO improve
+    // if (this.userLoggedIn()) {
+    //   this.modalService.showNewModal(ModalType.MANAGE_STAKED_OMM);
+    // }
+  }
+
   initCoreStaticValues(): void {
     this.lockingAprFrom = this.calculationService.calculateLockingAprFrom();
     this.lockingAprTo = this.calculationService.calculateLockingAprTo();
@@ -82,10 +90,13 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy {
 
   initUserStaticValues(): void {
     if (this.userLoggedIn()) {
+      log.debug("[RewardsComponent] initUserStaticValues....");
       this.marketBoosterData = this.calculationService.calculateUserbOmmMarketBoosters();
       this.liquidityBoosterData = this.calculationService.calculateUserbOmmLiquidityBoosters();
       this.userLockingApr = this.calculationService.calculateUserLockingApr(this.persistenceService.userbOmmBalance);
       this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails?.getClone();
+
+      this.handleLockAdjustCancelClicked();
     }
   }
 
@@ -442,7 +453,7 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy {
   }
 
   updateDynamicLiquidityBoosters(newLockedOmmAmount: BigNumber): void {
-    // console.log("updateDynamicLiquidityBoosters....");
+    log.debug("####### updateDynamicLiquidityBoosters.... #######");
     let min = new BigNumber(-1);
     let max = new BigNumber(-1);
 
@@ -453,11 +464,12 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy {
         const oldBooster = this.liquidityBoosterData?.liquidityBoosterMap.get(poolId) ?? new BigNumber(0);
         const newLiquidityBooster = newLiquidityMultiplier.dividedBy(oldLiquidityMultiplier).multipliedBy(oldBooster);
 
-        // console.log(`Pool = ${value.getCleanPoolName()}`);
-        // console.log(`newLiquidityMultiplier = ${newLiquidityMultiplier}`);
-        // console.log(`oldLiquidityMultiplier = ${oldLiquidityMultiplier}`);
-        // console.log(`oldBooster = ${oldBooster}`);
-        // console.log(`newLiquidityBooster = ${newLiquidityBooster}`);
+        log.debug("--------------------------------------------------");
+        log.debug(`Pool = ${value.getCleanPoolName()}`);
+        log.debug(`newLiquidityMultiplier = ${newLiquidityMultiplier}`);
+        log.debug(`oldLiquidityMultiplier = ${oldLiquidityMultiplier}`);
+        log.debug(`oldBooster = ${oldBooster}`);
+        log.debug(`newLiquidityBooster = ${newLiquidityBooster}`);
 
         if (newLiquidityBooster.lt(min) || min.eq(-1)) {
           min = newLiquidityBooster;
@@ -473,7 +485,7 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy {
   }
 
   updateDynamicMarketBoosters(newLockedOmmAmount: BigNumber): void {
-    console.log("updateDynamicMarketBoosters....");
+    log.debug("#######  updateDynamicMarketBoosters.... #######");
     let min = new BigNumber(-1);
     let max = new BigNumber(-1);
 
@@ -484,11 +496,12 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy {
         const oldBooster = this.marketBoosterData?.supplyBoosterMap.get(assetTag) ?? new BigNumber(0);
         const newSupplyBooster = newSupplyMultiplier.dividedBy(oldSupplyMultiplier).multipliedBy(oldBooster);
 
-        console.log(`Asset = ${assetTag}`);
-        console.log(`newSupplyMultiplier = ${newSupplyMultiplier}`);
-        console.log(`oldSupplyMultiplier = ${oldSupplyMultiplier}`);
-        console.log(`oldBooster = ${oldBooster}`);
-        console.log(`newSupplyBooster = ${newSupplyBooster}`);
+        log.debug("--------------------------------------------------");
+        log.debug(`Asset = ${assetTag}`);
+        log.debug(`newSupplyMultiplier = ${newSupplyMultiplier}`);
+        log.debug(`oldSupplyMultiplier = ${oldSupplyMultiplier}`);
+        log.debug(`oldBooster = ${oldBooster}`);
+        log.debug(`newSupplyBooster = ${newSupplyBooster}`);
 
         if (newSupplyBooster.lt(min) || min.eq(-1)) {
           min = newSupplyBooster;
@@ -503,11 +516,13 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy {
         const oldBorrowMultiplier = this.persistenceService.userMarketBorrowMultiplierMap.get(assetTag)!;
         const oldBooster = this.marketBoosterData?.borrowBoosterMap.get(assetTag) ?? new BigNumber(0);
         const newBorrowBooster = newBorrowMultiplier.dividedBy(oldBorrowMultiplier).multipliedBy(oldBooster);
-        // console.log(`Asset = ${assetTag}`);
-        // console.log(`newBorrowMultiplier = ${newBorrowMultiplier}`);
-        // console.log(`oldBorrowMultiplier = ${oldBorrowMultiplier}`);
-        // console.log(`oldBooster = ${oldBooster}`);
-        // console.log(`newBorrowBooster = ${newBorrowBooster}`);
+
+        log.debug("--------------------------------------------------");
+        log.debug(`Asset = ${assetTag}`);
+        log.debug(`newBorrowMultiplier = ${newBorrowMultiplier}`);
+        log.debug(`oldBorrowMultiplier = ${oldBorrowMultiplier}`);
+        log.debug(`oldBooster = ${oldBooster}`);
+        log.debug(`newBorrowBooster = ${newBorrowBooster}`);
 
         if (newBorrowBooster.lt(min) || min.eq(-1)) {
           min = newBorrowBooster;
@@ -578,6 +593,6 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy {
 
     // set user lock apr text to dynamic value by replacing inner HTML
     this.setText(this.lockAprEl, this.to2DecimalRndOffPercString(userLockApr)
-      + (userLockApr.isGreaterThan(Utils.ZERO) ? " APR " : ""));
+      + (userLockApr.isGreaterThan(Utils.ZERO) ? " APR" : ""));
   }
 }

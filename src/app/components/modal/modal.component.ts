@@ -56,12 +56,14 @@ export class ModalComponent extends BaseClass implements OnInit {
   @ViewChild('submitProposal', { static: true }) submitProposalModal!: ElementRef;
   @ViewChild('submitVote', { static: true }) submitVoteModal!: ElementRef;
   @ViewChild('lockOmm', { static: true }) lockOmmModal!: ElementRef;
+  @ViewChild('mngStkOmm', { static: true }) manageStakedOmmModal!: ElementRef;
 
   activeModalSubscription: Subscription;
   activeModal?: HTMLElement;
   activeModalChange?: ModalAction;
 
   withdrawOption: "unstake" | "keep" = "keep";
+  mngStkOption: "Lock up" | "Unstake" = "Lock up";
 
   // window on which user is on (e.g. 1st = [0, 1, 2, 3, 4])
   activeLedgerAddressWindow = 0;
@@ -147,6 +149,9 @@ export class ModalComponent extends BaseClass implements OnInit {
           break;
         case ModalType.INCREASE_LOCK_TIME_AND_AMOUNT:
           this.setActiveModal(this.lockOmmModal.nativeElement, activeModalChange);
+          break;
+        case ModalType.MANAGE_STAKED_OMM:
+          this.setActiveModal(this.manageStakedOmmModal.nativeElement, activeModalChange);
           break;
         default:
           // check if it is ICX withdraw action and show corresponding specific view / modal
