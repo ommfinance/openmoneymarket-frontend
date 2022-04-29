@@ -40,6 +40,7 @@ export class Times {
   public static readonly WEEK_IN_MILLISECONDS = new BigNumber("604800000");
   public static readonly MONTH_IN_MILLISECONDS = new BigNumber("2592000000");
   public static readonly YEAR_IN_MILLISECONDS = new BigNumber("31536000000");
+  public static readonly TWO_YEARS_IN_MILLISECONDS = new BigNumber("63072000000");
   public static readonly FOUR_YEARS_IN_MILLISECONDS = new BigNumber("126144000000");
 
   public static readonly MINUTE_IN_SECONDS = 60;
@@ -72,7 +73,7 @@ export const lockedDatesToMilliseconds = new Map([
   [LockDate.MONTH_3, Times.MONTH_IN_MILLISECONDS.multipliedBy(3)],
   [LockDate.MONTH_6, Times.MONTH_IN_MILLISECONDS.multipliedBy(6)],
   [LockDate.YEAR, Times.YEAR_IN_MILLISECONDS],
-  [LockDate.TWO_YEARS, Times.YEAR_IN_MILLISECONDS.multipliedBy(2)],
+  [LockDate.TWO_YEARS, Times.TWO_YEARS_IN_MILLISECONDS],
   [LockDate.FOUR_YEARS, Times.FOUR_YEARS_IN_MILLISECONDS],
 ]);
 
@@ -100,8 +101,8 @@ export function getLockDateFromMilliseconds(milliseconds: BigNumber): LockDate {
   else if (milliseconds.lte(Times.MONTH_IN_MILLISECONDS)) { return LockDate.MONTH; }
   else if (milliseconds.lte(Times.MONTH_IN_MILLISECONDS.multipliedBy(3))) { return LockDate.MONTH_3; }
   else if (milliseconds.lte(Times.MONTH_IN_MILLISECONDS.multipliedBy(6))) { return LockDate.MONTH_6; }
-  else if (milliseconds.lte(Times.MONTH_IN_MILLISECONDS.multipliedBy(12))) { return LockDate.YEAR; }
-  else if (milliseconds.lte(Times.MONTH_IN_MILLISECONDS.multipliedBy(24))) { return LockDate.TWO_YEARS; }
+  else if (milliseconds.lte(Times.YEAR_IN_MILLISECONDS)) { return LockDate.YEAR; }
+  else if (milliseconds.lte(Times.TWO_YEARS_IN_MILLISECONDS)) { return LockDate.TWO_YEARS; }
   else { return LockDate.FOUR_YEARS; }
 }
 

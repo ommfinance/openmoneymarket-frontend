@@ -22,7 +22,7 @@
 
   <!-- All markets state -->
   <ng-container *ngIf="isAllMarketViewActive()">
-    <td><span>{{getTotalLiquidity() | dollarUsLocale}}</span><br>
+    <td><span>{{getTotalLiquidityUsd() | dollarUsLocale}}</span><br>
       <span class="label">{{getTotalLiquidity() | usFormat}} {{supplyAssetTag()}}</span></td>
     <td class="text-green">{{getMarketSupplyRate() | roundOff2DecPercent}}</td> <!-- Supply APY -->
     <td>{{getTotalBorrowUsd() | dollarUsLocale}}<br>

@@ -27,7 +27,6 @@ import {OmmLockingComponent} from "../omm-locking/omm-locking.component";
 @Component({
   selector: 'app-vote',
   templateUrl: './vote.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
@@ -80,6 +79,16 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     this.subscribeToUserModalActionChange();
     this.subscribeToModalActionResult();
     this.subscribeToAfterUserDataReload();
+    this.subscribeToUserLogin();
+  }
+
+  private subscribeToUserLogin(): void {
+    this.stateChangeService.loginChange.subscribe(wallet => {
+      if (!wallet) {
+        this.resetVotingPowerPerIcx();
+        this.resetYourVotingPower();
+      }
+    });
   }
 
   private subscribeToAfterUserDataReload(): void {
@@ -101,6 +110,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     this.yourVotesEditMode = false;
     this.voteOverviewEditMode = false;
     this.votingPower = this.calculationsService.votingPower();
+    this.setVotingPowerPerIcx(this.votingPower);
     this.ommVotingPower = this.calculationsService.ommVotingPower();
     this.prepList = this.persistenceService.prepList;
     this.onSearchInputChange("");
@@ -109,6 +119,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   initUserStaticValues(): void {
     if (this.userLoggedIn()) {
       this.yourVotingPower = this.calculationsService.usersVotingPower();
+      this.setYourVotingPower(this.yourVotingPower);
       this.yourVotesPrepList = this.persistenceService.yourVotesPrepList;
     }
   }
@@ -369,18 +380,31 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       this.ommLockingComponent.selectedLockTimeInMillisec);
     const yourVotingPower = this.calculationsService.usersVotingPower(newUserbOmmBalance);
 
-    // set daily rewards text to dynamic value by replacing inner HTML
+    this.setYourVotingPower(yourVotingPower);
+  }
+
+  setYourVotingPower(yourVotingPower: BigNumber): void {
     this.setText(this.yourVotingPowerEl, this.tooUSLocaleString(yourVotingPower.dp(2))
-      + (yourVotingPower.isGreaterThan(Utils.ZERO) ? " ICX " : "-"));
+      + (yourVotingPower.isGreaterThan(Utils.ZERO) ? " ICX " : ""));
+  }
+
+  resetYourVotingPower(): void {
+    this.setText(this.yourVotingPowerEl, "-");
   }
 
   updateVotingPowerPerIcx(newLockedOmmAmount: BigNumber, date?: LockDate): void {
     const newUserbOmmBalance = this.calculationService.calculateNewbOmmBalance(newLockedOmmAmount,
       this.ommLockingComponent.selectedLockTimeInMillisec);
     const votingPower = this.calculationsService.votingPower(newUserbOmmBalance);
-    const text = `1 bOMM = ${this.tooUSLocaleString(votingPower.dp(2))} ICX`;
+    this.setVotingPowerPerIcx(votingPower);
+  }
 
-    // set dynamic voting power per ICX based on the newly added bOmm from user
+  resetVotingPowerPerIcx(): void {
+    this.setVotingPowerPerIcx(this.votingPower);
+  }
+
+  setVotingPowerPerIcx(votingPower: BigNumber): void {
+    const text = `1 bOMM = ${this.tooUSLocaleString(votingPower.dp(2))} ICX`;
     this.setText(this.votingPowerPerIcxEl, text);
   }
 

@@ -125,7 +125,6 @@
     <div class="grid panel">
       <div class="grid-cell">
         <app-omm-locking style="display: contents"
-                         [lockAdjustActive]="lockAdjustActive"
                          (lockAdjustClicked)="onLockAdjustClick()"
                          (lockUntilDateClicked)="onLockUntilDateClick($event)"
                          (sliderValueUpdate)="handleLockSliderValueUpdate($event)"
@@ -142,7 +141,7 @@
                     <!-- User Daily Rewards APR -->
                     <ng-container *ngIf="userLoggedIn()">
                       <ng-container *ngIf="showBoostedOmmDailyRewardsOmmAmount()">
-                        <span #lockDailyRew>{{getUserOmmLockingDailyRewards() | roundOff2Dec | usFormat}} OMM&nbsp;</span>
+                        <span #lockDailyRew>{{userDailyLockingOmmRewards | roundOff2Dec | usFormat}} OMM&nbsp;</span>
                         <span class="label">(<span class=" text-green" #lockApr>{{getUserLockingApr() | roundOff2DecPercent}} APR</span>)</span>
                       </ng-container>
                       <ng-container *ngIf="!showBoostedOmmDailyRewardsOmmAmount()">

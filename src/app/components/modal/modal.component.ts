@@ -273,7 +273,7 @@ export class ModalComponent extends BaseClass implements OnInit {
     } else if (this.activeModalChange?.modalType === ModalType.INCREASE_LOCK_TIME_AND_AMOUNT) {
       const unlockTime = this.activeModalChange?.lockingOmmAction?.lockingTime!;
       this.voteService.increaseLockAmountAndPeriodOmm(amount, unlockTime,
-        "Increasing Omm Tokens lock period and amount...");
+        "Locking up Omm Tokens…");
     } else {
       const unlockTime = this.activeModalChange?.lockingOmmAction?.lockingTime!;
 

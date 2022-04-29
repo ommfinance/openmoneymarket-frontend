@@ -9,12 +9,7 @@ import {LockingAction} from "../../models/classes/LockingAction";
 import {ModalType} from "../../models/enums/ModalType";
 import {normalFormat} from "../../common/formats";
 import {LockDate} from "../../models/enums/LockDate";
-import {
-  getLockDateFromMilliseconds,
-  lockedDatesToMilliseconds,
-  lockedUntilDateOptions,
-  Times
-} from "../../common/constants";
+import {getLockDateFromMilliseconds, lockedDatesToMilliseconds, lockedUntilDateOptions, Times} from "../../common/constants";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {NotificationService} from "../../services/notification/notification.service";
 import {ModalService} from "../../services/modal/modal.service";
@@ -26,8 +21,6 @@ import {StateChangeService} from "../../services/state-change/state-change.servi
   templateUrl: './omm-locking.component.html',
 })
 export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewInit {
-
-  @Input() lockAdjustActive = false; // flag that indicates whether the locked adjust is active (confirm and cancel shown)
 
   @Output() sliderValueUpdate = new EventEmitter<number>();
   @Output() lockAdjustClicked = new EventEmitter<void>();
@@ -44,9 +37,13 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
 
   public dynamicLockedOmmAmount: BigNumber = new BigNumber(0); // dynamic user locked Omm amount
 
-  public selectedLockTimeInMillisec = Times.WEEK_IN_MILLISECONDS; // default to 1 week
-  public selectedLockTime = LockDate.WEEK;
+  // default to 1 week
+  public selectedLockTimeInMillisec = lockedDatesToMilliseconds.get(this.currentLockPeriodDate()) ?? Times.WEEK_IN_MILLISECONDS;
+  public selectedLockTime = this.currentLockPeriodDate();
   userHasSelectedLockTime = false;
+
+  private lockAdjustActive = false; // flag that indicates whether the locked adjust is active (confirm and cancel shown)
+
 
   constructor(public persistenceService: PersistenceService,
               private calculationService: CalculationsService,
@@ -122,7 +119,6 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
   }
 
   onLockAdjustClick(): void {
-    this.onLockAdjustCancelClick();
     this.lockAdjustActive = true;
     this.lockOmmSliderCmp.enableSlider();
 
@@ -236,7 +232,13 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
   }
 
   currentLockPeriodDate(): LockDate {
-    const lockDateMilli = this.persistenceService.userCurrentLockedOmmEndInMilliseconds().minus(Utils.timestampNowMilliseconds());
+    const currentLockedDateMilli = this.persistenceService.userCurrentLockedOmmEndInMilliseconds();
+
+    if (currentLockedDateMilli.isZero()) {
+      return LockDate.WEEK;
+    }
+
+    const lockDateMilli = currentLockedDateMilli.minus(Utils.timestampNowMilliseconds());
 
     if (this.userHasSelectedLockTime) {
       return getLockDateFromMilliseconds(lockedDatesToMilliseconds.get(this.selectedLockTime)!.plus(lockDateMilli));
@@ -282,6 +284,10 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
     }
   }
 
+  public isLockAdjustActive(): boolean {
+    return this.lockAdjustActive;
+  }
+
   userCurrentLockedOmmEndInMilliseconds(): BigNumber {
     return this.persistenceService.userCurrentLockedOmmEndInMilliseconds();
   }
@@ -311,7 +317,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
   }
 
   shouldShowbOmmBalance(): boolean {
-    return this.lockAdjustActive || this.userbOmmBalance.gt(0);
+    return this.userLoggedIn() && (this.lockAdjustActive || this.userbOmmBalance.gt(0));
   }
 
   boostAdjustLabel(): string {

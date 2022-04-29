@@ -1211,6 +1211,10 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
     }
   }
 
+  getTotalLiquidityUsd(): BigNumber {
+    return this.persistenceService.getAssetReserveData(this.asset.tag)?.totalLiquidityUSD ?? new BigNumber(0);
+  }
+
   getTotalBorrowUsd(): BigNumber {
     return this.persistenceService.getAssetReserveData(this.asset.tag)?.totalBorrowsUSD.dp(0, BigNumber.ROUND_HALF_CEIL)
       ?? new BigNumber(0);

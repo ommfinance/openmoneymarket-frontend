@@ -40,15 +40,13 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   liquidityBoosterFromEl?: any; @ViewChild("liqBoosterFrom") set i(i: ElementRef) {this.liquidityBoosterFromEl = i?.nativeElement; }
   liquidityBoosterToEl?: any; @ViewChild("liqBoosterTo") set j(j: ElementRef) {this.liquidityBoosterToEl = j?.nativeElement; }
 
-  @ViewChild(OmmLockingComponent) ommLockingComponent!: OmmLockingComponent;
+  @ViewChild(OmmLockingComponent) ommLockingComponent?: OmmLockingComponent;
 
   public activeLiquidityOverview: ActiveLiquidityOverview = this.userLoggedIn() ? ActiveLiquidityOverview.YOUR_LIQUIDITY :
     ActiveLiquidityOverview.ALL_LIQUIDITY;
   public activeLiquidityPoolView: ActiveLiquidityPoolsView = ActiveLiquidityPoolsView.ALL_POOLS;
 
   userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
-
-  lockAdjustActive = false; // flag that indicates whether the locked adjust is active (confirm and cancel shown)
 
   marketBoosterData?: IMarketBoosterData;
   liquidityBoosterData?: ILiquidityBoosterData;
@@ -57,6 +55,7 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   lockingAprTo = new BigNumber(0);
 
   userLockingApr = new BigNumber(0);
+  userDailyLockingOmmRewards = new BigNumber(0);
 
   constructor(public persistenceService: PersistenceService,
               private stateChangeService: StateChangeService,
@@ -95,8 +94,9 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
       this.liquidityBoosterData = this.calculationService.calculateUserbOmmLiquidityBoosters();
       this.userLockingApr = this.calculationService.calculateUserLockingApr(this.persistenceService.userbOmmBalance);
       this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails?.getClone();
+      this.userDailyLockingOmmRewards = this.calculationService.calculateUserDailyLockingOmmRewards();
 
-      this.handleLockAdjustCancelClicked();
+      this.ommLockingComponent?.onLockAdjustCancelClick();
     }
   }
 
@@ -106,8 +106,7 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
    */
 
   onClaimOmmRewardsClick(): void {
-    this.ommLockingComponent.onLockAdjustCancelClick();
-    this.lockAdjustActive = false;
+    this.ommLockingComponent?.onLockAdjustCancelClick();
 
     const rewards = (this.persistenceService.userAccumulatedOmmRewards?.total ?? new BigNumber("0")).dp(2);
 
@@ -123,7 +122,6 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
 
   // On "Lock up OMM" or "Adjust" click
   onLockAdjustClick(): void {
-    this.lockAdjustActive = true;
     this.collapseAllPoolTables();
   }
 
@@ -136,13 +134,13 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   }
 
   onYourPoolsClick(): void {
-    this.ommLockingComponent.onLockAdjustCancelClick();
+    this.ommLockingComponent?.onLockAdjustCancelClick();
     this.collapseAllPoolTables();
     this.activeLiquidityPoolView = ActiveLiquidityPoolsView.YOUR_POOLS;
   }
 
   onAllPoolsClick(): void {
-    this.ommLockingComponent.onLockAdjustCancelClick();
+    this.ommLockingComponent?.onLockAdjustCancelClick();
     this.collapseAllPoolTables();
     this.activeLiquidityPoolView = ActiveLiquidityPoolsView.ALL_POOLS;
   }
@@ -169,8 +167,7 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
     // collapse other pools expanded up
     this.collapsePoolTablesSlideUp(poolData);
 
-    this.lockAdjustActive = false;
-    this.ommLockingComponent.onLockAdjustCancelClick();
+    this.ommLockingComponent?.onLockAdjustCancelClick();
 
     // commit event to state change
     this.stateChangeService.poolClickCUpdate(poolData);
@@ -205,7 +202,7 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   private subscribeToUserModalActionChange(): void {
     // User confirmed the modal action
     this.stateChangeService.userModalActionChange.subscribe((modalAction?: ModalAction) => {
-      this.ommLockingComponent.onLockAdjustCancelClick();
+      this.ommLockingComponent?.onLockAdjustCancelClick();
       this.collapseAllPoolTables();
     });
   }
@@ -247,10 +244,9 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   }
 
   handleLockAdjustCancelClicked(): void {
-    this.lockAdjustActive = false;
-    this.updateUserDailyRewards(this.userLockedOmmBalance());
-    this.updateUserLockApr(this.userLockedOmmBalance());
-    this.updateLiquidityAndMarketBoosters(this.userLockedOmmBalance());
+    this.resetUserDailyRewards();
+    this.resetUserLockApr();
+    this.resetMarketAndLiquidityBoosters();
   }
 
   shouldHideClaimBtn(): boolean {
@@ -313,10 +309,6 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
     }
 
     return false;
-  }
-
-  getUserOmmLockingDailyRewards(): BigNumber {
-    return this.calculationService.calculateUserDailyLockingOmmRewards();
   }
 
   userHasLpTokenAvailableOrHasStaked(poolId: BigNumber): boolean {
@@ -428,7 +420,7 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   }
 
   showBoostedOmmDailyRewardsOmmAmount(): boolean {
-    return this.userLoggedIn() && (this.userHasLockedOmm() || this.lockAdjustActive);
+    return this.userLoggedIn() && (this.userHasLockedOmm() || (this.ommLockingComponent?.isLockAdjustActive() ?? false));
   }
 
   userHasLockedOmm(): boolean {
@@ -450,6 +442,89 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   updateLiquidityAndMarketBoosters(newLockedOmmAmount: BigNumber): void {
     this.updateDynamicMarketBoosters(newLockedOmmAmount);
     this.updateDynamicLiquidityBoosters(newLockedOmmAmount);
+  }
+
+  calculateDynamicBorrowMarketMultiplier(newLockedOmmAmount: BigNumber, assetTag: AssetTag): BigNumber {
+    const newUserbOmmBalance = this.calculationService.calculateNewbOmmBalance(newLockedOmmAmount,
+      this.ommLockingComponent!.selectedLockTimeInMillisec);
+    return this.calculationService.calculateDynamicMarketRewardsBorrowMultiplier(assetTag, newUserbOmmBalance);
+  }
+
+  calculateDynamicSupplyMarketMultiplier(newLockedOmmAmount: BigNumber, assetTag: AssetTag): BigNumber {
+    const newUserbOmmBalance = this.calculationService.calculateNewbOmmBalance(newLockedOmmAmount,
+      this.ommLockingComponent!.selectedLockTimeInMillisec);
+    return this.calculationService.calculateDynamicMarketRewardsSupplyMultiplier(assetTag, newUserbOmmBalance);
+  }
+
+  calculateDynamicLiquidityMultiplier(newLockedOmmAmount: BigNumber, poolId: string): BigNumber {
+    const newUserbOmmBalance = this.calculationService.calculateNewbOmmBalance(newLockedOmmAmount,
+      this.ommLockingComponent!.selectedLockTimeInMillisec);
+    return this.calculationService.calculateDynamicLiquidityRewardsMultiplier(new BigNumber(poolId), newUserbOmmBalance);
+  }
+
+  fromToIsEmpty(fromTo?: { from: BigNumber, to: BigNumber}): boolean {
+    if (!fromTo || !this.userLoggedIn()) {
+      return true;
+    }
+
+    return (fromTo.from.isZero() && fromTo.to.isZero()) || fromTo.from.isNaN() || fromTo.to.isNaN();
+  }
+
+  onLockUntilDateClick(date: LockDate): void {
+    // update dynamic daily OMM rewards based on the newly selected lock date
+    this.updateUserDailyRewards(this.ommLockingComponent!.dynamicLockedOmmAmount);
+
+    // update dynamic liquidity and market boosters
+    this.updateLiquidityAndMarketBoosters(this.ommLockingComponent!.dynamicLockedOmmAmount);
+
+    // update user lock APR
+    this.updateUserLockApr(this.ommLockingComponent!.dynamicLockedOmmAmount);
+  }
+
+  updateUserDailyRewards(lockedOmm: BigNumber): void {
+    const newUserbOmmBalance = this.calculationService.calculateNewbOmmBalance(lockedOmm,
+      this.ommLockingComponent!.selectedLockTimeInMillisec);
+    log.debug(`newUserbOmmBalance = ${newUserbOmmBalance}`);
+    const dailyUsersOmmLockingRewards = this.calculationService.calculateUserDailyLockingOmmRewards(newUserbOmmBalance);
+
+    // set daily rewards text to dynamic value by replacing inner HTML
+    this.setText(this.lockDailyRewardsEl, this.tooUSLocaleString(dailyUsersOmmLockingRewards.dp(2))
+      + (dailyUsersOmmLockingRewards.isGreaterThan(Utils.ZERO) ? " OMM " : ""));
+  }
+
+  resetUserDailyRewards(): void {
+    const dailyUserOmmLockingRewards = this.userDailyLockingOmmRewards;
+    this.setText(this.lockDailyRewardsEl, this.tooUSLocaleString(dailyUserOmmLockingRewards.dp(2))
+      + (dailyUserOmmLockingRewards.isGreaterThan(Utils.ZERO) ? " OMM " : ""));
+  }
+
+  resetUserLockApr(): void {
+    const userLockApr = this.getUserLockingApr();
+    this.setText(this.lockAprEl, this.to2DecimalRndOffPercString(userLockApr)
+      + (userLockApr.isGreaterThan(Utils.ZERO) ? " APR" : ""));
+  }
+
+  updateUserLockApr(lockedOmm: BigNumber): void {
+    const newUserbOmmBalance = this.calculationService.calculateNewbOmmBalance(lockedOmm,
+      this.ommLockingComponent!.selectedLockTimeInMillisec);
+    let userLockApr = this.calculationService.calculateUserLockingApr(newUserbOmmBalance, lockedOmm);
+    userLockApr = userLockApr.gt(1) ? userLockApr.dp(2) : userLockApr;
+
+    // set user lock apr text to dynamic value by replacing inner HTML
+    this.setText(this.lockAprEl, this.to2DecimalRndOffPercString(userLockApr)
+      + (userLockApr.isGreaterThan(Utils.ZERO) ? " APR" : ""));
+  }
+
+  resetMarketAndLiquidityBoosters(): void {
+    const marketBoosterDataFrom = this.marketBoosterData?.from.dp(2, BigNumber.ROUND_HALF_CEIL) ?? new BigNumber(0);
+    const marketBoosterDataTo = this.marketBoosterData?.to.dp(2, BigNumber.ROUND_HALF_CEIL) ?? new BigNumber(0);
+    this.setText(this.liquidityBoosterFromEl, this.tooUSLocaleString(marketBoosterDataFrom) + " x");
+    this.setText(this.liquidityBoosterToEl, this.tooUSLocaleString(marketBoosterDataTo) + " x");
+
+    const liquidityBoosterDataFrom = this.liquidityBoosterData?.from.dp(2, BigNumber.ROUND_HALF_CEIL) ?? new BigNumber(0);
+    const liquidityBoosterDataTo = this.liquidityBoosterData?.to.dp(2, BigNumber.ROUND_HALF_CEIL) ?? new BigNumber(0);
+    this.setText(this.liquidityBoosterFromEl, this.tooUSLocaleString(liquidityBoosterDataFrom) + " x");
+    this.setText(this.liquidityBoosterToEl, this.tooUSLocaleString(liquidityBoosterDataTo) + " x");
   }
 
   updateDynamicLiquidityBoosters(newLockedOmmAmount: BigNumber): void {
@@ -507,7 +582,7 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
           min = newSupplyBooster;
         }
         if (newSupplyBooster.gt(max) || max.eq(-1)) {
-        max = newSupplyBooster;
+          max = newSupplyBooster;
         }
       }
 
@@ -535,64 +610,5 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
 
     this.setText(this.marketBoosterFromEl, this.tooUSLocaleString(min.dp(2, BigNumber.ROUND_HALF_CEIL)) + " x");
     this.setText(this.marketBoosterToEl, this.tooUSLocaleString(max.dp(2, BigNumber.ROUND_HALF_CEIL)) + " x");
-  }
-
-  calculateDynamicBorrowMarketMultiplier(newLockedOmmAmount: BigNumber, assetTag: AssetTag): BigNumber {
-    const newUserbOmmBalance = this.calculationService.calculateNewbOmmBalance(newLockedOmmAmount,
-      this.ommLockingComponent.selectedLockTimeInMillisec);
-    return this.calculationService.calculateDynamicMarketRewardsBorrowMultiplier(assetTag, newUserbOmmBalance);
-  }
-
-  calculateDynamicSupplyMarketMultiplier(newLockedOmmAmount: BigNumber, assetTag: AssetTag): BigNumber {
-    const newUserbOmmBalance = this.calculationService.calculateNewbOmmBalance(newLockedOmmAmount,
-      this.ommLockingComponent.selectedLockTimeInMillisec);
-    return this.calculationService.calculateDynamicMarketRewardsSupplyMultiplier(assetTag, newUserbOmmBalance);
-  }
-
-  calculateDynamicLiquidityMultiplier(newLockedOmmAmount: BigNumber, poolId: string): BigNumber {
-    const newUserbOmmBalance = this.calculationService.calculateNewbOmmBalance(newLockedOmmAmount,
-      this.ommLockingComponent.selectedLockTimeInMillisec);
-    return this.calculationService.calculateDynamicLiquidityRewardsMultiplier(new BigNumber(poolId), newUserbOmmBalance);
-  }
-
-  fromToIsEmpty(fromTo?: { from: BigNumber, to: BigNumber}): boolean {
-    if (!fromTo || !this.userLoggedIn()) {
-      return true;
-    }
-
-    return (fromTo.from.isZero() && fromTo.to.isZero()) || fromTo.from.isNaN() || fromTo.to.isNaN();
-  }
-
-  onLockUntilDateClick(date: LockDate): void {
-    // update dynamic daily OMM rewards based on the newly selected lock date
-    this.updateUserDailyRewards(this.ommLockingComponent.dynamicLockedOmmAmount);
-
-    // update dynamic liquidity and market boosters
-    this.updateLiquidityAndMarketBoosters(this.ommLockingComponent.dynamicLockedOmmAmount);
-
-    // update user lock APR
-    this.updateUserLockApr(this.ommLockingComponent.dynamicLockedOmmAmount);
-  }
-
-  updateUserDailyRewards(lockedOmm: BigNumber): void {
-    const newUserbOmmBalance = this.calculationService.calculateNewbOmmBalance(lockedOmm,
-      this.ommLockingComponent.selectedLockTimeInMillisec);
-    log.debug(`newUserbOmmBalance = ${newUserbOmmBalance}`);
-    const dailyUsersOmmLockingRewards = this.calculationService.calculateUserDailyLockingOmmRewards(newUserbOmmBalance);
-
-    // set daily rewards text to dynamic value by replacing inner HTML
-    this.setText(this.lockDailyRewardsEl, this.tooUSLocaleString(dailyUsersOmmLockingRewards.dp(2))
-      + (dailyUsersOmmLockingRewards.isGreaterThan(Utils.ZERO) ? " OMM " : ""));
-  }
-
-  updateUserLockApr(lockedOmm: BigNumber): void {
-    const newUserbOmmBalance = this.calculationService.calculateNewbOmmBalance(lockedOmm,
-      this.ommLockingComponent.selectedLockTimeInMillisec);
-    let userLockApr = this.calculationService.calculateUserLockingApr(newUserbOmmBalance, lockedOmm);
-    userLockApr = userLockApr.gt(1) ? userLockApr.dp(2) : userLockApr;
-
-    // set user lock apr text to dynamic value by replacing inner HTML
-    this.setText(this.lockAprEl, this.to2DecimalRndOffPercString(userLockApr)
-      + (userLockApr.isGreaterThan(Utils.ZERO) ? " APR" : ""));
   }
 }

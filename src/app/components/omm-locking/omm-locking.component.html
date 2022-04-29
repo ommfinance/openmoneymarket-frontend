@@ -18,11 +18,11 @@
       </div>
       <!-- Button -->
       <div class="grid-cell" [ngStyle]="hideElement(shouldHideBoostedSlider())">
-        <p class="text-right" [ngStyle]="hideElement(lockAdjustActive)">
+        <p class="text-right" [ngStyle]="hideElement(isLockAdjustActive())">
           <a href="javascript:void(0);" class="button" id="boost-adjust" style="margin-top: 0;" (click)="onLockAdjustClick()">{{boostAdjustLabel()}}</a>
         </p>
 
-        <div class="boost-adjust-actions" [ngStyle]="hideElement(!lockAdjustActive)">
+        <div class="boost-adjust-actions" [ngStyle]="hideElement(!isLockAdjustActive())">
           <div class="grid">
             <div class="grid-cell">
               <div class="grid grid-center">
@@ -40,7 +40,7 @@
       </div>
     </div>
 
-    <p class="label intro-label" [ngStyle]="hideElement(lockAdjustActive)">{{boostedOmmPanelMessage()}}</p>
+    <p class="label intro-label" [ngStyle]="hideElement(isLockAdjustActive())">{{boostedOmmPanelMessage()}}</p>
     <div class="threshold locked boost {{shouldHideLockedOmmThreshold() ? 'hide':''}}" [ngStyle]="getLeftLockedThresholdPercentStyle()">
       <dl class="metadata">
         <dt>Locked</dt>
@@ -49,7 +49,7 @@
 
     <!-- Locked OMM slider -->
     <app-boosted-omm-slider #lockOmmSlider
-                            [lockAdjustActive]="lockAdjustActive"
+                            [lockAdjustActive]="isLockAdjustActive()"
                             [shouldHideBoostedSlider]="shouldHideBoostedSlider()"
                             (sliderValueUpdate)="handleLockSliderValueUpdate($event)"
     ></app-boosted-omm-slider>
@@ -57,14 +57,14 @@
     <div class="grid grid-center" [ngStyle]="hideElement(shouldHideBoostedSlider())">
       <div class="grid-cell" style="max-width: 200px;">
         <p class="label">
-          <input [ngStyle]="hideElement(!lockAdjustActive)" #lockInput id="input-boost" (keyup)="onLockedOmmInputLostFocus()"
+          <input [ngStyle]="hideElement(!isLockAdjustActive())" #lockInput id="input-boost" (keyup)="onLockedOmmInputLostFocus()"
                  class="input-boost" type="text" name="">
-          <span [ngStyle]="hideElement(lockAdjustActive)" class="omm-locked">{{userLockedOmmBalance() | roundDown2Dec | usFormat}}</span> / {{getLockSliderMax() | usFormat}} OMM</p>
+          <span [ngStyle]="hideElement(isLockAdjustActive())" class="omm-locked">{{userLockedOmmBalance() | roundDown2Dec | usFormat}}</span> / {{getLockSliderMax() | usFormat}} OMM</p>
           <p class="label hide">3,000 OMM unstaking...</p>
       </div>
       <div class="grid-cell text-right">
-        <p class="label locked-default" [ngStyle]="hideElement(lockAdjustActive || userLockedOmmBalance().isZero())">{{userHasLockedOmm() ? "Locked until" : "Lock up until"}} {{timestampInMillisecondsToPrettyDate(lockDate())}}</p>
-        <div class="locked-adjust" [ngStyle]="hideElement(!lockAdjustActive)">
+        <p class="label locked-default" [ngStyle]="hideElement(isLockAdjustActive() || userLockedOmmBalance().isZero())">{{userHasLockedOmm() ? "Locked until" : "Lock up until"}} {{timestampInMillisecondsToPrettyDate(lockDate())}}</p>
+        <div class="locked-adjust" [ngStyle]="hideElement(!isLockAdjustActive())">
           <p>
             <span class="label">Locked until </span> <a class="dropdown time-selector" (click)="onLockedDateDropdownClick()">
             <span class="animation-underline locked-selector">{{timestampInMillisecondsToPrettyDate(lockDate())}}</span></a></p>
