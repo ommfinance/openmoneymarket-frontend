@@ -18,7 +18,6 @@ import {NotificationService} from "../../services/notification/notification.serv
 import {AssetTag, assetToCollateralAssetTag, CollateralAssetTag} from "../../models/classes/Asset";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {LedgerService} from "../../services/ledger/ledger.service";
-import {DataLoaderService} from "../../services/data-loader/data-loader.service";
 import {LedgerWallet} from "../../models/wallets/LedgerWallet";
 import log from "loglevel";
 import {TransactionDispatcherService} from "../../services/transaction-dispatcher/transaction-dispatcher.service";
@@ -36,7 +35,7 @@ import BigNumber from "bignumber.js";
 @Component({
   selector: 'app-modal',
   templateUrl: './modal.component.html',
-  styleUrls: ['./modal.component.css']
+  styleUrls: ['./modal.component.css'],
 })
 export class ModalComponent extends BaseClass implements OnInit {
 
@@ -57,12 +56,14 @@ export class ModalComponent extends BaseClass implements OnInit {
   @ViewChild('submitProposal', { static: true }) submitProposalModal!: ElementRef;
   @ViewChild('submitVote', { static: true }) submitVoteModal!: ElementRef;
   @ViewChild('lockOmm', { static: true }) lockOmmModal!: ElementRef;
+  @ViewChild('mngStkOmm', { static: true }) manageStakedOmmModal!: ElementRef;
 
   activeModalSubscription: Subscription;
   activeModal?: HTMLElement;
   activeModalChange?: ModalAction;
 
   withdrawOption: "unstake" | "keep" = "keep";
+  mngStkOption: "Lock up" | "Unstake" = "Lock up";
 
   // window on which user is on (e.g. 1st = [0, 1, 2, 3, 4])
   activeLedgerAddressWindow = 0;
@@ -87,7 +88,6 @@ export class ModalComponent extends BaseClass implements OnInit {
               private notificationService: NotificationService,
               public persistenceService: PersistenceService,
               private ledgerService: LedgerService,
-              private dataLoaderService: DataLoaderService,
               private loginService: LoginService,
               private transactionDispatcherService: TransactionDispatcherService,
               private ommService: OmmService,
@@ -149,6 +149,9 @@ export class ModalComponent extends BaseClass implements OnInit {
           break;
         case ModalType.INCREASE_LOCK_TIME_AND_AMOUNT:
           this.setActiveModal(this.lockOmmModal.nativeElement, activeModalChange);
+          break;
+        case ModalType.MANAGE_STAKED_OMM:
+          this.setActiveModal(this.manageStakedOmmModal.nativeElement, activeModalChange);
           break;
         default:
           // check if it is ICX withdraw action and show corresponding specific view / modal
@@ -270,7 +273,7 @@ export class ModalComponent extends BaseClass implements OnInit {
     } else if (this.activeModalChange?.modalType === ModalType.INCREASE_LOCK_TIME_AND_AMOUNT) {
       const unlockTime = this.activeModalChange?.lockingOmmAction?.lockingTime!;
       this.voteService.increaseLockAmountAndPeriodOmm(amount, unlockTime,
-        "Increasing Omm Tokens lock period and amount...");
+        "Locking up Omm Tokens…");
     } else {
       const unlockTime = this.activeModalChange?.lockingOmmAction?.lockingTime!;
 

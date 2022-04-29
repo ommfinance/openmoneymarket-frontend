@@ -9,14 +9,6 @@ import {
 } from '@angular/core';
 import {BaseClass} from "../base-class";
 import {PersistenceService} from "../../services/persistence/persistence.service";
-import {SupplyService} from "../../services/supply/supply.service";
-
-import {WithdrawService} from "../../services/withdraw/withdraw.service";
-import {BorrowService} from "../../services/borrow/borrow.service";
-import {SlidersService} from "../../services/sliders/sliders.service";
-import {RepayService} from "../../services/repay/repay.service";
-import {CalculationsService} from "../../services/calculations/calculations.service";
-import {HeaderComponent} from "../header/header.component";
 import {RiskComponent} from "../risk/risk.component";
 import {Asset} from "../../models/classes/Asset";
 import log from "loglevel";
@@ -40,7 +32,6 @@ export class HomeComponent extends BaseClass implements OnInit, AfterViewInit {
   className = "[HomeComponent]";
 
   // Child components
-  @ViewChild(HeaderComponent) private headerComponent!: HeaderComponent;
   @ViewChild("riskComponent") riskComponent!: RiskComponent;
 
   // Asset children components
@@ -62,12 +53,6 @@ export class HomeComponent extends BaseClass implements OnInit, AfterViewInit {
   public ommApyChecked = false;
 
   constructor(public persistenceService: PersistenceService,
-              public depositService: SupplyService,
-              public withdrawService: WithdrawService,
-              public borrowService: BorrowService,
-              public repayService: RepayService,
-              public slidersService: SlidersService,
-              public calculationService: CalculationsService,
               private cd: ChangeDetectorRef,
               private stateChangeService: StateChangeService,
               private bridgeWidgetService: BridgeWidgetService,
@@ -81,10 +66,6 @@ export class HomeComponent extends BaseClass implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.loadAssetLists();
-
-    if (this.userLoggedIn()) {
-      this.onYourMarketsClick(true);
-    }
 
     // call cd after to avoid ExpressionChangedAfterItHasBeenCheckedError
     this.cd.detectChanges();
@@ -288,7 +269,7 @@ export class HomeComponent extends BaseClass implements OnInit, AfterViewInit {
     if (!this.shouldShowOmmPriceAndToggle() || this.persistenceService.ommPriceUSD.isLessThanOrEqualTo(new BigNumber("0"))) {
       return "";
     } else {
-      return `($${this.formatNumberToUSLocaleString(Utils.roundOffTo2Decimals(this.persistenceService.ommPriceUSD))})`;
+      return `($${this.tooUSLocaleString(Utils.roundOffTo2Decimals(this.persistenceService.ommPriceUSD))})`;
     }
   }
 

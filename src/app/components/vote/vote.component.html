@@ -14,86 +14,12 @@
     <!-- Panel -->
     <div class="grid panel">
       <div class="grid-cell">
-        <div class="grid">
-          <div class="grid-cell boosted-container">
-            <!-- Header -->
-            <div class="grid">
-              <!-- Heading -->
-              <div class="grid-cell">
-                <h3>Voting power <span *ngIf="!userBOMMbalance().isZero() && userBOMMbalance().isPositive()"
-                                       class="label value-bomm-total">{{userBOMMbalance() | roundDown2Dec | usFormat | toZeroIfDash }} bOMM</span>&nbsp;
-                  <span class="bomm-tooltip tooltip">
-                    <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
-                    <p class="bomm-tooltip-content tooltip-content">
-                      Lock up OMM to hold voting power on Omm. The longer you lock up OMM, the more bOMM (boosted OMM)
-                      you'll receive; the amount will decrease over time.
-                    </p>
-                  </span>
-                </h3>
-              </div>
-              <!-- Button -->
-              <div class="grid-cell" [ngStyle]="hideElement(shouldHideBoostedSlider())">
-                <p class="text-right" [ngStyle]="hideElement(lockAdjustActive)">
-                  <a href="javascript:void(0);" class="button" id="boost-adjust" style="margin-top: 0;" (click)="onLockAdjustClick()">{{boostAdjustLabel()}}</a>
-                </p>
-
-                <div class="boost-adjust-actions" [ngStyle]="hideElement(!lockAdjustActive)">
-                  <div class="grid">
-                    <div class="grid-cell">
-                      <div class="grid grid-center">
-                        <div class="grid-cell text-right">
-                          <a href="javascript:void(0);" class="cancel boost-cancel" (click)="onLockAdjustCancelClick()">Cancel</a>
-                        </div>
-                        <div class="grid-cell">
-                          <a href="javascript:void(0);" class="button modal-trigger" style="margin-top: 0;"
-                             data-modal="modal-boost-confirm" (click)="onConfirmLockOmmClick()">Confirm</a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <p class="label intro-label" [ngStyle]="hideElement(lockAdjustActive)">{{boostedOmmPanelMessage()}}</p>
-            <div class="threshold locked boost {{shouldHideLockedOmmThreshold() ? 'hide':''}}" [ngStyle]="getLeftLockedThresholdPercentStyle()">
-              <dl class="metadata">
-                <dt>Locked</dt>
-              </dl>
-            </div>
-
-            <!-- Locked OMM slider -->
-            <app-boosted-omm-slider #lockOmmSlider
-                                    [lockAdjustActive]="lockAdjustActive"
-                                    [shouldHideBoostedSlider]="shouldHideBoostedSlider()"
-                                    (sliderValueUpdate)="handleLockSliderValueUpdate($event)"
-            ></app-boosted-omm-slider>
-
-            <div class="grid grid-center" [ngStyle]="hideElement(shouldHideBoostedSlider())">
-              <div class="grid-cell" style="max-width: 200px;">
-                <p class="label">
-                  <input [ngStyle]="hideElement(!lockAdjustActive)" #lockInput id="input-boost" (input)="onInputLockChange()" class="input-boost" type="text" name=""><span [ngStyle]="hideElement(lockAdjustActive)" class="omm-locked">{{userLockedOmmBalance | roundDown2Dec | usFormat}}</span> / {{getLockSliderMax() | usFormat}} OMM</p>
-              </div>
-              <div class="grid-cell text-right">
-                <p class="label locked-default" [ngStyle]="hideElement(lockAdjustActive || userLockedOmmBalance === 0)">{{userHasLockedOmm() ? "Locked until" : "Lock up until"}} {{timestampInMillisecondsToPrettyDate(lockDate())}}</p>
-                <div class="locked-adjust" [ngStyle]="hideElement(!lockAdjustActive)">
-                  <p>
-                    <span class="label">Locked until </span> <a class="dropdown time-selector" (click)="onLockedDateDropdownClick()">
-                    <span class="animation-underline locked-selector">{{timestampInMillisecondsToPrettyDate(lockDate())}}</span></a></p>
-                  <div class="grid dropdown-content locked-selector">
-                    <div class="grid-cell">
-                      <ul>
-                        <ng-container *ngFor="let date of getLockedUntilDateOptions();">
-                          <li (click)="onLockUntilDateClick(date)">{{date}}</li>
-                        </ng-container>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <app-omm-locking style="display: contents"
+                         [type]="getOmmLckCmpType()"
+                         (lockUntilDateClicked)="onLockUntilDateClick()"
+                         (sliderValueUpdate)="handleLockSliderValueUpdate($event)"
+                         (lockAdjustCancelClicked)="handleLockAdjustCancelClicked()"
+        ></app-omm-locking>
 
         <div class="grid">
           <div class="grid-cell boost-increase border-top">
@@ -101,13 +27,13 @@
               <div class="grid-cell border-right">
                 <dl class="metadata">
                   <dt>Voting power</dt>
-                  <dd>1 bOMM = {{votingPower() | usFormat}} ICX</dd>
+                  <dd #votPwrPerIcx>1 bOMM = {{votingPower | usFormat}} ICX</dd>
                 </dl>
               </div>
               <div class="grid-cell border-right">
                 <dl class="metadata">
                   <dt>Your voting power</dt>
-                  <dd class="value-voting-power">{{userLoggedIn() && yourVotingPower.isGreaterThan(ZERO) ?
+                  <dd class="value-voting-power" #yourVotPow>{{userLoggedIn() && yourVotingPower.isGreaterThan(ZERO) ?
                     (yourVotingPower | roundDown2Dec | usFormat) : "-"}} {{yourVotingPower.isGreaterThan(ZERO) ? " ICX" : ""}}</dd>
                 </dl>
               </div>
@@ -117,7 +43,7 @@
                     <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
                     <p class="total-bomm-tooltip-content tooltip-content">{{totalbOmm() | usFormat}} bOMM</p>
                   </span></dt>
-                  <dd class="value-voting-power-total">{{ommVotingPower() | roundDown2Dec | usFormat}} ICX</dd>
+                  <dd class="value-voting-power-total">{{ommVotingPower | roundDown2Dec | usFormat}} ICX</dd>
                 </dl>
               </div>
             </div>
@@ -129,35 +55,13 @@
   </section>
 
   <!-- Proposals -->
-  <section id="proposal-cards">
-    <!-- Title -->
-    <div class="grid grid-center">
-      <div class="grid-cell">
-        <h2>Latest proposals</h2><span class="label"><a href="javascript:void(0);" routerLink="/vote/all-proposals" class="animation-underline">View all</a></span>
-      </div>
-      <div class="grid-cell">
-        <a *ngIf="userLoggedIn()" href="javascript:void(0);" routerLink="/vote/new-proposal" class="button">New proposal</a>
-      </div>
-    </div>
-
-    <div class="grid cards">
-      <ng-container *ngFor="let proposal of getLatestProposals(); last as isLast;">
-        <a href="javascript:void(0);" routerLink="/vote/proposal" class="grid-cell panel" (click)="onProposalClick(proposal)">
-          <h3>{{proposal.name}}</h3>
-          <p>{{proposal.getShortDescription()}}</p>
-
-          <div class="grid proposal-metadata border-top">
-            <img class="time" src="assets/img/icon/clock.svg"><span class="label">{{proposal.getProposalState(reloaderService, true)}}</span>
-            <div class="green-square"></div><span class="label">{{to0DecimalRoundedDownPercentString(proposal.getApprovedPercentage(), true)}}</span>
-            <div class="purple-square"></div><span class="label">{{to0DecimalRoundedDownPercentString(proposal.getRejectedPercentage(), true)}}</span>
-          </div>
-        </a>
-      </ng-container>
-    </div>
-  </section>
+  <app-latest-proposals style="display: contents"
+                        [latestProposals]="latestProposals"
+  >
+  </app-latest-proposals>
 
   <!-- Your votes -->
-  <section id="your-votes" class="{{this.yourVotesEditMode ? 'adjust' : ''}}" [ngStyle]="hideElement(!userLoggedIn() || !userHasStaked())">
+  <section id="your-votes" class="{{this.yourVotesEditMode ? 'adjust' : ''}}" [ngStyle]="hideElement(!userLoggedIn() || !userHasLockedOmm())">
     <!-- Title -->
     <div class="grid grid-center">
       <div class="grid-cell">
@@ -241,7 +145,7 @@
     <!-- P-Rep list -->
     <div class="grid" *ngIf="searchedPrepList">
       <div class="grid-cell">
-        <table class="list p-reps {{yourVotesEditMode || (userHasStaked() && !listIsNotNullOrEmpty(yourVotesPrepList)) ? 'adjust' : ''}}">
+        <table class="list p-reps {{yourVotesEditMode || (userHasLockedOmm() && !listIsNotNullOrEmpty(yourVotesPrepList)) ? 'adjust' : ''}}">
           <thead>
           <tr>
             <th>Rank</th>
@@ -278,7 +182,7 @@
                 </td>
                 <td>${{getPrepsUSDReward(prep, i) | roundOff0Dec | usFormat}}<br>
                   <span class="label">{{getPrepsIcxReward(prep, i) | roundOff0Dec | usFormat}} ICX</span></td>
-                <td>{{to2DecimalRoundedOffPercentString(getPowerPercent(prep), true)}}<br>
+                <td>{{getPowerPercent(prep) | roundOff2DecPercent: true}}<br>
                   <span class="label">{{prep!.power  | roundOff0Dec | usFormat | toZeroIfDash}}</span></td>
               </tr>
               <!-- Spacer -->

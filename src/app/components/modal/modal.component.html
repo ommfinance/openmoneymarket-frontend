@@ -79,6 +79,54 @@
   </div>
 </div>
 
+<!-- Modal: Manage staked OMM -->
+<div class="modal" id="modal-manage-staked-omm" #mngStkOmm>
+  <div class="modal-content">
+    <!-- Title -->
+    <h3 class="text-center label">Manage your staked OMM</h3>
+    <p class="text-bold text-center">150,000 OMM</p>
+
+    <!-- Message -->
+    <p class="label text-center text-dark" style="margin-bottom: 15px;">Omm has a new staking model. Choose what to do with your staked OMM:</p>
+
+    <!-- Withdraw options -->
+    <div class="grid graphical-options">
+      <div id="withdraw-keep" class="grid-cell text-center">
+        <input class="checkbox-tools" type="radio" name="mngStk" value="Lock up" [(ngModel)]="mngStkOption" id="tool-4" checked>
+        <label class="for-checkbox-tools" for="tool-4">
+          <img src="assets/img/icon/wallet.svg" class="svg">
+          <br>
+          <span class="text-bold">Lock up</span>
+          <br>
+          <span>Until 5 May, 2022</span>
+        </label>
+      </div>
+
+      <div id="withdraw-wait" class="grid-cell text-center">
+        <input class="checkbox-tools" type="radio" name="mngStk" value="Unstake" [(ngModel)]="mngStkOption" id="tool-5">
+        <label class="for-checkbox-tools" for="tool-5">
+          <img src="assets/img/icon/clock.svg" class="svg">
+          <br>
+          <span class="text-bold">Unstake</span>
+          <br>
+          <span>Takes 3 days</span>
+        </label>
+      </div>
+    </div>
+
+    <p class="label text-center hide" style="margin-top: 10px;">Lock up OMM to hold voting power and boost your earning potential. You can increase the time later.</p>
+    <p class="label text-center" style="margin-top: 10px;">Your OMM will be available in 3 days. Lock it to hold voting power and boost your earning potential.</p>
+    <p class="text-center">
+      <a href="#">Learn more about boosted OMM.</a></p>
+
+    <!-- Modal actions -->
+    <div class="modal-actions">
+      <a href="#" class="button hide">Lock up OMM</a>
+      <a href="#" class="button">{{mngStkOption}}</a>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: Boost confirm -->
 <div class="modal" id="modal-boost-confirm" #lockOmm>
   <div class="modal-content">
@@ -391,7 +439,7 @@
       <ng-container *ngFor="let wallet of ledgerWallets; let i = index">
         <tr (click)="onSelectLedgerAddressClick(wallet)">
           <td>{{formatIconAddressToShort(wallet.address)}}</td>
-          <td class="text-right">{{formatNumberToUSLocaleString(ledgerIcxBalance(wallet), true)}} ICX</td>
+          <td class="text-right">{{tooUSLocaleString(ledgerIcxBalance(wallet), true)}} ICX</td>
         </tr>
       </ng-container>
       </tbody>

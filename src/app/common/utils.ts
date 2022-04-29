@@ -137,6 +137,47 @@ export class Utils {
     }
   }
 
+  public static to2DecimalRndOffPercString(num?: BigNumber | string, defaultZero = false): string {
+    if (!num || !(new BigNumber(num).isFinite()) || (+num) <= 0) { return defaultZero ? "0%" : "-"; }
+
+    // convert in to percentage
+    num = new BigNumber(num).multipliedBy(new BigNumber("100"));
+
+    // handle values smaller than 0.01%
+    if (num.isLessThan(new BigNumber("0.01"))) {
+      return Utils.handleSmallDecimal(num);
+    }
+
+    return `${(this.tooUSLocaleString(Utils.roundOffTo2Decimals(num)))}%`;
+  }
+
+  public static to0DecimalRoundedDownPercentString(num?: BigNumber | string, defaultZero = false): string {
+    if (!num || !(new BigNumber(num).isFinite()) || (+num) <= 0) { return defaultZero ? "0%" : "-"; }
+
+    // convert in to percentage
+    num = new BigNumber(num).multipliedBy(new BigNumber("100"));
+
+    if (num.isLessThan(1)) {
+      return defaultZero ? "0%" : "-";
+    }
+
+    return `${(this.tooUSLocaleString(Utils.roundDownToZeroDecimals(num)))}%`;
+  }
+
+  public static tooUSLocaleString(num?: BigNumber | string, defaultZero = false): string {
+    if (!num || !(new BigNumber(num).isFinite()) || (+num) <= 0) { return defaultZero ? "0" : "-"; }
+    if (typeof num === 'string') {
+      return Utils.formatNumberToUSLocaleString(new BigNumber(num));
+    } else {
+      return Utils.formatNumberToUSLocaleString(num);
+    }
+  }
+
+  public static toDollarUSLocaleString(num?: BigNumber | string, defaultZero = false): string {
+    if (!num || !(new BigNumber(num).isFinite()) || (+num) <= 0) { return defaultZero ? "0" : "-"; }
+    return `$${this.tooUSLocaleString(num)}`;
+  }
+
   public static roundUpTo2Decimals(value: BigNumber | string): BigNumber {
     if (value instanceof BigNumber) {
       return new BigNumber(value.toFixed(2, BigNumber.ROUND_UP));
@@ -222,7 +263,7 @@ export class Utils {
     window.dispatchEvent(event);
   }
 
-  public static makeNegativeNumber(value: BigNumber | string): BigNumber {
+  public static toNegative(value: BigNumber | string): BigNumber {
     const bigNum = new BigNumber(value);
     if (bigNum.isZero() || !bigNum.isFinite()) {
       return new BigNumber("0");

@@ -1,8 +1,6 @@
 import {Injectable} from '@angular/core';
 import {IconApiService} from '../icon-api/icon-api.service';
 import {IconJsonRpcResponse} from '../../interfaces/icon-json-rpc-response';
-import {ScoreService} from '../score/score.service';
-import {PersistenceService} from '../persistence/persistence.service';
 import {DataLoaderService} from "../data-loader/data-loader.service";
 import log from "loglevel";
 import {NotificationService} from "../notification/notification.service";
@@ -20,8 +18,6 @@ import {Router} from "@angular/router";
 export class TransactionResultService {
 
   constructor(private iconApiService: IconApiService,
-              private scoreService: ScoreService,
-              private persistenceService: PersistenceService,
               private dataLoaderService: DataLoaderService,
               private notificationService: NotificationService,
               private localStorageService: LocalStorageService,
@@ -190,14 +186,16 @@ export class TransactionResultService {
 
       switch (modalAction.modalType) {
         case ModalType.LOCK_OMM:
-          this.notificationService.showNewNotification(`${lockingAction.amount} Omm Tokens locked.`);
+          this.notificationService.showNewNotification(`${lockingAction.amount} OMM locked until ${
+            Utils.timestampInMillisecondsToPrettyDate(lockingAction.lockingTime)}`);
           break;
         case ModalType.INCREASE_LOCK_TIME:
           this.notificationService.showNewNotification(
             `OMM locked until ${Utils.timestampInMillisecondsToPrettyDate(lockingAction.lockingTime)}`);
           break;
         case ModalType.INCREASE_LOCK_OMM:
-          this.notificationService.showNewNotification(`Increased locked Omm tokens for ${lockingAction.amount}.`);
+          this.notificationService.showNewNotification(`${lockingAction.amount} OMM locked until ${
+            Utils.timestampInMillisecondsToPrettyDate(lockingAction.lockingTime)}`);
           break;
         case ModalType.INCREASE_LOCK_TIME_AND_AMOUNT:
           this.notificationService.showNewNotification(

@@ -1,8 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {IconexApiService} from "../../services/iconex-api/iconex-api.service";
 import {PersistenceService} from "../../services/persistence/persistence.service";
-import {SupplyService} from "../../services/supply/supply.service";
-// @ts-ignore
 import {BaseClass} from "../base-class";
 import {IconexWallet} from "../../models/wallets/IconexWallet";
 import {BridgeWallet} from "../../models/wallets/BridgeWallet";
@@ -30,7 +28,6 @@ export class HeaderComponent extends BaseClass implements OnInit {
   pageTitle = "Home";
 
   constructor(public persistenceService: PersistenceService,
-              public depositService: SupplyService,
               public iconexApiService: IconexApiService,
               private modalService: ModalService,
               private bridgeWidgetService: BridgeWidgetService,

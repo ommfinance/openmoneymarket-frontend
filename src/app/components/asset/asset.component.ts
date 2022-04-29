@@ -4,10 +4,10 @@ import {
   Component,
   ElementRef,
   EventEmitter,
-  Input,
+  Input, OnChanges,
   OnDestroy,
   OnInit,
-  Output,
+  Output, SimpleChanges,
   ViewChild
 } from '@angular/core';
 import {SlidersService} from "../../services/sliders/sliders.service";
@@ -34,11 +34,12 @@ declare var $: any;
 
 @Component({
   selector: 'app-asset',
-  templateUrl: './asset.component.html'
+  templateUrl: './asset.component.html',
 })
-export class AssetComponent extends BaseClass implements OnInit, OnDestroy, AfterViewInit {
+export class AssetComponent extends BaseClass implements OnInit, OnDestroy, AfterViewInit, OnChanges {
 
   @Input() asset!: Asset;
+  assetIsIcx = this.asset?.tag === AssetTag.ICX;
   @Input() ommApyChecked!: boolean;
   @Input() riskSlider!: any;
   @Input() index!: number;
@@ -134,6 +135,12 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
     super(persistenceService);
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.asset) {
+      this.assetIsIcx = this.asset.tag === AssetTag.ICX;
+    }
+  }
+
   ngOnInit(): void {
     this.registerSubscriptions();
 
@@ -142,7 +149,10 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
   }
 
   ngOnDestroy(): void {
-    log.debug(`ngOnDestroy Asset ${this.asset.tag}`);
+    this.sliderBorrow?.noUiSlider?.destroy();
+    this.sliderSupply?.noUiSlider?.destroy();
+    this.supplyChart?.remove();
+    this.borrowChart?.remove();
   }
 
   ngAfterViewInit(): void {
@@ -168,7 +178,7 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
 
     this.supplyChart?.subscribeCrosshairMove((param: any) => {
       if (!param?.point) {
-        this.setText(this.supplyApyEl, `${this.to2DecimalRoundedOffPercentString(this.getMarketSupplyRate())} APY`);
+        this.setText(this.supplyApyEl, `${this.to2DecimalRndOffPercString(this.getMarketSupplyRate())} APY`);
         return;
       }
 
@@ -180,7 +190,7 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
 
     this.borrowChart?.subscribeCrosshairMove((param: any) => {
       if (!param?.point) {
-        this.setText(this.borrowAprEl, `${this.to2DecimalRoundedOffPercentString(this.makeAbsolute(this.getMarketBorrowRate()))} APR`);
+        this.setText(this.borrowAprEl, `${this.to2DecimalRndOffPercString(this.makeAbsolute(this.getMarketBorrowRate()))} APR`);
         return;
       }
 
@@ -590,7 +600,7 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
   }
 
   private subscribeTosIcxSelectedChange(): void {
-    if (this.isAssetIcx()) {
+    if (this.assetIsIcx) {
       this.stateChangeService.sIcxSelectedChange$.subscribe(sIcxSelected => {
         this.sIcxSelected = sIcxSelected;
         this.updateSupplySlider(this.persistenceService.getUserAssetReserve(this.asset.tag));
@@ -643,20 +653,20 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
     if (!reserve) {
       // set borrowed available value
       const borrowAvailable = this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag);
-      this.setBorrowAvailableInput(borrowAvailable.isNegative() ? new BigNumber("0") : borrowAvailable.dp(2));
+      this.setBorrowAvailableInput(borrowAvailable.isNegative() ? new BigNumber("0") : borrowAvailable);
 
       // update asset borrow slider max value to  -> borrowed + borrow available
       max = this.getUserBorrowedAssetBalance().plus(borrowAvailable).dp(2);
     } else {
       // set borrowed available value
       const borrowAvailable = this.calculationService.calculateAvailableBorrowForAsset(this.asset.tag);
-      this.setBorrowAvailableInput(borrowAvailable.isNegative() ? new BigNumber("0") : borrowAvailable.dp(2));
+      this.setBorrowAvailableInput(borrowAvailable.isNegative() ? new BigNumber("0") : borrowAvailable);
 
       // update asset borrow slider max value to  -> borrowed + borrow available
       max = borrowAvailable.isNegative() ? borrowAvailable : this.getUserBorrowedAssetBalance().plus(borrowAvailable);
     }
 
-    this.sliderBorrow.noUiSlider.updateOptions({
+    this.sliderBorrow?.noUiSlider?.updateOptions({
       range: {
         min: 0,
         max: this.deriveBorrowSliderMaxValue(max.dp(2)) // min and max must not equal
@@ -686,11 +696,12 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
     this.inputSupplyAvailable.value = Utils.formatNumberToUSLocaleString(supplyAvailable);
 
     // update asset supply slider max value to  -> supplied + supplied available
-    const oTokenBalance = this.sIcxSelected ? reserve.currentOTokenBalance.dp(2)
-      : this.SICXToICXIfAssetIsICX(reserve.currentOTokenBalance).dp(2);
+    const currentOTokenBalance = reserve.currentOTokenBalance.dp(2);
+    const oTokenBalance = this.sIcxSelected ? currentOTokenBalance :
+      this.SICXToICXIfAssetIsICX(reserve.currentOTokenBalance).dp(2);
     const max = oTokenBalance.plus(supplyAvailable);
 
-    this.sliderSupply.noUiSlider.updateOptions({
+    this.sliderSupply?.noUiSlider?.updateOptions({
       range: {
         min: 0,
         max: this.deriveSupplySliderMaxValue(max.dp(2)) // min and max must not equal
@@ -720,7 +731,7 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
       // in case of ICX leave 2 ICX for the fees if slider max is greater than 2x the buffer
       if (this.supplySliderMaxValue().gt(ICX_SUPPLY_BUFFER * 2)) {
         const sliderMinusBuffer = this.supplySliderMaxValue().minus(ICX_SUPPLY_BUFFER).dp(2).toNumber();
-        if (!this.sIcxSelected && this.isAssetIcx() && value > sliderMinusBuffer) {
+        if (!this.sIcxSelected && this.assetIsIcx && value > sliderMinusBuffer) {
           value = sliderMinusBuffer;
         }
       }
@@ -762,7 +773,7 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
         sIcx = bigNumValue;
       }
       return sIcx;
-    } else if (!this.sIcxSelected && this.isAssetIcx()) {
+    } else if (!this.sIcxSelected && this.assetIsIcx) {
       return this.convertFromICXTosICX(bigNumValue);
     } else {
       return bigNumValue;
@@ -832,14 +843,11 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
 
       if (!borrowUsed.isZero() && bigNumValue.isLessThan(borrowUsed)) {
         const newBorrowedVal = borrowUsed.dp(2, BigNumber.ROUND_UP);
-        log.debug(`newBorrowedVal = ${newBorrowedVal.toNumber()}`);
-        log.debug(`borrowUsed = ${newBorrowedVal.toNumber()}`);
         // Update asset-user borrowed text box
         this.inputBorrowEl.value = Utils.formatNumberToUSLocaleString(newBorrowedVal);
 
         // Update asset-user available text box
         this.setBorrowAvailableInput(Utils.subtract(this.borrowSliderMaxValue(), newBorrowedVal).dp(2));
-        log.debug(`this.sliderBorrow.noUiSlider.set ${newBorrowedVal.toNumber()} [RECURSION]`);
         return this.sliderBorrow.noUiSlider.set(newBorrowedVal.toNumber());
       }
 
@@ -940,14 +948,14 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
     if (!value || value.isZero()) {
       return new BigNumber("0");
     }
-    return this.isAssetIcx() ? this.convertSICXToICX(value) : value;
+    return this.assetIsIcx ? this.convertSICXToICX(value) : value;
   }
 
   private setSupplySliderValue(value: BigNumber, convert = false): void {
-    if (this.userLoggedIn()) {
+    if (this.userLoggedIn() && this.sliderSupply?.noUiSlider) {
       let res: BigNumber;
       // if asset is ICX, convert sICX -> ICX if convert flag is true
-      if (convert && this.isAssetIcx()) {
+      if (convert && this.assetIsIcx) {
         res = this.convertSICXToICX(value).dp(2);
       } else {
         res = value.dp(2);
@@ -955,7 +963,7 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
 
       // if value is greater than slider max, update the sliders max and set the value
       if (!res.isZero() && res.isGreaterThan(this.supplySliderMaxValue())) {
-        this.sliderSupply.noUiSlider.updateOptions({range: { min: 0, max: this.deriveSupplySliderMaxValue(res) }});
+        this.sliderSupply.noUiSlider?.updateOptions({range: { min: 0, max: this.deriveSupplySliderMaxValue(res) }});
       }
 
       this.sliderSupply.noUiSlider.set(res.toNumber());
@@ -968,10 +976,10 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
 
       // if value is greater than slider max, update the sliders max and set the value
       if (!res.isZero() && res.isGreaterThan(this.borrowSliderMaxValue())) {
-        this.sliderBorrow.noUiSlider.updateOptions({range: { min: 0, max: this.deriveBorrowSliderMaxValue(res) }});
+        this.sliderBorrow.noUiSlider?.updateOptions({range: { min: 0, max: this.deriveBorrowSliderMaxValue(res) }});
       }
 
-      this.sliderBorrow.noUiSlider.set(res.toNumber());
+      this.sliderBorrow?.noUiSlider?.set(res.toNumber());
     }
   }
 
@@ -1090,16 +1098,6 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
     $(this.marketExpandedEl).slideUp();
   }
 
-  hideAvailableAssetData(): void {
-    // Hide available assets data
-    $(this.assetYourEl).css("display", "none");
-  }
-
-  showAssetAvailableAndHideAssetYour(): void {
-    // Hide your asset-user version
-    $(this.assetYourEl).css("display", "none");
-  }
-
   removeAdjustClass(): void {
     // Remove adjust class
     this.removeClass(this.supplyEl, "adjust");
@@ -1121,13 +1119,13 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
   }
 
   resetBorrowInputs(): void {
-    $(this.inputBorrowEl).attr('disabled', 'disabled');
-    $(this.inputBorrowAvailable).attr('disabled', 'disabled');
+    this.inputBorrowEl.setAttribute("disabled", "");
+    this.inputBorrowAvailable.setAttribute("disabled", "");
   }
 
   resetSupplyInputs(): void {
-    $(this.inputSupplyEl).attr('disabled', 'disabled');
-    $(this.inputSupplyAvailable).attr('disabled', 'disabled');
+    this.inputSupplyEl.setAttribute("disabled", "");
+    this.inputSupplyAvailable.setAttribute("disabled", "");
   }
 
   disableAndResetSupplySlider(): void {
@@ -1145,10 +1143,10 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
 
   disableInputs(): void {
     // Disable asset-user inputs (Your markets)
-    $(this.inputSupplyEl).attr('disabled', 'disabled');
-    $(this.inputSupplyAvailable).attr('disabled', 'disabled');
-    $(this.inputBorrowEl).attr('disabled', 'disabled');
-    $(this.inputBorrowAvailable).attr('disabled', 'disabled');
+    this.inputSupplyEl.setAttribute("disabled", "");
+    this.inputSupplyAvailable.setAttribute("disabled", "");
+    this.inputBorrowEl.setAttribute("disabled", "");
+    this.inputBorrowAvailable.setAttribute("disabled", "");
   }
 
   enableAssetBorrow(): void {
@@ -1159,14 +1157,6 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
 
   isAssetOmm(): boolean {
     return this.asset.tag === AssetTag.OMM;
-  }
-
-  hideAsset(): void {
-    $(this.assetYourEl).css("display", "none");
-  }
-
-  showAsset(): void {
-    $(this.assetYourEl).css("display", "table-row");
   }
 
   shouldShowBorrowDeny(): boolean {
@@ -1214,7 +1204,7 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
 
   getTotalLiquidity(): BigNumber {
     const res = this.persistenceService.getAssetReserveData(this.asset.tag)?.totalLiquidity ?? new BigNumber("0");
-    if (this.isAssetIcx() && !this.sIcxSelected) {
+    if (this.assetIsIcx && !this.sIcxSelected) {
       return this.convertSICXToICX(res).dp(0, BigNumber.ROUND_HALF_CEIL);
     } else {
       return res.dp(0, BigNumber.ROUND_HALF_CEIL);
@@ -1222,8 +1212,7 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
   }
 
   getTotalLiquidityUsd(): BigNumber {
-    return this.persistenceService.getAssetReserveData(this.asset.tag)?.totalLiquidityUSD.dp(0, BigNumber.ROUND_HALF_CEIL)
-      ?? new BigNumber(0);
+    return this.persistenceService.getAssetReserveData(this.asset.tag)?.totalLiquidityUSD ?? new BigNumber(0);
   }
 
   getTotalBorrowUsd(): BigNumber {
@@ -1273,13 +1262,8 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
     return new BigNumber(usLocale.from(this.inputSupplyEl.value));
   }
 
-  shouldShowUnstaking(): boolean {
-    const amount = this.persistenceService.userUnstakingInfo?.totalAmount ?? new BigNumber("0");
-    return this.isAssetIcx() && amount.isGreaterThan(Utils.ZERO);
-  }
-
   getMarketBorrowRate(): BigNumber {
-    return this.ommApyChecked ? this.allMarketsBorrowApyPlusOmmApy : Utils.makeNegativeNumber(this.allMarketsBorrowApy);
+    return this.ommApyChecked ? this.allMarketsBorrowApyPlusOmmApy : Utils.toNegative(this.allMarketsBorrowApy);
   }
 
   getMarketSupplyRate(): BigNumber {
@@ -1287,7 +1271,7 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
   }
 
   getUserBorrowApy(): BigNumber {
-    return this.ommApyChecked ? this.userMarketsBorrowApyPlusOmmApy : Utils.makeNegativeNumber(this.userMarketsBorrowApy);
+    return this.ommApyChecked ? this.userMarketsBorrowApyPlusOmmApy : Utils.toNegative(this.userMarketsBorrowApy);
   }
 
   getUserSupplyApy(): BigNumber {
@@ -1325,11 +1309,11 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
   }
 
   getAssetTagAdjusted(): string {
-    return this.isAssetIcx() ? "ICX / sICX" : this.asset.tag.toString();
+    return this.assetIsIcx ? "ICX / sICX" : this.asset.tag.toString();
   }
 
   getBorrowAssetTagAdjusted(): string {
-    return this.isAssetIcx() ? "sICX" : this.asset.tag.toString();
+    return this.assetIsIcx ? "sICX" : this.asset.tag.toString();
   }
 
   getInputPadding(inputSupply: boolean, tag?: string, el?: any): string {

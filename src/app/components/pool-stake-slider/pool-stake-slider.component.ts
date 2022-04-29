@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import {UserPoolData} from "../../models/classes/UserPoolData";
 import {BaseClass} from "../base-class";
 import {PersistenceService} from "../../services/persistence/persistence.service";
@@ -143,7 +143,7 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
 
     // if value is greater than slider max, update the sliders max and set the value
     if (res.isGreaterThan(this.sliderMaxValue())) {
-      this.sliderEl.noUiSlider.updateOptions({range: { min: 0, max: res.dp(2).toNumber() }});
+      this.sliderEl.noUiSlider?.updateOptions({range: { min: 0, max: res.dp(2).toNumber() }});
     }
 
     this.sliderEl.noUiSlider.set(res.dp(2).toNumber());

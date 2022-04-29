@@ -31,16 +31,16 @@ export class VoteAndLockingService {
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
-  public lockOmm(amount: number, unlockTime: BigNumber, notificationMessage: string): void {
-    amount = Math.round(amount);
+  public lockOmm(amount: BigNumber, unlockTime: BigNumber, notificationMessage: string): void {
+    amount = amount.dp(0);
     const tx = this.buildLockOmmTx(amount, unlockTime);
 
     log.debug(`Lock OMM TX: `, tx);
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
-  public increaseLockAmountAndPeriodOmm(amount: number, unlockTime: BigNumber, notificationMessage: string): void {
-    amount = Math.round(amount);
+  public increaseLockAmountAndPeriodOmm(amount: BigNumber, unlockTime: BigNumber, notificationMessage: string): void {
+    amount = amount.dp(0);
     const tx = this.buildIncreaseLockPeriodAndAmountOmmTx(amount, unlockTime);
 
     log.debug(`Increase Lock amount and unlock period OMM TX: `, tx);
@@ -54,8 +54,8 @@ export class VoteAndLockingService {
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
-  public increaseOmmLockAmount(amount: number, notificationMessage: string): void {
-    amount = Math.round(amount);
+  public increaseOmmLockAmount(amount: BigNumber, notificationMessage: string): void {
+    amount = amount.dp(0);
     const tx = this.buildIncreaseLockAmountOmmTx(amount);
 
     log.debug(`Increase Locked OMM TX: `, tx);
@@ -92,7 +92,7 @@ export class VoteAndLockingService {
    * @param unlockTime - lock time in milliseconds that needs to be converted to microseconds
    * @return any lock OMM Tokens Icon transaction
    */
-  private buildLockOmmTx(amount: number, unlockTime: BigNumber): any {
+  private buildLockOmmTx(amount: BigNumber, unlockTime: BigNumber): any {
     this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
 
     // convert to microseconds
@@ -119,7 +119,7 @@ export class VoteAndLockingService {
    * @param unlockTime - lock time in milliseconds that needs to be converted to microseconds
    * @return any lock OMM Tokens Icon transaction
    */
-  private buildIncreaseLockPeriodAndAmountOmmTx(amount: number, unlockTime: BigNumber): any {
+  private buildIncreaseLockPeriodAndAmountOmmTx(amount: BigNumber, unlockTime: BigNumber): any {
     this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
 
     // convert to microseconds
@@ -144,7 +144,7 @@ export class VoteAndLockingService {
    * @param amount - Amount of OMM tokens to lock
    * @return any lock OMM Tokens Icon transaction
    */
-  private buildIncreaseLockAmountOmmTx(amount: number): any {
+  private buildIncreaseLockAmountOmmTx(amount: BigNumber): any {
     this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
 
     log.debug(`Increase Lock Omm amount = ` + amount.toString());
@@ -248,11 +248,7 @@ export class VoteAndLockingService {
     const value = IconConverter.toHex(IconAmount.of(proposal.voteDefinitionFee, 18).toLoop());
     const data = IconConverter.fromUtf8(`{ "method": "defineVote", "params": { "name": "${
       proposal.title}", "description": "${ // "unique name of the proposal"
-      proposal.description}", "vote_start": ${ // "description of the proposal"
-      proposal.voteStart.toString()}, "snapshot": ${ // voting start timestamp in microseconds
-      proposal.snapshot.toString()} , "forum": "${ // forum link
-      proposal.forumLink
-    }"}}`);
+      proposal.description}", "forum": "${proposal.forumLink}"}}`);
 
     const params = {
       _to: to,

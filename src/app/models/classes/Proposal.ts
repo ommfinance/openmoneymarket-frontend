@@ -107,7 +107,7 @@ export class Proposal {
     }
   }
 
-  getProposalState(reloaderService: ReloaderService, shortVersion: boolean = false): string {
+  getProposalState(currentTimestampMicro: BigNumber, shortVersion: boolean = false): string {
     switch (this.status) {
       case ProposalStatus.CANCELLED:
         return "Cancelled";
@@ -122,7 +122,7 @@ export class Proposal {
       case ProposalStatus.SUCCEEDED:
         return "Approved";
       default:
-        const secondsUntilStart = (this.endDay.minus(reloaderService.currentTimestampMicro)).dividedBy(new BigNumber("1000000"))
+        const secondsUntilStart = (this.endDay.minus(currentTimestampMicro)).dividedBy(new BigNumber("1000000"))
           .dp(2);
         const daysUntilStart = secondsUntilStart.dividedBy(Times.DAY_IN_SECONDS).dp(0);
         const hoursUntilStart = secondsUntilStart.dividedBy(Times.HOUR_IN_SECONDS).dp(0)
