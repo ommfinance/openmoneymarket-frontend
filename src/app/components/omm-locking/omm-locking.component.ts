@@ -356,4 +356,13 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
     }
   }
 
+  getTitle(): string {
+    if (this.type === OmmLockingCmpType.VOTE) {
+      return "Voting power";
+    } else {
+      return "Earning potential";
+    }
+
+  }
+
 }
