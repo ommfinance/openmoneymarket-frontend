@@ -125,6 +125,7 @@
     <div class="grid panel">
       <div class="grid-cell">
         <app-omm-locking style="display: contents"
+                         [type]="getOmmLckCmpType()"
                          (lockAdjustClicked)="onLockAdjustClick()"
                          (lockUntilDateClicked)="onLockUntilDateClick($event)"
                          (sliderValueUpdate)="handleLockSliderValueUpdate($event)"

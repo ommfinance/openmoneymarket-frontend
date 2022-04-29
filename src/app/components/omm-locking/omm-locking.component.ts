@@ -15,6 +15,7 @@ import {NotificationService} from "../../services/notification/notification.serv
 import {ModalService} from "../../services/modal/modal.service";
 import {OmmTokenBalanceDetails} from "../../models/classes/OmmTokenBalanceDetails";
 import {StateChangeService} from "../../services/state-change/state-change.service";
+import {OmmLockingCmpType} from "../../models/enums/OmmLockingComponent";
 
 @Component({
   selector: 'app-omm-locking',
@@ -22,6 +23,7 @@ import {StateChangeService} from "../../services/state-change/state-change.servi
 })
 export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewInit {
 
+  @Input() type!: OmmLockingCmpType;
   @Output() sliderValueUpdate = new EventEmitter<number>();
   @Output() lockAdjustClicked = new EventEmitter<void>();
   @Output() lockAdjustCancelClicked = new EventEmitter<void>();
@@ -140,7 +142,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
 
     // reset bOmm balance
     this.setText(this.userbOmmBalanceEl, this.toZeroIfDash(this.tooUSLocaleString(this.userbOmmBalance.dp(2)))
-      + (this.userbOmmBalance.isGreaterThan(Utils.ZERO) ? " bOMM " : ""));
+      + (this.userbOmmBalance.isGreaterThan(Utils.ZERO) ? " bOMM" : ""));
   }
 
   onLockedDateDropdownClick(): void {
@@ -151,7 +153,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
     const newUserbOmmBalance = this.calculationService.calculateNewbOmmBalance(newLockedOmmAmount, this.selectedLockTimeInMillisec);
 
     this.setText(this.userbOmmBalanceEl, this.toZeroIfDash(this.tooUSLocaleString(newUserbOmmBalance.dp(2)))
-      + (newUserbOmmBalance.isGreaterThan(Utils.ZERO) ? " bOMM " : ""));
+      + (newUserbOmmBalance.isGreaterThan(Utils.ZERO) ? " bOMM" : ""));
   }
 
   /**
@@ -334,10 +336,24 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
       return "Earn or buy OMM, then lock it up here to boost your earning potential and voting power.";
     } else if (this.userLoggedIn() && (this.userHasLockedOmm() || this.userHasOmmTokens())) {
       // unlocked OMM (no market or LP participation)
-      return "Lock up OMM to boost your earning potential.";
+      if (this.type === OmmLockingCmpType.REWARDS) {
+        return "Lock up OMM to boost your earning potential.";
+      } else {
+        return "Lock up OMM to hold voting power on Omm.";
+      }
     }
 
     return "Earn or buy OMM, then lock it up here to boost your earning potential and voting power.";
+  }
+
+  bOmmTooltipContent(): string {
+    if (this.type === OmmLockingCmpType.VOTE) {
+      return "Lock up OMM to hold voting power on Omm. The longer you lock up OMM, the more bOMM (boosted OMM) you'll receive; " +
+        "the amount will decrease over time.";
+    } else {
+      return "Lock up OMM to boost your earning potential by up to 2.5 x. The longer you lock up OMM, the more bOMM (boosted OMM) " +
+        "you'll receive; the amount will decrease over time.";
+    }
   }
 
 }

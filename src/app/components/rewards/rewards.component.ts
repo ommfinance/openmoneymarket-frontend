@@ -19,6 +19,7 @@ import {OmmLockingComponent} from "../omm-locking/omm-locking.component";
 import {IMarketBoosterData} from "../../models/Interfaces/IMarketBoosterData";
 import {ILiquidityBoosterData} from "../../models/Interfaces/ILiquidityBoosterData";
 import log from "loglevel";
+import {OmmLockingCmpType} from "../../models/enums/OmmLockingComponent";
 
 declare var $: any;
 
@@ -289,6 +290,10 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   getUserPoolsAvailableData(): UserPoolData[] {
     return this.persistenceService.userPools?.filter(pool => pool.userAvailableBalance.isGreaterThan(Utils.ZERO)
       && pool.userStakedBalance.isZero());
+  }
+
+  getOmmLckCmpType(): OmmLockingCmpType {
+    return OmmLockingCmpType.REWARDS;
   }
 
   userHasStakedOrAvailableToAnyPool(): boolean {

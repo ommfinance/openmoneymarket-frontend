@@ -22,6 +22,7 @@ import {Proposal} from "../../models/classes/Proposal";
 import {Router} from "@angular/router";
 import {LockDate} from "../../models/enums/LockDate";
 import {OmmLockingComponent} from "../omm-locking/omm-locking.component";
+import {OmmLockingCmpType} from "../../models/enums/OmmLockingComponent";
 
 
 @Component({
@@ -349,6 +350,10 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     return this.persistenceService.prepList?.prepAddressToLogoUrlMap.get(address) ?? defaultPrepLogoUrl;
   }
 
+  getOmmLckCmpType(): OmmLockingCmpType {
+    return OmmLockingCmpType.VOTE;
+  }
+
   prepIsInYourVotes(prep: Prep): boolean {
     for (const p of this.yourVotesPrepList) {
       if (p.address === prep.address) {
@@ -360,10 +365,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   errorHandlerPrepLogo($event: any): void {
     $event.target.src = defaultPrepLogoUrl;
-  }
-
-  onProposalClick(proposal: Proposal): void {
-    this.router.navigate(["vote/proposal", proposal.id.toString()]);
   }
 
   /**

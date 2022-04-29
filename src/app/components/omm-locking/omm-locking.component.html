@@ -6,14 +6,11 @@
       <div class="grid-cell">
         <h3>Earning potential <span *ngIf="shouldShowbOmmBalance()" class="label value-bomm-total" #bommBaln>{{userbOmmBalance | roundDown2Dec | usFormat | toZeroIfDash }} bOMM</span>&nbsp;
           <span class="bomm-tooltip tooltip">
-                    <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
-                    <div class="tooltip-content">
-                      <p class="bomm-tooltip-content">
-                        Lock up OMM to boost your earning potential by up to 2.5 x. The longer you lock up OMM,
-                        the more bOMM (boosted OMM) you'll receive; the amount will decrease over time.
-                      </p>
-                    </div>
-                  </span>
+            <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+            <div class="tooltip-content">
+              <p class="bomm-tooltip-content">{{bOmmTooltipContent()}}</p>
+            </div>
+          </span>
         </h3>
       </div>
       <!-- Button -->

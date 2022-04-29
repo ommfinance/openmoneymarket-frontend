@@ -620,24 +620,36 @@ export class CalculationsService {
     return supplyApySum.dividedBy(supplySum);
   }
 
+  // Sum(User Borrows Amount in USD * (OMM reward Borrow APY - Borrow APY))/Sum(User Borrows in USD)
   public getYourBorrowApy(ommApyIncluded = false): BigNumber {
+    log.debug("****** User total borrow APY calculation ******");
     let borrowApySum = new BigNumber("0");
-    let borrowSum = new BigNumber("0");
-    let borrowed;
+    let userBorrowsInUsdSum = new BigNumber("0");
+    let borrowedInUSD;
     let borrowApy;
 
+    log.debug("Calculating sums:");
     // Sum(My borrow amount for each asset * Borrow APY for each asset)
     this.persistenceService.userReserves.reserveMap.forEach((reserve: UserReserveData | undefined, assetTag: AssetTag) => {
       if (reserve && !reserve.borrowRate.isNaN() && reserve.borrowRate.gt(0)) {
-        borrowed = reserve?.currentBorrowBalanceUSD ?? new BigNumber("0");
+        borrowedInUSD = reserve?.currentBorrowBalanceUSD ?? new BigNumber("0");
         borrowApy = reserve?.borrowRate ?? new BigNumber("0");
         const rate = ommApyIncluded ?  this.calculateBorrowOmmRewardsApy(assetTag).minus(borrowApy) : Utils.toNegative(borrowApy);
-        borrowApySum = borrowApySum.plus(borrowed.multipliedBy(rate));
-        borrowSum = borrowSum.plus(borrowed);
+        borrowApySum = borrowApySum.plus(borrowedInUSD.multipliedBy(rate));
+        userBorrowsInUsdSum = userBorrowsInUsdSum.plus(borrowedInUSD);
+
+        log.debug(`${assetTag}`);
+        log.debug(`User Borrows amount in USD = ${borrowedInUSD}`);
+        log.debug(`Borrow APY = ${borrowApy}`);
+        log.debug(ommApyIncluded ? `(OMM reward Borrow APY - Borrow APY) = ${borrowApy}` : ``);
       }
     });
 
-    return borrowApySum.dividedBy(borrowSum);
+    log.debug("Sums results:");
+    log.debug(`borrowApySum = ${borrowApySum}`);
+    log.debug(`userBorrowsInUsdSum = ${userBorrowsInUsdSum}`);
+
+    return borrowApySum.dividedBy(userBorrowsInUsdSum);
   }
 
   public calculateBorrowFee(amount?: BigNumber): BigNumber {
