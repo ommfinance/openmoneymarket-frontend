@@ -66,6 +66,26 @@ export class CalculationsService {
     return this.bOmmRewardsMultiplier(userAssetSupply, totalAssetSupply, userbOMMBalance, totalbOmmBalance);
   }
 
+  public calculateDynamicMarketRewardsSupplyMultiplierForSupply(assetTag: AssetTag, supplied?: BigNumber): BigNumber {
+    const userAssetSupply = supplied ? supplied : this.persistenceService.getUserSuppliedAssetBalance(assetTag);
+    const userbOMMBalance = this.persistenceService.userbOmmBalance;
+    const totalAssetSupply = this.persistenceService.getReserveTotalLiquidity(assetTag);
+    const totalbOmmBalance = this.persistenceService.bOmmTotalSupply.plus(userbOMMBalance.minus(
+      this.persistenceService.userbOmmBalance));
+
+    return this.bOmmRewardsMultiplier(userAssetSupply, totalAssetSupply, userbOMMBalance, totalbOmmBalance);
+  }
+
+  public calculateDynamicMarketRewardsBorrowMultiplierForBorrow(assetTag: AssetTag, borrowed?: BigNumber): BigNumber {
+    const userAssetBorrow = borrowed ? borrowed : this.persistenceService.getUserBorrAssetBalance(assetTag);
+    const userbOMMBalance = this.persistenceService.userbOmmBalance;
+    const totalAssetBorrow = this.persistenceService.getReserveTotalLiquidity(assetTag);
+    const totalbOmmBalance = this.persistenceService.bOmmTotalSupply.plus(userbOMMBalance.minus(
+      this.persistenceService.userbOmmBalance));
+
+    return this.bOmmRewardsMultiplier(userAssetBorrow, totalAssetBorrow, userbOMMBalance, totalbOmmBalance);
+  }
+
   public calculateMarketRewardsSupplyMultiplier(assetTag: AssetTag): BigNumber {
     const userAssetSupply = this.persistenceService.getUserSuppliedAssetBalance(assetTag);
     const totalAssetSupply = this.persistenceService.getReserveTotalLiquidity(assetTag);
@@ -482,24 +502,39 @@ export class CalculationsService {
   /**
    * @description Calculate users OMM rewards for supply of specific asset - reserve (e.g. USDS, ICX, ..)
    * @param assetTag - Tag (ticker) of the asset
-   * @param supplied - Optional parameter for dynamic calculations based on supplied change (slider)
+   * @param newSupplyValue - Optional parameter for dynamic calculations based on supplied change (slider)
    */
-  public calculateUserDailySupplyOmmReward(assetTag: AssetTag | CollateralAssetTag, supplied?: BigNumber): BigNumber {
-    if (supplied && assetTag === AssetTag.ICX) {
-      supplied = Utils.convertICXTosICX(supplied, this.persistenceService.sIcxToIcxRate());
-    }
+  public calculateUserDailySupplyOmmReward(assetTag: AssetTag | CollateralAssetTag, newSupplyValue?: BigNumber): BigNumber {
+    const currentUserDailySupplyRewards = this.persistenceService.userDailyOmmRewards?.getSupplyRewardForAsset(assetTag)
+      ?? new BigNumber(0);
+    const oldSupplyValue = this.persistenceService.getUserSuppliedAssetUSDBalance(assetTag);
+    newSupplyValue = newSupplyValue ? newSupplyValue.multipliedBy(this.persistenceService.getAssetExchangePrice(assetTag)) : oldSupplyValue;
 
-    const reserveData = this.persistenceService.getAssetReserveData(assetTag);
-    const userReserveData = this.persistenceService.getUserAssetReserve(assetTag);
+    const oldSupplyMultiplier = this.persistenceService.userMarketSupplyMultiplierMap.get(assetTag) ?? new BigNumber(0);
+    const newSupplyMultiplier = this.calculateDynamicMarketRewardsSupplyMultiplierForSupply(assetTag, newSupplyValue);
 
-    if (reserveData && userReserveData) {
-      const dailySupplyRewards = this.persistenceService.dailyRewardsAllPoolsReserves?.reserve.getDailySupplyRewardsForReserve(assetTag)
-        ?? new BigNumber("0");
+    log.debug("**** calculateUserDailySupplyOmmReward ****");
+    log.debug(`assetTag = ${assetTag}`);
+    log.debug(`${newSupplyValue ? "Dynamic" : "Static"} calculation!`);
+    log.debug(`newSupplyValue = ${newSupplyValue}`);
+    log.debug(`oldSupplyValue = ${oldSupplyValue}`);
+    log.debug(`newSupplyMultiplier = ${newSupplyMultiplier}`);
+    log.debug(`oldSupplyMultiplier = ${oldSupplyMultiplier}`);
+    log.debug(`currentUserDailySupplyRewards = ${currentUserDailySupplyRewards}`);
 
-      return this.userSupplyOmmRewardsFormula(dailySupplyRewards, reserveData, userReserveData, supplied);
+    let res;
+    if (newSupplyValue.isZero() || oldSupplyValue.isZero() || newSupplyMultiplier.isZero() || oldSupplyMultiplier.isZero()
+      || currentUserDailySupplyRewards.isZero()) {
+      res = new BigNumber(0);
     } else {
-      return new BigNumber("0");
+      res = (newSupplyValue.dividedBy(oldSupplyValue)).multipliedBy(newSupplyMultiplier.dividedBy(oldSupplyMultiplier))
+        .multipliedBy(currentUserDailySupplyRewards);
     }
+
+
+    log.debug(`result = ${res}`);
+
+    return res;
   }
 
   // Lending/Borrowing Portion (0.1) * Token Distribution for that day (1M) * reserve portion (0.4)
@@ -523,37 +558,37 @@ export class CalculationsService {
   /**
    * @description Calculate users OMM rewards for borrow of specific asset - reserve (e.g. USDS, ICX, ..)
    * @param assetTag - Tag (ticker) of the asset
-   * @param borrowed - Optional parameter for dynamic calculations based on borrow change (slider)
+   * @param newBorrowValue - Optional parameter for dynamic calculations based on borrow change (slider)
    */
-  public calculateUserDailyBorrowOmmReward(assetTag: AssetTag, borrowed?: BigNumber): BigNumber {
-    const reserveData = this.persistenceService.getAssetReserveData(assetTag);
-    const userReserveData = this.persistenceService.getUserAssetReserve(assetTag);
+  public calculateUserDailyBorrowOmmReward(assetTag: AssetTag, newBorrowValue?: BigNumber): BigNumber {
+    const currentUserDailyBorrowRewards: any = this.persistenceService.userDailyOmmRewards?.getBorrowRewardForAsset(assetTag);
+    const oldBorrowValue = this.persistenceService.getUserBorrowedAssetUSDBalance(assetTag);
+    newBorrowValue = newBorrowValue ? newBorrowValue.multipliedBy(this.persistenceService.getAssetExchangePrice(assetTag)) : oldBorrowValue;
 
-    if (reserveData && userReserveData) {
-      const dailyBorrowRewards = this.persistenceService.dailyRewardsAllPoolsReserves?.reserve.getDailyBorrowRewardsForReserve(assetTag)
-        ?? new BigNumber("0");
-      return this.userBorrowOmmRewardsFormula(dailyBorrowRewards, reserveData, userReserveData, borrowed);
+    const oldBorrowMultiplier = this.persistenceService.userMarketBorrowMultiplierMap.get(assetTag) ?? new BigNumber(0);
+    const newBorrowMultiplier = this.calculateDynamicMarketRewardsBorrowMultiplierForBorrow(assetTag, newBorrowValue);
+
+    log.debug("**** calculateUserDailyBorrowOmmReward ****");
+    log.debug(`assetTag = ${assetTag}`);
+    log.debug(`${newBorrowValue ? "Dynamic" : "Static"} calculation!`);
+    log.debug(`newBorrowValue = ${newBorrowValue}`);
+    log.debug(`oldBorrowValue = ${oldBorrowValue}`);
+    log.debug(`newBorrowMultiplier = ${newBorrowMultiplier}`);
+    log.debug(`oldBorrowMultiplier = ${oldBorrowMultiplier}`);
+    log.debug(`currentUserDailyBorrowRewards = ${currentUserDailyBorrowRewards}`);
+
+    let res;
+    if (newBorrowValue.isZero() || oldBorrowValue.isZero() || newBorrowMultiplier.isZero() || oldBorrowMultiplier.isZero()
+      || currentUserDailyBorrowRewards.isZero()) {
+      res = new BigNumber(0);
     } else {
-      return new BigNumber("0");
-    }
-  }
-
-  // Lending/Borrowing Portion (0.1) * Token Distribution for that day (1M) * reserve portion (0.4)
-  // * reserve Borrowing (0.5) * User's reserve borrowd balance/Total reserve borrowed balance)
-  public userBorrowOmmRewardsFormula(dailyBorrowRewards: BigNumber, reserveData: ReserveData, userReserveData: UserReserveData,
-                                     borrowed?: BigNumber): BigNumber {
-    // check if is dynamic borrow value or not
-    const amountBeingBorrowed = borrowed ? borrowed : userReserveData.currentBorrowBalance;
-
-    // if it is a dynamic borrow amount add it to the total liquidity and subtract the current borrowed
-    const totalReserveBorrowed = borrowed ? borrowed.plus(reserveData.totalBorrows).minus(userReserveData.currentBorrowBalance)
-      : reserveData.totalBorrows;
-
-    if (dailyBorrowRewards.isZero() || amountBeingBorrowed.isZero() || totalReserveBorrowed.isZero()) {
-      return new BigNumber("0");
+      res = (newBorrowValue.dividedBy(oldBorrowValue)).multipliedBy(newBorrowMultiplier.dividedBy(oldBorrowMultiplier))
+        .multipliedBy(currentUserDailyBorrowRewards);
     }
 
-    return dailyBorrowRewards.multipliedBy(amountBeingBorrowed).dividedBy(totalReserveBorrowed);
+    log.debug(`result = ${res}`);
+
+    return res;
   }
 
   public getTotalAvgSupplyApy(ommApyIncluded = false): BigNumber {
