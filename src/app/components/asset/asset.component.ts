@@ -780,10 +780,10 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
     }
   }
 
-  updateDailySupplyInterest(bigNumValue: BigNumber): void {
+  updateDailySupplyInterest(supplyValue: BigNumber): void {
     const assetTag = this.sIcxSelected ? CollateralAssetTag.sICX : this.asset.tag;
     // Update asset-user's supply interest
-    this.setText(this.suppInterestEl, assetPrefixPlusFormat(assetTag).to(this.getDailySupplyInterest(assetTag, bigNumValue)
+    this.setText(this.suppInterestEl, assetPrefixPlusFormat(assetTag).to(this.calculateDynamicDailySupplyInterest(assetTag, supplyValue)
       .dp(2).toNumber()));
   }
 
@@ -1066,7 +1066,7 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
     return this.persistenceService.userHasNotSuppliedAnyAsset() || this.shouldHideBorrowSlider() || this.isAssetOmm();
   }
 
-  getDailySupplyInterest(assetTag: AssetTag | CollateralAssetTag, amountBeingSupplied?: BigNumber): BigNumber {
+  calculateDynamicDailySupplyInterest(assetTag: AssetTag | CollateralAssetTag, amountBeingSupplied?: BigNumber): BigNumber {
     return this.calculationService.calculateUsersDailySupplyInterestForAsset(assetTag, amountBeingSupplied);
   }
 
