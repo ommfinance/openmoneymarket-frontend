@@ -95,7 +95,7 @@ export class TransactionResultService {
   }
 
   public processBridgeTransactionResult(event: any): void {
-    const {txHash, error, status} = event.detail;
+    const { error, status } = event.detail;
 
     // reload all reserves and user specific data (reserve, account data, ..)
     this.dataLoaderService.afterUserActionReload();

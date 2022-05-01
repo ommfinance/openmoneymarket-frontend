@@ -328,6 +328,10 @@ export class PersistenceService {
     return this.allReserves?.getReserveData(assetTag).totalLiquidity ?? new BigNumber(0);
   }
 
+  public getReserveTotalBorrows(assetTag: AssetTag): BigNumber {
+    return this.allReserves?.getReserveData(assetTag).totalBorrows ?? new BigNumber(0);
+  }
+
   public getReserveLiquidationThreshold(assetTag: AssetTag): BigNumber {
     return this.allReserves?.getReserveData(assetTag).liquidationThreshold ?? new BigNumber(0);
   }
