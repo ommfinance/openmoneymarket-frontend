@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {BaseClass} from "../base-class";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {ModalType} from "../../models/enums/ModalType";
@@ -19,7 +19,6 @@ import {
 } from "../../common/constants";
 import BigNumber from "bignumber.js";
 import {Proposal} from "../../models/classes/Proposal";
-import {Router} from "@angular/router";
 import {LockDate} from "../../models/enums/LockDate";
 import {OmmLockingComponent} from "../omm-locking/omm-locking.component";
 import {OmmLockingCmpType} from "../../models/enums/OmmLockingComponent";
@@ -59,7 +58,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
               private stateChangeService: StateChangeService,
               public calculationsService: CalculationsService,
               private notificationService: NotificationService,
-              private router: Router,
               private cdRef: ChangeDetectorRef,
               private calculationService: CalculationsService) {
     super(persistenceService);

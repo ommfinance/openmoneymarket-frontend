@@ -66,7 +66,7 @@ export class CalculationsService {
     return this.bOmmRewardsMultiplier(userAssetSupply, totalAssetSupply, userbOMMBalance, totalbOmmBalance);
   }
 
-  public calculateDynamicMarketRewardsSupplyMultiplierForSupply(assetTag: AssetTag, supplied?: BigNumber): BigNumber {
+  public calculateDynamicMarketRewardsSupplyMultiplierForSupplied(assetTag: AssetTag, supplied?: BigNumber): BigNumber {
     const userAssetSupply = supplied ? supplied : this.persistenceService.getUserSuppliedAssetBalance(assetTag);
     const userbOMMBalance = this.persistenceService.userbOmmBalance;
     const totalAssetSupply = this.persistenceService.getReserveTotalLiquidity(assetTag);
@@ -76,10 +76,10 @@ export class CalculationsService {
     return this.bOmmRewardsMultiplier(userAssetSupply, totalAssetSupply, userbOMMBalance, totalbOmmBalance);
   }
 
-  public calculateDynamicMarketRewardsBorrowMultiplierForBorrow(assetTag: AssetTag, borrowed?: BigNumber): BigNumber {
+  public calculateDynamicMarketRewardsBorrowMultiplierForBorrowed(assetTag: AssetTag, borrowed?: BigNumber): BigNumber {
     const userAssetBorrow = borrowed ? borrowed : this.persistenceService.getUserBorrAssetBalance(assetTag);
     const userbOMMBalance = this.persistenceService.userbOmmBalance;
-    const totalAssetBorrow = this.persistenceService.getReserveTotalLiquidity(assetTag);
+    const totalAssetBorrow = this.persistenceService.getReserveTotalBorrows(assetTag);
     const totalbOmmBalance = this.persistenceService.bOmmTotalSupply.plus(userbOMMBalance.minus(
       this.persistenceService.userbOmmBalance));
 
@@ -97,7 +97,7 @@ export class CalculationsService {
 
   public calculateDynamicMarketRewardsBorrowMultiplier(assetTag: AssetTag, userbOMMBalance: BigNumber): BigNumber {
     const userAssetBorrow = this.persistenceService.getUserBorrAssetBalance(assetTag);
-    const totalAssetBorrow = this.persistenceService.getReserveTotalLiquidity(assetTag);
+    const totalAssetBorrow = this.persistenceService.getReserveTotalBorrows(assetTag);
     const totalbOmmBalance = this.persistenceService.bOmmTotalSupply.plus(userbOMMBalance.minus(
       this.persistenceService.userbOmmBalance));
 
@@ -106,7 +106,7 @@ export class CalculationsService {
 
   public calculateMarketRewardsBorrowMultiplier(assetTag: AssetTag): BigNumber {
     const userAssetBorrow = this.persistenceService.getUserBorrAssetBalance(assetTag);
-    const totalAssetBorrow = this.persistenceService.getReserveTotalLiquidity(assetTag);
+    const totalAssetBorrow = this.persistenceService.getReserveTotalBorrows(assetTag);
     const userbOMMBalance = this.persistenceService.userbOmmBalance;
     const totalbOMMBalance = this.persistenceService.bOmmTotalSupply;
 
@@ -119,13 +119,6 @@ export class CalculationsService {
     const totalbOmmBalance = this.persistenceService.bOmmTotalSupply.plus(userbOMMBalance.minus(
       this.persistenceService.userbOmmBalance));
 
-    // log.error("****** calculateDynamicLiquidityRewardsMultiplier ******");
-    // log.error(`userStakedLp = ${userStakedLp}`);
-    // log.error(`totalStakedLp = ${totalStakedLp}`);
-    // log.error(`userbOMMBalance = ${userbOMMBalance}`);
-    // log.error(`totalbOMMBalance = ${totalbOmmBalance}`);
-    // log.error("*************************************************");
-
     return this.bOmmRewardsMultiplier(userStakedLp, totalStakedLp, userbOMMBalance, totalbOmmBalance);
   }
 
@@ -134,13 +127,6 @@ export class CalculationsService {
     const totalStakedLp = this.persistenceService.getPoolTotalStakedLp(poolId);
     const userbOMMBalance = this.persistenceService.userbOmmBalance;
     const totalbOMMBalance = this.persistenceService.bOmmTotalSupply;
-
-    // log.error("****** calculateLiquidityRewardsMultiplier ******");
-    // log.error(`userStakedLp = ${userStakedLp}`);
-    // log.error(`totalStakedLp = ${totalStakedLp}`);
-    // log.error(`userbOMMBalance = ${userbOMMBalance}`);
-    // log.error(`totalbOMMBalance = ${totalbOMMBalance}`);
-    // log.error("*************************************************");
 
     return this.bOmmRewardsMultiplier(userStakedLp, totalStakedLp, userbOMMBalance, totalbOMMBalance);
   }
@@ -511,7 +497,7 @@ export class CalculationsService {
     newSupplyValue = newSupplyValue ? newSupplyValue.multipliedBy(this.persistenceService.getAssetExchangePrice(assetTag)) : oldSupplyValue;
 
     const oldSupplyMultiplier = this.persistenceService.userMarketSupplyMultiplierMap.get(assetTag) ?? new BigNumber(0);
-    const newSupplyMultiplier = this.calculateDynamicMarketRewardsSupplyMultiplierForSupply(assetTag, newSupplyValue);
+    const newSupplyMultiplier = this.calculateDynamicMarketRewardsSupplyMultiplierForSupplied(assetTag, newSupplyValue);
 
     log.debug("**** calculateUserDailySupplyOmmReward ****");
     log.debug(`assetTag = ${assetTag}`);
@@ -566,7 +552,7 @@ export class CalculationsService {
     newBorrowValue = newBorrowValue ? newBorrowValue.multipliedBy(this.persistenceService.getAssetExchangePrice(assetTag)) : oldBorrowValue;
 
     const oldBorrowMultiplier = this.persistenceService.userMarketBorrowMultiplierMap.get(assetTag) ?? new BigNumber(0);
-    const newBorrowMultiplier = this.calculateDynamicMarketRewardsBorrowMultiplierForBorrow(assetTag, newBorrowValue);
+    const newBorrowMultiplier = this.calculateDynamicMarketRewardsBorrowMultiplierForBorrowed(assetTag, newBorrowValue);
 
     log.debug("**** calculateUserDailyBorrowOmmReward ****");
     log.debug(`assetTag = ${assetTag}`);
