@@ -491,10 +491,14 @@ export class CalculationsService {
    * @param newSupplyValue - Optional parameter for dynamic calculations based on supplied change (slider)
    */
   public calculateUserDailySupplyOmmReward(assetTag: AssetTag | CollateralAssetTag, newSupplyValue?: BigNumber): BigNumber {
+    const oldSupplyValue = this.persistenceService.getUserSuppliedAssetBalance(assetTag);
+
+    // if old supply value is zero and new supply value is undefined or zero, return 0
+    if (oldSupplyValue.isZero() && (!newSupplyValue || newSupplyValue.isZero())) { return new BigNumber(0); }
+
     const currentUserDailySupplyRewards = this.persistenceService.userDailyOmmRewards?.getSupplyRewardForAsset(assetTag)
       ?? new BigNumber(0);
-    const oldSupplyValue = this.persistenceService.getUserSuppliedAssetUSDBalance(assetTag);
-    newSupplyValue = newSupplyValue ? newSupplyValue.multipliedBy(this.persistenceService.getAssetExchangePrice(assetTag)) : oldSupplyValue;
+    newSupplyValue = newSupplyValue ? newSupplyValue : oldSupplyValue;
 
     const oldSupplyMultiplier = this.persistenceService.userMarketSupplyMultiplierMap.get(assetTag) ?? new BigNumber(0);
     const newSupplyMultiplier = this.calculateDynamicMarketRewardsSupplyMultiplierForSupplied(assetTag, newSupplyValue);
@@ -547,9 +551,13 @@ export class CalculationsService {
    * @param newBorrowValue - Optional parameter for dynamic calculations based on borrow change (slider)
    */
   public calculateUserDailyBorrowOmmReward(assetTag: AssetTag, newBorrowValue?: BigNumber): BigNumber {
+    const oldBorrowValue = this.persistenceService.getUserBorrAssetBalance(assetTag);
+
+    // if old borrow value is zero and new borrow value is undefined or zero, return 0
+    if (oldBorrowValue.isZero() && (!newBorrowValue || newBorrowValue.isZero())) { return new BigNumber(0); }
+
     const currentUserDailyBorrowRewards: any = this.persistenceService.userDailyOmmRewards?.getBorrowRewardForAsset(assetTag);
-    const oldBorrowValue = this.persistenceService.getUserBorrowedAssetUSDBalance(assetTag);
-    newBorrowValue = newBorrowValue ? newBorrowValue.multipliedBy(this.persistenceService.getAssetExchangePrice(assetTag)) : oldBorrowValue;
+    newBorrowValue = newBorrowValue ? newBorrowValue : oldBorrowValue;
 
     const oldBorrowMultiplier = this.persistenceService.userMarketBorrowMultiplierMap.get(assetTag) ?? new BigNumber(0);
     const newBorrowMultiplier = this.calculateDynamicMarketRewardsBorrowMultiplierForBorrowed(assetTag, newBorrowValue);
