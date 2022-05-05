@@ -58,7 +58,7 @@
 
             </div>
             <div class="grid-cell text-right">
-              <p class="supply-apy" #suppApyEl>{{getMarketSupplyRate() | roundOff2DecPercent}} APY</p>
+              <p class="supply-apy" #suppApyEl>{{getSupplyRateForActiveMarket() | roundOff2DecPercent}} APY</p>
             </div>
           </div>
 
@@ -165,7 +165,7 @@
               </span>
             </div>
             <div class="grid-cell text-right" [ngStyle]="hideElement(isAssetOmm())">
-              <p class="{{isNegative(getMarketBorrowRate()) ? 'borrow-apy':'borrow-apy text-green'}}" #borrowAprEl>{{makeAbsolute(getMarketBorrowRate()) | roundOff2DecPercent}} APR</p>
+              <p class="{{isNegative(getBorrowRateForActiveMarket()) ? 'borrow-apy':'borrow-apy text-green'}}" #borrowAprEl>{{makeAbsolute(getBorrowRateForActiveMarket()) | roundOff2DecPercent}} APR</p>
             </div>
           </div>
 
