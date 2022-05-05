@@ -1058,6 +1058,14 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
     }
   }
 
+  getSupplyRateForActiveMarket(): BigNumber {
+    return this.isAllMarketViewActive() ? this.getMarketSupplyRate() : this.getUserSupplyApy();
+  }
+
+  getBorrowRateForActiveMarket(): BigNumber {
+    return this.isAllMarketViewActive() ? this.getMarketBorrowRate() : this.getUserBorrowApy();
+  }
+
   shouldHideSupplyContent(): boolean {
     return this.userAssetBalanceIsZero() && this.userAssetSuppliedBalanceIsZero() || !this.userLoggedIn();
   }
