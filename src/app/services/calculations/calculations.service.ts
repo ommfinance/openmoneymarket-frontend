@@ -122,6 +122,14 @@ export class CalculationsService {
     return this.bOmmRewardsMultiplier(userStakedLp, totalStakedLp, userbOMMBalance, totalbOmmBalance);
   }
 
+  public calculateDynamicLiquidityRewardsMultiplierForStakedLp(poolId: BigNumber, userStakedLp: BigNumber): BigNumber {
+    const totalStakedLp = this.persistenceService.getPoolTotalStakedLp(poolId);
+    const userbOMMBalance = this.persistenceService.userbOmmBalance;
+    const totalbOmmBalance = this.persistenceService.bOmmTotalSupply;
+
+    return this.bOmmRewardsMultiplier(userStakedLp, totalStakedLp, userbOMMBalance, totalbOmmBalance);
+  }
+
   public calculateLiquidityRewardsMultiplier(poolId: BigNumber): BigNumber {
     const userStakedLp = this.persistenceService.getUserPoolStakedBalance(poolId);
     const totalStakedLp = this.persistenceService.getPoolTotalStakedLp(poolId);
@@ -725,6 +733,12 @@ export class CalculationsService {
     return userStakedBalance.dividedBy(totalLpTokenInPool).multipliedBy((base ? poolData.poolStats.base : poolData.poolStats.quote));
   }
 
+  public calculateUserPoolSuppliedForNewStaked(newUserStakedBalance: BigNumber, poolData: UserPoolData, base: boolean = true): BigNumber {
+    const totalLpTokenInPool = poolData.poolStats.totalSupply;
+
+    return newUserStakedBalance.dividedBy(totalLpTokenInPool).multipliedBy((base ? poolData.poolStats.base : poolData.poolStats.quote));
+  }
+
   /** Formula: Daily OMM distribution (1M) * Pool pair portion (0.05), same across all 3 pools (OMM/USDS, OMM/iUSDC, OMM/sICX) */
   public calculateDailyRewardsForPool(poolData: PoolData): BigNumber {
     return this.persistenceService.tokenDistributionPerDay.multipliedBy(this.persistenceService.getDistPercentageOfPool(poolData.poolId));
@@ -958,6 +972,32 @@ export class CalculationsService {
     }
 
     return { from: min, to: max, liquidityBoosterMap};
+  }
+
+  // New LP Daily rewards prediction = new LP value/old LP value * new multiplier for LP/old multiplier for LP * current user daily
+  //                                   rewards for a specific LP staking
+  calculateDynamicUserPoolDailyReward(newStakedLpValue: BigNumber, poolData: UserPoolData, currentUserDailyRewardsForLp: BigNumber)
+    : BigNumber {
+    const oldLpValue = poolData.userStakedBalance;
+    const newLpMultiplier = this.calculateDynamicLiquidityRewardsMultiplierForStakedLp(poolData.poolId, newStakedLpValue);
+    const oldLpMultiplier = this.persistenceService.userLiquidityPoolMultiplierMap.get(poolData.poolId.toString())!;
+
+    return (newStakedLpValue.div(oldLpValue)).multipliedBy(newLpMultiplier.div(oldLpMultiplier))
+      .multipliedBy(currentUserDailyRewardsForLp);
+  }
+
+  // New LP APR Prediction = New LP Daily rewards prediction * OMM Token Price * 365/ ( new $ value of user's LP staked)
+  calculateDynamicUserPoolApr(newStakedLpValue: BigNumber, poolData: UserPoolData, newLpDailyRewards: BigNumber)
+    : BigNumber {
+    const ommTokenPrice = this.persistenceService.ommPriceUSD;
+    const stakedLpUsdValue = this.calculateUserPoolSuppliedForNewStaked(newStakedLpValue, poolData).multipliedBy(ommTokenPrice)
+      .multipliedBy(2);
+    log.debug("********* calculateDynamicUserPoolApr *********");
+    log.debug(`newStakedLpValue = ${newStakedLpValue}`);
+    log.debug(`newLpDailyRewards = ${newLpDailyRewards}`);
+    log.debug(`new $ value of user's LP staked = ${stakedLpUsdValue}`);
+
+    return (newLpDailyRewards.multipliedBy(ommTokenPrice).multipliedBy(365)).dividedBy(stakedLpUsdValue);
   }
 
 }

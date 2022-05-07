@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {UserPoolData} from "../../models/classes/UserPoolData";
 import {BaseClass} from "../base-class";
 import {PersistenceService} from "../../services/persistence/persistence.service";
@@ -16,8 +16,7 @@ declare var noUiSlider: any;
 
 @Component({
   selector: 'app-pool-stake-slider',
-  templateUrl: './pool-stake-slider.component.html',
-  styleUrls: ['./pool-stake-slider.component.css']
+  templateUrl: './pool-stake-slider.component.html'
 })
 export class PoolStakeSliderComponent extends BaseClass implements OnInit, AfterViewInit {
 
@@ -29,6 +28,9 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
   @ViewChild("restEl")set c(c: ElementRef) {this.restStateEl = c.nativeElement; }
   inputStakedEl: any;
   @ViewChild("inputEl")set d(d: ElementRef) {this.inputStakedEl = d.nativeElement; }
+
+  @Output() sliderValueUpdate = new EventEmitter<{value: BigNumber, poolData: UserPoolData | undefined}>();
+  @Output() cancelClicked = new EventEmitter<void>();
 
   poolData: UserPoolData | undefined;
 
@@ -167,7 +169,12 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
 
     // On stake slider update
     this.sliderEl?.noUiSlider.on('update', (values: any, handle: any) => {
-      this.inputStakedEl.value = (new BigNumber(values[handle])).dp(2).toNumber();
+      const bigNumValue = (new BigNumber(values[handle])).dp(2);
+      this.inputStakedEl.value = bigNumValue.toNumber();
+      this.sliderValueUpdate.emit({
+        value: bigNumValue,
+        poolData: this.poolData
+      });
     });
   }
 
@@ -184,6 +191,9 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
     this.sliderEl?.setAttribute("disabled", "");
     this.addClass(this.adjustStateEl, "hide");
     this.removeClass(this.restStateEl, "hide");
+
+    // emit cancel clicked event to parent components
+    this.cancelClicked.emit();
   }
 
   sliderMaxValue(): BigNumber {

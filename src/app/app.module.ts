@@ -40,6 +40,11 @@ import { MarketOverviewComponent } from './components/market-overview/market-ove
 import {AbsPipe} from "./pipes/abs-pipe";
 import { LatestProposalsComponent } from './components/latest-proposals/latest-proposals.component';
 import {RoundDown0DecPercentPipe} from "./pipes/round-down-0-dec-percent.pipe";
+import { AllPoolsComponent } from './components/all-pools/all-pools.component';
+import { YourPoolsComponent } from './components/your-pools/your-pools.component';
+import { AllPoolRowComponent } from './components/all-pools/all-pool-row/all-pool-row.component';
+import { YourPoolRowComponent } from './components/your-pools/your-pool-row/your-pool-row.component';
+import { YourAvailPoolRowComponent } from './components/your-pools/your-avail-pool-row/your-avail-pool-row.component';
 
 // Big Number configs
 const fmt = {
@@ -92,6 +97,11 @@ log.setLevel(environment.production ? "error" : "debug");
     YourOverviewComponent,
     MarketOverviewComponent,
     LatestProposalsComponent,
+    AllPoolsComponent,
+    YourPoolsComponent,
+    AllPoolRowComponent,
+    YourPoolRowComponent,
+    YourAvailPoolRowComponent,
   ],
   imports: [
     BrowserModule,

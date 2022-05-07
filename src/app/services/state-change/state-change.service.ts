@@ -159,6 +159,12 @@ export class StateChangeService {
   private currentTimestampChange = new Subject<{ currentTimestamp: number, currentTimestampMicro: BigNumber }>();
   currentTimestampChange$ = this.currentTimestampChange.asObservable();
 
+  private collapseAllPoolsTablesChange = new Subject<PoolData | undefined>();
+  collapseAllPoolsTablesChange$ = this.collapseAllPoolsTablesChange.asObservable();
+
+  private collapseYourPoolsTablesChange = new Subject<UserPoolData | undefined>();
+  collapseYourPoolsTablesChange$ = this.collapseYourPoolsTablesChange.asObservable();
+
   /**
    * Subscribable subject for monitoring the user debt changes for each asset
    */
@@ -205,6 +211,14 @@ export class StateChangeService {
         }
       });
     });
+  }
+
+  public collapseOtherPoolTablesUpdate(activePool: PoolData | undefined): void {
+    this.collapseAllPoolsTablesChange.next(activePool);
+  }
+
+  public collapseYourPoolTablesUpdate(activePool: UserPoolData | undefined): void {
+    this.collapseYourPoolsTablesChange.next(activePool);
   }
 
   public currentTimestampUpdate(currentTimestamp: number, currentTimestampMicro: BigNumber): void {
