@@ -123,7 +123,9 @@ export class CalculationsService {
   }
 
   public calculateDynamicLiquidityRewardsMultiplierForStakedLp(poolId: BigNumber, userStakedLp: BigNumber): BigNumber {
-    const totalStakedLp = this.persistenceService.getPoolTotalStakedLp(poolId);
+    // diff between new and old staked lp
+    const userStakedLpDiff = userStakedLp.minus(this.persistenceService.getUserPoolStakedBalance(poolId));
+    const totalStakedLp = this.persistenceService.getPoolTotalStakedLp(poolId).plus(userStakedLpDiff);
     const userbOMMBalance = this.persistenceService.userbOmmBalance;
     const totalbOmmBalance = this.persistenceService.bOmmTotalSupply;
 
@@ -511,14 +513,14 @@ export class CalculationsService {
     const oldSupplyMultiplier = this.persistenceService.userMarketSupplyMultiplierMap.get(assetTag) ?? new BigNumber(0);
     const newSupplyMultiplier = this.calculateDynamicMarketRewardsSupplyMultiplierForSupplied(assetTag, newSupplyValue);
 
-    log.debug("**** calculateUserDailySupplyOmmReward ****");
-    log.debug(`assetTag = ${assetTag}`);
-    log.debug(`${newSupplyValue ? "Dynamic" : "Static"} calculation!`);
-    log.debug(`newSupplyValue = ${newSupplyValue}`);
-    log.debug(`oldSupplyValue = ${oldSupplyValue}`);
-    log.debug(`newSupplyMultiplier = ${newSupplyMultiplier}`);
-    log.debug(`oldSupplyMultiplier = ${oldSupplyMultiplier}`);
-    log.debug(`currentUserDailySupplyRewards = ${currentUserDailySupplyRewards}`);
+    // log.debug("**** calculateUserDailySupplyOmmReward ****");
+    // log.debug(`assetTag = ${assetTag}`);
+    // log.debug(`${newSupplyValue ? "Dynamic" : "Static"} calculation!`);
+    // log.debug(`newSupplyValue = ${newSupplyValue}`);
+    // log.debug(`oldSupplyValue = ${oldSupplyValue}`);
+    // log.debug(`newSupplyMultiplier = ${newSupplyMultiplier}`);
+    // log.debug(`oldSupplyMultiplier = ${oldSupplyMultiplier}`);
+    // log.debug(`currentUserDailySupplyRewards = ${currentUserDailySupplyRewards}`);
 
     let res;
     if (newSupplyValue.isZero() || oldSupplyValue.isZero() || newSupplyMultiplier.isZero() || oldSupplyMultiplier.isZero()
@@ -530,7 +532,7 @@ export class CalculationsService {
     }
 
 
-    log.debug(`result = ${res}`);
+    // log.debug(`result = ${res}`);
 
     return res;
   }
@@ -570,14 +572,14 @@ export class CalculationsService {
     const oldBorrowMultiplier = this.persistenceService.userMarketBorrowMultiplierMap.get(assetTag) ?? new BigNumber(0);
     const newBorrowMultiplier = this.calculateDynamicMarketRewardsBorrowMultiplierForBorrowed(assetTag, newBorrowValue);
 
-    log.debug("**** calculateUserDailyBorrowOmmReward ****");
-    log.debug(`assetTag = ${assetTag}`);
-    log.debug(`${newBorrowValue ? "Dynamic" : "Static"} calculation!`);
-    log.debug(`newBorrowValue = ${newBorrowValue}`);
-    log.debug(`oldBorrowValue = ${oldBorrowValue}`);
-    log.debug(`newBorrowMultiplier = ${newBorrowMultiplier}`);
-    log.debug(`oldBorrowMultiplier = ${oldBorrowMultiplier}`);
-    log.debug(`currentUserDailyBorrowRewards = ${currentUserDailyBorrowRewards}`);
+    // log.debug("**** calculateUserDailyBorrowOmmReward ****");
+    // log.debug(`assetTag = ${assetTag}`);
+    // log.debug(`${newBorrowValue ? "Dynamic" : "Static"} calculation!`);
+    // log.debug(`newBorrowValue = ${newBorrowValue}`);
+    // log.debug(`oldBorrowValue = ${oldBorrowValue}`);
+    // log.debug(`newBorrowMultiplier = ${newBorrowMultiplier}`);
+    // log.debug(`oldBorrowMultiplier = ${oldBorrowMultiplier}`);
+    // log.debug(`currentUserDailyBorrowRewards = ${currentUserDailyBorrowRewards}`);
 
     let res;
     if (newBorrowValue.isZero() || oldBorrowValue.isZero() || newBorrowMultiplier.isZero() || oldBorrowMultiplier.isZero()
@@ -588,7 +590,7 @@ export class CalculationsService {
         .multipliedBy(currentUserDailyBorrowRewards);
     }
 
-    log.debug(`result = ${res}`);
+    // log.debug(`result = ${res}`);
 
     return res;
   }
@@ -981,6 +983,14 @@ export class CalculationsService {
     const oldLpValue = poolData.userStakedBalance;
     const newLpMultiplier = this.calculateDynamicLiquidityRewardsMultiplierForStakedLp(poolData.poolId, newStakedLpValue);
     const oldLpMultiplier = this.persistenceService.userLiquidityPoolMultiplierMap.get(poolData.poolId.toString())!;
+
+    log.debug("********* calculateDynamicUserPoolDailyReward *********");
+    log.debug(`new LP value = ${newStakedLpValue}`);
+    log.debug(`old LP value = ${oldLpValue}`);
+    log.debug(`new multiplier for LP = ${newLpMultiplier}`);
+    log.debug(`old multiplier for LP = ${oldLpMultiplier}`);
+    log.debug(`current user daily for ${poolData.getPrettyName()} LP staking = ${currentUserDailyRewardsForLp}`);
+    log.debug("*******************************************************");
 
     return (newStakedLpValue.div(oldLpValue)).multipliedBy(newLpMultiplier.div(oldLpMultiplier))
       .multipliedBy(currentUserDailyRewardsForLp);
