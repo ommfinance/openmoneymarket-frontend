@@ -8,8 +8,8 @@
     <td><span class="value-supplied">{{this.persistenceService.getUserAssetReserve(asset.tag)?.currentOTokenBalanceUSD | roundOff2Dec | dollarUsLocale}}</span><br>
       <span class="value-supplied label">{{getUserSuppliedAssetBalance() | usFormat}} {{supplyAssetTag()}}</span></td>
     <td class="text-green">{{getUserSupplyApy() | roundOff2DecPercent}}</td> <!-- Supply APY-->
-    <td><span class="value-borrowed">{{getUserBorrowedAssetBalanceUSD() | roundOff2Dec | dollarUsLocale}}</span><br>
-      <span class="value-borrowed label">{{getUserBorrowedAssetBalance() | roundDown2Dec | usFormat}} {{getBorrowAssetTagAdjusted()}}</span></td>
+    <td><span class="value-borrowed">{{userBorrowedAssetBalanceUSD | roundOff2Dec | dollarUsLocale}}</span><br>
+      <span class="value-borrowed label">{{userBorrowedAssetBalance | roundDown2Dec | usFormat}} {{getBorrowAssetTagAdjusted()}}</span></td>
     <td class="{{isNegative(getUserBorrowApy()) ? 'text-purple' : 'text-green'}}">{{makeAbsolute(getUserBorrowApy()) | roundOff2DecPercent}}</td><!-- Borrow APY -->
   </ng-container>
 

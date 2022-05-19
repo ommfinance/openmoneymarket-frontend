@@ -45,6 +45,8 @@ import { YourPoolsComponent } from './components/your-pools/your-pools.component
 import { AllPoolRowComponent } from './components/all-pools/all-pool-row/all-pool-row.component';
 import { YourPoolRowComponent } from './components/your-pools/your-pool-row/your-pool-row.component';
 import { YourAvailPoolRowComponent } from './components/your-pools/your-avail-pool-row/your-avail-pool-row.component';
+import {RouteReuseStrategy} from "@angular/router";
+import {CustomReuseStrategy} from "./routing";
 
 // Big Number configs
 const fmt = {
@@ -111,7 +113,10 @@ log.setLevel(environment.production ? "error" : "debug");
     HttpClientModule,
     AngularResizedEventModule
   ],
-  providers: [HttpClientModule],
+  providers: [
+    HttpClientModule,
+    { provide: RouteReuseStrategy, useClass: CustomReuseStrategy },
+  ],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

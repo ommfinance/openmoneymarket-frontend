@@ -513,14 +513,14 @@ export class CalculationsService {
     const oldSupplyMultiplier = this.persistenceService.userMarketSupplyMultiplierMap.get(assetTag) ?? new BigNumber(0);
     const newSupplyMultiplier = this.calculateDynamicMarketRewardsSupplyMultiplierForSupplied(assetTag, newSupplyValue);
 
-    // log.debug("**** calculateUserDailySupplyOmmReward ****");
-    // log.debug(`assetTag = ${assetTag}`);
-    // log.debug(`${newSupplyValue ? "Dynamic" : "Static"} calculation!`);
-    // log.debug(`newSupplyValue = ${newSupplyValue}`);
-    // log.debug(`oldSupplyValue = ${oldSupplyValue}`);
-    // log.debug(`newSupplyMultiplier = ${newSupplyMultiplier}`);
-    // log.debug(`oldSupplyMultiplier = ${oldSupplyMultiplier}`);
-    // log.debug(`currentUserDailySupplyRewards = ${currentUserDailySupplyRewards}`);
+    log.debug("**** calculateUserDailySupplyOmmReward ****");
+    log.debug(`assetTag = ${assetTag}`);
+    log.debug(`${newSupplyValue ? "Dynamic" : "Static"} calculation!`);
+    log.debug(`newSupplyValue = ${newSupplyValue}`);
+    log.debug(`oldSupplyValue = ${oldSupplyValue}`);
+    log.debug(`newSupplyMultiplier = ${newSupplyMultiplier}`);
+    log.debug(`oldSupplyMultiplier = ${oldSupplyMultiplier}`);
+    log.debug(`currentUserDailySupplyRewards = ${currentUserDailySupplyRewards}`);
 
     let res;
     if (newSupplyValue.isZero() || oldSupplyValue.isZero() || newSupplyMultiplier.isZero() || oldSupplyMultiplier.isZero()
@@ -572,14 +572,14 @@ export class CalculationsService {
     const oldBorrowMultiplier = this.persistenceService.userMarketBorrowMultiplierMap.get(assetTag) ?? new BigNumber(0);
     const newBorrowMultiplier = this.calculateDynamicMarketRewardsBorrowMultiplierForBorrowed(assetTag, newBorrowValue);
 
-    // log.debug("**** calculateUserDailyBorrowOmmReward ****");
-    // log.debug(`assetTag = ${assetTag}`);
-    // log.debug(`${newBorrowValue ? "Dynamic" : "Static"} calculation!`);
-    // log.debug(`newBorrowValue = ${newBorrowValue}`);
-    // log.debug(`oldBorrowValue = ${oldBorrowValue}`);
-    // log.debug(`newBorrowMultiplier = ${newBorrowMultiplier}`);
-    // log.debug(`oldBorrowMultiplier = ${oldBorrowMultiplier}`);
-    // log.debug(`currentUserDailyBorrowRewards = ${currentUserDailyBorrowRewards}`);
+    log.debug("**** calculateUserDailyBorrowOmmReward ****");
+    log.debug(`assetTag = ${assetTag}`);
+    log.debug(`${newBorrowValue ? "Dynamic" : "Static"} calculation!`);
+    log.debug(`newBorrowValue = ${newBorrowValue}`);
+    log.debug(`oldBorrowValue = ${oldBorrowValue}`);
+    log.debug(`newBorrowMultiplier = ${newBorrowMultiplier}`);
+    log.debug(`oldBorrowMultiplier = ${oldBorrowMultiplier}`);
+    log.debug(`currentUserDailyBorrowRewards = ${currentUserDailyBorrowRewards}`);
 
     let res;
     if (newBorrowValue.isZero() || oldBorrowValue.isZero() || newBorrowMultiplier.isZero() || oldBorrowMultiplier.isZero()
@@ -590,7 +590,7 @@ export class CalculationsService {
         .multipliedBy(currentUserDailyBorrowRewards);
     }
 
-    // log.debug(`result = ${res}`);
+    log.debug(`result = ${res}`);
 
     return res;
   }
@@ -639,6 +639,33 @@ export class CalculationsService {
     });
 
     return totalBorrowUSDBorrowApySum.dividedBy(totalBorrowUSDsum);
+  }
+
+  // New asset supply daily rewards prediction for a user * OMM Token Price * 365/(new asset supply $ value)
+  public calculateUserDynamicSupplyApy(newDailyRewardsPrediction: BigNumber, newSupplyValue: BigNumber, assetTag: AssetTag): BigNumber {
+    const ommPrice = this.persistenceService.ommPriceUSD;
+    const reserveData = this.persistenceService.getAssetReserveData(assetTag);
+
+    // undefined check
+    if (!reserveData) { return Utils.ZERO; }
+
+    const exchangePrice = assetTag === AssetTag.ICX ? Utils.convertICXToSICXPrice(reserveData.exchangePrice, reserveData.sICXRate)
+      : reserveData.exchangePrice;
+
+    return (newDailyRewardsPrediction.multipliedBy(ommPrice).multipliedBy(365)).dividedBy(newSupplyValue.multipliedBy(exchangePrice));
+  }
+
+  public calculateUserDynamicBorrowApy(newDailyRewardsPrediction: BigNumber, newBorrowValue: BigNumber, assetTag: AssetTag): BigNumber {
+    const ommPrice = this.persistenceService.ommPriceUSD;
+    const reserveData = this.persistenceService.getAssetReserveData(assetTag);
+
+    // undefined check
+    if (!reserveData) { return Utils.ZERO; }
+
+    const exchangePrice = assetTag === AssetTag.ICX ? Utils.convertICXToSICXPrice(reserveData.exchangePrice, reserveData.sICXRate)
+      : reserveData.exchangePrice;
+
+    return (newDailyRewardsPrediction.multipliedBy(ommPrice).multipliedBy(365)).dividedBy(newBorrowValue.multipliedBy(exchangePrice));
   }
 
   public getYourSupplyApy(ommApyIncluded = false): BigNumber {
