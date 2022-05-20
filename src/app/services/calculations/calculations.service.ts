@@ -80,10 +80,10 @@ export class CalculationsService {
     const userAssetBorrow = borrowed ? borrowed : this.persistenceService.getUserBorrAssetBalance(assetTag);
     const userbOMMBalance = this.persistenceService.userbOmmBalance;
     const totalAssetBorrow = this.persistenceService.getReserveTotalBorrows(assetTag);
-    const totalbOmmBalance = this.persistenceService.bOmmTotalSupply.plus(userbOMMBalance.minus(
-      this.persistenceService.userbOmmBalance));
+    const totalbOMMBalance = this.persistenceService.bOmmTotalSupply;
 
-    return this.bOmmRewardsMultiplier(userAssetBorrow, totalAssetBorrow, userbOMMBalance, totalbOmmBalance);
+
+    return this.bOmmRewardsMultiplier(userAssetBorrow, totalAssetBorrow, userbOMMBalance, totalbOMMBalance);
   }
 
   public calculateMarketRewardsSupplyMultiplier(assetTag: AssetTag): BigNumber {
