@@ -61,6 +61,7 @@ export class ScoreMethodNames {
   public static TEST_MINT = "testMint";
   public static TOTAL_STAKED_OMM_AT = "totalStakedBalanceOfAt";
   public static TOTAL_SUPPLY = "totalSupply";
+  public static MIGRATE_STAKED_OMM = "migrateStakedOMM";
 
   /**
    * bOMM SCORE

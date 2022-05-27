@@ -202,6 +202,14 @@ export class TransactionResultService {
             `${lockingAction.amount} OMM locked until ${Utils.timestampInMillisecondsToPrettyDate(lockingAction.lockingTime)}`);
           break;
       }
+    } else if (modalAction.manageStakedIcxAction) {
+      const mngStkIcxAction = modalAction.manageStakedIcxAction;
+      if (ModalType.MANAGE_STAKED_OMM === modalAction.modalType) {
+        this.notificationService.showNewNotification(`${mngStkIcxAction.amount} OMM locked until ${
+          Utils.timestampInMillisecondsToPrettyDate(mngStkIcxAction.lockingTime)}`);
+      } else if (ModalType.UNSTAKE_OMM_TOKENS === modalAction.modalType) {
+        this.notificationService.showNewNotification(`${mngStkIcxAction.amount} OMM unstaking.`);
+      }
     }
   }
 
@@ -291,6 +299,12 @@ export class TransactionResultService {
           this.notificationService.showNewNotification(
             `Couldn't increase locked Omm Tokens and lock period. ${failedTxMessage} Try again.`);
           break;
+      }
+    } else if (modalAction.manageStakedIcxAction) {
+      if (ModalType.MANAGE_STAKED_OMM === modalAction.modalType) {
+        this.notificationService.showNewNotification(`Couldn’t lock up staked OMM.`);
+      } else if (ModalType.UNSTAKE_OMM_TOKENS === modalAction.modalType) {
+        this.notificationService.showNewNotification(`Couldn't unstake Omm Tokens.`);
       }
     }
 

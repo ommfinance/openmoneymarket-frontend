@@ -516,14 +516,14 @@ export class CalculationsService {
     const oldSupplyMultiplier = this.persistenceService.userMarketSupplyMultiplierMap.get(assetTag) ?? new BigNumber(0);
     const newSupplyMultiplier = this.calculateDynamicMarketRewardsSupplyMultiplierForSupplied(assetTag, newSupplyValue);
 
-    log.debug("**** calculateUserDailySupplyOmmReward ****");
-    log.debug(`assetTag = ${assetTag}`);
-    log.debug(`${newSupplyValue ? "Dynamic" : "Static"} calculation!`);
-    log.debug(`newSupplyValue = ${newSupplyValue}`);
-    log.debug(`oldSupplyValue = ${oldSupplyValue}`);
-    log.debug(`newSupplyMultiplier = ${newSupplyMultiplier}`);
-    log.debug(`oldSupplyMultiplier = ${oldSupplyMultiplier}`);
-    log.debug(`currentUserDailySupplyRewards = ${currentUserDailySupplyRewards}`);
+    // log.debug("**** calculateUserDailySupplyOmmReward ****");
+    // log.debug(`assetTag = ${assetTag}`);
+    // log.debug(`${newSupplyValue ? "Dynamic" : "Static"} calculation!`);
+    // log.debug(`newSupplyValue = ${newSupplyValue}`);
+    // log.debug(`oldSupplyValue = ${oldSupplyValue}`);
+    // log.debug(`newSupplyMultiplier = ${newSupplyMultiplier}`);
+    // log.debug(`oldSupplyMultiplier = ${oldSupplyMultiplier}`);
+    // log.debug(`currentUserDailySupplyRewards = ${currentUserDailySupplyRewards}`);
 
     let res;
     if (newSupplyValue.isZero() || oldSupplyValue.isZero() || newSupplyMultiplier.isZero() || oldSupplyMultiplier.isZero()
@@ -564,7 +564,7 @@ export class CalculationsService {
    * @param newBorrowValue - Optional parameter for dynamic calculations based on borrow change (slider)
    */
   public calculateUserDailyBorrowOmmReward(assetTag: AssetTag, newBorrowValue?: BigNumber): BigNumber {
-    const oldBorrowValue = this.persistenceService.getUserBorrAssetBalance(assetTag);
+    const oldBorrowValue = this.persistenceService.getUserBorrowedAssetBalancePlusOrigFee(assetTag);
 
     // if old borrow value is zero and new borrow value is undefined or zero, return 0
     if (oldBorrowValue.isZero() && (!newBorrowValue || newBorrowValue.isZero())) { return new BigNumber(0); }
@@ -691,13 +691,13 @@ export class CalculationsService {
 
   // Sum(User Borrows Amount in USD * (OMM reward Borrow APY - Borrow APY))/Sum(User Borrows in USD)
   public getYourBorrowApy(ommApyIncluded = false): BigNumber {
-    log.debug("****** User total borrow APY calculation ******");
+    // log.debug("****** User total borrow APY calculation ******");
     let borrowApySum = new BigNumber("0");
     let userBorrowsInUsdSum = new BigNumber("0");
     let borrowedInUSD;
     let borrowApy;
 
-    log.debug("Calculating sums:");
+    // log.debug("Calculating sums:");
     // Sum(My borrow amount for each asset * Borrow APY for each asset)
     this.persistenceService.userReserves.reserveMap.forEach((reserve: UserReserveData | undefined, assetTag: AssetTag) => {
       if (reserve && !reserve.borrowRate.isNaN() && reserve.borrowRate.gt(0)) {
@@ -707,16 +707,16 @@ export class CalculationsService {
         borrowApySum = borrowApySum.plus(borrowedInUSD.multipliedBy(rate));
         userBorrowsInUsdSum = userBorrowsInUsdSum.plus(borrowedInUSD);
 
-        log.debug(`${assetTag}`);
-        log.debug(`User Borrows amount in USD = ${borrowedInUSD}`);
-        log.debug(`Borrow APY = ${borrowApy}`);
-        log.debug(ommApyIncluded ? `(OMM reward Borrow APY - Borrow APY) = ${borrowApy}` : ``);
+        // log.debug(`${assetTag}`);
+        // log.debug(`User Borrows amount in USD = ${borrowedInUSD}`);
+        // log.debug(`Borrow APY = ${borrowApy}`);
+        // log.debug(ommApyIncluded ? `(OMM reward Borrow APY - Borrow APY) = ${borrowApy}` : ``);
       }
     });
 
-    log.debug("Sums results:");
-    log.debug(`borrowApySum = ${borrowApySum}`);
-    log.debug(`userBorrowsInUsdSum = ${userBorrowsInUsdSum}`);
+    // log.debug("Sums results:");
+    // log.debug(`borrowApySum = ${borrowApySum}`);
+    // log.debug(`userBorrowsInUsdSum = ${userBorrowsInUsdSum}`);
 
     return borrowApySum.dividedBy(userBorrowsInUsdSum);
   }
@@ -814,7 +814,7 @@ export class CalculationsService {
    * Formula: getUserDailyReward(Address user) * OMM Token price * 365/($ value of user's supplied or borrowed asset)
    */
   public calculateUserSupplyOmmRewardsApy(assetTag: AssetTag): BigNumber {
-    log.debug("calculateUserSupplyOmmRewardsApy for asset " + assetTag);
+    // log.debug("calculateUserSupplyOmmRewardsApy for asset " + assetTag);
     const userDailySupplyRewards: any = this.persistenceService.userDailyOmmRewards?.getSupplyRewardForAsset(assetTag);
 
     if (!userDailySupplyRewards) { return new BigNumber(0); }
@@ -825,9 +825,9 @@ export class CalculationsService {
 
     if (suppliedUsdValue.isZero()) { return new BigNumber(0); }
 
-    log.debug(`userDailySupplyRewards = ${userDailySupplyRewards}`);
-    log.debug(`ommTokenPrice = ${ommTokenPrice}`);
-    log.debug(`suppliedUsdValue = ${suppliedUsdValue}`);
+    // log.debug(`userDailySupplyRewards = ${userDailySupplyRewards}`);
+    // log.debug(`ommTokenPrice = ${ommTokenPrice}`);
+    // log.debug(`suppliedUsdValue = ${suppliedUsdValue}`);
 
     return (userDailySupplyRewards.multipliedBy(ommTokenPrice).multipliedBy(365)).dividedBy(suppliedUsdValue);
   }
@@ -1014,13 +1014,13 @@ export class CalculationsService {
     const newLpMultiplier = this.calculateDynamicLiquidityRewardsMultiplierForStakedLp(poolData.poolId, newStakedLpValue);
     const oldLpMultiplier = this.persistenceService.userLiquidityPoolMultiplierMap.get(poolData.poolId.toString())!;
 
-    log.debug("********* calculateDynamicUserPoolDailyReward *********");
-    log.debug(`new LP value = ${newStakedLpValue}`);
-    log.debug(`old LP value = ${oldLpValue}`);
-    log.debug(`new multiplier for LP = ${newLpMultiplier}`);
-    log.debug(`old multiplier for LP = ${oldLpMultiplier}`);
-    log.debug(`current user daily for ${poolData.getPrettyName()} LP staking = ${currentUserDailyRewardsForLp}`);
-    log.debug("*******************************************************");
+    // log.debug("********* calculateDynamicUserPoolDailyReward *********");
+    // log.debug(`new LP value = ${newStakedLpValue}`);
+    // log.debug(`old LP value = ${oldLpValue}`);
+    // log.debug(`new multiplier for LP = ${newLpMultiplier}`);
+    // log.debug(`old multiplier for LP = ${oldLpMultiplier}`);
+    // log.debug(`current user daily for ${poolData.getPrettyName()} LP staking = ${currentUserDailyRewardsForLp}`);
+    // log.debug("*******************************************************");
 
     return (newStakedLpValue.div(oldLpValue)).multipliedBy(newLpMultiplier.div(oldLpMultiplier))
       .multipliedBy(currentUserDailyRewardsForLp);
@@ -1032,10 +1032,10 @@ export class CalculationsService {
     const ommTokenPrice = this.persistenceService.ommPriceUSD;
     const stakedLpUsdValue = this.calculateUserPoolSuppliedForNewStaked(newStakedLpValue, poolData).multipliedBy(ommTokenPrice)
       .multipliedBy(2);
-    log.debug("********* calculateDynamicUserPoolApr *********");
-    log.debug(`newStakedLpValue = ${newStakedLpValue}`);
-    log.debug(`newLpDailyRewards = ${newLpDailyRewards}`);
-    log.debug(`new $ value of user's LP staked = ${stakedLpUsdValue}`);
+    // log.debug("********* calculateDynamicUserPoolApr *********");
+    // log.debug(`newStakedLpValue = ${newStakedLpValue}`);
+    // log.debug(`newLpDailyRewards = ${newLpDailyRewards}`);
+    // log.debug(`new $ value of user's LP staked = ${stakedLpUsdValue}`);
 
     return (newLpDailyRewards.multipliedBy(ommTokenPrice).multipliedBy(365)).dividedBy(stakedLpUsdValue);
   }

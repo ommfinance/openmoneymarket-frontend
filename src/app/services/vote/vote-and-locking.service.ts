@@ -39,6 +39,13 @@ export class VoteAndLockingService {
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
+  public migrateStakedOmm(amount: BigNumber, unlockTime: BigNumber, notificationMessage: string): void {
+    const tx = this.buildMigrateStakedOmmTx(amount, unlockTime);
+
+    log.debug(`Migrate staked OMM TX: `, tx);
+    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
+  }
+
   public increaseLockAmountAndPeriodOmm(amount: BigNumber, unlockTime: BigNumber, notificationMessage: string): void {
     amount = amount.dp(0);
     const tx = this.buildIncreaseLockPeriodAndAmountOmmTx(amount, unlockTime);
@@ -85,6 +92,8 @@ export class VoteAndLockingService {
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
+
+
   /**
    * @description Build lock OMM Tokens Icon transaction
    * **Note**: Lock period is timestamp in microseconds. The lock period should be an integer/long, not a string.
@@ -110,6 +119,24 @@ export class VoteAndLockingService {
 
     return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
       this.persistenceService.allAddresses!.systemContract.OmmToken, ScoreMethodNames.TRANSFER, params, IconTransactionType.WRITE);
+  }
+
+  private buildMigrateStakedOmmTx(amount: BigNumber, unlockTime: BigNumber): any {
+    this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
+
+    // convert to microseconds
+    const unlockTimeMicro = unlockTime.multipliedBy(1000);
+    log.debug(`Omm amount to migrate from staked to locked = ` + amount.toString());
+    log.debug(`unlockTime in microseconds = ` + unlockTime.toString());
+    const decimals = 18;
+
+    const params = {
+      _amount: IconConverter.toHex(IconAmount.of(amount, decimals).toLoop()),
+      _lockPeriod: IconConverter.toHex(unlockTimeMicro)
+    };
+
+    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address, this.persistenceService.allAddresses!.
+      systemContract.OmmToken, ScoreMethodNames.MIGRATE_STAKED_OMM, params, IconTransactionType.WRITE);
   }
 
   /**

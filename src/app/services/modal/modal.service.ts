@@ -8,6 +8,7 @@ import {StakingAction} from "../../models/classes/StakingAction";
 import {VoteAction} from "../../models/classes/VoteAction";
 import {GovernanceAction} from "../../models/classes/GovernanceAction";
 import {LockingAction} from "../../models/classes/LockingAction";
+import {ManageStakedIcxAction} from "../../models/classes/ManageStakedIcxAction";
 
 declare var classie: any;
 declare var $: any;
@@ -25,9 +26,9 @@ export class ModalService {
   constructor() { }
 
   showNewModal(modal: ModalType, assetAction?: AssetAction, stakingAction?: StakingAction, voteAction?: VoteAction,
-               governanceAction?: GovernanceAction, lockingOmmAction?: LockingAction): void {
+               governanceAction?: GovernanceAction, lockingOmmAction?: LockingAction, manageStakedIcxAction?: ManageStakedIcxAction): void {
     this.activeModalChange.next(new ModalAction(modal, assetAction, stakingAction, voteAction, governanceAction,
-      lockingOmmAction));
+      lockingOmmAction, manageStakedIcxAction));
   }
 
   hideActiveModal(): void {

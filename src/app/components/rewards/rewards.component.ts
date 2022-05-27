@@ -22,6 +22,8 @@ import log from "loglevel";
 import {OmmLockingCmpType} from "../../models/enums/OmmLockingComponent";
 import {AllPoolsComponent} from "../all-pools/all-pools.component";
 import {YourPoolsComponent} from "../your-pools/your-pools.component";
+import {Times} from "../../common/constants";
+import {ManageStakedIcxAction} from "../../models/classes/ManageStakedIcxAction";
 
 declare var $: any;
 
@@ -74,6 +76,9 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
     this.initUserStaticValues();
 
     this.registerSubscriptions();
+
+    // pop up manage staked omm
+    this.popupStakedMigrationModal();
   }
 
   ngOnDestroy(): void {
@@ -81,10 +86,6 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
 
   ngAfterViewInit(): void {
 
-    // pop up manage staked omm, TODO improve
-    // if (this.userLoggedIn()) {
-    //   this.modalService.showNewModal(ModalType.MANAGE_STAKED_OMM);
-    // }
   }
 
   initCoreStaticValues(): void {
@@ -102,6 +103,18 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
       this.userDailyLockingOmmRewards = this.calculationService.calculateUserDailyLockingOmmRewards();
 
       this.ommLockingComponent?.onLockAdjustCancelClick();
+    }
+  }
+
+
+  popupStakedMigrationModal(): void {
+    // pop up manage staked omm
+    if (this.userLoggedIn() && this.persistenceService.getUserStakedOmmBalance().gt(0)) {
+      // default migration locking period is 1 week
+      const lockTime = this.calculationService.recalculateLockPeriodEnd(Utils.timestampNowMilliseconds().plus(Times.WEEK_IN_MILLISECONDS));
+      const amount = this.persistenceService.getUserStakedOmmBalance();
+      this.modalService.showNewModal(ModalType.MANAGE_STAKED_OMM, undefined, undefined, undefined,
+        undefined, undefined, new ManageStakedIcxAction(amount, lockTime));
     }
   }
 
@@ -206,6 +219,9 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   private subscribeToLoginChange(): void {
     this.stateChangeService.loginChange.subscribe(wallet => {
       if (wallet) {
+        // pop up manage staked omm
+        this.popupStakedMigrationModal();
+
         // user login
         this.onYourLiquidityClick();
         this.onYourPoolsClick();

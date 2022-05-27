@@ -257,6 +257,25 @@ export class ModalComponent extends BaseClass implements OnInit {
     });
   }
 
+  onMigrateStakedIcxClick(): void {
+    if (this.mngStkOption === "Unstake") {
+      // change modal type to unstake
+      this.activeModalChange!.modalType = ModalType.UNSTAKE_OMM_TOKENS;
+      this.localStorageService.persistModalAction(this.activeModalChange!);
+
+      this.voteService.unstakeOmm(this.activeModalChange!.manageStakedIcxAction!.amount, "Starting unstaking process...");
+    } else {
+      this.localStorageService.persistModalAction(this.activeModalChange!);
+
+      const amount = this.activeModalChange!.manageStakedIcxAction!.amount;
+      const unlockTime = this.activeModalChange?.manageStakedIcxAction?.lockingTime!;
+      this.voteService.migrateStakedOmm(amount, unlockTime, "Locking up staked OMM...");
+    }
+
+    // hide current modal
+    this.modalService.hideActiveModal();
+  }
+
   onConfirmLockUpOmmClick(): void {
     // store user action in local storage
     this.localStorageService.persistModalAction(this.activeModalChange!);
@@ -585,4 +604,6 @@ export class ModalComponent extends BaseClass implements OnInit {
   getVoteDuration(): string {
     return Utils.getVoteDurationTime(this.persistenceService.voteDuration);
   }
+
+
 }

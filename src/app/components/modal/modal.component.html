@@ -84,7 +84,7 @@
   <div class="modal-content">
     <!-- Title -->
     <h3 class="text-center label">Manage your staked OMM</h3>
-    <p class="text-bold text-center">150,000 OMM</p>
+    <p class="text-bold text-center">{{activeModalChange?.manageStakedIcxAction?.amount | usFormat | toZeroIfDash}} OMM</p>
 
     <!-- Message -->
     <p class="label text-center text-dark" style="margin-bottom: 15px;">Omm has a new staking model. Choose what to do with your staked OMM:</p>
@@ -98,7 +98,7 @@
           <br>
           <span class="text-bold">Lock up</span>
           <br>
-          <span>Until 5 May, 2022</span>
+          <span>Until {{timestampInMillisecondsToPrettyDate(activeModalChange?.manageStakedIcxAction?.lockingTime)}}</span>
         </label>
       </div>
 
@@ -114,15 +114,15 @@
       </div>
     </div>
 
-    <p class="label text-center hide" style="margin-top: 10px;">Lock up OMM to hold voting power and boost your earning potential. You can increase the time later.</p>
-    <p class="label text-center" style="margin-top: 10px;">Your OMM will be available in 3 days. Lock it to hold voting power and boost your earning potential.</p>
+    <p class="label text-center {{mngStkOption == 'Unstake' ? 'hide' : ''}}" style="margin-top: 10px;">Lock up OMM to hold voting power and boost your earning potential. You can increase the time later.</p>
+    <p class="label text-center {{mngStkOption == 'Unstake' ? '' : 'hide'}}" style="margin-top: 10px;">Your OMM will be available in 3 days. Lock it to hold voting power and boost your earning potential.</p>
     <p class="text-center">
-      <a href="#">Learn more about boosted OMM.</a></p>
+      <a href="https://blog.omm.finance/bomm/" target="_blank">Learn more about boosted OMM.</a></p>
 
     <!-- Modal actions -->
     <div class="modal-actions">
-      <a href="#" class="button hide">Lock up OMM</a>
-      <a href="#" class="button">{{mngStkOption}}</a>
+<!--      <a href="#" class="button hide">Lock up OMM</a>-->
+      <a href="javascript:void(0);" class="button" (click)="onMigrateStakedIcxClick()">{{mngStkOption}}</a>
     </div>
   </div>
 </div>

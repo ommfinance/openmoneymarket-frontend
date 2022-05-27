@@ -16,6 +16,7 @@ import {ModalService} from "../../services/modal/modal.service";
 import {OmmTokenBalanceDetails} from "../../models/classes/OmmTokenBalanceDetails";
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import {OmmLockingCmpType} from "../../models/enums/OmmLockingComponent";
+import {ManageStakedIcxAction} from "../../models/classes/ManageStakedIcxAction";
 
 @Component({
   selector: 'app-omm-locking',
@@ -121,11 +122,20 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
   }
 
   onLockAdjustClick(): void {
-    this.lockAdjustActive = true;
-    this.lockOmmSliderCmp.enableSlider();
+    // pop up manage staked omm if user has staked OMM
+    if (this.userLoggedIn() && this.persistenceService.getUserStakedOmmBalance().gt(0)) {
+      // default migration locking period is 1 week
+      const lockTime = this.calculationService.recalculateLockPeriodEnd(Utils.timestampNowMilliseconds().plus(Times.WEEK_IN_MILLISECONDS));
+      const amount = this.persistenceService.getUserStakedOmmBalance();
+      this.modalService.showNewModal(ModalType.MANAGE_STAKED_OMM, undefined, undefined, undefined,
+        undefined, undefined, new ManageStakedIcxAction(amount, lockTime));
+    } else {
+      this.lockAdjustActive = true;
+      this.lockOmmSliderCmp.enableSlider();
 
-    // emit lockAdjustClicked event
-    this.lockAdjustClicked.emit();
+      // emit lockAdjustClicked event
+      this.lockAdjustClicked.emit();
+    }
   }
 
   // On "Cancel Lock up OMM" click
