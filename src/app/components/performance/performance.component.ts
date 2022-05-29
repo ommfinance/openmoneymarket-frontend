@@ -68,19 +68,19 @@ export class PerformanceComponent extends BaseClass implements OnInit, AfterView
     this.ommRewards = this.calculationService.calculateUserTotalOmmRewards();
   }
 
-  borrowInterestMultipliedByDays(): BigNumber {
-    return this.borrowInterest.multipliedBy(this.getDropDownOptionMultiplier());
+  borrowInterestMultipliedByDays(): string {
+    const res = this.borrowInterest.multipliedBy(this.getDropDownOptionMultiplier());
+    return res.lte(0.01) ? "-" : `- $${Utils.formatNumberToUSLocaleString(new BigNumber(Utils.roundDownTo2Decimals(res)))}`;
   }
 
-  supplyInterestMultipliedByDays(): BigNumber {
-    return this.supplyInterest.multipliedBy(this.getDropDownOptionMultiplier());
+  supplyInterestMultipliedByDays(): string {
+    const res = this.supplyInterest.multipliedBy(this.getDropDownOptionMultiplier());
+    return res.lte(0.01) ? "-" : `+ $${Utils.formatNumberToUSLocaleString(new BigNumber(Utils.roundDownTo2Decimals(res)))}`;
   }
 
   ommRewardsMultipliedByDays(): BigNumber {
     return this.ommRewards.multipliedBy(this.getDropDownOptionMultiplier());
   }
-
-
 
   onTimeSelectorClick(): void {
     $("#time-selector").toggleClass("active");

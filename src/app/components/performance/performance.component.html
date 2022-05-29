@@ -25,7 +25,7 @@
       <div class="grid-cell text-center">
         <dl class="metadata">
           <dt>Supply interest</dt>
-          <dd class="value-supply-interest-total" #suppInterest>+ ${{supplyInterestMultipliedByDays() | roundDown2Dec | usFormat}}</dd>
+          <dd class="value-supply-interest-total" #suppInterest>{{supplyInterestMultipliedByDays()}}</dd>
         </dl>
       </div>
 
@@ -33,7 +33,7 @@
       <div class="grid-cell text-center borrow-interest-container" [ngStyle]="hideElement(borrowInterest.isZero())">
         <dl class="metadata">
           <dt>Borrow interest</dt>
-          <dd class="value-borrow-interest-total" #borrInterest>- ${{borrowInterestMultipliedByDays() | roundDown2Dec | usFormat}}</dd>
+          <dd class="value-borrow-interest-total" #borrInterest>{{borrowInterestMultipliedByDays()}}</dd>
         </dl>
       </div>
 
