@@ -357,6 +357,10 @@ export class PersistenceService {
     return true;
   }
 
+  getUserOmmRewardsBalance(): BigNumber {
+    return this.userAccumulatedOmmRewards?.total ?? new BigNumber("0");
+  }
+
   public userHasNotSuppliedAnyAsset(): boolean {
     for (const value of this.userReserves.reserveMap.values()) {
       if (value && value.currentOTokenBalance.isGreaterThan(Utils.ZERO)) {

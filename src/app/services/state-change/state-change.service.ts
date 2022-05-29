@@ -165,6 +165,9 @@ export class StateChangeService {
   private collapseYourPoolsTablesChange = new Subject<UserPoolData | undefined>();
   collapseYourPoolsTablesChange$ = this.collapseYourPoolsTablesChange.asObservable();
 
+  private lockedOmmActionSucceeded: Subject<boolean> = new Subject<boolean>();
+  lockedOmmActionSucceeded$: Observable<boolean> = this.lockedOmmActionSucceeded.asObservable();
+
   /**
    * Subscribable subject for monitoring the user debt changes for each asset
    */
@@ -211,6 +214,10 @@ export class StateChangeService {
         }
       });
     });
+  }
+
+  public lockedOmmActionSucceededUpdate(succeeded: boolean): void {
+    this.lockedOmmActionSucceeded.next(succeeded);
   }
 
   public collapseOtherPoolTablesUpdate(activePool: PoolData | undefined): void {

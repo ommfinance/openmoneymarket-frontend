@@ -127,6 +127,41 @@
   </div>
 </div>
 
+<!-- Modal: Apply boost 1 -->
+<div class="modal" #appBoost1>
+  <div class="modal-content">
+    <!-- Title -->
+    <h3 class="text-center label">Apply bOMM boost?</h3>
+
+    <!-- Message -->
+    <p class="text-center" style="font-size: 16px;">Apply your boost to maximise your earning potential.</p>
+
+    <!-- Modal actions -->
+    <div class="modal-actions">
+      <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Not now</a>
+      <a href="javascript:void(0);" class="button" (click)="onApplyBoostClick()">Apply boost</a>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Apply boost 2 -->
+<div class="modal" #appBoost2>
+  <div class="modal-content">
+    <!-- Title -->
+    <h3 class="text-center label">Apply bOMM boost?</h3>
+
+    <!-- Message -->
+    <p class="text-center" style="font-size: 16px;">Claim <span class="text-bold">{{
+      this.persistenceService.getUserOmmRewardsBalance() | roundDown2Dec | usFormat}} OMM</span> to apply your boost and maximise your earning potential.</p>
+
+    <!-- Modal actions -->
+    <div class="modal-actions">
+      <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Not now</a>
+      <a href="javascript:void(0);" class="button" (click)="onClaimOmmRewardsClick()">Claim and apply boost</a>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: Boost confirm -->
 <div class="modal" id="modal-boost-confirm" #lockOmm>
   <div class="modal-content">
@@ -154,7 +189,8 @@
     <!-- Modal actions -->
     <div class="modal-actions">
       <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Cancel</a>
-      <a href="javascript:void(0);" class="button" (click)="onConfirmLockUpOmmClick()">Lock up OMM</a>
+      <a href="javascript:void(0);" class="button" (click)="onConfirmLockUpOmmClick()">{{
+        lockOmmProcessing ? "Locking up OMM..." : "Lock up OMM"}}</a>
     </div>
   </div>
 </div>

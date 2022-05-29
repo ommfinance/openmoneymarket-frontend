@@ -118,7 +118,7 @@ export class TransactionResultService {
   public showSuccessActionNotification(modalAction: ModalAction): void {
     this.stateChangeService.userModalActionResult.next(new ModalActionsResult(modalAction, ModalStatus.SUCCESS));
 
-    if (modalAction.assetAction) {
+    if (modalAction.assetAction && modalAction.modalType !== ModalType.CLAIM_AND_APPLY_BOMM_BOOST) {
       const assetAction = modalAction.assetAction;
       assetAction.amount = assetAction.amount.dp(2);
 
@@ -202,6 +202,10 @@ export class TransactionResultService {
             `${lockingAction.amount} OMM locked until ${Utils.timestampInMillisecondsToPrettyDate(lockingAction.lockingTime)}`);
           break;
       }
+
+      // emit event indicating that locked action succeeded
+      this.stateChangeService.lockedOmmActionSucceededUpdate(true);
+
     } else if (modalAction.manageStakedIcxAction) {
       const mngStkIcxAction = modalAction.manageStakedIcxAction;
       if (ModalType.MANAGE_STAKED_OMM === modalAction.modalType) {
@@ -210,6 +214,10 @@ export class TransactionResultService {
       } else if (ModalType.UNSTAKE_OMM_TOKENS === modalAction.modalType) {
         this.notificationService.showNewNotification(`${mngStkIcxAction.amount} OMM unstaking.`);
       }
+    } else if (modalAction.modalType === ModalType.CLAIM_AND_APPLY_BOMM_BOOST) {
+      const ommClaimed = modalAction.assetAction?.details?.ommRewards?.total ?? 0;
+      this.notificationService.showNewNotification(`Claimed ${
+        Utils.tooUSLocaleString(Utils.roundDownTo2Decimals(ommClaimed))} Omm Tokens. ` + "\n" + "Boost applied.");
     }
   }
 
@@ -226,7 +234,7 @@ export class TransactionResultService {
 
     this.stateChangeService.userModalActionResult.next(new ModalActionsResult(modalAction, ModalStatus.FAILED));
 
-    if (modalAction.assetAction) {
+    if (modalAction.assetAction && ModalType.CLAIM_AND_APPLY_BOMM_BOOST !== modalAction.modalType) {
       const assetAction = modalAction.assetAction;
       switch (modalAction.modalType) {
         case ModalType.SUPPLY:
@@ -247,6 +255,8 @@ export class TransactionResultService {
         case ModalType.CLAIM_OMM_REWARDS:
           this.notificationService.showNewNotification(`Couldn't claim Omm Tokens. ${failedTxMessage} Try again.`);
       }
+    } else if (modalAction.modalType === ModalType.CLAIM_AND_APPLY_BOMM_BOOST) {
+      this.notificationService.showNewNotification(`Couldn't claim Omm Tokens and apply boost.`);
     } else if (modalAction.stakingAction) {
       switch (modalAction.modalType) {
         case ModalType.STAKE_OMM_TOKENS:
@@ -300,6 +310,9 @@ export class TransactionResultService {
             `Couldn't increase locked Omm Tokens and lock period. ${failedTxMessage} Try again.`);
           break;
       }
+
+      // emit event indicating that locked action succeeded
+      this.stateChangeService.lockedOmmActionSucceededUpdate(false);
     } else if (modalAction.manageStakedIcxAction) {
       if (ModalType.MANAGE_STAKED_OMM === modalAction.modalType) {
         this.notificationService.showNewNotification(`Couldn’t lock up staked OMM.`);

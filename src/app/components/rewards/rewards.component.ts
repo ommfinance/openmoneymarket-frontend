@@ -349,7 +349,7 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   }
 
   getUserOmmRewardsBalance(): BigNumber {
-    return this.persistenceService.userAccumulatedOmmRewards?.total ?? new BigNumber("0");
+    return this.persistenceService.getUserOmmRewardsBalance();
   }
 
   /**
