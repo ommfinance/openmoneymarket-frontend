@@ -347,7 +347,13 @@ export class ModalComponent extends BaseClass implements OnInit {
   }
 
   onApplyBoostClick(): void {
-    // TODO
+    // store user action in local storage
+    this.localStorageService.persistModalAction(this.activeModalChange!);
+
+    // hide current modal
+    this.modalService.hideActiveModal();
+
+    this.transactionDispatcherService.dispatchTransaction(this.ommService.buildClaimOmmRewardsTx(), "Applying boost...");
   }
 
   onSubmitProposalClick(): void {
