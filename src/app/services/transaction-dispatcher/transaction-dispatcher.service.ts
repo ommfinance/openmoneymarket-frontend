@@ -32,7 +32,7 @@ export class TransactionDispatcherService {
   /**
    * Method that dispatches the built tx to Icon network (through Iconex, Bridge or directly) and triggers the proper notification
    */
-  async dispatchTransaction(tx: any, notificationMessage: string): Promise<void> {
+  async dispatchTransaction(tx: any, notificationMessage: string, iconexId = IconexId.SHOW_MESSAGE_HIDE_MODAL): Promise<void> {
     try {
       const estimateTx = IconConverter.toRawTransaction(tx);
       delete estimateTx.stepLimit;
@@ -44,7 +44,7 @@ export class TransactionDispatcherService {
       }
 
       if (this.persistenceService.activeWallet instanceof IconexWallet) {
-        this.iconexApiService.dispatchSendTransactionEvent(tx, IconexId.SHOW_MESSAGE_HIDE_MODAL);
+        this.iconexApiService.dispatchSendTransactionEvent(tx, iconexId);
         this.notificationService.setNotificationToShow(notificationMessage);
       } else if (this.persistenceService.activeWallet instanceof BridgeWallet) {
         this.bridgeWidgetService.sendTransaction(tx);

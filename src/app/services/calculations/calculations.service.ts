@@ -918,7 +918,7 @@ export class CalculationsService {
   }
 
   calculateUserbOmmMarketBoosters(): IMarketBoosterData {
-    log.debug("calculateUserbOmmMarketBoosters...");
+    // log.debug("calculateUserbOmmMarketBoosters...");
     if (!this.persistenceService.userLoggedIn()) {
       return { from: new BigNumber(0), to: new BigNumber(0), supplyBoosterMap: new Map(), borrowBoosterMap: new Map()};
     }
@@ -929,14 +929,14 @@ export class CalculationsService {
     const borrowBoosterMap = new Map<AssetTag, BigNumber>();
 
     supportedAssetsMap.forEach((value: Asset, assetTag: AssetTag) => {
-      log.debug(`***** Asset = ${assetTag} *******`);
+      // log.debug(`***** Asset = ${assetTag} *******`);
 
       if (!this.persistenceService.getUserSuppliedAssetBalance(assetTag).isZero()) {
         const supplyOmmRewardsApy = this.calculateSupplyOmmRewardsApy(assetTag);
         const userSupplyOmmRewardsApy = this.calculateUserSupplyOmmRewardsApy(assetTag);
         const supplyBooster = userSupplyOmmRewardsApy.dividedBy(supplyOmmRewardsApy);
         supplyBoosterMap.set(assetTag, supplyBooster);
-        log.debug(`supplyBooster = ${supplyBooster.toNumber()}`);
+        // log.debug(`supplyBooster = ${supplyBooster.toNumber()}`);
 
         if (supplyBooster.lt(min) || min.eq(-1)) {
           min = supplyBooster;
@@ -951,7 +951,7 @@ export class CalculationsService {
         const userBorrowOmmRewardsApy = this.calculateUserBorrowOmmRewardsApy(assetTag);
         const borrowBooster = userBorrowOmmRewardsApy.dividedBy(borrowOmmRewardsApy);
         borrowBoosterMap.set(assetTag, borrowBooster);
-        log.debug(`borrowBooster = ${borrowBooster.toNumber()}`);
+        // log.debug(`borrowBooster = ${borrowBooster.toNumber()}`);
 
         if (borrowBooster.lt(min) || min.eq(-1)) {
           min = borrowBooster;

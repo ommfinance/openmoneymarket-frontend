@@ -95,7 +95,6 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
 
   initUserStaticValues(): void {
     if (this.userLoggedIn()) {
-      log.debug("[RewardsComponent] initUserStaticValues....");
       this.marketBoosterData = this.calculationService.calculateUserbOmmMarketBoosters();
       this.liquidityBoosterData = this.calculationService.calculateUserbOmmLiquidityBoosters();
       this.userLockingApr = this.calculationService.calculateUserLockingApr(this.persistenceService.userbOmmBalance);
@@ -486,7 +485,7 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   }
 
   updateDynamicLiquidityBoosters(newLockedOmmAmount: BigNumber): void {
-    log.debug("####### updateDynamicLiquidityBoosters.... #######");
+    // log.debug("####### updateDynamicLiquidityBoosters.... #######");
     let min = new BigNumber(-1);
     let max = new BigNumber(-1);
 
@@ -497,12 +496,12 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
         const oldBooster = this.liquidityBoosterData?.liquidityBoosterMap.get(poolId) ?? new BigNumber(0);
         const newLiquidityBooster = newLiquidityMultiplier.dividedBy(oldLiquidityMultiplier).multipliedBy(oldBooster);
 
-        log.debug("--------------------------------------------------");
-        log.debug(`Pool = ${value.getCleanPoolName()}`);
-        log.debug(`newLiquidityMultiplier = ${newLiquidityMultiplier}`);
-        log.debug(`oldLiquidityMultiplier = ${oldLiquidityMultiplier}`);
-        log.debug(`oldBooster = ${oldBooster}`);
-        log.debug(`newLiquidityBooster = ${newLiquidityBooster}`);
+        // log.debug("--------------------------------------------------");
+        // log.debug(`Pool = ${value.getCleanPoolName()}`);
+        // log.debug(`newLiquidityMultiplier = ${newLiquidityMultiplier}`);
+        // log.debug(`oldLiquidityMultiplier = ${oldLiquidityMultiplier}`);
+        // log.debug(`oldBooster = ${oldBooster}`);
+        // log.debug(`newLiquidityBooster = ${newLiquidityBooster}`);
 
         if (newLiquidityBooster.lt(min) || min.eq(-1)) {
           min = newLiquidityBooster;
@@ -518,7 +517,7 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   }
 
   updateDynamicMarketBoosters(newLockedOmmAmount: BigNumber): void {
-    log.debug("#######  updateDynamicMarketBoosters.... #######");
+    // log.debug("#######  updateDynamicMarketBoosters.... #######");
     let min = new BigNumber(-1);
     let max = new BigNumber(-1);
 
@@ -529,12 +528,12 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
         const oldBooster = this.marketBoosterData?.supplyBoosterMap.get(assetTag) ?? new BigNumber(0);
         const newSupplyBooster = newSupplyMultiplier.dividedBy(oldSupplyMultiplier).multipliedBy(oldBooster);
 
-        log.debug("--------------------------------------------------");
-        log.debug(`Asset = ${assetTag}`);
-        log.debug(`newSupplyMultiplier = ${newSupplyMultiplier}`);
-        log.debug(`oldSupplyMultiplier = ${oldSupplyMultiplier}`);
-        log.debug(`oldBooster = ${oldBooster}`);
-        log.debug(`newSupplyBooster = ${newSupplyBooster}`);
+        // log.debug("--------------------------------------------------");
+        // log.debug(`Asset = ${assetTag}`);
+        // log.debug(`newSupplyMultiplier = ${newSupplyMultiplier}`);
+        // log.debug(`oldSupplyMultiplier = ${oldSupplyMultiplier}`);
+        // log.debug(`oldBooster = ${oldBooster}`);
+        // log.debug(`newSupplyBooster = ${newSupplyBooster}`);
 
         if (newSupplyBooster.lt(min) || min.eq(-1)) {
           min = newSupplyBooster;
@@ -550,12 +549,12 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
         const oldBooster = this.marketBoosterData?.borrowBoosterMap.get(assetTag) ?? new BigNumber(0);
         const newBorrowBooster = newBorrowMultiplier.dividedBy(oldBorrowMultiplier).multipliedBy(oldBooster);
 
-        log.debug("--------------------------------------------------");
-        log.debug(`Asset = ${assetTag}`);
-        log.debug(`newBorrowMultiplier = ${newBorrowMultiplier}`);
-        log.debug(`oldBorrowMultiplier = ${oldBorrowMultiplier}`);
-        log.debug(`oldBooster = ${oldBooster}`);
-        log.debug(`newBorrowBooster = ${newBorrowBooster}`);
+        // log.debug("--------------------------------------------------");
+        // log.debug(`Asset = ${assetTag}`);
+        // log.debug(`newBorrowMultiplier = ${newBorrowMultiplier}`);
+        // log.debug(`oldBorrowMultiplier = ${oldBorrowMultiplier}`);
+        // log.debug(`oldBooster = ${oldBooster}`);
+        // log.debug(`newBorrowBooster = ${newBorrowBooster}`);
 
         if (newBorrowBooster.lt(min) || min.eq(-1)) {
           min = newBorrowBooster;

@@ -36,6 +36,8 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
 
   poolId!: BigNumber;
 
+  adjustActive = false;
+
   @Input() set poolIdSet(id: BigNumber) {
     this.poolId = id;
     this.poolData = this.persistenceService.userPoolsDataMap.get(id.toString());
@@ -179,12 +181,15 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
   }
 
   onAdjustClick(): void {
+    this.adjustActive = true;
     this.sliderEl?.removeAttribute("disabled");
     this.addClass(this.restStateEl, "hide");
     this.removeClass(this.adjustStateEl, "hide");
   }
 
   onCancelClick(): void {
+    this.adjustActive = false;
+
     // reset values
     this.setCurrentStaked();
 

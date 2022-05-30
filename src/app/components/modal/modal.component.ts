@@ -187,13 +187,13 @@ export class ModalComponent extends BaseClass implements OnInit {
   subscribeToLockedOmmActionSucceeded(): void {
     // change lock modal button text to default and open apply bOMM boost modal
     this.stateChangeService.lockedOmmActionSucceeded$.subscribe((success) => {
+      this.modalService.hideActiveModal();
       this.lockOmmProcessing = false;
 
       if (success) {
         const userClaimableOmm = this.persistenceService.getUserOmmRewardsBalance();
 
         if (userClaimableOmm.gt(0)) {
-          this.modalService.showNewModal(ModalType.CLAIM_AND_APPLY_BOMM_BOOST, );
           this.modalService.showNewModal(ModalType.CLAIM_AND_APPLY_BOMM_BOOST, new AssetAction(new Asset(AssetClass.USDS, AssetName.USDS,
               AssetTag.USDS), Utils.ZERO, Utils.ZERO, Utils.ZERO, undefined, new ClaimOmmDetails(
                 this.persistenceService.userAccumulatedOmmRewards)));

@@ -13,6 +13,7 @@ import {Prep} from "../../models/classes/Preps";
 import {YourPrepVote} from "../../models/classes/YourPrepVote";
 import BigNumber from "bignumber.js";
 import {CreateProposal} from "../../models/classes/Proposal";
+import {IconexId} from "../../models/enums/IconexId";
 
 @Injectable({
   providedIn: 'root'
@@ -36,14 +37,7 @@ export class VoteAndLockingService {
     const tx = this.buildLockOmmTx(amount, unlockTime);
 
     log.debug(`Lock OMM TX: `, tx);
-    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
-  }
-
-  public migrateStakedOmm(amount: BigNumber, unlockTime: BigNumber, notificationMessage: string): void {
-    const tx = this.buildMigrateStakedOmmTx(amount, unlockTime);
-
-    log.debug(`Migrate staked OMM TX: `, tx);
-    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
+    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage, IconexId.SHOW_MESSAGE_KEEP_MODAL);
   }
 
   public increaseLockAmountAndPeriodOmm(amount: BigNumber, unlockTime: BigNumber, notificationMessage: string): void {
@@ -51,14 +45,14 @@ export class VoteAndLockingService {
     const tx = this.buildIncreaseLockPeriodAndAmountOmmTx(amount, unlockTime);
 
     log.debug(`Increase Lock amount and unlock period OMM TX: `, tx);
-    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
+    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage, IconexId.SHOW_MESSAGE_KEEP_MODAL);
   }
 
   public increaseOmmLockPeriod(newPeriod: BigNumber, notificationMessage: string): void {
     const tx = this.buildIncreaseLockTimeOmmTx(newPeriod);
 
     log.debug(`Increase lock period OMM TX: `, tx);
-    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
+    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage, IconexId.SHOW_MESSAGE_KEEP_MODAL);
   }
 
   public increaseOmmLockAmount(amount: BigNumber, notificationMessage: string): void {
@@ -66,6 +60,13 @@ export class VoteAndLockingService {
     const tx = this.buildIncreaseLockAmountOmmTx(amount);
 
     log.debug(`Increase Locked OMM TX: `, tx);
+    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage, IconexId.SHOW_MESSAGE_KEEP_MODAL);
+  }
+
+  public migrateStakedOmm(amount: BigNumber, unlockTime: BigNumber, notificationMessage: string): void {
+    const tx = this.buildMigrateStakedOmmTx(amount, unlockTime);
+
+    log.debug(`Migrate staked OMM TX: `, tx);
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
@@ -180,7 +181,7 @@ export class VoteAndLockingService {
     const params = {
       _to: this.persistenceService.allAddresses!.systemContract.bOMM,
       _value: IconConverter.toHex(IconAmount.of(amount, decimals).toLoop()),
-      _data: IconConverter.fromUtf8('{ "method": "increaseAmount"}')};
+      _data: IconConverter.fromUtf8('{ "method": "increaseAmount", "params": { "unlockTime": 0 }}')};
 
     return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
       this.persistenceService.allAddresses!.systemContract.OmmToken, ScoreMethodNames.TRANSFER, params, IconTransactionType.WRITE);
