@@ -25,7 +25,6 @@ import {YourPoolsComponent} from "../your-pools/your-pools.component";
 import {Times} from "../../common/constants";
 import {ManageStakedIcxAction} from "../../models/classes/ManageStakedIcxAction";
 
-declare var $: any;
 
 @Component({
   selector: 'app-liquidity',
@@ -300,27 +299,8 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
     return false;
   }
 
-  userHasStakedAnyPool(): boolean {
-    for (const poolData of this.getUserPoolsData()) {
-      if (poolData.userStakedBalance.isGreaterThan(Utils.ZERO)) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
   getDailyRewards(poolData: PoolData): BigNumber {
     return this.calculationService.calculateDailyRewardsForPool(poolData);
-  }
-
-  getUserDailyRewards(poolData: UserPoolData): BigNumber {
-    const userDailyOmmRewards: any = this.persistenceService.userDailyOmmRewards;
-    if (userDailyOmmRewards) {
-      return userDailyOmmRewards[poolData.getCleanPoolName()] ?? new BigNumber(0);
-    } else {
-      return new BigNumber(0);
-    }
   }
 
   getTotalDailyRewards(): BigNumber {
@@ -413,10 +393,6 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
     const newUserbOmmBalance = this.calculationService.calculateNewbOmmBalance(newLockedOmmAmount,
       this.ommLockingComponent!.selectedLockTimeInMillisec);
     return this.calculationService.calculateDynamicLiquidityRewardsMultiplier(new BigNumber(poolId), newUserbOmmBalance);
-  }
-
-  calculateDynamicLiquidityMultiplierForStakedLp(newLpStakedAmount: BigNumber, poolId: BigNumber): BigNumber {
-    return this.calculationService.calculateDynamicLiquidityRewardsMultiplierForStakedLp(poolId, new BigNumber(newLpStakedAmount));
   }
 
   fromToIsEmpty(fromTo?: { from: BigNumber, to: BigNumber}): boolean {

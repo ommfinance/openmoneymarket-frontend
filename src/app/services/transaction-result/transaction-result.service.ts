@@ -146,14 +146,8 @@ export class TransactionResultService {
       stakingAction.amount = stakingAction.amount.dp(2);
 
       switch (modalAction.modalType) {
-        case ModalType.STAKE_OMM_TOKENS:
-          this.notificationService.showNewNotification(`${stakingAction.amount} OMM staked.`);
-          break;
         case ModalType.UNSTAKE_OMM_TOKENS:
           this.notificationService.showNewNotification(`${stakingAction.amount} OMM unstaking.`);
-          break;
-        case ModalType.CANCEL_UNSTAKE_OMM_TOKENS:
-          this.notificationService.showNewNotification(`${stakingAction.amount} Omm Tokens restaked.`);
           break;
         case ModalType.POOL_STAKE:
           this.notificationService.showNewNotification(`${stakingAction.amount} LP tokens staked.`);
@@ -259,14 +253,8 @@ export class TransactionResultService {
       this.notificationService.showNewNotification(`Couldn't claim Omm Tokens and apply boost.`);
     } else if (modalAction.stakingAction) {
       switch (modalAction.modalType) {
-        case ModalType.STAKE_OMM_TOKENS:
-          this.notificationService.showNewNotification(`Couldn't stake Omm Tokens. ${failedTxMessage} Try again.`);
-          break;
         case ModalType.UNSTAKE_OMM_TOKENS:
           this.notificationService.showNewNotification(`Couldn't unstake Omm Tokens. ${failedTxMessage} Try again.`);
-          break;
-        case ModalType.CANCEL_UNSTAKE_OMM_TOKENS:
-          this.notificationService.showNewNotification(`Couldn't restake Omm Tokens. ${failedTxMessage} Try again.`);
           break;
         case ModalType.POOL_STAKE:
           this.notificationService.showNewNotification(`Couldn't stake LP Tokens. ${failedTxMessage} Try again.`);

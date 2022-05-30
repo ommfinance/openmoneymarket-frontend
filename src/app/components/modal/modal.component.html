@@ -195,36 +195,6 @@
   </div>
 </div>
 
-<!-- Modal: Confirm Omm Token stake -->
-<div class="modal" id="modal-confirm-stake" #stakeOmm>
-  <div class="modal-content">
-    <!-- Title -->
-    <h3 class="text-center label">Stake Omm Tokens?</h3>
-    <p class="text-center"><span class="value-omm-stake-amount">{{activeModalChange?.stakingAction?.amount | usFormat}}</span> OMM</p>
-
-    <!-- Before vs after -->
-    <div class="grid before-after">
-      <div class="grid-cell text-center border-right">
-        <p class="label">Before</p>
-        <p class="text-dark">{{activeModalChange?.stakingAction?.before | usFormat}} OMM</p>
-      </div>
-      <div class="grid-cell text-center">
-        <p class="label">After</p>
-        <p class="text-dark"><span class="value-omm-stake-amount">{{activeModalChange?.stakingAction?.after | usFormat}}</span> OMM</p>
-      </div>
-    </div>
-
-    <!-- Unstaking message -->
-    <p class="label text-center">It will take 3 days to unstake them.</p>
-
-    <!-- Modal actions -->
-    <div class="modal-actions">
-      <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Cancel</a>
-      <a href="javascript:void(0);" class="button" (click)="onGovernanceModalConfirmClick()">Stake</a>
-    </div>
-  </div>
-</div>
-
 <!-- Modal: Confirm Omm Token unstake -->
 <div class="modal" id="modal-confirm-unstake" #unstakeOmm>
   <div class="modal-content">
@@ -251,24 +221,6 @@
     <div class="modal-actions">
       <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Cancel</a>
       <a href="javascript:void(0);" class="button" (click)="onGovernanceModalConfirmClick()">Unstake</a>
-    </div>
-  </div>
-</div>
-
-<!-- Modal: Confirm Omm Token cancel unstake -->
-<div class="modal" id="modal-cancel-unstake" #cancelUnstake>
-  <div class="modal-content">
-    <!-- Title -->
-    <h3 class="text-center label">Restake Omm Tokens?</h3>
-    <p class="text-center">{{activeModalChange?.stakingAction?.amount | usFormat}} OMM</p>
-
-    <!-- Unstaking message -->
-    <p class="label text-center">This will cancel the unstaking process.</p>
-
-    <!-- Modal actions -->
-    <div class="modal-actions">
-      <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Go back</a>
-      <a href="javascript:void(0);" class="button" (click)="onRestakeConfirmClick()">Restake</a>
     </div>
   </div>
 </div>
