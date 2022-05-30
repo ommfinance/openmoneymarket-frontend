@@ -70,12 +70,12 @@ export class PerformanceComponent extends BaseClass implements OnInit, AfterView
 
   borrowInterestMultipliedByDays(): string {
     const res = this.borrowInterest.multipliedBy(this.getDropDownOptionMultiplier());
-    return res.lte(0.01) ? "-" : `- $${Utils.formatNumberToUSLocaleString(new BigNumber(Utils.roundDownTo2Decimals(res)))}`;
+    return res.lte(0.01) ? "-" : `$${Utils.formatNumberToUSLocaleString(new BigNumber(Utils.roundDownTo2Decimals(res)))}`;
   }
 
   supplyInterestMultipliedByDays(): string {
     const res = this.supplyInterest.multipliedBy(this.getDropDownOptionMultiplier());
-    return res.lte(0.01) ? "-" : `+ $${Utils.formatNumberToUSLocaleString(new BigNumber(Utils.roundDownTo2Decimals(res)))}`;
+    return res.lte(0.01) ? "-" : `$${Utils.formatNumberToUSLocaleString(new BigNumber(Utils.roundDownTo2Decimals(res)))}`;
   }
 
   ommRewardsMultipliedByDays(): BigNumber {

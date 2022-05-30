@@ -11,7 +11,12 @@ import {
   ViewChild
 } from '@angular/core';
 import {SlidersService} from "../../services/sliders/sliders.service";
-import {assetPrefixMinusFormat, assetPrefixPlusFormat, ommPrefixPlusFormat, percentageFormat, usLocale} from "../../common/formats";
+import {
+  assetFormat, ommPrefixApproxFormat,
+  ommPrefixFormat,
+  percentageFormat,
+  usLocale
+} from "../../common/formats";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {Asset, AssetTag, assetToCollateralAssetTag, CollateralAssetTag} from "../../models/classes/Asset";
 import log from "loglevel";
@@ -421,11 +426,11 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
   // update borrow data (daily rewards, etc..) values
   updateBorrowData(borrowed: BigNumber = this.persistenceService.getUserBorrowedAssetBalancePlusOrigFee(this.asset.tag)): void {
     // Update asset-user's borrow interest
-    this.setText(this.borrInterestEl, assetPrefixMinusFormat(assetToCollateralAssetTag(this.asset.tag)).to(
+    this.setText(this.borrInterestEl, assetFormat(assetToCollateralAssetTag(this.asset.tag)).to(
       this.getDailyBorrowInterest(borrowed).dp(2).toNumber()));
 
     // Update asset-user's borrow omm rewards
-    this.setText(this.borrRewardsEl, ommPrefixPlusFormat.to(this.calculationService.calculateUserDailyBorrowOmmReward(
+    this.setText(this.borrRewardsEl, ommPrefixFormat.to(this.calculationService.calculateUserDailyBorrowOmmReward(
       this.asset.tag, borrowed).dp(2).toNumber()));
 
     // update risk data
@@ -436,8 +441,10 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
   updateUserDailyBorrowOmmReward(borrowed: BigNumber): BigNumber {
     const userDailyBorrowOmmReward = this.calculationService.calculateUserDailyBorrowOmmReward(
       this.asset.tag, borrowed);
+    const roundedDownReward = userDailyBorrowOmmReward.dp(2).toNumber();
     // Update asset-user's borrow omm rewards
-    this.setText(this.borrRewardsEl, ommPrefixPlusFormat.to(userDailyBorrowOmmReward.dp(2).toNumber()));
+    this.setText(this.borrRewardsEl, this.inputBorrowActive ? ommPrefixApproxFormat.to(roundedDownReward)
+      : ommPrefixFormat.to(roundedDownReward));
     return userDailyBorrowOmmReward;
   }
 
@@ -565,7 +572,9 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
 
   updateUserDailySupplyOmmReward(convertedValue: BigNumber): BigNumber {
     const userDailySupplyOmmReward = this.calculationService.calculateUserDailySupplyOmmReward(this.asset.tag, convertedValue);
-    this.setText(this.suppRewardsEl, ommPrefixPlusFormat.to(userDailySupplyOmmReward.dp(2).toNumber()));
+    const roundedDownReward = userDailySupplyOmmReward.dp(2).toNumber();
+    this.setText(this.suppRewardsEl, this.inputSupplyActive ? ommPrefixApproxFormat.to(roundedDownReward)
+      : ommPrefixFormat.to(roundedDownReward));
     return userDailySupplyOmmReward;
   }
 
@@ -588,7 +597,7 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
   updateDailySupplyInterest(supplyValue: BigNumber): void {
     const assetTag = this.sIcxSelected ? CollateralAssetTag.sICX : this.asset.tag;
     // Update asset-user's supply interest
-    this.setText(this.suppInterestEl, assetPrefixPlusFormat(assetTag).to(this.calculateDynamicDailySupplyInterest(assetTag, supplyValue)
+    this.setText(this.suppInterestEl, assetFormat(assetTag).to(this.calculateDynamicDailySupplyInterest(assetTag, supplyValue)
       .dp(2).toNumber()));
   }
 
@@ -664,7 +673,7 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
 
       this.updateBorrowData(bigNumValue);
       // Update asset-user's borrow interest
-      this.setText(this.borrInterestEl, assetPrefixMinusFormat(assetToCollateralAssetTag(this.asset.tag)).to(
+      this.setText(this.borrInterestEl, assetFormat(assetToCollateralAssetTag(this.asset.tag)).to(
         this.getDailyBorrowInterest(bigNumValue).dp(2).toNumber()));
 
       // Update asset-user's borrow omm rewards
