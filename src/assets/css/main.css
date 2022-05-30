@@ -2717,6 +2717,15 @@ input.input-boost:focus {
 	Rewards specific styles (Layout styles: sizing, spacing, etc.)
 ========================================================================== */
 
+#modal-manage-staked-omm {
+  max-width: 420px;
+}
+
+#modal-manage-staked-omm .graphical-options .checkbox-tools:checked + label,
+#modal-manage-staked-omm .graphical-options .checkbox-tools:not(:checked) + label {
+  width: 150px;
+}
+
 .pool-expanded .content {
   max-width: 400px;
   margin: 25px auto;
@@ -2967,6 +2976,15 @@ input.input-boost:focus {
 .boosted-omm .threshold.locked .metadata {
   margin-top: -10px;
   margin-left: -65px;
+}
+
+/* Locked indicator placement */
+
+.boosted-omm .threshold.locked.right::after {
+  margin-left: 0;
+}
+.boosted-omm .threshold.locked.right .metadata {
+  margin-left: 15px;
 }
 
 /* ==========================================================================
@@ -3385,12 +3403,16 @@ input.input-boost:focus {
     text-align: center;
   }
   .value-bomm-total {
-    display: inline-block;
+    display: block;
     margin-bottom: 15px;
   }
   .bomm-tooltip .tooltip-content {
     left: -100px;
   }
+  .label.value-bomm-total {
+    display: inline-block;
+  }
+
 }
 
 
@@ -3464,6 +3486,11 @@ input.input-boost:focus {
   }
   .list tr.asset td:first-of-type {
 
+  }
+
+  #modal-manage-staked-omm .graphical-options .checkbox-tools:checked + label,
+  #modal-manage-staked-omm .graphical-options .checkbox-tools:not(:checked) + label {
+    width: 100px;
   }
 
   .boosted-omm .boost-increase > .grid {
