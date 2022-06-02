@@ -344,7 +344,16 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
       this.userMarketsBorrowApyPlusOmmApy = this.calculationService.calculateUserBorrowOmmRewardsApy(this.asset.tag).minus(userBorrowApy);
       this.userBorrowedAssetBalanceUSD = this.getUserBorrowedAssetBalanceUSD();
       this.userBorrowedAssetBalance = this.persistenceService.getUserBorrowedAssetBalancePlusOrigFee(this.asset.tag).dp(2);
+
+      this.disableActiveStates();
     }
+  }
+
+  disableActiveStates(): void {
+    this.dynamicSupplyApyActive = false;
+    this.dynamicBorrowApyActive = false;
+    this.inputSupplyActive = false;
+    this.inputBorrowActive = false;
   }
 
   initCoreValues(): void {
@@ -366,7 +375,9 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
   }
 
   private subscribeToCollapseTable(): void {
-    this.collapseMarketAssetsSub = this.stateChangeService.collapseMarketAssets$.subscribe(() => this.collapseAssetTable());
+    this.collapseMarketAssetsSub = this.stateChangeService.collapseMarketAssets$.subscribe(() => {
+      this.collapseAssetTable();
+    });
   }
 
   private subscribeToCollapseOtherAssetsTableUpdate(): void {
@@ -429,18 +440,27 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
     this.setText(this.borrInterestEl, assetFormat(assetToCollateralAssetTag(this.asset.tag)).to(
       this.getDailyBorrowInterest(borrowed).dp(2).toNumber()));
 
-    // Update asset-user's borrow omm rewards
-    this.setText(this.borrRewardsEl, ommPrefixFormat.to(this.calculationService.calculateUserDailyBorrowOmmReward(
-      this.asset.tag, borrowed).dp(2).toNumber()));
+    // Update asset-user's borrow omm rewards TODO refactor
+    let userDailyBorrowOmmReward;
+    if (!this.inputBorrowActive) {
+      userDailyBorrowOmmReward = this.persistenceService.userDailyOmmRewards?.getBorrowRewardForAsset(this.asset.tag) ?? new BigNumber(0);
+    } else {
+      userDailyBorrowOmmReward = this.calculationService.calculateUserDailyBorrowOmmReward(this.asset.tag, borrowed);
+    }
+    this.setText(this.borrRewardsEl, ommPrefixFormat.to(userDailyBorrowOmmReward.dp(2).toNumber()));
 
     // update risk data
     this.handleBorrowTotalRisk(borrowed);
   }
 
-  // Update asset-user's borrow omm rewards
+  // Update asset-user's borrow omm rewards TODO refactor
   updateUserDailyBorrowOmmReward(borrowed: BigNumber): BigNumber {
-    const userDailyBorrowOmmReward = this.calculationService.calculateUserDailyBorrowOmmReward(
-      this.asset.tag, borrowed);
+    let userDailyBorrowOmmReward;
+    if (!this.inputBorrowActive) {
+      userDailyBorrowOmmReward = this.persistenceService.userDailyOmmRewards?.getBorrowRewardForAsset(this.asset.tag) ?? new BigNumber(0);
+    } else {
+      userDailyBorrowOmmReward = this.calculationService.calculateUserDailyBorrowOmmReward(this.asset.tag, borrowed);
+    }
     const roundedDownReward = userDailyBorrowOmmReward.dp(2).toNumber();
     // Update asset-user's borrow omm rewards
     this.setText(this.borrRewardsEl, this.inputBorrowActive ? ommPrefixApproxFormat.to(roundedDownReward)
@@ -571,7 +591,13 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
   }
 
   updateUserDailySupplyOmmReward(convertedValue: BigNumber): BigNumber {
-    const userDailySupplyOmmReward = this.calculationService.calculateUserDailySupplyOmmReward(this.asset.tag, convertedValue);
+    let userDailySupplyOmmReward;
+    if (!this.inputSupplyActive) {
+      userDailySupplyOmmReward = this.persistenceService.userDailyOmmRewards?.getSupplyRewardForAsset(this.asset.tag) ?? new BigNumber(0);
+    } else {
+      userDailySupplyOmmReward = this.calculationService.calculateUserDailySupplyOmmReward(this.asset.tag, convertedValue);
+    }
+
     const roundedDownReward = userDailySupplyOmmReward.dp(2).toNumber();
     this.setText(this.suppRewardsEl, this.inputSupplyActive ? ommPrefixApproxFormat.to(roundedDownReward)
       : ommPrefixFormat.to(roundedDownReward));
