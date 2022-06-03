@@ -4,7 +4,6 @@ import {DataLoaderService} from './services/data-loader/data-loader.service';
 import {ModalService} from "./services/modal/modal.service";
 import {PersistenceService} from "./services/persistence/persistence.service";
 import {BaseClass} from "./components/base-class";
-import {ReloaderService} from "./services/reloader/reloader.service";
 import {WalletType} from "./models/wallets/Wallet";
 import {LocalStorageService, WalletLogin} from "./services/local-storage/local-storage.service";
 import {IconexWallet} from "./models/wallets/IconexWallet";
@@ -31,7 +30,6 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
               private loginService: LoginService,
               private modalService: ModalService,
               public persistenceService: PersistenceService,
-              private reloaderService: ReloaderService,
               private localStorageService: LocalStorageService) {
     super(persistenceService);
 
@@ -68,6 +66,11 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
       if ($(e.target).is("#time-selector") === false && $(e.target).is("#time-selector-dropdown") === false) {
         $("#time-selector").removeClass("active");
         $(".time-selector-content").removeClass("active");
+      }
+
+      if ($(e.target).is(".dropdown.time-selector") === false && $(e.target).is(".dropdown-content.locked-selector") === false
+        && $(e.target).is(".animation-underline.locked-selector") === false) {
+        $(".dropdown-content.locked-selector").removeClass("active");
       }
     });
   }
