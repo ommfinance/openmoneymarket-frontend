@@ -40,31 +40,47 @@ export function assetFormat(assetTag: AssetTag | CollateralAssetTag): any {
     });
 }
 
-// + ICX .00
-export function assetPrefixPlusFormat(assetTag: AssetTag | CollateralAssetTag): any {
+export function assetPrefixApproxFormat(assetTag: AssetTag | CollateralAssetTag): any {
   return wNumb({
     decimals: 2,
     thousand: ',',
-    prefix: ' + ',
+    prefix: ' ~ ',
     suffix: ` ${assetTag.toString()}`
   });
 }
+
+// + ICX .00
+// export function assetPrefixPlusFormat(assetTag: AssetTag | CollateralAssetTag): any {
+//   return wNumb({
+//     decimals: 2,
+//     thousand: ',',
+//     prefix: ' + ',
+//     suffix: ` ${assetTag.toString()}`
+//   });
+// }
 
 // - ICX .00
-export function assetPrefixMinusFormat(assetTag: AssetTag | CollateralAssetTag): any {
-  return wNumb({
-    decimals: 2,
-    thousand: ',',
-    prefix: ' - ',
-    suffix: ` ${assetTag.toString()}`
-  });
-}
+// export function assetPrefixMinusFormat(assetTag: AssetTag | CollateralAssetTag): any {
+//   return wNumb({
+//     decimals: 2,
+//     thousand: ',',
+//     prefix: ' - ',
+//     suffix: ` ${assetTag.toString()}`
+//   });
+// }
 
 // + OMM .00
-export const ommPrefixPlusFormat = wNumb({
+export const ommPrefixApproxFormat = wNumb({
   decimals: 2,
   thousand: ',',
-  prefix: ' + ',
+  prefix: ' ~ ',
+  suffix: ' OMM'
+});
+
+// OMM .00
+export const ommPrefixFormat = wNumb({
+  decimals: 2,
+  thousand: ',',
   suffix: ' OMM'
 });
 

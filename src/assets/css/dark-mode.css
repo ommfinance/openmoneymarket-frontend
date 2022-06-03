@@ -416,6 +416,7 @@
   }
   .boosted-omm .locked-selector ul li:hover {
     background: #4a4f59;
+    color: #ffffff;
   }
 }
 @media (prefers-color-scheme: dark) and (max-width: 1200px) {

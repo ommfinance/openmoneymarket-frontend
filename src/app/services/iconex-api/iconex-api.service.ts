@@ -18,6 +18,8 @@ export class IconexApiService {
   * https://www.icondev.io/docs/chrome-extension-connect
   */
 
+  hasWalletExtension = false;
+
   constructor(private transactionResultService: TransactionResultService,
               private loginService: LoginService,
               private notificationService: NotificationService,
@@ -30,7 +32,13 @@ export class IconexApiService {
 
     switch (type) {
       case "RESPONSE_HAS_ACCOUNT": {
-        if (payload.hasAccount) { this.requestAddress(); }
+        if (payload.hasAccount) {
+          if (!this.hasWalletExtension) {
+            this.hasWalletExtension = true;
+          } else {
+            this.requestAddress();
+          }
+        }
         else {
           this.notificationService.showNewNotification("Wallet does not exist. Please log in to Iconex and try again.");
         }

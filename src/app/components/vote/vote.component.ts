@@ -15,13 +15,14 @@ import {VoteAction} from "../../models/classes/VoteAction";
 import {AssetTag} from "../../models/classes/Asset";
 import {
   contributorsMap,
-  defaultPrepLogoUrl
+  defaultPrepLogoUrl, Times
 } from "../../common/constants";
 import BigNumber from "bignumber.js";
 import {Proposal} from "../../models/classes/Proposal";
 import {LockDate} from "../../models/enums/LockDate";
 import {OmmLockingComponent} from "../omm-locking/omm-locking.component";
 import {OmmLockingCmpType} from "../../models/enums/OmmLockingComponent";
+import {ManageStakedIcxAction} from "../../models/classes/ManageStakedIcxAction";
 
 
 @Component({
@@ -67,6 +68,9 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     this.initCoreStaticValues();
     this.initSubscriptions();
     this.initUserStaticValues();
+
+    // pop up manage staked omm
+    this.popupStakedMigrationModal();
   }
 
   ngAfterViewInit(): void {
@@ -86,6 +90,9 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       if (!wallet) {
         this.resetVotingPowerPerIcx();
         this.resetYourVotingPower();
+      } else {
+        // pop up manage staked omm
+        this.popupStakedMigrationModal();
       }
     });
   }
@@ -148,6 +155,17 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       this.voteOverviewEditMode = false;
       this.onSearchInputChange("");
     });
+  }
+
+  popupStakedMigrationModal(): void {
+    // pop up manage staked omm
+    if (this.userLoggedIn() && this.persistenceService.getUserStakedOmmBalance().gt(0)) {
+      // default migration locking period is 1 week
+      const lockTime = this.calculationService.recalculateLockPeriodEnd(Utils.timestampNowMilliseconds().plus(Times.WEEK_IN_MILLISECONDS));
+      const amount = this.persistenceService.getUserStakedOmmBalance();
+      this.modalService.showNewModal(ModalType.MANAGE_STAKED_OMM, undefined, undefined, undefined,
+        undefined, undefined, new ManageStakedIcxAction(amount, lockTime));
+    }
   }
 
   handleLockSliderValueUpdate(value: number): void {

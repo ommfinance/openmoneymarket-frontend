@@ -8,8 +8,8 @@
     <td><span class="value-supplied">{{this.persistenceService.getUserAssetReserve(asset.tag)?.currentOTokenBalanceUSD | roundOff2Dec | dollarUsLocale}}</span><br>
       <span class="value-supplied label">{{getUserSuppliedAssetBalance() | usFormat}} {{supplyAssetTag()}}</span></td>
     <td class="text-green">{{getUserSupplyApy() | roundOff2DecPercent}}</td> <!-- Supply APY-->
-    <td><span class="value-borrowed">{{getUserBorrowedAssetBalanceUSD() | roundOff2Dec | dollarUsLocale}}</span><br>
-      <span class="value-borrowed label">{{getUserBorrowedAssetBalance() | roundDown2Dec | usFormat}} {{getBorrowAssetTagAdjusted()}}</span></td>
+    <td><span class="value-borrowed">{{userBorrowedAssetBalanceUSD | roundOff2Dec | dollarUsLocale}}</span><br>
+      <span class="value-borrowed label">{{userBorrowedAssetBalance | roundDown2Dec | usFormat}} {{getBorrowAssetTagAdjusted()}}</span></td>
     <td class="{{isNegative(getUserBorrowApy()) ? 'text-purple' : 'text-green'}}">{{makeAbsolute(getUserBorrowApy()) | roundOff2DecPercent}}</td><!-- Borrow APY -->
   </ng-container>
 
@@ -102,13 +102,19 @@
               <div class="grid-cell">
                 <dl class="metadata">
                   <dt>Daily interest</dt>
-                  <dd class="value-supply-interest" #suppInterest>+ 0 </dd>
+                  <dd class="value-supply-interest" #suppInterest>0 </dd>
                 </dl>
               </div>
               <div class="grid-cell">
                 <dl class="metadata">
-                  <dt>Daily rewards</dt>
-                  <dd class="value-supply-rewards" #suppRewards>+ ?? OMM</dd>
+                  <dt>Daily rewards&nbsp;<span *ngIf="inputSupplyActive" class="supply-apy-tooltip tooltip">
+                    <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon" alt="i"></span>
+                  <div class="tooltip-content">
+                    <p class="supply-apy-tooltip-content">This is an estimate until you complete the transaction. The more you supply, the less accurate it will be.</p>
+                  </div>
+                  </span>
+                  </dt>
+                  <dd class="value-supply-rewards" #suppRewards>0 OMM</dd>
                 </dl>
               </div>
             </div>
@@ -215,13 +221,19 @@
               <div class="grid-cell">
                 <dl class="metadata">
                   <dt>Daily interest</dt>
-                  <dd class="value-borrow-interest" #borrInterest>- {{getDailyBorrowInterest() | roundOff2Dec | usFormat}} {{asset.tag}}</dd>
+                  <dd class="value-borrow-interest" #borrInterest>{{getDailyBorrowInterest() | roundOff2Dec | usFormat}} {{asset.tag}}</dd>
                 </dl>
               </div>
               <div class="grid-cell">
                 <dl class="metadata">
-                  <dt>Daily rewards</dt>
-                  <dd class="value-borrow-rewards" #borrRewards>+ ?? OMM</dd>
+                  <dt>Daily rewards&nbsp;<span *ngIf="inputBorrowActive" class="borrow-apy-tooltip tooltip">
+                  <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+                  <div class="tooltip-content">
+                    <p class="borrow-apy-tooltip-content">This is an estimate until you complete the transaction. The more you borrow, the less accurate it will be.</p>
+                  </div>
+                  </span>
+                  </dt>
+                  <dd class="value-borrow-rewards" #borrRewards>0 OMM</dd>
                 </dl>
               </div>
             </div>

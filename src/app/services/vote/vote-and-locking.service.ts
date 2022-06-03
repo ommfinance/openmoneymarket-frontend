@@ -13,6 +13,7 @@ import {Prep} from "../../models/classes/Preps";
 import {YourPrepVote} from "../../models/classes/YourPrepVote";
 import BigNumber from "bignumber.js";
 import {CreateProposal} from "../../models/classes/Proposal";
+import {IconexId} from "../../models/enums/IconexId";
 
 @Injectable({
   providedIn: 'root'
@@ -36,7 +37,7 @@ export class VoteAndLockingService {
     const tx = this.buildLockOmmTx(amount, unlockTime);
 
     log.debug(`Lock OMM TX: `, tx);
-    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
+    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage, IconexId.SHOW_MESSAGE_KEEP_MODAL);
   }
 
   public increaseLockAmountAndPeriodOmm(amount: BigNumber, unlockTime: BigNumber, notificationMessage: string): void {
@@ -44,14 +45,14 @@ export class VoteAndLockingService {
     const tx = this.buildIncreaseLockPeriodAndAmountOmmTx(amount, unlockTime);
 
     log.debug(`Increase Lock amount and unlock period OMM TX: `, tx);
-    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
+    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage, IconexId.SHOW_MESSAGE_KEEP_MODAL);
   }
 
   public increaseOmmLockPeriod(newPeriod: BigNumber, notificationMessage: string): void {
     const tx = this.buildIncreaseLockTimeOmmTx(newPeriod);
 
     log.debug(`Increase lock period OMM TX: `, tx);
-    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
+    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage, IconexId.SHOW_MESSAGE_KEEP_MODAL);
   }
 
   public increaseOmmLockAmount(amount: BigNumber, notificationMessage: string): void {
@@ -59,6 +60,13 @@ export class VoteAndLockingService {
     const tx = this.buildIncreaseLockAmountOmmTx(amount);
 
     log.debug(`Increase Locked OMM TX: `, tx);
+    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage, IconexId.SHOW_MESSAGE_KEEP_MODAL);
+  }
+
+  public migrateStakedOmm(amount: BigNumber, unlockTime: BigNumber, notificationMessage: string): void {
+    const tx = this.buildMigrateStakedOmmTx(amount, unlockTime);
+
+    log.debug(`Migrate staked OMM TX: `, tx);
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
@@ -85,6 +93,8 @@ export class VoteAndLockingService {
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage);
   }
 
+
+
   /**
    * @description Build lock OMM Tokens Icon transaction
    * **Note**: Lock period is timestamp in microseconds. The lock period should be an integer/long, not a string.
@@ -110,6 +120,24 @@ export class VoteAndLockingService {
 
     return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
       this.persistenceService.allAddresses!.systemContract.OmmToken, ScoreMethodNames.TRANSFER, params, IconTransactionType.WRITE);
+  }
+
+  private buildMigrateStakedOmmTx(amount: BigNumber, unlockTime: BigNumber): any {
+    this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
+
+    // convert to microseconds
+    const unlockTimeMicro = unlockTime.multipliedBy(1000);
+    log.debug(`Omm amount to migrate from staked to locked = ` + amount.toString());
+    log.debug(`unlockTime in microseconds = ` + unlockTime.toString());
+    const decimals = 18;
+
+    const params = {
+      _amount: IconConverter.toHex(IconAmount.of(amount, decimals).toLoop()),
+      _lockPeriod: IconConverter.toHex(unlockTimeMicro)
+    };
+
+    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address, this.persistenceService.allAddresses!.
+      systemContract.OmmToken, ScoreMethodNames.MIGRATE_STAKED_OMM, params, IconTransactionType.WRITE);
   }
 
   /**
@@ -153,7 +181,7 @@ export class VoteAndLockingService {
     const params = {
       _to: this.persistenceService.allAddresses!.systemContract.bOMM,
       _value: IconConverter.toHex(IconAmount.of(amount, decimals).toLoop()),
-      _data: IconConverter.fromUtf8('{ "method": "increaseAmount"}')};
+      _data: IconConverter.fromUtf8('{ "method": "increaseAmount", "params": { "unlockTime": 0 }}')};
 
     return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
       this.persistenceService.allAddresses!.systemContract.OmmToken, ScoreMethodNames.TRANSFER, params, IconTransactionType.WRITE);

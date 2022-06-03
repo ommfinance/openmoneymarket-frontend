@@ -20,8 +20,11 @@ import {IMarketBoosterData} from "../../models/Interfaces/IMarketBoosterData";
 import {ILiquidityBoosterData} from "../../models/Interfaces/ILiquidityBoosterData";
 import log from "loglevel";
 import {OmmLockingCmpType} from "../../models/enums/OmmLockingComponent";
+import {AllPoolsComponent} from "../all-pools/all-pools.component";
+import {YourPoolsComponent} from "../your-pools/your-pools.component";
+import {Times} from "../../common/constants";
+import {ManageStakedIcxAction} from "../../models/classes/ManageStakedIcxAction";
 
-declare var $: any;
 
 @Component({
   selector: 'app-liquidity',
@@ -42,6 +45,8 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   liquidityBoosterToEl?: any; @ViewChild("liqBoosterTo") set j(j: ElementRef) {this.liquidityBoosterToEl = j?.nativeElement; }
 
   @ViewChild(OmmLockingComponent) ommLockingComponent?: OmmLockingComponent;
+  @ViewChild(AllPoolsComponent) allPoolsComponent?: AllPoolsComponent;
+  @ViewChild(YourPoolsComponent) yourPoolsComponent?: YourPoolsComponent;
 
   public activeLiquidityOverview: ActiveLiquidityOverview = this.userLoggedIn() ? ActiveLiquidityOverview.YOUR_LIQUIDITY :
     ActiveLiquidityOverview.ALL_LIQUIDITY;
@@ -70,6 +75,9 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
     this.initUserStaticValues();
 
     this.registerSubscriptions();
+
+    // pop up manage staked omm
+    this.popupStakedMigrationModal();
   }
 
   ngOnDestroy(): void {
@@ -77,10 +85,6 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
 
   ngAfterViewInit(): void {
 
-    // pop up manage staked omm, TODO improve
-    // if (this.userLoggedIn()) {
-    //   this.modalService.showNewModal(ModalType.MANAGE_STAKED_OMM);
-    // }
   }
 
   initCoreStaticValues(): void {
@@ -90,7 +94,6 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
 
   initUserStaticValues(): void {
     if (this.userLoggedIn()) {
-      log.debug("[RewardsComponent] initUserStaticValues....");
       this.marketBoosterData = this.calculationService.calculateUserbOmmMarketBoosters();
       this.liquidityBoosterData = this.calculationService.calculateUserbOmmLiquidityBoosters();
       this.userLockingApr = this.calculationService.calculateUserLockingApr(this.persistenceService.userbOmmBalance);
@@ -98,6 +101,18 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
       this.userDailyLockingOmmRewards = this.calculationService.calculateUserDailyLockingOmmRewards();
 
       this.ommLockingComponent?.onLockAdjustCancelClick();
+    }
+  }
+
+
+  popupStakedMigrationModal(): void {
+    // pop up manage staked omm
+    if (this.userLoggedIn() && this.persistenceService.getUserStakedOmmBalance().gt(0)) {
+      // default migration locking period is 1 week
+      const lockTime = this.calculationService.recalculateLockPeriodEnd(Utils.timestampNowMilliseconds().plus(Times.WEEK_IN_MILLISECONDS));
+      const amount = this.persistenceService.getUserStakedOmmBalance();
+      this.modalService.showNewModal(ModalType.MANAGE_STAKED_OMM, undefined, undefined, undefined,
+        undefined, undefined, new ManageStakedIcxAction(amount, lockTime));
     }
   }
 
@@ -147,34 +162,25 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   }
 
   collapseAllPoolTables(): void {
-    // collapse all pools tables
-    this.getAllPoolsData().forEach(poolData => {
-      $(`.pool.${poolData.getPairClassName()}`).removeClass('active');
-      $(`.pool-${poolData.getPairClassName()}-expanded`).slideUp();
-    });
-  }
+    console.log("collapseAllPoolTables...");
+    console.log(this.yourPoolsComponent);
 
-  collapsePoolTablesSlideUp(poolData: UserPoolData | PoolData): void {
-    // Collapse pools other than the one clicked up
-    this.getAllPoolsData().forEach(pool => {
-      if (!pool.poolId.isEqualTo(poolData.poolId)) {
-        $(`.pool.${pool.getPairClassName()}`).removeClass('active');
-        $(`.pool-${pool.getPairClassName()}-expanded`).slideUp();
-      }
-    });
+    // collapse all pools tables
+    this.stateChangeService.collapseOtherPoolTablesUpdate(undefined);
+    this.stateChangeService.collapseYourPoolTablesUpdate(undefined);
   }
 
   onPoolClick(poolData: UserPoolData | PoolData): void {
+    console.log("Rewards onPoolClick..");
     // collapse other pools expanded up
-    this.collapsePoolTablesSlideUp(poolData);
+    if (poolData instanceof PoolData) {
+      this.stateChangeService.collapseOtherPoolTablesUpdate(poolData);
+    } else {
+      this.stateChangeService.collapseYourPoolTablesUpdate(poolData);
+    }
+
 
     this.ommLockingComponent?.onLockAdjustCancelClick();
-
-    // commit event to state change
-    this.stateChangeService.poolClickCUpdate(poolData);
-
-    $(`.pool.${poolData.getPairClassName()}`).toggleClass('active');
-    $(`.pool-${poolData.getPairClassName()}-expanded`).slideToggle();
   }
 
   /**
@@ -211,6 +217,9 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   private subscribeToLoginChange(): void {
     this.stateChangeService.loginChange.subscribe(wallet => {
       if (wallet) {
+        // pop up manage staked omm
+        this.popupStakedMigrationModal();
+
         // user login
         this.onYourLiquidityClick();
         this.onYourPoolsClick();
@@ -267,14 +276,6 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
     return this.persistenceService.userAccumulatedOmmRewards?.liquidity?.total ?? new BigNumber("0");
   }
 
-  userHasStakedToPool(poolData: UserPoolData): boolean {
-    return poolData.userStakedBalance.isGreaterThan(Utils.ZERO);
-  }
-
-  userHasAvailableStakeToPool(poolData: UserPoolData): boolean {
-    return poolData.userAvailableBalance.isGreaterThan(Utils.ZERO);
-  }
-
   getAllPoolsData(): PoolData[] {
     return this.persistenceService.allPools ?? [];
   }
@@ -283,14 +284,6 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
     return this.persistenceService.userPools ?? [];
   }
 
-  getUserStakedPoolsData(): UserPoolData[] {
-    return this.persistenceService.userPools?.filter(pool => pool.userStakedBalance.isGreaterThan(Utils.ZERO));
-  }
-
-  getUserPoolsAvailableData(): UserPoolData[] {
-    return this.persistenceService.userPools?.filter(pool => pool.userAvailableBalance.isGreaterThan(Utils.ZERO)
-      && pool.userStakedBalance.isZero());
-  }
 
   getOmmLckCmpType(): OmmLockingCmpType {
     return OmmLockingCmpType.REWARDS;
@@ -306,56 +299,8 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
     return false;
   }
 
-  userHasStakedAnyPool(): boolean {
-    for (const poolData of this.getUserPoolsData()) {
-      if (poolData.userStakedBalance.isGreaterThan(Utils.ZERO)) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  userHasLpTokenAvailableOrHasStaked(poolId: BigNumber): boolean {
-    return this.persistenceService.getUserPoolStakedAvailableBalance(poolId).isGreaterThan(Utils.ZERO)
-      || this.persistenceService.getUserPoolStakedBalance(poolId).isGreaterThan(Utils.ZERO);
-  }
-
-  getTotalSuppliedBase(poolData: PoolData): BigNumber {
-    return this.calculationService.calculatePoolTotalSupplied(poolData).dp(0, BigNumber.ROUND_HALF_CEIL);
-  }
-
-  getUserSuppliedBase(poolData: UserPoolData): BigNumber {
-    return this.calculationService.calculateUserPoolSupplied(poolData);
-  }
-
-  getTotalSuppliedQuote(poolData: PoolData): BigNumber {
-    return this.calculationService.calculatePoolTotalSupplied(poolData, false).dp(0, BigNumber.ROUND_HALF_CEIL);
-  }
-
-  getTotalLpTokens(poolData: PoolData): BigNumber {
-    return poolData.totalStakedBalance.dp(0, BigNumber.ROUND_HALF_CEIL);
-  }
-
-  getUserSuppliedQuote(poolData: UserPoolData): BigNumber {
-    return this.calculationService.calculateUserPoolSupplied(poolData, false);
-  }
-
   getDailyRewards(poolData: PoolData): BigNumber {
     return this.calculationService.calculateDailyRewardsForPool(poolData);
-  }
-
-  getUserDailyRewards(poolData: UserPoolData): BigNumber {
-    const userDailyOmmRewards: any = this.persistenceService.userDailyOmmRewards;
-    if (userDailyOmmRewards) {
-      return userDailyOmmRewards[poolData.getCleanPoolName()] ?? new BigNumber(0);
-    } else {
-      return new BigNumber(0);
-    }
-  }
-
-  getUserDailyRewardsUSD(poolData: UserPoolData): BigNumber {
-    return this.getUserDailyRewards(poolData).multipliedBy(this.persistenceService.ommPriceUSD);
   }
 
   getTotalDailyRewards(): BigNumber {
@@ -374,18 +319,6 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
     return this.persistenceService.dailyRewardsAllPoolsReserves?.liquidity?.total ?? new BigNumber("0");
   }
 
-  getDailyRewardsUSD(poolData: PoolData): BigNumber {
-    return this.calculationService.calculateDailyRewardsForPool(poolData).multipliedBy(this.persistenceService.ommPriceUSD);
-  }
-
-  getPoolLiquidityApr(poolData: PoolData): BigNumber {
-    return this.calculationService.calculatePoolLiquidityApr(poolData);
-  }
-
-  getUserPoolLiquidityApr(poolData: UserPoolData): BigNumber {
-    return this.calculationService.calculateUserPoolLiquidityApr(poolData);
-  }
-
   isAllPoolsActive(): boolean {
     return this.activeLiquidityPoolView === ActiveLiquidityPoolsView.ALL_POOLS;
   }
@@ -395,13 +328,8 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   }
 
   getUserOmmRewardsBalance(): BigNumber {
-    return this.persistenceService.userAccumulatedOmmRewards?.total ?? new BigNumber("0");
+    return this.persistenceService.getUserOmmRewardsBalance();
   }
-
-  shouldHideYourPoolsHeader(): boolean {
-    return this.isAllPoolsActive() || !this.userHasStakedAnyPool();
-  }
-
 
   /**
    * BOOSTED OMM
@@ -533,7 +461,7 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   }
 
   updateDynamicLiquidityBoosters(newLockedOmmAmount: BigNumber): void {
-    log.debug("####### updateDynamicLiquidityBoosters.... #######");
+    // log.debug("####### updateDynamicLiquidityBoosters.... #######");
     let min = new BigNumber(-1);
     let max = new BigNumber(-1);
 
@@ -544,12 +472,12 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
         const oldBooster = this.liquidityBoosterData?.liquidityBoosterMap.get(poolId) ?? new BigNumber(0);
         const newLiquidityBooster = newLiquidityMultiplier.dividedBy(oldLiquidityMultiplier).multipliedBy(oldBooster);
 
-        log.debug("--------------------------------------------------");
-        log.debug(`Pool = ${value.getCleanPoolName()}`);
-        log.debug(`newLiquidityMultiplier = ${newLiquidityMultiplier}`);
-        log.debug(`oldLiquidityMultiplier = ${oldLiquidityMultiplier}`);
-        log.debug(`oldBooster = ${oldBooster}`);
-        log.debug(`newLiquidityBooster = ${newLiquidityBooster}`);
+        // log.debug("--------------------------------------------------");
+        // log.debug(`Pool = ${value.getCleanPoolName()}`);
+        // log.debug(`newLiquidityMultiplier = ${newLiquidityMultiplier}`);
+        // log.debug(`oldLiquidityMultiplier = ${oldLiquidityMultiplier}`);
+        // log.debug(`oldBooster = ${oldBooster}`);
+        // log.debug(`newLiquidityBooster = ${newLiquidityBooster}`);
 
         if (newLiquidityBooster.lt(min) || min.eq(-1)) {
           min = newLiquidityBooster;
@@ -565,7 +493,7 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   }
 
   updateDynamicMarketBoosters(newLockedOmmAmount: BigNumber): void {
-    log.debug("#######  updateDynamicMarketBoosters.... #######");
+    // log.debug("#######  updateDynamicMarketBoosters.... #######");
     let min = new BigNumber(-1);
     let max = new BigNumber(-1);
 
@@ -576,12 +504,12 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
         const oldBooster = this.marketBoosterData?.supplyBoosterMap.get(assetTag) ?? new BigNumber(0);
         const newSupplyBooster = newSupplyMultiplier.dividedBy(oldSupplyMultiplier).multipliedBy(oldBooster);
 
-        log.debug("--------------------------------------------------");
-        log.debug(`Asset = ${assetTag}`);
-        log.debug(`newSupplyMultiplier = ${newSupplyMultiplier}`);
-        log.debug(`oldSupplyMultiplier = ${oldSupplyMultiplier}`);
-        log.debug(`oldBooster = ${oldBooster}`);
-        log.debug(`newSupplyBooster = ${newSupplyBooster}`);
+        // log.debug("--------------------------------------------------");
+        // log.debug(`Asset = ${assetTag}`);
+        // log.debug(`newSupplyMultiplier = ${newSupplyMultiplier}`);
+        // log.debug(`oldSupplyMultiplier = ${oldSupplyMultiplier}`);
+        // log.debug(`oldBooster = ${oldBooster}`);
+        // log.debug(`newSupplyBooster = ${newSupplyBooster}`);
 
         if (newSupplyBooster.lt(min) || min.eq(-1)) {
           min = newSupplyBooster;
@@ -597,12 +525,12 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
         const oldBooster = this.marketBoosterData?.borrowBoosterMap.get(assetTag) ?? new BigNumber(0);
         const newBorrowBooster = newBorrowMultiplier.dividedBy(oldBorrowMultiplier).multipliedBy(oldBooster);
 
-        log.debug("--------------------------------------------------");
-        log.debug(`Asset = ${assetTag}`);
-        log.debug(`newBorrowMultiplier = ${newBorrowMultiplier}`);
-        log.debug(`oldBorrowMultiplier = ${oldBorrowMultiplier}`);
-        log.debug(`oldBooster = ${oldBooster}`);
-        log.debug(`newBorrowBooster = ${newBorrowBooster}`);
+        // log.debug("--------------------------------------------------");
+        // log.debug(`Asset = ${assetTag}`);
+        // log.debug(`newBorrowMultiplier = ${newBorrowMultiplier}`);
+        // log.debug(`oldBorrowMultiplier = ${oldBorrowMultiplier}`);
+        // log.debug(`oldBooster = ${oldBooster}`);
+        // log.debug(`newBorrowBooster = ${newBorrowBooster}`);
 
         if (newBorrowBooster.lt(min) || min.eq(-1)) {
           min = newBorrowBooster;

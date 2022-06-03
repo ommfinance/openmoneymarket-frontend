@@ -44,13 +44,13 @@ export class DaoFundDistPercent {
 }
 
 export class LiquidityDistPercent {
-  "OMM/SICX": BigNumber;
+  "OMM/sICX": BigNumber;
   "OMM/USDS": BigNumber;
   "OMM/IUSDC": BigNumber;
   total: BigNumber;
 
   constructor(ommSicx: BigNumber, ommUsds: BigNumber, ommIusdc: BigNumber, total: BigNumber) {
-    this["OMM/SICX"] = ommSicx;
+    this["OMM/sICX"] = ommSicx;
     this["OMM/USDS"] = ommUsds;
     this["OMM/IUSDC"] = ommIusdc;
     this.total = total;

@@ -146,6 +146,15 @@ export class PersistenceService {
     return this.userPoolsDataMap.get(poolId.toString())?.userTotalBalance ?? new BigNumber("0");
   }
 
+  getCurrentUserLpDailyRewards(poolData: UserPoolData): BigNumber {
+    const userDailyOmmRewards: any = this.userDailyOmmRewards;
+    if (userDailyOmmRewards) {
+      return userDailyOmmRewards[poolData.cleanPoolName] ?? new BigNumber(0);
+    } else {
+      return new BigNumber(0);
+    }
+  }
+
   public getUserTotalUnstakeAmount(): BigNumber {
     return this.userUnstakingInfo?.totalAmount ?? new BigNumber("0");
   }
@@ -176,6 +185,10 @@ export class PersistenceService {
 
   public getUsersAvailableOmmBalance(): BigNumber {
     return (this.userOmmTokenBalanceDetails?.availableBalance ?? new BigNumber("0")).dp(0);
+  }
+
+  public getUserStakedOmmBalance(): BigNumber {
+    return this.userOmmTokenBalanceDetails?.stakedBalance ?? new BigNumber("0");
   }
 
   public getUserUnstakingOmmBalance0Rounded(): BigNumber {
@@ -351,6 +364,10 @@ export class PersistenceService {
       }
     }
     return true;
+  }
+
+  getUserOmmRewardsBalance(): BigNumber {
+    return this.userAccumulatedOmmRewards?.total ?? new BigNumber("0");
   }
 
   public userHasNotSuppliedAnyAsset(): boolean {

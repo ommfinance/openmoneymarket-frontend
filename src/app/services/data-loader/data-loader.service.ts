@@ -597,6 +597,8 @@ export class DataLoaderService {
       this.loadbOmmTotalSupply(),
     ]);
 
+    this.stateChangeService.coreDataReloadUpdate();
+
     await this.loadUserSpecificData();
   }
 

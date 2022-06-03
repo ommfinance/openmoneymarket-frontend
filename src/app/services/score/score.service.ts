@@ -581,7 +581,7 @@ export class ScoreService {
   public async getUsersbOmmBalance(): Promise<BigNumber> {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
-    const params = { address: this.persistenceService.activeWallet!.address};
+    const params = { _owner: this.persistenceService.activeWallet!.address};
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.bOMM,
       ScoreMethodNames.BALANCE_OF, params, IconTransactionType.READ);

@@ -23,7 +23,7 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
 
   title = 'Open money market';
 
-  private attachedListener: boolean;
+  private attachedListener = false;
 
   constructor(private iconexApiService: IconexApiService,
               private dataLoaderService: DataLoaderService,
@@ -33,9 +33,17 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
               private localStorageService: LocalStorageService) {
     super(persistenceService);
 
-    // register Iconex handler
-    window.addEventListener("ICONEX_RELAY_RESPONSE", (e: any) => this.iconexApiService.iconexEventHandler(e));
-    this.attachedListener = true;
+    window.addEventListener("load", () => {
+      // register Iconex handler
+      window.addEventListener("ICONEX_RELAY_RESPONSE", (e: any) => this.iconexApiService.iconexEventHandler(e));
+      this.attachedListener = true;
+
+      // Trigger has account if extension flag is false to check if user has Iconex/Hana extension
+      if (!this.iconexApiService.hasWalletExtension) {
+        log.debug("Dispatching hasAccount because extension = false");
+        this.iconexApiService.hasAccount();
+      }
+    });
 
     // load all SCORE addresses
     dataLoaderService.loadAllScoreAddresses().then(() => {
@@ -98,22 +106,18 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    if (!this.attachedListener){
-      window.addEventListener("ICONEX_RELAY_RESPONSE", (e: any) => this.iconexApiService.iconexEventHandler(e));
-    }
+
   }
 
   ngOnDestroy(): void {
     if (this.attachedListener){
       window.removeEventListener("ICONEX_RELAY_RESPONSE", (e: any) => this.iconexApiService.iconexEventHandler(e));
-      this.attachedListener = true;
+      this.attachedListener = false;
     }
   }
 
   onOverlayClick(): void {
     this.modalService.hideActiveModal();
   }
-
-
 
 }
