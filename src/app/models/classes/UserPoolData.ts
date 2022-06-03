@@ -11,6 +11,7 @@ export class UserPoolData {
   cleanPoolName: string; // name without pool numbers
   quoteAssetName: string;
   prettyName: string;
+  pairClassName: string; // used for css, e.g. OMM/USDS -> omm-usds
 
   constructor(poolId: BigNumber, totalStakedBalance: BigNumber, userAvailableBalance: BigNumber, userStakedBalance: BigNumber,
               userTotalBalance: BigNumber,
@@ -25,11 +26,7 @@ export class UserPoolData {
     this.quoteAssetName = poolStats.name.replace(" ", "").split("/")[1];
     const splitString = poolStats.name.replace(" ", "").split("/");
     this.prettyName = splitString[0] + " / " + splitString[1];
-  }
-
-  // used for css, e.g. OMM/USDS -> omm-usds
-  getPairClassName(): string {
-    const splitString = this.poolStats.name.replace(" ", "").replace(/[0-9]/g, '').toLowerCase().split("/");
-    return splitString[0] + "-" + splitString[1];
+    const splitString2 = this.poolStats.name.replace(" ", "").replace(/[0-9]/g, '').toLowerCase().split("/");
+    this.pairClassName = splitString2[0] + "-" + splitString2[1];
   }
 }

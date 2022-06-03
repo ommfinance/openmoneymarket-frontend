@@ -89,7 +89,7 @@ export class YourPoolRowComponent extends BaseClass implements OnInit, OnDestroy
   }
 
   initCoreValues(): void {
-    this.poolPairClassName = this.poolData.getPairClassName();
+    this.poolPairClassName = this.poolData.pairClassName;
     this.poolPrettyName = this.poolData.prettyName;
     this.poolQuoteAssetName = this.poolData.quoteAssetName;
   }

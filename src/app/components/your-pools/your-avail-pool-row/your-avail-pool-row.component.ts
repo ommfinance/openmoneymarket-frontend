@@ -79,7 +79,7 @@ export class YourAvailPoolRowComponent extends BaseClass implements OnInit, OnDe
   }
 
   initCoreValues(): void {
-    this.poolPairClassName = this.poolData.getPairClassName();
+    this.poolPairClassName = this.poolData.pairClassName;
     this.poolPrettyName = this.poolData.prettyName;
     this.poolQuoteAssetName = this.poolData.quoteAssetName;
   }

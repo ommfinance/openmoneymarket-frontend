@@ -5,26 +5,19 @@ export class PoolData {
   poolId: BigNumber;
   totalStakedBalance: BigNumber;
   poolStats: PoolStats;
+  prettyName: string;
+  pairClassName: string; // used for css, e.g. OMM/USDS -> omm-usds
+  quoteAssetName: string;
 
   constructor(poolId: BigNumber, totalStakedBalance: BigNumber, poolStats: PoolStats) {
     this.poolId = poolId;
     this.totalStakedBalance = totalStakedBalance;
     this.poolStats = poolStats;
-  }
-
-  getPrettyName(): string {
-    const splitString = this.poolStats.name?.replace(" ", "").split("/") ?? ["", ""];
-    return splitString[0] + " / " + splitString[1];
-  }
-
-  // used for css, e.g. OMM/USDS -> omm-usds
-  getPairClassName(): string {
-    const splitString = this.poolStats.name?.replace(" ", "").replace(/[0-9]/g, '')
+    const splitString = poolStats.name?.replace(" ", "").split("/") ?? ["", ""];
+    this.prettyName = splitString[0] + " / " + splitString[1];
+    const splitString2 = this.poolStats.name?.replace(" ", "").replace(/[0-9]/g, '')
       .toLowerCase().split("/") ?? ["", ""];
-    return splitString[0] + "-" + splitString[1];
-  }
-
-  getQuoteAssetName(): string {
-    return this.poolStats.name?.replace(" ", "").split("/")[1] ?? "";
+    this.pairClassName = splitString2[0] + "-" + splitString2[1];
+    this.quoteAssetName = poolStats.name?.replace(" ", "").split("/")[1] ?? "";
   }
 }

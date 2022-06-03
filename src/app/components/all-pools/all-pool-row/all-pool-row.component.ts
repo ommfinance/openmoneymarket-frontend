@@ -85,9 +85,9 @@ export class AllPoolRowComponent extends BaseClass implements OnInit, OnDestroy 
   }
 
   initCoreValues(): void {
-    this.poolPairClassName = this.poolData.getPairClassName();
-    this.poolPrettyName = this.poolData.getPrettyName();
-    this.poolQuoteAssetName = this.poolData.getQuoteAssetName();
+    this.poolPairClassName = this.poolData.pairClassName;
+    this.poolPrettyName = this.poolData.prettyName;
+    this.poolQuoteAssetName = this.poolData.quoteAssetName;
     log.debug("All pool row init:");
     this.totalSuppliedBase = this.getTotalSuppliedBase(this.poolData);
     this.totalSuppliedQuote = this.getTotalSuppliedQuote(this.poolData);
@@ -110,13 +110,13 @@ export class AllPoolRowComponent extends BaseClass implements OnInit, OnDestroy 
 
   getTotalSuppliedBase(poolData: PoolData): BigNumber {
     const res = this.calculationService.calculatePoolTotalSupplied(poolData);
-    log.debug(`${this.poolData.getPrettyName()} total supplied base token = ${res}`);
+    log.debug(`${this.poolData.prettyName} total supplied base token = ${res}`);
     return res.dp(0, BigNumber.ROUND_HALF_CEIL);
   }
 
   getTotalSuppliedQuote(poolData: PoolData): BigNumber {
     const res = this.calculationService.calculatePoolTotalSupplied(poolData, false);
-    log.debug(`${this.poolData.getPrettyName()} total supplied quote token = ${res}`);
+    log.debug(`${this.poolData.prettyName} total supplied quote token = ${res}`);
     return this.calculationService.calculatePoolTotalSupplied(poolData, false).dp(0, BigNumber.ROUND_HALF_CEIL);
   }
 
