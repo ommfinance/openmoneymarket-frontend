@@ -107,7 +107,7 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
 
   subscribeToUserPoolsChange(): void {
     this.stateChangeService.userPoolsDataChange$.subscribe(() => {
-      log.debug("Pool " + this.poolData?.getPrettyName() + "userPoolsDataChange$ userPoolsDataMap: ",
+      log.debug("Pool " + this.poolData?.prettyName + "userPoolsDataChange$ userPoolsDataMap: ",
         this.persistenceService.userPoolsDataMap);
       this.poolData = this.persistenceService.userPoolsDataMap.get(this.poolId.toString());
       this.initSlider();

@@ -848,7 +848,7 @@ export class CalculationsService {
 
     if (!userDailyRewards) { return new BigNumber(0); }
 
-    const userPoolDailyOmmRewards = userDailyRewards[poolData.getCleanPoolName()];
+    const userPoolDailyOmmRewards = userDailyRewards[poolData.cleanPoolName];
     if (!userPoolDailyOmmRewards) { log.error("ERROR in calculateUserPoolLiquidityApr.."); return new BigNumber(0); }
     const ommTokenPrice = this.persistenceService.ommPriceUSD;
     const stakedLpUsdValue = this.calculateUserPoolSupplied(poolData).multipliedBy(ommTokenPrice).multipliedBy(2);
@@ -1064,17 +1064,39 @@ export class CalculationsService {
     const oldLpValue = poolData.userStakedBalance;
     const newLpMultiplier = this.calculateDynamicLiquidityRewardsMultiplierForStakedLp(poolData.poolId, newStakedLpValue);
     const oldLpMultiplier = this.persistenceService.userLiquidityPoolMultiplierMap.get(poolData.poolId.toString())!;
+    const currentUserDailyRewards = this.persistenceService.getCurrentUserLpDailyRewards(poolData);
+    console.log(this.persistenceService.dailyRewardsAllPoolsReserves);
+    const ommRewardsForLp = this.persistenceService.dailyRewardsAllPoolsReserves?.liquidity?.getDailyRewardsForLp(poolData.cleanPoolName)
+      ?? new BigNumber(0);
 
-    // log.debug("********* calculateDynamicUserPoolDailyReward *********");
-    // log.debug(`new LP value = ${newStakedLpValue}`);
-    // log.debug(`old LP value = ${oldLpValue}`);
-    // log.debug(`new multiplier for LP = ${newLpMultiplier}`);
-    // log.debug(`old multiplier for LP = ${oldLpMultiplier}`);
-    // log.debug(`current user daily for ${poolData.getPrettyName()} LP staking = ${currentUserDailyRewardsForLp}`);
-    // log.debug("*******************************************************");
+    log.debug("********* calculateDynamicUserPoolDailyReward *********");
+    log.debug(`new LP value = ${newStakedLpValue}`);
+    log.debug(`old LP value = ${oldLpValue}`);
+    log.debug(`new multiplier for LP = ${newLpMultiplier}`);
+    log.debug(`old multiplier for LP = ${oldLpMultiplier}`);
+    log.debug(`ommRewardsForLp = ${ommRewardsForLp}`);
+    log.debug(`currentUserDailyRewards = ${currentUserDailyRewards}`);
+    log.debug(`current user daily for ${poolData.prettyName} LP staking = ${currentUserDailyRewardsForLp}`);
+    log.debug("*******************************************************");
 
-    return (newStakedLpValue.div(oldLpValue)).multipliedBy(newLpMultiplier.div(oldLpMultiplier))
+    // (new LP value* new multiplier for LP * current user daily rewards for LP staked * OMM Rewards for specific LP pair) / r2 - r3
+    const r1 = newStakedLpValue.multipliedBy(newLpMultiplier).multipliedBy(currentUserDailyRewards).multipliedBy(ommRewardsForLp);
+
+    // r2 = old LP value * old multiplier for LP * OMM Rewards for specific LP pair - r3
+    const r2 = oldLpValue.multipliedBy(oldLpMultiplier).multipliedBy(ommRewardsForLp);
+
+    // current user daily rewards for LP staked *(old LP value * old multiplier for LP - new LP value * new multiplier for LP)
+    const r3 = currentUserDailyRewards.multipliedBy((oldLpValue.multipliedBy(oldLpMultiplier))
+      .minus(newStakedLpValue.multipliedBy(newLpMultiplier)));
+
+    const res = r1.dividedBy(r2.minus(r3));
+    const oldValue = (newStakedLpValue.div(oldLpValue)).multipliedBy(newLpMultiplier.div(oldLpMultiplier))
       .multipliedBy(currentUserDailyRewardsForLp);
+
+    log.debug(`new res = ${res}`);
+    log.debug(`old res = ${oldValue}`);
+
+    return res;
   }
 
   // New LP APR Prediction = New LP Daily rewards prediction * OMM Token Price * 365/ ( new $ value of user's LP staked)

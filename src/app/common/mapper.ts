@@ -102,7 +102,7 @@ export class Mapper {
       Utils.hexToNormalisedNumber(ommRewards.now),
       ommRewards.liquidity ?
       new Liquidity(
-        Utils.hexToNormalisedNumber(ommRewards.liquidity["OMM/SICX"]),
+        Utils.hexToNormalisedNumber(ommRewards.liquidity["OMM/sICX"]),
         Utils.hexToNormalisedNumber(ommRewards.liquidity["OMM/USDS"]),
         Utils.hexToNormalisedNumber(ommRewards.liquidity["OMM/IUSDC"]),
         Utils.hexToNormalisedNumber(ommRewards.liquidity.total)
@@ -166,7 +166,7 @@ export class Mapper {
         Utils.hexToNormalisedNumber(value.daoFund.total)),
       value.liquidity ?
         new LiquidityDistPercent(
-          Utils.hexToNormalisedNumber(value.liquidity["OMM/SICX"]),
+          Utils.hexToNormalisedNumber(value.liquidity["OMM/sICX"]),
           Utils.hexToNormalisedNumber(value.liquidity["OMM/USDS"]),
           Utils.hexToNormalisedNumber(value.liquidity["OMM/IUSDC"]),
           Utils.hexToNormalisedNumber(value.liquidity.total),
@@ -211,7 +211,7 @@ export class Mapper {
       ),
       value.liquidity ?
       new LiquidityDailyRewards(
-        Utils.hexToNormalisedNumber(value.liquidity["OMM/SICX"]),
+        Utils.hexToNormalisedNumber(value.liquidity["OMM/sICX"]),
         Utils.hexToNormalisedNumber(value.liquidity["OMM/USDS"]),
         Utils.hexToNormalisedNumber(value.liquidity["OMM/IUSDC"]),
         Utils.hexToNormalisedNumber(value.liquidity.total),

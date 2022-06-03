@@ -146,6 +146,15 @@ export class PersistenceService {
     return this.userPoolsDataMap.get(poolId.toString())?.userTotalBalance ?? new BigNumber("0");
   }
 
+  getCurrentUserLpDailyRewards(poolData: UserPoolData): BigNumber {
+    const userDailyOmmRewards: any = this.userDailyOmmRewards;
+    if (userDailyOmmRewards) {
+      return userDailyOmmRewards[poolData.cleanPoolName] ?? new BigNumber(0);
+    } else {
+      return new BigNumber(0);
+    }
+  }
+
   public getUserTotalUnstakeAmount(): BigNumber {
     return this.userUnstakingInfo?.totalAmount ?? new BigNumber("0");
   }

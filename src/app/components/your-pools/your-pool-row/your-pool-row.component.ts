@@ -1,5 +1,4 @@
 import {Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
-import {PoolData} from "../../../models/classes/PoolData";
 import BigNumber from "bignumber.js";
 import {StateChangeService} from "../../../services/state-change/state-change.service";
 import {CalculationsService} from "../../../services/calculations/calculations.service";
@@ -25,7 +24,7 @@ export class YourPoolRowComponent extends BaseClass implements OnInit, OnDestroy
 
   @Input() poolData!: UserPoolData;
 
-  @Output() poolClickUpdate = new EventEmitter<PoolData>();
+  @Output() poolClickUpdate = new EventEmitter<UserPoolData>();
 
   /**
    * Template values
@@ -91,8 +90,8 @@ export class YourPoolRowComponent extends BaseClass implements OnInit, OnDestroy
 
   initCoreValues(): void {
     this.poolPairClassName = this.poolData.getPairClassName();
-    this.poolPrettyName = this.poolData.getPrettyName();
-    this.poolQuoteAssetName = this.poolData.getQuoteAssetName();
+    this.poolPrettyName = this.poolData.prettyName;
+    this.poolQuoteAssetName = this.poolData.quoteAssetName;
   }
 
   initUserValues(): void {
@@ -110,7 +109,7 @@ export class YourPoolRowComponent extends BaseClass implements OnInit, OnDestroy
   }
 
   resetDynamicValues(): void {
-    console.log(`${this.poolData.getPrettyName()} resetDynamicValues...`);
+    console.log(`${this.poolData.prettyName} resetDynamicValues...`);
     this.setText(this.liquidityAprEl, `${Utils.to2DecimalRndOffPercString(this.userPoolLiquidityApr)}`);
     this.setText(this.dailyRewardEl, `${Utils.tooUSLocaleString(Utils.roundOffTo2Decimals(this.userDailyRewards))} OMM`);
     this.setText(this.dailyRewardUSDEl, `${Utils.toDollarUSLocaleString(Utils.roundOffTo2Decimals(this.userDailyRewardsUSD))}`);
@@ -133,7 +132,7 @@ export class YourPoolRowComponent extends BaseClass implements OnInit, OnDestroy
     }
   }
 
-  onPoolClick(poolData: PoolData): void {
+  onPoolClick(poolData: UserPoolData): void {
     this.poolClickUpdate.emit(poolData);
   }
 
@@ -148,7 +147,7 @@ export class YourPoolRowComponent extends BaseClass implements OnInit, OnDestroy
   getUserDailyRewards(poolData: UserPoolData): BigNumber {
     const userDailyOmmRewards: any = this.persistenceService.userDailyOmmRewards;
     if (userDailyOmmRewards) {
-      return userDailyOmmRewards[poolData.getCleanPoolName()] ?? new BigNumber(0);
+      return userDailyOmmRewards[poolData.cleanPoolName] ?? new BigNumber(0);
     } else {
       return new BigNumber(0);
     }

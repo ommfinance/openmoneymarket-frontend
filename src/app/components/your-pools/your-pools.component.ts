@@ -4,10 +4,7 @@ import {PersistenceService} from "../../services/persistence/persistence.service
 import {ActiveLiquidityPoolsView} from "../../models/enums/ActiveViews";
 import {Utils} from "../../common/utils";
 import {UserPoolData} from "../../models/classes/UserPoolData";
-import BigNumber from "bignumber.js";
 import {StateChangeService} from "../../services/state-change/state-change.service";
-import {CalculationsService} from "../../services/calculations/calculations.service";
-import {PoolData} from "../../models/classes/PoolData";
 import {YourPoolRowComponent} from "./your-pool-row/your-pool-row.component";
 
 declare var $: any;
@@ -23,10 +20,9 @@ export class YourPoolsComponent extends BaseClass implements OnInit {
 
   @Input() activeLiquidityPoolView!: ActiveLiquidityPoolsView;
 
-  @Output() poolClickUpdate = new EventEmitter<PoolData>();
+  @Output() poolClickUpdate = new EventEmitter<UserPoolData>();
 
   constructor(private stateChangeService: StateChangeService,
-              private calculationService: CalculationsService,
               public persistenceService: PersistenceService) {
     super(persistenceService);
   }
@@ -34,7 +30,7 @@ export class YourPoolsComponent extends BaseClass implements OnInit {
   ngOnInit(): void {
   }
 
-  onPoolClick(poolData: PoolData): void {
+  onPoolClick(poolData: UserPoolData): void {
     this.poolClickUpdate.emit(poolData);
 
     // commit event to state change
@@ -64,12 +60,6 @@ export class YourPoolsComponent extends BaseClass implements OnInit {
   userHasStakedToPool(poolData: UserPoolData): boolean {
     return poolData.userStakedBalance.isGreaterThan(Utils.ZERO);
   }
-
-  userHasLpTokenAvailableOrHasStaked(poolId: BigNumber): boolean {
-    return this.persistenceService.getUserPoolStakedAvailableBalance(poolId).isGreaterThan(Utils.ZERO)
-      || this.persistenceService.getUserPoolStakedBalance(poolId).isGreaterThan(Utils.ZERO);
-  }
-
   userHasAvailableStakeToPool(poolData: UserPoolData): boolean {
     return poolData.userAvailableBalance.isGreaterThan(Utils.ZERO);
   }
@@ -81,31 +71,6 @@ export class YourPoolsComponent extends BaseClass implements OnInit {
 
   shouldHideYourPoolsHeader(): boolean {
     return this.isAllPoolsActive() || !this.userHasStakedAnyPool();
-  }
-
-  getUserDailyRewards(poolData: UserPoolData): BigNumber {
-    const userDailyOmmRewards: any = this.persistenceService.userDailyOmmRewards;
-    if (userDailyOmmRewards) {
-      return userDailyOmmRewards[poolData.getCleanPoolName()] ?? new BigNumber(0);
-    } else {
-      return new BigNumber(0);
-    }
-  }
-
-  getUserSuppliedQuote(poolData: UserPoolData): BigNumber {
-    return this.calculationService.calculateUserPoolSupplied(poolData, false);
-  }
-
-  getUserPoolLiquidityApr(poolData: UserPoolData): BigNumber {
-    return this.calculationService.calculateUserPoolLiquidityApr(poolData);
-  }
-
-  getUserDailyRewardsUSD(poolData: UserPoolData): BigNumber {
-    return this.getUserDailyRewards(poolData).multipliedBy(this.persistenceService.ommPriceUSD);
-  }
-
-  getUserSuppliedBase(poolData: UserPoolData): BigNumber {
-    return this.calculationService.calculateUserPoolSupplied(poolData);
   }
 
   getUserStakedPoolsData(): UserPoolData[] {

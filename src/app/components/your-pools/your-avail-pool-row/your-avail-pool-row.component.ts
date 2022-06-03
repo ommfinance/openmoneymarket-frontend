@@ -1,6 +1,5 @@
 import {Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {UserPoolData} from "../../../models/classes/UserPoolData";
-import {PoolData} from "../../../models/classes/PoolData";
 import {BaseClass} from "../../base-class";
 import {StateChangeService} from "../../../services/state-change/state-change.service";
 import {CalculationsService} from "../../../services/calculations/calculations.service";
@@ -21,7 +20,7 @@ export class YourAvailPoolRowComponent extends BaseClass implements OnInit, OnDe
 
   @Input() poolData!: UserPoolData;
 
-  @Output() poolClickUpdate = new EventEmitter<PoolData>();
+  @Output() poolClickUpdate = new EventEmitter<UserPoolData>();
 
   /**
    * Template values
@@ -81,8 +80,8 @@ export class YourAvailPoolRowComponent extends BaseClass implements OnInit, OnDe
 
   initCoreValues(): void {
     this.poolPairClassName = this.poolData.getPairClassName();
-    this.poolPrettyName = this.poolData.getPrettyName();
-    this.poolQuoteAssetName = this.poolData.getQuoteAssetName();
+    this.poolPrettyName = this.poolData.prettyName;
+    this.poolQuoteAssetName = this.poolData.quoteAssetName;
   }
 
   initUserValues(): void {
@@ -94,7 +93,7 @@ export class YourAvailPoolRowComponent extends BaseClass implements OnInit, OnDe
     }
   }
 
-  onPoolClick(poolData: PoolData): void {
+  onPoolClick(poolData: UserPoolData): void {
     this.poolClickUpdate.emit(poolData);
   }
 
