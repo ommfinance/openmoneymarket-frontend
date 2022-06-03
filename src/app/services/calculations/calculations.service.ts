@@ -1090,8 +1090,8 @@ export class CalculationsService {
       .minus(newStakedLpValue.multipliedBy(newLpMultiplier)));
 
     const res = r1.dividedBy(r2.minus(r3));
-    const oldValue = (newStakedLpValue.div(oldLpValue)).multipliedBy(newLpMultiplier.div(oldLpMultiplier))
-      .multipliedBy(currentUserDailyRewardsForLp);
+    // const oldValue = (newStakedLpValue.div(oldLpValue)).multipliedBy(newLpMultiplier.div(oldLpMultiplier))
+    //   .multipliedBy(currentUserDailyRewardsForLp);
 
     // log.debug(`new res = ${res}`);
     // log.debug(`old res = ${oldValue}`);
