@@ -4,6 +4,7 @@ import {StateChangeService} from "../../services/state-change/state-change.servi
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {BaseClass} from "../base-class";
 import BigNumber from "bignumber.js";
+import {Utils} from "../../common/utils";
 
 declare var noUiSlider: any;
 declare var wNumb: any;
@@ -24,6 +25,8 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
   sliderRiskEl!: any;
 
   totalRisk = new BigNumber("0");
+
+  userTotalBorrowedUSD = Utils.ZERO;
 
   constructor(private stateChangeService: StateChangeService,
               public persistenceService: PersistenceService,
@@ -62,7 +65,12 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
     this.stateChangeService.afterUserDataReload$.subscribe(() => {
       // re-calculate total risk percentage
       this.calculationService.calculateTotalRisk();
+      this.userTotalBorrowedUSD = this.persistenceService.userTotalBorrowedUSD;
     });
+  }
+
+  userBorrowIsZero(): boolean {
+    return this.userTotalBorrowedUSD.eq(0);
   }
 
   initRiskSlider(): void {

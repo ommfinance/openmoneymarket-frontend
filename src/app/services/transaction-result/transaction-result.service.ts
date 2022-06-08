@@ -212,9 +212,9 @@ export class TransactionResultService {
     } else if (modalAction.modalType === ModalType.CLAIM_AND_APPLY_BOMM_BOOST) {
       const ommClaimed = modalAction.assetAction?.details?.ommRewards?.total ?? 0;
       this.notificationService.showNewNotification(`Claimed ${
-        Utils.tooUSLocaleString(Utils.roundDownTo2Decimals(ommClaimed))} Omm Tokens. ` + "\n" + "Boost applied.");
+        Utils.tooUSLocaleString(Utils.roundDownTo2Decimals(ommClaimed))} Omm Tokens. ` + "\n" + "bOMM boost applied.");
     } else if (modalAction.modalType !== ModalType.APPLY_BOMM_BOOST) {
-      this.notificationService.showNewNotification("Boost applied.");
+      this.notificationService.showNewNotification("bOMM boost applied.");
     }
   }
 

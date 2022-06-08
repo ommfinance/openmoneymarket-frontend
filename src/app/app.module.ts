@@ -47,6 +47,7 @@ import { YourPoolRowComponent } from './components/your-pools/your-pool-row/your
 import { YourAvailPoolRowComponent } from './components/your-pools/your-avail-pool-row/your-avail-pool-row.component';
 import {RouteReuseStrategy} from "@angular/router";
 import {CustomReuseStrategy} from "./routing";
+import {DeviceDetectorService} from "ngx-device-detector";
 
 // Big Number configs
 const fmt = {
@@ -114,6 +115,7 @@ log.setLevel(environment.production ? "error" : "debug");
     AngularResizedEventModule
   ],
   providers: [
+    DeviceDetectorService,
     HttpClientModule,
     { provide: RouteReuseStrategy, useClass: CustomReuseStrategy },
   ],

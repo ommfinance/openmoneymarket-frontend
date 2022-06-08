@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import {SlidersService} from "../../services/sliders/sliders.service";
 import {
-  assetFormat, ommPrefixApproxFormat,
+  assetFormat,
   ommPrefixFormat,
   percentageFormat,
   usLocale
@@ -463,8 +463,7 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
     }
     const roundedDownReward = userDailyBorrowOmmReward.dp(2).toNumber();
     // Update asset-user's borrow omm rewards
-    this.setText(this.borrRewardsEl, this.inputBorrowActive ? ommPrefixApproxFormat.to(roundedDownReward)
-      : ommPrefixFormat.to(roundedDownReward));
+    this.setText(this.borrRewardsEl, ommPrefixFormat.to(roundedDownReward));
     return userDailyBorrowOmmReward;
   }
 
@@ -599,8 +598,7 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
     }
 
     const roundedDownReward = userDailySupplyOmmReward.dp(2).toNumber();
-    this.setText(this.suppRewardsEl, this.inputSupplyActive ? ommPrefixApproxFormat.to(roundedDownReward)
-      : ommPrefixFormat.to(roundedDownReward));
+    this.setText(this.suppRewardsEl, ommPrefixFormat.to(roundedDownReward));
     return userDailySupplyOmmReward;
   }
 
@@ -720,7 +718,7 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
   }
 
   private handleBorrowTotalRisk(newBorrowBalance: BigNumber): void {
-    if (newBorrowBalance.gte(Utils.ZERO)) {
+    if (newBorrowBalance.gt(Utils.ZERO)) {
       // show risk data
       $('.risk-container').css("display", "block");
 

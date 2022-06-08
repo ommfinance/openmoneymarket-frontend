@@ -39,8 +39,8 @@
     <ng-container *ngFor="let poolData of getUserPoolsAvailableData(); last as isLast;">
       <ng-container *ngIf="userHasAvailableStakeToPool(poolData)">
         <app-your-avail-pool-row  style="display: contents"
-                            [poolData]="poolData"
-                            (poolClickUpdate)="onPoolClick($event)"
+                                  [poolData]="poolData"
+                                  (poolClickUpdate)="onPoolClick($event)"
         >
         </app-your-avail-pool-row>
       </ng-container>

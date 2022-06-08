@@ -50,7 +50,8 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
 
   public activeLiquidityOverview: ActiveLiquidityOverview = this.userLoggedIn() ? ActiveLiquidityOverview.YOUR_LIQUIDITY :
     ActiveLiquidityOverview.ALL_LIQUIDITY;
-  public activeLiquidityPoolView: ActiveLiquidityPoolsView = ActiveLiquidityPoolsView.ALL_POOLS;
+  public activeLiquidityPoolView: ActiveLiquidityPoolsView = this.userLoggedIn() ? ActiveLiquidityPoolsView.YOUR_POOLS :
+    ActiveLiquidityPoolsView.ALL_POOLS;
 
   userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
 
