@@ -1,4 +1,4 @@
-<tr class="pool {{poolPairClassName}}" #pool (click)="onPoolClick(poolData)">
+<tr class="pool avail {{poolPairClassName}}" #pool (click)="onPoolClick(poolData)">
   <td class="text-dark">{{poolPrettyName}}</td>
   <td colspan="2"><span class="text-dark">{{userAvailableBalance | roundDown2Dec | usFormat}} LP tokens</span></td>
   <td colspan="2" class="text-green">{{userPoolLiquidityApr | roundOff2DecPercent}}</td>
@@ -23,3 +23,4 @@
     </div>
   </td>
 </tr>
+

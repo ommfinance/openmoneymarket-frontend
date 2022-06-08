@@ -2929,7 +2929,7 @@ input.input-boost:focus {
   transition: background-color 0.2s ease;
 }
 .bomm-tooltip .tooltip-content {
-  min-width: 335px;
+  min-width: 340px;
   left: -153px;
   bottom: 35px;
 }
@@ -3362,6 +3362,9 @@ input.input-boost:focus {
   table.list.liquidity tbody tr.pool td:first-of-type {
     padding-top: 25px;
     padding-bottom: 25px;
+  }
+  table.list.liquidity tbody tr.pool.avail td:nth-of-type(3) {
+    display: table-cell;
   }
   table.list.liquidity tbody tr.pool.active td:first-of-type {
     border-bottom-right-radius: 0

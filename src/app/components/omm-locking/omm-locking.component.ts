@@ -36,7 +36,8 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
   private userbOmmBalanceEl?: any; @ViewChild("bommBaln")set c(c: ElementRef) {this.userbOmmBalanceEl = c?.nativeElement; }
 
   userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
-  userbOmmBalance = new BigNumber(0);
+  userbOmmBalance = Utils.ZERO;
+  userLockedOmmBalance = Utils.ZERO;
 
   public dynamicLockedOmmAmount: BigNumber = new BigNumber(0); // dynamic user locked Omm amount
 
@@ -72,6 +73,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
       this.selectedLockTime = this.currentLockPeriodDate();
       this.userbOmmBalance = this.persistenceService.userbOmmBalance;
       this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails?.getClone();
+      this.userLockedOmmBalance = this.persistenceService.getUsersLockedOmmBalance();
     }
   }
 
@@ -87,7 +89,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
   }
 
   initLockSlider(): void {
-    const userLockedOmmBalance = this.persistenceService.getUsersLockedOmmBalance();
+    const userLockedOmmBalance = this.userLockedOmmBalance
     this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails?.getClone();
     const userOmmAvailableBalance = this.persistenceService.getUsersAvailableOmmBalance();
     const max = userOmmAvailableBalance.plus(userLockedOmmBalance).dp(0).toNumber();
@@ -98,10 +100,10 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
 
   private updateLockSliderValues(): void {
     // sliders max is sum of locked + available balance
-    const sliderMax = this.persistenceService.getUsersAvailableOmmBalance().plus(this.userLockedOmmBalance());
+    const sliderMax = this.persistenceService.getUsersAvailableOmmBalance().plus(this.userLockedOmmBalance);
 
-    this.lockOmmSliderCmp.updateSliderValues(sliderMax.toNumber(), this.userLockedOmmBalance().toNumber());
-    this.lockOmmSliderCmp.setSliderValue(this.persistenceService.getUsersLockedOmmBalance().toNumber());
+    this.lockOmmSliderCmp.updateSliderValues(sliderMax.toNumber(), this.userLockedOmmBalance.toNumber());
+    this.lockOmmSliderCmp.setSliderValue(this.userLockedOmmBalance.toNumber());
   }
 
   handleLockSliderValueUpdate(value: number): void {
@@ -111,7 +113,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
     this.dynamicLockedOmmAmount = bigNumValue;
 
     // update dynamic values only if user current and dynamic locked OMM amounts are different
-    if (this.userLoggedIn() && !this.userLockedOmmBalance().eq(bigNumValue.dp(0)))  {
+    if (this.userLoggedIn() && !this.userLockedOmmBalance.eq(bigNumValue.dp(0)))  {
       if (this.userbOmmBalanceEl) {
         this.updateUserbOmmBalance(bigNumValue);
       }
@@ -145,7 +147,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
 
     // Set your locked OMM slider to the initial value
     this.lockOmmSliderCmp.disableSlider();
-    this.lockOmmSliderCmp.setSliderValue(this.persistenceService.getUsersLockedOmmBalance().toNumber());
+    this.lockOmmSliderCmp.setSliderValue(this.userLockedOmmBalance.toNumber());
 
     this.initCoreValues();
     this.lockAdjustCancelClicked.emit();
@@ -194,7 +196,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
 
   onConfirmLockOmmClick(): void {
     log.debug(`onConfirmLockOmmClick Omm locked amount = ${this.dynamicLockedOmmAmount}`);
-    const before = this.userLockedOmmBalance();
+    const before = this.userLockedOmmBalance;
     const after = this.dynamicLockedOmmAmount;
     const diff = after.minus(before);
     const userCurrentLockedOmmEndInMilliseconds = this.userCurrentLockedOmmEndInMilliseconds();
@@ -269,15 +271,18 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
 
   getLeftLockedThresholdPercentStyle(): any {
     const max = new BigNumber("100");
-    const userLockedOmm = this.persistenceService.getUsersLockedOmmBalance();
-    const percent = userLockedOmm.dividedBy(userLockedOmm.plus(this.persistenceService.getUsersAvailableOmmBalance()));
+    const percent = this.calculatePercentLocked();
     const res = max.multipliedBy(percent).dp(2);
     return { left: res.toString() + "%" };
   }
 
+  calculatePercentLocked(): BigNumber {
+    return this.userLockedOmmBalance.dividedBy(this.userLockedOmmBalance.plus(this.persistenceService.getUsersAvailableOmmBalance()));
+  }
+
   getLockSliderMax(): BigNumber {
     // sliders max is sum of locked + available balance
-    return this.persistenceService.getUsersLockedOmmBalance().plus(this.persistenceService.getUsersAvailableOmmBalance());
+    return this.userLockedOmmBalance.plus(this.persistenceService.getUsersAvailableOmmBalance());
   }
 
   lockDate(): BigNumber {
@@ -304,10 +309,6 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
     return this.persistenceService.userCurrentLockedOmmEndInMilliseconds();
   }
 
-  userLockedOmmBalance(): BigNumber {
-    return this.persistenceService.getUsersLockedOmmBalance();
-  }
-
   shouldHideBoostedSlider(): boolean {
     return !this.userLoggedIn() || (!this.userHasMoreThanOneOmmToken() && !this.userHasLockedOmm());
   }
@@ -321,7 +322,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
   }
 
   userHasLockedOmm(): boolean {
-    return this.persistenceService.getUsersLockedOmmBalance().gt(0);
+    return this.userLockedOmmBalance.gt(0);
   }
 
   shouldHideLockedOmmThreshold(): boolean {

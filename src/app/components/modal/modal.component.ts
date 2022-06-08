@@ -31,6 +31,7 @@ import {StakeLpService} from "../../services/stake-lp/stake-lp.service";
 import {Utils} from "../../common/utils";
 import BigNumber from "bignumber.js";
 import {AssetAction, ClaimOmmDetails} from "../../models/classes/AssetAction";
+import {DeviceDetectorService} from "ngx-device-detector";
 
 
 @Component({
@@ -96,7 +97,8 @@ export class ModalComponent extends BaseClass implements OnInit {
               private voteService: VoteAndLockingService,
               private claimIcxService: ClaimIcxService,
               private calculationService: CalculationsService,
-              private stakeLpService: StakeLpService) {
+              private stakeLpService: StakeLpService,
+              private deviceService: DeviceDetectorService) {
     super(persistenceService);
 
     this.activeModalSubscription = this.modalService.activeModalChange$.subscribe((activeModalChange: ModalAction) => {
@@ -208,8 +210,10 @@ export class ModalComponent extends BaseClass implements OnInit {
     if (this.iconexApiService.hasWalletExtension) {
       this.iconexApiService.hasAccount();
     } else {
-      // redirect to Hana extension link else
-      window.open("https://chrome.google.com/webstore/detail/hana/jfdlamikmbghhapbgfoogdffldioobgl?hl=en", "_blank");
+      if (!this.deviceService.isMobile()) {
+        // redirect to Hana extension link else
+        window.open("https://chrome.google.com/webstore/detail/hana/jfdlamikmbghhapbgfoogdffldioobgl?hl=en", "_blank");
+      }
     }
   }
 

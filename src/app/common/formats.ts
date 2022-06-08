@@ -69,14 +69,6 @@ export function assetPrefixApproxFormat(assetTag: AssetTag | CollateralAssetTag)
 //   });
 // }
 
-// + OMM .00
-export const ommPrefixApproxFormat = wNumb({
-  decimals: 2,
-  thousand: ',',
-  prefix: ' ~ ',
-  suffix: ' OMM'
-});
-
 // OMM .00
 export const ommPrefixFormat = wNumb({
   decimals: 2,

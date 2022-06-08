@@ -126,9 +126,9 @@ export class YourPoolRowComponent extends BaseClass implements OnInit, OnDestroy
       log.debug(`newLpApr = ${newLpApr}`);
 
 
-      this.setText(this.liquidityAprEl, `~ ${Utils.to2DecimalRndOffPercString(newLpApr)}`);
-      this.setText(this.dailyRewardEl, `~ ${Utils.tooUSLocaleString(Utils.roundOffTo2Decimals(newLpDailyRewards))} OMM`);
-      this.setText(this.dailyRewardUSDEl, `~ ${Utils.toDollarUSLocaleString(Utils.roundOffTo2Decimals(newLpDailyRewardsUSD))}`);
+      this.setText(this.liquidityAprEl, `${Utils.to2DecimalRndOffPercString(newLpApr)}`);
+      this.setText(this.dailyRewardEl, `${Utils.tooUSLocaleString(Utils.roundOffTo2Decimals(newLpDailyRewards))} OMM`);
+      this.setText(this.dailyRewardUSDEl, `${Utils.toDollarUSLocaleString(Utils.roundOffTo2Decimals(newLpDailyRewardsUSD))}`);
     }
   }
 
