@@ -64,6 +64,8 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   userLockingApr = new BigNumber(0);
   userDailyLockingOmmRewards = new BigNumber(0);
 
+  lockAdjustActive = false;
+
   constructor(public persistenceService: PersistenceService,
               private stateChangeService: StateChangeService,
               private modalService: ModalService,
@@ -139,7 +141,15 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
 
   // On "Lock up OMM" or "Adjust" click
   onLockAdjustClick(): void {
+    this.lockAdjustActive = true;
     this.collapseAllPoolTables();
+  }
+
+  handleLockAdjustCancelClicked(): void {
+    this.lockAdjustActive = false;
+    this.resetUserDailyRewards();
+    this.resetUserLockApr();
+    this.resetMarketAndLiquidityBoosters();
   }
 
   onYourLiquidityClick(): void {
@@ -252,12 +262,6 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
 
       this.updateLiquidityAndMarketBoosters(bigNumValue);
     }
-  }
-
-  handleLockAdjustCancelClicked(): void {
-    this.resetUserDailyRewards();
-    this.resetUserLockApr();
-    this.resetMarketAndLiquidityBoosters();
   }
 
   shouldHideClaimBtn(): boolean {

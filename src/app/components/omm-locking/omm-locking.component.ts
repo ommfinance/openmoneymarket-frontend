@@ -89,7 +89,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
   }
 
   initLockSlider(): void {
-    const userLockedOmmBalance = this.userLockedOmmBalance
+    const userLockedOmmBalance = this.userLockedOmmBalance;
     this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails?.getClone();
     const userOmmAvailableBalance = this.persistenceService.getUsersAvailableOmmBalance();
     const max = userOmmAvailableBalance.plus(userLockedOmmBalance).dp(0).toNumber();
