@@ -45,7 +45,7 @@ export class HomeComponent extends BaseClass implements OnInit, AfterViewInit {
   public availableAssets: Asset[] = [];
 
   // keep track of current active market view in this variable
-  public activeMarketView: ActiveViews = ActiveViews.ALL_MARKET;
+  public activeMarketView: ActiveViews = this.userLoggedIn() ? ActiveViews.USER_MARKET : ActiveViews.ALL_MARKET;
   public activeMarketOverview: ActiveMarketOverview = this.userLoggedIn() ? ActiveMarketOverview.YOUR_OVERVIEW :
     ActiveMarketOverview.MARKET_OVERVIEW;
 
