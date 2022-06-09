@@ -8,6 +8,7 @@ import {NotificationService} from "../notification/notification.service";
 import {LoginService} from "../login/login.service";
 import {IconexId} from "../../models/enums/IconexId";
 import {ModalService} from "../modal/modal.service";
+import {DeviceDetectorService} from "ngx-device-detector";
 
 @Injectable({
   providedIn: "root"
@@ -18,12 +19,17 @@ export class IconexApiService {
   * https://www.icondev.io/docs/chrome-extension-connect
   */
 
-  hasWalletExtension = false;
+  hasWalletExtension;
 
   constructor(private transactionResultService: TransactionResultService,
               private loginService: LoginService,
               private notificationService: NotificationService,
-              private modalService: ModalService) { }
+              private modalService: ModalService,
+              private deviceService: DeviceDetectorService) {
+
+    // on mobile default to true for wallet extension
+    this.hasWalletExtension = this.deviceService.isMobile();
+  }
 
   public iconexEventHandler( e: any): void {
     const {type, payload} = e.detail;
