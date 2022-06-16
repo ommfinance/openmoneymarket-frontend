@@ -85,8 +85,8 @@ export class NewProposalComponent implements OnInit {
       this.notificationService.showNewNotification(`Must link to a discussion on ${ommForumDomain}.`);
       return;
     } else if (!this.userHasEnoughOmmStaked()) {
-      this.notificationService.showNewNotification(`Stake at least ${this.persistenceService.getMinOmmStakedRequiredForProposal()
-      } OMM if you want to propose a change.`);
+      this.notificationService.showNewNotification(`You need at least ${Utils.tooUSLocaleString(Utils.roundOffTo2Decimals(
+        this.persistenceService.getMinOmmStakedRequiredForProposal()))} bOMM to propose a change.`);
       return;
     }
 

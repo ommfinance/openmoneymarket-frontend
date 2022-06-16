@@ -22,7 +22,6 @@ export declare class IconBridgeWidget extends LitElement {
     private sendTokenElemView;
     private depositElemView;
     private withdrawElemView;
-    private paymentMethodsElemView;
     private activeModalView;
     private notification;
     private emailError;
@@ -33,13 +32,9 @@ export declare class IconBridgeWidget extends LitElement {
     private selectedTransaction;
     private user;
     private userMagicMetadata;
-    kycChecksCount: Number;
     private userTokensMap;
     private selectedToken;
     private tokenRates;
-    private linkedCreditCards;
-    private linkedBankAccounts;
-    private selectedAction;
     private processingTitle;
     private processingSvg;
     private error;
@@ -78,6 +73,7 @@ export declare class IconBridgeWidget extends LitElement {
     private showChangeEmail;
     private hideEmailChangeShowMain;
     backToHomeView(): void;
+    depositToAddressViewTransition(): void;
     private onBridgeButtonClick;
     private showWidget;
     private hideWidget;
