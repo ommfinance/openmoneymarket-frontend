@@ -4,6 +4,7 @@ import "./child-elements/deposit";
 import "./child-elements/withdraw";
 export declare class IconBridgeWidget extends LitElement {
     private hideButton;
+    private sessionExpired;
     private mainModalWrapper;
     private overlay;
     private menuTooltipMain;
@@ -21,7 +22,6 @@ export declare class IconBridgeWidget extends LitElement {
     private sendTokenElemView;
     private depositElemView;
     private withdrawElemView;
-    private paymentMethodsElemView;
     private activeModalView;
     private notification;
     private emailError;
@@ -32,13 +32,9 @@ export declare class IconBridgeWidget extends LitElement {
     private selectedTransaction;
     private user;
     private userMagicMetadata;
-    kycChecksCount: Number;
     private userTokensMap;
     private selectedToken;
     private tokenRates;
-    private linkedCreditCards;
-    private linkedBankAccounts;
-    private selectedAction;
     private processingTitle;
     private processingSvg;
     private error;
@@ -52,14 +48,18 @@ export declare class IconBridgeWidget extends LitElement {
     protected firstUpdated(_changedProperties: any): void;
     connectedCallback(): void;
     private handleBriWidgetEvent;
-    private reloadUsdsBalanceAndPaymentMethods;
     private showModalView;
     private setActiveModalView;
+    private handleSessionExpiry;
+    private checkUserSession;
     private refreshBaseData;
     private establishIntervals;
     private clearIntervals;
+    private addSessionCheckIntervals;
+    private clearSessionCheckIntervals;
     private loadUserUsdsBalance;
-    private loadUserTokens;
+    private loadUserToken;
+    private loadAllUserTokens;
     private loadTokenPrice;
     private signOut;
     private submitLoginForm;
@@ -73,6 +73,7 @@ export declare class IconBridgeWidget extends LitElement {
     private showChangeEmail;
     private hideEmailChangeShowMain;
     backToHomeView(): void;
+    depositToAddressViewTransition(): void;
     private onBridgeButtonClick;
     private showWidget;
     private hideWidget;
@@ -93,6 +94,7 @@ export declare class IconBridgeWidget extends LitElement {
     private getTransactionsHtml;
     private hasSomeTokenTransactions;
     private getOneAvailableToken;
+    private updateTokenBalance;
     private getAvailableTokens;
     private getTransactionDetailHtml;
     render(): import("lit-element").TemplateResult;

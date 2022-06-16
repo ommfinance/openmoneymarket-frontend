@@ -126,7 +126,8 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     if (this.userLoggedIn()) {
       this.yourVotingPower = this.calculationsService.usersVotingPower();
       this.setYourVotingPower(this.yourVotingPower);
-      this.yourVotesPrepList = this.persistenceService.yourVotesPrepList;
+      // reset the your prep votes list
+      this.resetYourVotePreps();
     }
   }
 

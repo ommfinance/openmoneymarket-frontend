@@ -123,7 +123,7 @@ export class PersistenceService {
   }
 
   getMinOmmStakedRequiredForProposal(): BigNumber {
-    return this.totalSuppliedOmm.multipliedBy(this.voteDefinitionCriterion);
+    return this.bOmmTotalSupply.multipliedBy(this.voteDefinitionCriterion);
   }
 
   public getDistPercentageOfPool(poolId: BigNumber): BigNumber {
