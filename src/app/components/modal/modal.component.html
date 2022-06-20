@@ -195,6 +195,37 @@
   </div>
 </div>
 
+<div class="modal" #withdrawOmm>
+  <div class="modal-content">
+    <!-- Title -->
+    <h3 class="text-center label">Withdraw Omm Tokens?</h3>
+    <p class="text-center">{{activeModalChange?.assetAction?.amount | roundDown2Dec | usFormat}} OMM</p>
+
+    <!-- Before vs after -->
+    <div class="grid before-after">
+      <div class="grid-cell text-center border-right">
+        <p class="label">Before</p>
+        <p class="text-dark">{{activeModalChange?.assetAction?.before | roundDown2Dec | usFormat}} OMM</p>
+      </div>
+      <div class="grid-cell text-center">
+        <p class="label">After</p>
+        <p class="text-dark">{{activeModalChange?.assetAction?.after | roundDown2Dec | usFormat}} OMM</p>
+      </div>
+    </div>
+
+    <!-- Withdraw message -->
+    <p class="label text-center">You'll need to relock OMM to hold bOMM and boost your earning potential.</p>
+
+
+    <!-- Modal actions -->
+    <div class="modal-actions">
+      <a href="javascript:void(0);" class="cancel modal-close" (click)="onCancelClick()">Cancel</a>
+      <a href="javascript:void(0);" class="button" (click)="onWithdrawOmmClick()">Withdraw OMM</a>
+    </div>
+  </div>
+</div>
+
+
 <!-- Modal: Confirm Omm Token unstake -->
 <div class="modal" id="modal-confirm-unstake" #unstakeOmm>
   <div class="modal-content">

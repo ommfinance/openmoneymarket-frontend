@@ -68,7 +68,7 @@ export class ScoreMethodNames {
    */
   public static GET_LOCKED_OMM = "getLocked";
   public static INCREASE_UNLOCK_TIME = "increaseUnlockTime";
-
+  public static WITHDRAW_LOCKED_OMM = "withdraw";
 
   /**
    * Balanced DEX SCORE

@@ -44,8 +44,8 @@ export class TransactionDispatcherService {
       }
 
       if (this.persistenceService.activeWallet instanceof IconexWallet) {
-        this.iconexApiService.dispatchSendTransactionEvent(tx, iconexId);
         this.notificationService.setNotificationToShow(notificationMessage);
+        this.iconexApiService.dispatchSendTransactionEvent(tx, iconexId);
       } else if (this.persistenceService.activeWallet instanceof BridgeWallet) {
         this.bridgeWidgetService.sendTransaction(tx);
         this.notificationService.showNewNotification(notificationMessage);
