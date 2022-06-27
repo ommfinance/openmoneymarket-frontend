@@ -135,7 +135,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
         undefined, undefined, new ManageStakedIcxAction(amount, lockTime));
     } else {
       if (this.userHasOmmUnlocked()) {
-        const currentOmmBalance = this.persistenceService.userbOmmBalance.dp(2);
+        const currentOmmBalance = this.persistenceService.getUsersAvailableOmmBalanceRaw().dp(2);
         const lockedOmm = this.userLockedOmmBalance.dp(2);
         const after = currentOmmBalance.plus(lockedOmm).dp(2);
         this.modalService.showNewModal(ModalType.WITHDRAW_LOCKED_OMM, new AssetAction(new Asset(AssetClass.OMM, AssetName.OMM,
