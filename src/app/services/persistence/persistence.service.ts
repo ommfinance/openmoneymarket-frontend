@@ -183,6 +183,10 @@ export class PersistenceService {
     return (this.userLockedOmm?.amount ?? new BigNumber("0")).dp(0);
   }
 
+  public getUsersAvailableOmmBalanceRaw(): BigNumber {
+    return (this.userOmmTokenBalanceDetails?.availableBalance ?? new BigNumber("0"));
+  }
+
   public getUsersAvailableOmmBalance(): BigNumber {
     return (this.userOmmTokenBalanceDetails?.availableBalance ?? new BigNumber("0")).dp(0);
   }

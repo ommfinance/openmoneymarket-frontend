@@ -141,6 +141,10 @@ export class TransactionResultService {
           break;
         case ModalType.CLAIM_OMM_REWARDS:
           this.notificationService.showNewNotification(`${assetAction.amount} Omm Tokens claimed.`);
+          break;
+        case ModalType.WITHDRAW_LOCKED_OMM:
+          this.notificationService.showNewNotification(`Withdrew ${assetAction.amount} OMM.`);
+          break;
       }
     } else if (modalAction.stakingAction) {
       const stakingAction = modalAction.stakingAction;
@@ -252,6 +256,10 @@ export class TransactionResultService {
           break;
         case ModalType.CLAIM_OMM_REWARDS:
           this.notificationService.showNewNotification(`Couldn't claim Omm Tokens. ${failedTxMessage} Try again.`);
+          break;
+        case ModalType.WITHDRAW_LOCKED_OMM:
+          this.notificationService.showNewNotification(`Couldn't withdraw locked OMM. ${failedTxMessage} Try again.`);
+          break;
       }
     } else if (modalAction.modalType === ModalType.CLAIM_AND_APPLY_BOMM_BOOST) {
       this.notificationService.showNewNotification(`Couldn't claim Omm Tokens and apply boost.`);

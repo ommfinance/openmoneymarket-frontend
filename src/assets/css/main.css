@@ -43,16 +43,6 @@
 	HTML
 ========================================================================== */
 
-/* Notice */
-
-.notice {
-  background-color: #edeff4;
-  padding: 15px;
-  border-radius: 15px;
-  margin-top: 15px;
-  text-align: center;
-}
-
 /* Force border box */
 
 *, *::after, *::before {
@@ -337,6 +327,18 @@ textarea:focus {
 	Notification
 ========================================================================== */
 
+/* Notice */
+
+.notice {
+  background-color: #edeff4;
+  padding: 15px;
+  border-radius: 15px;
+  margin-top: 15px;
+  text-align: center;
+}
+
+/* Notifications */
+
 .notification.panel {
   pointer-events: none;
   opacity: 0;
@@ -492,8 +494,11 @@ p + p.no-margin {
 .liquidity tbody tr td {
   text-align: right;
 }
-.list.liquidity .expanded h2 {
-
+.list.liquidity tr td:last-of-type {
+  min-width: 150px;
+}
+.list.liquidity tr td:nth-of-type(4) {
+  min-width: 150px;
 }
 table.list.liquidity tbody tr.pool td:first-of-type {
   padding-left: 120px;
@@ -1932,6 +1937,15 @@ input[type="text"].input-borrow-available {
   fill: #49546a !important;
 }
 
+
+.modal-boost .modal-actions {
+  flex-direction: column-reverse;
+  display: flex;
+}
+.modal-boost .modal-actions .cancel {
+  margin-top: 15px;
+  margin-right: 0;
+}
 
 /*
 *
@@ -3374,6 +3388,8 @@ input.input-boost:focus {
   }
   .pool-expanded .content {
     margin: 25px 35px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   #vote .bomm-tooltip .tooltip-content {

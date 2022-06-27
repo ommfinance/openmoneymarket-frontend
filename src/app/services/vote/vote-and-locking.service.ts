@@ -40,6 +40,13 @@ export class VoteAndLockingService {
     this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage, IconexId.SHOW_MESSAGE_KEEP_MODAL);
   }
 
+  public withdrawLockedOmm(notificationMessage: string): void {
+    const tx = this.buildWithdrawLockedOmm();
+
+    log.debug(`Withdraw locked OMM TX: `, tx);
+    this.transactionDispatcherService.dispatchTransaction(tx, notificationMessage, IconexId.SHOW_MESSAGE_HIDE_MODAL);
+  }
+
   public increaseLockAmountAndPeriodOmm(amount: BigNumber, unlockTime: BigNumber, notificationMessage: string): void {
     amount = amount.dp(0);
     const tx = this.buildIncreaseLockPeriodAndAmountOmmTx(amount, unlockTime);
@@ -185,6 +192,13 @@ export class VoteAndLockingService {
 
     return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
       this.persistenceService.allAddresses!.systemContract.OmmToken, ScoreMethodNames.TRANSFER, params, IconTransactionType.WRITE);
+  }
+
+  private buildWithdrawLockedOmm(): any {
+    this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
+
+    return this.iconApiService.buildTransaction(this.persistenceService.activeWallet!!.address,
+      this.persistenceService.allAddresses!.systemContract.bOMM, ScoreMethodNames.WITHDRAW_LOCKED_OMM, {}, IconTransactionType.WRITE);
   }
 
   /**

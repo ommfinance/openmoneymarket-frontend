@@ -17,6 +17,8 @@ import {OmmTokenBalanceDetails} from "../../models/classes/OmmTokenBalanceDetail
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import {OmmLockingCmpType} from "../../models/enums/OmmLockingComponent";
 import {ManageStakedIcxAction} from "../../models/classes/ManageStakedIcxAction";
+import {AssetAction} from "../../models/classes/AssetAction";
+import {Asset, AssetClass, AssetName, AssetTag} from "../../models/classes/Asset";
 
 @Component({
   selector: 'app-omm-locking',
@@ -132,11 +134,20 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
       this.modalService.showNewModal(ModalType.MANAGE_STAKED_OMM, undefined, undefined, undefined,
         undefined, undefined, new ManageStakedIcxAction(amount, lockTime));
     } else {
-      this.lockAdjustActive = true;
-      this.lockOmmSliderCmp.enableSlider();
+      if (this.userHasOmmUnlocked()) {
+        const currentOmmBalance = this.persistenceService.getUsersAvailableOmmBalanceRaw().dp(2);
+        const lockedOmm = this.userLockedOmmBalance.dp(2);
+        const after = currentOmmBalance.plus(lockedOmm).dp(2);
+        this.modalService.showNewModal(ModalType.WITHDRAW_LOCKED_OMM, new AssetAction(new Asset(AssetClass.OMM, AssetName.OMM,
+          AssetTag.OMM), currentOmmBalance, after, lockedOmm));
+      } else {
+        this.lockAdjustActive = true;
+        this.lockOmmSliderCmp.enableSlider();
 
-      // emit lockAdjustClicked event
-      this.lockAdjustClicked.emit();
+        // emit lockAdjustClicked event
+        this.lockAdjustClicked.emit();
+      }
+
     }
   }
 
@@ -280,6 +291,13 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
     return this.userLockedOmmBalance.dividedBy(this.userLockedOmmBalance.plus(this.persistenceService.getUsersAvailableOmmBalance()));
   }
 
+  // check if user has Omm that has been unlocked
+  userHasOmmUnlocked(): boolean {
+    // if user locked Omm is greater than zero and end timestamp has passed return true
+    return this.persistenceService.userLockedOmm ? this.persistenceService.userLockedOmm.amount.gt(0) &&
+      this.persistenceService.userLockedOmm.end.lt(Utils.timestampNowMicroseconds()) : false;
+  }
+
   getLockSliderMax(): BigNumber {
     // sliders max is sum of locked + available balance
     return this.userLockedOmmBalance.plus(this.persistenceService.getUsersAvailableOmmBalance());
@@ -334,7 +352,9 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
   }
 
   boostAdjustLabel(): string {
-    if (this.userHasLockedOmm()) {
+    if (this.userHasOmmUnlocked()) {
+      return "Withdraw OMM";
+    } else if (this.userHasLockedOmm()) {
       return "Adjust";
     } else {
       return "Lock up OMM";

@@ -596,7 +596,8 @@ export class CalculationsService {
     // if old borrow value is zero and new borrow value is undefined or zero, return 0
     if (oldBorrowValue.isZero() && (!newBorrowValue || newBorrowValue.isZero())) { return new BigNumber(0); }
 
-    const currentUserDailyBorrowRewards: any = this.persistenceService.userDailyOmmRewards?.getBorrowRewardForAsset(assetTag);
+    const currentUserDailyBorrowRewards: any = this.persistenceService.userDailyOmmRewards?.getBorrowRewardForAsset(assetTag)
+      ?? new BigNumber(0);
     newBorrowValue = newBorrowValue ? newBorrowValue : oldBorrowValue;
 
     const oldBorrowMultiplier = this.persistenceService.userMarketBorrowMultiplierMap.get(assetTag) ?? new BigNumber(0);
