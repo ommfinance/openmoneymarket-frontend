@@ -348,7 +348,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
   }
 
   shouldShowbOmmBalance(): boolean {
-    return this.userLoggedIn() && (this.lockAdjustActive || this.userbOmmBalance.gt(0));
+    return this.userLoggedIn() && (this.lockAdjustActive || this.userbOmmBalance.gt(0) || this.userHasOmmUnlocked());
   }
 
   boostAdjustLabel(): string {
