@@ -140,7 +140,7 @@
                   <dt>Daily rewards</dt>
                   <dd>
                     <!-- User Daily Rewards APR -->
-                    <ng-container *ngIf="userLoggedIn() && userHasLockedOmm() || lockAdjustActive">
+                    <ng-container *ngIf="userLoggedIn() && !userHasOmmUnlocked() && userHasLockedOmm() || lockAdjustActive">
                       <ng-container *ngIf="showBoostedOmmDailyRewardsOmmAmount()">
                         <span #lockDailyRew>{{userDailyLockingOmmRewards | roundOff2Dec | usFormat}} OMM&nbsp;</span>
                         <span class="label">(<span class=" text-green" #lockApr>{{getUserLockingApr() | roundOff2DecPercent}} APR</span>)</span>
@@ -151,7 +151,7 @@
                     </ng-container>
 
                     <!-- General Daily Rewards APR -->
-                    <ng-container *ngIf="!userLoggedIn() || (!userHasLockedOmm() && !lockAdjustActive)">
+                    <ng-container *ngIf="!userLoggedIn() || (!userHasLockedOmm() && !lockAdjustActive) || userHasOmmUnlocked()">
                       <span class=" text-green">{{lockingApr()}}</span>
                     </ng-container>
                   </dd>

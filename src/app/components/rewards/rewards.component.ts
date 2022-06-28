@@ -289,6 +289,12 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
     return this.persistenceService.userPools ?? [];
   }
 
+  // check if user has Omm that has been unlocked
+  userHasOmmUnlocked(): boolean {
+    // if user locked Omm is greater than zero and end timestamp has passed return true
+    return this.persistenceService.userLockedOmm ? this.persistenceService.userLockedOmm.amount.gt(0) &&
+      this.persistenceService.userLockedOmm.end.lt(Utils.timestampNowMicroseconds()) : false;
+  }
 
   getOmmLckCmpType(): OmmLockingCmpType {
     return OmmLockingCmpType.REWARDS;
