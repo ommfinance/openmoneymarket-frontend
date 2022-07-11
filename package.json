@@ -4,7 +4,6 @@
   "scripts": {
     "ng": "ng",
     "clean": "rimraf ./dist",
-    "start": "node server.js",
     "build": "ng build",
     "build:prod": "ng build --prod",
     "test": "ng test --watch=false --browsers=ChromeHeadlessCustom",
