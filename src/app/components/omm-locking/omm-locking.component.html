@@ -61,10 +61,10 @@
           <p class="label hide">3,000 OMM unstaking...</p>
       </div>
       <div class="grid-cell text-right">
-        <p class="label locked-default" [ngStyle]="hideElement(isLockAdjustActive() || userLockedOmmBalance.isZero())">{{userHasLockedOmm() ? "Locked until" : "Lock up until"}} {{timestampInMillisecondsToPrettyDate(lockDate())}}</p>
+        <p class="label locked-default" [ngStyle]="hideElement(isLockAdjustActive() || userLockedOmmBalance.isZero())">{{userHasLockedOmm() ? "Unlocked on" : "Lock up until"}} {{timestampInMillisecondsToPrettyDate(lockDate())}}</p>
         <div class="locked-adjust" [ngStyle]="hideElement(!isLockAdjustActive())">
           <p>
-            <span class="label">Locked until </span> <a class="dropdown time-selector" (click)="onLockedDateDropdownClick()">
+            <span class="label">Unlocked on </span> <a class="dropdown time-selector" (click)="onLockedDateDropdownClick()">
             <span class="animation-underline locked-selector">{{timestampInMillisecondsToPrettyDate(lockDate())}}</span></a></p>
           <div class="grid dropdown-content locked-selector" #drpdwnLocked>
             <div class="grid-cell">
