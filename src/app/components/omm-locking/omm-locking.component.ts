@@ -165,7 +165,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
 
     // reset bOmm balance
     this.setText(this.userbOmmBalanceEl, this.toZeroIfDash(this.tooUSLocaleString(this.userbOmmBalance.dp(2)))
-      + (this.userbOmmBalance.isGreaterThan(Utils.ZERO) ? " bOMM" : ""));
+      + " bOMM");
   }
 
   onLockedDateDropdownClick(): void {
@@ -176,7 +176,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
     const newUserbOmmBalance = this.calculationService.calculateNewbOmmBalance(newLockedOmmAmount, this.selectedLockTimeInMillisec);
 
     this.setText(this.userbOmmBalanceEl, this.toZeroIfDash(this.tooUSLocaleString(newUserbOmmBalance.dp(2)))
-      + (newUserbOmmBalance.isGreaterThan(Utils.ZERO) ? " bOMM" : ""));
+      + " bOMM");
   }
 
   /**
