@@ -191,7 +191,7 @@ export class ModalComponent extends BaseClass implements OnInit {
       if (success) {
         const userClaimableOmm = this.persistenceService.getUserOmmRewardsBalance();
 
-        if (userClaimableOmm.gt(0)) {
+        if (userClaimableOmm.gte(0.01)) {
           this.modalService.showNewModal(ModalType.CLAIM_AND_APPLY_BOMM_BOOST, new AssetAction(new Asset(AssetClass.USDS, AssetName.USDS,
               AssetTag.USDS), Utils.ZERO, Utils.ZERO, Utils.ZERO, undefined, new ClaimOmmDetails(
                 this.persistenceService.userAccumulatedOmmRewards)));

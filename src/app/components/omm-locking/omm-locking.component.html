@@ -38,7 +38,7 @@
     </div>
 
     <p class="label intro-label" [ngStyle]="hideElement(isLockAdjustActive())">{{boostedOmmPanelMessage()}}</p>
-    <div class="threshold locked boost {{shouldHideLockedOmmThreshold() ? 'hide':''}} {{calculatePercentLocked().lt(50) ? 'right':''}}" [ngStyle]="getLeftLockedThresholdPercentStyle()">
+    <div class="threshold locked boost {{shouldHideLockedOmmThreshold() ? 'hide':''}} {{calculatePercentLocked().lt(50) ? 'right':'left'}}" [ngStyle]="getLeftLockedThresholdPercentStyle()">
       <dl class="metadata">
         <dt>Locked</dt>
       </dl>
