@@ -58,13 +58,12 @@
           <input [ngStyle]="hideElement(!isLockAdjustActive())" #lockInput id="input-boost" (keyup)="onLockedOmmInputLostFocus()"
                  class="input-boost" type="text" name="">
           <span [ngStyle]="hideElement(isLockAdjustActive())" class="omm-locked">{{userLockedOmmBalance | roundDown2Dec | usFormat}}</span> / {{getLockSliderMax() | usFormat}} OMM</p>
-          <p class="label hide">3,000 OMM unstaking...</p>
       </div>
       <div class="grid-cell text-right">
-        <p class="label locked-default" [ngStyle]="hideElement(isLockAdjustActive() || userLockedOmmBalance.isZero())">{{userHasLockedOmm() ? "Unlocked on" : "Lock up until"}} {{timestampInMillisecondsToPrettyDate(lockDate())}}</p>
+        <p class="label locked-default" [ngStyle]="hideElement(isLockAdjustActive() || userLockedOmmBalance.isZero())">{{userHasLockedOmm() ? unlockedOnLockedUntilLabel() : "Lock up until"}} {{timestampInMillisecondsToPrettyDate(lockDate())}}</p>
         <div class="locked-adjust" [ngStyle]="hideElement(!isLockAdjustActive())">
           <p>
-            <span class="label">Unlocked on </span> <a class="dropdown time-selector" (click)="onLockedDateDropdownClick()">
+            <span class="label">{{unlockedOnLockedUntilLabel()}} </span> <a class="dropdown time-selector" (click)="onLockedDateDropdownClick()">
             <span class="animation-underline locked-selector">{{timestampInMillisecondsToPrettyDate(lockDate())}}</span></a></p>
           <div class="grid dropdown-content locked-selector" #drpdwnLocked>
             <div class="grid-cell">
