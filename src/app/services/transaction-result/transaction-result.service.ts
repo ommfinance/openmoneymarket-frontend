@@ -116,6 +116,9 @@ export class TransactionResultService {
   }
 
   public showSuccessActionNotification(modalAction: ModalAction): void {
+    // hide oldest notification
+    this.notificationService.hideOldest();
+
     this.stateChangeService.userModalActionResult.next(new ModalActionsResult(modalAction, ModalStatus.SUCCESS));
 
     if (modalAction.assetAction && modalAction.modalType !== ModalType.CLAIM_AND_APPLY_BOMM_BOOST
@@ -223,6 +226,9 @@ export class TransactionResultService {
   }
 
   public showFailedActionNotification(failedTxMessage: string, modalAction?: ModalAction): void {
+    // hide oldest notification
+    this.notificationService.hideOldest();
+
     if (!modalAction) {
       return;
     }
