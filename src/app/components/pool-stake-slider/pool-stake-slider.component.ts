@@ -11,6 +11,7 @@ import {NotificationService} from "../../services/notification/notification.serv
 import {ModalAction} from "../../models/classes/ModalAction";
 import log from "loglevel";
 import BigNumber from "bignumber.js";
+import {NO_CHANGE_STAKED_VALUE} from "../../common/messages";
 
 declare var noUiSlider: any;
 
@@ -71,7 +72,7 @@ export class PoolStakeSliderComponent extends BaseClass implements OnInit, After
 
     // if before and after equal show notification
     if (before.isEqualTo(after)) {
-      this.notificationService.showNewNotification("No change in staked value.");
+      this.notificationService.showNewNotification(NO_CHANGE_STAKED_VALUE);
       return;
     }
 

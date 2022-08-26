@@ -11,6 +11,7 @@ import {DataLoaderService} from "../data-loader/data-loader.service";
 import {NotificationService} from "../notification/notification.service";
 import {StateChangeService} from "../state-change/state-change.service";
 import {LogoutService} from "../logout/logout.service";
+import {FAILED_LOADING_USER_DATA} from "../../common/messages";
 
 
 /**
@@ -52,7 +53,7 @@ export class LoginService {
     } catch (e) {
       log.debug(e);
       this.persistenceService.activeWallet = undefined;
-      this.notificationService.showNewNotification("Error occurred! Try again in a moment.");
+      this.notificationService.showNewNotification(FAILED_LOADING_USER_DATA);
       throw new OmmError("Error occurred! Try again in a moment.", e);
     }
 
