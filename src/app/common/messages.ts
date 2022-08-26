@@ -131,7 +131,7 @@ export const SUCCESS_COPY = "Address copied!";
 // OMM Locking related messages
 export const LOCKED_VALUE_NO_CHANGE = "No change in locked value.";
 export const LOCKING_PERIOD_NOT_SELECTED = "Please selected locking period.";
-export const TOO_LOW_LOCK_AMOUNT = (minLockAmount: BigNumber) => `Lock amount must be greater than ${minLockAmount}`;
+export const TOO_LOW_LOCK_AMOUNT = (minLockAmount: BigNumber) => `Lock amount must be greater than ${Utils.tooUSLocaleString(Utils.roundOffTo2Decimals(minLockAmount))}`;
 export const LOCK_AMOUNT_LOWER_THAN_CURRENT = "Lock amount can not be lower than locked amount.";
 
 // Pool LP stake related message
