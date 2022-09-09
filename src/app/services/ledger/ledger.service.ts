@@ -11,6 +11,13 @@ import {LedgerWallet} from "../../models/wallets/LedgerWallet";
 import {AssetTag} from "../../models/classes/Asset";
 import {IconApiService} from "../icon-api/icon-api.service";
 import {OmmError} from "../../core/errors/OmmError";
+import {
+  LEDGER_ERROR,
+  LEDGER_NOT_SUPPORTED,
+  LEDGER_PLEASE_CONFIRM,
+  LEDGER_UNABLE_TO_SIGN_TX,
+  LEDGER_WAIT_ADDRESS
+} from "../../common/messages";
 
 
 @Injectable({
@@ -32,19 +39,18 @@ export class LedgerService {
   async signIn(): Promise<LedgerIcxBaseData | undefined> {
 
     if (!TransportWebHID.isSupported) {
-      this.notificationService.showNewNotification("Unable to connect the ledger. WebUSB transport is not supported.");
+      this.notificationService.showNewNotification(LEDGER_NOT_SUPPORTED);
     }
 
     try {
       await this.initialiseTransport();
 
-      this.notificationService.showNewNotification("Waiting for the confirmation of address on Ledger device.. (60 seconds timeout)");
+      this.notificationService.showNewNotification(LEDGER_WAIT_ADDRESS);
 
       // coin type: ICX(4801368), ICON testnet(1)
       return await this.icx.getAddress(environment.ledgerBip32Path, true, true);
     } catch (e) {
-      this.notificationService.showNewNotification("Unable to connect the ledger." +
-        " Make sure it is connected and try again in few moments.");
+      this.notificationService.showNewNotification(LEDGER_ERROR);
       log.error("Error in TransportWebUSB... :");
       log.error(e);
       return undefined;
@@ -84,7 +90,7 @@ export class LedgerService {
     try {
       await this.initialiseTransport();
 
-      this.notificationService.showNewNotification("Please confirm the transaction on your Ledger device.");
+      this.notificationService.showNewNotification(LEDGER_PLEASE_CONFIRM);
 
       const rawTx = { ...rawTransaction };
       const phraseToSign = this._generateHashKey(rawTx);
@@ -99,8 +105,7 @@ export class LedgerService {
         signature: signedRawTxBase64,
       };
     } catch (e) {
-      this.notificationService.showNewNotification("Unable to sign the transaction with Ledger device." +
-        " Make sure it is connected and try again in few moments.");
+      this.notificationService.showNewNotification(LEDGER_UNABLE_TO_SIGN_TX);
       log.error(e);
       throw e;
     }

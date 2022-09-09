@@ -23,6 +23,7 @@ import {LockDate} from "../../models/enums/LockDate";
 import {OmmLockingComponent} from "../omm-locking/omm-locking.component";
 import {OmmLockingCmpType} from "../../models/enums/OmmLockingComponent";
 import {ManageStakedIcxAction} from "../../models/classes/ManageStakedIcxAction";
+import {VOTE_LIST_MAX_PREP_VOTE, VOTE_LIST_NO_CHANGE, VOTE_LIST_PREP_ALREADY_SELECTED} from "../../common/messages";
 
 
 @Component({
@@ -205,7 +206,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   onConfirmSavePrepClick(): void {
     if (this.voteListsAreEqual()) {
-      this.notificationService.showNewNotification("Your vote list did not change.");
+      this.notificationService.showNewNotification(VOTE_LIST_NO_CHANGE);
     }
     else if (this.listIsNotNullOrEmpty(this.yourVotesPrepList)) {
       this.yourVotesEditMode = false;
@@ -239,9 +240,9 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   addYourVotePrep(prep: Prep): void {
     if (this.yourVotesPrepList.length >= 5) {
-      this.notificationService.showNewNotification("You can't vote for more than 5 P-Reps");
+      this.notificationService.showNewNotification(VOTE_LIST_MAX_PREP_VOTE);
     } else if (this.prepAlreadyInYourVotes(prep)) {
-      this.notificationService.showNewNotification("Prep already in your votes.");
+      this.notificationService.showNewNotification(VOTE_LIST_PREP_ALREADY_SELECTED);
     } else {
       this.yourVotesEditMode = true;
       const newPrepVote = new YourPrepVote(prep.address, prep.name, new BigNumber("0"));
@@ -333,8 +334,8 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   getDelegationAmount(yourPrepVote: YourPrepVote): BigNumber {
-    return (this.persistenceService.getUsersLockedOmmBalance().multipliedBy((yourPrepVote.percentage
-      .dividedBy(new BigNumber("100"))).multipliedBy(this.votingPower))).dp(2);
+    return (this.yourVotingPower.multipliedBy((yourPrepVote.percentage
+      .dividedBy(new BigNumber("100"))))).dp(2);
   }
 
   getLatestProposals(): Proposal[] {

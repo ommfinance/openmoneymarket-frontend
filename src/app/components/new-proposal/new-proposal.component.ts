@@ -8,6 +8,12 @@ import {CreateProposal} from "../../models/classes/Proposal";
 import {NotificationService} from "../../services/notification/notification.service";
 import {Utils} from "../../common/utils";
 import {ommForumDomain} from "../../common/constants";
+import {
+  NEW_PROPOSAL_EMPTY_DESCRIPTION,
+  NEW_PROPOSAL_EMPTY_LINK,
+  NEW_PROPOSAL_EMPTY_TITLE,
+  NEW_PROPOSAL_INVALID_LINK_DOMAIN, NEW_PROPOSAL_MIN_BOMM_REQUIRED
+} from "../../common/messages";
 
 @Component({
   selector: 'app-new-proposal',
@@ -63,30 +69,29 @@ export class NewProposalComponent implements OnInit {
     return true;
   }
 
-  userHasEnoughOmmStaked(): boolean {
-    return this.persistenceService.getUsersLockedOmmBalance().gte(this.persistenceService.getMinOmmStakedRequiredForProposal());
+  userHasEnoughBOmm(): boolean {
+    return this.persistenceService.userbOmmBalance.gte(this.persistenceService.getMinBOmmRequiredForProposal());
   }
 
   onSubmitClick(): void {
-    if (!(this.fieldsValid() && this.userHasEnoughOmmStaked())) {
+    if (!(this.fieldsValid() && this.userHasEnoughBOmm())) {
       return;
     }
 
     else if (!this.title) {
-      this.notificationService.showNewNotification("Title must not be empty.");
+      this.notificationService.showNewNotification(NEW_PROPOSAL_EMPTY_TITLE);
       return;
     } else if (!this.description) {
-      this.notificationService.showNewNotification("Description must not be empty.");
+      this.notificationService.showNewNotification(NEW_PROPOSAL_EMPTY_DESCRIPTION);
       return;
     } else if (!this.forumLink) {
-      this.notificationService.showNewNotification("Forum link must not be empty.");
+      this.notificationService.showNewNotification(NEW_PROPOSAL_EMPTY_LINK);
       return;
     } else if (!Utils.textContainsDomain(ommForumDomain, this.forumLink)) {
-      this.notificationService.showNewNotification(`Must link to a discussion on ${ommForumDomain}.`);
+      this.notificationService.showNewNotification(NEW_PROPOSAL_INVALID_LINK_DOMAIN);
       return;
-    } else if (!this.userHasEnoughOmmStaked()) {
-      this.notificationService.showNewNotification(`You need at least ${Utils.tooUSLocaleString(Utils.roundOffTo2Decimals(
-        this.persistenceService.getMinOmmStakedRequiredForProposal()))} bOMM to propose a change.`);
+    } else if (!this.userHasEnoughBOmm()) {
+      this.notificationService.showNewNotification(NEW_PROPOSAL_MIN_BOMM_REQUIRED(this.persistenceService.getMinBOmmRequiredForProposal()));
       return;
     }
 

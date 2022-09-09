@@ -38,7 +38,7 @@
     </div>
 
     <p class="label intro-label" [ngStyle]="hideElement(isLockAdjustActive())">{{boostedOmmPanelMessage()}}</p>
-    <div class="threshold locked boost {{shouldHideLockedOmmThreshold() ? 'hide':''}} {{calculatePercentLocked().lt(50) ? 'right':''}}" [ngStyle]="getLeftLockedThresholdPercentStyle()">
+    <div class="threshold locked boost {{shouldHideLockedOmmThreshold() ? 'hide':''}} {{calculatePercentLocked().lt(0.5) ? 'right':'left'}}" [ngStyle]="getLeftLockedThresholdPercentStyle()">
       <dl class="metadata">
         <dt>Locked</dt>
       </dl>
@@ -58,13 +58,12 @@
           <input [ngStyle]="hideElement(!isLockAdjustActive())" #lockInput id="input-boost" (keyup)="onLockedOmmInputLostFocus()"
                  class="input-boost" type="text" name="">
           <span [ngStyle]="hideElement(isLockAdjustActive())" class="omm-locked">{{userLockedOmmBalance | roundDown2Dec | usFormat}}</span> / {{getLockSliderMax() | usFormat}} OMM</p>
-          <p class="label hide">3,000 OMM unstaking...</p>
       </div>
       <div class="grid-cell text-right">
-        <p class="label locked-default" [ngStyle]="hideElement(isLockAdjustActive() || userLockedOmmBalance.isZero())">{{userHasLockedOmm() ? "Locked until" : "Lock up until"}} {{timestampInMillisecondsToPrettyDate(lockDate())}}</p>
+        <p class="label locked-default" [ngStyle]="hideElement(isLockAdjustActive() || userLockedOmmBalance.isZero())">{{userHasLockedOmm() ? unlockedOnLockedUntilLabel() : "Lock up until"}} {{timestampInMillisecondsToPrettyDate(lockDate())}}</p>
         <div class="locked-adjust" [ngStyle]="hideElement(!isLockAdjustActive())">
           <p>
-            <span class="label">Locked until </span> <a class="dropdown time-selector" (click)="onLockedDateDropdownClick()">
+            <span class="label">{{unlockedOnLockedUntilLabel()}} </span> <a class="dropdown time-selector" (click)="onLockedDateDropdownClick()">
             <span class="animation-underline locked-selector">{{timestampInMillisecondsToPrettyDate(lockDate())}}</span></a></p>
           <div class="grid dropdown-content locked-selector" #drpdwnLocked>
             <div class="grid-cell">

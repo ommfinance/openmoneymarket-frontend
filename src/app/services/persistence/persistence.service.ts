@@ -122,7 +122,7 @@ export class PersistenceService {
     return this.proposalList.find(p => p.id.isEqualTo(id));
   }
 
-  getMinOmmStakedRequiredForProposal(): BigNumber {
+  getMinBOmmRequiredForProposal(): BigNumber {
     return this.bOmmTotalSupply.multipliedBy(this.voteDefinitionCriterion);
   }
 

@@ -17,6 +17,7 @@ export const environment = {
   REWARDS_CLAIMABLE_START: 1628917200, // unix timestamp from when rewards are going to be claimable
   ACTIVATE_REWARDS_TIMESTAMPS: false, // boolean flag deciding if above two timestamp should be respected
   SHOW_BANNER: false,
+  NETWORK: "Sejong"
 };
 
 /*

@@ -9,6 +9,7 @@ import {LoginService} from "../login/login.service";
 import {IconexId} from "../../models/enums/IconexId";
 import {ModalService} from "../modal/modal.service";
 import {DeviceDetectorService} from "ngx-device-detector";
+import {ICONEX_WALLET_DOES_NOT_EXIST} from "../../common/messages";
 
 @Injectable({
   providedIn: "root"
@@ -46,18 +47,15 @@ export class IconexApiService {
           }
         }
         else {
-          this.notificationService.showNewNotification("Wallet does not exist. Please log in to Iconex and try again.");
+          this.notificationService.showNewNotification(ICONEX_WALLET_DOES_NOT_EXIST);
         }
         break;
       }
       case "RESPONSE_ADDRESS": {
         this.loginService.walletLogin(new IconexWallet(payload));
-        log.debug("Successfully connected your Icon wallet!");
         break;
       }
       case "RESPONSE_SIGNING": {
-        log.debug("RESPONSE_SIGNING:");
-        log.debug(payload); // e.g., 'q/dVc3qj4En0GN+...'
         break;
       }
       case "RESPONSE_JSON-RPC": {

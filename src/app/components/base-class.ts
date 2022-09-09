@@ -105,6 +105,10 @@ export class BaseClass {
     return environment.production;
   }
 
+  network(): string {
+    return environment.NETWORK;
+  }
+
   public timestampInMillisecondsToPrettyDate(timestamp?: BigNumber): string {
     if (!timestamp) { return ""; }
     return Utils.timestampInMillisecondsToPrettyDate(timestamp);

@@ -19,6 +19,12 @@ import {OmmLockingCmpType} from "../../models/enums/OmmLockingComponent";
 import {ManageStakedIcxAction} from "../../models/classes/ManageStakedIcxAction";
 import {AssetAction} from "../../models/classes/AssetAction";
 import {Asset, AssetClass, AssetName, AssetTag} from "../../models/classes/Asset";
+import {
+  LOCK_AMOUNT_LOWER_THAN_CURRENT,
+  LOCKED_VALUE_NO_CHANGE,
+  LOCKING_PERIOD_NOT_SELECTED,
+  TOO_LOW_LOCK_AMOUNT
+} from "../../common/messages";
 
 @Component({
   selector: 'app-omm-locking',
@@ -165,7 +171,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
 
     // reset bOmm balance
     this.setText(this.userbOmmBalanceEl, this.toZeroIfDash(this.tooUSLocaleString(this.userbOmmBalance.dp(2)))
-      + (this.userbOmmBalance.isGreaterThan(Utils.ZERO) ? " bOMM" : ""));
+      + " bOMM");
   }
 
   onLockedDateDropdownClick(): void {
@@ -176,7 +182,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
     const newUserbOmmBalance = this.calculationService.calculateNewbOmmBalance(newLockedOmmAmount, this.selectedLockTimeInMillisec);
 
     this.setText(this.userbOmmBalanceEl, this.toZeroIfDash(this.tooUSLocaleString(newUserbOmmBalance.dp(2)))
-      + (newUserbOmmBalance.isGreaterThan(Utils.ZERO) ? " bOMM" : ""));
+      + " bOMM");
   }
 
   /**
@@ -214,12 +220,12 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
 
     // if before and after equal show notification
     if (before.eq(after) && this.lockDate().eq(userCurrentLockedOmmEndInMilliseconds)) {
-      this.notificationService.showNewNotification("No change in locked value.");
+      this.notificationService.showNewNotification(LOCKED_VALUE_NO_CHANGE);
       return;
     }
 
     if (!this.selectedLockTimeInMillisec.isFinite() || this.selectedLockTimeInMillisec.lte(0)) {
-      this.notificationService.showNewNotification("Please selected locking period.");
+      this.notificationService.showNewNotification(LOCKING_PERIOD_NOT_SELECTED);
       return;
     }
 
@@ -230,7 +236,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
 
     if (diff.gte( 0)) {
       if (this.persistenceService.minOmmLockAmount.isGreaterThan(diff) && !unlockPeriod.gt(userCurrentLockedOmmEndInMilliseconds)) {
-        this.notificationService.showNewNotification(`Lock amount must be greater than ${this.persistenceService.minOmmLockAmount}`);
+        this.notificationService.showNewNotification(TOO_LOW_LOCK_AMOUNT(this.persistenceService.minOmmLockAmount));
       }
       else if (before.gt(0) && after.gt(before)) {
         if (unlockPeriod.gt(userCurrentLockedOmmEndInMilliseconds)) {
@@ -252,7 +258,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
           lockingAction);
       }
     } else {
-      this.notificationService.showNewNotification("Lock amount can not be lower than locked amount.");
+      this.notificationService.showNewNotification(LOCK_AMOUNT_LOWER_THAN_CURRENT);
     }
   }
 
@@ -349,6 +355,14 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
 
   shouldShowbOmmBalance(): boolean {
     return this.userLoggedIn() && (this.lockAdjustActive || this.userbOmmBalance.gt(0) || this.userHasOmmUnlocked());
+  }
+
+  unlockedOnLockedUntilLabel(): string {
+    if (this.userHasOmmUnlocked()) {
+      return "Unlocked on";
+    }
+
+    return "Locked until";
   }
 
   boostAdjustLabel(): string {

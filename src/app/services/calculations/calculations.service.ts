@@ -212,8 +212,9 @@ export class CalculationsService {
   /** Formulae: Omm's Voting Power/Total staked OMM tokens */
   public votingPower(userNewbOmmBalance: BigNumber = new BigNumber(0)): BigNumber {
     const ommVotingPower = this.ommVotingPower();
-    const totalbOmmBalance = this.persistenceService.bOmmTotalSupply.plus(userNewbOmmBalance.minus(
-      this.persistenceService.userbOmmBalance));
+    const userbOmmDiff = userNewbOmmBalance.isZero() ? Utils.ZERO : userNewbOmmBalance.minus(
+      this.persistenceService.userbOmmBalance);
+    const totalbOmmBalance = this.persistenceService.bOmmTotalSupply.plus(userbOmmDiff);
 
     if (ommVotingPower.isZero() || totalbOmmBalance.isZero()) {
       return new BigNumber("0");
@@ -733,7 +734,7 @@ export class CalculationsService {
     this.persistenceService.userReserves.reserveMap.forEach((reserve: UserReserveData | undefined, assetTag: AssetTag) => {
       supplied = reserve?.currentOTokenBalanceUSD ?? new BigNumber("0");
       supplyApy = reserve?.liquidityRate ?? new BigNumber("0");
-      const rate = ommApyIncluded ? supplyApy.plus(this.calculateSupplyOmmRewardsApy(assetTag)) : supplyApy;
+      const rate = ommApyIncluded ? supplyApy.plus(this.calculateUserSupplyOmmRewardsApy(assetTag)) : supplyApy;
       supplyApySum = supplyApySum.plus(supplied.multipliedBy(rate));
       supplySum = supplySum.plus(supplied);
     });
@@ -755,7 +756,7 @@ export class CalculationsService {
       if (reserve && !reserve.borrowRate.isNaN() && reserve.borrowRate.gt(0)) {
         borrowedInUSD = reserve?.currentBorrowBalanceUSD ?? new BigNumber("0");
         borrowApy = reserve?.borrowRate ?? new BigNumber("0");
-        const rate = ommApyIncluded ?  this.calculateBorrowOmmRewardsApy(assetTag).minus(borrowApy) : Utils.toNegative(borrowApy);
+        const rate = ommApyIncluded ?  this.calculateUserBorrowOmmRewardsApy(assetTag).minus(borrowApy) : Utils.toNegative(borrowApy);
         borrowApySum = borrowApySum.plus(borrowedInUSD.multipliedBy(rate));
         userBorrowsInUsdSum = userBorrowsInUsdSum.plus(borrowedInUSD);
 
