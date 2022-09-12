@@ -35,6 +35,7 @@ import {DEFAULT_SLIDER_MAX, ICX_SUPPLY_BUFFER} from "../../common/constants";
 import BigNumber from "bignumber.js";
 import {ChartService} from "../../services/chart/chart.service";
 import { Subscription } from 'rxjs';
+import {CONFIRM_BORROW_NO_CHANGE, CONFIRM_SUPPLY_NO_CHANGE} from "../../common/messages";
 
 declare var $: any;
 
@@ -1450,7 +1451,7 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
     } else if (supplyAmountDiff.isLessThan(Utils.ZERO)) {
       this.modalService.showNewModal(ModalType.WITHDRAW, new AssetAction(asset, currentlySupplied, after, amount, risk));
     } else {
-      this.notificationService.showNewNotification("No change in supplied value.");
+      this.notificationService.showNewNotification(CONFIRM_SUPPLY_NO_CHANGE);
       return;
     }
   }
@@ -1488,7 +1489,7 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
 
       this.modalService.showNewModal(ModalType.REPAY, new AssetAction(this.asset, currentlyBorrowed , after, amount, risk));
     }  else {
-      this.notificationService.showNewNotification("No change in borrowed value.");
+      this.notificationService.showNewNotification(CONFIRM_BORROW_NO_CHANGE);
       return;
     }
   }

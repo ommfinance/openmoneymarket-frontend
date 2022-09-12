@@ -32,6 +32,24 @@ import {Utils} from "../../common/utils";
 import BigNumber from "bignumber.js";
 import {AssetAction, ClaimOmmDetails} from "../../models/classes/AssetAction";
 import {DeviceDetectorService} from "ngx-device-detector";
+import {
+  LEDGER_NOT_DETECTED,
+  PRE_APPLY_BOOST, PRE_BORROW_ASSET,
+  PRE_CAST_VOTE,
+  PRE_CLAIM_AND_APPLY_BOOST,
+  PRE_CLAIM_ICX,
+  PRE_CLAIM_OMM,
+  PRE_INCREASE_LOCK_AMOUNT_AND_PERIOD,
+  PRE_INCREASE_LOCKED_OMM,
+  PRE_INCREASE_LOCKED_PERIOD,
+  PRE_LOCK_OMM,
+  PRE_MIGRATE_STAKED_OMM,
+  PRE_REMOVE_ALL_VOTES, PRE_REPAY_ASSET, PRE_STAKE_LP,
+  PRE_SUBMIT_PROPOSAL, PRE_SUPPLY_ASSET, PRE_UNSTAKE_LP,
+  PRE_UNSTAKE_OMM,
+  PRE_UPDATE_VOTES, PRE_WITHDRAW_ASSET,
+  PRE_WITHDRAW_LOCKED_OMM
+} from "../../common/messages";
 
 
 @Component({
@@ -294,8 +312,7 @@ export class ModalComponent extends BaseClass implements OnInit {
     }).catch(e => {
       this.modalService.hideActiveModal();
       log.error(e);
-      this.notificationService.showNewNotification("Couldn’t detect Ledger.\n" +
-        "Make sure it’s connected and try again.");
+      this.notificationService.showNewNotification(LEDGER_NOT_DETECTED);
     });
   }
 
@@ -305,13 +322,13 @@ export class ModalComponent extends BaseClass implements OnInit {
       this.activeModalChange!.modalType = ModalType.UNSTAKE_OMM_TOKENS;
       this.localStorageService.persistModalAction(this.activeModalChange!);
 
-      this.voteAndLockingService.unstakeOmm(this.activeModalChange!.manageStakedIcxAction!.amount, "Starting unstaking process...");
+      this.voteAndLockingService.unstakeOmm(this.activeModalChange!.manageStakedIcxAction!.amount, PRE_UNSTAKE_OMM);
     } else {
       this.localStorageService.persistModalAction(this.activeModalChange!);
 
       const amount = this.activeModalChange!.manageStakedIcxAction!.amount;
       const unlockTime = this.activeModalChange?.manageStakedIcxAction?.lockingTime!;
-      this.voteAndLockingService.migrateStakedOmm(amount, unlockTime, "Locking up staked OMM...");
+      this.voteAndLockingService.migrateStakedOmm(amount, unlockTime, PRE_MIGRATE_STAKED_OMM);
     }
 
     // hide current modal
@@ -326,20 +343,20 @@ export class ModalComponent extends BaseClass implements OnInit {
 
     if (this.activeModalChange?.modalType === ModalType.INCREASE_LOCK_OMM) {
       // build and dispatch increase locked amount OMM tx
-      this.voteAndLockingService.increaseOmmLockAmount(amount, "Locking Omm Tokens...");
+      this.voteAndLockingService.increaseOmmLockAmount(amount, PRE_INCREASE_LOCKED_OMM);
     } else if (this.activeModalChange?.modalType === ModalType.INCREASE_LOCK_TIME) {
       // build and dispatch increase time period OMM tx
       this.voteAndLockingService.increaseOmmLockPeriod(this.activeModalChange?.lockingOmmAction?.lockingTime!,
-        "Locking up Omm Tokens…");
+        PRE_INCREASE_LOCKED_PERIOD);
     } else if (this.activeModalChange?.modalType === ModalType.INCREASE_LOCK_TIME_AND_AMOUNT) {
       const unlockTime = this.activeModalChange?.lockingOmmAction?.lockingTime!;
       this.voteAndLockingService.increaseLockAmountAndPeriodOmm(amount, unlockTime,
-        "Locking up Omm Tokens…");
+        PRE_INCREASE_LOCK_AMOUNT_AND_PERIOD);
     } else {
       const unlockTime = this.activeModalChange?.lockingOmmAction?.lockingTime!;
 
       // build and dispatch lock OMM tx
-      this.voteAndLockingService.lockOmm(amount, unlockTime, "Locking Omm Tokens...");
+      this.voteAndLockingService.lockOmm(amount, unlockTime, PRE_LOCK_OMM);
     }
 
     // commit modal action change
@@ -353,7 +370,7 @@ export class ModalComponent extends BaseClass implements OnInit {
     // store user action in local storage
     this.localStorageService.persistModalAction(this.activeModalChange!);
 
-    this.voteAndLockingService.withdrawLockedOmm("Withdrawing Omm Tokens…");
+    this.voteAndLockingService.withdrawLockedOmm(PRE_WITHDRAW_LOCKED_OMM);
   }
 
   onClaimOmmRewardsClick(applyBoost = false): void {
@@ -363,7 +380,7 @@ export class ModalComponent extends BaseClass implements OnInit {
     // hide current modal
     this.modalService.hideActiveModal();
 
-    const message = applyBoost ? "Claiming Omm Tokens..." + "\n" + "Applying boost..." : "Claiming Omm Tokens...";
+    const message = applyBoost ? PRE_CLAIM_AND_APPLY_BOOST : PRE_CLAIM_OMM;
 
     this.transactionDispatcherService.dispatchTransaction(this.ommService.buildClaimOmmRewardsTx(), message);
   }
@@ -375,7 +392,7 @@ export class ModalComponent extends BaseClass implements OnInit {
     // hide current modal
     this.modalService.hideActiveModal();
 
-    this.transactionDispatcherService.dispatchTransaction(this.ommService.buildClaimOmmRewardsTx(), "Applying boost...");
+    this.transactionDispatcherService.dispatchTransaction(this.ommService.buildClaimOmmRewardsTx(), PRE_APPLY_BOOST);
   }
 
   onSubmitProposalClick(): void {
@@ -391,7 +408,7 @@ export class ModalComponent extends BaseClass implements OnInit {
     proposal.snapshot = Utils.addSecondsToTimestamp(now, 60);
     proposal.voteStart = Utils.addSecondsToTimestamp(now, 62);
 
-    this.transactionDispatcherService.dispatchTransaction(this.voteAndLockingService.createProposal(proposal), "Submitting proposal...");
+    this.transactionDispatcherService.dispatchTransaction(this.voteAndLockingService.createProposal(proposal), PRE_SUBMIT_PROPOSAL);
   }
 
   onClaimIcxClick(): void {
@@ -401,7 +418,7 @@ export class ModalComponent extends BaseClass implements OnInit {
     // hide current modal
     this.modalService.hideActiveModal();
 
-    this.transactionDispatcherService.dispatchTransaction(this.claimIcxService.buildClaimUnstakedIcxTx(), "Claiming ICX...");
+    this.transactionDispatcherService.dispatchTransaction(this.claimIcxService.buildClaimUnstakedIcxTx(), PRE_CLAIM_ICX);
   }
 
   onCancelClick(): void {
@@ -466,11 +483,10 @@ export class ModalComponent extends BaseClass implements OnInit {
     switch (this.activeModalChange?.modalType) {
       case ModalType.UPDATE_PREP_SELECTION:
         this.transactionDispatcherService.dispatchTransaction(this.voteAndLockingService.buildUpdateUserDelegationPreferencesTx(
-          this.activeModalChange.voteAction!.yourVotesPrepList), "Allocating votes...");
+          this.activeModalChange.voteAction!.yourVotesPrepList), PRE_UPDATE_VOTES);
         break;
       case ModalType.REMOVE_ALL_VOTES:
-        this.transactionDispatcherService.dispatchTransaction(this.voteAndLockingService.buildRemoveAllVotes(),
-          "Removing all votes...");
+        this.transactionDispatcherService.dispatchTransaction(this.voteAndLockingService.buildRemoveAllVotes(), PRE_REMOVE_ALL_VOTES);
         break;
       default:
         throw new OmmError(`onConfirmUpdateVotesClick() -> Invalid modal type: ${this.activeModalChange?.modalType}`);
@@ -489,7 +505,7 @@ export class ModalComponent extends BaseClass implements OnInit {
 
     switch (this.activeModalChange?.modalType) {
       case ModalType.UNSTAKE_OMM_TOKENS:
-        this.voteAndLockingService.unstakeOmm(this.activeModalChange!.stakingAction!.amount, "Starting unstaking process...");
+        this.voteAndLockingService.unstakeOmm(this.activeModalChange!.stakingAction!.amount, PRE_UNSTAKE_OMM);
         break;
       default:
         throw new OmmError(` onGovernanceModalConfirmClick() -> Invalid modal type: ${this.activeModalChange?.modalType}`);
@@ -510,20 +526,7 @@ export class ModalComponent extends BaseClass implements OnInit {
     this.localStorageService.persistModalAction(this.activeModalChange!);
 
     const action = this.activeModalChange!.governanceAction!;
-    this.voteAndLockingService.castVote(action.proposalId!, action.approveProposal!, "Casting your vote...");
-
-    // commit modal action change
-    this.stateChangeService.updateUserModalAction(this.activeModalChange!);
-
-    // hide current modal
-    this.modalService.hideActiveModal();
-  }
-
-  onRestakeConfirmClick(): void {
-    // store activeModalChange in local storage
-    this.localStorageService.persistModalAction(this.activeModalChange!);
-
-    this.voteAndLockingService.cancelUnstakeOmm(this.activeModalChange!.stakingAction!.amount, "Restaking Omm Tokens…");
+    this.voteAndLockingService.castVote(action.proposalId!, action.approveProposal!, PRE_CAST_VOTE);
 
     // commit modal action change
     this.stateChangeService.updateUserModalAction(this.activeModalChange!);
@@ -542,11 +545,11 @@ export class ModalComponent extends BaseClass implements OnInit {
     switch (this.activeModalChange?.modalType) {
       case ModalType.POOL_STAKE:
         amount = action?.payload.max ? this.persistenceService.getUserPoolStakedAvailableBalance(poolId) : action!.amount;
-        this.stakeLpService.stakeLp(poolId, amount, "Staking LP Tokens...");
+        this.stakeLpService.stakeLp(poolId, amount, PRE_STAKE_LP);
         break;
       case ModalType.POOL_UNSTAKE:
         amount = action?.payload.min ? this.persistenceService.getUserPoolStakedBalance(poolId) : action!.amount;
-        this.stakeLpService.unstakeLp(poolId, amount, "Starting unstaking process...");
+        this.stakeLpService.unstakeLp(poolId, amount, PRE_UNSTAKE_LP);
         break;
       default:
         throw new OmmError(` onGovernanceModalConfirmClick() -> Invalid modal type: ${this.activeModalChange?.modalType}`);
@@ -566,19 +569,18 @@ export class ModalComponent extends BaseClass implements OnInit {
     const assetTag = this.activeModalChange!.assetAction!.asset.tag;
     switch (this.activeModalChange?.modalType) {
       case ModalType.BORROW:
-        this.borrowService.borrowAsset(this.activeModalChange.assetAction!.amount, assetTag, `Borrowing ${assetTag}...`);
+        this.borrowService.borrowAsset(this.activeModalChange.assetAction!.amount, assetTag, PRE_BORROW_ASSET(assetTag));
         break;
       case ModalType.SUPPLY:
-        this.supplyService.supplyAsset(this.activeModalChange.assetAction!.amount, assetTag, `Supplying ${assetTag}...`);
+        this.supplyService.supplyAsset(this.activeModalChange.assetAction!.amount, assetTag, PRE_SUPPLY_ASSET(assetTag));
         break;
       case ModalType.REPAY:
-        this.repayService.repayAsset(this.activeModalChange, assetTag, `Repaying ${assetTag}...`);
+        this.repayService.repayAsset(this.activeModalChange, assetTag, PRE_REPAY_ASSET(assetTag));
         break;
       case ModalType.WITHDRAW:
         const amount = this.activeModalChange.assetAction!.after.isZero() ? new BigNumber("-1") :
           this.activeModalChange.assetAction!.amount;
-        this.withdrawService.withdrawAsset(amount, assetTag, this.waitForUnstakingIcx(),
-          `Withdrawing ${assetTag}...`);
+        this.withdrawService.withdrawAsset(amount, assetTag, this.waitForUnstakingIcx(), PRE_WITHDRAW_ASSET(assetTag));
         break;
       default:
         throw new OmmError(`onAssetModalActionConfirmClick() -> Invalid modal type: ${this.activeModalChange?.modalType}`);
@@ -656,7 +658,7 @@ export class ModalComponent extends BaseClass implements OnInit {
   }
 
   userHasEnoughOmmStaked(): boolean {
-    return this.persistenceService.getUsersLockedOmmBalance().gte(this.persistenceService.getMinOmmStakedRequiredForProposal());
+    return this.persistenceService.getUsersLockedOmmBalance().gte(this.persistenceService.getMinBOmmRequiredForProposal());
   }
 
   getVoteDuration(): string {

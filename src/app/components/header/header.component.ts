@@ -13,6 +13,13 @@ import {NavigationEnd, Router} from "@angular/router";
 import {LedgerWallet} from "../../models/wallets/LedgerWallet";
 import {LoginService} from "../../services/login/login.service";
 import {LogoutService} from "../../services/logout/logout.service";
+import {
+  FAILURE_DATA_REFRESH,
+  PRE_DATA_REFRESH,
+  SUCCESS_COPY,
+  SUCCESS_DATA_REFRESH,
+  UNABLE_TO_COPY
+} from "../../common/messages";
 
 declare var $: any;
 
@@ -58,19 +65,19 @@ export class HeaderComponent extends BaseClass implements OnInit {
   }
 
   async onRefreshClick(): Promise<void> {
-    this.notificationService.showNewNotification("Refreshing data...");
+    this.notificationService.showNewNotification(PRE_DATA_REFRESH);
     if (this.persistenceService.activeWallet) {
       await this.dataLoaderService.loadCoreData();
       this.loginService.walletLogin(this.persistenceService.activeWallet, false, true).then(() => {
-        this.notificationService.showNewNotification("Successfully refreshed the data.");
+        this.notificationService.showNewNotification(SUCCESS_DATA_REFRESH);
       }).catch(() => {
-        this.notificationService.showNewNotification("Failed to refreshed the data.");
+        this.notificationService.showNewNotification(FAILURE_DATA_REFRESH);
       });
     } else {
       this.dataLoaderService.loadCoreData().then(() => {
-        this.notificationService.showNewNotification("Successfully refreshed the data.");
+        this.notificationService.showNewNotification(SUCCESS_DATA_REFRESH);
       }).catch(() => {
-        this.notificationService.showNewNotification("Failed to refreshed the data.");
+        this.notificationService.showNewNotification(FAILURE_DATA_REFRESH);
       });
     }
   }
@@ -158,13 +165,13 @@ export class HeaderComponent extends BaseClass implements OnInit {
       const msg = successful ? 'successful' : 'unsuccessful';
 
       if (msg !== "successful" || !textArea.value) {
-        this.notificationService.showNewNotification('Oops, unable to copy');
+        this.notificationService.showNewNotification(UNABLE_TO_COPY);
       } else {
         // show notification
-        this.notificationService.showNewNotification("Address copied!");
+        this.notificationService.showNewNotification(SUCCESS_COPY);
       }
     } catch (err) {
-      this.notificationService.showNewNotification('Oops, unable to copy');
+      this.notificationService.showNewNotification(UNABLE_TO_COPY);
     }
 
     document.body.removeChild(textArea);

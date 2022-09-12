@@ -58,7 +58,6 @@ export class BridgeWidgetService {
       throw new OmmError(error);
     }
 
-    this.notificationService.showNewNotification("Successfully logged out.");
   }
 
   handleWidgetRes(e: any): void {

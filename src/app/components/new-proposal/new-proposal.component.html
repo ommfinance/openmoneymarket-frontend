@@ -49,11 +49,11 @@
 
         <div class="grid text-center">
           <div class="grid-cell">
-            <p><a id="new-proposal-submit" href="javascript:void(0);" class="button modal-trigger {{fieldsValid() && userHasEnoughOmmStaked() ? '' : 'disabled'}}"  data-modal="modal-submit-proposal" (click)="onSubmitClick()">Submit</a></p>
+            <p><a id="new-proposal-submit" href="javascript:void(0);" class="button modal-trigger {{fieldsValid() && userHasEnoughBOmm() ? '' : 'disabled'}}" data-modal="modal-submit-proposal" (click)="onSubmitClick()">Submit</a></p>
             <!-- Min OMM stake required for creating a proposal -->
-            <ng-container *ngIf="!userHasEnoughOmmStaked()">
+            <ng-container *ngIf="!userHasEnoughBOmm()">
               <br>
-              <p class="label text-red text-center">You need at least {{persistenceService.getMinOmmStakedRequiredForProposal() | roundOff2Dec | usFormat}} bOMM to propose a change.</p>
+              <p class="label text-red text-center">You need at least {{persistenceService.getMinBOmmRequiredForProposal() | roundOff2Dec | usFormat}} bOMM to propose a change.</p>
             </ng-container>
           </div>
         </div>

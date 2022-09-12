@@ -7,7 +7,6 @@ import {FormsModule} from '@angular/forms';
 import { HeaderComponent } from './components/header/header.component';
 import { HomeComponent } from './components/home/home.component';
 import {CoreModule} from "./core/core.module";
-import { NotificationComponent } from './components/notification/notification.component';
 import { ModalComponent } from './components/modal/modal.component';
 import { PerformanceComponent } from './components/performance/performance.component';
 import { RiskComponent } from './components/risk/risk.component';
@@ -48,6 +47,7 @@ import { YourAvailPoolRowComponent } from './components/your-pools/your-avail-po
 import {RouteReuseStrategy} from "@angular/router";
 import {CustomReuseStrategy} from "./routing";
 import {DeviceDetectorService} from "ngx-device-detector";
+import {NotifierModule} from "angular-notifier";
 
 // Big Number configs
 const fmt = {
@@ -72,7 +72,6 @@ log.setLevel(environment.production ? "error" : "debug");
     AppComponent,
     HeaderComponent,
     HomeComponent,
-    NotificationComponent,
     ModalComponent,
     PerformanceComponent,
     RiskComponent,
@@ -112,7 +111,25 @@ log.setLevel(environment.production ? "error" : "debug");
     FormsModule,
     CoreModule,
     HttpClientModule,
-    AngularResizedEventModule
+    AngularResizedEventModule,
+    NotifierModule.withConfig({
+      // Custom options in here
+      theme: "custom",
+      position: {
+        horizontal: {
+          position: "right",
+        },
+        vertical: {
+          position: "top",
+          distance: 50
+        }
+      },
+      behaviour: {
+        autoHide: 5000, // 5 seconds
+        showDismissButton: false,
+        stacking: 3
+      }
+    }),
   ],
   providers: [
     DeviceDetectorService,
