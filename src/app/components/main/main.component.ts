@@ -19,17 +19,17 @@ export class MainComponent implements OnInit {
 
   ngOnInit(): void {
     this.stateChangeService.userProposalVotesChange$.subscribe(() => {
-      this.setUserHasVoted();
+      this.setUserHasNotVoted();
     });
     this.stateChangeService.proposalListChange.subscribe(() => {
-      this.setUserHasVoted();
+      this.setUserHasNotVoted();
     });
   }
 
-  setUserHasVoted(): void {
+  setUserHasNotVoted(): void {
       for (const proposal of this.persistenceService.proposalList) {
         const userVote = this.persistenceService.userProposalVotes.get(proposal.id);
-        if (userVote && (userVote.for.gt(0) || userVote.against.gt(0)) && !proposal.proposalIsOver(this.reloaderService)) {
+        if (userVote && (userVote.for.gt(0) || userVote.against.gt(0))) {
           this.userHasNotVoted = true;
         }
       }
