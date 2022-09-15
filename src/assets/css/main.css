@@ -2284,6 +2284,7 @@ input[type="text"].input-borrow-available {
 }
 #proposal-cards > .grid > .grid-cell {
   margin-right: 35px;
+  position: relative;
 }
 #proposal-cards > .grid > .grid-cell:last-of-type {
   margin-right: 0;
