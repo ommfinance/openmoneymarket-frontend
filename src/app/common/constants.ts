@@ -25,6 +25,8 @@ export const ICX_SUPPLY_BUFFER = 2;
 
 export const DEFAULT_SLIDER_MAX = 0.01;
 
+export const MAX_PROPOSAL_DESCRIPTION_LENGTH = 500;
+
 // notification timeout
 export const NOTIFICATION_TIMEOUT = 5000; // ms
 
