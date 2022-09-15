@@ -12,7 +12,7 @@
 
   <div class="grid cards">
     <ng-container *ngFor="let proposal of latestProposals;">
-      <a href="javascript:void(0);" routerLink="/vote/proposal" class="grid-cell panel {{proposal.proposalIsOver(reloaderService) ? '' : 'active-vote'}}" (click)="onProposalClick(proposal)">
+      <a href="javascript:void(0);" routerLink="/vote/proposal" class="grid-cell panel" (click)="onProposalClick(proposal)">
         <h3>{{proposal.name}}</h3>
         <p>{{proposal.getShortDescription()}}</p>
 
