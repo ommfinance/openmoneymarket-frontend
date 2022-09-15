@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import {PersistenceService} from "../../services/persistence/persistence.service";
+import {ReloaderService} from "../../services/reloader/reloader.service";
 
 @Component({
   selector: 'app-main',
@@ -12,7 +13,8 @@ export class MainComponent implements OnInit {
   userHasNotVoted = false;
 
   constructor(private stateChangeService: StateChangeService,
-              private persistenceService: PersistenceService) {
+              private persistenceService: PersistenceService,
+              private reloaderService: ReloaderService) {
   }
 
   ngOnInit(): void {
@@ -27,7 +29,7 @@ export class MainComponent implements OnInit {
   setUserHasVoted(): void {
       for (const proposal of this.persistenceService.proposalList) {
         const userVote = this.persistenceService.userProposalVotes.get(proposal.id);
-        if (userVote && (userVote.for.gt(0) || userVote.against.gt(0))) {
+        if (userVote && (userVote.for.gt(0) || userVote.against.gt(0)) && !proposal.proposalIsOver(this.reloaderService)) {
           this.userHasNotVoted = true;
         }
       }
