@@ -436,6 +436,30 @@ textarea:focus {
   transition: stroke 0.2s ease;
 }
 
+/* Vote notification dot */
+
+.navigation .vote-dot {
+  position: relative;
+}
+.navigation .vote-dot::after {
+  content: '';
+  position: absolute;
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 25px;
+  background: linear-gradient(120deg, #9d4df1, #00d3c2);
+  right: -20px;
+  top: 6px;
+  animation: spin 4s linear infinite;
+}
+@keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
 /* ==========================================================================
 	Grids
 ========================================================================== */
