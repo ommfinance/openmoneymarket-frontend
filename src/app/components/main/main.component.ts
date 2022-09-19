@@ -29,9 +29,7 @@ export class MainComponent implements OnInit {
   setUserHasNotVoted(): void {
       for (const proposal of this.persistenceService.proposalList) {
         const userVote = this.persistenceService.userProposalVotes.get(proposal.id);
-        if (userVote && (userVote.for.gt(0) || userVote.against.gt(0))) {
-          this.userHasNotVoted = true;
-        }
+        this.userHasNotVoted = !(userVote && (userVote.for.gt(0) || userVote.against.gt(0)));
       }
   }
 
