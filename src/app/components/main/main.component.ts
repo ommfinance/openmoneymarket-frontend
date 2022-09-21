@@ -27,10 +27,13 @@ export class MainComponent implements OnInit {
   }
 
   setUserHasNotVoted(): void {
-      for (const proposal of this.persistenceService.proposalList) {
-        const userVote = this.persistenceService.userProposalVotes.get(proposal.id);
-        this.userHasNotVoted = !(userVote && (userVote.for.gt(0) || userVote.against.gt(0)));
+    for (const proposal of this.persistenceService.proposalList) {
+      const userVote = this.persistenceService.userProposalVotes.get(proposal.id);
+
+      if (userVote) {
+        this.userHasNotVoted = !(userVote.for.gt(0) || userVote.against.gt(0));
       }
+    }
   }
 
   userHasNotVotedClass(): string {
