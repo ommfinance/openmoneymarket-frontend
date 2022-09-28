@@ -5,6 +5,7 @@ import {Proposal} from "../../models/classes/Proposal";
 import {Router} from "@angular/router";
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import {Utils} from "../../common/utils";
+import {ReloaderService} from "../../services/reloader/reloader.service";
 
 @Component({
   selector: 'app-latest-proposals',
@@ -19,7 +20,8 @@ export class LatestProposalsComponent extends BaseClass implements OnInit {
   constructor(public persistenceService: PersistenceService,
               private router: Router,
               private stateChangeService: StateChangeService,
-              private cd: ChangeDetectorRef) {
+              private cd: ChangeDetectorRef,
+              public reloaderService: ReloaderService) {
     super(persistenceService);
   }
 

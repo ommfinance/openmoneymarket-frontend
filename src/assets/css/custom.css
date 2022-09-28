@@ -2,6 +2,10 @@
   border-color: red !important;
 }
 
+.red-text {
+  color: red !important;
+}
+
 /* ICON USDC logo */
 .list tbody tr.usdc td:first-of-type {
   background-image: url(../img/logos/usdc-logo.png);
