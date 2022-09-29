@@ -137,6 +137,16 @@ export class Utils {
     }
   }
 
+  public static roundDownToNDecimals(value: BigNumber | number | string | undefined, decimals: number): string {
+    if (!value || !(new BigNumber(value).isFinite())) {
+      return "0";
+    } else if (value instanceof BigNumber) {
+      return value.toFixed(decimals, BigNumber.ROUND_DOWN);
+    } else {
+      return new BigNumber(value).toFixed(decimals, BigNumber.ROUND_DOWN);
+    }
+  }
+
   public static to2DecimalRndOffPercString(num?: BigNumber | string, defaultZero = false): string {
     if (!num || !(new BigNumber(num).isFinite()) || (+num) <= 0) { return defaultZero ? "0%" : "-"; }
 

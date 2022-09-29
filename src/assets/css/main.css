@@ -436,6 +436,30 @@ textarea:focus {
   transition: stroke 0.2s ease;
 }
 
+/* Vote notification dot */
+
+.navigation .vote-dot {
+  position: relative;
+}
+.navigation .vote-dot::after {
+  content: '';
+  position: absolute;
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 25px;
+  background: linear-gradient(120deg, #9d4df1, #00d3c2);
+  right: -20px;
+  top: 6px;
+  animation: spin 4s linear infinite;
+}
+@keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
 /* ==========================================================================
 	Grids
 ========================================================================== */
@@ -2260,6 +2284,7 @@ input[type="text"].input-borrow-available {
 }
 #proposal-cards > .grid > .grid-cell {
   margin-right: 35px;
+  position: relative;
 }
 #proposal-cards > .grid > .grid-cell:last-of-type {
   margin-right: 0;
@@ -2291,6 +2316,24 @@ input[type="text"].input-borrow-available {
   background-image: -ms-linear-gradient( 35deg, rgb(96,129,223) 0%, rgb(157,77,241) 100%);
 }
 
+/*
+*
+* Active vote
+*
+*/
+
+#proposal-cards > .grid > .grid-cell.active-vote:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  margin: -3px;
+  border-radius: 13px;
+  background: linear-gradient(40deg, #9d4df1, #00d3c2);
+}
 #proposal-cards p,
 #proposal-list p {
   color: #7a8294;

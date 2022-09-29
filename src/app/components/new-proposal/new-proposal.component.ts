@@ -7,7 +7,7 @@ import {ModalType} from "../../models/enums/ModalType";
 import {CreateProposal} from "../../models/classes/Proposal";
 import {NotificationService} from "../../services/notification/notification.service";
 import {Utils} from "../../common/utils";
-import {ommForumDomain} from "../../common/constants";
+import {MAX_PROPOSAL_DESCRIPTION_LENGTH, ommForumDomain} from "../../common/constants";
 import {
   NEW_PROPOSAL_EMPTY_DESCRIPTION,
   NEW_PROPOSAL_EMPTY_LINK,
@@ -20,6 +20,8 @@ import {
   templateUrl: './new-proposal.component.html',
 })
 export class NewProposalComponent implements OnInit {
+
+  MAX_PROPOSAL_DESCRIPTION_LENGTH = MAX_PROPOSAL_DESCRIPTION_LENGTH;
 
   titleSize = 0;
   descriptionSize = 0;
@@ -48,7 +50,7 @@ export class NewProposalComponent implements OnInit {
 
   onDescriptionChange(e: any): void {
     this.description = e.target.value;
-    this.descriptionSize = this.description.length;
+    this.descriptionSize = encodeURI(this.description).length;
   }
 
   voteDefinitionFee(): BigNumber {
@@ -59,6 +61,8 @@ export class NewProposalComponent implements OnInit {
     if (!this.title) {
       return false;
     } else if (!this.description) {
+      return false;
+    } else if (this.descriptionSize > MAX_PROPOSAL_DESCRIPTION_LENGTH) {
       return false;
     } else if (!this.forumLink) {
       return false;
