@@ -1,33 +1,154 @@
 <!-- Your markets (users asset) or Available to supply state -->
 <tr class="asset {{asset.className}} {{getAssetClass()}}" (click)="onAssetClick()" #assetYour [ngStyle]="hideElement(!shouldBeShown())">
 
-  <td>{{asset.name}}<br><span class="label">{{getAssetTagAdjusted()}}</span></td>
-
   <!-- Your asset state -->
   <ng-container *ngIf="!isAllMarketViewActive() && !isAssetAvailable()">
-    <td><span class="value-supplied">{{this.persistenceService.getUserAssetReserve(asset.tag)?.currentOTokenBalanceUSD | roundOff2Dec | dollarUsLocale}}</span><br>
-      <span class="value-supplied label">{{getUserSuppliedAssetBalance() | usFormat}} {{supplyAssetTag()}}</span></td>
-    <td class="text-green">{{getUserSupplyApy() | roundOff2DecPercent}}</td> <!-- Supply APY-->
-    <td><span class="value-borrowed">{{userBorrowedAssetBalanceUSD | roundOff2Dec | dollarUsLocale}}</span><br>
-      <span class="value-borrowed label">{{userBorrowedAssetBalance | roundDown2Dec | usFormat}} {{getBorrowAssetTagAdjusted()}}</span></td>
-    <td class="{{isNegative(getUserBorrowApy()) ? 'text-purple' : 'text-green'}}">{{makeAbsolute(getUserBorrowApy()) | roundOff2DecPercent}}</td><!-- Borrow APY -->
+    <td class="new">
+      <div class="desktop-market grid-center">
+        <div class="grid grid-center">
+          <div class="grid-cell">
+            <p>{{asset.name}}<br><span class="label">{{getAssetTagAdjusted()}}</span></p>
+          </div>
+          <div class="grid-cell details hide">
+            <p class="text-right details hide">Details</p>
+          </div>
+        </div>
+      </div>
+      <div class="mobile-market hide">
+        <div class="grid metadata-group">
+          <div class="grid-cell">
+            <div class="grid supply-group">
+              <div class="grid-cell text-center">
+                <dl class="metadata">
+                  <dt>You've supplied</dt>
+                  <dd class="value-supplied-usdb">{{getUserSuppliedAssetBalance() | usFormat}} {{supplyAssetTag()}}</dd>
+                </dl>
+              </div>
+              <div class="grid-cell text-center">
+                <dl class="metadata">
+                  <dt>Supply APY</dt>
+                  <dd><span class="text-green text-bold">{{getUserSupplyApy() | roundOff2DecPercent}}</span></dd>
+                </dl>
+              </div>
+            </div>
+            <div class="grid borrow-group">
+              <div class="grid-cell">
+                <dl class="metadata text-center">
+                  <dt>You've borrowed</dt>
+                  <dd class="value-borrowed-usdb">{{userBorrowedAssetBalance | roundDown2Dec | usFormat}} {{getBorrowAssetTagAdjusted()}}</dd>
+                </dl>
+              </div>
+              <div class="grid-cell">
+                <dl class="metadata text-center">
+                  <dt>Borrow APR</dt>
+                  <dd><span class="{{isNegative(getUserBorrowApy()) ? 'text-purple' : 'text-green'}} text-bold">{{makeAbsolute(getUserBorrowApy()) | roundOff2DecPercent}}</span></dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </td>
+    <td><span class="value-supplied-usdb-dollar">{{this.persistenceService.getUserAssetReserve(asset.tag)?.currentOTokenBalanceUSD | roundOff2Dec | dollarUsLocale}}</span><br>
+      <span class="value-supplied-usdb label">{{getUserSuppliedAssetBalance() | usFormat}} {{supplyAssetTag()}}</span></td>
+    <td><span class="text-green value-apy-bridge">{{getUserSupplyApy() | roundOff2DecPercent}}</span></td>
+    <td><span class="value-borrowed-usdb-dollar">{{userBorrowedAssetBalanceUSD | roundOff2Dec | dollarUsLocale}}</span><br>
+      <span class="value-borrowed-usdb label">{{userBorrowedAssetBalance | roundDown2Dec | usFormat}} {{getBorrowAssetTagAdjusted()}}</span></td>
+    <td><span class="{{isNegative(getUserBorrowApy()) ? 'text-purple' : 'text-green'}} value-apy-bridge-borrow">{{makeAbsolute(getUserBorrowApy()) | roundOff2DecPercent}}</span></td>
   </ng-container>
 
   <!-- Asset available state -->
   <ng-container *ngIf="!isAllMarketViewActive() && isAssetAvailable()">
-    <td colspan="2" class="text-right">{{getUserSuppliableBalanceUSD() | roundOff2Dec | dollarUsLocale}}
-      <br><span class="label">{{getUserSuppliableBalance() | roundOff2Dec | usFormat}} {{supplyAssetTag()}}</span></td>
-    <td colspan="2" class="text-right"><span class="text-green">{{getUserSupplyApy() | roundOff2DecPercent}} APY</span></td> <!-- Supply APY -->
+    <td class="new">
+      <div class="desktop-market grid-center">
+        <div class="grid grid-center">
+          <div class="grid-cell">
+            <p>{{asset.name}}<br><span class="label">{{getAssetTagAdjusted()}}</span></p>
+          </div>
+          <div class="grid-cell details hide">
+            <p class="text-right details hide">Details</p>
+          </div>
+        </div>
+      </div>
+      <div class="mobile-market hide">
+        <div class="grid metadata-group">
+          <div class="grid-cell">
+            <div class="grid supply-group">
+              <div class="grid-cell text-center">
+                <dl class="metadata">
+                  <dt>Available</dt>
+                  <dd class="">{{getUserSuppliableBalance() | roundOff2Dec | usFormat}} {{supplyAssetTag()}}</dd>
+                </dl>
+              </div>
+              <div class="grid-cell text-center">
+                <dl class="metadata">
+                  <dt>Supply APY</dt>
+                  <dd><span class="text-green text-bold">{{getUserSupplyApy() | roundOff2DecPercent}}</span></dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </td>
+
+    <td colspan="2" class="text-right">{{getUserSuppliableBalanceUSD() | roundOff2Dec | dollarUsLocale}}<br>
+      <span class="label">{{getUserSuppliableBalance() | roundOff2Dec | usFormat}} {{supplyAssetTag()}}</span></td>
+    <td colspan="2" class="text-right"><span class="text-green value-apy-bridge-available-suffix">{{getUserSupplyApy() | roundOff2DecPercent}} APY</span></td>
   </ng-container>
 
   <!-- All markets state -->
   <ng-container *ngIf="isAllMarketViewActive()">
-    <td><span>{{getTotalLiquidityUsd() | dollarUsLocale}}</span><br>
-      <span class="label">{{getTotalLiquidity() | usFormat}} {{supplyAssetTag()}}</span></td>
-    <td class="text-green">{{getMarketSupplyRate() | roundOff2DecPercent}}</td> <!-- Supply APY -->
-    <td>{{getTotalBorrowUsd() | dollarUsLocale}}<br>
-      <span class="label">{{getTotalAssetBorrows() | usFormat}} {{getBorrowAssetTagAdjusted()}}</span></td>
-    <td class="{{isNegative(getMarketBorrowRate()) ? 'text-purple' : 'text-green'}}">{{makeAbsolute(getMarketBorrowRate()) | roundOff2DecPercent}}</td> <!-- Borrow APY -->
+    <td class="new">
+      <div class="desktop-market grid-center">
+        <div class="grid grid-center">
+          <div class="grid-cell">
+            <p>{{asset.name}}<br><span class="label">{{getAssetTagAdjusted()}}</span></p>
+          </div>
+          <div class="grid-cell details hide">
+            <p class="text-right details hide">Details</p>
+          </div>
+        </div>
+      </div>
+      <div class="mobile-market hide">
+        <div class="grid metadata-group">
+          <div class="grid-cell">
+            <div class="grid supply-group">
+              <div class="grid-cell">
+                <dl class="metadata">
+                  <dt>Total supplied</dt>
+                  <dd class="">{{getTotalLiquidity() | usFormat}} {{supplyAssetTag()}}</dd>
+                </dl>
+              </div>
+              <div class="grid-cell">
+                <dl class="metadata">
+                  <dt>Supply APY</dt>
+                  <dd><span class="text-green text-bold">{{getMarketSupplyRate() | roundOff2DecPercent}}</span></dd>
+                </dl>
+              </div>
+            </div>
+            <div class="grid borrow-group">
+              <div class="grid-cell">
+                <dl class="metadata">
+                  <dt>Total borrowed</dt>
+                  <dd class="">{{getTotalAssetBorrows() | usFormat}} {{getBorrowAssetTagAdjusted()}}</dd>
+                </dl>
+              </div>
+              <div class="grid-cell">
+                <dl class="metadata">
+                  <dt>Borrow APR</dt>
+                  <dd><span class="{{isNegative(getMarketBorrowRate()) ? 'text-purple' : 'text-green'}} text-bold">{{makeAbsolute(getMarketBorrowRate()) | roundOff2DecPercent}}</span></dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </td>
+    <td><span>{{getTotalLiquidityUsd() | dollarUsLocale}}</span><br><span class="label">{{getTotalLiquidity() | usFormat}} {{supplyAssetTag()}}</span></td>
+    <td><span class="text-green value-apy-bridge">{{getMarketSupplyRate() | roundOff2DecPercent}}</span></td>
+    <td>{{getTotalBorrowUsd() | dollarUsLocale}}<br><span class="label">{{getTotalAssetBorrows() | usFormat}} {{getBorrowAssetTagAdjusted()}}</span></td>
+    <td><span class="text-purple value-apy-bridge-borrow">{{makeAbsolute(getMarketBorrowRate()) | roundOff2DecPercent}}</span></td>
   </ng-container>
 
 </tr>
@@ -36,6 +157,10 @@
 <tr class="expanded">
   <td colspan="5">
     <div class="market-expanded" #marketExpandedEl>
+      <ul class="toggle market-toggle">
+        <li class="toggle-supply active"><span>Supply</span></li>
+        <li class="toggle-borrow"><span>Borrow</span></li>
+      </ul>
       <div class="grid">
         <!-- Asset Supply -->
         <div class="grid-cell supply border-right" #supply>
@@ -58,7 +183,7 @@
 
             </div>
             <div class="grid-cell text-right">
-              <p class="supply-apy" #suppApyEl>{{getSupplyRateForActiveMarket() | roundOff2DecPercent}} APY</p>
+              <p><span #suppApyEl class="supply-apy value-apy-bridge-suffix">{{getSupplyRateForActiveMarket() | roundOff2DecPercent}} APY</span></p>
             </div>
           </div>
 
@@ -165,7 +290,7 @@
               </span>
             </div>
             <div class="grid-cell text-right" [ngStyle]="hideElement(isAssetOmm())">
-              <p class="{{isNegative(getBorrowRateForActiveMarket()) ? 'borrow-apy':'borrow-apy text-green'}}" #borrowAprEl>{{makeAbsolute(getBorrowRateForActiveMarket()) | roundOff2DecPercent}} APR</p>
+              <p><span class="borrow-apy {{isNegative(getBorrowRateForActiveMarket()) ? '':'text-green'}} value-apy-bridge-borrow-suffix" #borrowAprEl>{{makeAbsolute(getBorrowRateForActiveMarket()) | roundOff2DecPercent}} APR</span></p>
             </div>
           </div>
 

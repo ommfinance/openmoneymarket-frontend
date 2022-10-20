@@ -14,7 +14,7 @@
       <div class="grid-cell text-center">
         <dl class="metadata">
           <dt>Avg supply APY</dt>
-          <dd class="text-green">{{getTotalAvgSupplyApy() | roundOff2DecPercent}}</dd>
+          <dd><span class="text-green">{{getTotalAvgSupplyApy() | roundOff2DecPercent}}</span></dd>
         </dl>
       </div>
     </div>
@@ -36,7 +36,7 @@
         <dl class="metadata">
           <dt>Avg borrow APR</dt>
           <!-- Borrow APY -->
-          <dd [ngClass]="avgBorrowAprClass()">{{getTotalAvgBorrowApy() | abs | roundOff2DecPercent}}</dd>
+          <dd><span [ngClass]="avgBorrowAprClass()">{{getTotalAvgBorrowApy() | abs | roundOff2DecPercent}}</span></dd>
         </dl>
       </div>
     </div>

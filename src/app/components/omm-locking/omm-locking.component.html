@@ -52,8 +52,8 @@
                             (sliderValueUpdate)="handleLockSliderValueUpdate($event)"
     ></app-boosted-omm-slider>
 
-    <div class="grid grid-center" [ngStyle]="hideElement(shouldHideBoostedSlider())">
-      <div class="grid-cell" style="max-width: 200px;">
+    <div class="grid grid-center boost-data" [ngStyle]="hideElement(shouldHideBoostedSlider())">
+      <div class="grid-cell">
         <p class="label">
           <input [ngStyle]="hideElement(!isLockAdjustActive())" #lockInput id="input-boost" (keyup)="onLockedOmmInputLostFocus()"
                  class="input-boost" type="text" name="">

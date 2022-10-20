@@ -91,6 +91,9 @@
                     <ng-container *ngIf="isPrepOmmContributor(yourPrepVote.address)">
                       <br><span class="label contributor">Omm contributor</span>
                     </ng-container>
+                    <ng-container *ngIf="isPrepOfferingIncentive(yourPrepVote.address)">
+                      <br><span class="label rewards">Offers incentives</span>
+                    </ng-container>
                   </div>
                 </div>
               </td>
@@ -176,6 +179,9 @@
                       {{prep.name}}
                       <ng-container *ngIf="isPrepOmmContributor(prep.address)">
                         <br><span class="label contributor">Omm contributor</span>
+                      </ng-container>
+                      <ng-container *ngIf="isPrepOfferingIncentive(prep.address)">
+                        <br><span class="label rewards">Offers incentives</span>
                       </ng-container>
                     </div>
                   </div>

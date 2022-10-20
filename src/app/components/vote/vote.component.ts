@@ -15,7 +15,7 @@ import {VoteAction} from "../../models/classes/VoteAction";
 import {AssetTag} from "../../models/classes/Asset";
 import {
   contributorsMap,
-  defaultPrepLogoUrl, Times
+  defaultPrepLogoUrl, prepsOfferingIncentiveMap, Times
 } from "../../common/constants";
 import BigNumber from "bignumber.js";
 import {Proposal} from "../../models/classes/Proposal";
@@ -358,6 +358,10 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   isPrepOmmContributor(address: string): boolean {
     return contributorsMap.get(address) ?? false;
+  }
+
+  isPrepOfferingIncentive(address: string): boolean {
+    return prepsOfferingIncentiveMap.get(address) ?? false;
   }
 
   getPowerPercent(prep: any): BigNumber {
