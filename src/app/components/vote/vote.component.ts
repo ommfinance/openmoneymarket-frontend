@@ -54,6 +54,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   votingPower = new BigNumber(0);
   ommVotingPower = new BigNumber(0);
+  top100Selected = true;
 
   constructor(public persistenceService: PersistenceService,
               private modalService: ModalService,
@@ -120,6 +121,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     this.setVotingPowerPerIcx(this.votingPower);
     this.ommVotingPower = this.calculationsService.ommVotingPower();
     this.prepList = this.persistenceService.prepList;
+    this.top100Selected = true;
     this.onSearchInputChange("");
   }
 
@@ -296,7 +298,18 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     }
   }
 
-  onSearchInputChange(searchInput: string): void {
+
+  onTop100Click(): void {
+    this.onSearchInputChange("");
+    this.top100Selected = true;
+  }
+
+  onIncentivisedClick(): void {
+    this.top100Selected = false;
+    this.onSearchInputChange("_", true);
+  }
+
+  onSearchInputChange(searchInput: string, incentivisedOnly = false): void {
     this.searchInput = searchInput;
 
     if (this.searchInput.trim() === "") {
@@ -311,7 +324,12 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
         const searchedPreps: Prep[] = [];
 
         this.prepList?.preps.forEach(prep => {
-          if (prep.name.toLowerCase().includes(this.searchInput)) {
+          if (incentivisedOnly) {
+            if (prepsOfferingIncentiveMap.get(prep.address)) {
+              searchedPreps.push(prep);
+            }
+          }
+          else if (prep.name.toLowerCase().includes(this.searchInput)) {
             searchedPreps.push(prep);
           }
         });
@@ -430,5 +448,4 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     const text = `1 bOMM = ${this.tooUSLocaleString(votingPower.dp(2))} ICX`;
     this.setText(this.votingPowerPerIcxEl, text);
   }
-
 }

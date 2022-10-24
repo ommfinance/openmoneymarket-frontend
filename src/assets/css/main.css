@@ -96,9 +96,7 @@ html {
   font-family: 'metropolis-medium';
   font-weight: normal;
   line-height: 1.4;
-  background: -moz-linear-gradient( 135deg, rgb(213,221,241) 0%, rgb(241,244,249) 100%) fixed;
-  background: -webkit-linear-gradient( 135deg, rgb(213,221,241) 0%, rgb(241,244,249) 100%) fixed;
-  background: -ms-linear-gradient( 135deg, rgb(213,221,241) 0%, rgb(241,244,249) 100%) fixed;
+  background: linear-gradient(135deg, #eef1f8 0%, #d8e0f2 100%) fixed;
   overflow-x: hidden;
 }
 body {
@@ -1571,8 +1569,21 @@ ul.pagination li:hover {
 *
 */
 
+
 .list tbody tr.usdb td:first-of-type {
+  background-image: url(../img/logo/usdb.png);
+  background-repeat: no-repeat;
+  background-position: 32px center;
+  background-size: 39px;
+}
+.list tbody tr.usds td:first-of-type {
   background-image: url(../img/logo/usds.svg);
+  background-repeat: no-repeat;
+  background-position: 32px center;
+  background-size: 39px;
+}
+.list tbody tr.usdc td:first-of-type {
+  background-image: url(../img/logo/usdc.svg);
   background-repeat: no-repeat;
   background-position: 32px center;
   background-size: 39px;
@@ -1591,6 +1602,12 @@ ul.pagination li:hover {
 }
 .list tbody tr.baln td:first-of-type {
   background-image: url(../img/logo/baln.svg);
+  background-repeat: no-repeat;
+  background-position: 32px center;
+  background-size: 39px;
+}
+.list tbody tr.omm td:first-of-type {
+  background-image: url(../img/logo/omm-symbol.svg);
   background-repeat: no-repeat;
   background-position: 32px center;
   background-size: 39px;
@@ -2294,6 +2311,7 @@ input[type="text"].input-borrow-available {
 
 #risk #slider-risk {
   margin-top: 15px;
+  background: #d3d9e7;
 }
 #risk .noUi-horizontal {
   height: 15px;
@@ -2763,6 +2781,10 @@ input.input-boost {
   margin-bottom: 15px;
 }
 
+#p-rep-list .toggle {
+  margin-left: 10px;
+}
+
 /*
 *
 * Lists
@@ -2864,11 +2886,25 @@ input.input-boost {
   padding-left: 25px;
 }
 .vote .rewards {
-  background-image: url('../img/icon/gift-2.png');
+  background-image: url('../img/icon/gift-green.svg');
   background-repeat: no-repeat;
   padding-left: 25px;
-  background-size: 15px;
-  background-position: 1px 1px;
+  background-size: 16px;
+  background-position: 3px 0px;
+}
+.vote .list.p-reps .rewards a {
+  color: #369fbf;
+  font-size: 14px;
+}
+
+.vote .list.p-reps .rewards a::after {
+  content: '';
+  display: inline-block;
+  content: url(../img/icon/external-green.svg);
+  width: 11px;
+  margin-left: 3px;
+  cursor: pointer;
+  transform: translateY(1px);
 }
 #p-rep-tooltip .tooltip-content {
   bottom: 0;
@@ -3471,8 +3507,18 @@ input.input-boost {
     margin-bottom: 15px;
     display: block;
   }
-  .usdb .desktop-market {
+
+  /* Market logos */
+
+  .usds .desktop-market {
     background-image: url(../img/logo/usds.svg);
+    background-repeat: no-repeat;
+    background-position: 19px center;
+    background-size: 40px;
+    padding-left: 70px;
+  }
+  .usdc .desktop-market {
+    background-image: url(../img/logo/usdc.svg);
     background-repeat: no-repeat;
     background-position: 19px center;
     background-size: 40px;
@@ -3481,10 +3527,34 @@ input.input-boost {
   .icx .desktop-market {
     background-image: url(../img/logo/icx.svg);
     background-repeat: no-repeat;
-    background-position: 23px center;
-    background-size: 35px;
+    background-position: 20px center;
+    background-size: 38px;
     padding-left: 70px;
   }
+  .bnusd .desktop-market {
+    background-image: url(../img/logo/bnusd.svg);
+    background-repeat: no-repeat;
+    background-position: 20px center;
+    background-size: 38px;
+    padding-left: 70px;
+  }
+  .baln .desktop-market {
+    background-image: url(../img/logo/baln.svg);
+    background-repeat: no-repeat;
+    background-position: 20px center;
+    background-size: 38px;
+    padding-left: 70px;
+  }
+  .omm .desktop-market {
+    background-image: url(../img/logo/omm-symbol.svg);
+    background-repeat: no-repeat;
+    background-position: 20px center;
+    background-size: 38px;
+    padding-left: 70px;
+  }
+
+  /* Liquidity logos */
+
   .omm-usds .desktop-market {
     background-image: url(../img/icon/liquidity-omm-usds.png);
     background-repeat: no-repeat;
@@ -3622,6 +3692,13 @@ input.input-boost {
   #vote-overview .grid.panel {
     flex-direction: column;
   }
+  #p-rep-list .filters {
+    flex-direction: column;
+    align-items: initial;
+  }
+  #p-rep-list .search {
+    margin-top: 15px;
+  }
   #vote-overview #vote-power {
     margin-top: 25px;
     margin-left: 0;
@@ -3756,9 +3833,6 @@ input.input-boost {
   .list.liquidity tbody tr.pool td:first-of-type {
     padding-top: 25px;
     padding-bottom: 25px;
-  }
-  table.list.liquidity tbody tr.pool.avail td:nth-of-type(3) {
-    display: table-cell;
   }
   table.list.liquidity tbody tr.pool.active td:first-of-type {
     border-bottom-right-radius: 0

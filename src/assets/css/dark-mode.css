@@ -191,7 +191,10 @@
     border-left: 1px solid #565b66;
   }
   .noUi-target {
-    background: #32343c;
+    background: #515462;
+  }
+  #risk #slider-risk {
+    background: #515462;
   }
 
   .border-top {
