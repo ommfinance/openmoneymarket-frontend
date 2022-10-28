@@ -156,6 +156,12 @@ export class StateChangeService {
   private bOmmTotalSupplyChange = new Subject<BigNumber>();
   bOmmTotalSupplyChange$ = this.bOmmTotalSupplyChange.asObservable();
 
+  private bOmmTotalWorkingSupplyChange = new Subject<BigNumber>();
+  bOmmTotalWorkingSupplyChange$ = this.bOmmTotalWorkingSupplyChange.asObservable();
+
+  private userWorkingbOmmChange = new Subject<BigNumber>();
+  userWorkingbOmmChange$ = this.userWorkingbOmmChange.asObservable();
+
   private currentTimestampChange = new Subject<{ currentTimestamp: number, currentTimestampMicro: BigNumber }>();
   currentTimestampChange$ = this.currentTimestampChange.asObservable();
 
@@ -242,9 +248,19 @@ export class StateChangeService {
     this.bOmmTotalSupplyChange.next(totalSupply);
   }
 
+  public bOmmTotalWorkingSupplyUpdate(totalSupply: BigNumber): void {
+    this.persistenceService.bOmmWorkingTotalSupply = totalSupply;
+    this.bOmmTotalWorkingSupplyChange.next(totalSupply);
+  }
+
   public userbOmmBalanceUpdate(balance: BigNumber): void {
     this.persistenceService.userbOmmBalance = balance;
     this.userbOmmBalanceChange.next(balance);
+  }
+
+  public userWorkingbOmmBalanceUpdate(balance: BigNumber): void {
+    this.persistenceService.userWorkingbOmmBalance = balance;
+    this.userWorkingbOmmChange.next(balance);
   }
 
   public userLockedOmmUpdate(lockedOmm: LockedOmm): void {

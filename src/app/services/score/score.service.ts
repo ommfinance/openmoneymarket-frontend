@@ -507,6 +507,42 @@ export class ScoreService {
   }
 
   /**
+   * @description Get working total supply of bOMM
+   * @return BigNumber - working total supply of bOMM
+   */
+  public async getWorkingTotalSupplyOfbOmm(): Promise<BigNumber> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Delegation,
+      ScoreMethodNames.GET_WORKING_TOTAL_SUPPLY, {}, IconTransactionType.READ);
+
+    const res: string = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getWorkingTotalSupplyOfbOmm: ", res);
+
+    return Utils.hexToNormalisedNumber(res);
+  }
+
+  /**
+   * @description Get user working bOMM supply
+   * @return BigNumber - user working bOMM supply
+   */
+  public async getUserWorkingSupplyOfbOmm(): Promise<BigNumber> {
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Delegation,
+      ScoreMethodNames.GET_USER_WORKING_BALANCE, {
+      _user: this.persistenceService.activeWallet?.address
+      }, IconTransactionType.READ);
+
+    const res: string = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getUserWorkingSupplyOfbOmm: ", res);
+
+    return Utils.hexToNormalisedNumber(res);
+  }
+
+  /**
    * @description Get stats for specific pool
    * @return  PoolStats
    */

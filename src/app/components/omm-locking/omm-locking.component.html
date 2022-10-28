@@ -4,7 +4,7 @@
     <div class="grid">
       <!-- Heading -->
       <div class="grid-cell">
-        <h3>{{getTitle()}} <span *ngIf="shouldShowbOmmBalance()" class="label value-bomm-total" #bommBaln>{{userbOmmBalance | roundDown2Dec | usFormat | toZeroIfDash }} bOMM</span>&nbsp;
+        <h3>{{getTitle()}} <span *ngIf="shouldShowbOmmBalance()" class="label value-bomm-total" #bommBaln>{{userWorkingbOmmBalance | roundDown2Dec | usFormat | toZeroIfDash }} bOMM</span>&nbsp;
           <span class="bomm-tooltip tooltip">
             <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
             <div class="tooltip-content">

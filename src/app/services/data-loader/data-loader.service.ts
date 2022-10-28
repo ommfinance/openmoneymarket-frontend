@@ -280,6 +280,18 @@ export class DataLoaderService {
     }
   }
 
+  public async loadUserWorkingbOmmBalance(): Promise<void> {
+    try {
+      const balance = await this.scoreService.getUserWorkingSupplyOfbOmm();
+      this.stateChangeService.userWorkingbOmmBalanceUpdate(balance);
+
+      log.debug("User working bOMM balance ", balance.toString());
+    } catch (e) {
+      log.error("Error in loadUserWorkingbOmmBalance:");
+      log.error(e);
+    }
+  }
+
   public async loadbOmmTotalSupply(): Promise<void> {
     try {
       const totalSupply = await this.scoreService.getTotalbOmmSupply();
@@ -288,6 +300,15 @@ export class DataLoaderService {
       log.debug("bOMM total supply ", totalSupply.toString());
     } catch (e) {
       log.error("Error in loadbOmmTotalSupply:");
+      log.error(e);
+    }
+  }
+
+  public async loadbOmmWorkingTotalSupply(): Promise<void> {
+    try {
+      this.stateChangeService.bOmmTotalWorkingSupplyUpdate((await this.scoreService.getWorkingTotalSupplyOfbOmm()));
+    } catch (e) {
+      log.error("Error in loadbOmmWorkingTotalSupply:");
       log.error(e);
     }
   }
@@ -594,6 +615,7 @@ export class DataLoaderService {
       this.loadPrepList(),
       this.loadPoolsData(),
       this.loadProposalList(),
+      this.loadbOmmWorkingTotalSupply(),
       this.loadbOmmTotalSupply(),
     ]);
 
@@ -623,6 +645,7 @@ export class DataLoaderService {
       this.loadProposalList(),
       this.loadTotalOmmSupply(),
       this.loadVoteDuration(),
+      this.loadbOmmWorkingTotalSupply(),
       this.loadbOmmTotalSupply()
     ]);
 
@@ -645,6 +668,7 @@ export class DataLoaderService {
       this.loadUserProposalVotes(),
       this.loadUserLockedOmm(),
       this.loadUserbOmmBalance(),
+      this.loadUserWorkingbOmmBalance(),
       this.loadAllUserDebts()
     ]);
 
