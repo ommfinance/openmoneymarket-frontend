@@ -12,7 +12,6 @@ import {NotificationService} from "../../services/notification/notification.serv
 import {ModalAction, ModalStatus} from "../../models/classes/ModalAction";
 import {Utils} from "../../common/utils";
 import {VoteAction} from "../../models/classes/VoteAction";
-import {AssetTag} from "../../models/classes/Asset";
 import {
   contributorsMap,
   defaultPrepLogoUrl, prepsOfferingIncentiveMap, Times
@@ -54,7 +53,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   votingPower = new BigNumber(0);
   ommVotingPower = new BigNumber(0);
-  top100Selected = true;
 
   constructor(public persistenceService: PersistenceService,
               private modalService: ModalService,
@@ -88,7 +86,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   private subscribeToUserLogin(): void {
-    this.stateChangeService.loginChange.subscribe(wallet => {
+    this.stateChangeService.loginChange$.subscribe(wallet => {
       if (!wallet) {
         this.resetVotingPowerPerIcx();
         this.resetYourVotingPower();
@@ -121,7 +119,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     this.setVotingPowerPerIcx(this.votingPower);
     this.ommVotingPower = this.calculationsService.ommVotingPower();
     this.prepList = this.persistenceService.prepList;
-    this.top100Selected = true;
     this.onSearchInputChange("");
   }
 
@@ -298,17 +295,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     }
   }
 
-
-  onTop100Click(): void {
-    this.onSearchInputChange("");
-    this.top100Selected = true;
-  }
-
-  onIncentivisedClick(): void {
-    this.top100Selected = false;
-    this.onSearchInputChange("_", true);
-  }
-
   onSearchInputChange(searchInput: string, incentivisedOnly = false): void {
     this.searchInput = searchInput;
 
@@ -356,24 +342,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       .dividedBy(new BigNumber("100"))))).dp(2);
   }
 
-  getLatestProposals(): Proposal[] {
-    return this.persistenceService.proposalList.slice(0, 3);
-  }
-
-  getPrepsUSDReward(prep: Prep, index: number): BigNumber {
-    const prepsIcxReward = this.getPrepsIcxReward(prep, index);
-    const icxExchangePrice = this.persistenceService.getAssetExchangePrice(AssetTag.ICX);
-    return prepsIcxReward.multipliedBy(icxExchangePrice);
-  }
-
-  getPrepsIcxReward(prep: Prep, index: number): BigNumber {
-    if (!this.prepList) {
-      return new BigNumber("0");
-    }
-
-    return this.calculationsService.calculatePrepsIcxReward(prep, this.prepList, index);
-  }
-
   isPrepOmmContributor(address: string): boolean {
     return contributorsMap.get(address) ?? false;
   }
@@ -382,25 +350,12 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     return prepsOfferingIncentiveMap.get(address) ?? false;
   }
 
-  getPowerPercent(prep: any): BigNumber {
-    return prep.power.dividedBy(this.searchedPrepList.totalPower);
-  }
-
   getLogoUrl(address: string): string {
     return this.persistenceService.prepList?.prepAddressToLogoUrlMap.get(address) ?? defaultPrepLogoUrl;
   }
 
   getOmmLckCmpType(): OmmLockingCmpType {
     return OmmLockingCmpType.VOTE;
-  }
-
-  prepIsInYourVotes(prep: Prep): boolean {
-    for (const p of this.yourVotesPrepList) {
-      if (p.address === prep.address) {
-        return true;
-      }
-    }
-    return false;
   }
 
   errorHandlerPrepLogo($event: any): void {

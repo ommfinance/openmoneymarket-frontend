@@ -1,0 +1,76 @@
+<!-- P-Rep list -->
+<section id="p-rep-list">
+  <!-- Title -->
+  <div class="grid grid-center title filters">
+    <div class="grid-cell">
+      <h2>P-Reps</h2>
+      <span id="p-rep-tooltip" class="tooltip">
+            <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+            <div class="tooltip-content"><p>Public representatives operate nodes that keep the ICON Network – Omm's foundation – online. Many also contribute time and resources to build products and utilities, much like this one.</p></div>
+          </span>
+      <ul class="toggle">
+        <li class="{{top100Selected ? 'active' : ''}}" (click)="onTop100Click()">Top 100</li>
+        <li class="{{top100Selected ? '' : 'active'}}" (click)="onIncentivisedClick()">Incentivised</li>
+      </ul>
+    </div>
+    <div class="grid-cell text-right">
+      <input type="text" name="" class="search" placeholder="Search P-Reps" [ngModel]="searchInput" (ngModelChange)="onSearchInputChange($event)">
+    </div>
+  </div>
+
+  <div class="grid" *ngIf="prepList">
+    <div class="grid-cell">
+      <table class="list p-reps {{yourVotesEditMode || (userHasLockedOmm && !listIsNotNullOrEmpty(yourVotesPrepList)) ? 'adjust' : ''}}">
+        <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Name</th>
+          <th class="text-right">
+            Earnings
+            <span id="tooltip-earnings" class="tooltip">
+              <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+              <div class="tooltip-content"><p>The amount P-Reps earn each month, based on the number of votes.</p></div>
+            </span>
+          </th>
+          <th class="text-right">Voting Power</th>
+        </tr>
+        </thead>
+        <tbody>
+        <ng-container *ngFor="let prep of prepList.preps; last as isLast; let i = index">
+          <!-- Prep -->
+          <ng-container *ngIf="(top100Selected || !top100Selected && isPrepOfferingIncentive(i)) && (searchInput === '' || prepMatchesSearchInput(prep))">
+            <tr>
+              <td>{{i + 1}}</td>
+              <td class="name">
+                <div class="grid grid-center">
+                  <div class="grid-cell">
+                    <div class="plus" [ngStyle]="(!userLoggedIn || prepIsInYourVotes(prep)) | hide" (click)="addYourVotePrep(prep)">+</div>
+                    <div class="minus" [ngStyle]="(!userLoggedIn || !prepIsInYourVotes(prep) || !yourVotesEditMode) | hide" (click)="removeYourVotePrepByAddress(prep)">–</div>
+                    <img [src]="prep.logoUrl" (error)="errorHandlerPrepLogo($event)">
+                  </div>
+                  <div class="grid-cell">
+                    {{prep.name}}
+                    <ng-container *ngIf="isPrepOmmContributor(prep.address)">
+                      <br><span class="label contributor">Omm contributor</span>
+                    </ng-container>
+                    <ng-container *ngIf="isPrepOfferingIncentive(prep.address)">
+                      <br><span class="label rewards"><a href="https://docs.omm.finance/user-guide/vote-preps" target="_blank">Offers incentives</a></span>
+                    </ng-container>
+                  </div>
+                </div>
+              </td>
+              <td>${{getPrepsUSDReward(prep) | roundOff0Dec | usFormat}}<br>
+                <span class="label">{{getPrepsIcxReward(prep) | roundOff0Dec | usFormat}} ICX</span></td>
+              <td>{{getPrepsPowerPercent(prep) | roundOff2DecPercent: true}}<br>
+                <span class="label">{{prep!.power  | roundOff0Dec | usFormat | toZeroIfDash}}</span></td>
+            </tr>
+            <!-- Spacer -->
+            <tr *ngIf="!isLast" class="spacer"></tr>
+          </ng-container>
+
+        </ng-container>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

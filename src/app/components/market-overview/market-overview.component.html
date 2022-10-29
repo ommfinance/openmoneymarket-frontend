@@ -1,4 +1,4 @@
-<div id="market-overview-content" class="grid panel" [ngStyle]="hideElement(!marketOverviewActive)">
+<div id="market-overview-content" class="grid panel" [ngStyle]="!marketOverviewActive | hide">
   <!-- Supplied -->
   <div class="grid-cell border-right">
     <div class="grid">

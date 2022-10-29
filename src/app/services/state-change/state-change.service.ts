@@ -31,7 +31,8 @@ export class StateChangeService {
   /**
    * login change
    */
-  public loginChange: Subject<IconexWallet | BridgeWallet | undefined> = new Subject<IconexWallet | BridgeWallet | undefined>();
+  private loginChange = new Subject<IconexWallet | BridgeWallet | undefined>();
+  public loginChange$ = this.loginChange.asObservable();
 
   /**
    * Map containing subscribable Subjects for each of the Asset (e.g. USDb, ICX, ..)

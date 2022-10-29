@@ -115,7 +115,7 @@ export class HomeComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   private subscribeToLoginChange(): void {
-    this.stateChangeService.loginChange.subscribe(wallet => {
+    this.stateChangeService.loginChange$.subscribe(wallet => {
       if (wallet) {
         // user login
         this.onYourMarketsClick();

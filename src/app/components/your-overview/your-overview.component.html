@@ -1,5 +1,5 @@
 <!-- Your overview content -->
-<div id="your-overview-content" class="grid panel" [ngStyle]="hideElement(marketOverviewActive || !userLoggedIn())">
+<div id="your-overview-content" class="grid panel" [ngStyle]="(marketOverviewActive || !userLoggedIn()) | hide">
   <!-- Supplied -->
   <div class="grid-cell border-right">
     <div class="grid">

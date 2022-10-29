@@ -226,7 +226,7 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   }
 
   private subscribeToLoginChange(): void {
-    this.stateChangeService.loginChange.subscribe(wallet => {
+    this.stateChangeService.loginChange$.subscribe(wallet => {
       if (wallet) {
         // pop up manage staked omm
         this.popupStakedMigrationModal();

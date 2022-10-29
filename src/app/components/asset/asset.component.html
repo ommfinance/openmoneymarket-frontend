@@ -1,5 +1,5 @@
 <!-- Your markets (users asset) or Available to supply state -->
-<tr class="asset {{asset.className}} {{getAssetClass()}}" (click)="onAssetClick()" #assetYour [ngStyle]="hideElement(!shouldBeShown())">
+<tr class="asset {{asset.className}} {{getAssetClass()}}" (click)="onAssetClick()" #assetYour [ngStyle]="!shouldBeShown() | hide">
 
   <!-- Your asset state -->
   <ng-container *ngIf="!isAllMarketViewActive() && !isAssetAvailable()">
@@ -191,20 +191,20 @@
           <div class="supply-allow" #supplyAllow>
 
             <!-- Supply APY history chart -->
-            <div class="chart-wrapper" (resized)="onChartResize()" [ngStyle]="hideElement(ommApyChecked  || isAssetOmm())" #suppChartWrapper>
+            <div class="chart-wrapper" (resized)="onChartResize()" [ngStyle]="(ommApyChecked || isAssetOmm()) | hide" #suppChartWrapper>
               <div class="chart-apy" #suppHistChart></div>
             </div>
 
             <!-- Supply slider -->
-            <div [ngStyle]="hideElement(shouldHideSupplyContent())" id="slider-supply" #sliderSupply disabled></div>
+            <div [ngStyle]="shouldHideSupplyContent() | hide" id="slider-supply" #sliderSupply disabled></div>
 
             <!-- Supply inputs -->
-            <div [ngStyle]="hideElement(shouldHideSupplyContent())" class="grid legend">
+            <div [ngStyle]="shouldHideSupplyContent() | hide" class="grid legend">
               <div class="grid-cell">
                 <label class="label supplied">Supplied</label>
-                <p class="input-supply-default value-supplied" [ngStyle]="hideElement(this.inputSupplyActive)">{{inputSupply?.value}} {{supplyAssetTag()}}</p>
+                <p class="input-supply-default value-supplied" [ngStyle]="this.inputSupplyActive | hide">{{inputSupply?.value}} {{supplyAssetTag()}}</p>
 
-                <div class="input-asset-supply" [ngStyle]="hideElement(!this.inputSupplyActive)">
+                <div class="input-asset-supply" [ngStyle]="!this.inputSupplyActive | hide">
                   <span class="ticker">{{supplyAssetTag()}}</span>
                   <input type="text" title="{{supplyAssetTag()}} supplied" id="input-supply" #inputSupply class="input-supply" disabled="" value="0" (keyup)="onInputSupplyLostFocus()"
                          [ngStyle]="{'padding-right': getInputPadding(true, supplyAssetTag().toString(), inputSupplyEl)}">
@@ -212,9 +212,9 @@
               </div>
               <div class="grid-cell">
                 <label class="label available">Available</label>
-                <p class="input-supply-default value-supplied-available" [ngStyle]="hideElement(this.inputSupplyActive)">{{inputSupplyAvailable?.value}} {{supplyAssetTag()}}</p>
+                <p class="input-supply-default value-supplied-available" [ngStyle]="this.inputSupplyActive | hide">{{inputSupplyAvailable?.value}} {{supplyAssetTag()}}</p>
 
-                <div class="input-asset-supply" [ngStyle]="hideElement(!this.inputSupplyActive)">
+                <div class="input-asset-supply" [ngStyle]="!this.inputSupplyActive | hide">
                   <span class="ticker">{{supplyAssetTag()}}</span>
                   <input type="text" title="{{supplyAssetTag()}} available to supply" id="input-supply-available" #inpSuppAvail class="input-supply" disabled value="0"
                          [ngStyle]="{'padding-right': getInputPadding(true, supplyAssetTag().toString(), inputSupplyAvailable)}">
@@ -223,7 +223,7 @@
             </div>
 
             <!-- Supply income -->
-            <div [ngStyle]="hideElement(shouldHideSupplyContent())" class="grid legend income">
+            <div [ngStyle]="shouldHideSupplyContent() | hide" class="grid legend income">
               <div class="grid-cell">
                 <dl class="metadata">
                   <dt>Daily interest</dt>
@@ -239,7 +239,7 @@
             </div>
 
             <!-- Adjust-->
-            <div [ngStyle]="hideElement(shouldHideSupplyContent())" class="grid grid-center supply-actions actions-1" #suppAct1>
+            <div [ngStyle]="shouldHideSupplyContent() | hide" class="grid grid-center supply-actions actions-1" #suppAct1>
               <div class="grid-cell text-center">
                 <a href="javascript:void(0);" class="button {{asset.className}} supply-adjust"
                    (click)="onSupplyAdjustClick()">{{userAssetSuppliedBalanceIsZero() ? "Supply" : "Adjust"}}</a>
@@ -248,8 +248,8 @@
           </div>
 
           <!-- If logged out show sign in button -->
-          <div class="grid grid-center sign-in-message" [ngStyle]="hideElement(userLoggedIn())">
-            <div class="grid-cell" [ngStyle]="hideElement(userLoggedIn())">
+          <div class="grid grid-center sign-in-message" [ngStyle]="userLoggedIn() | hide">
+            <div class="grid-cell" [ngStyle]="userLoggedIn() | hide">
               <p class="text-center"><a href="javascript:void(0);" class="button" (click)="onSignInClick()">Sign in to supply</a></p>
             </div>
           </div>
@@ -283,13 +283,13 @@
           <!-- Borrow title -->
           <div class="grid grid-center title">
             <div class="grid-cell">
-              <h2>Borrow</h2><span class="risk-outer" [ngStyle]="hideElement(this.persistenceService.userHasNotSuppliedAnyAsset())">Risk: <span class="value-risk-total">- %</span></span>
-              <span class="tooltip expanded-risk-tooltip" style="padding-left: 5px" [ngStyle]="hideElement(this.persistenceService.userHasNotSuppliedAnyAsset())">
+              <h2>Borrow</h2><span class="risk-outer" [ngStyle]="this.persistenceService.userHasNotSuppliedAnyAsset() | hide">Risk: <span class="value-risk-total">- %</span></span>
+              <span class="tooltip expanded-risk-tooltip" style="padding-left: 5px" [ngStyle]="this.persistenceService.userHasNotSuppliedAnyAsset() | hide">
                 <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
                 <div class="tooltip-content"><p>While you borrow assets, your supply is at risk of liquidation. Keep it below 50% to reduce the impact of volatile markets.</p></div>
               </span>
             </div>
-            <div class="grid-cell text-right" [ngStyle]="hideElement(isAssetOmm())">
+            <div class="grid-cell text-right" [ngStyle]="isAssetOmm() | hide">
               <p><span class="borrow-apy {{isNegative(getBorrowRateForActiveMarket()) ? '':'text-green'}} value-apy-bridge-borrow-suffix" #borrowAprEl>{{makeAbsolute(getBorrowRateForActiveMarket()) | roundOff2DecPercent}} APR</span></p>
             </div>
           </div>
@@ -298,26 +298,26 @@
           <div class="borrow-allow">
 
             <!-- Used indicator -->
-            <div [ngStyle]="hideElement(shouldHideBorrowContent())" class="used-container" *ngIf="isAssetBorrowUsed()">
+            <div [ngStyle]="shouldHideBorrowContent() | hide" class="used-container" *ngIf="isAssetBorrowUsed()">
               <div class="used active" [ngStyle]="{left: assetRepayUsedPercentage() + '%'}"><p class="label">Used</p></div>
             </div>
 
             <!-- Chart line 2 -->
-            <div class="chart-wrapper" (resized)="onChartResize()" [ngStyle]="hideElement(ommApyChecked || isAssetOmm())" #borrChartWrapper>
+            <div class="chart-wrapper" (resized)="onChartResize()" [ngStyle]="(ommApyChecked || isAssetOmm()) | hide" #borrChartWrapper>
               <div class="chart-apy" #borrHistChart></div>
             </div>
 
 
             <!-- Borrow slider -->
-            <div [ngStyle]="hideElement(shouldHideBorrowContent())" id="slider-borrow" #sliderBorrow disabled></div>
+            <div [ngStyle]="shouldHideBorrowContent() | hide" id="slider-borrow" #sliderBorrow disabled></div>
 
             <!-- Borrow legend -->
-            <div [ngStyle]="hideElement(shouldHideBorrowContent())" class="grid legend">
+            <div [ngStyle]="shouldHideBorrowContent() | hide" class="grid legend">
               <div class="grid-cell">
                 <label class="label borrowed">Borrowed</label>
-                <p class="input-borrow-default value-borrowed" [ngStyle]="hideElement(this.inputBorrowActive)">{{inputBorrow?.value}} {{getBorrowAssetTagAdjusted()}}</p>
+                <p class="input-borrow-default value-borrowed" [ngStyle]="this.inputBorrowActive | hide">{{inputBorrow?.value}} {{getBorrowAssetTagAdjusted()}}</p>
 
-                <div class="input-asset-borrow" [ngStyle]="hideElement(!this.inputBorrowActive)">
+                <div class="input-asset-borrow" [ngStyle]="!this.inputBorrowActive | hide">
                   <span class="ticker">{{getBorrowAssetTagAdjusted()}}</span>
                   <input type="text" title="{{getBorrowAssetTagAdjusted()}} borrowed" id="input-borrow" #inputBorrow class="input-borrow" disabled value="0" (keyup)="onInputBorrowLostFocus()"
                          [ngStyle]="{'padding-right': getInputPadding(false, getBorrowAssetTagAdjusted().toString(), inputBorrowEl)}">
@@ -325,9 +325,9 @@
               </div>
               <div class="grid-cell">
                 <label class="label available">Available</label>
-                <p class="input-borrow-default value-borrowed-available" [ngStyle]="hideElement(this.inputBorrowActive)">{{inputBorrowAvailable?.value}} {{getBorrowAssetTagAdjusted()}}</p>
+                <p class="input-borrow-default value-borrowed-available" [ngStyle]="this.inputBorrowActive | hide">{{inputBorrowAvailable?.value}} {{getBorrowAssetTagAdjusted()}}</p>
 
-                <div class="input-asset-borrow" [ngStyle]="hideElement(!this.inputBorrowActive)">
+                <div class="input-asset-borrow" [ngStyle]="!this.inputBorrowActive | hide">
                   <span class="ticker">{{getBorrowAssetTagAdjusted()}}</span>
                   <input type="text" title="{{getBorrowAssetTagAdjusted()}} available to borrow" id="input-borrow-available" #inpBorrAvail class="input-borrow" disabled value="0"
                          [ngStyle]="{'padding-right': getInputPadding(false, getBorrowAssetTagAdjusted().toString(), inputBorrowAvailable)}">
@@ -336,7 +336,7 @@
             </div>
 
             <!-- Borrow income legend -->
-            <div [ngStyle]="hideElement(shouldHideBorrowContent())" class="grid legend income">
+            <div [ngStyle]="shouldHideBorrowContent() | hide" class="grid legend income">
               <div class="grid-cell">
                 <dl class="metadata">
                   <dt>Daily interest</dt>
@@ -352,16 +352,16 @@
             </div>
 
             <!-- Adjust-->
-            <div [ngStyle]="hideElement(shouldHideBorrowContent())" class="grid grid-center borrow-actions actions-1" #borrAct1>
+            <div [ngStyle]="shouldHideBorrowContent() | hide" class="grid grid-center borrow-actions actions-1" #borrAct1>
               <div class="grid-cell text-center">
                 <a href="javascript:void(0);" class="button {{asset.className}} purple borrow-adjust"
-                   [ngStyle]="hideElement(this.persistenceService.userHasNotSuppliedAnyAsset())"
+                   [ngStyle]="this.persistenceService.userHasNotSuppliedAnyAsset() | hide"
                    (click)="onBorrowAdjustClick()">{{userAssetBorrowedBalanceIsZero() ? "Borrow" : "Adjust"}}</a>
               </div>
             </div>
 
             <!-- Confirm -->
-            <div [ngStyle]="hideElement(shouldHideBorrowContent())" class="grid grid-center borrow-actions actions-2 hide" #borrAct2>
+            <div [ngStyle]="shouldHideBorrowContent() | hide" class="grid grid-center borrow-actions actions-2 hide" #borrAct2>
               <div class="grid-cell text-right">
                 <a href="javascript:void(0);" class="cancel adjust-cancel" (click)="onAdjustCancelClick()">Cancel</a>
               </div>
