@@ -4,19 +4,16 @@ import {
   Component,
   ElementRef,
   EventEmitter,
-  Input, OnChanges,
+  Input,
+  OnChanges,
   OnDestroy,
   OnInit,
-  Output, SimpleChanges,
+  Output,
+  SimpleChanges,
   ViewChild
 } from '@angular/core';
 import {SlidersService} from "../../services/sliders/sliders.service";
-import {
-  assetFormat,
-  ommPrefixFormat,
-  percentageFormat,
-  usLocale
-} from "../../common/formats";
+import {assetFormat, ommPrefixFormat, percentageFormat, usLocale} from "../../common/formats";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {Asset, AssetTag, assetToCollateralAssetTag, CollateralAssetTag} from "../../models/classes/Asset";
 import log from "loglevel";
@@ -34,8 +31,9 @@ import {ActiveViews} from "../../models/enums/ActiveViews";
 import {DEFAULT_SLIDER_MAX, ICX_SUPPLY_BUFFER} from "../../common/constants";
 import BigNumber from "bignumber.js";
 import {ChartService} from "../../services/chart/chart.service";
-import { Subscription } from 'rxjs';
+import {Subscription} from 'rxjs';
 import {CONFIRM_BORROW_NO_CHANGE, CONFIRM_SUPPLY_NO_CHANGE} from "../../common/messages";
+import {MobileMarketSelected} from "../../models/enums/MobileMarketSelected";
 
 declare var $: any;
 
@@ -147,6 +145,8 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
   dynamicSupplyApyActive = false;
   dynamicBorrowApy = Utils.ZERO;
   dynamicBorrowApyActive = false;
+
+  mobileMarketSelected = MobileMarketSelected.SUPPLY_MARKET;
 
   constructor(private slidersService: SlidersService,
               public calculationService: CalculationsService,
@@ -270,7 +270,7 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
     }
   }
 
-  onSuppChartResize(): void {
+  onChartResize(): void {
     // update apy history charts when supp chart wrapper is resized
     this.updateApyCharts();
   }
@@ -1494,4 +1494,19 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
     }
   }
 
+  onSupplyMarketClicked(): void {
+    this.mobileMarketSelected = MobileMarketSelected.SUPPLY_MARKET;
+  }
+
+  onBorrowMarketClicked(): void {
+    this.mobileMarketSelected = MobileMarketSelected.BORROW_MARKET;
+  }
+
+  supplyMarketSelected(): boolean {
+    return this.mobileMarketSelected === MobileMarketSelected.SUPPLY_MARKET;
+  }
+
+  borrowMarketSelected(): boolean {
+    return this.mobileMarketSelected === MobileMarketSelected.BORROW_MARKET;
+  }
 }

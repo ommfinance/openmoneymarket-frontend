@@ -158,12 +158,12 @@
   <td colspan="5">
     <div class="market-expanded" #marketExpandedEl>
       <ul class="toggle market-toggle">
-        <li class="toggle-supply active"><span>Supply</span></li>
-        <li class="toggle-borrow"><span>Borrow</span></li>
+        <li class="toggle-supply {{supplyMarketSelected() ? 'active': ''}}" (click)="onSupplyMarketClicked()"><span>Supply</span></li>
+        <li class="toggle-borrow {{borrowMarketSelected() ? 'active': ''}}" (click)="onBorrowMarketClicked()"><span>Borrow</span></li>
       </ul>
       <div class="grid">
         <!-- Asset Supply -->
-        <div class="grid-cell supply border-right" #supply>
+        <div class="grid-cell supply border-right {{supplyMarketSelected() ? '': 'hide'}}" #supply>
           <!-- Supply title -->
           <div class="grid grid-center title">
             <div class="grid-cell">
@@ -191,7 +191,7 @@
           <div class="supply-allow" #supplyAllow>
 
             <!-- Supply APY history chart -->
-            <div class="chart-wrapper" (resized)="onSuppChartResize()" [ngStyle]="hideElement(ommApyChecked  || isAssetOmm())" #suppChartWrapper>
+            <div class="chart-wrapper" (resized)="onChartResize()" [ngStyle]="hideElement(ommApyChecked  || isAssetOmm())" #suppChartWrapper>
               <div class="chart-apy" #suppHistChart></div>
             </div>
 
@@ -279,7 +279,7 @@
         </div>
 
         <!-- Asset Borrow -->
-        <div class="grid-cell borrow" #borrow>
+        <div class="grid-cell borrow {{borrowMarketSelected() ? '': 'hide'}}" #borrow>
           <!-- Borrow title -->
           <div class="grid grid-center title">
             <div class="grid-cell">
@@ -303,7 +303,7 @@
             </div>
 
             <!-- Chart line 2 -->
-            <div class="chart-wrapper" [ngStyle]="hideElement(ommApyChecked || isAssetOmm())" #borrChartWrapper>
+            <div class="chart-wrapper" (resized)="onChartResize()" [ngStyle]="hideElement(ommApyChecked || isAssetOmm())" #borrChartWrapper>
               <div class="chart-apy" #borrHistChart></div>
             </div>
 
