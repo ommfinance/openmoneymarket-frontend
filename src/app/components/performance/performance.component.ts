@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import {BaseClass} from "../base-class";
 import {CalculationsService} from "../../services/calculations/calculations.service";
@@ -6,6 +6,7 @@ import {PersistenceService} from "../../services/persistence/persistence.service
 import {PerformanceDropDownOption} from "../../models/enums/PerformanceDropDownOption";
 import {Utils} from "../../common/utils";
 import BigNumber from "bignumber.js";
+import {Subscription} from "rxjs";
 
 declare var $: any;
 
@@ -14,7 +15,7 @@ declare var $: any;
   templateUrl: './performance.component.html',
   styleUrls: ['./performance.component.css'],
 })
-export class PerformanceComponent extends BaseClass implements OnInit, AfterViewInit {
+export class PerformanceComponent extends BaseClass implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild('suppInterest', { static: true }) supplyInterestEl!: ElementRef;
   @ViewChild('borrInterest', { static: true }) borrowInterestEl!: ElementRef;
@@ -25,6 +26,8 @@ export class PerformanceComponent extends BaseClass implements OnInit, AfterView
 
   dropDownOptions = [...Object.values(PerformanceDropDownOption)];
   selectedDropDownOption = this.dropDownOptions[0].toLowerCase();
+
+  userDataReloadSub?: Subscription;
 
   constructor(private stateChangeService: StateChangeService,
               private calculationService: CalculationsService,
@@ -43,8 +46,12 @@ export class PerformanceComponent extends BaseClass implements OnInit, AfterView
     }
   }
 
+  ngOnDestroy(): void {
+    this.userDataReloadSub?.unsubscribe();
+  }
+
   public subscribeToUserDataReload(): void {
-    this.stateChangeService.afterUserDataReload$.subscribe(() => {
+    this.userDataReloadSub = this.stateChangeService.afterUserDataReload$.subscribe(() => {
       // update performance values
       this.updatePerformanceValues();
     });

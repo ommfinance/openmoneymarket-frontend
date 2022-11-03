@@ -48,6 +48,8 @@ import {RouteReuseStrategy} from "@angular/router";
 import {CustomReuseStrategy} from "./routing";
 import {DeviceDetectorService} from "ngx-device-detector";
 import {NotifierModule} from "angular-notifier";
+import { PrepListComponent } from './components/vote/prep-list/prep-list.component';
+import {HideElementPipe} from "./pipes/hide-element-pipe";
 
 // Big Number configs
 const fmt = {
@@ -104,6 +106,8 @@ log.setLevel(environment.production ? "error" : "debug");
     AllPoolRowComponent,
     YourPoolRowComponent,
     YourAvailPoolRowComponent,
+    PrepListComponent,
+    HideElementPipe,
   ],
   imports: [
     BrowserModule,

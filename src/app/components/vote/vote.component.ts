@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {BaseClass} from "../base-class";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {ModalType} from "../../models/enums/ModalType";
@@ -12,10 +12,9 @@ import {NotificationService} from "../../services/notification/notification.serv
 import {ModalAction, ModalStatus} from "../../models/classes/ModalAction";
 import {Utils} from "../../common/utils";
 import {VoteAction} from "../../models/classes/VoteAction";
-import {AssetTag} from "../../models/classes/Asset";
 import {
   contributorsMap,
-  defaultPrepLogoUrl, Times
+  defaultPrepLogoUrl, prepsOfferingIncentiveMap, Times
 } from "../../common/constants";
 import BigNumber from "bignumber.js";
 import {Proposal} from "../../models/classes/Proposal";
@@ -24,13 +23,14 @@ import {OmmLockingComponent} from "../omm-locking/omm-locking.component";
 import {OmmLockingCmpType} from "../../models/enums/OmmLockingComponent";
 import {ManageStakedIcxAction} from "../../models/classes/ManageStakedIcxAction";
 import {VOTE_LIST_MAX_PREP_VOTE, VOTE_LIST_NO_CHANGE, VOTE_LIST_PREP_ALREADY_SELECTED} from "../../common/messages";
+import {Subscription} from "rxjs";
 
 
 @Component({
   selector: 'app-vote',
   templateUrl: './vote.component.html',
 })
-export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
+export class VoteComponent extends BaseClass implements OnInit, OnDestroy, AfterViewInit {
 
   latestProposals: Proposal[] = [];
 
@@ -55,6 +55,13 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   votingPower = new BigNumber(0);
   ommVotingPower = new BigNumber(0);
 
+  /** Subscriptions */
+  coreDataReloadSub?: Subscription;
+  userDataReloadSub?: Subscription;
+  modalActionResultSub?: Subscription;
+  modalActionChangeSub?: Subscription;
+  userLoginSub?: Subscription;
+
   constructor(public persistenceService: PersistenceService,
               private modalService: ModalService,
               private stateChangeService: StateChangeService,
@@ -78,6 +85,14 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     this.cdRef.detectChanges();
   }
 
+  ngOnDestroy(): void {
+    this.coreDataReloadSub?.unsubscribe();
+    this.userDataReloadSub?.unsubscribe();
+    this.modalActionResultSub?.unsubscribe();
+    this.modalActionChangeSub?.unsubscribe();
+    this.userLoginSub?.unsubscribe();
+  }
+
   private initSubscriptions(): void {
     this.subscribeToCoreDataReload();
     this.subscribeToUserModalActionChange();
@@ -87,7 +102,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   private subscribeToUserLogin(): void {
-    this.stateChangeService.loginChange.subscribe(wallet => {
+    this.userLoginSub = this.stateChangeService.loginChange$.subscribe(wallet => {
       if (!wallet) {
         this.resetVotingPowerPerIcx();
         this.resetYourVotingPower();
@@ -99,14 +114,14 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   private subscribeToAfterUserDataReload(): void {
-    this.stateChangeService.afterUserDataReload$.subscribe(() => {
+    this.userDataReloadSub = this.stateChangeService.afterUserDataReload$.subscribe(() => {
       this.initUserStaticValues();
       this.cdRef.detectChanges();
     });
   }
 
   public subscribeToCoreDataReload(): void {
-    this.stateChangeService.afterCoreDataReload$.subscribe(() => {
+    this.coreDataReloadSub = this.stateChangeService.afterCoreDataReload$.subscribe(() => {
       this.initCoreStaticValues();
       this.cdRef.detectChanges();
     });
@@ -133,7 +148,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   private subscribeToModalActionResult(): void {
-    this.stateChangeService.userModalActionResult.subscribe(res => {
+    this.modalActionResultSub = this.stateChangeService.userModalActionResult.subscribe(res => {
       if (res.modalAction.modalType === ModalType.UPDATE_PREP_SELECTION
         || res.modalAction.modalType === ModalType.REMOVE_ALL_VOTES) {
         // if it failed
@@ -149,7 +164,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   private subscribeToUserModalActionChange(): void {
     // User confirmed the modal action
-    this.stateChangeService.userModalActionChange.subscribe((modalAction?: ModalAction) => {
+    this.modalActionChangeSub = this.stateChangeService.userModalActionChange.subscribe((modalAction?: ModalAction) => {
       this.ommLockingComponent.onLockAdjustCancelClick();
 
       // set edit mode to false, disable slider and reset search
@@ -296,7 +311,7 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     }
   }
 
-  onSearchInputChange(searchInput: string): void {
+  onSearchInputChange(searchInput: string, incentivisedOnly = false): void {
     this.searchInput = searchInput;
 
     if (this.searchInput.trim() === "") {
@@ -311,7 +326,12 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
         const searchedPreps: Prep[] = [];
 
         this.prepList?.preps.forEach(prep => {
-          if (prep.name.toLowerCase().includes(this.searchInput)) {
+          if (incentivisedOnly) {
+            if (prepsOfferingIncentiveMap.get(prep.address)) {
+              searchedPreps.push(prep);
+            }
+          }
+          else if (prep.name.toLowerCase().includes(this.searchInput)) {
             searchedPreps.push(prep);
           }
         });
@@ -338,30 +358,12 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
       .dividedBy(new BigNumber("100"))))).dp(2);
   }
 
-  getLatestProposals(): Proposal[] {
-    return this.persistenceService.proposalList.slice(0, 3);
-  }
-
-  getPrepsUSDReward(prep: Prep, index: number): BigNumber {
-    const prepsIcxReward = this.getPrepsIcxReward(prep, index);
-    const icxExchangePrice = this.persistenceService.getAssetExchangePrice(AssetTag.ICX);
-    return prepsIcxReward.multipliedBy(icxExchangePrice);
-  }
-
-  getPrepsIcxReward(prep: Prep, index: number): BigNumber {
-    if (!this.prepList) {
-      return new BigNumber("0");
-    }
-
-    return this.calculationsService.calculatePrepsIcxReward(prep, this.prepList, index);
-  }
-
   isPrepOmmContributor(address: string): boolean {
     return contributorsMap.get(address) ?? false;
   }
 
-  getPowerPercent(prep: any): BigNumber {
-    return prep.power.dividedBy(this.searchedPrepList.totalPower);
+  isPrepOfferingIncentive(address: string): boolean {
+    return prepsOfferingIncentiveMap.get(address) ?? false;
   }
 
   getLogoUrl(address: string): string {
@@ -370,15 +372,6 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
 
   getOmmLckCmpType(): OmmLockingCmpType {
     return OmmLockingCmpType.VOTE;
-  }
-
-  prepIsInYourVotes(prep: Prep): boolean {
-    for (const p of this.yourVotesPrepList) {
-      if (p.address === prep.address) {
-        return true;
-      }
-    }
-    return false;
   }
 
   errorHandlerPrepLogo($event: any): void {
@@ -426,5 +419,4 @@ export class VoteComponent extends BaseClass implements OnInit, AfterViewInit {
     const text = `1 bOMM = ${this.tooUSLocaleString(votingPower.dp(2))} ICX`;
     this.setText(this.votingPowerPerIcxEl, text);
   }
-
 }

@@ -30,7 +30,7 @@
       </div>
 
       <!-- Borrow interest -->
-      <div class="grid-cell text-center borrow-interest-container" [ngStyle]="hideElement(borrowInterest.isZero())">
+      <div class="grid-cell text-center borrow-interest-container" [ngStyle]="borrowInterest.isZero() | hide">
         <dl class="metadata">
           <dt>Borrow interest</dt>
           <dd class="value-borrow-interest-total" #borrInterest>{{borrowInterestMultipliedByDays()}}</dd>

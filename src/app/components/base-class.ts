@@ -38,10 +38,6 @@ export class BaseClass {
     return Utils.to0DecimalRoundedDownPercentString(num, defaultZero);
   }
 
-  public hideElement(hide: boolean): any {
-    return {display: hide ? 'none' : null};
-  }
-
   public hideElementOrDisplayContents(hide: boolean): any {
     return {display: hide ? 'none' : 'contents'};
   }

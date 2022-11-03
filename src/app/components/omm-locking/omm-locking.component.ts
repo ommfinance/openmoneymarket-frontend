@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {BaseClass} from "../base-class";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import BigNumber from "bignumber.js";
@@ -25,12 +25,13 @@ import {
   LOCKING_PERIOD_NOT_SELECTED,
   TOO_LOW_LOCK_AMOUNT
 } from "../../common/messages";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-omm-locking',
   templateUrl: './omm-locking.component.html',
 })
-export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewInit {
+export class OmmLockingComponent extends BaseClass implements OnInit, OnDestroy, AfterViewInit {
 
   @Input() type!: OmmLockingCmpType;
   @Output() sliderValueUpdate = new EventEmitter<number>();
@@ -56,6 +57,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
 
   private lockAdjustActive = false; // flag that indicates whether the locked adjust is active (confirm and cancel shown)
 
+  userDataReloadSub?: Subscription;
 
   constructor(public persistenceService: PersistenceService,
               private calculationService: CalculationsService,
@@ -72,6 +74,10 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
 
   ngAfterViewInit(): void {
     this.initLockSlider();
+  }
+
+  ngOnDestroy(): void {
+    this.userDataReloadSub?.unsubscribe();
   }
 
   initCoreValues(): void {

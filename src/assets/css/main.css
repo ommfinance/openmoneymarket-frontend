@@ -1,8 +1,8 @@
 /*
 * Omm
 * Main CSS
-* Version 1.1
-* Last updated 28/8/21
+* Version 1.4
+* Last updated 7/9/22
 */
 
 /* ==========================================================================
@@ -96,9 +96,7 @@ html {
   font-family: 'metropolis-medium';
   font-weight: normal;
   line-height: 1.4;
-  background: -moz-linear-gradient( 135deg, rgb(213,221,241) 0%, rgb(241,244,249) 100%) fixed;
-  background: -webkit-linear-gradient( 135deg, rgb(213,221,241) 0%, rgb(241,244,249) 100%) fixed;
-  background: -ms-linear-gradient( 135deg, rgb(213,221,241) 0%, rgb(241,244,249) 100%) fixed;
+  background: linear-gradient(135deg, #eef1f8 0%, #d8e0f2 100%) fixed;
   overflow-x: hidden;
 }
 body {
@@ -330,7 +328,7 @@ textarea:focus {
 /* Notice */
 
 .notice {
-  background-color: #edeff4;
+  background-color: #f0f3fb;
   padding: 15px;
   border-radius: 15px;
   margin-top: 15px;
@@ -385,6 +383,7 @@ textarea:focus {
   margin-bottom: 15px;
 }
 .navigation ul li a {
+  position: relative;
   display: block;
   color: #7a8294;
   text-decoration: none;
@@ -506,7 +505,6 @@ p + p.no-margin {
   margin-top: 0 !important;
 }
 
-
 /* ==========================================================================
 	Liquidity
 ========================================================================== */
@@ -524,24 +522,24 @@ p + p.no-margin {
 .list.liquidity tr td:nth-of-type(4) {
   min-width: 150px;
 }
-table.list.liquidity tbody tr.pool td:first-of-type {
+.list.liquidity tbody tr.pool td:first-of-type {
   padding-left: 120px;
   background-size: 85px;
   background-position: 0px 12px;
 }
-table.list.liquidity tbody tr.pool td:first-of-type {
+.list.liquidity tbody tr.pool td:first-of-type {
   background-image: url(../img/icon/liquidity-pair.png);
   background-repeat: no-repeat;
   background-position: 35px center;
   background-size: 75px;
 }
-table.list.liquidity tbody tr.pool.omm-usds td:first-of-type {
+.list.liquidity tbody tr.pool.omm-usds td:first-of-type {
   background-image: url(../img/icon/liquidity-omm-usds.png);
 }
-table.list.liquidity tbody tr.pool.omm-iusdc td:first-of-type {
+.list.liquidity tbody tr.pool.omm-iusdc td:first-of-type {
   background-image: url(../img/icon/liquidity-omm-usdc.png);
 }
-table.list.liquidity tbody tr.pool.omm-sicx td:first-of-type {
+.list.liquidity tbody tr.pool.omm-sicx td:first-of-type {
   background-image: url(../img/icon/liquidity-omm-sicx.png);
 }
 
@@ -633,7 +631,6 @@ h2 + .grid.panel {
   -webkit-transform: translate3d(0,0,0) rotate3d(0,0,0,0);
   transform: translate3d(0,0,0) rotate3d(0,0,0,0);
 }
-
 
 /*
 *
@@ -893,8 +890,24 @@ ul.toggle li:hover:after {
 .text-green {
   color: #00b1a3 !important;
 }
+span.text-green,
+dd.text-green,
+.supply .supply-apy,
+.market-expanded .market-toggle li.toggle-supply span {
+  background: linear-gradient(-135deg, rgb(0,211,194) 0%, rgb(63,157,213) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
 .text-purple {
   color: #9d4df1 !important;
+}
+span.text-purple,
+dd.text-purple,
+.borrow .borrow-apy,
+.market-expanded .market-toggle li.toggle-borrow span {
+  background: linear-gradient(35deg, rgb(96,129,223) 0%, rgb(157,77,241) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 .text-red {
   color: #fb6a6a !important;
@@ -1415,6 +1428,114 @@ ul.pagination li:hover {
   box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.017), 0 6.7px 5.3px rgba(0, 0, 0, 0.024), 0 12.5px 10px rgba(0, 0, 0, 0.03), 0 22.3px 17.9px rgba(0, 0, 0, 0.036), 0 41.8px 33.4px rgba(0, 0, 0, 0.043), 0 100px 80px rgba(0, 0, 0, 0.06);
   transition: box-shadow 0.2s ease;
 }
+
+/* Begin hover affordance */
+
+.list tbody tr,
+.list tbody tr.expanded {
+  position: relative;
+}
+.list tbody tr::after,
+.list tbody tr.expanded::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  margin: -2px;
+  border-radius: 12px;
+  background: linear-gradient(-45deg, #9d4df1, #00d3c2);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.list.p-reps tr::after {
+  display: none;
+}
+@supports selector(:nth-child(1 of x)) {
+  .list tbody tr::after,
+  .list tbody tr.expanded::after {
+    display: none;
+  }
+}
+.list tbody tr:hover::after,
+.list tbody tr.active::after,
+.list tbody tr.active + tr.expanded::after {
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+.list tbody tr.available-to-supply::after {
+  display: none;
+}
+.list tbody tr.active::after {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.list tbody tr.active + tr.expanded::after {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+/* End hover affordance */
+
+/* Begin mobile markets */
+
+.mobile-market.panel {
+  margin-bottom: 25px;
+}
+.list.markets tr.asset td.mobile-market {
+  background-image: none;
+  padding-left: 0;
+}
+.list.markets tr.asset td.mobile-market > .grid {
+  margin-left: 15px;
+  margin-right: 15px;
+}
+.mobile-market p.asset {
+  color: #49546a;
+  margin-bottom: 15px;
+}
+.mobile-market .metadata-group {
+  background-color: #f0f3fb;
+  padding: 15px;
+  border-radius: 10px;
+}
+.mobile-market .metadata-group > .grid-cell > .grid + .grid {
+  margin-top: 15px;
+}
+.supply-group {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #d3d9e7;
+}
+.asset-available .supply-group {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.mobile-market .metadata-group .metadata {
+  text-align: center;
+}
+.mobile-market .title {
+  margin-bottom: 15px;
+}
+.mobile-market .title p.asset {
+  margin-bottom: 0;
+  background-image: url(../img/logo/usds.svg);
+  background-repeat: no-repeat;
+  background-position: 0px center;
+  background-size: 39px;
+  padding-left: 55px;
+}
+.mobile-market .title img {
+  float: right;
+  width: 20px;
+}
+
+
+/* End mobile markets */
+
 .list tbody td {
   background-color: #ffffff;
   transition: border-radius 0.6s ease, border 0.6s ease;
@@ -1448,8 +1569,21 @@ ul.pagination li:hover {
 *
 */
 
+
 .list tbody tr.usdb td:first-of-type {
+  background-image: url(../img/logo/usdb.png);
+  background-repeat: no-repeat;
+  background-position: 32px center;
+  background-size: 39px;
+}
+.list tbody tr.usds td:first-of-type {
   background-image: url(../img/logo/usds.svg);
+  background-repeat: no-repeat;
+  background-position: 32px center;
+  background-size: 39px;
+}
+.list tbody tr.usdc td:first-of-type {
+  background-image: url(../img/logo/usdc.svg);
   background-repeat: no-repeat;
   background-position: 32px center;
   background-size: 39px;
@@ -1468,6 +1602,12 @@ ul.pagination li:hover {
 }
 .list tbody tr.baln td:first-of-type {
   background-image: url(../img/logo/baln.svg);
+  background-repeat: no-repeat;
+  background-position: 32px center;
+  background-size: 39px;
+}
+.list tbody tr.omm td:first-of-type {
+  background-image: url(../img/logo/omm-symbol.svg);
   background-repeat: no-repeat;
   background-position: 32px center;
   background-size: 39px;
@@ -1569,11 +1709,17 @@ ul.pagination li:hover {
 
 .supply .title,
 .borrow .title {
-  margin-bottom: 25px;
+  margin-bottom: 15px;
+}
+.chart-apy {
+  margin-bottom: 15px;
 }
 .chart-apy .tv-lightweight-charts {
   width: 100% !important;
   max-width: 100% !important;
+}
+.chart-apy .tv-lightweight-charts tr {
+  box-shadow: none;
 }
 .chart-apy .tv-lightweight-charts table {
   width: 100% !important;
@@ -1871,7 +2017,7 @@ input[type="text"].input-borrow-available {
 .ticker {
   position: absolute;
   right: 12px;
-  top: 18px;
+  top: 16px;
   color: #49546a;
   font-size: 18px;
 }
@@ -1971,6 +2117,7 @@ input[type="text"].input-borrow-available {
   margin-right: 0;
 }
 
+
 /*
 *
 * Overview
@@ -2012,8 +2159,7 @@ input[type="text"].input-borrow-available {
   right: 0;
   bottom: 0;
   background-color: #c6cddd;
-  -webkit-transition: .4s;
-  transition: .4s;
+  transition: 0.3s transform ease;
 }
 #apr-toggle .switch-slider:before {
   position: absolute;
@@ -2023,11 +2169,10 @@ input[type="text"].input-borrow-available {
   left: 4px;
   bottom: 3px;
   background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
+  transition: 0.3s transform ease;
 }
 #apr-toggle input:checked + .switch-slider {
-  background-color: #00b1a3;
+  background: linear-gradient(to right, #3f9dd5 0%, #00d3c2 100%);
 }
 #apr-toggle input:checked + .switch-slider:before {
   -webkit-transform: translateX(39px);
@@ -2166,6 +2311,7 @@ input[type="text"].input-borrow-available {
 
 #risk #slider-risk {
   margin-top: 15px;
+  background: #d3d9e7;
 }
 #risk .noUi-horizontal {
   height: 15px;
@@ -2260,6 +2406,10 @@ input[type="text"].input-borrow-available {
   margin-top: 100px;
 }
 
+.market-expanded .market-toggle {
+  display: none;
+}
+
 .tv-lightweight-charts table tr {
   box-shadow: none;
 }
@@ -2322,18 +2472,20 @@ input[type="text"].input-borrow-available {
 *
 */
 
+/*
 #proposal-cards > .grid > .grid-cell.active-vote:before {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: -1;
-  margin: -3px;
-  border-radius: 13px;
-  background: linear-gradient(40deg, #9d4df1, #00d3c2);
+	content: "";
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: -1;
+	margin: -2px;
+	border-radius: 13px;
+	background: linear-gradient(40deg, #9d4df1, #00d3c2);
 }
+*/
 #proposal-cards p,
 #proposal-list p {
   color: #7a8294;
@@ -2356,7 +2508,28 @@ input[type="text"].input-borrow-available {
 }
 #proposal-cards .panel,
 #proposal-list .panel {
+  position: relative;
   transition: box-shadow 0.3s ease;
+}
+#proposal-cards .panel:before,
+#proposal-list .panel:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  margin: -2px;
+  border-radius: 12px;
+  background: linear-gradient(-45deg, #9d4df1, #00d3c2);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+#proposal-cards .panel:hover::before,
+#proposal-list .panel:hover::before {
+  opacity: 1;
+  transition: opacity 0.2s ease;
 }
 #proposal-cards .panel:hover,
 #proposal-list .panel:hover {
@@ -2561,8 +2734,8 @@ input.input-boost {
   transition: border 0.3s ease;
   box-shadow: none !important;
 }
-input.input-boost:hover,
-input.input-boost:focus {
+.input-boost:hover,
+.input-boost:focus {
   border: 2px solid #2ca9b7 !important;
   transition: border 0.2s ease;
 }
@@ -2606,6 +2779,10 @@ input.input-boost:focus {
 }
 #vote-overview #vote-power #vote-conversion .metadata dd {
   margin-bottom: 15px;
+}
+
+#p-rep-list .toggle {
+  margin-left: 10px;
 }
 
 /*
@@ -2703,13 +2880,31 @@ input.input-boost:focus {
 #p-rep-list h2 {
   margin-right: 5px;
 }
-#p-rep-tooltip {
-
-}
 .vote .contributor {
   background-image: url('../img/logo/omm-symbol.svg');
   background-repeat: no-repeat;
   padding-left: 25px;
+}
+.vote .rewards {
+  background-image: url('../img/icon/gift-green.svg');
+  background-repeat: no-repeat;
+  padding-left: 25px;
+  background-size: 16px;
+  background-position: 3px 0px;
+}
+.vote .list.p-reps .rewards a {
+  color: #369fbf;
+  font-size: 14px;
+}
+
+.vote .list.p-reps .rewards a::after {
+  content: '';
+  display: inline-block;
+  content: url(../img/icon/external-green.svg);
+  width: 11px;
+  margin-left: 3px;
+  cursor: pointer;
+  transform: translateY(1px);
 }
 #p-rep-tooltip .tooltip-content {
   bottom: 0;
@@ -2986,18 +3181,17 @@ input.input-boost:focus {
   transition: background-color 0.2s ease;
 }
 .bomm-tooltip .tooltip-content {
-  min-width: 340px;
+  min-width: 335px;
   left: -153px;
   bottom: 35px;
+  color: #7a8294;
 }
 .boosted-container {
   position: relative;
 }
-
 .boosted-omm #slider-boost.active {
   margin-top: 30px;
 }
-
 .total-bomm-tooltip-content {
   min-width: 150px;
   text-align: center;
@@ -3025,7 +3219,7 @@ input.input-boost:focus {
   transition: height 0.3s ease;
 }
 .boosted-omm .threshold.locked {
-  left: 79.3%;
+  left: 75%;
   height: 25px;
   margin-top: 10px;
   z-index: 0;
@@ -3121,6 +3315,19 @@ input.input-boost:focus {
   .navigation ul li a svg,
   .navigation ul li a img {
     margin-right: 10px;
+  }
+}
+
+/* ==========================================================================
+	Responsive styles: 800px and larger
+========================================================================== */
+
+@media (min-width: 800px) {
+  .list.markets .market-expanded .supply {
+    display: block;
+  }
+  .list.markets .market-expanded .borrow {
+    display: block;
   }
 }
 
@@ -3232,13 +3439,13 @@ input.input-boost:focus {
   .market-expanded > .grid {
     flex-direction: column;
   }
+  .market-expanded > .grid {
+    clear: both;
+  }
   .market-expanded .supply {
     padding-right: 0;
     margin-right: 0;
     border-right: none;
-    border-bottom: 1px solid #d3d9e7;
-    padding-bottom: 25px;
-    margin-bottom: 25px;
   }
   .performance-risk {
     flex-direction: column;
@@ -3281,11 +3488,216 @@ input.input-boost:focus {
   .separator-full::after {
     width: 25%;
   }
+  .mobile-market,
+  .desktop-market .details {
+    display: block;
+  }
+  .list.markets tr.asset td.new,
+  .list.liquidity tr.pool td.new:first-of-type {
+    padding-left: 0;
+    background-image: none;
+  }
+  .list.markets tr.asset td.new > .mobile-market,
+  .list.liquidity tr.pool td.new > .mobile-market {
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-top: 15px;
+  }
+  .list.markets .market-expanded ul.market-toggle {
+    margin-bottom: 15px;
+    display: block;
+  }
+
+  /* Market logos */
+
+  .usds .desktop-market {
+    background-image: url(../img/logo/usds.svg);
+    background-repeat: no-repeat;
+    background-position: 19px center;
+    background-size: 40px;
+    padding-left: 70px;
+  }
+  .usdc .desktop-market {
+    background-image: url(../img/logo/usdc.svg);
+    background-repeat: no-repeat;
+    background-position: 19px center;
+    background-size: 40px;
+    padding-left: 70px;
+  }
+  .icx .desktop-market {
+    background-image: url(../img/logo/icx.svg);
+    background-repeat: no-repeat;
+    background-position: 20px center;
+    background-size: 38px;
+    padding-left: 70px;
+  }
+  .bnusd .desktop-market {
+    background-image: url(../img/logo/bnusd.svg);
+    background-repeat: no-repeat;
+    background-position: 20px center;
+    background-size: 38px;
+    padding-left: 70px;
+  }
+  .baln .desktop-market {
+    background-image: url(../img/logo/baln.svg);
+    background-repeat: no-repeat;
+    background-position: 20px center;
+    background-size: 38px;
+    padding-left: 70px;
+  }
+  .omm .desktop-market {
+    background-image: url(../img/logo/omm-symbol.svg);
+    background-repeat: no-repeat;
+    background-position: 20px center;
+    background-size: 38px;
+    padding-left: 70px;
+  }
+
+  /* Liquidity logos */
+
+  .omm-usds .desktop-market {
+    background-image: url(../img/icon/liquidity-omm-usds.png);
+    background-repeat: no-repeat;
+    background-position: 20px center;
+    background-size: 75px;
+    padding-left: 105px;
+  }
+  .omm-iusdc .desktop-market {
+    background-image: url(../img/icon/liquidity-omm-usdc.png);
+    background-repeat: no-repeat;
+    background-position: 20px center;
+    background-size: 75px;
+    padding-left: 105px;
+  }
+  .omm-sicx .desktop-market {
+    background-image: url(../img/icon/liquidity-omm-sicx.png);
+    background-repeat: no-repeat;
+    background-position: 20px center;
+    background-size: 75px;
+    padding-left: 105px;
+  }
+
+  .list.liquidity .desktop-market > .grid {
+    height: 41px;
+  }
+  .list.liquidity tr.pool td:first-of-type {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+  }
+
+
+  .desktop-market .text-right.details {
+    margin-right: 20px;
+    font-size: 14px;
+  }
+  .desktop-market .text-right.details::after {
+    content: url(../img/icon/chevron-right-green.svg);
+    display: inline-block;
+    width: 8px;
+    margin-left: 8px;
+    transform: translateY(3px);
+    transition: transform 0.3s ease;
+  }
+  .active .desktop-market .text-right.details::after {
+    transform: rotate(90deg);
+    transition: transform 0.3s ease;
+  }
+  .market-expanded .market-toggle {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+  .market-expanded .market-toggle li {
+    float: none;
+    display: inline-block;
+    position: relative;
+  }
+  .market-expanded .market-toggle li span {
+    position: relative;
+    z-index: 2;
+    padding: 10px;
+  }
+  ul.toggle li.toggle-borrow:after {
+    background-image: -webkit-linear-gradient(0deg, #6081df, #9d4df1);
+  }
+  .market-expanded .market-toggle li::after {
+    display: none;
+  }
+
+  /* Supply */
+
+  .market-expanded .market-toggle li.toggle-supply {
+    margin-right: 10px;
+  }
+  .market-expanded .market-toggle li.toggle-supply:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    margin: -3px;
+    border-radius: 28px;
+    background: linear-gradient( -135deg, rgb(0,211,194) 0%, rgb(63,157,213) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .market-expanded .market-toggle li.toggle-supply:hover:before,
+  .market-expanded .market-toggle li.toggle-supply.active:before {
+    opacity: 1;
+    transition: opacity 0.2s ease;
+  }
+  .market-expanded .market-toggle li.toggle-supply:hover span,
+  .market-expanded .market-toggle li.toggle-supply.active span {
+    color: #ffffff;
+    -webkit-background-clip: initial;
+    -webkit-text-fill-color: initial;
+    background: none;
+  }
+
+
+  /* Borrow	*/
+
+  .market-expanded .market-toggle li.toggle-borrow:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    margin: -3px;
+    border-radius: 28px;
+    background: linear-gradient( 35deg, rgb(96,129,223) 0%, rgb(157,77,241) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .market-expanded .market-toggle li.toggle-borrow:hover:before,
+  .market-expanded .market-toggle li.toggle-borrow.active:before {
+    opacity: 1;
+    transition: opacity 0.2s ease;
+  }
+  .market-expanded .market-toggle li.toggle-borrow:hover span,
+  .market-expanded .market-toggle li.toggle-borrow.active span {
+    color: #ffffff;
+    -webkit-background-clip: initial;
+    -webkit-text-fill-color: initial;
+    background: none;
+  }
 
   /* Vote */
 
   #vote-overview .grid.panel {
     flex-direction: column;
+  }
+  #p-rep-list .filters {
+    flex-direction: column;
+    align-items: initial;
+  }
+  #p-rep-list .search {
+    margin-top: 15px;
   }
   #vote-overview #vote-power {
     margin-top: 25px;
@@ -3408,20 +3820,19 @@ input.input-boost:focus {
   }
   .liquidity thead tr th:nth-of-type(2),
   .liquidity thead tr th:nth-of-type(3),
-  .liquidity thead tr th:nth-of-type(4) {
+  .liquidity thead tr th:nth-of-type(4),
+  .liquidity thead tr th:nth-of-type(5) {
     display: none;
   }
   .liquidity tbody tr td:nth-of-type(2),
   .liquidity tbody tr td:nth-of-type(3),
-  .liquidity tbody tr td:nth-of-type(4) {
+  .liquidity tbody tr td:nth-of-type(4),
+  .liquidity tbody tr td:nth-of-type(5) {
     display: none;
   }
-  table.list.liquidity tbody tr.pool td:first-of-type {
+  .list.liquidity tbody tr.pool td:first-of-type {
     padding-top: 25px;
     padding-bottom: 25px;
-  }
-  table.list.liquidity tbody tr.pool.avail td:nth-of-type(3) {
-    display: table-cell;
   }
   table.list.liquidity tbody tr.pool.active td:first-of-type {
     border-bottom-right-radius: 0
@@ -3434,9 +3845,11 @@ input.input-boost:focus {
     margin-left: auto;
     margin-right: auto;
   }
-
   #vote .bomm-tooltip .tooltip-content {
     left: -100px;
+  }
+  .list.liquidity thead {
+    display: none;
   }
 }
 
@@ -3445,6 +3858,12 @@ input.input-boost:focus {
 ========================================================================== */
 
 @media (max-width: 600px) {
+
+  /* Performance */
+
+  #performance .time-selector-content {
+    margin-left: 136px;
+  }
 
   /* Boosted omm */
 
@@ -3474,9 +3893,7 @@ input.input-boost:focus {
   .label.value-bomm-total {
     display: inline-block;
   }
-
 }
-
 
 /* ==========================================================================
 	Responsive styles: 600px and shorter
@@ -3555,17 +3972,28 @@ input.input-boost:focus {
     width: 100px;
   }
 
-  .boosted-omm .boost-increase > .grid {
-    flex-direction: column;
+  .list tbody tr::after{
+    background: linear-gradient(0deg, #9d4df1, #00d3c2);
   }
-  .boosted-omm .boost-increase > .grid .grid-cell {
-    border: none;
-  }
-  .boosted-omm .boost-increase > .grid .grid-cell + .grid-cell {
-    margin-top: 15px;
-  }
-  .bomm-tooltip-content {
-    min-width: 200px;
+  .list tbody tr.expanded::after {
+    background: linear-gradient(180deg, #9d4df1, #00d3c2);
   }
 
+  /* Boost data */
+
+  .boost-data {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .boost-data > .grid-cell:first-of-type {
+    margin-bottom: 5px;
+  }
+  .dropdown-content.locked-selector {
+    left: 85px;
+    right: initial;
+  }
+
+  .supply .legend > .grid-cell:first-of-type, .borrow .legend > .grid-cell:first-of-type {
+    margin-right: 15px;
+  }
 }

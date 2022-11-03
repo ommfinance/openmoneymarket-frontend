@@ -7,7 +7,6 @@ import {BridgeWallet} from "../../models/wallets/BridgeWallet";
 import {DataLoaderService} from "../data-loader/data-loader.service";
 import log from "loglevel";
 import {BridgeWidgetAction} from "../../models/Interfaces/BridgeWidgetAction";
-import {NotificationService} from "../notification/notification.service";
 import {LoginService} from "../login/login.service";
 import {Utils} from "../../common/utils";
 
@@ -17,8 +16,7 @@ import {Utils} from "../../common/utils";
 export class BridgeWidgetService {
 
   constructor(private dataLoaderService: DataLoaderService,
-              private loginService: LoginService,
-              private notificationService: NotificationService) {
+              private loginService: LoginService) {
     this.bridge = new BridgeService();
     window.addEventListener("bri.login", (e) => this.handleBridgeLogin(e));
     window.addEventListener("bri.widget.res", (e) => this.handleWidgetRes(e));

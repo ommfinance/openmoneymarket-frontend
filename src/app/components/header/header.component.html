@@ -23,13 +23,13 @@
           <div class="refresh" (click)="onRefreshClick()">
             <a href="javascript:void(0);" class="refresh-button"><img src="assets/img/icon/exchange.svg" alt="refresh"></a>
           </div>
-          <p class="text-purple" style="font-size: 20px;" [ngStyle]="hideElement(isProduction())">{{network()}} testnet</p>
+          <p class="text-purple" style="font-size: 20px;" [ngStyle]="isProduction() | hide">{{network()}} testnet</p>
         </div>
       </div>
     </div>
 
     <!-- Utilities -->
-    <div class="grid-cell" [ngStyle]="hideElement(!this.persistenceService.userLoggedIn())">
+    <div class="grid-cell" [ngStyle]="!this.persistenceService.userLoggedIn() | hide">
       <!-- Bridge wallet -->
       <div class="grid grid-center wallet bridge" (click)="onWalletClick($event)">
         <div class="grid-cell text-right">
@@ -46,7 +46,7 @@
       <div class="grid wallet-content bridge panel">
         <div class="grid-cell">
           <ul>
-            <li id="menu-wallet" [ngStyle]="hideElement(!this.persistenceService.bridgeWalletActive())">
+            <li id="menu-wallet" [ngStyle]="!this.persistenceService.bridgeWalletActive() | hide">
               <a href="javascript:void(0);" (click)="onOpenBridgeClick()" class="animation-underline">Open Bridge</a>
             </li>
             <li id="menu-copy"><a href="javascript:void(0);" (click)="onCopyIconAddressClick()" class="animation-underline">Copy ICON address</a></li>
@@ -58,7 +58,7 @@
     </div>
 
     <!-- Sign in button -->
-    <div class="text-right sign-in-container" [ngStyle]="hideElement(this.persistenceService.userLoggedIn())">
+    <div class="text-right sign-in-container" [ngStyle]="this.persistenceService.userLoggedIn() | hide">
       <a href="javascript:void(0);" id="sign-in-btn" class="button modal-trigger" data-modal="modal-sign-in" (click)="onSignInClick()">Sign in</a>
     </div>
 

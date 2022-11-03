@@ -1,5 +1,50 @@
 <tr class="pool {{poolPairClassName}}" #pool (click)="onPoolClick(poolData)">
-  <td class="text-dark">{{poolPrettyName}}</td>
+  <td class="text-dark new">
+    <div class="desktop-market grid-center">
+      <div class="grid grid-center">
+        <div class="grid-cell">
+          <p>{{poolPrettyName}}</p>
+        </div>
+        <div class="grid-cell details hide">
+          <p class="text-right details hide">Details</p>
+        </div>
+      </div>
+    </div>
+    <div class="mobile-market hide">
+      <div class="grid metadata-group">
+        <div class="grid-cell">
+          <div class="grid supply-group">
+            <div class="grid-cell">
+              <dl class="metadata">
+                <dt>Total supplied</dt>
+                <dd>{{totalSuppliedBase | usFormat}} OMM<br><span class="label">{{totalSuppliedQuote | usFormat}} {{poolQuoteAssetName}}</span></dd>
+              </dl>
+            </div>
+            <div class="grid-cell">
+              <dl class="metadata">
+                <dt>Total LP tokens</dt>
+                <dd>{{totalLpTokens| usFormat}}</dd>
+              </dl>
+            </div>
+          </div>
+          <div class="grid borrow-group">
+            <div class="grid-cell">
+              <dl class="metadata">
+                <dt>Daily rewards</dt>
+                <dd>{{dailyRewards | roundOff2Dec | usFormat}} OMM</dd>
+              </dl>
+            </div>
+            <div class="grid-cell">
+              <dl class="metadata">
+                <dt>Liquidity APR</dt>
+                <dd><span class="text-green text-bold">{{poolLiquidityApr | roundOff2DecPercent}}</span></dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </td>
   <td><span class="text-dark">{{totalSuppliedBase | usFormat}} OMM</span><br>
     <span class="label">{{totalSuppliedQuote | usFormat}} {{poolQuoteAssetName}}</span></td>
   <td><span class="text-dark">{{totalLpTokens| usFormat}}</span></td>
