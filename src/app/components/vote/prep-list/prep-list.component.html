@@ -3,18 +3,20 @@
   <!-- Title -->
   <div class="grid grid-center title filters">
     <div class="grid-cell">
-      <h2>P-Reps</h2>
+      <h2>Validators</h2>
       <span id="p-rep-tooltip" class="tooltip">
-            <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
-            <div class="tooltip-content"><p>Public representatives operate nodes that keep the ICON Network – Omm's foundation – online. Many also contribute time and resources to build products and utilities, much like this one.</p></div>
-          </span>
+        <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
+        <div class="tooltip-content">
+          <p>Validators verify transactions for the ICON blockchain. and are paid based on the number of votes they receive. Some validators build products to support the ecosystem, like Omm, while others offer incentives to vote for them.</p>
+        </div>
+      </span>
       <ul class="toggle">
         <li class="{{top100Selected ? 'active' : ''}}" (click)="onTop100Click()">Top 100</li>
         <li class="{{top100Selected ? '' : 'active'}}" (click)="onIncentivisedClick()">Incentivised</li>
       </ul>
     </div>
     <div class="grid-cell text-right">
-      <input type="text" name="" class="search" placeholder="Search P-Reps" [ngModel]="searchInput" (ngModelChange)="onSearchInputChange($event)">
+      <input type="text" name="" class="search" placeholder="Search validators" [ngModel]="searchInput" (ngModelChange)="onSearchInputChange($event)">
     </div>
   </div>
 
@@ -29,7 +31,7 @@
             Earnings
             <span id="tooltip-earnings" class="tooltip">
               <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
-              <div class="tooltip-content"><p>The amount P-Reps earn each month, based on the number of votes.</p></div>
+              <div class="tooltip-content"><p>The amount validators earn each month, based on the number of votes.</p></div>
             </span>
           </th>
           <th class="text-right">Voting Power</th>
@@ -54,7 +56,7 @@
                       <br><span class="label contributor">Omm contributor</span>
                     </ng-container>
                     <ng-container *ngIf="isPrepOfferingIncentive(prep.address)">
-                      <br><span class="label rewards"><a href="https://docs.omm.finance/user-guide/vote-preps" target="_blank">Offers incentives</a></span>
+                      <br><span class="label rewards"><a href="https://docs.omm.finance/user-guide/vote-validators" target="_blank">Offers incentives</a></span>
                     </ng-container>
                   </div>
                 </div>

@@ -140,6 +140,8 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
   showDefaultActionsSub?: Subscription;
   disableAssetsInputsSub?: Subscription;
   userTotalRiskChangeSub?: Subscription;
+  sIcxSelectedSub?: Subscription;
+  interestHistoryChangeSub?: Subscription;
 
   dynamicSupplyApy = Utils.ZERO;
   dynamicSupplyApyActive = false;
@@ -187,6 +189,8 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
     this.showDefaultActionsSub?.unsubscribe();
     this.disableAssetsInputsSub?.unsubscribe();
     this.userTotalRiskChangeSub?.unsubscribe();
+    this.sIcxSelectedSub?.unsubscribe();
+    this.interestHistoryChangeSub?.unsubscribe();
   }
 
   ngAfterViewInit(): void {
@@ -368,7 +372,7 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
   }
 
   private subscribeToInterestHistoryChange(): void {
-    this.stateChangeService.interestHistoryChange$.subscribe(() => {
+    this.interestHistoryChangeSub = this.stateChangeService.interestHistoryChange$.subscribe(() => {
       this.initInterestHistoryCharts();
       // trigger resize
       this.updateApyCharts();
@@ -403,7 +407,7 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
 
   private subscribeTosIcxSelectedChange(): void {
     if (this.assetIsIcx) {
-      this.stateChangeService.sIcxSelectedChange$.subscribe(sIcxSelected => {
+      this.sIcxSelectedSub = this.stateChangeService.sIcxSelectedChange$.subscribe(sIcxSelected => {
         this.sIcxSelected = sIcxSelected;
         this.updateSupplySlider(this.persistenceService.getUserAssetReserve(this.asset.tag));
       });

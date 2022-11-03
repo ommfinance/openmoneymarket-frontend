@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {Prep, PrepList} from "../../../models/classes/Preps";
 import {Subscription} from "rxjs";
 import {PersistenceService} from "../../../services/persistence/persistence.service";
@@ -42,8 +42,7 @@ export class PrepListComponent implements OnInit, OnDestroy {
   userHasLockedOmm = false;
 
 
-  constructor(private cdRef: ChangeDetectorRef,
-              private persistenceService: PersistenceService,
+  constructor(private persistenceService: PersistenceService,
               private stateChangeService: StateChangeService,
               private calculationsService: CalculationsService) { }
 

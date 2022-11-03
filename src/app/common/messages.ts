@@ -138,8 +138,8 @@ export const NO_CHANGE_STAKED_VALUE = "No change in staked LP token value.";
 
 // Voting related message
 export const VOTE_LIST_NO_CHANGE = "Your vote list did not change.";
-export const VOTE_LIST_MAX_PREP_VOTE = "You can't vote for more than 5 P-Reps. Remove one from the list and try again.";
-export const VOTE_LIST_PREP_ALREADY_SELECTED = "You've already chosen this P-Rep.";
+export const VOTE_LIST_MAX_PREP_VOTE = "You can't vote for more than 5 validators. Remove one from the list and try again.";
+export const VOTE_LIST_PREP_ALREADY_SELECTED = "You've already chosen this validator.";
 
 // Iconex related messages
 export const ICONEX_WALLET_DOES_NOT_EXIST = "Wallet does not exist. Sign in to ICONex and try again.";

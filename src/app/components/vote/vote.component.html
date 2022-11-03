@@ -70,8 +70,8 @@
     </div>
 
     <!-- Message (If staked but not voted) -->
-    <p class="label text-center" style="margin-top: 25px;" [ngStyle]="userHasVotedForPrep() | hide">Add up to 5 P-Reps from the list.<br
-    >If you don’t choose any, your votes will be allocated towards the P-Reps that work on Omm.</p>
+    <p class="label text-center" style="margin-top: 25px;" [ngStyle]="userHasVotedForPrep() | hide">Add up to 5 validators from the list.
+      <br>If you don’t choose any, your votes will be allocated toward the validators that work on Omm.</p>
 
     <!-- Your votes list -->
     <div class="grid">
@@ -110,7 +110,7 @@
           <!-- Actions to show by default -->
           <div class="grid grid-center actions-default" [ngStyle]="(!userHasVotedForPrep() || yourVotesEditMode)  | hide">
             <div class="grid-cell text-center">
-              <a href="javascript:void(0);" id="vote-adjust" class="button" (click)="onAdjustVoteClick()">Adjust P-Reps</a>
+              <a href="javascript:void(0);" id="vote-adjust" class="button" (click)="onAdjustVoteClick()">Adjust validators</a>
             </div>
           </div>
 

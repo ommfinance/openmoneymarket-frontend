@@ -1,7 +1,7 @@
 import {
   AfterViewInit,
   ChangeDetectorRef,
-  Component,
+  Component, OnDestroy,
   OnInit,
   QueryList,
   ViewChild,
@@ -21,13 +21,14 @@ import {Utils} from "../../common/utils";
 import BigNumber from "bignumber.js";
 import {environment} from "../../../environments/environment";
 import {ReloaderService} from "../../services/reloader/reloader.service";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent extends BaseClass implements OnInit, AfterViewInit {
+export class HomeComponent extends BaseClass implements OnInit, OnDestroy, AfterViewInit {
 
   className = "[HomeComponent]";
 
@@ -52,6 +53,11 @@ export class HomeComponent extends BaseClass implements OnInit, AfterViewInit {
   // OMM toggle checkbox
   public ommApyChecked = false;
 
+  // subscriptions
+  loginChangeSub?: Subscription;
+  userModalActionChangeSub?: Subscription;
+  userDataReloadSub?: Subscription;
+
   constructor(public persistenceService: PersistenceService,
               private cd: ChangeDetectorRef,
               private stateChangeService: StateChangeService,
@@ -69,6 +75,12 @@ export class HomeComponent extends BaseClass implements OnInit, AfterViewInit {
 
     // call cd after to avoid ExpressionChangedAfterItHasBeenCheckedError
     this.cd.detectChanges();
+  }
+
+  ngOnDestroy(): void {
+    this.loginChangeSub?.unsubscribe();
+    this.userModalActionChangeSub?.unsubscribe();
+    this.userDataReloadSub?.unsubscribe();
   }
 
   // load the asset lists
@@ -108,14 +120,14 @@ export class HomeComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   private subscribeToUserDataReload(): void {
-    this.stateChangeService.afterUserDataReload$.subscribe(() => {
+    this.userDataReloadSub = this.stateChangeService.afterUserDataReload$.subscribe(() => {
       // reload the asset lists
       this.loadAssetLists();
     });
   }
 
   private subscribeToLoginChange(): void {
-    this.stateChangeService.loginChange$.subscribe(wallet => {
+    this.loginChangeSub = this.stateChangeService.loginChange$.subscribe(wallet => {
       if (wallet) {
         // user login
         this.onYourMarketsClick();
@@ -130,7 +142,7 @@ export class HomeComponent extends BaseClass implements OnInit, AfterViewInit {
 
   private subscribeToUserModalActionChange(): void {
     // User confirmed the modal action
-    this.stateChangeService.userModalActionChange.subscribe((modalAction?: ModalAction) => {
+    this.userModalActionChangeSub = this.stateChangeService.userModalActionChange.subscribe((modalAction?: ModalAction) => {
       log.debug(`userModalActionChange -> modalAction: ${modalAction}`);
       // collapse the opened tables of the user assets
       this.collapseTableUserAssets();
