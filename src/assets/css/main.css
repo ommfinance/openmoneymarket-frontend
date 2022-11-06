@@ -3889,6 +3889,7 @@ input.input-boost {
   }
   .bomm-tooltip .tooltip-content {
     left: -100px;
+    min-width: 240px;
   }
   .label.value-bomm-total {
     display: inline-block;
@@ -3995,5 +3996,10 @@ input.input-boost {
 
   .supply .legend > .grid-cell:first-of-type, .borrow .legend > .grid-cell:first-of-type {
     margin-right: 15px;
+  }
+
+  /* Performance tooltip */
+  #performance #tooltip-performance .tooltip-content {
+    width: auto;
   }
 }

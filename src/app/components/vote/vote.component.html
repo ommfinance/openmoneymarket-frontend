@@ -41,7 +41,7 @@
                 <dl class="metadata">
                   <dt>Total voting power <span class="total-bomm-tooltip tooltip">
                     <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
-                    <p class="total-bomm-tooltip-content tooltip-content">{{totalbOmm() | usFormat}} bOMM</p>
+                    <p class="total-bomm-tooltip-content tooltip-content">{{totalbOmm() | roundDown2Dec | usFormat}} bOMM</p>
                   </span></dt>
                   <dd class="value-voting-power-total">{{ommVotingPower | roundDown2Dec | usFormat}} ICX</dd>
                 </dl>
