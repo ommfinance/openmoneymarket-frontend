@@ -177,7 +177,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, OnDestroy,
 
     // reset bOmm balance
     this.setText(this.userWorkingbOmmBalanceEl, this.toZeroIfDash(this.tooUSLocaleString(this.userWorkingbOmmBalance.dp(2)))
-      + " bOMM");
+      + " bOMM ");
   }
 
   onLockedDateDropdownClick(): void {
@@ -188,7 +188,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, OnDestroy,
     const newUserbOmmBalance = this.calculationService.calculateNewbOmmBalance(newLockedOmmAmount, this.selectedLockTimeInMillisec);
 
     this.setText(this.userWorkingbOmmBalanceEl, this.toZeroIfDash(this.tooUSLocaleString(newUserbOmmBalance.dp(2)))
-      + " bOMM");
+      + " bOMM ");
   }
 
   /**
