@@ -532,7 +532,7 @@ export class ScoreService {
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Delegation,
       ScoreMethodNames.GET_USER_WORKING_BALANCE, {
-      _user: this.persistenceService.activeWallet?.address
+       user: this.persistenceService.activeWallet?.address
       }, IconTransactionType.READ);
 
     const res: string = await this.iconApiService.iconService.call(tx).execute();
