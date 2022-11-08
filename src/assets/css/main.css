@@ -3841,9 +3841,10 @@ input.input-boost {
     border-bottom: none;
   }
   .pool-expanded .content {
-    margin: 25px 35px;
-    margin-left: auto;
-    margin-right: auto;
+    margin-top: 25px;
+    margin-bottom: 25px;
+    padding-right: 20px;
+    padding-left: 20px;
   }
   #vote .bomm-tooltip .tooltip-content {
     left: -100px;
