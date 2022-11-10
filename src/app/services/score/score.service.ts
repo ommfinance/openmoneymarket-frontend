@@ -542,10 +542,10 @@ export class ScoreService {
   }
 
   /**
-   * @description Get user working bOMM supply
-   * @return BigNumber - user working bOMM supply
+   * @description Get user delegation working bOMM supply
+   * @return BigNumber - user delegation working bOMM supply
    */
-  public async getUserWorkingSupplyOfbOmm(): Promise<BigNumber> {
+  public async getUserDelegationWorkingSupplyOfbOmm(): Promise<BigNumber> {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Delegation,
@@ -555,9 +555,28 @@ export class ScoreService {
 
     const res: string = await this.iconApiService.iconService.call(tx).execute();
 
-    log.debug("getUserWorkingSupplyOfbOmm: ", res);
+    log.debug("getUserDelegationWorkingSupplyOfbOmm: ", res);
 
     return Utils.hexToNormalisedNumber(res);
+  }
+
+  /**
+   * @description Get user rewards working bOMM supply
+   * @return BigNumber - user rewards working bOMM supply
+   */
+  public async getUserRewardsWorkingSupplyOfbOmm(): Promise<BigNumber> {
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Rewards,
+      ScoreMethodNames.GET_WORKING_BALANCES, {
+        user: this.persistenceService.activeWallet?.address
+      }, IconTransactionType.READ);
+
+    const res: IRewardWorkingTotal = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getUserRewardsWorkingSupplyOfbOmm: ", res);
+
+    return Utils.hexToNormalisedNumber(res.bOMM);
   }
 
   /**

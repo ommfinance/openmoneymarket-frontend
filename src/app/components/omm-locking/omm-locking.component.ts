@@ -45,7 +45,8 @@ export class OmmLockingComponent extends BaseClass implements OnInit, OnDestroy,
   private userWorkingbOmmBalanceEl?: any; @ViewChild("bommBaln")set c(c: ElementRef) {this.userWorkingbOmmBalanceEl = c?.nativeElement; }
 
   userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
-  userWorkingbOmmBalance = Utils.ZERO;
+  userDelegationWorkingbOmmBalance = Utils.ZERO;
+  userRewardsWorkingbOmmBalance = Utils.ZERO;
   userLockedOmmBalance = Utils.ZERO;
 
   public dynamicLockedOmmAmount: BigNumber = new BigNumber(0); // dynamic user locked Omm amount
@@ -85,7 +86,8 @@ export class OmmLockingComponent extends BaseClass implements OnInit, OnDestroy,
       this.dynamicLockedOmmAmount = this.persistenceService.getUsersLockedOmmBalance();
       this.selectedLockTimeInMillisec = lockedDatesToMilliseconds.get(this.currentLockPeriodDate())!;
       this.selectedLockTime = this.currentLockPeriodDate();
-      this.userWorkingbOmmBalance = this.persistenceService.userWorkingbOmmBalance;
+      this.userDelegationWorkingbOmmBalance = this.persistenceService.userDelegationWorkingbOmmBalance;
+      this.userRewardsWorkingbOmmBalance = this.persistenceService.userRewardsWorkingbOmmBalance;
       this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails?.getClone();
       this.userLockedOmmBalance = this.persistenceService.getUsersLockedOmmBalance();
     }
@@ -176,7 +178,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, OnDestroy,
     this.lockAdjustCancelClicked.emit();
 
     // reset bOmm balance
-    this.setText(this.userWorkingbOmmBalanceEl, this.toZeroIfDash(this.tooUSLocaleString(this.userWorkingbOmmBalance.dp(2)))
+    this.setText(this.userWorkingbOmmBalanceEl, this.toZeroIfDash(this.tooUSLocaleString(this.getUserWorkingbOmmBalance().dp(2)))
       + " bOMM ");
   }
 
@@ -189,6 +191,10 @@ export class OmmLockingComponent extends BaseClass implements OnInit, OnDestroy,
 
     this.setText(this.userWorkingbOmmBalanceEl, this.toZeroIfDash(this.tooUSLocaleString(newUserbOmmBalance.dp(2)))
       + " bOMM ");
+  }
+
+  getUserWorkingbOmmBalance(): BigNumber {
+    return this.type === OmmLockingCmpType.REWARDS ? this.userRewardsWorkingbOmmBalance : this.userDelegationWorkingbOmmBalance;
   }
 
   /**
@@ -360,7 +366,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, OnDestroy,
   }
 
   shouldShowbOmmBalance(): boolean {
-    return this.userLoggedIn() && (this.lockAdjustActive || this.userWorkingbOmmBalance.gt(0) || this.userHasOmmUnlocked());
+    return this.userLoggedIn() && (this.lockAdjustActive || this.getUserWorkingbOmmBalance().gt(0) || this.userHasOmmUnlocked());
   }
 
   unlockedOnLockedUntilLabel(): string {

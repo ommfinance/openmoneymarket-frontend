@@ -110,7 +110,7 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
     if (this.userLoggedIn()) {
       this.marketBoosterData = this.calculationService.calculateUserbOmmMarketBoosters();
       this.liquidityBoosterData = this.calculationService.calculateUserbOmmLiquidityBoosters();
-      this.userLockingApr = this.calculationService.calculateUserLockingApr(this.persistenceService.userWorkingbOmmBalance);
+      this.userLockingApr = this.calculationService.calculateUserLockingApr(this.persistenceService.userRewardsWorkingbOmmBalance);
       this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails?.getClone();
       this.userDailyLockingOmmRewards = this.calculationService.calculateUserDailyLockingOmmRewards();
 

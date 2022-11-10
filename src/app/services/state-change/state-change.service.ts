@@ -163,8 +163,11 @@ export class StateChangeService {
   private rewardsbOmmTotalWorkingSupplyChange = new Subject<BigNumber>();
   rewardsbOmmTotalWorkingSupplyChange$ = this.rewardsbOmmTotalWorkingSupplyChange.asObservable();
 
-  private userWorkingbOmmChange = new Subject<BigNumber>();
-  userWorkingbOmmChange$ = this.userWorkingbOmmChange.asObservable();
+  private userDelegationWorkingbOmmChange = new Subject<BigNumber>();
+  userDelegationWorkingbOmmChange$ = this.userDelegationWorkingbOmmChange.asObservable();
+
+  private userRewardsWorkingbOmmChange = new Subject<BigNumber>();
+  userRewardsWorkingbOmmChange$ = this.userRewardsWorkingbOmmChange.asObservable();
 
   private currentTimestampChange = new Subject<{ currentTimestamp: number, currentTimestampMicro: BigNumber }>();
   currentTimestampChange$ = this.currentTimestampChange.asObservable();
@@ -267,9 +270,14 @@ export class StateChangeService {
     this.userbOmmBalanceChange.next(balance);
   }
 
-  public userWorkingbOmmBalanceUpdate(balance: BigNumber): void {
-    this.persistenceService.userWorkingbOmmBalance = balance;
-    this.userWorkingbOmmChange.next(balance);
+  public userDelegationWorkingbOmmBalanceUpdate(balance: BigNumber): void {
+    this.persistenceService.userDelegationWorkingbOmmBalance = balance;
+    this.userDelegationWorkingbOmmChange.next(balance);
+  }
+
+  public userRewardsWorkingbOmmBalanceUpdate(balance: BigNumber): void {
+    this.persistenceService.userRewardsWorkingbOmmBalance = balance;
+    this.userRewardsWorkingbOmmChange.next(balance);
   }
 
   public userLockedOmmUpdate(lockedOmm: LockedOmm): void {
