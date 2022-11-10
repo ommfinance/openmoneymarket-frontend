@@ -4,7 +4,7 @@
     <div class="grid">
       <!-- Heading -->
       <div class="grid-cell">
-        <h3>{{getTitle()}} <span *ngIf="shouldShowbOmmBalance()" class="label value-bomm-total" #bommBaln>{{userbOmmBalance | roundDown2Dec | usFormat | toZeroIfDash }} bOMM</span>&nbsp;
+        <h3>{{getTitle()}} <span *ngIf="shouldShowbOmmBalance()" class="label value-bomm-total" #bommBaln>{{getUserWorkingbOmmBalance() | roundDown2Dec | usFormat | toZeroIfDash }} bOMM&nbsp;</span>
           <span class="bomm-tooltip tooltip">
             <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
             <div class="tooltip-content">
@@ -14,12 +14,12 @@
         </h3>
       </div>
       <!-- Button -->
-      <div class="grid-cell" [ngStyle]="hideElement(shouldHideBoostedSlider())">
-        <p class="text-right" [ngStyle]="hideElement(isLockAdjustActive())">
+      <div class="grid-cell" [ngStyle]="shouldHideBoostedSlider() | hide">
+        <p class="text-right" [ngStyle]="isLockAdjustActive() | hide">
           <a href="javascript:void(0);" class="button" id="boost-adjust" style="margin-top: 0;" (click)="onLockAdjustClick()">{{boostAdjustLabel()}}</a>
         </p>
 
-        <div class="boost-adjust-actions" [ngStyle]="hideElement(!isLockAdjustActive())">
+        <div class="boost-adjust-actions" [ngStyle]="!isLockAdjustActive() | hide">
           <div class="grid">
             <div class="grid-cell">
               <div class="grid grid-center">
@@ -37,7 +37,7 @@
       </div>
     </div>
 
-    <p class="label intro-label" [ngStyle]="hideElement(isLockAdjustActive())">{{boostedOmmPanelMessage()}}</p>
+    <p class="label intro-label" [ngStyle]="isLockAdjustActive() | hide">{{boostedOmmPanelMessage()}}</p>
     <div class="threshold locked boost {{shouldHideLockedOmmThreshold() ? 'hide':''}} {{calculatePercentLocked().lt(0.5) ? 'right':'left'}}" [ngStyle]="getLeftLockedThresholdPercentStyle()">
       <dl class="metadata">
         <dt>Locked</dt>
@@ -52,16 +52,16 @@
                             (sliderValueUpdate)="handleLockSliderValueUpdate($event)"
     ></app-boosted-omm-slider>
 
-    <div class="grid grid-center" [ngStyle]="hideElement(shouldHideBoostedSlider())">
-      <div class="grid-cell" style="max-width: 200px;">
+    <div class="grid grid-center boost-data" [ngStyle]="shouldHideBoostedSlider() | hide">
+      <div class="grid-cell">
         <p class="label">
-          <input [ngStyle]="hideElement(!isLockAdjustActive())" #lockInput id="input-boost" (keyup)="onLockedOmmInputLostFocus()"
+          <input [ngStyle]="!isLockAdjustActive() | hide" #lockInput id="input-boost" (keyup)="onLockedOmmInputLostFocus()"
                  class="input-boost" type="text" name="">
-          <span [ngStyle]="hideElement(isLockAdjustActive())" class="omm-locked">{{userLockedOmmBalance | roundDown2Dec | usFormat}}</span> / {{getLockSliderMax() | usFormat}} OMM</p>
+          <span [ngStyle]="isLockAdjustActive() | hide" class="omm-locked">{{userLockedOmmBalance | roundDown2Dec | usFormat}}</span> / {{getLockSliderMax() | usFormat}} OMM</p>
       </div>
       <div class="grid-cell text-right">
-        <p class="label locked-default" [ngStyle]="hideElement(isLockAdjustActive() || userLockedOmmBalance.isZero())">{{userHasLockedOmm() ? unlockedOnLockedUntilLabel() : "Lock up until"}} {{timestampInMillisecondsToPrettyDate(lockDate())}}</p>
-        <div class="locked-adjust" [ngStyle]="hideElement(!isLockAdjustActive())">
+        <p class="label locked-default" [ngStyle]="(isLockAdjustActive() || userLockedOmmBalance.isZero()) | hide">{{userHasLockedOmm() ? unlockedOnLockedUntilLabel() : "Lock up until"}} {{timestampInMillisecondsToPrettyDate(lockDate())}}</p>
+        <div class="locked-adjust" [ngStyle]="!isLockAdjustActive() | hide">
           <p>
             <span class="label">{{unlockedOnLockedUntilLabel()}} </span> <a class="dropdown time-selector" (click)="onLockedDateDropdownClick()">
             <span class="animation-underline locked-selector">{{timestampInMillisecondsToPrettyDate(lockDate())}}</span></a></p>

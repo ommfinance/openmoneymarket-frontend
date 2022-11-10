@@ -77,7 +77,7 @@ export class ProposalComponent extends BaseClass implements OnInit, AfterViewIni
   }
 
   subscribeToLoginChange(): void {
-    this.stateChangeService.loginChange.subscribe((wallet) => {
+    this.stateChangeService.loginChange$.subscribe((wallet) => {
       // logout
       if (!wallet) {
         this.userVote = undefined;

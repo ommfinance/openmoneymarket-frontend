@@ -66,6 +66,8 @@ export class PersistenceService {
   public userClaimableIcx?: BigNumber;
   public userLockedOmm?: LockedOmm;
   public userbOmmBalance = new BigNumber("0");
+  public userDelegationWorkingbOmmBalance = new BigNumber("0");
+  public userRewardsWorkingbOmmBalance = new BigNumber("0");
   public userDebt: Map<CollateralAssetTag, BigNumber | undefined> = new Map<CollateralAssetTag, BigNumber | undefined>();
   public userVotingWeightForProposal: Map<BigNumber, BigNumber> = new Map<BigNumber, BigNumber>(); // proposalId to voting weight
   public userProposalVotes: Map<BigNumber, Vote> = new Map<BigNumber, Vote>();
@@ -77,6 +79,8 @@ export class PersistenceService {
   public totalStakedOmm = new BigNumber("0");
   public totalSuppliedOmm = new BigNumber("0");
   public bOmmTotalSupply = new BigNumber("0");
+  public delegationbOmmWorkingTotalSupply = new BigNumber("0");
+  public rewardsbOmmWorkingTotalSupply = new BigNumber("0");
   public ommPriceUSD = new BigNumber("-1"); // -1 indicates that ommPriceUSD is not set
 
   public tokenDistributionPerDay = new BigNumber("0");
@@ -123,7 +127,7 @@ export class PersistenceService {
   }
 
   getMinBOmmRequiredForProposal(): BigNumber {
-    return this.bOmmTotalSupply.multipliedBy(this.voteDefinitionCriterion);
+    return this.delegationbOmmWorkingTotalSupply.multipliedBy(this.voteDefinitionCriterion);
   }
 
   public getDistPercentageOfPool(poolId: BigNumber): BigNumber {

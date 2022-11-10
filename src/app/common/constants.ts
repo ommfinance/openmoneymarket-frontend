@@ -20,6 +20,16 @@ export const contributorsMap = new Map([
   ["hx2bbb1b0300f5dc0caa0e1a3ba1701a22e7590763", true] //  Protokol7
 ]);
 
+export const prepsOfferingIncentiveMap = new Map([
+  ["hxe872d22ad693279cd7ff33f51583f4117a4610b3", true], // CODE METAL
+  ["hx437e3ce53016ffc71be609a4d1194e41a5d89678", true], // Fomomental
+  ["hxca60d4371ad90d624dc7119f81009d799c168aa1", true], // Framd
+  ["hx3c58970034d5a923aa95058365450feed28979a2", true], //  Gangstabet
+  ["hx9121c5914ce34f59de52fe15efd6f7982c2ab8ae", true], //  IAM
+  ["hxc5e0b88cb9092bbd8b004a517996139334752f62", true], //  Inanis Invictus
+  ["hxaf33a0c15dbf52b76590422cbb7e2d835034cdf6", true], //  Plan-P
+]);
+
 // how much ICX should be left when user is supplying
 export const ICX_SUPPLY_BUFFER = 2;
 

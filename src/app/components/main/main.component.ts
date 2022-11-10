@@ -1,7 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import {PersistenceService} from "../../services/persistence/persistence.service";
-import {ReloaderService} from "../../services/reloader/reloader.service";
 
 @Component({
   selector: 'app-main',

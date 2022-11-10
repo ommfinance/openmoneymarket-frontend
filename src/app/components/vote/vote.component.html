@@ -41,7 +41,7 @@
                 <dl class="metadata">
                   <dt>Total voting power <span class="total-bomm-tooltip tooltip">
                     <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
-                    <p class="total-bomm-tooltip-content tooltip-content">{{totalbOmm() | usFormat}} bOMM</p>
+                    <p class="total-bomm-tooltip-content tooltip-content">{{totalDelegationWorkingbOmm() | roundDown2Dec | usFormat}} bOMM</p>
                   </span></dt>
                   <dd class="value-voting-power-total">{{ommVotingPower | roundDown2Dec | usFormat}} ICX</dd>
                 </dl>
@@ -61,7 +61,7 @@
   </app-latest-proposals>
 
   <!-- Your votes -->
-  <section id="your-votes" class="{{this.yourVotesEditMode ? 'adjust' : ''}}" [ngStyle]="hideElement(!userLoggedIn() || !userHasLockedOmm())">
+  <section id="your-votes" class="{{this.yourVotesEditMode ? 'adjust' : ''}}" [ngStyle]="(!userLoggedIn() || !userHasLockedOmm())  | hide">
     <!-- Title -->
     <div class="grid grid-center">
       <div class="grid-cell">
@@ -70,13 +70,13 @@
     </div>
 
     <!-- Message (If staked but not voted) -->
-    <p class="label text-center" style="margin-top: 25px;" [ngStyle]="hideElement(userHasVotedForPrep())">Add up to 5 P-Reps from the list.<br
-    >If you don’t choose any, your votes will be allocated towards the P-Reps that work on Omm.</p>
+    <p class="label text-center" style="margin-top: 25px;" [ngStyle]="userHasVotedForPrep() | hide">Add up to 5 validators from the list.
+      <br>If you don’t choose any, your votes will be allocated toward the validators that work on Omm.</p>
 
     <!-- Your votes list -->
     <div class="grid">
       <div class="grid-cell">
-        <table class="list vote" [ngStyle]="hideElement(!userHasVotedForPrep())">
+        <table class="list vote" [ngStyle]="!userHasVotedForPrep() | hide">
           <tbody>
           <ng-container *ngFor="let yourPrepVote of yourVotesPrepList; last as isLast; let i = index">
             <tr>
@@ -90,6 +90,9 @@
                     {{yourPrepVote.name}}
                     <ng-container *ngIf="isPrepOmmContributor(yourPrepVote.address)">
                       <br><span class="label contributor">Omm contributor</span>
+                    </ng-container>
+                    <ng-container *ngIf="isPrepOfferingIncentive(yourPrepVote.address)">
+                      <br><span class="label rewards">Offers incentives</span>
                     </ng-container>
                   </div>
                 </div>
@@ -105,14 +108,14 @@
         </table>
 
           <!-- Actions to show by default -->
-          <div class="grid grid-center actions-default" [ngStyle]="hideElement(!userHasVotedForPrep() || yourVotesEditMode)">
+          <div class="grid grid-center actions-default" [ngStyle]="(!userHasVotedForPrep() || yourVotesEditMode)  | hide">
             <div class="grid-cell text-center">
-              <a href="javascript:void(0);" id="vote-adjust" class="button" (click)="onAdjustVoteClick()">Adjust P-Reps</a>
+              <a href="javascript:void(0);" id="vote-adjust" class="button" (click)="onAdjustVoteClick()">Adjust validators</a>
             </div>
           </div>
 
           <!-- Actions to show when adjust class is active -->
-          <div class="grid grid-center actions-adjust" [ngStyle]="hideElement(!userHasVotedForPrep() && !yourVotesEditMode)">
+          <div class="grid grid-center actions-adjust" [ngStyle]="(!userHasVotedForPrep() && !yourVotesEditMode)  | hide">
             <div class="grid-cell text-right">
               <a href="javascript:void(0);" id="vote-adjust-cancel" class="cancel" (click)="onCancelAdjustVotesClick()">Cancel</a>
             </div>
@@ -127,71 +130,12 @@
   <!-- /Your votes -->
 
   <!-- P-Rep list -->
-  <section id="p-rep-list">
-    <!-- Title -->
-    <div class="grid grid-center title">
-      <div class="grid-cell">
-        <h2>P-Reps</h2>
-        <span id="p-rep-tooltip" class="tooltip">
-              <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
-              <div class="tooltip-content"><p>Public representatives operate nodes that keep the ICON Network – Omm's foundation – online. Many also contribute time and resources to build products and utilities, much like this one.</p></div>
-            </span>
-      </div>
-      <div class="grid-cell text-right">
-        <input type="text" name="" class="search" placeholder="Search P-Reps" [ngModel]="searchInput" (ngModelChange)="onSearchInputChange($event)">
-      </div>
-    </div>
-
-    <!-- P-Rep list -->
-    <div class="grid" *ngIf="searchedPrepList">
-      <div class="grid-cell">
-        <table class="list p-reps {{yourVotesEditMode || (userHasLockedOmm() && !listIsNotNullOrEmpty(yourVotesPrepList)) ? 'adjust' : ''}}">
-          <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Name</th>
-            <th class="text-right">
-              Earnings
-              <span id="tooltip-earnings" class="tooltip">
-                      <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
-                      <div class="tooltip-content"><p>The amount P-Reps earn each month, based on the number of votes.</p></div>
-                    </span>
-            </th>
-            <th class="text-right">Voting Power</th>
-          </tr>
-          </thead>
-          <tbody>
-            <ng-container *ngFor="let prep of searchedPrepList.preps; last as isLast; let i = index">
-              <!-- Prep -->
-              <tr>
-                <td>{{i + 1}}</td>
-                <td class="name">
-                  <div class="grid grid-center">
-                    <div class="grid-cell">
-                      <div class="plus" [ngStyle]="hideElement(!userLoggedIn() || prepIsInYourVotes(prep))" (click)="addYourVotePrep(prep)">+</div>
-                      <div class="minus" [ngStyle]="hideElement(!userLoggedIn() || !prepIsInYourVotes(prep) || !yourVotesEditMode)" (click)="removeYourVotePrepByAddress(prep)">–</div>
-                      <img [src]="prep.logoUrl" (error)="errorHandlerPrepLogo($event)">
-                    </div>
-                    <div class="grid-cell">
-                      {{prep.name}}
-                      <ng-container *ngIf="isPrepOmmContributor(prep.address)">
-                        <br><span class="label contributor">Omm contributor</span>
-                      </ng-container>
-                    </div>
-                  </div>
-                </td>
-                <td>${{getPrepsUSDReward(prep, i) | roundOff0Dec | usFormat}}<br>
-                  <span class="label">{{getPrepsIcxReward(prep, i) | roundOff0Dec | usFormat}} ICX</span></td>
-                <td>{{getPowerPercent(prep) | roundOff2DecPercent: true}}<br>
-                  <span class="label">{{prep!.power  | roundOff0Dec | usFormat | toZeroIfDash}}</span></td>
-              </tr>
-              <!-- Spacer -->
-              <tr *ngIf="!isLast" class="spacer"></tr>
-            </ng-container>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
+  <app-prep-list style="display: contents"
+                 [yourVotesPrepList]="yourVotesPrepList"
+                 [yourVotesEditMode]="yourVotesEditMode"
+                 (addYourVotePrepEvent)="addYourVotePrep($event)"
+                 (removeYourVotePrepEvent)="removeYourVotePrepByAddress($event)"
+  >
+  </app-prep-list>
   <!-- /P-Rep list -->
 </main>

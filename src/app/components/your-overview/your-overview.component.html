@@ -1,5 +1,5 @@
 <!-- Your overview content -->
-<div id="your-overview-content" class="grid panel" [ngStyle]="hideElement(marketOverviewActive || !userLoggedIn())">
+<div id="your-overview-content" class="grid panel" [ngStyle]="(marketOverviewActive || !userLoggedIn()) | hide">
   <!-- Supplied -->
   <div class="grid-cell border-right">
     <div class="grid">
@@ -15,7 +15,7 @@
       <div class="grid-cell text-center">
         <dl class="metadata">
           <dt class="">Your supply APY</dt>
-          <dd class="text-green value-supplied-apy">{{getUserAvgSupplyApy() | roundOff2DecPercent}}</dd>
+          <dd><span class="text-green value-supplied-apy">{{getUserAvgSupplyApy() | roundOff2DecPercent}}</span></dd>
         </dl>
       </div>
     </div>
@@ -36,7 +36,7 @@
       <div class="grid-cell text-center">
         <dl class="metadata">
           <dt>Your borrow APR</dt>
-          <dd class="{{avgBorrowAprClass()}} value-borrowed-apy">{{getUserAvgBorrowApy() | abs | roundOff2DecPercent}}</dd> <!-- Borrow APY -->
+          <dd><span class="{{avgBorrowAprClass()}} value-borrowed-apy">{{getUserAvgBorrowApy() | abs | roundOff2DecPercent}}</span></dd>
         </dl>
       </div>
     </div>

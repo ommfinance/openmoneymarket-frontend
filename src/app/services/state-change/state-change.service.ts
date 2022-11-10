@@ -31,7 +31,8 @@ export class StateChangeService {
   /**
    * login change
    */
-  public loginChange: Subject<IconexWallet | BridgeWallet | undefined> = new Subject<IconexWallet | BridgeWallet | undefined>();
+  private loginChange = new Subject<IconexWallet | BridgeWallet | undefined>();
+  public loginChange$ = this.loginChange.asObservable();
 
   /**
    * Map containing subscribable Subjects for each of the Asset (e.g. USDb, ICX, ..)
@@ -156,6 +157,18 @@ export class StateChangeService {
   private bOmmTotalSupplyChange = new Subject<BigNumber>();
   bOmmTotalSupplyChange$ = this.bOmmTotalSupplyChange.asObservable();
 
+  private delegationbOmmTotalWorkingSupplyChange = new Subject<BigNumber>();
+  delegationbOmmTotalWorkingSupplyChange$ = this.delegationbOmmTotalWorkingSupplyChange.asObservable();
+
+  private rewardsbOmmTotalWorkingSupplyChange = new Subject<BigNumber>();
+  rewardsbOmmTotalWorkingSupplyChange$ = this.rewardsbOmmTotalWorkingSupplyChange.asObservable();
+
+  private userDelegationWorkingbOmmChange = new Subject<BigNumber>();
+  userDelegationWorkingbOmmChange$ = this.userDelegationWorkingbOmmChange.asObservable();
+
+  private userRewardsWorkingbOmmChange = new Subject<BigNumber>();
+  userRewardsWorkingbOmmChange$ = this.userRewardsWorkingbOmmChange.asObservable();
+
   private currentTimestampChange = new Subject<{ currentTimestamp: number, currentTimestampMicro: BigNumber }>();
   currentTimestampChange$ = this.currentTimestampChange.asObservable();
 
@@ -242,9 +255,29 @@ export class StateChangeService {
     this.bOmmTotalSupplyChange.next(totalSupply);
   }
 
+  public delegationbOmmTotalWorkingSupplyUpdate(totalSupply: BigNumber): void {
+    this.persistenceService.delegationbOmmWorkingTotalSupply = totalSupply;
+    this.delegationbOmmTotalWorkingSupplyChange.next(totalSupply);
+  }
+
+  public rewardsbOmmTotalWorkingSupplyUpdate(totalSupply: BigNumber): void {
+    this.persistenceService.rewardsbOmmWorkingTotalSupply = totalSupply;
+    this.rewardsbOmmTotalWorkingSupplyChange.next(totalSupply);
+  }
+
   public userbOmmBalanceUpdate(balance: BigNumber): void {
     this.persistenceService.userbOmmBalance = balance;
     this.userbOmmBalanceChange.next(balance);
+  }
+
+  public userDelegationWorkingbOmmBalanceUpdate(balance: BigNumber): void {
+    this.persistenceService.userDelegationWorkingbOmmBalance = balance;
+    this.userDelegationWorkingbOmmChange.next(balance);
+  }
+
+  public userRewardsWorkingbOmmBalanceUpdate(balance: BigNumber): void {
+    this.persistenceService.userRewardsWorkingbOmmBalance = balance;
+    this.userRewardsWorkingbOmmChange.next(balance);
   }
 
   public userLockedOmmUpdate(lockedOmm: LockedOmm): void {

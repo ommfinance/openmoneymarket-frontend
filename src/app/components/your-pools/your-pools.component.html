@@ -1,6 +1,6 @@
 <table id="your-pools" class="list liquidity" [ngClass]="isAllPoolsActive() || !userLoggedIn() || !userHasStakedOrAvailableToAnyPool() ? 'hide':''">
   <thead>
-  <tr [ngStyle]="hideElement(shouldHideYourPoolsHeader())">
+  <tr [ngStyle]="shouldHideYourPoolsHeader() | hide">
     <th>Pool</th>
     <th>You've supplied</th>
     <th>LP tokens</th>

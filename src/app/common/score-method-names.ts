@@ -49,6 +49,9 @@ export class ScoreMethodNames {
   public static GET_ALL_ASSET_DIST_PERCENTAGE = "getAllAssetDistributionPercentage";
   public static GET_DAILY_REWARDS_RESERVES_POOLS = "getDailyRewards";
   public static GET_DAY = "getDay";
+  public static GET_WORKING_TOTAL = "getWorkingTotal";
+  public static GET_WORKING_BALANCES = "getWorkingBalances";
+
 
   /**
    * OmmToken SCORE
@@ -83,6 +86,8 @@ export class ScoreMethodNames {
   public static GET_USER_DELEGATION_DETAILS = "getUserDelegationDetails";
   public static UPDATE_DELEGATIONS = "updateDelegations";
   public static CLEAR_PREVIOUS_DELEGATIONS = "clearPrevious";
+  public static GET_WORKING_TOTAL_SUPPLY = "getWorkingTotalSupply";
+  public static GET_USER_WORKING_BALANCE = "getWorkingBalance";
 
   /**
    * Governance SCORE

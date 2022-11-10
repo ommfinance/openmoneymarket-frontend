@@ -1,10 +1,11 @@
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import {CalculationsService} from "../../services/calculations/calculations.service";
 import {BaseClass} from "../base-class";
 import BigNumber from "bignumber.js";
 import {Utils} from "../../common/utils";
+import {Subscription} from "rxjs";
 
 declare var noUiSlider: any;
 declare var wNumb: any;
@@ -14,7 +15,7 @@ declare var wNumb: any;
   templateUrl: './risk.component.html',
   styleUrls: ['./risk.component.css'],
 })
-export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
+export class RiskComponent extends BaseClass implements OnInit, OnDestroy, AfterViewInit {
 
   className = "[RiskComponent]";
 
@@ -27,6 +28,10 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
   totalRisk = new BigNumber("0");
 
   userTotalBorrowedUSD = Utils.ZERO;
+
+  /** Subscriptions */
+  totalRiskChangeSub?: Subscription;
+  userDataReloadSub?: Subscription;
 
   constructor(private stateChangeService: StateChangeService,
               public persistenceService: PersistenceService,
@@ -47,6 +52,11 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
     }
   }
 
+  ngOnDestroy(): void {
+    this.totalRiskChangeSub?.unsubscribe();
+    this.userDataReloadSub?.unsubscribe();
+  }
+
   initSubscribedValues(): void {
     this.subscribeToTotalRiskChange();
     this.subscribeToUserDataReload();
@@ -54,7 +64,7 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
 
   private subscribeToTotalRiskChange(): void {
     // subscribe to total risk changes
-    this.stateChangeService.userTotalRiskChange.subscribe(totalRisk => {
+    this.totalRiskChangeSub = this.stateChangeService.userTotalRiskChange.subscribe(totalRisk => {
       // log.debug("Total risk change = " + totalRisk);
       this.totalRisk = totalRisk;
       this.updateViewRiskData();
@@ -62,7 +72,7 @@ export class RiskComponent extends BaseClass implements OnInit, AfterViewInit {
   }
 
   public subscribeToUserDataReload(): void {
-    this.stateChangeService.afterUserDataReload$.subscribe(() => {
+    this.userDataReloadSub = this.stateChangeService.afterUserDataReload$.subscribe(() => {
       // re-calculate total risk percentage
       this.calculationService.calculateTotalRisk();
       this.userTotalBorrowedUSD = this.persistenceService.userTotalBorrowedUSD;
