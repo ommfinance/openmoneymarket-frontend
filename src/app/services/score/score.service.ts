@@ -31,6 +31,7 @@ import {Vote, VotersCount} from "../../models/classes/Vote";
 import {Proposal} from "../../models/classes/Proposal";
 import {LockedOmm} from "../../models/classes/LockedOmm";
 import {ILockedOmm} from "../../models/Interfaces/ILockedOmm";
+import {IRewardWorkingTotal} from "../../models/Interfaces/IRewardWorkingTotal";
 
 
 @Injectable({
@@ -507,10 +508,10 @@ export class ScoreService {
   }
 
   /**
-   * @description Get working total supply of bOMM
-   * @return BigNumber - working total supply of bOMM
+   * @description Get delegation SCORE working total supply of bOMM
+   * @return BigNumber - delegations working total supply of bOMM
    */
-  public async getWorkingTotalSupplyOfbOmm(): Promise<BigNumber> {
+  public async getDelegationWorkingTotalSupplyOfbOmm(): Promise<BigNumber> {
     this.checkerService.checkAllAddressesLoaded();
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Delegation,
@@ -518,9 +519,26 @@ export class ScoreService {
 
     const res: string = await this.iconApiService.iconService.call(tx).execute();
 
-    log.debug("getWorkingTotalSupplyOfbOmm: ", res);
+    log.debug("getDelegationWorkingTotalSupplyOfbOmm: ", res);
 
     return Utils.hexToNormalisedNumber(res);
+  }
+
+  /**
+   * @description Get Reward SCORE working total supply of bOMM
+   * @return BigNumber - rewards working total supply of bOMM
+   */
+  public async getRewardsWorkingTotalSupplyOfbOmm(): Promise<BigNumber> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Rewards,
+      ScoreMethodNames.GET_WORKING_TOTAL, {}, IconTransactionType.READ);
+
+    const res: IRewardWorkingTotal = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getRewardsWorkingTotalSupplyOfbOmm: ", res);
+
+    return Utils.hexToNormalisedNumber(res.bOMM);
   }
 
   /**

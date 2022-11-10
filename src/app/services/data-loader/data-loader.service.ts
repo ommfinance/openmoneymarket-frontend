@@ -304,11 +304,20 @@ export class DataLoaderService {
     }
   }
 
-  public async loadbOmmWorkingTotalSupply(): Promise<void> {
+  public async loadDelegationbOmmWorkingTotalSupply(): Promise<void> {
     try {
-      this.stateChangeService.bOmmTotalWorkingSupplyUpdate((await this.scoreService.getWorkingTotalSupplyOfbOmm()));
+      this.stateChangeService.delegationbOmmTotalWorkingSupplyUpdate((await this.scoreService.getDelegationWorkingTotalSupplyOfbOmm()));
     } catch (e) {
-      log.error("Error in loadbOmmWorkingTotalSupply:");
+      log.error("Error in loadDelegationbOmmWorkingTotalSupply:");
+      log.error(e);
+    }
+  }
+
+  public async loadRewardsbOmmWorkingTotalSupply(): Promise<void> {
+    try {
+      this.stateChangeService.rewardsbOmmTotalWorkingSupplyUpdate((await this.scoreService.getRewardsWorkingTotalSupplyOfbOmm()));
+    } catch (e) {
+      log.error("Error in loadRewardsbOmmWorkingTotalSupply:");
       log.error(e);
     }
   }
@@ -615,7 +624,8 @@ export class DataLoaderService {
       this.loadPrepList(),
       this.loadPoolsData(),
       this.loadProposalList(),
-      this.loadbOmmWorkingTotalSupply(),
+      this.loadDelegationbOmmWorkingTotalSupply(),
+      this.loadRewardsbOmmWorkingTotalSupply(),
       this.loadbOmmTotalSupply(),
     ]);
 
@@ -645,7 +655,8 @@ export class DataLoaderService {
       this.loadProposalList(),
       this.loadTotalOmmSupply(),
       this.loadVoteDuration(),
-      this.loadbOmmWorkingTotalSupply(),
+      this.loadDelegationbOmmWorkingTotalSupply(),
+      this.loadRewardsbOmmWorkingTotalSupply(),
       this.loadbOmmTotalSupply()
     ]);
 

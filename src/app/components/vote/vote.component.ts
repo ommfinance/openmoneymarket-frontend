@@ -55,6 +55,7 @@ export class VoteComponent extends BaseClass implements OnInit, OnDestroy, After
   votingPower = new BigNumber(0);
   ommVotingPower = new BigNumber(0);
   bOmmTotalSupply = new BigNumber(0);
+  delegationbOmmWorkingTotalSupply = new BigNumber(0);
 
   /** Subscriptions */
   coreDataReloadSub?: Subscription;
@@ -130,6 +131,7 @@ export class VoteComponent extends BaseClass implements OnInit, OnDestroy, After
 
   initCoreStaticValues(): void {
     this.bOmmTotalSupply = this.persistenceService.bOmmTotalSupply;
+    this.delegationbOmmWorkingTotalSupply = this.persistenceService.delegationbOmmWorkingTotalSupply;
     this.latestProposals = this.persistenceService.proposalList.slice(0, 3);
     this.yourVotesEditMode = false;
     this.voteOverviewEditMode = false;
@@ -288,8 +290,8 @@ export class VoteComponent extends BaseClass implements OnInit, OnDestroy, After
     return this.persistenceService.getUsersLockedOmmBalance();
   }
 
-  totalbOmm(): BigNumber {
-    return this.bOmmTotalSupply;
+  totalDelegationWorkingbOmm(): BigNumber {
+    return this.delegationbOmmWorkingTotalSupply;
   }
 
   userHasVotedForPrep(): boolean {

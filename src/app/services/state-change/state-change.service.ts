@@ -157,8 +157,11 @@ export class StateChangeService {
   private bOmmTotalSupplyChange = new Subject<BigNumber>();
   bOmmTotalSupplyChange$ = this.bOmmTotalSupplyChange.asObservable();
 
-  private bOmmTotalWorkingSupplyChange = new Subject<BigNumber>();
-  bOmmTotalWorkingSupplyChange$ = this.bOmmTotalWorkingSupplyChange.asObservable();
+  private delegationbOmmTotalWorkingSupplyChange = new Subject<BigNumber>();
+  delegationbOmmTotalWorkingSupplyChange$ = this.delegationbOmmTotalWorkingSupplyChange.asObservable();
+
+  private rewardsbOmmTotalWorkingSupplyChange = new Subject<BigNumber>();
+  rewardsbOmmTotalWorkingSupplyChange$ = this.rewardsbOmmTotalWorkingSupplyChange.asObservable();
 
   private userWorkingbOmmChange = new Subject<BigNumber>();
   userWorkingbOmmChange$ = this.userWorkingbOmmChange.asObservable();
@@ -249,9 +252,14 @@ export class StateChangeService {
     this.bOmmTotalSupplyChange.next(totalSupply);
   }
 
-  public bOmmTotalWorkingSupplyUpdate(totalSupply: BigNumber): void {
-    this.persistenceService.bOmmWorkingTotalSupply = totalSupply;
-    this.bOmmTotalWorkingSupplyChange.next(totalSupply);
+  public delegationbOmmTotalWorkingSupplyUpdate(totalSupply: BigNumber): void {
+    this.persistenceService.delegationbOmmWorkingTotalSupply = totalSupply;
+    this.delegationbOmmTotalWorkingSupplyChange.next(totalSupply);
+  }
+
+  public rewardsbOmmTotalWorkingSupplyUpdate(totalSupply: BigNumber): void {
+    this.persistenceService.rewardsbOmmWorkingTotalSupply = totalSupply;
+    this.rewardsbOmmTotalWorkingSupplyChange.next(totalSupply);
   }
 
   public userbOmmBalanceUpdate(balance: BigNumber): void {

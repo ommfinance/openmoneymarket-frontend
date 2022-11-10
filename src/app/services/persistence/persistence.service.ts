@@ -78,7 +78,8 @@ export class PersistenceService {
   public totalStakedOmm = new BigNumber("0");
   public totalSuppliedOmm = new BigNumber("0");
   public bOmmTotalSupply = new BigNumber("0");
-  public bOmmWorkingTotalSupply = new BigNumber("0");
+  public delegationbOmmWorkingTotalSupply = new BigNumber("0");
+  public rewardsbOmmWorkingTotalSupply = new BigNumber("0");
   public ommPriceUSD = new BigNumber("-1"); // -1 indicates that ommPriceUSD is not set
 
   public tokenDistributionPerDay = new BigNumber("0");
@@ -125,7 +126,7 @@ export class PersistenceService {
   }
 
   getMinBOmmRequiredForProposal(): BigNumber {
-    return this.bOmmWorkingTotalSupply.multipliedBy(this.voteDefinitionCriterion);
+    return this.delegationbOmmWorkingTotalSupply.multipliedBy(this.voteDefinitionCriterion);
   }
 
   public getDistPercentageOfPool(poolId: BigNumber): BigNumber {
