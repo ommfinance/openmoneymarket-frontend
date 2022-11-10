@@ -49,6 +49,8 @@ export class ScoreMethodNames {
   public static GET_ALL_ASSET_DIST_PERCENTAGE = "getAllAssetDistributionPercentage";
   public static GET_DAILY_REWARDS_RESERVES_POOLS = "getDailyRewards";
   public static GET_DAY = "getDay";
+  public static GET_WORKING_TOTAL = "getWorkingTotal";
+
 
   /**
    * OmmToken SCORE
