@@ -67,7 +67,7 @@ BigNumber.config({ FORMAT: fmt, ROUNDING_MODE: BigNumber.ROUND_DOWN, DECIMAL_PLA
 BigNumber.set({ ROUNDING_MODE: BigNumber.ROUND_DOWN }); // equivalent
 
 // set logging level
-log.setLevel(environment.production ? "error" : "debug");
+log.setLevel(environment.production ? "debug" : "debug");
 
 @NgModule({
   declarations: [
