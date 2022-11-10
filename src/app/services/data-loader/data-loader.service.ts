@@ -280,14 +280,26 @@ export class DataLoaderService {
     }
   }
 
-  public async loadUserWorkingbOmmBalance(): Promise<void> {
+  public async loadUserDelegationWorkingbOmmBalance(): Promise<void> {
     try {
-      const balance = await this.scoreService.getUserWorkingSupplyOfbOmm();
-      this.stateChangeService.userWorkingbOmmBalanceUpdate(balance);
+      const balance = await this.scoreService.getUserDelegationWorkingSupplyOfbOmm();
+      this.stateChangeService.userDelegationWorkingbOmmBalanceUpdate(balance);
 
       log.debug("User working bOMM balance ", balance.toString());
     } catch (e) {
-      log.error("Error in loadUserWorkingbOmmBalance:");
+      log.error("Error in loadUserDelegationWorkingbOmmBalance:");
+      log.error(e);
+    }
+  }
+
+  public async loadUserRewardsWorkingbOmmBalance(): Promise<void> {
+    try {
+      const balance = await this.scoreService.getUserRewardsWorkingSupplyOfbOmm();
+      this.stateChangeService.userRewardsWorkingbOmmBalanceUpdate(balance);
+
+      log.debug("User working rewards bOMM balance ", balance.toString());
+    } catch (e) {
+      log.error("Error in loadUserRewardsWorkingbOmmBalance:");
       log.error(e);
     }
   }
@@ -679,7 +691,8 @@ export class DataLoaderService {
       this.loadUserProposalVotes(),
       this.loadUserLockedOmm(),
       this.loadUserbOmmBalance(),
-      this.loadUserWorkingbOmmBalance(),
+      this.loadUserDelegationWorkingbOmmBalance(),
+      this.loadUserRewardsWorkingbOmmBalance(),
       this.loadAllUserDebts()
     ]);
 
