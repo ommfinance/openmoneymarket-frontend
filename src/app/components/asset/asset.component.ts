@@ -936,7 +936,7 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
   }
 
   shouldHideBorrowContent(): boolean {
-    return this.persistenceService.userHasNotSuppliedAnyAsset() || this.shouldHideBorrowSlider() || this.isAssetOmm();
+    return this.persistenceService.userHasNotSuppliedAnyAsset() || this.shouldHideBorrowSlider() || (!this.isAssetBorrowable);
   }
 
   calculateDynamicDailySupplyInterest(assetTag: AssetTag | CollateralAssetTag, amountBeingSupplied?: BigNumber): BigNumber {
@@ -1174,7 +1174,7 @@ export class AssetComponent extends BaseClass implements OnInit, OnDestroy, Afte
 
     const decimals = Utils.countDecimals(el?.value);
     const unit = 5;
-    const base = inputSupply ? (this.isAssetOmm() ? 50 : 40) : 35;
+    const base = this.isAssetOmm() ? 50 : 35;
 
     const res =  base + (tag.length * unit + (tag.length > 3 ? 10 : -10));
 
