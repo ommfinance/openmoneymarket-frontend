@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import {IconexWallet} from "../../models/wallets/IconexWallet";
-import {IconConverter } from "icon-sdk-js";
+import IconService from "icon-sdk-js";
+const { IconConverter } = IconService;
 import {TransactionResultService} from '../transaction-result/transaction-result.service';
 import log from "loglevel";
 import {OmmError} from "../../core/errors/OmmError";

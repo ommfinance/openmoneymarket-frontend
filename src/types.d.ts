@@ -1,2 +1,2 @@
-declare module 'icon-sdk-js';
+// declare module 'icon-sdk-js';
 
