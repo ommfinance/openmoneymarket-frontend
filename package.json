@@ -16,8 +16,8 @@
     "deploy": "ng build && cd .. && git subtree push --prefix frontend heroku master"
   },
   "engines": {
-    "node": "18.x",
-    "npm": "8.x"
+    "node": "16.x",
+    "npm": "7.x"
   },
   "private": true,
   "dependencies": {
