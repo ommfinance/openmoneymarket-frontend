@@ -17,7 +17,7 @@
   },
   "engines": {
     "node": "16.x",
-    "npm": "7.x"
+    "npm": "8.x"
   },
   "private": true,
   "dependencies": {
@@ -36,7 +36,7 @@
     "angular-resize-event": "3.1.1",
     "bignumber.js": "^7.2.1",
     "buffer": "^6.0.3",
-    "icon-sdk-js": "^1.2.8",
+    "icon-sdk-js": "^1.2.1",
     "jquery": "3.4.1",
     "loglevel": "^1.8.0",
     "ngx-device-detector": "^3.0.0",
