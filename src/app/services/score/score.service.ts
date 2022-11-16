@@ -16,7 +16,8 @@ import {AssetTag, CollateralAssetTag} from "../../models/classes/Asset";
 import log from "loglevel";
 import {PrepList} from "../../models/classes/Preps";
 import {Mapper} from "../../common/mapper";
-import {IconAmount, IconConverter} from "icon-sdk-js";
+import IconService from "icon-sdk-js";
+const { IconConverter, IconAmount } = IconService;
 import {YourPrepVote} from "../../models/classes/YourPrepVote";
 import {DelegationPreference} from "../../models/classes/DelegationPreference";
 import {UnstakeInfo} from "../../models/classes/UnstakeInfo";
@@ -59,7 +60,7 @@ export class ScoreService {
    * @description Get Token Distribution per day
    * @return  Token distribution per day in number
    */
-  public async getTokenDistributionPerDay(day?: BigNumber): Promise<BigNumber> {
+  public async getTokenDistributionPerDay(day?: BigNumber | string): Promise<BigNumber> {
     this.checkerService.checkAllAddressesLoaded();
 
     day = day ? IconConverter.toHex(day) : await this.getRewardsDay();
@@ -763,7 +764,7 @@ export class ScoreService {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const params = {
-      vote_index: IconConverter.toHex(proposalId),
+      vote_index: IconConverter.toHex(proposalId ?? 0),
       user: this.persistenceService.activeWallet!.address
     };
 

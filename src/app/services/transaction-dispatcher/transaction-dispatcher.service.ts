@@ -8,7 +8,8 @@ import {LedgerWallet} from "../../models/wallets/LedgerWallet";
 import {LedgerService} from "../ledger/ledger.service";
 import {NotificationService} from "../notification/notification.service";
 import {IconApiService} from "../icon-api/icon-api.service";
-import {IconConverter} from "icon-sdk-js";
+import IconService from "icon-sdk-js";
+const { IconConverter } = IconService;
 import {TransactionResultService} from "../transaction-result/transaction-result.service";
 import {LocalStorageService} from "../local-storage/local-storage.service";
 import {IconexId} from "../../models/enums/IconexId";
@@ -61,7 +62,7 @@ export class TransactionDispatcherService {
         this.transactionResultService.processIconTransactionResult(txHash);
 
       }
-    } catch (e) {
+    } catch (e: any) {
       this.transactionResultService.showFailedActionNotification(e?.message ?? "", this.localStorageService.getLastModalAction());
     }
   }

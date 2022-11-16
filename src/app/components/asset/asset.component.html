@@ -289,7 +289,7 @@
                 <div class="tooltip-content"><p>While you borrow assets, your supply is at risk of liquidation. Keep it below 50% to reduce the impact of volatile markets.</p></div>
               </span>
             </div>
-            <div class="grid-cell text-right" [ngStyle]="isAssetOmm() | hide">
+            <div class="grid-cell text-right">
               <p><span class="borrow-apy {{isNegative(getBorrowRateForActiveMarket()) ? '':'text-green'}} value-apy-bridge-borrow-suffix" #borrowAprEl>{{makeAbsolute(getBorrowRateForActiveMarket()) | roundOff2DecPercent}} APR</span></p>
             </div>
           </div>
@@ -379,13 +379,13 @@
           </div>
 
           <!-- Borrow deny (Show if user can't borrow) -->
-          <div class="borrow-deny hide" [ngStyle]="displayAsBlockOrHide(shouldShowBorrowDeny() && !isAssetOmm())">
+          <div class="borrow-deny hide" [ngStyle]="displayAsBlockOrHide(shouldShowBorrowDeny() && isAssetBorrowable)">
             <p class="text-center label message">Supply an asset to borrow {{asset.name}}.</p>
           </div>
 
           <!-- Borrow unavailable for OMM -->
-          <div class="borrow-deny hide" [ngStyle]="displayAsBlockOrHide(isAssetOmm())">
-            <p class="text-center label message">Omm Tokens aren't available to borrow.</p>
+          <div class="borrow-deny hide" [ngStyle]="displayAsBlockOrHide(!isAssetBorrowable)">
+            <p class="text-center label message">{{asset.name}} aren't available to borrow.</p>
           </div>
 
         </div>

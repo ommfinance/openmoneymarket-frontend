@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core';
 import {IconApiService} from "../icon-api/icon-api.service";
 import {PersistenceService} from "../persistence/persistence.service";
-import {IconAmount, IconConverter} from "icon-sdk-js";
 import {ScoreMethodNames} from "../../common/score-method-names";
 import {IconTransactionType} from "../../models/enums/IconTransactionType";
 import {CheckerService} from "../checker/checker.service";
@@ -10,6 +9,8 @@ import {AssetTag, CollateralAssetTag} from "../../models/classes/Asset";
 import {Utils} from "../../common/utils";
 import {TransactionDispatcherService} from "../transaction-dispatcher/transaction-dispatcher.service";
 import BigNumber from "bignumber.js";
+import IconService from "icon-sdk-js";
+const { IconConverter, IconAmount } = IconService;
 
 @Injectable({
   providedIn: 'root'
