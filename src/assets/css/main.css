@@ -2472,20 +2472,6 @@ input[type="text"].input-borrow-available {
 *
 */
 
-/*
-#proposal-cards > .grid > .grid-cell.active-vote:before {
-	content: "";
-	position: absolute;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	z-index: -1;
-	margin: -2px;
-	border-radius: 13px;
-	background: linear-gradient(40deg, #9d4df1, #00d3c2);
-}
-*/
 #proposal-cards p,
 #proposal-list p {
   color: #7a8294;
@@ -2527,7 +2513,9 @@ input[type="text"].input-borrow-available {
   transition: opacity 0.3s ease;
 }
 #proposal-cards .panel:hover::before,
-#proposal-list .panel:hover::before {
+#proposal-cards .panel.active-vote::before,
+#proposal-list .panel:hover::before,
+#proposal-list .panel.active-vote::before {
   opacity: 1;
   transition: opacity 0.2s ease;
 }

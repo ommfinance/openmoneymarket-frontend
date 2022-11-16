@@ -8,6 +8,7 @@ import log from "loglevel";
 import {InterestHistory} from "../../models/classes/InterestHistory";
 import {InterestHistoryPersist} from "../../models/classes/InterestHistoryPersist";
 import {Utils} from "../../common/utils";
+import {lastValueFrom, Observable} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -68,15 +69,15 @@ export class InterestHistoryService {
   }
 
   public getInterestHistory(): Promise<InterestHistoryResult> {
-    return this.httpClient.get<InterestHistoryResult>(environment.ommRestApi + "/interest-history").toPromise();
+    return lastValueFrom(this.httpClient.get<InterestHistoryResult>(environment.ommRestApi + "/interest-history"));
   }
 
   public getInterestHistoryFromTo(from: string, to: string): Promise<InterestHistoryResult> {
-    return this.httpClient.get<InterestHistoryResult>(environment.ommRestApi + "/interest-history/dates/between", {
+    return lastValueFrom(this.httpClient.get<InterestHistoryResult>(environment.ommRestApi + "/interest-history/dates/between", {
       params: new HttpParams({
         fromObject: { from, to }
       })
-    }).toPromise();
+    }));
   }
 
   public getAverageInterests(interestHistoryRecord: InterestHistoryRecord[]): {supplyApy: number, borrowApr: number} {

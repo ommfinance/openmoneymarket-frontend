@@ -43,9 +43,9 @@ export class Utils {
     if (!value || !(new BigNumber(value).isFinite())) {
       return new BigNumber("0");
     } else if (typeof value === "string") {
-      return new BigNumber(value, 16).dividedBy(new BigNumber("10").pow(decimals));
+      return new BigNumber(value, 16).dividedBy(new BigNumber("10").pow(decimals.toNumber()));
     } else {
-      return value.dividedBy(new BigNumber("10").pow(decimals));
+      return value.dividedBy(new BigNumber("10").pow(decimals.toNumber()));
     }
   }
 
@@ -108,7 +108,7 @@ export class Utils {
   }
 
   public static normalisedAmountToBaseAmountString(amount: BigNumber, decimals: BigNumber = new BigNumber("18")): string {
-    return amount.multipliedBy(new BigNumber("10").pow(decimals)).toFixed();
+    return amount.multipliedBy(new BigNumber("10").pow(decimals.toNumber())).toFixed();
   }
 
   public static roundOffTo2Decimals(value: BigNumber | string | number): string {

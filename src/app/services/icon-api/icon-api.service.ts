@@ -1,12 +1,13 @@
 import { Injectable } from "@angular/core";
 import {Utils} from "../../common/utils";
-import IconService, {IconBuilder, IconAmount, IconConverter} from 'icon-sdk-js';
-const { CallBuilder, CallTransactionBuilder, IcxTransactionBuilder,  } = IconBuilder;
 import {environment} from "../../../environments/environment";
 import {IconTransactionType} from "../../models/enums/IconTransactionType";
 import log from "loglevel";
 import {HttpClient} from "@angular/common/http";
 import BigNumber from "bignumber.js";
+import IconService from "icon-sdk-js";
+const { IconConverter, IconAmount, IconBuilder } = IconService;
+const { CallBuilder, CallTransactionBuilder, IcxTransactionBuilder,  } = IconBuilder;
 
 
 @Injectable({
@@ -42,7 +43,7 @@ export class IconApiService {
 
 
   public buildTransaction(from: string, to: string, method: string, params: any, transactionType: IconTransactionType,
-                          value?: BigNumber): any {
+                          value?: BigNumber | string): any {
     let tx = null;
     const timestamp = (new Date()).getTime() * 1000;
     const nonce = IconConverter.toHex(IconConverter.toBigNumber(1));
@@ -55,6 +56,8 @@ export class IconApiService {
       case IconTransactionType.WRITE:
         /* Build `CallTransaction` instance for executing SCORE function. */
         tx = new CallTransactionBuilder()
+          .method(method)
+          .params(params)
           .from(from)
           .to(to)
           .stepLimit(stepLimit)
@@ -63,8 +66,6 @@ export class IconApiService {
           .nonce(nonce)
           .version(version)
           .timestamp(timestamp)
-          .method(method)
-          .params(params)
           .build();
         break;
       case IconTransactionType.READ:
