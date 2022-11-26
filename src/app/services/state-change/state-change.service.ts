@@ -19,6 +19,7 @@ import {Vote} from "../../models/classes/Vote";
 import {InterestHistory} from "../../models/classes/InterestHistory";
 import {LockedOmm} from "../../models/classes/LockedOmm";
 import {UserDailyOmmReward} from "../../models/classes/UserDailyOmmReward";
+import {AllAddresses} from "../../models/classes/AllAddresses";
 
 @Injectable({
   providedIn: 'root'
@@ -27,6 +28,12 @@ import {UserDailyOmmReward} from "../../models/classes/UserDailyOmmReward";
  * Service that manages state changes
  */
 export class StateChangeService {
+
+  /**
+   * login change
+   */
+  private allAddressesLoaded = new Subject<AllAddresses>();
+  public allAddressesLoaded$ = this.allAddressesLoaded.asObservable();
 
   /**
    * login change
@@ -227,6 +234,12 @@ export class StateChangeService {
         }
       });
     });
+  }
+
+  public allAddressesLoadedUpdate(allAddresses: AllAddresses): void {
+    this.persistenceService.allAddresses = new AllAddresses(allAddresses.collateral, allAddresses.oTokens, allAddresses.dTokens,
+      allAddresses.systemContract);
+    this.allAddressesLoaded.next(allAddresses);
   }
 
   public lockedOmmActionSucceededUpdate(succeeded: boolean): void {

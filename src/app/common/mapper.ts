@@ -35,8 +35,18 @@ import {ILockedOmm} from "../models/Interfaces/ILockedOmm";
 import {LockedOmm} from "../models/classes/LockedOmm";
 import {UserDailyOmmReward} from "../models/classes/UserDailyOmmReward";
 import {IUserDailyOmmReward} from "../models/Interfaces/IUserDailyOmmReward";
+import {IScoreParameter, IScorePayloadParameter, scoreParamToPayloadParam} from "../models/Interfaces/IScoreParameter";
 
 export class Mapper {
+
+  public static mapScoreParamsToPayloadArray(params: IScoreParameter[], values: string[]): IScorePayloadParameter[] {
+    return params.map((param, index) => {
+      return {
+        type: scoreParamToPayloadParam(param.type),
+        value: values[index]
+      }
+    });
+  }
 
   public static mapInterestHistory(interestHistory: InterestHistory[]): InterestHistory[] {
     interestHistory.forEach(el => {

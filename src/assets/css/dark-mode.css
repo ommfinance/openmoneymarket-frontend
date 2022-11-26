@@ -296,7 +296,8 @@
   #performance #time-selector.active {
     color: #ffffff;
   }
-  #performance .time-selector-content {
+  #performance .time-selector-content,
+  #proposal .proposal-selector-content {
     background: #282b2f;
     color: #7a8294;
   }
@@ -414,7 +415,11 @@
   .mobile-market .metadata-group {
     background-color: #32343c;
   }
-
+  .select-box {
+    background-color: #32343c;
+    border: 2px solid #32343c;
+    color: #ffffff;
+  }
 }
 @media (prefers-color-scheme: dark) and (max-width: 1200px) {
   .navigation {
