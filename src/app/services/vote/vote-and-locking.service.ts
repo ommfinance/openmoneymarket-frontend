@@ -291,7 +291,7 @@ export class VoteAndLockingService {
     const value = IconConverter.toHex(IconAmount.of(proposal.voteDefinitionFee, 18).toLoop());
     const dataPayload = `{ "method": "defineVote", "params": { "name": "${
       proposal.title}", "description": "${ // "unique name of the proposal"
-      proposal.description}", "forum": "${proposal.forumLink}", "transactions": '${proposal.transactions}'}}`;
+      proposal.description}", "forum": "${proposal.forumLink}"${ proposal.transactions ? ', "transactions": ' + JSON.stringify(proposal.transactions) : ''}}}`;
     log.debug("Create proposal data payload:", dataPayload);
     const data = IconConverter.fromUtf8(dataPayload);
 

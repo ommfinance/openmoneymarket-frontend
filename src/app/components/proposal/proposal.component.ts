@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {Proposal} from "../../models/classes/Proposal";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import {BaseClass} from "../base-class";
@@ -14,19 +14,32 @@ import {ModalStatus} from "../../models/classes/ModalAction";
 import BigNumber from "bignumber.js";
 import {ActivatedRoute} from "@angular/router";
 import {Utils} from "../../common/utils";
+import {IScoreParameter, IScoreParameterValue, scorePayloadParameterToString} from "../../models/Interfaces/IScoreParameter";
+import {Subscription} from "rxjs";
+import {IconApiService} from "../../services/icon-api/icon-api.service";
+import {IProposalScoreDetails} from "../../models/Interfaces/IProposalScoreDetails";
+import {IProposalTransactions} from "../../models/Interfaces/IProposalTransactions";
 
 @Component({
   selector: 'app-proposal',
   templateUrl: './proposal.component.html'
 })
-export class ProposalComponent extends BaseClass implements OnInit, AfterViewInit {
+export class ProposalComponent extends BaseClass implements OnInit, AfterViewInit, OnDestroy {
 
   activeProposal?: Proposal;
   userVote?: Vote;
   proposalId?: BigNumber;
+  proposalScoreDetails?: IProposalScoreDetails[];
 
   currentTimestampMicro = Utils.timestampNowMicroseconds();
 
+  allAddressesLoaded = false;
+  allAddressesLoadedSub?: Subscription;
+  pathParamSub?: Subscription;
+  loginSub?: Subscription;
+  userVoteChangeSub?: Subscription;
+  proposalListSub?: Subscription;
+  modalActionSub?: Subscription;
 
   constructor(private modalService: ModalService,
               public persistenceService: PersistenceService,
@@ -34,16 +47,30 @@ export class ProposalComponent extends BaseClass implements OnInit, AfterViewIni
               private stateChangeService: StateChangeService,
               private scoreService: ScoreService,
               private cdRef: ChangeDetectorRef,
-              private route: ActivatedRoute) {
+              private route: ActivatedRoute,
+              private iconApi: IconApiService) {
       super(persistenceService);
   }
 
   ngOnInit(): void {
+    this.loadAsyncData();
+
+    this.subscribeToAllAddressesLoaded();
+
     this.subscribeToPathParamsChange();
     this.subscribeToModalActionResult();
     this.subscribeToUserProposalVoteChange();
     this.subscribeToProposalListChange();
     this.subscribeToLoginChange();
+  }
+
+  ngOnDestroy(): void {
+    this.allAddressesLoadedSub?.unsubscribe();
+    this.pathParamSub?.unsubscribe();
+    this.loginSub?.unsubscribe();
+    this.userVoteChangeSub?.unsubscribe();
+    this.proposalListSub?.unsubscribe();
+    this.modalActionSub?.unsubscribe();
   }
 
   ngAfterViewInit(): void {
@@ -52,15 +79,46 @@ export class ProposalComponent extends BaseClass implements OnInit, AfterViewIni
     }
   }
 
-  subscribeToCurrenTimestampChange(): void {
-    this.stateChangeService.currentTimestampChange$.subscribe(res => {
-      this.currentTimestampMicro = res.currentTimestampMicro;
-    });
+  subscribeToAllAddressesLoaded(): void {
+    this.allAddressesLoadedSub = this.stateChangeService.allAddressesLoaded$.subscribe(() => {
+      this.allAddressesLoaded = true;
+      this.loadAsyncData();
+    })
+  }
+
+  loadAsyncData(): void {
+    if (this.allAddressesLoaded || this.persistenceService.allAddresses) {
+      this.loadAsyncContractOptions();
+    }
+  }
+
+  async loadAsyncContractOptions(): Promise<void> {
+    if (this.activeProposal && this.activeProposal?.transactions && this.activeProposal.transactions.length > 0) {
+      this.proposalScoreDetails = [];
+
+      // fetch transactions contract name, methods and api
+      Promise.all(this.activeProposal.transactions.map(async (transaction) => {
+        const name = await this.scoreService.getContractName(transaction.address);
+        const method = transaction.method;
+        const scoreApi = await this.iconApi.getScoreApi(transaction.address);
+        const methodParams: IScoreParameter[] = scoreApi.getMethod(method).inputs;
+        const parameters: IScoreParameterValue[] = new Array<IScoreParameterValue>();
+        // combine method params and value in single object
+        transaction.parameters.forEach((param, index) => parameters.push({ value: param.value, ...methodParams[index] }));
+
+        this.proposalScoreDetails!.push({
+          address: transaction.address,
+          name,
+          method,
+          parameters
+        });
+      }));
+    }
   }
 
   subscribeToPathParamsChange(): void {
     // handle when user comes directly to the link with id
-    this.route.paramMap.subscribe(paramMap => {
+    this.pathParamSub = this.route.paramMap.subscribe(paramMap => {
       log.debug("subscribeToPathParamsChange...");
       const proposalId = new BigNumber(paramMap.get('id') ?? 0);
 
@@ -77,7 +135,7 @@ export class ProposalComponent extends BaseClass implements OnInit, AfterViewIni
   }
 
   subscribeToLoginChange(): void {
-    this.stateChangeService.loginChange$.subscribe((wallet) => {
+    this.loginSub = this.stateChangeService.loginChange$.subscribe((wallet) => {
       // logout
       if (!wallet) {
         this.userVote = undefined;
@@ -86,7 +144,7 @@ export class ProposalComponent extends BaseClass implements OnInit, AfterViewIni
   }
 
   subscribeToProposalListChange(): void {
-    this.stateChangeService.proposalListChange.subscribe((proposalList) => {
+    this.proposalListSub = this.stateChangeService.proposalListChange.subscribe((proposalList) => {
       log.debug("proposalListChange..", proposalList);
       log.debug("proposalId = " + this.proposalId?.toString());
       for (const proposal of proposalList) {
@@ -101,7 +159,7 @@ export class ProposalComponent extends BaseClass implements OnInit, AfterViewIni
   }
 
   subscribeToUserProposalVoteChange(): void {
-    this.stateChangeService.userProposalVotesChange$.subscribe((change) => {
+    this.userVoteChangeSub = this.stateChangeService.userProposalVotesChange$.subscribe((change) => {
       if (this.userLoggedIn() && this.activeProposal?.id === change.proposalId) {
         this.userVote = this.persistenceService.userProposalVotes.get(this.activeProposal.id);
       }
@@ -109,7 +167,7 @@ export class ProposalComponent extends BaseClass implements OnInit, AfterViewIni
   }
 
   private subscribeToModalActionResult(): void {
-    this.stateChangeService.userModalActionResult.subscribe(res => {
+    this.modalActionSub = this.stateChangeService.userModalActionResult.subscribe(res => {
       if (res.modalAction.modalType === ModalType.CAST_VOTE && res.modalAction.governanceAction?.proposalId?.isEqualTo(
         this.activeProposal?.id ?? -1)) {
         if (res.status === ModalStatus.CANCELLED) {
@@ -130,6 +188,7 @@ export class ProposalComponent extends BaseClass implements OnInit, AfterViewIni
     log.debug("handleProposal:", proposal);
     this.activeProposal = proposal;
     this.proposalId = this.activeProposal.id;
+    this.loadAsyncData();
 
     if (this.userLoggedIn()) {
       log.debug("handleProposal... Setting userVote:", this.persistenceService.userProposalVotes.get(this.activeProposal.id));
@@ -147,6 +206,14 @@ export class ProposalComponent extends BaseClass implements OnInit, AfterViewIni
     } else {
       return new BigNumber("0");
     }
+  }
+
+  isProposalContractType(): boolean {
+    return this.activeProposal?.transactions !== undefined && this.activeProposal?.transactions.length > 0;
+  }
+
+  constructScoreDetailsKey(transaction: IProposalTransactions): string {
+    return transaction.address + transaction.method + scorePayloadParameterToString(transaction.parameters);
   }
 
   isVoteValid(): boolean {

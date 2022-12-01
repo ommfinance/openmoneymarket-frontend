@@ -23,7 +23,6 @@ import {ProposalType} from "../../models/enums/ProposalType";
 import {ScoreService} from "../../services/score/score.service";
 import {StateChangeService} from "../../services/state-change/state-change.service";
 import {Subscription} from "rxjs";
-import log from "loglevel";
 import {IconApiService} from "../../services/icon-api/icon-api.service";
 import {IScoreParameter, IScorePayloadParameter, scoreParamToPayloadParam} from "../../models/Interfaces/IScoreParameter";
 import {BaseClass} from "../base-class";
@@ -59,8 +58,8 @@ export class NewProposalComponent extends BaseClass implements OnInit, OnDestroy
   contractMethodsMap = new Map<string, string[]>();
   contractNameMap = new Map<string, string>();
   methodParamsMap = new Map<string, IScoreParameter[]>();
-  transactions?: any;
   parametersMap = new Map<string, IParamInput>(); // param name -> param
+  transactions?: any;
 
   allAddressesLoaded = false;
   allAddressesLoadedSub?: Subscription;
@@ -249,7 +248,7 @@ export class NewProposalComponent extends BaseClass implements OnInit, OnDestroy
       return false;
     } else if (this.proposalType === ProposalType.CONTRACT && (!this.selectedContract || !this.selectedMethod)) {
       return false
-    } else if (!this.allMethodParamsAreInParamsMap()) {
+    } else if (this.proposalType === ProposalType.CONTRACT && !this.allMethodParamsAreInParamsMap()) {
       return false;
     }
 
@@ -278,14 +277,14 @@ export class NewProposalComponent extends BaseClass implements OnInit, OnDestroy
     return parameters;
   }
 
-  constructTransactionsJson(): void {
-    this.transactions = [
+  constructTransactionsJson(): any[] {
+    return [
       {
         address: this.selectedContract,
         method: this.selectedMethod,
         parameters: this.constructParameters()
       }
-    ]
+    ];
   }
 
   allMethodParamsAreInParamsMap(): boolean {
@@ -325,11 +324,12 @@ export class NewProposalComponent extends BaseClass implements OnInit, OnDestroy
       return;
     }
 
-    this.constructTransactionsJson();
+    if (this.proposalType === ProposalType.CONTRACT) {
+      this.transactions = this.constructTransactionsJson();
+    } else {
+      this.transactions = undefined;
+    }
 
-    log.debug("transactions input", this.transactions);
-    log.debug("transactions JSON.stringify: ", JSON.stringify(this.transactions));
-    log.debug("transactions json parsed: ", JSON.parse(JSON.stringify(this.transactions)));
 
     // TODO save forum link to the omm.api
     const proposal = new CreateProposal(
@@ -339,7 +339,7 @@ export class NewProposalComponent extends BaseClass implements OnInit, OnDestroy
       new BigNumber("0"),
       this.voteDefinitionFee(),
       encodeURI(this.forumLink),
-      this.transactions !== "" ? JSON.stringify(this.transactions) : "{}"
+      this.transactions != undefined ? JSON.stringify(this.transactions) : undefined
     );
 
     const governanceAction = new GovernanceAction(proposal, false);

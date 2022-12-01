@@ -6,9 +6,19 @@ export interface IScoreParameter {
   type: ScoreParamType
 }
 
+export interface IScoreParameterValue extends IScoreParameter {
+  value: string;
+}
+
 export interface IScorePayloadParameter {
   type: ScorePayloadParamType;
   value: string;
+}
+
+export function scorePayloadParameterToString(params: IScorePayloadParameter[]): string {
+  const res = "";
+  params.forEach(param => res + param.type.toString() + param.value);
+  return res;
 }
 
 export function scoreParamToPayloadParam(param: ScoreParamType): ScorePayloadParamType {

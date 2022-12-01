@@ -460,7 +460,8 @@ export class Mapper {
         Utils.hexToNumber(proposal["start day"]),
         proposal.status,
         Utils.hexToNumber(proposal["vote snapshot"]),
-        decodeURI(proposal.forum)
+        decodeURI(proposal.forum),
+        proposal.transactions ? JSON.parse(proposal.transactions) : undefined
       );
     }).sort((a, b) => b.startDay.minus(a.startDay).toNumber());
   }

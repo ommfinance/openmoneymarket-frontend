@@ -137,7 +137,7 @@
     </section>
 
     <!-- Contract / method -->
-    <div class="grid side-by-side">
+    <div class="grid side-by-side hide">
       <div class="grid-cell">
         <h2>Smart contract</h2>
         <!-- Proposal contract -->
@@ -164,28 +164,25 @@
       </div>
     </div>
 
-    <h2>Parameters</h2>
-    <!-- Proposal parameters -->
-    <section id="proposal-parameters">
-      <!-- Container -->
-      <div class="grid panel">
-        <div class="grid-cell">
-          <code>
-            "address": "cx00",
-            "method" : "transferOmm",
-            "params" : "[
-            {{'{'}}
-            "type": "Number",
-            "value": "0x11"
-            },{{'{'}}
-            "type": "Address",
-            "value": "hx000"
-            }
-            ]"
-          </code>
+    <ng-container *ngIf="isProposalContractType()">
+      <h2>Smart contract details</h2>
+      <!-- Proposal parameters -->
+      <section id="proposal-parameters">
+        <!-- Container -->
+        <div class="grid panel">
+          <div class="grid-cell">
+            <ng-container *ngFor="let scoreDetails of proposalScoreDetails;">
+              <p><strong>Smart contract:</strong> {{scoreDetails.name}} ({{scoreDetails.address}})</p>
+              <p><strong>Method:</strong> {{scoreDetails.method}}</p>
+              <ul>
+                <li *ngFor="let param of scoreDetails.parameters;"><strong>{{param.name}}:</strong> {{param.value}}</li>
+              </ul>
+            </ng-container>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </ng-container>
+
   </ng-container>
 
   <!-- Show spinner if no proposal exists -->
