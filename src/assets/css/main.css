@@ -93,7 +93,7 @@ a::selection {
 html {
   color: #7a8294;
   font-size: 16px;
-  font-family: 'metropolis-medium';
+  font-family: 'metropolis-medium', Helvetica, sans-serif;
   font-weight: normal;
   line-height: 1.4;
   background: linear-gradient(135deg, #eef1f8 0%, #d8e0f2 100%) fixed;
@@ -106,7 +106,7 @@ body {
   position: relative;
 }
 h1 {
-  font-family: 'metropolis-medium';
+  font-family: 'metropolis-medium', Helvetica, sans-serif;
   font-weight: normal;
   font-size: 35px;
   color: #49546a;
@@ -115,7 +115,7 @@ h1 {
 }
 h2 {
   display: inline-block;
-  font-family: 'metropolis-medium';
+  font-family: 'metropolis-medium', Helvetica, sans-serif;
   font-weight: normal;
   font-size: 25px;
   color: #49546a;
@@ -123,7 +123,7 @@ h2 {
   padding: 0;
 }
 h3 {
-  font-family: 'metropolis-medium';
+  font-family: 'metropolis-medium', Helvetica, sans-serif;
   font-weight: normal;
   font-size: 20px;
   color: #49546a;
@@ -865,7 +865,7 @@ ul.toggle li:hover:after {
 /* Text styles */
 
 .text-bold {
-  font-family: 'metropolis-semibold';
+  font-family: 'metropolis-semibold', Helvetica, sans-serif;
   font-weight: normal;
 }
 .label {

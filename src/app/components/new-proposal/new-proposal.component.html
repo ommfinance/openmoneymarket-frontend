@@ -57,7 +57,7 @@
               <h3>Smart contract</h3>
               <select class="select-box" (change)="onSelectContractChange($event)">
                 <option value="contract1">Choose a smart contract</option>
-                <option *ngFor="let contract of  contractOptions" [value]="contract">{{contract}}</option>
+                <option *ngFor="let contract of  contractOptions" [value]="contract">{{contractNameMap.get(contract)}} ({{contract | shortenAddress}})</option>
               </select>
             </div>
             <div class="grid-cell">
@@ -69,12 +69,14 @@
             </div>
           </div>
 
-          <div class="grid grid-center title">
-            <div class="grid-cell">
-              <h3>Parameters</h3>
+          <ng-container *ngFor="let param of  getMethodParams()">
+            <div class="grid grid-center title">
+              <div class="grid-cell">
+                <h3>{{param.name}} {{paramIsRequired(param) ? "(required)" : ""}}</h3>
+              </div>
             </div>
-          </div>
-          <textarea placeholder="" type="text" [value]="parametersText" (input)="onParametersChange($event)"></textarea>
+            <input type="text" placeholder="" class="" [required]="paramIsRequired(param)" (keyup)="onParametersChange($event, param)">
+          </ng-container>
         </ng-container>
 
         <p class="label message text-center">It costs {{voteDefinitionFee() | roundOff2Dec | usFormat}} OMM to submit a proposal, which is refunded if it's approved.</p>

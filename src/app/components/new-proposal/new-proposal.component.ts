@@ -11,10 +11,13 @@ import {MAX_PROPOSAL_DESCRIPTION_LENGTH, ommForumDomain} from "../../common/cons
 import {
   NEW_PROPOSAL_EMPTY_CONTRACT,
   NEW_PROPOSAL_EMPTY_DESCRIPTION,
-  NEW_PROPOSAL_EMPTY_LINK, NEW_PROPOSAL_EMPTY_METHOD,
+  NEW_PROPOSAL_EMPTY_LINK,
+  NEW_PROPOSAL_EMPTY_METHOD,
   NEW_PROPOSAL_EMPTY_TITLE,
-  NEW_PROPOSAL_INVALID_LINK_DOMAIN, NEW_PROPOSAL_INVALID_PARAMETERS,
-  NEW_PROPOSAL_MIN_BOMM_REQUIRED, NEW_PROPOSAL_PARAMETERS
+  NEW_PROPOSAL_INVALID_LINK_DOMAIN,
+  NEW_PROPOSAL_INVALID_PARAMETER,
+  NEW_PROPOSAL_MIN_BOMM_REQUIRED,
+  NEW_PROPOSAL_MISSING_PARAMETERS,
 } from "../../common/messages";
 import {ProposalType} from "../../models/enums/ProposalType";
 import {ScoreService} from "../../services/score/score.service";
@@ -22,13 +25,16 @@ import {StateChangeService} from "../../services/state-change/state-change.servi
 import {Subscription} from "rxjs";
 import log from "loglevel";
 import {IconApiService} from "../../services/icon-api/icon-api.service";
-import {IScoreParameter} from "../../models/Interfaces/IScoreParameter";
+import {IScoreParameter, IScorePayloadParameter, scoreParamToPayloadParam} from "../../models/Interfaces/IScoreParameter";
+import {BaseClass} from "../base-class";
+import {IParamInput} from "../../models/Interfaces/IParamInput";
+import {ScoreParamType} from "../../models/enums/ScoreParamType";
 
 @Component({
   selector: 'app-new-proposal',
   templateUrl: './new-proposal.component.html',
 })
-export class NewProposalComponent implements OnInit, OnDestroy {
+export class NewProposalComponent extends BaseClass implements OnInit, OnDestroy {
 
   selPropTypeEl: any;
   @ViewChild("selPropType")set a(a: ElementRef) {this.selPropTypeEl = a.nativeElement; }
@@ -41,8 +47,6 @@ export class NewProposalComponent implements OnInit, OnDestroy {
 
   title = "";
   description = "";
-  parametersText = "";
-  parameters?: any;
   forumLink = "";
   proposalType = ProposalType.TEXT;
 
@@ -53,8 +57,10 @@ export class NewProposalComponent implements OnInit, OnDestroy {
   selectedContractMethods: string[] = [];
   contractOptions: string[] = [];
   contractMethodsMap = new Map<string, string[]>();
+  contractNameMap = new Map<string, string>();
   methodParamsMap = new Map<string, IScoreParameter[]>();
   transactions?: any;
+  parametersMap = new Map<string, IParamInput>(); // param name -> param
 
   allAddressesLoaded = false;
   allAddressesLoadedSub?: Subscription;
@@ -64,7 +70,9 @@ export class NewProposalComponent implements OnInit, OnDestroy {
               private notificationService: NotificationService,
               public scoreService: ScoreService,
               private stateChangeService: StateChangeService,
-              private iconApi: IconApiService) { }
+              private iconApi: IconApiService) {
+    super(persistenceService);
+  }
 
   ngOnInit(): void {
     this.initCoreValues();
@@ -86,14 +94,14 @@ export class NewProposalComponent implements OnInit, OnDestroy {
 
     this.title = "";
     this.description = "";
-    this.parametersText = "";
-    this.parameters = undefined;
+    this.parametersMap = new Map<string, IParamInput>();
     this.forumLink = "";
     this.proposalType = ProposalType.TEXT;
     this.contractOptions = [];
     this.selectedContract = "";
     this.selectedContractMethods = [];
     this.contractMethodsMap = new Map<string, string[]>();
+    this.contractNameMap = new Map<string, string>();
     this.allAddressesLoaded = this.persistenceService.allAddresses !== undefined;
   }
 
@@ -114,6 +122,15 @@ export class NewProposalComponent implements OnInit, OnDestroy {
     if (this.contractOptions.length === 0) {
       this.scoreService.getGovernanceSupportedContracts().then(contracts => {
         this.contractOptions = contracts;
+        this.contractNameMap = new Map<string, string>();
+
+        // get contracts names
+        Promise.all(contracts.map(async (contract) => {
+          const name = await this.scoreService.getContractName(contract);
+          this.contractNameMap.set(contract, name);
+        }));
+
+        // get contracts methods
         Promise.all(contracts.map(async (address) => {
           this.contractMethodsMap = new Map<string, string[]>();
           const methods = await this.scoreService.getGovernanceSupportedContractMethods(address);
@@ -142,6 +159,9 @@ export class NewProposalComponent implements OnInit, OnDestroy {
   onSelectContractMethodChange(e: Event) {
     if (!this.selectedContract) return;
 
+    // reset parameters map
+    this.parametersMap = new Map<string, IParamInput>();
+
     const value = (e.target as HTMLInputElement).value;
 
     if (!(this.contractMethodsMap.get(this.selectedContract) ?? []).includes(value)) {
@@ -153,6 +173,14 @@ export class NewProposalComponent implements OnInit, OnDestroy {
 
   onProposalTypeClick(): void {
     this.selPropTypeEl.classList.toggle("active");
+  }
+
+  getMethodParams(): IScoreParameter[] {
+    return this.methodParamsMap.get(this.selectedMethod || "") ?? [];
+  }
+
+  paramIsRequired(param: IScoreParameter): boolean {
+    return param.default !== null;
   }
 
   getProposalTypeString(): string {
@@ -180,14 +208,28 @@ export class NewProposalComponent implements OnInit, OnDestroy {
     this.descriptionSize = encodeURI(this.description).length;
   }
 
-  onParametersChange(e: any): void {
-    try {
-      this.parametersText = e.target.value.toString();
-      this.parameters = JSON.parse(e.target.value.toString()
-        .replace(" ", "").replace(/\s/g, "").replace(/\n|\r/g, ""));
-    } catch (e) {
-      this.notificationService.showNewNotification(NEW_PROPOSAL_INVALID_PARAMETERS)
-    }
+  onParametersChange(e: any, param: IScoreParameter): void {
+    this.delay(() => {
+      const value = e.target.value.toString();
+
+      if (!value) return;
+
+      if (param.type === ScoreParamType.INT) {
+        if (Utils.isPositiveNumeric(value)) {
+          this.parametersMap.set(param.name, { param, value });
+        } else {
+          this.notificationService.showNewNotification(NEW_PROPOSAL_INVALID_PARAMETER(param.type))
+        }
+      } else if (param.type === ScoreParamType.ADDRESS) {
+        if (Utils.isAddress(value)) {
+          this.parametersMap.set(param.name, { param, value });
+        } else {
+          this.notificationService.showNewNotification(NEW_PROPOSAL_INVALID_PARAMETER(param.type))
+        }
+      } else {
+        this.parametersMap.set(param.name, { param, value });
+      }
+    }, 1000 );
   }
 
   voteDefinitionFee(): BigNumber {
@@ -205,8 +247,10 @@ export class NewProposalComponent implements OnInit, OnDestroy {
       return false;
     } else if (!Utils.textContainsDomain(ommForumDomain, this.forumLink)) {
       return false;
-    } else if (this.proposalType === ProposalType.CONTRACT && (!this.selectedContract || !this.selectedMethod || !this.parameters)) {
+    } else if (this.proposalType === ProposalType.CONTRACT && (!this.selectedContract || !this.selectedMethod)) {
       return false
+    } else if (!this.allMethodParamsAreInParamsMap()) {
+      return false;
     }
 
     return true;
@@ -216,14 +260,37 @@ export class NewProposalComponent implements OnInit, OnDestroy {
     return this.persistenceService.userbOmmBalance.gte(this.persistenceService.getMinBOmmRequiredForProposal());
   }
 
+  constructParameters(): IScorePayloadParameter[] {
+    const parameters: IScorePayloadParameter[] = [];
+    this.methodParamsMap.get(this.selectedMethod ?? "")?.forEach(param => {
+      const paramInput = this.parametersMap.get(param.name);
+
+      if (paramInput == undefined && this.paramIsRequired(param)) throw new Error(`Parameter ${param.name} does not exist in parametersMap!`);
+
+      if (this.paramIsRequired(param) && paramInput && paramInput.value.trim() != "") {
+        parameters.push({
+          type: scoreParamToPayloadParam(param.type),
+          value: paramInput.value
+        })
+      }
+    })
+
+    return parameters;
+  }
+
   constructTransactionsJson(): void {
     this.transactions = [
       {
         address: this.selectedContract,
         method: this.selectedMethod,
-        parameters: this.parameters
+        parameters: this.constructParameters()
       }
     ]
+  }
+
+  allMethodParamsAreInParamsMap(): boolean {
+    const methodParams = this.methodParamsMap.get(this.selectedMethod ?? "");
+    return methodParams ? methodParams.every(param => this.paramIsRequired(param) ? this.parametersMap.get(param.name) != undefined : true) : false;
   }
 
   onSubmitClick(): void {
@@ -246,11 +313,11 @@ export class NewProposalComponent implements OnInit, OnDestroy {
       if (!this.selectedContract) {
         this.notificationService.showNewNotification(NEW_PROPOSAL_EMPTY_CONTRACT);
       }
-      if (!this.parameters) {
-        this.notificationService.showNewNotification(NEW_PROPOSAL_INVALID_PARAMETERS);
-      }
       if (!this.selectedMethod) {
         this.notificationService.showNewNotification(NEW_PROPOSAL_EMPTY_METHOD);
+      }
+      if (!this.allMethodParamsAreInParamsMap()) {
+        this.notificationService.showNewNotification(NEW_PROPOSAL_MISSING_PARAMETERS);
       }
     }
 
@@ -261,11 +328,8 @@ export class NewProposalComponent implements OnInit, OnDestroy {
     this.constructTransactionsJson();
 
     log.debug("transactions input", this.transactions);
-    log.debug("transactions json: ", JSON.stringify(this.transactions));
+    log.debug("transactions JSON.stringify: ", JSON.stringify(this.transactions));
     log.debug("transactions json parsed: ", JSON.parse(JSON.stringify(this.transactions)));
-    // if (JSON.parse(this.transactions)[0] && JSON.parse(this.transactions)[0].params) {
-    //   log.debug("transactions json parsed params: ", JSON.parse(JSON.parse(this.transactions)[0].parameters));
-    // }
 
     // TODO save forum link to the omm.api
     const proposal = new CreateProposal(

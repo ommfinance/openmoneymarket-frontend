@@ -6,6 +6,7 @@ import {Utils} from "./utils";
 import {ManageStakedIcxAction} from "../models/classes/ManageStakedIcxAction";
 import BigNumber from "bignumber.js";
 import {ommForumDomain} from "./constants";
+import {ScoreParamType} from "../models/enums/ScoreParamType";
 
 
 /**
@@ -108,7 +109,8 @@ export const NEW_PROPOSAL_MIN_BOMM_REQUIRED = (minBommRequired: BigNumber) => `Y
 export const NEW_PROPOSAL_EMPTY_CONTRACT = "Select a contract.";
 export const NEW_PROPOSAL_EMPTY_METHOD = "Select a method.";
 export const NEW_PROPOSAL_PARAMETERS = "Input a parameters.";
-export const NEW_PROPOSAL_INVALID_PARAMETERS = "Invalid parameters. Make sure it's in valid json format.";
+export const NEW_PROPOSAL_MISSING_PARAMETERS = "Missing required parameters.";
+export const NEW_PROPOSAL_INVALID_PARAMETER = (requiredType: ScoreParamType) => `Invalid parameter type. Should be of type: ${requiredType}!`;
 
 
 // Supply & Borrow related messages

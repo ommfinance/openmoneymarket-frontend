@@ -946,4 +946,21 @@ export class ScoreService {
     return res;
   }
 
+  /**
+   * @description Get name of the contract
+   * @return  Name of the contract
+   */
+  public async getContractName(contract: string): Promise<string> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  contract,
+      ScoreMethodNames.GET_NAME, {}, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug(`getContractName ${contract} = ${res}`);
+
+    return res;
+  }
+
 }
