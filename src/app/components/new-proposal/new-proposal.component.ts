@@ -137,6 +137,7 @@ export class NewProposalComponent extends BaseClass implements OnInit, OnDestroy
 
           Promise.all(methods.map(async (method) => {
             const scoreApi = await this.iconApi.getScoreApi(address);
+            console.log(`Score api of ${method}:`, scoreApi.getMethod(method).inputs)
             this.methodParamsMap.set(method, scoreApi.getMethod(method).inputs)
           }));
         }));
@@ -179,7 +180,8 @@ export class NewProposalComponent extends BaseClass implements OnInit, OnDestroy
   }
 
   paramIsRequired(param: IScoreParameter): boolean {
-    return param.default !== null;
+    // parameter is required if object has no 'default' key
+    return !("default" in param);
   }
 
   getProposalTypeString(): string {
@@ -260,13 +262,15 @@ export class NewProposalComponent extends BaseClass implements OnInit, OnDestroy
   }
 
   constructParameters(): IScorePayloadParameter[] {
+    console.log("constructParameters methodParamsMap:", this.methodParamsMap);
     const parameters: IScorePayloadParameter[] = [];
     this.methodParamsMap.get(this.selectedMethod ?? "")?.forEach(param => {
       const paramInput = this.parametersMap.get(param.name);
+      console.log("paramInput = ", paramInput);
 
       if (paramInput == undefined && this.paramIsRequired(param)) throw new Error(`Parameter ${param.name} does not exist in parametersMap!`);
 
-      if (this.paramIsRequired(param) && paramInput && paramInput.value.trim() != "") {
+      if (paramInput && paramInput.value.trim() != "") {
         parameters.push({
           type: scoreParamToPayloadParam(param.type),
           value: paramInput.value

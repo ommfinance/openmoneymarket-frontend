@@ -1,7 +1,9 @@
 export enum ScoreParamType {
   INT = "int",
   ADDRESS = "Address",
-  BYTES = "bytes"
+  BYTES = "bytes",
+  BOOLEAN = "bool",
+  STRUCT = "struct",
 }
 
 export enum ScorePayloadParamType {

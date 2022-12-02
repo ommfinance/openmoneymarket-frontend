@@ -75,7 +75,7 @@
                 <h3>{{param.name}} {{paramIsRequired(param) ? "(required)" : ""}}</h3>
               </div>
             </div>
-            <input type="text" placeholder="" class="" [required]="paramIsRequired(param)" (keyup)="onParametersChange($event, param)">
+            <input type="text" placeholder="" class="" [required]="paramIsRequired(param)" (input)="onParametersChange($event, param)">
           </ng-container>
         </ng-container>
 
