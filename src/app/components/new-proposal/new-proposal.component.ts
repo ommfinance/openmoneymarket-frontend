@@ -270,7 +270,7 @@ export class NewProposalComponent extends BaseClass implements OnInit, OnDestroy
 
       if (paramInput == undefined && this.paramIsRequired(param)) throw new Error(`Parameter ${param.name} does not exist in parametersMap!`);
 
-      if (paramInput && paramInput.value.trim() != "") {
+      if (paramInput && paramInput.value) {
         parameters.push({
           type: scoreParamToPayloadParam(param.type),
           value: paramInput.value

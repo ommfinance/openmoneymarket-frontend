@@ -9,5 +9,5 @@ export enum ScoreParamType {
 export enum ScorePayloadParamType {
   BIG_INTEGER = "BigInteger",
   ADDRESS = "Address",
-  BYTES = "Bytes"
+  BYTES = "bytes"
 }
