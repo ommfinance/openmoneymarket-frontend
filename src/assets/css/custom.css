@@ -38,6 +38,10 @@
   background-size: 35px;
 }
 
+.cards p {
+  word-break: break-word;
+}
+
 .value-your-votes {
   font-size: 20px;
   color: #7a8294;

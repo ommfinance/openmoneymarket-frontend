@@ -2,7 +2,7 @@
 * Omm
 * Main CSS
 * Version 1.4
-* Last updated 7/9/22
+* Last updated 22/11/22
 */
 
 /* ==========================================================================
@@ -93,7 +93,7 @@ a::selection {
 html {
   color: #7a8294;
   font-size: 16px;
-  font-family: 'metropolis-medium';
+  font-family: 'metropolis-medium', Helvetica, sans-serif;
   font-weight: normal;
   line-height: 1.4;
   background: linear-gradient(135deg, #eef1f8 0%, #d8e0f2 100%) fixed;
@@ -106,7 +106,7 @@ body {
   position: relative;
 }
 h1 {
-  font-family: 'metropolis-medium';
+  font-family: 'metropolis-medium', Helvetica, sans-serif;
   font-weight: normal;
   font-size: 35px;
   color: #49546a;
@@ -115,7 +115,7 @@ h1 {
 }
 h2 {
   display: inline-block;
-  font-family: 'metropolis-medium';
+  font-family: 'metropolis-medium', Helvetica, sans-serif;
   font-weight: normal;
   font-size: 25px;
   color: #49546a;
@@ -123,7 +123,7 @@ h2 {
   padding: 0;
 }
 h3 {
-  font-family: 'metropolis-medium';
+  font-family: 'metropolis-medium', Helvetica, sans-serif;
   font-weight: normal;
   font-size: 20px;
   color: #49546a;
@@ -865,7 +865,7 @@ ul.toggle li:hover:after {
 /* Text styles */
 
 .text-bold {
-  font-family: 'metropolis-semibold';
+  font-family: 'metropolis-semibold', Helvetica, sans-serif;
   font-weight: normal;
 }
 .label {
@@ -3226,6 +3226,79 @@ input.input-boost {
   margin-left: 15px;
 }
 
+
+/* Proposal selector */
+
+#proposal #proposal-selector {
+  transition: color 0.3s ease;
+}
+#proposal #proposal-selector:hover,
+#proposal #proposal-selector.active {
+  color: #49546a;
+  transition: color 0.2s ease;
+}
+#proposal .proposal-selector-content {
+  background: #ffffff;
+  border-radius: 10px;
+  position: absolute;
+  z-index: 999;
+  width: 100px;
+  color: #49546a;
+  box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.017), 0 6.7px 5.3px rgba(0, 0, 0, 0.024), 0 12.5px 10px rgba(0, 0, 0, 0.03), 0 22.3px 17.9px rgba(0, 0, 0, 0.036), 0 41.8px 33.4px rgba(0, 0, 0, 0.043), 0 100px 80px rgba(0, 0, 0, 0.06);
+  margin-left: 180px;
+  margin-top: 10px;
+  z-index: -99;
+  opacity: 0;
+  -webkit-transform: translate3d(0,-10px,0) rotate3d(1,1,0,25deg);
+  transform: translate3d(0,-10px,0) rotate3d(1,1,0,25deg);
+  -webkit-transition: opacity 0.3s, -webkit-transform 0.3s;
+  transition: opacity 0.3s, transform 0.3s;
+}
+#proposal .proposal-selector-content.active {
+  z-index: 9999;
+  pointer-events: auto;
+  opacity: 1;
+  -webkit-transform: translate3d(0,0,0) rotate3d(0,0,0,0);
+  transform: translate3d(0,0,0) rotate3d(0,0,0,0);
+}
+#proposal .proposal-selector-content ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+#proposal .proposal-selector-content li {
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 14px;
+}
+#proposal .proposal-selector-content li:first-of-type {
+  border-radius: 10px 10px 0 0;
+}
+#proposal .proposal-selector-content li:last-of-type {
+  border-radius: 0 0 10px 10px;
+}
+#proposal .proposal-selector-content li:hover {
+  color: #49546a;
+  background-color: #e5ebf5;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+.select-box {
+  width: 100%;
+  background-color: #e6e9f0;
+  border: 2px solid #e6e9f0;
+  border-radius: 10px;
+  height: 35px;
+  margin-top: 5px;
+  padding: 0 15px;
+  transition: border 0.3s ease;
+}
+.select-box:hover {
+  cursor: pointer;
+  border: 2px solid #369fbf;
+  transition: border 0.2s ease;
+}
+
+
 /* ==========================================================================
 	Responsive styles 1600px and smaller
 ========================================================================== */
@@ -3388,7 +3461,7 @@ input.input-boost {
   .modal {
     margin-left: 0;
     max-width: 100%;
-    width: 75%;
+    width: 90%;
   }
   .header .wallet-content {
     min-width: 233px;
@@ -3440,6 +3513,9 @@ input.input-boost {
   }
   .grid.side-by-side > .grid-cell:first-of-type {
     margin-right: 0;
+  }
+  .grid.side-by-side {
+    flex-direction: column;
   }
   #your-overview-content .border-right,
   #market-overview-content .border-right {

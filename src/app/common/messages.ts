@@ -6,6 +6,7 @@ import {Utils} from "./utils";
 import {ManageStakedIcxAction} from "../models/classes/ManageStakedIcxAction";
 import BigNumber from "bignumber.js";
 import {ommForumDomain} from "./constants";
+import {ScoreParamType} from "../models/enums/ScoreParamType";
 
 
 /**
@@ -105,6 +106,11 @@ export const NEW_PROPOSAL_EMPTY_DESCRIPTION = "Add a description.";
 export const NEW_PROPOSAL_EMPTY_LINK = "Add a link to the proposal on the Omm forum.";
 export const NEW_PROPOSAL_INVALID_LINK_DOMAIN = `Must link to a discussion on ${ommForumDomain}.`;
 export const NEW_PROPOSAL_MIN_BOMM_REQUIRED = (minBommRequired: BigNumber) => `You need at least ${Utils.tooUSLocaleString(Utils.roundOffTo2Decimals(minBommRequired))} bOMM to propose a change.`;
+export const NEW_PROPOSAL_EMPTY_CONTRACT = "Select a contract.";
+export const NEW_PROPOSAL_EMPTY_METHOD = "Select a method.";
+export const NEW_PROPOSAL_PARAMETERS = "Input a parameters.";
+export const NEW_PROPOSAL_MISSING_PARAMETERS = "Missing required parameters.";
+export const NEW_PROPOSAL_INVALID_PARAMETER = (requiredType: ScoreParamType) => `Invalid parameter type. Should be of type: ${requiredType}!`;
 
 
 // Supply & Borrow related messages

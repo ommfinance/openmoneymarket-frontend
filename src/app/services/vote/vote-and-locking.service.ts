@@ -289,9 +289,11 @@ export class VoteAndLockingService {
 
     const to = this.persistenceService.allAddresses!.systemContract.Governance;
     const value = IconConverter.toHex(IconAmount.of(proposal.voteDefinitionFee, 18).toLoop());
-    const data = IconConverter.fromUtf8(`{ "method": "defineVote", "params": { "name": "${
+    const dataPayload = `{ "method": "defineVote", "params": { "name": "${
       proposal.title}", "description": "${ // "unique name of the proposal"
-      proposal.description}", "forum": "${proposal.forumLink}"}}`);
+      proposal.description}", "forum": "${proposal.forumLink}"${ proposal.transactions ? ', "transactions": ' + JSON.stringify(proposal.transactions) : ''}}}`;
+    log.debug("Create proposal data payload:", dataPayload);
+    const data = IconConverter.fromUtf8(dataPayload);
 
     const params = {
       _to: to,

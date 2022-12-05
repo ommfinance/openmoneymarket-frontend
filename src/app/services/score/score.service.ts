@@ -733,6 +733,7 @@ export class ScoreService {
       ScoreMethodNames.GET_PROPOSALS, params, IconTransactionType.READ);
 
     const res = await this.iconApiService.iconService.call(tx).execute();
+    console.log("Proposal:", res);
 
     return Mapper.mapProposalList(res);
   }
@@ -910,6 +911,57 @@ export class ScoreService {
     const res = await this.iconApiService.iconService.call(tx).execute();
 
     return Utils.hexToNormalisedNumber(res);
+  }
+
+  /**
+   * @description Get auto-execution (governance) supported contracts list
+   * @return  List of contract address
+   */
+  public async getGovernanceSupportedContracts(): Promise<string[]> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Governance,
+      ScoreMethodNames.GET_SUPPORTED_CONTRACTS, {}, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug(`getGovernanceSupportedContracts = ${res}`);
+
+    return res;
+  }
+
+  /**
+   * @description Get auto-execution (governance) supported contracts list
+   * @return  Names of methods of contract, that can be called via governance proposal
+   */
+  public async getGovernanceSupportedContractMethods(contract: string): Promise<string[]> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Governance,
+      ScoreMethodNames.GET_SUPPORTED_METHODS_OF_CONTRACT, { contract }, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug(`getGovernanceSupportedContractMethods = ${res}`);
+
+    return res;
+  }
+
+  /**
+   * @description Get name of the contract
+   * @return  Name of the contract
+   */
+  public async getContractName(contract: string): Promise<string> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  contract,
+      ScoreMethodNames.GET_NAME, {}, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug(`getContractName ${contract} = ${res}`);
+
+    return res;
   }
 
 }

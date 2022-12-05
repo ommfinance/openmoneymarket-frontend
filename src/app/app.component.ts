@@ -72,6 +72,12 @@ export class AppComponent extends BaseClass implements OnInit, OnDestroy {
         && $(e.target).is(".animation-underline.locked-selector") === false) {
         $(".dropdown-content.locked-selector").removeClass("active");
       }
+
+      if (!$(e.target).is(".proposal-selector-content") && !$(e.target).is(".dropdown")) {
+        $(".proposal-selector-content").removeClass("active");
+      } else if ($(e.target).is(".dropdown")) {
+        $(".proposal-selector-content").addClass("active");
+      }
     });
   }
 

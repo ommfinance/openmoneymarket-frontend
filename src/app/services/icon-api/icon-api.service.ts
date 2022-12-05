@@ -6,6 +6,8 @@ import log from "loglevel";
 import {HttpClient} from "@angular/common/http";
 import BigNumber from "bignumber.js";
 import IconService from "icon-sdk-js";
+import {Hash} from "icon-sdk-js/build/types/hash";
+import ScoreApiList from "icon-sdk-js/build/data/Formatter/ScoreApiList";
 const { IconConverter, IconAmount, IconBuilder } = IconService;
 const { CallBuilder, CallTransactionBuilder, IcxTransactionBuilder,  } = IconBuilder;
 
@@ -31,6 +33,10 @@ export class IconApiService {
     }
     const icxBalance = await this.iconService.getBalance(address).execute();
     return Utils.hexToNormalisedNumber(icxBalance);
+  }
+
+  async getScoreApi(address: string, height?: Hash): Promise<ScoreApiList> {
+    return this.iconService.getScoreApi(address, height).execute();
   }
 
   public async getTxResult(txHash: string): Promise<any> {

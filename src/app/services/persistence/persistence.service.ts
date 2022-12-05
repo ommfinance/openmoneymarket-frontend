@@ -26,6 +26,7 @@ import {Vote} from "../../models/classes/Vote";
 import {InterestHistory} from "../../models/classes/InterestHistory";
 import {LockedOmm} from "../../models/classes/LockedOmm";
 import {UserDailyOmmReward} from "../../models/classes/UserDailyOmmReward";
+import {IProposalScoreDetails} from "../../models/Interfaces/IProposalScoreDetails";
 
 @Injectable({
   providedIn: 'root'

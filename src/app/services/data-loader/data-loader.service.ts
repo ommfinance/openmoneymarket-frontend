@@ -114,8 +114,7 @@ export class DataLoaderService {
 
   public loadAllScoreAddresses(): Promise<void> {
     return this.scoreService.getAllScoreAddresses().then((allAddresses: AllAddresses) => {
-      this.persistenceService.allAddresses = new AllAddresses(allAddresses.collateral, allAddresses.oTokens, allAddresses.dTokens,
-        allAddresses.systemContract);
+      this.stateChangeService.allAddressesLoadedUpdate(allAddresses);
       log.debug("Loaded all addresses: ", allAddresses);
     });
   }

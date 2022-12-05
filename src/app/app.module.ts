@@ -50,6 +50,7 @@ import {NotifierModule} from "angular-notifier";
 import { PrepListComponent } from './components/vote/prep-list/prep-list.component';
 import {HideElementPipe} from "./pipes/hide-element-pipe";
 import {AngularResizeEventModule} from "angular-resize-event";
+import {ShortenAddressPipePipe} from "./pipes/shorten-address";
 
 // Big Number configs
 const fmt = {
@@ -108,6 +109,7 @@ log.setLevel(environment.production ? "error" : "debug");
     YourAvailPoolRowComponent,
     PrepListComponent,
     HideElementPipe,
+    ShortenAddressPipePipe,
   ],
   imports: [
     BrowserModule,

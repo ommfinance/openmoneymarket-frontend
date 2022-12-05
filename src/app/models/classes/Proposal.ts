@@ -1,6 +1,7 @@
 import BigNumber from "bignumber.js";
 import {Times} from "../../common/constants";
 import {ReloaderService} from "../../services/reloader/reloader.service";
+import {IProposalTransactions} from "../Interfaces/IProposalTransactions";
 
 export class Proposal {
   against: BigNumber;
@@ -18,11 +19,11 @@ export class Proposal {
   status: ProposalStatus;
   voteSnapshot: BigNumber;
   forumLink: string;
-
+  transactions?: IProposalTransactions[];
 
   constructor(against: BigNumber, againstVoterCount: BigNumber, description: string, endDay: BigNumber, forVotes: BigNumber,
               forVoterCount: BigNumber, id: BigNumber, majority: BigNumber, name: string, proposer: string, quorum: BigNumber,
-              startDay: BigNumber, status: ProposalStatus, voteSnapshot: BigNumber, forumLink: string) {
+              startDay: BigNumber, status: ProposalStatus, voteSnapshot: BigNumber, forumLink: string, transactions?: IProposalTransactions[]) {
     this.against = against;
     this.againstVoterCount = againstVoterCount;
     this.description = description;
@@ -38,6 +39,7 @@ export class Proposal {
     this.status = status;
     this.voteSnapshot = voteSnapshot;
     this.forumLink = forumLink;
+    this.transactions = transactions ? transactions : undefined;
   }
 
   public toString(): string {
@@ -161,6 +163,7 @@ export class Proposal {
 export class CreateProposal {
   title: string;
   description: string;
+  transactions?: string;
   forumLink: string;
   voteStart: BigNumber;
   snapshot: BigNumber;
@@ -168,13 +171,14 @@ export class CreateProposal {
 
 
   constructor(title: string, description: string, voteStart: BigNumber, snapshot: BigNumber, voteDefinitionFee: BigNumber,
-              forumLink: string) {
+              forumLink: string, transactions?: string) {
     this.title = title;
     this.description = description;
     this.voteStart = voteStart;
     this.snapshot = snapshot;
     this.voteDefinitionFee = voteDefinitionFee;
     this.forumLink = forumLink;
+    this.transactions = transactions;
   }
 }
 

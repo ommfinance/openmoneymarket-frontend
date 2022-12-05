@@ -103,6 +103,8 @@ export class ScoreMethodNames {
   public static MY_VOTING_WEIGHT = "myVotingWeight";
   public static GET_BOOSTED_OMM_VOTE_DEFINITION_CRITERION = "getBoostedOmmVoteDefinitionCriterion";
   public static GET_VOTE_DURATION = "getVoteDuration";
+  public static GET_SUPPORTED_CONTRACTS = "getSupportedContracts";
+  public static GET_SUPPORTED_METHODS_OF_CONTRACT = "getSupportedMethodsOfContract";
 
   /**
    * Staking SCORE
@@ -127,4 +129,6 @@ export class ScoreMethodNames {
    */
   public static GET_PREPS = "getPReps";
   public static GET_PREP = "getPRep";
+
+  public static GET_NAME = "name";
 }
