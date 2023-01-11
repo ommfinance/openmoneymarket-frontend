@@ -16,7 +16,8 @@ import {AssetTag, CollateralAssetTag} from "../../models/classes/Asset";
 import log from "loglevel";
 import {PrepList} from "../../models/classes/Preps";
 import {Mapper} from "../../common/mapper";
-import {IconAmount, IconConverter} from "icon-sdk-js";
+import IconService from "icon-sdk-js";
+const { IconConverter, IconAmount } = IconService;
 import {YourPrepVote} from "../../models/classes/YourPrepVote";
 import {DelegationPreference} from "../../models/classes/DelegationPreference";
 import {UnstakeInfo} from "../../models/classes/UnstakeInfo";
@@ -31,6 +32,7 @@ import {Vote, VotersCount} from "../../models/classes/Vote";
 import {Proposal} from "../../models/classes/Proposal";
 import {LockedOmm} from "../../models/classes/LockedOmm";
 import {ILockedOmm} from "../../models/Interfaces/ILockedOmm";
+import {IRewardWorkingTotal} from "../../models/Interfaces/IRewardWorkingTotal";
 
 
 @Injectable({
@@ -58,7 +60,7 @@ export class ScoreService {
    * @description Get Token Distribution per day
    * @return  Token distribution per day in number
    */
-  public async getTokenDistributionPerDay(day?: BigNumber): Promise<BigNumber> {
+  public async getTokenDistributionPerDay(day?: BigNumber | string): Promise<BigNumber> {
     this.checkerService.checkAllAddressesLoaded();
 
     day = day ? IconConverter.toHex(day) : await this.getRewardsDay();
@@ -507,6 +509,78 @@ export class ScoreService {
   }
 
   /**
+   * @description Get delegation SCORE working total supply of bOMM
+   * @return BigNumber - delegations working total supply of bOMM
+   */
+  public async getDelegationWorkingTotalSupplyOfbOmm(): Promise<BigNumber> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Delegation,
+      ScoreMethodNames.GET_WORKING_TOTAL_SUPPLY, {}, IconTransactionType.READ);
+
+    const res: string = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getDelegationWorkingTotalSupplyOfbOmm: ", res);
+
+    return Utils.hexToNormalisedNumber(res);
+  }
+
+  /**
+   * @description Get Reward SCORE working total supply of bOMM
+   * @return BigNumber - rewards working total supply of bOMM
+   */
+  public async getRewardsWorkingTotalSupplyOfbOmm(): Promise<BigNumber> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Rewards,
+      ScoreMethodNames.GET_WORKING_TOTAL, {}, IconTransactionType.READ);
+
+    const res: IRewardWorkingTotal = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getRewardsWorkingTotalSupplyOfbOmm: ", res);
+
+    return Utils.hexToNormalisedNumber(res.bOMM);
+  }
+
+  /**
+   * @description Get user delegation working bOMM supply
+   * @return BigNumber - user delegation working bOMM supply
+   */
+  public async getUserDelegationWorkingSupplyOfbOmm(): Promise<BigNumber> {
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Delegation,
+      ScoreMethodNames.GET_USER_WORKING_BALANCE, {
+       user: this.persistenceService.activeWallet?.address
+      }, IconTransactionType.READ);
+
+    const res: string = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getUserDelegationWorkingSupplyOfbOmm: ", res);
+
+    return Utils.hexToNormalisedNumber(res);
+  }
+
+  /**
+   * @description Get user rewards working bOMM supply
+   * @return BigNumber - user rewards working bOMM supply
+   */
+  public async getUserRewardsWorkingSupplyOfbOmm(): Promise<BigNumber> {
+    this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Rewards,
+      ScoreMethodNames.GET_WORKING_BALANCES, {
+        user: this.persistenceService.activeWallet?.address
+      }, IconTransactionType.READ);
+
+    const res: IRewardWorkingTotal = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug("getUserRewardsWorkingSupplyOfbOmm: ", res);
+
+    return Utils.hexToNormalisedNumber(res.bOMM);
+  }
+
+  /**
    * @description Get stats for specific pool
    * @return  PoolStats
    */
@@ -659,6 +733,7 @@ export class ScoreService {
       ScoreMethodNames.GET_PROPOSALS, params, IconTransactionType.READ);
 
     const res = await this.iconApiService.iconService.call(tx).execute();
+    console.log("Proposal:", res);
 
     return Mapper.mapProposalList(res);
   }
@@ -690,7 +765,7 @@ export class ScoreService {
     this.checkerService.checkUserLoggedInAndAllAddressesLoaded();
 
     const params = {
-      vote_index: IconConverter.toHex(proposalId),
+      vote_index: IconConverter.toHex(proposalId ?? 0),
       user: this.persistenceService.activeWallet!.address
     };
 
@@ -836,6 +911,57 @@ export class ScoreService {
     const res = await this.iconApiService.iconService.call(tx).execute();
 
     return Utils.hexToNormalisedNumber(res);
+  }
+
+  /**
+   * @description Get auto-execution (governance) supported contracts list
+   * @return  List of contract address
+   */
+  public async getGovernanceSupportedContracts(): Promise<string[]> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Governance,
+      ScoreMethodNames.GET_SUPPORTED_CONTRACTS, {}, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug(`getGovernanceSupportedContracts = ${res}`);
+
+    return res;
+  }
+
+  /**
+   * @description Get auto-execution (governance) supported contracts list
+   * @return  Names of methods of contract, that can be called via governance proposal
+   */
+  public async getGovernanceSupportedContractMethods(contract: string): Promise<string[]> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.systemContract.Governance,
+      ScoreMethodNames.GET_SUPPORTED_METHODS_OF_CONTRACT, { contract }, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug(`getGovernanceSupportedContractMethods = ${res}`);
+
+    return res;
+  }
+
+  /**
+   * @description Get name of the contract
+   * @return  Name of the contract
+   */
+  public async getContractName(contract: string): Promise<string> {
+    this.checkerService.checkAllAddressesLoaded();
+
+    const tx = this.iconApiService.buildTransaction("",  contract,
+      ScoreMethodNames.GET_NAME, {}, IconTransactionType.READ);
+
+    const res = await this.iconApiService.iconService.call(tx).execute();
+
+    log.debug(`getContractName ${contract} = ${res}`);
+
+    return res;
   }
 
 }

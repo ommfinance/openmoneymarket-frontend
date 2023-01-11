@@ -135,6 +135,54 @@
         </div>
       </div>
     </section>
+
+    <!-- Contract / method -->
+    <div class="grid side-by-side hide">
+      <div class="grid-cell">
+        <h2>Smart contract</h2>
+        <!-- Proposal contract -->
+        <section id="proposal-contract">
+          <!-- Container -->
+          <div class="grid panel">
+            <div class="grid-cell">
+              <p>Omm DAO Fund Manager<br><span class="label">cx48a83a6fbdaa205a060514fd23ad6871c070f896</span></p>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="grid-cell">
+        <h2>Method</h2>
+        <!-- Proposal method -->
+        <section id="proposal-method">
+          <!-- Container -->
+          <div class="grid panel">
+            <div class="grid-cell">
+              <p>Method 1</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <ng-container *ngIf="isProposalContractType()">
+      <h2>Smart contract details</h2>
+      <!-- Proposal parameters -->
+      <section id="proposal-parameters">
+        <!-- Container -->
+        <div class="grid panel">
+          <div class="grid-cell">
+            <ng-container *ngFor="let scoreDetails of proposalScoreDetails;">
+              <p><strong>Smart contract:</strong> {{scoreDetails.name}} ({{scoreDetails.address}})</p>
+              <p><strong>Method:</strong> {{scoreDetails.method}}</p>
+              <ul>
+                <li *ngFor="let param of scoreDetails.parameters;"><strong>{{param.name}}:</strong> {{param.value}}</li>
+              </ul>
+            </ng-container>
+          </div>
+        </div>
+      </section>
+    </ng-container>
+
   </ng-container>
 
   <!-- Show spinner if no proposal exists -->

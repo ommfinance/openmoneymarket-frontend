@@ -24,6 +24,7 @@ import {AllPoolsComponent} from "../all-pools/all-pools.component";
 import {YourPoolsComponent} from "../your-pools/your-pools.component";
 import {Times} from "../../common/constants";
 import {ManageStakedIcxAction} from "../../models/classes/ManageStakedIcxAction";
+import {Subscription} from "rxjs";
 
 
 @Component({
@@ -66,6 +67,12 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
 
   lockAdjustActive = false;
 
+  /** Subscriptions */
+  afterUserDataReloadSub?: Subscription;
+  afterCoreDataReloadSub?: Subscription;
+  loginChangeSub?: Subscription;
+  userModalActionSub?: Subscription;
+
   constructor(public persistenceService: PersistenceService,
               private stateChangeService: StateChangeService,
               private modalService: ModalService,
@@ -84,6 +91,10 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   }
 
   ngOnDestroy(): void {
+    this.afterUserDataReloadSub?.unsubscribe();
+    this.afterCoreDataReloadSub?.unsubscribe();
+    this.loginChangeSub?.unsubscribe();
+    this.userModalActionSub?.unsubscribe();
   }
 
   ngAfterViewInit(): void {
@@ -99,7 +110,7 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
     if (this.userLoggedIn()) {
       this.marketBoosterData = this.calculationService.calculateUserbOmmMarketBoosters();
       this.liquidityBoosterData = this.calculationService.calculateUserbOmmLiquidityBoosters();
-      this.userLockingApr = this.calculationService.calculateUserLockingApr(this.persistenceService.userbOmmBalance);
+      this.userLockingApr = this.calculationService.calculateUserLockingApr(this.persistenceService.userRewardsWorkingbOmmBalance);
       this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails?.getClone();
       this.userDailyLockingOmmRewards = this.calculationService.calculateUserDailyLockingOmmRewards();
 
@@ -206,27 +217,27 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   }
 
   public subscribeToAfterCoreDataReload(): void {
-    this.stateChangeService.afterCoreDataReload$.subscribe(() => {
+    this.afterCoreDataReloadSub = this.stateChangeService.afterCoreDataReload$.subscribe(() => {
       this.initCoreStaticValues();
     });
   }
 
   public subscribeToAfterUserDataReload(): void {
-    this.stateChangeService.afterUserDataReload$.subscribe(() => {
+    this.afterUserDataReloadSub = this.stateChangeService.afterUserDataReload$.subscribe(() => {
       this.initUserStaticValues();
     });
   }
 
   private subscribeToUserModalActionChange(): void {
     // User confirmed the modal action
-    this.stateChangeService.userModalActionChange.subscribe((modalAction?: ModalAction) => {
+    this.userModalActionSub = this.stateChangeService.userModalActionChange.subscribe((modalAction?: ModalAction) => {
       this.ommLockingComponent?.onLockAdjustCancelClick();
       this.collapseAllPoolTables();
     });
   }
 
   private subscribeToLoginChange(): void {
-    this.stateChangeService.loginChange.subscribe(wallet => {
+    this.loginChangeSub = this.stateChangeService.loginChange$.subscribe(wallet => {
       if (wallet) {
         // pop up manage staked omm
         this.popupStakedMigrationModal();

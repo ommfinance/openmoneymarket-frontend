@@ -1,33 +1,154 @@
 <!-- Your markets (users asset) or Available to supply state -->
-<tr class="asset {{asset.className}} {{getAssetClass()}}" (click)="onAssetClick()" #assetYour [ngStyle]="hideElement(!shouldBeShown())">
-
-  <td>{{asset.name}}<br><span class="label">{{getAssetTagAdjusted()}}</span></td>
+<tr class="asset {{asset.className}} {{getAssetClass()}}" (click)="onAssetClick()" #assetYour [ngStyle]="!shouldBeShown() | hide">
 
   <!-- Your asset state -->
   <ng-container *ngIf="!isAllMarketViewActive() && !isAssetAvailable()">
-    <td><span class="value-supplied">{{this.persistenceService.getUserAssetReserve(asset.tag)?.currentOTokenBalanceUSD | roundOff2Dec | dollarUsLocale}}</span><br>
-      <span class="value-supplied label">{{getUserSuppliedAssetBalance() | usFormat}} {{supplyAssetTag()}}</span></td>
-    <td class="text-green">{{getUserSupplyApy() | roundOff2DecPercent}}</td> <!-- Supply APY-->
-    <td><span class="value-borrowed">{{userBorrowedAssetBalanceUSD | roundOff2Dec | dollarUsLocale}}</span><br>
-      <span class="value-borrowed label">{{userBorrowedAssetBalance | roundDown2Dec | usFormat}} {{getBorrowAssetTagAdjusted()}}</span></td>
-    <td class="{{isNegative(getUserBorrowApy()) ? 'text-purple' : 'text-green'}}">{{makeAbsolute(getUserBorrowApy()) | roundOff2DecPercent}}</td><!-- Borrow APY -->
+    <td class="new">
+      <div class="desktop-market grid-center">
+        <div class="grid grid-center">
+          <div class="grid-cell">
+            <p>{{asset.name}}<br><span class="label">{{getAssetTagAdjusted()}}</span></p>
+          </div>
+          <div class="grid-cell details hide">
+            <p class="text-right details hide">Details</p>
+          </div>
+        </div>
+      </div>
+      <div class="mobile-market hide">
+        <div class="grid metadata-group">
+          <div class="grid-cell">
+            <div class="grid supply-group">
+              <div class="grid-cell text-center">
+                <dl class="metadata">
+                  <dt>You've supplied</dt>
+                  <dd class="value-supplied-usdb">{{getUserSuppliedAssetBalance() | usFormat}} {{supplyAssetTag()}}</dd>
+                </dl>
+              </div>
+              <div class="grid-cell text-center">
+                <dl class="metadata">
+                  <dt>Supply APY</dt>
+                  <dd><span class="text-green text-bold">{{getUserSupplyApy() | roundOff2DecPercent}}</span></dd>
+                </dl>
+              </div>
+            </div>
+            <div class="grid borrow-group">
+              <div class="grid-cell">
+                <dl class="metadata text-center">
+                  <dt>You've borrowed</dt>
+                  <dd class="value-borrowed-usdb">{{userBorrowedAssetBalance | roundDown2Dec | usFormat}} {{getBorrowAssetTagAdjusted()}}</dd>
+                </dl>
+              </div>
+              <div class="grid-cell">
+                <dl class="metadata text-center">
+                  <dt>Borrow APR</dt>
+                  <dd><span class="{{isNegative(getUserBorrowApy()) ? 'text-purple' : 'text-green'}} text-bold">{{makeAbsolute(getUserBorrowApy()) | roundOff2DecPercent}}</span></dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </td>
+    <td><span class="value-supplied-usdb-dollar">{{this.persistenceService.getUserAssetReserve(asset.tag)?.currentOTokenBalanceUSD | roundOff2Dec | dollarUsLocale}}</span><br>
+      <span class="value-supplied-usdb label">{{getUserSuppliedAssetBalance() | usFormat}} {{supplyAssetTag()}}</span></td>
+    <td><span class="text-green value-apy-bridge">{{getUserSupplyApy() | roundOff2DecPercent}}</span></td>
+    <td><span class="value-borrowed-usdb-dollar">{{userBorrowedAssetBalanceUSD | roundOff2Dec | dollarUsLocale}}</span><br>
+      <span class="value-borrowed-usdb label">{{userBorrowedAssetBalance | roundDown2Dec | usFormat}} {{getBorrowAssetTagAdjusted()}}</span></td>
+    <td><span class="{{isNegative(getUserBorrowApy()) ? 'text-purple' : 'text-green'}} value-apy-bridge-borrow">{{makeAbsolute(getUserBorrowApy()) | roundOff2DecPercent}}</span></td>
   </ng-container>
 
   <!-- Asset available state -->
   <ng-container *ngIf="!isAllMarketViewActive() && isAssetAvailable()">
-    <td colspan="2" class="text-right">{{getUserSuppliableBalanceUSD() | roundOff2Dec | dollarUsLocale}}
-      <br><span class="label">{{getUserSuppliableBalance() | roundOff2Dec | usFormat}} {{supplyAssetTag()}}</span></td>
-    <td colspan="2" class="text-right"><span class="text-green">{{getUserSupplyApy() | roundOff2DecPercent}} APY</span></td> <!-- Supply APY -->
+    <td class="new">
+      <div class="desktop-market grid-center">
+        <div class="grid grid-center">
+          <div class="grid-cell">
+            <p>{{asset.name}}<br><span class="label">{{getAssetTagAdjusted()}}</span></p>
+          </div>
+          <div class="grid-cell details hide">
+            <p class="text-right details hide">Details</p>
+          </div>
+        </div>
+      </div>
+      <div class="mobile-market hide">
+        <div class="grid metadata-group">
+          <div class="grid-cell">
+            <div class="grid supply-group">
+              <div class="grid-cell text-center">
+                <dl class="metadata">
+                  <dt>Available</dt>
+                  <dd class="">{{getUserSuppliableBalance() | roundOff2Dec | usFormat}} {{supplyAssetTag()}}</dd>
+                </dl>
+              </div>
+              <div class="grid-cell text-center">
+                <dl class="metadata">
+                  <dt>Supply APY</dt>
+                  <dd><span class="text-green text-bold">{{getUserSupplyApy() | roundOff2DecPercent}}</span></dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </td>
+
+    <td colspan="2" class="text-right">{{getUserSuppliableBalanceUSD() | roundOff2Dec | dollarUsLocale}}<br>
+      <span class="label">{{getUserSuppliableBalance() | roundOff2Dec | usFormat}} {{supplyAssetTag()}}</span></td>
+    <td colspan="2" class="text-right"><span class="text-green value-apy-bridge-available-suffix">{{getUserSupplyApy() | roundOff2DecPercent}} APY</span></td>
   </ng-container>
 
   <!-- All markets state -->
   <ng-container *ngIf="isAllMarketViewActive()">
-    <td><span>{{getTotalLiquidityUsd() | dollarUsLocale}}</span><br>
-      <span class="label">{{getTotalLiquidity() | usFormat}} {{supplyAssetTag()}}</span></td>
-    <td class="text-green">{{getMarketSupplyRate() | roundOff2DecPercent}}</td> <!-- Supply APY -->
-    <td>{{getTotalBorrowUsd() | dollarUsLocale}}<br>
-      <span class="label">{{getTotalAssetBorrows() | usFormat}} {{getBorrowAssetTagAdjusted()}}</span></td>
-    <td class="{{isNegative(getMarketBorrowRate()) ? 'text-purple' : 'text-green'}}">{{makeAbsolute(getMarketBorrowRate()) | roundOff2DecPercent}}</td> <!-- Borrow APY -->
+    <td class="new">
+      <div class="desktop-market grid-center">
+        <div class="grid grid-center">
+          <div class="grid-cell">
+            <p>{{asset.name}}<br><span class="label">{{getAssetTagAdjusted()}}</span></p>
+          </div>
+          <div class="grid-cell details hide">
+            <p class="text-right details hide">Details</p>
+          </div>
+        </div>
+      </div>
+      <div class="mobile-market hide">
+        <div class="grid metadata-group">
+          <div class="grid-cell">
+            <div class="grid supply-group">
+              <div class="grid-cell">
+                <dl class="metadata">
+                  <dt>Total supplied</dt>
+                  <dd class="">{{getTotalLiquidity() | usFormat}} {{supplyAssetTag()}}</dd>
+                </dl>
+              </div>
+              <div class="grid-cell">
+                <dl class="metadata">
+                  <dt>Supply APY</dt>
+                  <dd><span class="text-green text-bold">{{getMarketSupplyRate() | roundOff2DecPercent}}</span></dd>
+                </dl>
+              </div>
+            </div>
+            <div class="grid borrow-group">
+              <div class="grid-cell">
+                <dl class="metadata">
+                  <dt>Total borrowed</dt>
+                  <dd class="">{{getTotalAssetBorrows() | usFormat}} {{getBorrowAssetTagAdjusted()}}</dd>
+                </dl>
+              </div>
+              <div class="grid-cell">
+                <dl class="metadata">
+                  <dt>Borrow APR</dt>
+                  <dd><span class="{{isNegative(getMarketBorrowRate()) ? 'text-purple' : 'text-green'}} text-bold">{{makeAbsolute(getMarketBorrowRate()) | roundOff2DecPercent}}</span></dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </td>
+    <td><span>{{getTotalLiquidityUsd() | dollarUsLocale}}</span><br><span class="label">{{getTotalLiquidity() | usFormat}} {{supplyAssetTag()}}</span></td>
+    <td><span class="text-green value-apy-bridge">{{getMarketSupplyRate() | roundOff2DecPercent}}</span></td>
+    <td>{{getTotalBorrowUsd() | dollarUsLocale}}<br><span class="label">{{getTotalAssetBorrows() | usFormat}} {{getBorrowAssetTagAdjusted()}}</span></td>
+    <td><span class="text-purple value-apy-bridge-borrow">{{makeAbsolute(getMarketBorrowRate()) | roundOff2DecPercent}}</span></td>
   </ng-container>
 
 </tr>
@@ -35,10 +156,14 @@
 <!-- Asset Expanded -->
 <tr class="expanded">
   <td colspan="5">
-    <div class="market-expanded" #marketExpandedEl>
+    <div class="market-expanded market-icx-expanded" #marketExpandedEl>
+      <ul class="toggle market-toggle">
+        <li class="toggle-supply {{supplyMarketSelected() ? 'active': ''}}" (click)="onSupplyMarketClicked()"><span>Supply</span></li>
+        <li class="toggle-borrow {{borrowMarketSelected() ? 'active': ''}}" (click)="onBorrowMarketClicked()"><span>Borrow</span></li>
+      </ul>
       <div class="grid">
         <!-- Asset Supply -->
-        <div class="grid-cell supply border-right" #supply>
+        <div class="grid-cell supply border-right {{supplyMarketSelected() ? '': 'hide'}}" #supply>
           <!-- Supply title -->
           <div class="grid grid-center title">
             <div class="grid-cell">
@@ -58,7 +183,7 @@
 
             </div>
             <div class="grid-cell text-right">
-              <p class="supply-apy" #suppApyEl>{{getSupplyRateForActiveMarket() | roundOff2DecPercent}} APY</p>
+              <p><span #suppApyEl class="supply-apy value-apy-bridge-suffix">{{getSupplyRateForActiveMarket() | roundOff2DecPercent}} APY</span></p>
             </div>
           </div>
 
@@ -66,20 +191,20 @@
           <div class="supply-allow" #supplyAllow>
 
             <!-- Supply APY history chart -->
-            <div class="chart-wrapper" (resized)="onSuppChartResize()" [ngStyle]="hideElement(ommApyChecked  || isAssetOmm())" #suppChartWrapper>
+            <div class="chart-wrapper" (resized)="onChartResize()" [ngStyle]="(ommApyChecked || isAssetOmm()) | hide" #suppChartWrapper>
               <div class="chart-apy" #suppHistChart></div>
             </div>
 
             <!-- Supply slider -->
-            <div [ngStyle]="hideElement(shouldHideSupplyContent())" id="slider-supply" #sliderSupply disabled></div>
+            <div [ngStyle]="shouldHideSupplyContent() | hide" id="slider-supply" #sliderSupply disabled></div>
 
             <!-- Supply inputs -->
-            <div [ngStyle]="hideElement(shouldHideSupplyContent())" class="grid legend">
+            <div [ngStyle]="shouldHideSupplyContent() | hide" class="grid legend">
               <div class="grid-cell">
                 <label class="label supplied">Supplied</label>
-                <p class="input-supply-default value-supplied" [ngStyle]="hideElement(this.inputSupplyActive)">{{inputSupply?.value}} {{supplyAssetTag()}}</p>
+                <p class="input-supply-default value-supplied" [ngStyle]="this.inputSupplyActive | hide">{{inputSupply?.value}} {{supplyAssetTag()}}</p>
 
-                <div class="input-asset-supply" [ngStyle]="hideElement(!this.inputSupplyActive)">
+                <div class="input-asset-supply" [ngStyle]="!this.inputSupplyActive | hide">
                   <span class="ticker">{{supplyAssetTag()}}</span>
                   <input type="text" title="{{supplyAssetTag()}} supplied" id="input-supply" #inputSupply class="input-supply" disabled="" value="0" (keyup)="onInputSupplyLostFocus()"
                          [ngStyle]="{'padding-right': getInputPadding(true, supplyAssetTag().toString(), inputSupplyEl)}">
@@ -87,9 +212,9 @@
               </div>
               <div class="grid-cell">
                 <label class="label available">Available</label>
-                <p class="input-supply-default value-supplied-available" [ngStyle]="hideElement(this.inputSupplyActive)">{{inputSupplyAvailable?.value}} {{supplyAssetTag()}}</p>
+                <p class="input-supply-default value-supplied-available" [ngStyle]="this.inputSupplyActive | hide">{{inputSupplyAvailable?.value}} {{supplyAssetTag()}}</p>
 
-                <div class="input-asset-supply" [ngStyle]="hideElement(!this.inputSupplyActive)">
+                <div class="input-asset-supply" [ngStyle]="!this.inputSupplyActive | hide">
                   <span class="ticker">{{supplyAssetTag()}}</span>
                   <input type="text" title="{{supplyAssetTag()}} available to supply" id="input-supply-available" #inpSuppAvail class="input-supply" disabled value="0"
                          [ngStyle]="{'padding-right': getInputPadding(true, supplyAssetTag().toString(), inputSupplyAvailable)}">
@@ -98,7 +223,7 @@
             </div>
 
             <!-- Supply income -->
-            <div [ngStyle]="hideElement(shouldHideSupplyContent())" class="grid legend income">
+            <div [ngStyle]="shouldHideSupplyContent() | hide" class="grid legend income">
               <div class="grid-cell">
                 <dl class="metadata">
                   <dt>Daily interest</dt>
@@ -114,7 +239,7 @@
             </div>
 
             <!-- Adjust-->
-            <div [ngStyle]="hideElement(shouldHideSupplyContent())" class="grid grid-center supply-actions actions-1" #suppAct1>
+            <div [ngStyle]="shouldHideSupplyContent() | hide" class="grid grid-center supply-actions actions-1" #suppAct1>
               <div class="grid-cell text-center">
                 <a href="javascript:void(0);" class="button {{asset.className}} supply-adjust"
                    (click)="onSupplyAdjustClick()">{{userAssetSuppliedBalanceIsZero() ? "Supply" : "Adjust"}}</a>
@@ -123,8 +248,8 @@
           </div>
 
           <!-- If logged out show sign in button -->
-          <div class="grid grid-center sign-in-message" [ngStyle]="hideElement(userLoggedIn())">
-            <div class="grid-cell" [ngStyle]="hideElement(userLoggedIn())">
+          <div class="grid grid-center sign-in-message" [ngStyle]="userLoggedIn() | hide">
+            <div class="grid-cell" [ngStyle]="userLoggedIn() | hide">
               <p class="text-center"><a href="javascript:void(0);" class="button" (click)="onSignInClick()">Sign in to supply</a></p>
             </div>
           </div>
@@ -154,18 +279,18 @@
         </div>
 
         <!-- Asset Borrow -->
-        <div class="grid-cell borrow" #borrow>
+        <div class="grid-cell borrow {{borrowMarketSelected() ? '': 'hide'}}" #borrow>
           <!-- Borrow title -->
           <div class="grid grid-center title">
             <div class="grid-cell">
-              <h2>Borrow</h2><span class="risk-outer" [ngStyle]="hideElement(this.persistenceService.userHasNotSuppliedAnyAsset())">Risk: <span class="value-risk-total">- %</span></span>
-              <span class="tooltip expanded-risk-tooltip" style="padding-left: 5px" [ngStyle]="hideElement(this.persistenceService.userHasNotSuppliedAnyAsset())">
+              <h2>Borrow</h2><span class="risk-outer" [ngStyle]="this.persistenceService.userHasNotSuppliedAnyAsset() | hide">Risk: <span class="value-risk-total">- %</span></span>
+              <span class="tooltip expanded-risk-tooltip" style="padding-left: 5px" [ngStyle]="this.persistenceService.userHasNotSuppliedAnyAsset() | hide">
                 <span class="tooltip-item"><img src="assets/img/icon/question.svg" class="tooltip-icon"></span>
                 <div class="tooltip-content"><p>While you borrow assets, your supply is at risk of liquidation. Keep it below 50% to reduce the impact of volatile markets.</p></div>
               </span>
             </div>
-            <div class="grid-cell text-right" [ngStyle]="hideElement(isAssetOmm())">
-              <p class="{{isNegative(getBorrowRateForActiveMarket()) ? 'borrow-apy':'borrow-apy text-green'}}" #borrowAprEl>{{makeAbsolute(getBorrowRateForActiveMarket()) | roundOff2DecPercent}} APR</p>
+            <div class="grid-cell text-right">
+              <p><span class="borrow-apy {{isNegative(getBorrowRateForActiveMarket()) ? '':'text-green'}} value-apy-bridge-borrow-suffix" #borrowAprEl>{{makeAbsolute(getBorrowRateForActiveMarket()) | roundOff2DecPercent}} APR</span></p>
             </div>
           </div>
 
@@ -173,26 +298,26 @@
           <div class="borrow-allow">
 
             <!-- Used indicator -->
-            <div [ngStyle]="hideElement(shouldHideBorrowContent())" class="used-container" *ngIf="isAssetBorrowUsed()">
+            <div [ngStyle]="shouldHideBorrowContent() | hide" class="used-container" *ngIf="isAssetBorrowUsed()">
               <div class="used active" [ngStyle]="{left: assetRepayUsedPercentage() + '%'}"><p class="label">Used</p></div>
             </div>
 
             <!-- Chart line 2 -->
-            <div class="chart-wrapper" [ngStyle]="hideElement(ommApyChecked || isAssetOmm())" #borrChartWrapper>
+            <div class="chart-wrapper" (resized)="onChartResize()" [ngStyle]="(ommApyChecked || isAssetOmm()) | hide" #borrChartWrapper>
               <div class="chart-apy" #borrHistChart></div>
             </div>
 
 
             <!-- Borrow slider -->
-            <div [ngStyle]="hideElement(shouldHideBorrowContent())" id="slider-borrow" #sliderBorrow disabled></div>
+            <div [ngStyle]="shouldHideBorrowContent() | hide" id="slider-borrow" #sliderBorrow disabled></div>
 
             <!-- Borrow legend -->
-            <div [ngStyle]="hideElement(shouldHideBorrowContent())" class="grid legend">
+            <div [ngStyle]="shouldHideBorrowContent() | hide" class="grid legend">
               <div class="grid-cell">
                 <label class="label borrowed">Borrowed</label>
-                <p class="input-borrow-default value-borrowed" [ngStyle]="hideElement(this.inputBorrowActive)">{{inputBorrow?.value}} {{getBorrowAssetTagAdjusted()}}</p>
+                <p class="input-borrow-default value-borrowed" [ngStyle]="this.inputBorrowActive | hide">{{inputBorrow?.value}} {{getBorrowAssetTagAdjusted()}}</p>
 
-                <div class="input-asset-borrow" [ngStyle]="hideElement(!this.inputBorrowActive)">
+                <div class="input-asset-borrow" [ngStyle]="!this.inputBorrowActive | hide">
                   <span class="ticker">{{getBorrowAssetTagAdjusted()}}</span>
                   <input type="text" title="{{getBorrowAssetTagAdjusted()}} borrowed" id="input-borrow" #inputBorrow class="input-borrow" disabled value="0" (keyup)="onInputBorrowLostFocus()"
                          [ngStyle]="{'padding-right': getInputPadding(false, getBorrowAssetTagAdjusted().toString(), inputBorrowEl)}">
@@ -200,9 +325,9 @@
               </div>
               <div class="grid-cell">
                 <label class="label available">Available</label>
-                <p class="input-borrow-default value-borrowed-available" [ngStyle]="hideElement(this.inputBorrowActive)">{{inputBorrowAvailable?.value}} {{getBorrowAssetTagAdjusted()}}</p>
+                <p class="input-borrow-default value-borrowed-available" [ngStyle]="this.inputBorrowActive | hide">{{inputBorrowAvailable?.value}} {{getBorrowAssetTagAdjusted()}}</p>
 
-                <div class="input-asset-borrow" [ngStyle]="hideElement(!this.inputBorrowActive)">
+                <div class="input-asset-borrow" [ngStyle]="!this.inputBorrowActive | hide">
                   <span class="ticker">{{getBorrowAssetTagAdjusted()}}</span>
                   <input type="text" title="{{getBorrowAssetTagAdjusted()}} available to borrow" id="input-borrow-available" #inpBorrAvail class="input-borrow" disabled value="0"
                          [ngStyle]="{'padding-right': getInputPadding(false, getBorrowAssetTagAdjusted().toString(), inputBorrowAvailable)}">
@@ -211,7 +336,7 @@
             </div>
 
             <!-- Borrow income legend -->
-            <div [ngStyle]="hideElement(shouldHideBorrowContent())" class="grid legend income">
+            <div [ngStyle]="shouldHideBorrowContent() | hide" class="grid legend income">
               <div class="grid-cell">
                 <dl class="metadata">
                   <dt>Daily interest</dt>
@@ -227,16 +352,16 @@
             </div>
 
             <!-- Adjust-->
-            <div [ngStyle]="hideElement(shouldHideBorrowContent())" class="grid grid-center borrow-actions actions-1" #borrAct1>
+            <div [ngStyle]="shouldHideBorrowContent() | hide" class="grid grid-center borrow-actions actions-1" #borrAct1>
               <div class="grid-cell text-center">
                 <a href="javascript:void(0);" class="button {{asset.className}} purple borrow-adjust"
-                   [ngStyle]="hideElement(this.persistenceService.userHasNotSuppliedAnyAsset())"
+                   [ngStyle]="this.persistenceService.userHasNotSuppliedAnyAsset() | hide"
                    (click)="onBorrowAdjustClick()">{{userAssetBorrowedBalanceIsZero() ? "Borrow" : "Adjust"}}</a>
               </div>
             </div>
 
             <!-- Confirm -->
-            <div [ngStyle]="hideElement(shouldHideBorrowContent())" class="grid grid-center borrow-actions actions-2 hide" #borrAct2>
+            <div [ngStyle]="shouldHideBorrowContent() | hide" class="grid grid-center borrow-actions actions-2 hide" #borrAct2>
               <div class="grid-cell text-right">
                 <a href="javascript:void(0);" class="cancel adjust-cancel" (click)="onAdjustCancelClick()">Cancel</a>
               </div>
@@ -254,13 +379,13 @@
           </div>
 
           <!-- Borrow deny (Show if user can't borrow) -->
-          <div class="borrow-deny hide" [ngStyle]="displayAsBlockOrHide(shouldShowBorrowDeny() && !isAssetOmm())">
+          <div class="borrow-deny hide" [ngStyle]="displayAsBlockOrHide(shouldShowBorrowDeny() && isAssetBorrowable)">
             <p class="text-center label message">Supply an asset to borrow {{asset.name}}.</p>
           </div>
 
           <!-- Borrow unavailable for OMM -->
-          <div class="borrow-deny hide" [ngStyle]="displayAsBlockOrHide(isAssetOmm())">
-            <p class="text-center label message">Omm Tokens aren't available to borrow.</p>
+          <div class="borrow-deny hide" [ngStyle]="displayAsBlockOrHide(!isAssetBorrowable)">
+            <p class="text-center label message">{{asset.name}} aren't available to borrow.</p>
           </div>
 
         </div>

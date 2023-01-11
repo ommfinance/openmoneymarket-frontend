@@ -5,7 +5,7 @@
     <div class="grid overview-toggles">
       <div class="grid-cell">
         <h2>Overview</h2>
-        <ul class="toggle" [ngStyle]="hideElement(!userLoggedIn())">
+        <ul class="toggle" [ngStyle]="!userLoggedIn() | hide">
           <li id="toggle-your-overview" class="{{!isMarketOverviewActive() ? 'active': ''}}" (click)="onToggleYourOverviewClick()">Your overview</li>
           <li id="toggle-market-overview" class="{{isMarketOverviewActive() ? 'active': ''}}" (click)="onToggleMarketOverviewClick()">Market overview</li>
         </ul>
@@ -44,8 +44,7 @@
       </section>
 
   <!-- Performance / Risk , hide if user not logged in or he has not supplied any asset-user -->
-  <div class="grid side-by-side performance-risk" [ngStyle]="hideElement(!userLoggedIn()
-                                                             || this.persistenceService.userHasNotSuppliedAnyAsset())">
+  <div class="grid side-by-side performance-risk" [ngStyle]="(!userLoggedIn() || this.persistenceService.userHasNotSuppliedAnyAsset()) | hide">
     <!-- Performance -->
     <div class="grid-cell">
       <section id="performance">
@@ -66,7 +65,7 @@
     <div class="grid grid-center filters">
       <div class="grid-cell">
         <h2>Markets</h2>
-        <ul class="toggle" [ngStyle]="hideElement(!userLoggedIn())">
+        <ul class="toggle" [ngStyle]="!userLoggedIn() | hide">
           <li id="toggle-your-markets" class="{{userMarketViewActive() ? 'active': ''}}" (click)="onYourMarketsClick()">Your markets</li>
           <li id="toggle-all-markets"  class="{{allMarketViewActive() ? 'active': ''}}" (click)="onAllMarketsClick()">All markets</li>
         </ul>
@@ -78,7 +77,7 @@
       <div class="grid-cell">
         <table class="list markets">
           <thead>
-            <tr id="your-markets-header" [ngStyle]="hideElement(shouldHideYourMarketHeader())">
+            <tr id="your-markets-header" [ngStyle]="shouldHideYourMarketHeader() | hide">
               <th>Asset</th>
               <th>You've supplied</th>
               <th>Supply APY <span class="supply-apy-tooltip tooltip">
@@ -98,7 +97,7 @@
 												</span></th>
             </tr>
 
-            <tr id="all-markets-header" [ngStyle]="hideElement(!allMarketViewActive())">
+            <tr id="all-markets-header" [ngStyle]="!allMarketViewActive() | hide">
               <th>Asset</th>
               <th>Total supplied</th>
               <th>Supply APY <span class="supply-apy-tooltip tooltip">
@@ -171,7 +170,7 @@
 
         <!-- If no assets available message bridge wallet -->
         <div id="message-no-asset-bridge" class="grid"
-             [ngStyle]="hideElement(allMarketViewActive() || !userLoggedIn() || !noActiveOrAvailableAsset())">
+             [ngStyle]="(allMarketViewActive() || !userLoggedIn() || !noActiveOrAvailableAsset()) | hide">
           <div class="grid-cell">
             <p class="label text-center">You have no assets available to supply.</p>
             <p *ngIf="persistenceService.bridgeWalletActive()" class="text-center" style="margin-top: 15px;"><a href="javascript:void(0);" class="button" (click)="onDepositUSDClick()">Deposit USD</a></p>

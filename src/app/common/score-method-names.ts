@@ -49,6 +49,9 @@ export class ScoreMethodNames {
   public static GET_ALL_ASSET_DIST_PERCENTAGE = "getAllAssetDistributionPercentage";
   public static GET_DAILY_REWARDS_RESERVES_POOLS = "getDailyRewards";
   public static GET_DAY = "getDay";
+  public static GET_WORKING_TOTAL = "getWorkingTotal";
+  public static GET_WORKING_BALANCES = "getWorkingBalances";
+
 
   /**
    * OmmToken SCORE
@@ -83,6 +86,8 @@ export class ScoreMethodNames {
   public static GET_USER_DELEGATION_DETAILS = "getUserDelegationDetails";
   public static UPDATE_DELEGATIONS = "updateDelegations";
   public static CLEAR_PREVIOUS_DELEGATIONS = "clearPrevious";
+  public static GET_WORKING_TOTAL_SUPPLY = "getWorkingTotalSupply";
+  public static GET_USER_WORKING_BALANCE = "getWorkingBalance";
 
   /**
    * Governance SCORE
@@ -98,6 +103,8 @@ export class ScoreMethodNames {
   public static MY_VOTING_WEIGHT = "myVotingWeight";
   public static GET_BOOSTED_OMM_VOTE_DEFINITION_CRITERION = "getBoostedOmmVoteDefinitionCriterion";
   public static GET_VOTE_DURATION = "getVoteDuration";
+  public static GET_SUPPORTED_CONTRACTS = "getSupportedContracts";
+  public static GET_SUPPORTED_METHODS_OF_CONTRACT = "getSupportedMethodsOfContract";
 
   /**
    * Staking SCORE
@@ -122,4 +129,6 @@ export class ScoreMethodNames {
    */
   public static GET_PREPS = "getPReps";
   public static GET_PREP = "getPRep";
+
+  public static GET_NAME = "name";
 }

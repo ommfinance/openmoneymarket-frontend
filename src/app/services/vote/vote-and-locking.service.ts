@@ -6,7 +6,8 @@ import {TransactionDispatcherService} from "../transaction-dispatcher/transactio
 import {ScoreMethodNames} from "../../common/score-method-names";
 import {IconTransactionType} from "../../models/enums/IconTransactionType";
 import log from "loglevel";
-import {IconAmount, IconConverter} from "icon-sdk-js";
+import IconService from "icon-sdk-js";
+const { IconConverter, IconAmount } = IconService;
 import {environment} from "../../../environments/environment";
 import {Mapper} from "../../common/mapper";
 import {Prep} from "../../models/classes/Preps";
@@ -288,9 +289,11 @@ export class VoteAndLockingService {
 
     const to = this.persistenceService.allAddresses!.systemContract.Governance;
     const value = IconConverter.toHex(IconAmount.of(proposal.voteDefinitionFee, 18).toLoop());
-    const data = IconConverter.fromUtf8(`{ "method": "defineVote", "params": { "name": "${
+    const dataPayload = `{ "method": "defineVote", "params": { "name": "${
       proposal.title}", "description": "${ // "unique name of the proposal"
-      proposal.description}", "forum": "${proposal.forumLink}"}}`);
+      proposal.description}", "forum": "${proposal.forumLink}"${ proposal.transactions ? ', "transactions": ' + JSON.stringify(proposal.transactions) : ''}}}`;
+    log.debug("Create proposal data payload:", dataPayload);
+    const data = IconConverter.fromUtf8(dataPayload);
 
     const params = {
       _to: to,

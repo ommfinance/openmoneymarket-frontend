@@ -358,3 +358,8 @@
   background: -webkit-linear-gradient( 0deg, rgb(96,129,223, 0.25) 0%, rgb(157,77,241, 0.25) 100%);
   background: -ms-linear-gradient( 0deg, rgb(96,129,223, 0.25) 0%, rgb(157,77,241, 0.25) 100%);
 }
+#slider-risk {
+  background: -moz-linear-gradient( 0deg, rgb(96,129,223, 0.25) 0%, rgb(157,77,241, 0.25) 100%);
+  background: -webkit-linear-gradient( 0deg, rgb(96,129,223, 0.25) 0%, rgb(157,77,241, 0.25) 100%);
+  background: -ms-linear-gradient( 0deg, rgb(96,129,223, 0.25) 0%, rgb(157,77,241, 0.25) 100%);
+}

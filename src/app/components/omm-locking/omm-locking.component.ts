@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {BaseClass} from "../base-class";
 import {PersistenceService} from "../../services/persistence/persistence.service";
 import BigNumber from "bignumber.js";
@@ -25,12 +25,13 @@ import {
   LOCKING_PERIOD_NOT_SELECTED,
   TOO_LOW_LOCK_AMOUNT
 } from "../../common/messages";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-omm-locking',
   templateUrl: './omm-locking.component.html',
 })
-export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewInit {
+export class OmmLockingComponent extends BaseClass implements OnInit, OnDestroy, AfterViewInit {
 
   @Input() type!: OmmLockingCmpType;
   @Output() sliderValueUpdate = new EventEmitter<number>();
@@ -41,10 +42,11 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
   @ViewChild(BoostedOmmSliderComponent) lockOmmSliderCmp!: BoostedOmmSliderComponent;
   private inputLockOmmEl!: any; @ViewChild("lockInput")set a(a: ElementRef) {this.inputLockOmmEl = a.nativeElement; }
   private dropdownLockedEl!: any; @ViewChild("drpdwnLocked")set b(b: ElementRef) {this.dropdownLockedEl = b.nativeElement; }
-  private userbOmmBalanceEl?: any; @ViewChild("bommBaln")set c(c: ElementRef) {this.userbOmmBalanceEl = c?.nativeElement; }
+  private userWorkingbOmmBalanceEl?: any; @ViewChild("bommBaln")set c(c: ElementRef) {this.userWorkingbOmmBalanceEl = c?.nativeElement; }
 
   userOmmTokenBalanceDetails?: OmmTokenBalanceDetails;
-  userbOmmBalance = Utils.ZERO;
+  userDelegationWorkingbOmmBalance = Utils.ZERO;
+  userRewardsWorkingbOmmBalance = Utils.ZERO;
   userLockedOmmBalance = Utils.ZERO;
 
   public dynamicLockedOmmAmount: BigNumber = new BigNumber(0); // dynamic user locked Omm amount
@@ -56,6 +58,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
 
   private lockAdjustActive = false; // flag that indicates whether the locked adjust is active (confirm and cancel shown)
 
+  userDataReloadSub?: Subscription;
 
   constructor(public persistenceService: PersistenceService,
               private calculationService: CalculationsService,
@@ -74,12 +77,17 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
     this.initLockSlider();
   }
 
+  ngOnDestroy(): void {
+    this.userDataReloadSub?.unsubscribe();
+  }
+
   initCoreValues(): void {
     if (this.userLoggedIn()) {
       this.dynamicLockedOmmAmount = this.persistenceService.getUsersLockedOmmBalance();
       this.selectedLockTimeInMillisec = lockedDatesToMilliseconds.get(this.currentLockPeriodDate())!;
       this.selectedLockTime = this.currentLockPeriodDate();
-      this.userbOmmBalance = this.persistenceService.userbOmmBalance;
+      this.userDelegationWorkingbOmmBalance = this.persistenceService.userDelegationWorkingbOmmBalance;
+      this.userRewardsWorkingbOmmBalance = this.persistenceService.userRewardsWorkingbOmmBalance;
       this.userOmmTokenBalanceDetails = this.persistenceService.userOmmTokenBalanceDetails?.getClone();
       this.userLockedOmmBalance = this.persistenceService.getUsersLockedOmmBalance();
     }
@@ -122,7 +130,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
 
     // update dynamic values only if user current and dynamic locked OMM amounts are different
     if (this.userLoggedIn() && !this.userLockedOmmBalance.eq(bigNumValue.dp(0)))  {
-      if (this.userbOmmBalanceEl) {
+      if (this.userWorkingbOmmBalanceEl) {
         this.updateUserbOmmBalance(bigNumValue);
       }
     }
@@ -170,8 +178,8 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
     this.lockAdjustCancelClicked.emit();
 
     // reset bOmm balance
-    this.setText(this.userbOmmBalanceEl, this.toZeroIfDash(this.tooUSLocaleString(this.userbOmmBalance.dp(2)))
-      + " bOMM");
+    this.setText(this.userWorkingbOmmBalanceEl, this.toZeroIfDash(this.tooUSLocaleString(this.getUserWorkingbOmmBalance().dp(2)))
+      + " bOMM ");
   }
 
   onLockedDateDropdownClick(): void {
@@ -181,8 +189,12 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
   updateUserbOmmBalance(newLockedOmmAmount: BigNumber): void {
     const newUserbOmmBalance = this.calculationService.calculateNewbOmmBalance(newLockedOmmAmount, this.selectedLockTimeInMillisec);
 
-    this.setText(this.userbOmmBalanceEl, this.toZeroIfDash(this.tooUSLocaleString(newUserbOmmBalance.dp(2)))
-      + " bOMM");
+    this.setText(this.userWorkingbOmmBalanceEl, this.toZeroIfDash(this.tooUSLocaleString(newUserbOmmBalance.dp(2)))
+      + " bOMM ");
+  }
+
+  getUserWorkingbOmmBalance(): BigNumber {
+    return this.type === OmmLockingCmpType.REWARDS ? this.userRewardsWorkingbOmmBalance : this.userDelegationWorkingbOmmBalance;
   }
 
   /**
@@ -354,7 +366,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, AfterViewI
   }
 
   shouldShowbOmmBalance(): boolean {
-    return this.userLoggedIn() && (this.lockAdjustActive || this.userbOmmBalance.gt(0) || this.userHasOmmUnlocked());
+    return this.userLoggedIn() && (this.lockAdjustActive || this.getUserWorkingbOmmBalance().gt(0) || this.userHasOmmUnlocked());
   }
 
   unlockedOnLockedUntilLabel(): string {

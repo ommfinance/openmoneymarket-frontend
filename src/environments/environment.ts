@@ -4,20 +4,20 @@
 
 export const environment = {
   production: false,
-  iconRpcUrl: "https://berlin.net.solidwallet.io/api/v3",
-  ommRestApi: "https://omm-stats-api-dev-r8jdq.ondigitalocean.app/api/v1",
-  iconDebugRpcUrl: "https://berlin.net.solidwallet.io/api/v3d",
-  ADDRESS_PROVIDER_SCORE: 'cx9ac7aeda46931d6acc126d790c06e17f6f6be9aa',
-  BALANCED_DEX_SCORE: "cx4d3b86709c387dec2927158c0377ecabe002f503",
+  iconRpcUrl: "https://lisbon.net.solidwallet.io/api/v3",
+  ommRestApi: "https://api.omm.finance/api/v1",
+  iconDebugRpcUrl: "https://lisbon.net.solidwallet.io/api/v3d",
+  ADDRESS_PROVIDER_SCORE: 'cx3beb2fa9b7cfa3684f6db1413897dfcf6cc1b04c',
+  BALANCED_DEX_SCORE: "cx7a90ed2f781876534cf1a04be34e4af026483de4",
   ledgerBip32Path: "44'/4801368'/0'/0'",
   GOVERNANCE_ADDRESS: "cx0000000000000000000000000000000000000001",
   IISS_API: "cx0000000000000000000000000000000000000000",
-  NID: 7,
+  NID: 2,
   REWARDS_ACCRUE_START: 1628312400, // unix timestamp from when rewards accrue will start
   REWARDS_CLAIMABLE_START: 1628917200, // unix timestamp from when rewards are going to be claimable
   ACTIVATE_REWARDS_TIMESTAMPS: false, // boolean flag deciding if above two timestamp should be respected
   SHOW_BANNER: false,
-  NETWORK: "Berlin"
+  NETWORK: "Lisbon"
 };
 
 /*

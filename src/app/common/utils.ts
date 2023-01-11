@@ -5,6 +5,7 @@ import {BridgeWidgetAction} from "../models/Interfaces/BridgeWidgetAction";
 import log from "loglevel";
 import {lockedDatesToMilliseconds, Times} from "./constants";
 import {LockDate} from "../models/enums/LockDate";
+import {isAddress} from "icon-sdk-js/build/data/Validator";
 
 export class Utils {
 
@@ -43,9 +44,9 @@ export class Utils {
     if (!value || !(new BigNumber(value).isFinite())) {
       return new BigNumber("0");
     } else if (typeof value === "string") {
-      return new BigNumber(value, 16).dividedBy(new BigNumber("10").pow(decimals));
+      return new BigNumber(value, 16).dividedBy(new BigNumber("10").pow(decimals.toNumber()));
     } else {
-      return value.dividedBy(new BigNumber("10").pow(decimals));
+      return value.dividedBy(new BigNumber("10").pow(decimals.toNumber()));
     }
   }
 
@@ -78,9 +79,9 @@ export class Utils {
   }
 
   // Returns true if the address is valid EOA address, false otherwise
-  public static isEoaAddress(address: string): boolean {
+  public static isAddress(address: string): boolean {
     if (!address) { return false; }
-    return IconService.IconValidator.isEoaAddress(address);
+    return IconService.IconValidator.isAddress(address);
   }
 
   public static formatNumberToNdigits(num: number, digits: number = 2): string {
@@ -108,7 +109,7 @@ export class Utils {
   }
 
   public static normalisedAmountToBaseAmountString(amount: BigNumber, decimals: BigNumber = new BigNumber("18")): string {
-    return amount.multipliedBy(new BigNumber("10").pow(decimals)).toFixed();
+    return amount.multipliedBy(new BigNumber("10").pow(decimals.toNumber())).toFixed();
   }
 
   public static roundOffTo2Decimals(value: BigNumber | string | number): string {
@@ -248,9 +249,9 @@ export class Utils {
     return val1.multipliedBy(val2);
   }
 
-  public static formatIconAddressToShort(address: string): string {
+  public static formatIconAddressToShort(address: string, n = 7): string {
     const length = address.length;
-    return address.substring(0, 7) + "..." + address.substring(length - 7, length);
+    return address.substring(0, n) + "..." + address.substring(length - n, length);
   }
 
   public static getNumberOfDaysInCurrentMonth(): number {
@@ -353,6 +354,10 @@ export class Utils {
     return date.toLocaleDateString('en-GB', {
       day: 'numeric', month: 'short', year: 'numeric'
     });
+  }
+
+  public static isPositiveNumeric(value: string) {
+    return /^\d+$/.test(value);
   }
 
   public static textContainsDomain(domain: string, text: string): boolean {

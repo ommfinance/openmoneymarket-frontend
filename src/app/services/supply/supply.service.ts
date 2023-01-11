@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {IconTransactionType} from '../../models/enums/IconTransactionType';
-import {IconAmount, IconConverter} from "icon-sdk-js";
+import IconService from "icon-sdk-js";
+const { IconConverter, IconAmount } = IconService;
 import {IconApiService} from '../icon-api/icon-api.service';
 import {PersistenceService} from '../persistence/persistence.service';
 import {ScoreMethodNames} from '../../common/score-method-names';

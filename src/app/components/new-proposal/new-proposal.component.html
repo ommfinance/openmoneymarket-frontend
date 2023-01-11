@@ -1,4 +1,4 @@
-<main>
+<main id="proposal">
   <!-- Breadcrumbs -->
   <div class="breadcrumbs vote">
     <ol>
@@ -9,7 +9,13 @@
 
   <div class="grid">
     <div class="grid-cell">
-      <h2>Proposal type: Text</h2>
+      <h2>Proposal type: <span id="proposal-selector" class="label animation-underline" (click)="onProposalTypeClick()"><span class="dropdown" style="font-size: 20px;">{{getProposalTypeString()}}</span></span></h2>
+      <div class="proposal-selector-content" #selPropType>
+        <ul>
+          <li (click)="onSelectProposalTypeClick($event, ProposalType.TEXT)">Text</li>
+          <li (click)="onSelectProposalTypeClick($event, ProposalType.CONTRACT)">Contract</li>
+        </ul>
+      </div>
     </div>
   </div>
 
@@ -44,6 +50,34 @@
           </div>
         </div>
         <textarea placeholder="" name="description" type="text" maxlength="500" [value]="description" (input)="onDescriptionChange($event)"></textarea>
+
+        <ng-container *ngIf="proposalType === ProposalType.CONTRACT">
+          <div class="grid" style="margin-bottom: 25px;">
+            <div class="grid-cell" style="margin-right: 25px;">
+              <h3>Smart contract</h3>
+              <select class="select-box" (change)="onSelectContractChange($event)">
+                <option value="contract1">Choose a smart contract</option>
+                <option *ngFor="let contract of  contractOptions" [value]="contract">{{contractNameMap.get(contract)}} ({{contract | shortenAddress}})</option>
+              </select>
+            </div>
+            <div class="grid-cell">
+              <h3>Method</h3>
+              <select class="select-box" (change)="onSelectContractMethodChange($event)">
+                <option value="method1">Choose a method</option>
+                <option *ngFor="let method of selectedContractMethods" [value]="method">{{method}}</option>
+              </select>
+            </div>
+          </div>
+
+          <ng-container *ngFor="let param of  getMethodParams()">
+            <div class="grid grid-center title">
+              <div class="grid-cell">
+                <h3>{{param.name}} {{paramIsRequired(param) ? "(required)" : ""}}</h3>
+              </div>
+            </div>
+            <input type="text" placeholder="" class="" [required]="paramIsRequired(param)" (input)="onParametersChange($event, param)">
+          </ng-container>
+        </ng-container>
 
         <p class="label message text-center">It costs {{voteDefinitionFee() | roundOff2Dec | usFormat}} OMM to submit a proposal, which is refunded if it's approved.</p>
 

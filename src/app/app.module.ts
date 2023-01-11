@@ -29,7 +29,6 @@ import { ProposalComponent } from './components/proposal/proposal.component';
 import { BannerComponent } from './components/banner/banner.component';
 import { LoadingComponent } from './components/loading/loading.component';
 import { ToZeroIfDashPipe } from './pipes/to-zero-if-dash.pipe';
-import { AngularResizedEventModule } from 'angular-resize-event';
 import { BoostedOmmSliderComponent } from './components/boosted-omm-slider/boosted-omm-slider.component';
 import { OmmLockingComponent } from './components/omm-locking/omm-locking.component';
 import {DollarUsLocalePipe} from "./pipes/dollar-us-locale.pipe";
@@ -48,6 +47,10 @@ import {RouteReuseStrategy} from "@angular/router";
 import {CustomReuseStrategy} from "./routing";
 import {DeviceDetectorService} from "ngx-device-detector";
 import {NotifierModule} from "angular-notifier";
+import { PrepListComponent } from './components/vote/prep-list/prep-list.component';
+import {HideElementPipe} from "./pipes/hide-element-pipe";
+import {AngularResizeEventModule} from "angular-resize-event";
+import {ShortenAddressPipePipe} from "./pipes/shorten-address";
 
 // Big Number configs
 const fmt = {
@@ -104,6 +107,9 @@ log.setLevel(environment.production ? "error" : "debug");
     AllPoolRowComponent,
     YourPoolRowComponent,
     YourAvailPoolRowComponent,
+    PrepListComponent,
+    HideElementPipe,
+    ShortenAddressPipePipe,
   ],
   imports: [
     BrowserModule,
@@ -111,7 +117,7 @@ log.setLevel(environment.production ? "error" : "debug");
     FormsModule,
     CoreModule,
     HttpClientModule,
-    AngularResizedEventModule,
+    AngularResizeEventModule,
     NotifierModule.withConfig({
       // Custom options in here
       theme: "custom",
