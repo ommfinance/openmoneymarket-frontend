@@ -360,6 +360,10 @@ export class Utils {
     return /^\d+$/.test(value);
   }
 
+  public static isString(value: any): boolean {
+    return typeof value === 'string';
+  }
+
   public static textContainsDomain(domain: string, text: string): boolean {
     const regExp = new RegExp('^(?:https?:\\/\\/)?(?:[^@\\/\\n]+@)?(?:www\\.)?([^:\\/?\\n]+)');
     const res = regExp.exec(text);

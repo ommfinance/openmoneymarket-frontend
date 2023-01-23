@@ -37,7 +37,7 @@ import {UserDailyOmmReward} from "../models/classes/UserDailyOmmReward";
 import {IUserDailyOmmReward} from "../models/Interfaces/IUserDailyOmmReward";
 import {IScoreParameter, IScorePayloadParameter, scoreParamToPayloadParam} from "../models/Interfaces/IScoreParameter";
 
-export class Mapper {
+export abstract class Mapper {
 
   public static mapScoreParamsToPayloadArray(params: IScoreParameter[], values: string[]): IScorePayloadParameter[] {
     return params.map((param, index) => {
