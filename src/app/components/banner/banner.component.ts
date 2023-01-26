@@ -12,12 +12,12 @@ import {environment} from "../../../environments/environment";
 export class BannerComponent implements OnInit {
 
   // show banner only if the user has not pressed x on this device (localstorage)
-  showBanner = (this.localstorageService.get(ommBannerExitKey) as boolean) && environment.SHOW_BANNER;
+  showBanner = ((this.localstorageService.get(ommBannerExitKey) ?? true) as boolean) && environment.SHOW_BANNER;
 
   constructor(private localstorageService: LocalStorageService) { }
 
   ngOnInit(): void {
-    this.showBanner = (this.localstorageService.get(ommBannerExitKey) as boolean) && environment.SHOW_BANNER;
+    this.showBanner = ((this.localstorageService.get(ommBannerExitKey) ?? true) as boolean) && environment.SHOW_BANNER;
     log.debug("showBanner = ", this.showBanner);
   }
 

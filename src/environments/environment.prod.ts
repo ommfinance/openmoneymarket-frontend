@@ -12,6 +12,6 @@ export const environment = {
   REWARDS_ACCRUE_START: 1629954000, // unix timestamp from when rewards accrue will start
   REWARDS_CLAIMABLE_START: 1630386000, // unix timestamp from when rewards are going to be claimable
   ACTIVATE_REWARDS_TIMESTAMPS: true, // boolean flag deciding if above two timestamp should be respected
-  SHOW_BANNER: false,
+  SHOW_BANNER: true,
   NETWORK: "Mainnet"
 };
