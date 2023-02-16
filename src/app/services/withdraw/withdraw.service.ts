@@ -71,7 +71,7 @@ export class WithdrawService {
     }
 
     const params = {
-      _oToken: this.persistenceService.allAddresses!.oTokens.oICX,
+      _reserve: this.persistenceService.allAddresses!.collateralAddress(AssetTag.ICX),
       _amount: !amount.isEqualTo(new BigNumber("-1")) ? IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()) : "-0x1",
       _waitForUnstaking: waitForUnstaking ? "0x1" : "0x0"
     };
