@@ -109,7 +109,6 @@ export class YourPoolRowComponent extends BaseClass implements OnInit, OnDestroy
   }
 
   resetDynamicValues(): void {
-    console.log(`${this.poolData.prettyName} resetDynamicValues...`);
     this.setText(this.liquidityAprEl, `${Utils.to2DecimalRndOffPercString(this.userPoolLiquidityApr)}`);
     this.setText(this.dailyRewardEl, `${Utils.tooUSLocaleString(Utils.roundOffTo2Decimals(this.userDailyRewards))} OMM`);
     this.setText(this.dailyRewardUSDEl, `${Utils.toDollarUSLocaleString(Utils.roundOffTo2Decimals(this.userDailyRewardsUSD))}`);

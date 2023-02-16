@@ -924,6 +924,151 @@ dd.text-purple,
 
 /*
 *
+* Inputs
+*
+*/
+
+/* Asset input */
+
+.input-asset .grid-cell:first-of-type {
+  max-width: 120px;
+}
+.input-asset input[type="text"] {
+  width: 100%;
+  height: 40px;
+  text-align: right;
+  border-radius: 0 10px 10px 0;
+}
+.input-asset .asset {
+  display: block;
+  width: 100%;
+  height: 40px;
+  padding: 10px 20px;
+  padding-left: 50px;
+  margin-top: 5px;
+  font-family: 'metropolis-medium';
+  font-weight: normal;
+  line-height: 17px;
+  color: #49546a;
+  border-radius: 10px 0 0 10px;
+  border: 2px solid #021338;
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+  background-repeat: no-repeat;
+  transition: border 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+.input-asset .asset:hover,
+.input-asset .asset.active {
+  border: 2px solid #2ca9b7;
+  color: #49546a;
+  cursor: pointer;
+  transition: border 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+.input-asset.text-only .asset {
+  padding-left: 20px;
+}
+.input-asset + .input-asset {
+  margin-top: 15px;
+}
+
+/* Asset input parent panel styles*/
+
+.input-asset .asset {
+  border: 2px solid #d3d9e7;
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+}
+.input-asset .asset:hover,
+.input-asset .asset.active {
+  border: 2px solid #2ca9b7;
+}
+.input-asset.static .asset {
+  border: 2px solid #0b284c;
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+  background-color: #0b284c;
+}
+.input-asset.static .asset:hover {
+  border: 2px solid #0b284c;
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  cursor: default;
+}
+
+/* Asset input arrow */
+
+.input-asset .asset::after {
+  content: url(../img/icon/arrow-down.svg);
+  position: absolute;
+  width: 10px;
+  margin-left: 10px;
+  top: 45%;
+}
+.asset.icx {
+  position: relative;
+  background-image: url(../img/logo/icx.svg);
+  background-position: 15px center;
+  background-size: 25px;
+}
+.asset.sicx {
+  position: relative;
+  background-image: url(../img/logo/sicx.svg);
+  background-position: 15px center;
+  background-size: 25px;
+}
+.asset.omm {
+  position: relative;
+  background-image: url(../img/logo/omm-symbol.svg);
+  background-position: 15px center;
+  background-size: 25px;
+}
+
+/* dropdown-content */
+
+.input-asset + .dropdown-content {
+  width: 500px;
+  padding-bottom: 10px;
+}
+#new-proposal-contract .input-asset + .dropdown-content {
+  right: initial;
+  left: 310px;
+  margin-top: -20px;
+}
+.input-asset + .dropdown-content tr,
+.input-asset + .dropdown-content tr:hover {
+  box-shadow: none;
+}
+.input-asset + .dropdown-content tbody tr td {
+  transition: background-color 0.3s ease;
+}
+.input-asset + .dropdown-content tbody tr:hover td {
+  background-color: #e6e9f0;
+  transition: background-color 0.2s ease;
+}
+.input-asset + .dropdown-content tr::after {
+  display: none;
+}
+.input-asset + .dropdown-content td:last-child {
+  text-align: right;
+}
+.input-asset + .dropdown-content tbody td:first-of-type {
+  background-position: 15px center !important;
+  padding-left: 70px;
+}
+.input-asset + .dropdown-content thead th:first-of-type {
+  padding-left: 15px;
+}
+.input-asset + .dropdown-content tbody td:last-child,
+.input-asset + .dropdown-content thead th:last-child {
+  padding-right: 15px;
+}
+.input-asset + .dropdown-content th:last-child {
+  text-align: right;
+}
+.input-asset + .dropdown-content thead {
+  border-bottom: 1px solid #d3d9e7;
+}
+
+
+/*
+*
 * Stylistic
 *
 */
@@ -1590,6 +1735,12 @@ ul.pagination li:hover {
 }
 .list tbody tr.icx td:first-of-type {
   background-image: url(../img/logo/icx.svg);
+  background-repeat: no-repeat;
+  background-position: 33px center;
+  background-size: 35px;
+}
+.list tbody tr.sicx td:first-of-type {
+  background-image: url(../img/logo/sicx.svg);
   background-repeat: no-repeat;
   background-position: 33px center;
   background-size: 35px;
@@ -3298,6 +3449,10 @@ input.input-boost {
   transition: border 0.2s ease;
 }
 
+#proposal-parameters,
+#proposal-description {
+  word-break: break-all;
+}
 
 /* ==========================================================================
 	Responsive styles 1600px and smaller
@@ -3376,6 +3531,9 @@ input.input-boost {
   .navigation ul li a svg,
   .navigation ul li a img {
     margin-right: 10px;
+  }
+  #new-proposal-contract .input-asset + .dropdown-content {
+    left: 0;
   }
 }
 

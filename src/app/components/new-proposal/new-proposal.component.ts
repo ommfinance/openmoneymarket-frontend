@@ -9,6 +9,7 @@ import {NotificationService} from "../../services/notification/notification.serv
 import {Utils} from "../../common/utils";
 import {MAX_PROPOSAL_DESCRIPTION_LENGTH, ommForumDomain} from "../../common/constants";
 import {
+  getPlaceholderForParam,
   NEW_PROPOSAL_EMPTY_CONTRACT,
   NEW_PROPOSAL_EMPTY_DESCRIPTION,
   NEW_PROPOSAL_EMPTY_LINK,
@@ -28,6 +29,11 @@ import {IScoreParameter, IScorePayloadParameter, scoreParamToPayloadParam} from 
 import {BaseClass} from "../base-class";
 import {IParamInput} from "../../models/Interfaces/IParamInput";
 import {ScoreParamType} from "../../models/enums/ScoreParamType";
+import {NewProposalScoreData} from "../../models/classes/NewProposalScoreData";
+import log from "loglevel";
+import IconService from "icon-sdk-js";
+import {fromUtf8} from "icon-sdk-js/build/data/Converter";
+const { IconConverter } = IconService;
 
 @Component({
   selector: 'app-new-proposal',
@@ -50,16 +56,13 @@ export class NewProposalComponent extends BaseClass implements OnInit, OnDestroy
   proposalType = ProposalType.TEXT;
 
   ProposalType = ProposalType;
-
-  selectedContract?: string;
-  selectedMethod?: string;
-  selectedContractMethods: string[] = [];
-  contractOptions: string[] = [];
+  supportedContractAddresses: string[] = [];
   contractMethodsMap = new Map<string, string[]>();
   contractNameMap = new Map<string, string>();
   methodParamsMap = new Map<string, IScoreParameter[]>();
-  parametersMap = new Map<string, IParamInput>(); // param name -> param
   transactions?: any;
+
+  newProposalScoreDataArray: NewProposalScoreData[] = [];
 
   allAddressesLoaded = false;
   allAddressesLoadedSub?: Subscription;
@@ -90,15 +93,12 @@ export class NewProposalComponent extends BaseClass implements OnInit, OnDestroy
     this.titleSize = 0;
     this.descriptionSize = 0;
     this.forumLinkSize = 0;
-
     this.title = "";
     this.description = "";
-    this.parametersMap = new Map<string, IParamInput>();
     this.forumLink = "";
     this.proposalType = ProposalType.TEXT;
-    this.contractOptions = [];
-    this.selectedContract = "";
-    this.selectedContractMethods = [];
+    this.supportedContractAddresses = [];
+    this.newProposalScoreDataArray = [new NewProposalScoreData()];
     this.contractMethodsMap = new Map<string, string[]>();
     this.contractNameMap = new Map<string, string>();
     this.allAddressesLoaded = this.persistenceService.allAddresses !== undefined;
@@ -118,9 +118,9 @@ export class NewProposalComponent extends BaseClass implements OnInit, OnDestroy
   }
 
   loadAsyncContractOptions(): void {
-    if (this.contractOptions.length === 0) {
+    if (this.supportedContractAddresses.length === 0) {
       this.scoreService.getGovernanceSupportedContracts().then(contracts => {
-        this.contractOptions = contracts;
+        this.supportedContractAddresses = contracts;
         this.contractNameMap = new Map<string, string>();
 
         // get contracts names
@@ -137,7 +137,6 @@ export class NewProposalComponent extends BaseClass implements OnInit, OnDestroy
 
           Promise.all(methods.map(async (method) => {
             const scoreApi = await this.iconApi.getScoreApi(address);
-            console.log(`Score api of ${method}:`, scoreApi.getMethod(method).inputs)
             this.methodParamsMap.set(method, scoreApi.getMethod(method).inputs)
           }));
         }));
@@ -145,29 +144,39 @@ export class NewProposalComponent extends BaseClass implements OnInit, OnDestroy
     }
   }
 
-  onSelectContractChange(e: Event) {
+  onSelectContractChange(e: Event, scoreData: NewProposalScoreData) {
     const value = (e.target as HTMLInputElement).value;
 
-    if (!this.contractOptions.includes(value)) {
-      this.selectedContract = undefined;
+    if (!this.supportedContractAddresses.includes(value)) {
+      scoreData.selectedContract = undefined;
     } else {
-      this.selectedContract = (e.target as HTMLInputElement).value;
-      this.selectedContractMethods = this.contractMethodsMap.get(this.selectedContract ?? "") ?? [];
+      scoreData.selectedContract = (e.target as HTMLInputElement).value;
+      scoreData.selectedContractMethods = this.getMethodsForContract(scoreData.selectedContract);
     }
   }
 
-  onSelectContractMethodChange(e: Event) {
-    if (!this.selectedContract) return;
+  getMethodsForContract(contract?: string): string[] {
+    return this.contractMethodsMap.get(contract ?? "") ?? [];
+  }
+
+  onAddAnotherContractClick(e: MouseEvent): void {
+    e.stopPropagation();
+
+    this.newProposalScoreDataArray.push(new NewProposalScoreData());
+  }
+
+  onSelectContractMethodChange(e: Event, scoreData: NewProposalScoreData) {
+    if (!scoreData.selectedContract) return;
 
     // reset parameters map
-    this.parametersMap = new Map<string, IParamInput>();
+    scoreData.parametersMap = new Map<string, IParamInput>();
 
     const value = (e.target as HTMLInputElement).value;
 
-    if (!(this.contractMethodsMap.get(this.selectedContract) ?? []).includes(value)) {
-      this.selectedMethod = undefined;
+    if (!(this.contractMethodsMap.get(scoreData.selectedContract) ?? []).includes(value)) {
+      scoreData.selectedMethod = undefined;
     } else {
-      this.selectedMethod = value;
+      scoreData.selectedMethod = value;
     }
   }
 
@@ -175,13 +184,17 @@ export class NewProposalComponent extends BaseClass implements OnInit, OnDestroy
     this.selPropTypeEl.classList.toggle("active");
   }
 
-  getMethodParams(): IScoreParameter[] {
-    return this.methodParamsMap.get(this.selectedMethod || "") ?? [];
+  getMethodParams(scoreData: NewProposalScoreData): IScoreParameter[] {
+    return this.methodParamsMap.get(scoreData.selectedMethod || "") ?? [];
   }
 
   paramIsRequired(param: IScoreParameter): boolean {
     // parameter is required if object has no 'default' key
     return !("default" in param);
+  }
+
+  transferOmmSelected(scoreData: NewProposalScoreData): boolean {
+    return scoreData.selectedMethod == "transferOmm";
   }
 
   getProposalTypeString(): string {
@@ -209,28 +222,31 @@ export class NewProposalComponent extends BaseClass implements OnInit, OnDestroy
     this.descriptionSize = encodeURI(this.description).length;
   }
 
-  onParametersChange(e: any, param: IScoreParameter): void {
+  onParametersChange(e: any, param: IScoreParameter, scoreData: NewProposalScoreData): void {
     this.delay(() => {
-      const value = e.target.value.toString();
+      const value = Utils.isString(e) ? e : e.target.value.toString();
 
       if (!value) return;
 
       if (param.type === ScoreParamType.INT) {
         if (Utils.isPositiveNumeric(value)) {
-          this.parametersMap.set(param.name, { param, value });
+          scoreData.parametersMap.set(param.name, { param, value });
         } else {
           this.notificationService.showNewNotification(NEW_PROPOSAL_INVALID_PARAMETER(param.type))
         }
       } else if (param.type === ScoreParamType.ADDRESS) {
         if (Utils.isAddress(value)) {
-          this.parametersMap.set(param.name, { param, value });
+          scoreData.parametersMap.set(param.name, { param, value });
         } else {
           this.notificationService.showNewNotification(NEW_PROPOSAL_INVALID_PARAMETER(param.type))
         }
+      } else if (param.type === ScoreParamType.BYTES) {
+        // IconConverter.fromUtf8('{ "method": "increaseAmount", "params": { "unlockTime": 0 }}')}
+      scoreData.parametersMap.set(param.name, { param, value: IconConverter.fromUtf8(value) });
       } else {
-        this.parametersMap.set(param.name, { param, value });
+        scoreData.parametersMap.set(param.name, { param, value });
       }
-    }, 1000 );
+    }, 600 );
   }
 
   voteDefinitionFee(): BigNumber {
@@ -248,10 +264,13 @@ export class NewProposalComponent extends BaseClass implements OnInit, OnDestroy
       return false;
     } else if (!Utils.textContainsDomain(ommForumDomain, this.forumLink)) {
       return false;
-    } else if (this.proposalType === ProposalType.CONTRACT && (!this.selectedContract || !this.selectedMethod)) {
-      return false
-    } else if (this.proposalType === ProposalType.CONTRACT && !this.allMethodParamsAreInParamsMap()) {
-      return false;
+    }  else if (this.proposalType === ProposalType.CONTRACT) {
+      // check if every score data is valid
+      const validScoreData = this.newProposalScoreDataArray.every(scoreData => {
+        return scoreData.selectedContract && scoreData.selectedMethod && this.allMethodParamsAreInParamsMap(scoreData);
+
+      if (!validScoreData) return false;
+      });
     }
 
     return true;
@@ -261,12 +280,15 @@ export class NewProposalComponent extends BaseClass implements OnInit, OnDestroy
     return this.persistenceService.userbOmmBalance.gte(this.persistenceService.getMinBOmmRequiredForProposal());
   }
 
-  constructParameters(): IScorePayloadParameter[] {
-    console.log("constructParameters methodParamsMap:", this.methodParamsMap);
+  userHasEnoughOmm(): boolean {
+    const userOmmBalance = this.persistenceService.userOmmTokenBalanceDetails?.availableBalance ?? new BigNumber(0);
+    return userOmmBalance.gte(this.voteDefinitionFee());
+  }
+
+  constructParameters(scoreData: NewProposalScoreData): IScorePayloadParameter[] {
     const parameters: IScorePayloadParameter[] = [];
-    this.methodParamsMap.get(this.selectedMethod ?? "")?.forEach(param => {
-      const paramInput = this.parametersMap.get(param.name);
-      console.log("paramInput = ", paramInput);
+    this.methodParamsMap.get(scoreData.selectedMethod ?? "")?.forEach(param => {
+      const paramInput = scoreData.parametersMap.get(param.name);
 
       if (paramInput == undefined && this.paramIsRequired(param)) throw new Error(`Parameter ${param.name} does not exist in parametersMap!`);
 
@@ -282,18 +304,22 @@ export class NewProposalComponent extends BaseClass implements OnInit, OnDestroy
   }
 
   constructTransactionsJson(): any[] {
-    return [
-      {
-        address: this.selectedContract,
-        method: this.selectedMethod,
-        parameters: this.constructParameters()
+    return this.newProposalScoreDataArray.map(scoreData => {
+      return {
+        address: scoreData.selectedContract,
+        method: scoreData.selectedMethod,
+        parameters: this.constructParameters(scoreData)
       }
-    ];
+    });
   }
 
-  allMethodParamsAreInParamsMap(): boolean {
-    const methodParams = this.methodParamsMap.get(this.selectedMethod ?? "");
-    return methodParams ? methodParams.every(param => this.paramIsRequired(param) ? this.parametersMap.get(param.name) != undefined : true) : false;
+  allMethodParamsAreInParamsMap(scoreData: NewProposalScoreData): boolean {
+    const methodParams = this.methodParamsMap.get(scoreData.selectedMethod ?? "");
+    return methodParams ? methodParams.every(param => this.paramIsRequired(param) ? scoreData.parametersMap.get(param.name) != undefined : true) : false;
+  }
+
+  getPlaceholder(param: string): string {
+    return getPlaceholderForParam(param);
   }
 
   onSubmitClick(): void {
@@ -313,14 +339,19 @@ export class NewProposalComponent extends BaseClass implements OnInit, OnDestroy
       this.notificationService.showNewNotification(NEW_PROPOSAL_MIN_BOMM_REQUIRED(this.persistenceService.getMinBOmmRequiredForProposal()));
     }
     if (this.proposalType === ProposalType.CONTRACT) {
-      if (!this.selectedContract) {
-        this.notificationService.showNewNotification(NEW_PROPOSAL_EMPTY_CONTRACT);
-      }
-      if (!this.selectedMethod) {
-        this.notificationService.showNewNotification(NEW_PROPOSAL_EMPTY_METHOD);
-      }
-      if (!this.allMethodParamsAreInParamsMap()) {
-        this.notificationService.showNewNotification(NEW_PROPOSAL_MISSING_PARAMETERS);
+      for (const scoreData of this.newProposalScoreDataArray) {
+        if (!scoreData.selectedContract) {
+          this.notificationService.showNewNotification(NEW_PROPOSAL_EMPTY_CONTRACT);
+          break;
+        }
+        else if (!scoreData.selectedMethod) {
+          this.notificationService.showNewNotification(NEW_PROPOSAL_EMPTY_METHOD);
+          break;
+        }
+        else if (!this.allMethodParamsAreInParamsMap(scoreData)) {
+          this.notificationService.showNewNotification(NEW_PROPOSAL_MISSING_PARAMETERS);
+          break;
+        }
       }
     }
 
@@ -333,6 +364,8 @@ export class NewProposalComponent extends BaseClass implements OnInit, OnDestroy
     } else {
       this.transactions = undefined;
     }
+
+    log.debug("transactions:", this.transactions);
 
 
     // TODO save forum link to the omm.api

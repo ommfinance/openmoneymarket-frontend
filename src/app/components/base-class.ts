@@ -1,5 +1,5 @@
 import {Utils} from "../common/utils";
-import {Asset, AssetTag, supportedAssetsMap} from "../models/classes/Asset";
+import {Asset, AssetTag, getAssetForAssetTag, supportedAssetsMap} from "../models/classes/Asset";
 import {BigNumber} from "bignumber.js";
 import {PersistenceService} from "../services/persistence/persistence.service";
 import {environment} from "../../environments/environment";
@@ -26,6 +26,9 @@ export class BaseClass {
     };
   })();
 
+  getAssetForAssetTag(assetTag: AssetTag): Asset {
+    return getAssetForAssetTag(assetTag);
+  }
   public tooUSLocaleString(num?: BigNumber | string, defaultZero = false): string {
     return Utils.tooUSLocaleString(num, defaultZero);
   }

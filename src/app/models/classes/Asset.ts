@@ -134,5 +134,13 @@ export const supportedAssetsMap: Map<AssetTag, Asset> = new Map([
   [AssetTag.OMM, new Asset(AssetClass.OMM, AssetName.OMM , AssetTag.OMM)],
 ]);
 
+export function getAssetForAssetTag(assetTag: AssetTag): Asset {
+  const asset = supportedAssetsMap.get(assetTag);
+
+  if (asset == undefined) throw new Error(`Asset not found for assetTag=${assetTag}`);
+
+  return asset;
+}
+
 
 

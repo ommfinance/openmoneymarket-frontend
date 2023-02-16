@@ -184,16 +184,12 @@ export class RewardsComponent extends BaseClass implements OnInit, OnDestroy, Af
   }
 
   collapseAllPoolTables(): void {
-    console.log("collapseAllPoolTables...");
-    console.log(this.yourPoolsComponent);
-
     // collapse all pools tables
     this.stateChangeService.collapseOtherPoolTablesUpdate(undefined);
     this.stateChangeService.collapseYourPoolTablesUpdate(undefined);
   }
 
   onPoolClick(poolData: UserPoolData | PoolData): void {
-    console.log("Rewards onPoolClick..");
     // collapse other pools expanded up
     if (poolData instanceof PoolData) {
       this.stateChangeService.collapseOtherPoolTablesUpdate(poolData);
