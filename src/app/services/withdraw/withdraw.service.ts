@@ -50,7 +50,7 @@ export class WithdrawService {
     const decimals = this.persistenceService.allReserves!.getReserveData(assetTag).decimals;
 
     const params = {
-      _oToken: this.persistenceService.allAddresses!.oTokenAddress(assetTag),
+      _reserve: this.persistenceService.allAddresses!.collateralAddress(assetTag),
       _amount: !amount.isEqualTo(new BigNumber("-1")) ? IconConverter.toHex(IconAmount.of(amount, decimals).toLoop()) : "-0x1",
     };
 
@@ -71,7 +71,7 @@ export class WithdrawService {
     }
 
     const params = {
-      _oToken: this.persistenceService.allAddresses!.oTokens.oICX,
+      _reserve: this.persistenceService.allAddresses!.collateralAddress(AssetTag.ICX),
       _amount: !amount.isEqualTo(new BigNumber("-1")) ? IconConverter.toHex(IconAmount.of(amount, IconAmount.Unit.ICX).toLoop()) : "-0x1",
       _waitForUnstaking: waitForUnstaking ? "0x1" : "0x0"
     };

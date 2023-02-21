@@ -35,12 +35,10 @@ export class AllProposalsComponent extends BaseClass implements OnInit, OnDestro
   }
 
   subscribeToCoreDataReload(): void {
-    console.log("All proposals subscribeToCoreDataReload..");
     this.coreDataReloadSub = this.stateChangeService.afterCoreDataReload$.subscribe(() => this.initCoreData())
   }
 
   initCoreData(): void {
-    console.log("All proposals init core data..");
     this.proposalList = this.persistenceService.proposalList;
   }
 

@@ -51,6 +51,8 @@ import { PrepListComponent } from './components/vote/prep-list/prep-list.compone
 import {HideElementPipe} from "./pipes/hide-element-pipe";
 import {AngularResizeEventModule} from "angular-resize-event";
 import {ShortenAddressPipePipe} from "./pipes/shorten-address";
+import { ScoreParamPipe } from './pipes/score-param.pipe';
+import { ProposalTokenInputComponent } from './components/proposal-token-input/proposal-token-input.component';
 
 // Big Number configs
 const fmt = {
@@ -110,6 +112,8 @@ log.setLevel(environment.production ? "error" : "debug");
     PrepListComponent,
     HideElementPipe,
     ShortenAddressPipePipe,
+    ScoreParamPipe,
+    ProposalTokenInputComponent,
   ],
   imports: [
     BrowserModule,

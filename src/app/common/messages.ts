@@ -152,3 +152,18 @@ export const ICONEX_WALLET_DOES_NOT_EXIST = "Wallet does not exist. Sign in to I
 
 // Loading core user data related messages
 export const FAILED_LOADING_USER_DATA = "Couldn't load your data. Try again in a moment.";
+
+// Placeholder messages
+export const ADDRESS_PARAM_INPUT_PLACEHOLDER = "Wallet (hx000...) or smart contract (cx000...)"
+export const ADDITIONAL_PARAM_INPUT_PLACEHOLDER = "Enter additional parameters (optional)";
+
+export function getPlaceholderForParam(param: string): string {
+    switch (param) {
+        case "_address":
+            return ADDRESS_PARAM_INPUT_PLACEHOLDER;
+        case "_data":
+            return ADDITIONAL_PARAM_INPUT_PLACEHOLDER
+        default:
+            return "";
+    }
+}

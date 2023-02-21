@@ -996,7 +996,6 @@ export class CalculationsService {
     const newLpMultiplier = this.calculateDynamicLiquidityRewardsMultiplierForStakedLp(poolData.poolId, newStakedLpValue);
     const oldLpMultiplier = this.persistenceService.userLiquidityPoolMultiplierMap.get(poolData.poolId.toString())!;
     const currentUserDailyRewards = this.persistenceService.getCurrentUserLpDailyRewards(poolData);
-    console.log(this.persistenceService.dailyRewardsAllPoolsReserves);
     const ommRewardsForLp = this.persistenceService.dailyRewardsAllPoolsReserves?.liquidity?.getDailyRewardsForLp(poolData.cleanPoolName)
       ?? new BigNumber(0);
 

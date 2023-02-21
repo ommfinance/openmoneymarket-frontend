@@ -733,7 +733,6 @@ export class ScoreService {
       ScoreMethodNames.GET_PROPOSALS, params, IconTransactionType.READ);
 
     const res = await this.iconApiService.iconService.call(tx).execute();
-    console.log("Proposal:", res);
 
     return Mapper.mapProposalList(res);
   }

@@ -1,0 +1,15 @@
+<!-- Token -->
+<div class="grid grid-center title ">
+    <div class="grid-cell">
+        <h3>Token</h3>
+    </div>
+</div>
+<div class="grid input-asset">
+    <div class="grid-cell">
+        <a href="javascript:void(0);" class="asset {{asset.className}}">{{asset.tag}} </a>
+    </div>
+
+    <div class="grid-cell">
+        <input id="swap-from" pattern="[0-9]*" type="text" name="swap-from" placeholder="0" (input)="onInputChange($event)">
+    </div>
+</div>
