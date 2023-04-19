@@ -1,10 +1,13 @@
 <div *ngIf="showBanner" class="banner">
   <div class="grid grid-center">
     <div class="grid-cell">
-      <p class="label"><a href="https://forum.omm.finance/t/omm-exploit-postmortem-january-2023/" target="_blank">
-        The Omm markets were hacked</a> on January 21. All funds have been restored, but you won't be able to supply or borrow assets until further notice.<br>
-        For the latest updates about the recovery process, <a href="https://twitter.com/ommfinance" target="_blank">follow Omm on Twitter</a>
-        and <a href="https://discord.com/invite/zZcQUGbpVk" target="_blank">join the Omm Discord channel</a>.</p>
+      <p class="label">
+        The Omm markets were hacked on January 21, 2023. <span class="text-bold">funds have been restored, but Omm will no longer provide a money market.</span>
+        Its transition to a liquid staking protocol is underway (see <a href="https://app.omm.finance/#/vote/proposal/18" target="_blank">OIP 18</a>).<br>
+        The Omm markets and liquidity pools no longer earn OMM (see <a href="https://app.omm.finance/#/vote/proposal/19" target="_blank">OIP 19</a>),
+        and you can no longer supply or borrow assets. You should withdraw your funds at your earliest convenience.<br>
+        For the latest updates, <a href="https://twitter.com/ommfinance" target="_blank">follow Omm on Twitter</a> and <a href="https://discord.com/invite/zZcQUGbpVk" target="_blank">join the Omm Discord channel</a>.
+      </p>
     </div>
     <div class="grid-cell text-right close">
       <a href="javascript:void(0);" (click)="onBannerExitClick()">
