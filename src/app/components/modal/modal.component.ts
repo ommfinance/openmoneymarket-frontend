@@ -240,8 +240,9 @@ export class ModalComponent extends BaseClass implements OnInit {
   }
 
   onSignInBridgeClick(): void {
-    this.modalService.hideActiveModal();
-    this.bridgeWidgetService.openBridgeWidget();
+    window.open("https://widget-stably.bridgepay.money/");
+    // this.modalService.hideActiveModal();
+    // this.bridgeWidgetService.openBridgeWidget();
   }
 
   onSignInLedgerClick(): void {
