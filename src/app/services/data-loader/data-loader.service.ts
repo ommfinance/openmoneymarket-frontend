@@ -122,8 +122,7 @@ export class DataLoaderService {
   public loadAllReserveData(): Promise<void> {
     return this.scoreService.getAllReserveData().then((allReserves: AllReservesData) => {
       log.debug("loadAllReserves.allReserves: ", allReserves);
-      const newAllReserve = new AllReservesData(allReserves.USDS, allReserves.ICX, allReserves.USDC, allReserves.bnUSD, allReserves.BALN,
-        allReserves.OMM);
+      const newAllReserve = new AllReservesData(allReserves.USDS, allReserves.ICX, allReserves.USDC, allReserves.bnUSD, allReserves.OMM);
       Object.entries(newAllReserve).forEach((value: [string, ReserveData]) => {
         // @ts-ignore
         newAllReserve[value[0]] = Mapper.mapReserveData(value[1]);
@@ -218,7 +217,7 @@ export class DataLoaderService {
     return this.scoreService.getAllReserveConfigurationData().then((allReservesConfigData: AllReserveConfigData) => {
       log.debug("loadAllReservesConfigData : ", allReservesConfigData);
       const newAllReserveConfigData = new AllReserveConfigData(allReservesConfigData.USDS, allReservesConfigData.ICX,
-        allReservesConfigData.USDC, allReservesConfigData.bnUSD, allReservesConfigData.BALN, allReservesConfigData.OMM);
+        allReservesConfigData.USDC, allReservesConfigData.bnUSD, allReservesConfigData.OMM);
       Object.entries(newAllReserveConfigData).forEach((value: [string, ReserveData]) => {
         // @ts-ignore
         newAllReserveConfigData[value[0]] = Mapper.mapReserveConfigurationData(value[1]);
@@ -237,7 +236,7 @@ export class DataLoaderService {
     log.debug("loadAllUserReserveData.allUserReserveData before: ", allUserReserveData);
 
     const newUserAllReserve = new UserAllReservesData(allUserReserveData.USDS, allUserReserveData.ICX, allUserReserveData.USDC,
-      allUserReserveData.bnUSD, allUserReserveData.BALN, allUserReserveData.OMM);
+      allUserReserveData.bnUSD, allUserReserveData.OMM);
 
     Object.entries(newUserAllReserve).forEach((value: [string, UserReserveData]) => {
       const assetTag = AssetTag.fromString(value[0]);

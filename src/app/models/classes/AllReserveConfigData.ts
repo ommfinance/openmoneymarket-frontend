@@ -7,16 +7,13 @@ export class AllReserveConfigData {
   USDS: ReserveConfigData;
   USDC: ReserveConfigData;
   bnUSD: ReserveConfigData;
-  BALN: ReserveConfigData;
   OMM: ReserveConfigData;
 
-  constructor(USDb: ReserveConfigData, sICX: ReserveConfigData, IUSDC: ReserveConfigData, bnUSD: ReserveConfigData,
-              BALN: ReserveConfigData, OMM: ReserveConfigData) {
+  constructor(USDb: ReserveConfigData, sICX: ReserveConfigData, IUSDC: ReserveConfigData, bnUSD: ReserveConfigData, OMM: ReserveConfigData) {
     this.USDS = USDb;
     this.ICX = sICX;
     this.USDC = IUSDC;
     this.bnUSD = bnUSD;
-    this.BALN = BALN;
     this.OMM = OMM;
   }
 
@@ -30,8 +27,6 @@ export class AllReserveConfigData {
         return this.USDC;
       case AssetTag.bnUSD:
         return this.bnUSD;
-      case AssetTag.BALN:
-        return this.BALN;
       case AssetTag.OMM:
         return this.OMM;
       default:

@@ -93,14 +93,12 @@ export class ReserveDailyRewards {
   dIUSDC: BigNumber;
   obnUSD: BigNumber;
   dbnUSD: BigNumber;
-  oBALN: BigNumber;
-  dBALN: BigNumber;
   oOMM: BigNumber;
   dOMM: BigNumber;
   total: BigNumber;
 
   constructor(oUSDS: BigNumber, dUSDS: BigNumber, dICX: BigNumber, oICX: BigNumber, oIUSDC: BigNumber, dIUSDC: BigNumber,
-              obnUSD: BigNumber, dbnUSD: BigNumber, oBALN: BigNumber, dBALN: BigNumber, oOMM: BigNumber,
+              obnUSD: BigNumber, dbnUSD: BigNumber, oOMM: BigNumber,
               dOMM: BigNumber, total: BigNumber) {
     this.oUSDS = oUSDS;
     this.dUSDS = dUSDS;
@@ -110,8 +108,6 @@ export class ReserveDailyRewards {
     this.dIUSDC = dIUSDC;
     this.obnUSD = obnUSD;
     this.dbnUSD = dbnUSD;
-    this.oBALN = oBALN;
-    this.dBALN = dBALN;
     this.oOMM = oOMM;
     this.dOMM = dOMM;
     this.total = total;
@@ -127,8 +123,6 @@ export class ReserveDailyRewards {
         return this.oIUSDC;
       case AssetTag.bnUSD:
         return this.obnUSD;
-      case AssetTag.BALN:
-        return this.oBALN;
       case AssetTag.OMM:
         return this.oOMM;
       default:
@@ -146,8 +140,6 @@ export class ReserveDailyRewards {
         return this.dIUSDC;
       case AssetTag.bnUSD:
         return this.dbnUSD;
-      case AssetTag.BALN:
-        return this.dBALN;
       case AssetTag.OMM:
         return this.dOMM;
       default:
@@ -173,13 +165,11 @@ export class ReserveDailyRewards {
 //   total: "0x65a4da25d3016c00000"
 //
 // reserve:
-//   dBALN: "0x0"
 //   dICX: "0xc328093e61ee400000"
 //   dIUSDC: "0x6c6b935b8bbd400000"
 //   dOMM: "0x0"
 //   dUSDS: "0xa2a15d09519be00000"
 //   dbnUSD: "0xd8d726b7177a800000"
-//   oBALN: "0x0"
 //   oICX: "0xc328093e61ee400000"
 //   oIUSDC: "0x6c6b935b8bbd400000"
 //   oOMM: "0x2b5e3af16b18800000"

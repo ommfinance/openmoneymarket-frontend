@@ -104,13 +104,11 @@ export class ReserveAllAsset {
 //   total: "0x214e8348c4f0000"
 //
 // reserve:
-//   dBALN: "0x0"
 //   dICX: "0x3ff2e795f50000"
 //   dIUSDC: "0x2386f26fc10000"
 //   dOMM: "0x0"
 //   dUSDS: "0x354a6ba7a18000"
 //   dbnUSD: "0x470de4df820000"
-//   oBALN: "0x0"
 //   oICX: "0x3ff2e795f50000"
 //   oIUSDC: "0x2386f26fc10000"
 //   oOMM: "0xe35fa931a0000"

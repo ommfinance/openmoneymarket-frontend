@@ -25,7 +25,6 @@ export enum AssetClass {
   sICX = "sicx",
   USDC = "usdc",
   bnUSD = "bnusd",
-  BALN = "baln",
   OMM = "omm"
 }
 
@@ -35,7 +34,6 @@ export enum AssetName {
   sICX = "ICON",
   USDC = "ICON USD Coin",
   bnUSD = "Balanced Dollars",
-  BALN = "Balance Tokens",
   OMM = "Omm Tokens"
 }
 
@@ -44,7 +42,6 @@ export class AssetTag {
   static USDS = "USDS";
   static USDC = "IUSDC";
   static bnUSD = "bnUSD";
-  static BALN = "BALN";
   static OMM = "OMM";
 
   static fromString(value: string): AssetTag {
@@ -79,7 +76,6 @@ export class CollateralAssetTag {
   static sICX = "sICX";
   static USDC = "IUSDC";
   static bnUSD = "bnUSD";
-  static BALN = "BALN";
   static OMM = "OMM";
 
   public static getPropertiesDifferentThanAssetTag(): CollateralAssetTag[] {
@@ -97,8 +93,6 @@ export function assetToCollateralAssetTag(assetTag: AssetTag): CollateralAssetTa
       return CollateralAssetTag.USDS;
     case AssetTag.bnUSD:
       return CollateralAssetTag.bnUSD;
-    case AssetTag.BALN:
-      return CollateralAssetTag.BALN;
     case AssetTag.OMM:
       return CollateralAssetTag.OMM;
     default:
@@ -116,8 +110,6 @@ export function collateralTagToAssetTag(assetTag: CollateralAssetTag): AssetTag 
       return AssetTag.USDS;
     case CollateralAssetTag.bnUSD:
       return AssetTag.bnUSD;
-    case CollateralAssetTag.BALN:
-      return AssetTag.BALN;
     case CollateralAssetTag.OMM:
       return AssetTag.OMM;
     default:
@@ -130,7 +122,6 @@ export const supportedAssetsMap: Map<AssetTag, Asset> = new Map([
   [AssetTag.USDS, new Asset(AssetClass.USDS, AssetName.USDS, AssetTag.USDS)],
   [AssetTag.USDC, new Asset(AssetClass.USDC, AssetName.USDC , AssetTag.USDC)],
   [AssetTag.bnUSD, new Asset(AssetClass.bnUSD, AssetName.bnUSD , AssetTag.bnUSD)],
-  [AssetTag.BALN, new Asset(AssetClass.BALN, AssetName.BALN , AssetTag.BALN)],
   [AssetTag.OMM, new Asset(AssetClass.OMM, AssetName.OMM , AssetTag.OMM)],
 ]);
 

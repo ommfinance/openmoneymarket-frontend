@@ -7,16 +7,13 @@ export class AllReservesData {
   ICX: ReserveData;
   USDC: ReserveData;
   bnUSD: ReserveData;
-  BALN: ReserveData;
   OMM: ReserveData;
 
-  constructor(USDb: ReserveData, sICX: ReserveData, USDC: ReserveData, bnUSD: ReserveData, BALN: ReserveData,
-              OMM: ReserveData) {
+  constructor(USDb: ReserveData, sICX: ReserveData, USDC: ReserveData, bnUSD: ReserveData, OMM: ReserveData) {
     this.USDS = USDb;
     this.ICX = sICX;
     this.USDC = USDC;
     this.bnUSD = bnUSD;
-    this.BALN = BALN;
     this.OMM = OMM;
   }
 
@@ -30,8 +27,6 @@ export class AllReservesData {
         return this.USDC;
       case AssetTag.bnUSD:
         return this.bnUSD;
-      case AssetTag.BALN:
-        return this.BALN;
       case AssetTag.OMM:
         return this.OMM;
       case CollateralAssetTag.sICX:
@@ -42,8 +37,6 @@ export class AllReservesData {
         return this.USDC;
       case CollateralAssetTag.bnUSD:
         return this.bnUSD;
-      case CollateralAssetTag.BALN:
-        return this.BALN;
       case CollateralAssetTag.OMM:
         return this.OMM;
       default:
@@ -64,9 +57,6 @@ export class AllReservesData {
         break;
       case AssetTag.bnUSD:
         this.bnUSD = reserveData;
-        break;
-      case AssetTag.BALN:
-        this.BALN = reserveData;
         break;
       case AssetTag.OMM:
         this.OMM = reserveData;

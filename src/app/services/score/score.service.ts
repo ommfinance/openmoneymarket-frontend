@@ -429,7 +429,7 @@ export class ScoreService {
     this.checkerService.checkUserLoggedInAllAddressesAndReservesLoaded();
 
     const decimals = this.persistenceService.allReserves!.getReserveData(assetTag).decimals;
-    const method = assetTag === AssetTag.BALN ? ScoreMethodNames.AVAILABLE_BALANCE_OF : ScoreMethodNames.BALANCE_OF;
+    const method = ScoreMethodNames.BALANCE_OF;
 
     const tx = this.iconApiService.buildTransaction("",  this.persistenceService.allAddresses!.collateralAddress(assetTag),
       method, {

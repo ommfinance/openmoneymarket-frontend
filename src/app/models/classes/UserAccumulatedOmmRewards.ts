@@ -78,13 +78,11 @@ export class Reserve {
 //
 // now: "0x622bc44b"
 // reserve:
-//   dBALN: "0x0"
 //   dICX: "0x0"
 //   dIUSDC: "0x0"
 //   dOMM: "0x0"
 //   dUSDS: "0x0"
 //   dbnUSD: "0x0"
-//   oBALN: "0x0"
 //   oICX: "0x0"
 //   oIUSDC: "0x0"
 //   oOMM: "0x0"

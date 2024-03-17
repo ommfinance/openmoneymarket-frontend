@@ -5,7 +5,6 @@ export class InterestHistoryData {
   USDS?: InterestHistoryRecord[];
   USDC?: InterestHistoryRecord[];
   bnUSD?: InterestHistoryRecord[];
-  BALN: InterestHistoryRecord[];
   OMM: InterestHistoryRecord[];
 
   constructor(
@@ -13,14 +12,12 @@ export class InterestHistoryData {
     USDS: InterestHistoryRecord[],
     USDC: InterestHistoryRecord[],
     bnUSD: InterestHistoryRecord[],
-    BALN: InterestHistoryRecord[],
     OMM: InterestHistoryRecord[],
   ) {
     this.ICX = ICX;
     this.USDS = USDS;
     this.USDC = USDC;
     this.bnUSD = bnUSD;
-    this.BALN = BALN;
     this.OMM = OMM;
   }
 }
