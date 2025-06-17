@@ -5,6 +5,7 @@
     "ng": "ng",
     "clean": "rimraf ./dist",
     "start": "ng serve",
+    "start:prod": "ng serve --prod",
     "build": "ng build --prod",
     "build:prod": "ng build --prod",
     "test": "ng test --watch=false --browsers=ChromeHeadlessCustom",
