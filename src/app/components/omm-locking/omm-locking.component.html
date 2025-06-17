@@ -60,7 +60,7 @@
           <span [ngStyle]="isLockAdjustActive() | hide" class="omm-locked">{{userLockedOmmBalance | roundDown2Dec | usFormat}}</span> / {{getLockSliderMax() | usFormat}} OMM</p>
       </div>
       <div class="grid-cell text-right">
-        <p class="label locked-default" [ngStyle]="(isLockAdjustActive() || userLockedOmmBalance.isZero()) | hide">{{userHasLockedOmm() ? unlockedOnLockedUntilLabel() : "Lock up until"}} {{timestampInMillisecondsToPrettyDate(lockDate())}}</p>
+        <p class="label locked-default" [ngStyle]="(isLockAdjustActive() || userLockedOmmBalance.isZero()) | hide">Unlocked</p>
         <div class="locked-adjust" [ngStyle]="!isLockAdjustActive() | hide">
           <p>
             <span class="label">{{unlockedOnLockedUntilLabel()}} </span> <a class="dropdown time-selector" (click)="onLockedDateDropdownClick()">

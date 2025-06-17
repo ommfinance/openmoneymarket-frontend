@@ -311,9 +311,10 @@ export class OmmLockingComponent extends BaseClass implements OnInit, OnDestroy,
 
   // check if user has Omm that has been unlocked
   userHasOmmUnlocked(): boolean {
+    return this.persistenceService.userLockedOmm?.amount.gt(0) ?? false;
     // if user locked Omm is greater than zero and end timestamp has passed return true
-    return this.persistenceService.userLockedOmm ? this.persistenceService.userLockedOmm.amount.gt(0) &&
-      this.persistenceService.userLockedOmm.end.lt(Utils.timestampNowMicroseconds()) : false;
+    // return this.persistenceService.userLockedOmm ? this.persistenceService.userLockedOmm.amount.gt(0) &&
+    //   this.persistenceService.userLockedOmm.end.lt(Utils.timestampNowMicroseconds()) : false;
   }
 
   getLockSliderMax(): BigNumber {
@@ -378,7 +379,7 @@ export class OmmLockingComponent extends BaseClass implements OnInit, OnDestroy,
   }
 
   boostAdjustLabel(): string {
-    if (this.userHasOmmUnlocked()) {
+    if (this.userHasOmmUnlocked() && this.userHasLockedOmm()) {
       return "Withdraw OMM";
     } else if (this.userHasLockedOmm()) {
       return "Adjust";
